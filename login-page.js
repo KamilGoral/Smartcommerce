@@ -1,5 +1,6 @@
 setTimeout(function() {
 
+console.log("test")
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + (expirationSec * 1000));
