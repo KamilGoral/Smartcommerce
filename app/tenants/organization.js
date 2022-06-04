@@ -20,11 +20,9 @@ docReady(function () {
   var Webflow = Webflow || [];
 
   var InvokeURL = getCookie("sprytnyInvokeURL");
-  var smartToken = getCookie("sprytnycookie");
   var orgToken = getCookie("sprytnyToken");
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername");
-  var AuthUrl = "https://hook.integromat.com/vjrtt8ltcfd1adrpmtidf9u08lptt8op";
   var clientId = new URL(location.href).searchParams.get("clientId");
   var organizationName = new URL(document.location.href).searchParams.get("name");
   var formId = "#wf-form-NewOrganizationName";
@@ -37,7 +35,7 @@ docReady(function () {
   orgName.textContent = organizationName;
   OrganizationNameHeader.textContent = OrganizationName;
   OrganizationBread0.textContent = OrganizationName;
-  OrganizationBread0.setAttribute("href", "https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID);
+  OrganizationBread0.setAttribute("href", "https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + clientId);
 
 
   function LogoutNonUser() {
@@ -45,7 +43,7 @@ docReady(function () {
       alert("Twoja sesja wygasła.");
       window.location.href = 'https://sprytnykupiec.pl/login-page';
     };
-  }
+  };
 
   function getUserRole() {
 
@@ -68,7 +66,7 @@ docReady(function () {
     // Send request
     request.send()
 
-  }
+  };
 
   function getShops() {
     let url = new URL(InvokeURL + 'shops');
@@ -102,7 +100,7 @@ docReady(function () {
       }
     };
     request.send();
-  }
+  };
 
   function getUsers() {
     let url = new URL(InvokeURL + 'users');
@@ -145,7 +143,7 @@ docReady(function () {
       }
     };
     request.send();
-  }
+  };
 
   function getWholesalers() {
     let url = new URL(InvokeURL + 'wholesalers?perPage=1000');
@@ -199,7 +197,7 @@ docReady(function () {
       }
     };
     request.send();
-  }
+  };
 
   function getIntegrations() {
     let url = new URL(InvokeURL + 'integrations');
@@ -244,7 +242,7 @@ docReady(function () {
       }
     };
     request.send();
-  }
+  };
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -892,14 +890,10 @@ docReady(function () {
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
-
-  document.addEventListener("DOMContentLoaded", function (event) {
-    LogoutNonUser();
-    getShops();
-    getUsers();
-    getWholesalers();
-    getIntegrations();
-
-  });
+  LogoutNonUser();
+  getShops();
+  getUsers();
+  getWholesalers();
+  getIntegrations();
 
 });
