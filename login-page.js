@@ -1,3 +1,4 @@
+console.log("Script Loaded")
 function docReady(fn) {
     // see if DOM is already available
     if (document.readyState === "complete" || document.readyState === "interactive") {
