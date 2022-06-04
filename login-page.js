@@ -11,9 +11,7 @@ function docReady(fn) {
   
   docReady(function() {
     // DOM is loaded and ready for manipulation here
-  
-    console.log("test")
-  
+ 
     function setCookie(cName, cValue, expirationSec) {
       let date = new Date();
       date.setTime(date.getTime() + (expirationSec * 1000));
@@ -117,7 +115,7 @@ function docReady(fn) {
   
             },
           });
-          // prevent default webdlow action
+          // prevent default webflow action
           event.preventDefault();
           return false;
         });
