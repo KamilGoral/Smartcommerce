@@ -1,4 +1,4 @@
-$(document).ready(function() {
+setTimeout(function() {
 
     function setCookie(cName, cValue, expirationSec) {
       let date = new Date();
@@ -111,5 +111,5 @@ $(document).ready(function() {
     }
     makeWebflowFormAjax($(formId));
   
-  });
+}, 1000);
   
