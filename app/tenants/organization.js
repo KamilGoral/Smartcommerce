@@ -1,256 +1,255 @@
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
+console.log("Script Loaded")
+function docReady(fn) {
+  // see if DOM is already available
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    // call on next available tick
+    setTimeout(fn, 1);
+  } else {
+    document.addEventListener("DOMContentLoaded", fn);
+  }
 }
 
-var InvokeURL = getCookie("sprytnyInvokeURL");
-var smartToken = getCookie("sprytnycookie");
-var orgToken = getCookie("sprytnyToken");
-var DomainName = getCookie("sprytnyDomainName");
-var userKey = getCookie("sprytnyUsername");
-
-function LogoutNonUser() {
-  if( getCookie('sprytnyInvokeURL') == null || getCookie('sprytnycookie') == null || getCookie('sprytnyToken') == null || getCookie('sprytnyDomainName') == null ) { 
-      alert("Twoja sesja wygasła.");
-      window.location.href = 'https://sprytnykupiec.pl/login-page';
-  };
-}
-
-function getUserRole() {
-
-        var request = new XMLHttpRequest()
-        let endpoint = new URL(InvokeURL + 'users/' + userKey);
-        request.open('GET', endpoint, true)
-        request.setRequestHeader("Authorization", orgToken);
-        request.onload = function() {
-            var data = JSON.parse(this.response)
-
-            if (request.status >= 200 && request.status < 400) {
-                console.log(data);
-                console.log(data.role);
-                document.cookie = "sprytnyUserRole=" + data.role; +"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
-            } else {
-                console.log('error')
-            }
-        }
-
-        // Send request
-        request.send()
-
-    }
-var AuthUrl = "https://hook.integromat.com/vjrtt8ltcfd1adrpmtidf9u08lptt8op";
-
-function getShops() {
-  let url = new URL(InvokeURL + 'shops');
-  let request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.setRequestHeader("Authorization", orgToken);
-  request.onload = function() {
-    var data = JSON.parse(this.response);
-    var toParse = data.items;
-    if (request.status >= 200 && request.status < 400) {
-      const shopContainer = document.getElementById("Shops-Container");
-      toParse.forEach(shop => {
-        const style = document.getElementById('sampleRowShops');
-        const row = style.cloneNode(true);
-        row.setAttribute('id', '');
-        row.style.display = 'flex';
-        const shopName = row.getElementsByTagName('H6')[1];
-        shopName.textContent = shop.name;
-        const shopKey = row.getElementsByTagName('H6')[0];
-        shopKey.textContent = shop.shopKey;
-        row.setAttribute("href", "https://" + DomainName + "/app/shops/shop" + "?shopKey=" + shop.shopKey);
-        shopContainer.appendChild(row);
-      });
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    }
-    if (request.status >= 200 && request.status < 400 && data.total == 0) {
-      		const emptystateshops = document.getElementById('emptystateshops');
-          emptystateshops.style.display = 'flex';
-      }
-  };
-  request.send();
-}
-
-function getUsers() {
-  let url = new URL(InvokeURL + 'users');
-  let request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.setRequestHeader("Authorization", orgToken);
-  request.onload = function() {
-    var data = JSON.parse(this.response);
-    var toParse = data.items;
-    if (request.status >= 200 && request.status < 400) {
-      const userContainer = document.getElementById("Users-Container");
-      toParse.forEach(user => {
-        const style = document.getElementById('sampleRowUsers');
-        const row = style.cloneNode(true);
-        row.setAttribute('id', '');
-        row.style.display = 'flex';
-        const userEmail = row.getElementsByTagName('H6')[1];
-        userEmail.textContent = user.email;
-
-        const userRole = row.getElementsByTagName('H6')[0];
-        if (user.role == "admin") {
-          userRole.textContent = "Admin";
-        } else {
-          userRole.textContent = "Użytkownik";
-        }
-
-        const userStatus = row.getElementsByTagName('H6')[3];
-        if (user.status == "active") {
-          userStatus.textContent = "Aktywny";
-          userStatus.style.color = 'green';
-        } else {
-          userStatus.textContent = "Oczekuję...";
-        }
-        row.setAttribute("href", "https://" + DomainName + "/app/users/user" + "?id=" + user.id);
-        userContainer.appendChild(row);
-      });
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    }
-  };
-  request.send();
-}
-
-
-function getWholesalers() {
-  let url = new URL(InvokeURL + 'wholesalers?perPage=1000');
-  let request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.setRequestHeader("Authorization", orgToken);
-  request.onload = function() {
-    var data = JSON.parse(this.response);
-    var toParse = data.items; 
-    toParse.sort(function(a, b){
-    return b.enabled - a.enabled;
-		});
-
-    if (request.status >= 200 && request.status < 400) {
-      const userContainer = document.getElementById("Wholesaler-Container");
-      toParse.forEach(wholesaler => {
-        const style = document.getElementById('sampleRowWholesaler');
-        const row = style.cloneNode(true);
-        row.setAttribute('id', '');
-        row.style.display = 'flex';
-        const wholesalerKey = row.getElementsByTagName('H6')[0];
-        wholesalerKey.textContent = wholesaler.wholesalerKey;
-        const wholesalerState = row.getElementsByTagName('H6')[1];
-        wholesalerState.textContent = wholesaler.address.state;
-        const wholesalerOnline = row.getElementsByTagName('H6')[3];
-        const wholesalerStatus = row.getElementsByTagName('H6')[5];        
-       	const whLogo = row.getElementsByClassName("whlogo")[0];
-        var img = "url('data:image/png;base64, "+ wholesaler.image + "')";
-				whLogo.style.backgroundImage = img; 
-
-        if (wholesaler.enabled == true) {
-          wholesalerStatus.textContent = "Aktywny";
-          wholesalerStatus.style.color = 'green';
-        } else {
-          wholesalerStatus.textContent = "Nieaktywny";
-        }
-        
-         if (wholesaler.onlineOfferSupport == true) {
-          wholesalerOnline.textContent = "Tak";
-          wholesalerOnline.style.color = 'green';
-        } else {
-          wholesalerOnline.textContent = "Nie";
-        }
-
-        row.setAttribute("href", "https://" + DomainName + "/app/wholesalers/wholesaler" + "?wholesalerKey=" + wholesaler.wholesalerKey);
-        userContainer.appendChild(row);
-      });
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    }
-  };
-  request.send();
-}
-
-
-function getIntegrations() {
-  let url = new URL(InvokeURL + 'integrations');
-  let request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.setRequestHeader("Authorization", orgToken);
-  request.onload = function() {
-    var data = JSON.parse(this.response);
-    var toParse = data.items;
-    if (request.status >= 200 && request.status < 400) {
-      const integrationContainer = document.getElementById("Integrations-Container");
-      toParse.forEach(integration => {
-      console.log(integration);
-        const style = document.getElementById('Sample-Integration');
-        const row = style.cloneNode(true);
-        row.style.display = 'flex';
-        const integrationName = row.getElementsByTagName('H6')[1];
-        integrationName.textContent = integration.name;
-        const integrationLogo = row.getElementsByTagName('img')[0];
-        integrationLogo.src = 'data:image/png;base64,' + integration.image;
-        const integrationStatus = row.getElementsByTagName('H6')[3];
-        if (integration.enabled === true) {
-          integrationStatus.textContent = "Aktywny";
-          integrationStatus.style.color = 'green';
-        } else {
-          integrationStatus.textContent = "Oczekuję...";
-        }
-        
-        if (integration.integrationKey === "retroactive") {
-        row.setAttribute("href", "https://" + DomainName + "/app/integrations/contracts");
-        } else {
-        row.setAttribute("href", "https://" + DomainName + "/app/integrations/integration?integrationKey=" + integration.integrationKey);
-        }
-        
- 
-
-        integrationContainer.appendChild(row);
-      });
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    }
-  };
-  request.send();
-}
-
-document.addEventListener("DOMContentLoaded", function(event) {
-  LogoutNonUser();
-  getShops();
-  getUsers();
-  getWholesalers();
-  getIntegrations();
-
-});
-
-setTimeout(function() {
-
+docReady(function () {
+  // DOM is loaded and ready for manipulation here
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
   }
 
+  var Webflow = Webflow || [];
+
   var InvokeURL = getCookie("sprytnyInvokeURL");
+  var smartToken = getCookie("sprytnycookie");
   var orgToken = getCookie("sprytnyToken");
   var DomainName = getCookie("sprytnyDomainName");
+  var userKey = getCookie("sprytnyUsername");
+  var AuthUrl = "https://hook.integromat.com/vjrtt8ltcfd1adrpmtidf9u08lptt8op";
   var clientId = new URL(location.href).searchParams.get("clientId");
   var organizationName = new URL(document.location.href).searchParams.get("name");
-  const orgName = document.getElementById("orgName");
-  orgName.textContent = organizationName;  
   var formId = "#wf-form-NewOrganizationName";
   var formIdDelete = "#wf-form-DeleteOrganization";
   var formIdInvite = "#wf-form-Invite-User";
+  var formIdCreate = "#wf-form-Create-Shop";
+  const orgName = document.getElementById("orgName");
+  const OrganizationBread0 = document.getElementById("OrganizationBread0");
+  const OrganizationNameHeader = document.getElementById("organizationName");
+  orgName.textContent = organizationName;
+  OrganizationNameHeader.textContent = OrganizationName;
+  OrganizationBread0.textContent = OrganizationName;
+  OrganizationBread0.setAttribute("href", "https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID);
 
-  makeWebflowFormAjaxDelete = function(forms, successCallback, errorCallback) {
-    forms.each(function() {
+
+  function LogoutNonUser() {
+    if (getCookie('sprytnyInvokeURL') == null || getCookie('sprytnycookie') == null || getCookie('sprytnyToken') == null || getCookie('sprytnyDomainName') == null) {
+      alert("Twoja sesja wygasła.");
+      window.location.href = 'https://sprytnykupiec.pl/login-page';
+    };
+  }
+
+  function getUserRole() {
+
+    var request = new XMLHttpRequest()
+    let endpoint = new URL(InvokeURL + 'users/' + userKey);
+    request.open('GET', endpoint, true)
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response)
+
+      if (request.status >= 200 && request.status < 400) {
+        console.log(data);
+        console.log(data.role);
+        document.cookie = "sprytnyUserRole=" + data.role; +"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+      } else {
+        console.log('error')
+      }
+    }
+
+    // Send request
+    request.send()
+
+  }
+
+  function getShops() {
+    let url = new URL(InvokeURL + 'shops');
+    let request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400) {
+        const shopContainer = document.getElementById("Shops-Container");
+        toParse.forEach(shop => {
+          const style = document.getElementById('sampleRowShops');
+          const row = style.cloneNode(true);
+          row.setAttribute('id', '');
+          row.style.display = 'flex';
+          const shopName = row.getElementsByTagName('H6')[1];
+          shopName.textContent = shop.name;
+          const shopKey = row.getElementsByTagName('H6')[0];
+          shopKey.textContent = shop.shopKey;
+          row.setAttribute("href", "https://" + DomainName + "/app/shops/shop" + "?shopKey=" + shop.shopKey);
+          shopContainer.appendChild(row);
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+      if (request.status >= 200 && request.status < 400 && data.total == 0) {
+        const emptystateshops = document.getElementById('emptystateshops');
+        emptystateshops.style.display = 'flex';
+      }
+    };
+    request.send();
+  }
+
+  function getUsers() {
+    let url = new URL(InvokeURL + 'users');
+    let request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400) {
+        const userContainer = document.getElementById("Users-Container");
+        toParse.forEach(user => {
+          const style = document.getElementById('sampleRowUsers');
+          const row = style.cloneNode(true);
+          row.setAttribute('id', '');
+          row.style.display = 'flex';
+          const userEmail = row.getElementsByTagName('H6')[1];
+          userEmail.textContent = user.email;
+
+          const userRole = row.getElementsByTagName('H6')[0];
+          if (user.role == "admin") {
+            userRole.textContent = "Admin";
+          } else {
+            userRole.textContent = "Użytkownik";
+          }
+
+          const userStatus = row.getElementsByTagName('H6')[3];
+          if (user.status == "active") {
+            userStatus.textContent = "Aktywny";
+            userStatus.style.color = 'green';
+          } else {
+            userStatus.textContent = "Oczekuję...";
+          }
+          row.setAttribute("href", "https://" + DomainName + "/app/users/user" + "?id=" + user.id);
+          userContainer.appendChild(row);
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+    };
+    request.send();
+  }
+
+  function getWholesalers() {
+    let url = new URL(InvokeURL + 'wholesalers?perPage=1000');
+    let request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      toParse.sort(function (a, b) {
+        return b.enabled - a.enabled;
+      });
+
+      if (request.status >= 200 && request.status < 400) {
+        const userContainer = document.getElementById("Wholesaler-Container");
+        toParse.forEach(wholesaler => {
+          const style = document.getElementById('sampleRowWholesaler');
+          const row = style.cloneNode(true);
+          row.setAttribute('id', '');
+          row.style.display = 'flex';
+          const wholesalerKey = row.getElementsByTagName('H6')[0];
+          wholesalerKey.textContent = wholesaler.wholesalerKey;
+          const wholesalerState = row.getElementsByTagName('H6')[1];
+          wholesalerState.textContent = wholesaler.address.state;
+          const wholesalerOnline = row.getElementsByTagName('H6')[3];
+          const wholesalerStatus = row.getElementsByTagName('H6')[5];
+          const whLogo = row.getElementsByClassName("whlogo")[0];
+          var img = "url('data:image/png;base64, " + wholesaler.image + "')";
+          whLogo.style.backgroundImage = img;
+
+          if (wholesaler.enabled == true) {
+            wholesalerStatus.textContent = "Aktywny";
+            wholesalerStatus.style.color = 'green';
+          } else {
+            wholesalerStatus.textContent = "Nieaktywny";
+          }
+
+          if (wholesaler.onlineOfferSupport == true) {
+            wholesalerOnline.textContent = "Tak";
+            wholesalerOnline.style.color = 'green';
+          } else {
+            wholesalerOnline.textContent = "Nie";
+          }
+
+          row.setAttribute("href", "https://" + DomainName + "/app/wholesalers/wholesaler" + "?wholesalerKey=" + wholesaler.wholesalerKey);
+          userContainer.appendChild(row);
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+    };
+    request.send();
+  }
+
+  function getIntegrations() {
+    let url = new URL(InvokeURL + 'integrations');
+    let request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400) {
+        const integrationContainer = document.getElementById("Integrations-Container");
+        toParse.forEach(integration => {
+          console.log(integration);
+          const style = document.getElementById('Sample-Integration');
+          const row = style.cloneNode(true);
+          row.style.display = 'flex';
+          const integrationName = row.getElementsByTagName('H6')[1];
+          integrationName.textContent = integration.name;
+          const integrationLogo = row.getElementsByTagName('img')[0];
+          integrationLogo.src = 'data:image/png;base64,' + integration.image;
+          const integrationStatus = row.getElementsByTagName('H6')[3];
+          if (integration.enabled === true) {
+            integrationStatus.textContent = "Aktywny";
+            integrationStatus.style.color = 'green';
+          } else {
+            integrationStatus.textContent = "Oczekuję...";
+          }
+
+          if (integration.integrationKey === "retroactive") {
+            row.setAttribute("href", "https://" + DomainName + "/app/integrations/contracts");
+          } else {
+            row.setAttribute("href", "https://" + DomainName + "/app/integrations/integration?integrationKey=" + integration.integrationKey);
+          }
+
+
+
+          integrationContainer.appendChild(row);
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+    };
+    request.send();
+  }
+
+  makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
       var form = $(this);
-      form.on("submit", function(event) {
+      form.on("submit", function (event) {
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
@@ -260,16 +259,16 @@ setTimeout(function() {
           type: "DELETE",
           url: endpoint,
           cors: true,
-          beforeSend: function() {
+          beforeSend: function () {
             $('#waitingdots').show();
           },
-          complete: function() {
+          complete: function () {
             $('#waitingdots').hide();
           },
           headers: {
             'Authorization': orgToken
           },
-          success: function(resultData) {
+          success: function (resultData) {
             if (typeof successCallback === 'function') {
               result = successCallback(resultData);
               if (!result) {
@@ -283,11 +282,11 @@ setTimeout(function() {
             form.hide();
             doneBlock.show();
             failBlock.hide();
-            window.setTimeout(function() {
+            window.setTimeout(function () {
               window.location = "https://" + DomainName + "/app/users/me";
             }, 500);
           },
-          error: function(jqXHR, exception) {
+          error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
             var msg = '';
@@ -321,10 +320,10 @@ setTimeout(function() {
     });
   };
 
-  makeWebflowFormAjaxInvite = function(forms, successCallback, errorCallback) {
-    forms.each(function() {
+  makeWebflowFormAjaxInvite = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
       var form = $(this);
-      form.on("submit", function(event) {
+      form.on("submit", function (event) {
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
@@ -336,10 +335,10 @@ setTimeout(function() {
           type: "POST",
           url: action,
           cors: true,
-          beforeSend: function() {
+          beforeSend: function () {
             $('#waitingdots').show();
           },
-          complete: function() {
+          complete: function () {
             $('#waitingdots').hide();
           },
           contentType: 'application/json',
@@ -350,7 +349,7 @@ setTimeout(function() {
             'Authorization': orgToken
           },
           data: JSON.stringify(data),
-          success: function(resultData) {
+          success: function (resultData) {
             if (typeof successCallback === 'function') {
               result = successCallback(resultData);
               if (!result) {
@@ -361,12 +360,12 @@ setTimeout(function() {
                 return;
               }
             }
-            
+
             doneBlock.show();
             failBlock.hide();
             $("#InviteUserEmail").val("");
           },
-          error: function(jqXHR, exception) {
+          error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
             var msg = '';
@@ -400,10 +399,10 @@ setTimeout(function() {
     });
   };
 
-  makeWebflowFormAjax = function(forms, successCallback, errorCallback) {
-    forms.each(function() {
+  makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
       var form = $(this);
-      form.on("submit", function(event) {
+      form.on("submit", function (event) {
         event.preventDefault();
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
@@ -421,10 +420,10 @@ setTimeout(function() {
           type: "PATCH",
           url: action,
           cors: true,
-          beforeSend: function() {
+          beforeSend: function () {
             $('#waitingdots').show();
           },
-          complete: function() {
+          complete: function () {
             $('#waitingdots').hide();
           },
           contentType: 'application/json',
@@ -435,7 +434,7 @@ setTimeout(function() {
             'Authorization': orgToken
           },
           data: JSON.stringify(data),
-          success: function(resultData) {
+          success: function (resultData) {
             console.log(resultData);
 
             if (typeof successCallback === 'function') {
@@ -451,11 +450,11 @@ setTimeout(function() {
             form.hide();
             doneBlock.show();
             failBlock.hide();
-            window.setTimeout(function() {
+            window.setTimeout(function () {
               window.location = "https://" + DomainName + "/app/users/me";
             }, 500);
           },
-          error: function(jqXHR, exception) {
+          error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
             var msg = '';
@@ -489,122 +488,70 @@ setTimeout(function() {
       });
     });
   };
-  makeWebflowFormAjax($(formId));
-  makeWebflowFormAjaxDelete($(formIdDelete));
-  makeWebflowFormAjaxInvite($(formIdInvite))
 
-}, 1000);
-
-setTimeout(function(){
-
-function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    };
-
-    var InvokeURL = getCookie("sprytnyInvokeURL");
-    var orgToken = getCookie("sprytnyToken");
-    var DomainName = getCookie("sprytnyDomainName");
-    var clientId = new URL(location.href).searchParams.get("clientId");
-    var organizationName = new URL(document.location.href).searchParams.get("name");        
-
-    var formIdCreate = "#wf-form-Create-Shop";
-
-makeWebflowFormAjaxCreate = function(forms, successCallback, errorCallback) {
-    forms.each(function() {
-        var form = $(this);
-        form.on("submit", function(event) {
-            var container = form.parent();
-            var doneBlock = $(".w-form-done", container);
-            var failBlock = $(".w-form-fail", container);
-            var action = InvokeURL + "shops";
-            var data = {
-                'name': $("#newShopName").val(),
-                'shopKey': $("#newShopKey").val()
-            };
-            $.ajax({
-                type: "POST",
-                url: action,
-                cors: true,
-                beforeSend: function() {
-                    $('#waitingdots').show();
-                },
-                complete: function() {
-                    $('#waitingdots').hide();
-                },
-                contentType: 'application/json',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': orgToken
-                },
-                data: JSON.stringify(data),
-                success: function(resultData) {
-                    if (typeof successCallback === 'function') {
-                        result = successCallback(resultData);
-                        if (!result) {
-                            form.show();
-                            doneBlock.hide();
-                            failBlock.show();
-                            console.log(e);
-                            return;
-                        }
-                    }
-                    form.hide();
-                    doneBlock.show();
-                    failBlock.hide();
-                    window.setTimeout(function() {
-                        location.reload();
-                    }, 1000);
-                },
-                error: function(e) {
-                    if (typeof errorCallback === 'function') {
-                        errorCallback(e)
-                    }
-                    form.show();
-                    doneBlock.hide();
-                    failBlock.show();
-                    console.log(e);
-                }
-            });
-            event.preventDefault();
-            return false;
+  makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $(".w-form-done", container);
+        var failBlock = $(".w-form-fail", container);
+        var action = InvokeURL + "shops";
+        var data = {
+          'name': $("#newShopName").val(),
+          'shopKey': $("#newShopKey").val()
+        };
+        $.ajax({
+          type: "POST",
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $('#waitingdots').show();
+          },
+          complete: function () {
+            $('#waitingdots').hide();
+          },
+          contentType: 'application/json',
+          dataType: 'json',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': orgToken
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === 'function') {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.hide();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === 'function') {
+              errorCallback(e)
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          }
         });
+        event.preventDefault();
+        return false;
+      });
     });
-};
-
-makeWebflowFormAjaxCreate($(formIdCreate));
-
-    
-}, 1000);
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
   };
-  var DomainName = getCookie("sprytnyDomainName");
-  
-var ClientID = sessionStorage.getItem('OrganizationclientId')
-var OrganizationName = sessionStorage.getItem('OrganizationName')
-const OrganizationBread0 = document.getElementById("OrganizationBread0");
-const OrganizationNameHeader = document.getElementById("organizationName");
-OrganizationNameHeader.textContent = OrganizationName;
-OrganizationBread0.textContent = OrganizationName;
-OrganizationBread0.setAttribute("href","https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID);
-
-setTimeout(function() {
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
-
-  var orgToken = getCookie("sprytnyToken");
-  var InvokeURL = getCookie("sprytnyInvokeURL");
-  var DomainName = getCookie("sprytnyDomainName");
 
   var table = $('#table_pricelists_list').DataTable({
     "pagingType": "full_numbers",
@@ -634,16 +581,16 @@ setTimeout(function() {
         "sortDescending": ": Sortowanie malejące"
       }
     },
-    ajax: function(data, callback, settings) {
+    ajax: function (data, callback, settings) {
 
       $.ajaxSetup({
         headers: {
           'Authorization': orgToken
         },
-        beforeSend: function() {
+        beforeSend: function () {
           $('#waitingdots').show();
         },
-        complete: function() {
+        complete: function () {
           $('#waitingdots').hide();
         }
       });
@@ -681,7 +628,7 @@ setTimeout(function() {
         perPage: data.length,
         page: (data.start + data.length) / data.length
 
-      }, function(res) {
+      }, function (res) {
         // map your server's response to the DataTables format and pass it to
         // DataTables' callback
         callback({
@@ -697,127 +644,127 @@ setTimeout(function() {
       return: true
     },
     "columns": [{
-        "orderable": false,
-        "data": null,
-        "width": "36px",
-        "defaultContent": "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>"
-      },
-      {
-        "orderable": false,
-        "data": "wholesalerKey",
-        "render": function(data) {
-          if (data !== null) {
-            return data
-          }
-          if (data === null) {
-            return ""
-          }
+      "orderable": false,
+      "data": null,
+      "width": "36px",
+      "defaultContent": "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>"
+    },
+    {
+      "orderable": false,
+      "data": "wholesalerKey",
+      "render": function (data) {
+        if (data !== null) {
+          return data
         }
-      },
-      {
-        "orderable": true,
-        "data": "createDate",
-        "render": function(data) {
-          if (data !== null) {
-
-            var createDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
-            var creationDate = localeTime.split('T');
-            var creationTime = creationDate[1].split('Z');
-            createDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
-
-            return createDate
-          }
-          if (data === null) {
-            return ""
-          }
+        if (data === null) {
+          return ""
         }
-      },
-      {
-        "orderable": false,
-        "data": "startDate",
-        "render": function(data) {
-          if (data !== null) {
+      }
+    },
+    {
+      "orderable": true,
+      "data": "createDate",
+      "render": function (data) {
+        if (data !== null) {
 
-            var startDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
-            var creationDate = localeTime.split('T');
-            var creationTime = creationDate[1].split('Z');
-            startDate = creationDate[0] //+ ' ' + creationTime[0].slice(0, -4);
+          var createDate = "";
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
+          var creationDate = localeTime.split('T');
+          var creationTime = creationDate[1].split('Z');
+          createDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
 
-            return startDate
-          }
-          if (data === null) {
-            return ""
-          }
+          return createDate
         }
-      },
-      {
-        "orderable": false,
-        "data": "endDate",
-        "render": function(data) {
-          if (data !== null) {
-
-            var endDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
-            var creationDate = localeTime.split('T');
-            var creationTime = creationDate[1].split('Z');
-            endDate = creationDate[0] //+ ' ' + creationTime[0].slice(0, -4);
-
-            return endDate
-          }
-          if (data === null) {
-            return ""
-          }
+        if (data === null) {
+          return ""
         }
-      },
-      {
-        "orderable": false,
-        "data": "createdBy",
-        "render": function(data) {
-          if (data !== null) {
-            return data
-          }
-          if (data === null) {
-            return ""
-          }
-        }
-      },
-      {
-        "orderable": false,
-        "data": "lastModificationDate",
-        "render": function(data) {
-          if (data !== null) {
+      }
+    },
+    {
+      "orderable": false,
+      "data": "startDate",
+      "render": function (data) {
+        if (data !== null) {
 
-            var lastModificationDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
-            var creationDate = localeTime.split('T');
-            var creationTime = creationDate[1].split('Z');
-            lastModificationDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
+          var startDate = "";
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
+          var creationDate = localeTime.split('T');
+          var creationTime = creationDate[1].split('Z');
+          startDate = creationDate[0] //+ ' ' + creationTime[0].slice(0, -4);
 
-            return lastModificationDate
-          }
-          if (data === null) {
-            return ""
-          }
+          return startDate
         }
-      },
+        if (data === null) {
+          return ""
+        }
+      }
+    },
+    {
+      "orderable": false,
+      "data": "endDate",
+      "render": function (data) {
+        if (data !== null) {
+
+          var endDate = "";
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
+          var creationDate = localeTime.split('T');
+          var creationTime = creationDate[1].split('Z');
+          endDate = creationDate[0] //+ ' ' + creationTime[0].slice(0, -4);
+
+          return endDate
+        }
+        if (data === null) {
+          return ""
+        }
+      }
+    },
+    {
+      "orderable": false,
+      "data": "createdBy",
+      "render": function (data) {
+        if (data !== null) {
+          return data
+        }
+        if (data === null) {
+          return ""
+        }
+      }
+    },
+    {
+      "orderable": false,
+      "data": "lastModificationDate",
+      "render": function (data) {
+        if (data !== null) {
+
+          var lastModificationDate = "";
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
+          var creationDate = localeTime.split('T');
+          var creationTime = creationDate[1].split('Z');
+          lastModificationDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
+
+          return lastModificationDate
+        }
+        if (data === null) {
+          return ""
+        }
+      }
+    },
 
     ]
   });
 
-  $('#table_pricelists_list').on('click', 'tr', function() {
+  $('#table_pricelists_list').on('click', 'tr', function () {
     var rowData = table.row(this).data();
     window.location.replace("https://" + DomainName + "/app/pricelists/pricelist?priceListId=" + rowData.priceListId);
 
   });
 
-  $('div[role="tablist"]').click(function() {
-    setTimeout(function() {
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
       $.fn.dataTable.tables({
         visible: true,
         api: true
@@ -825,121 +772,134 @@ setTimeout(function() {
     }, 200);
   });
 
-}, 2000);
+
+  Webflow.push(function () {
+
+    // display error message
+    function displayError(message) {
+      hideLoading();
+      failureMessage.innerText = message;
+      failureMessage.style.display = 'block';
+    }
+
+    // hiding the loading indicator
+    function hideLoading() {
+      $('#waitingdots').hide();
+    }
+
+    // hide the form
+    function hideForm() {
+      form.style.display = 'none';
+    }
+
+    // show the loading indicator
+    function showLoading() {
+      //hideForm(); if you want to hide the form --> uncomment
+      $('#waitingdots').show();
+    }
+
+    // show the form
+    function showForm() {
+      form.style.display = 'block';
+    }
+
+    // listen for xhr events
+    function addListeners(xhr) {
+      xhr.addEventListener('loadstart', showLoading);
+    }
+
+    // add xhr settings
+    function addSettings(xhr) {
+      xhr.timeout = requestTimeout;
+    }
+
+    // triggered form submit 
+    function triggerSubmit(event) {
+
+      // prevent default behavior form submit behavior
+      event.preventDefault();
+
+      // setup + send xhr request
+      var formData = {
+        'whname': $("#Wholesaler-Name").val(),
+        'taxId': $("#taxId").val(),
+        'platformUrl': $("#platformUrl").val(),
+        'form': "new-Wholesaler"
+      };
+      let xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3');
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      addListeners(xhr);
+      addSettings(xhr);
+      xhr.send(JSON.stringify(formData));
+
+      // capture xhr response
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          $('#waitingdots').hide();
+          $('#wf-form-Create-wholesaler').hide();
+          $('#wf-form-Create-wholesaler-done').show();
+
+          setTimeout(function () {
+            $('#wf-form-Create-wholesaler-done').hide();
+          }, 3000);
 
 
-var Webflow = Webflow || [];
-Webflow.push(function() {
 
-	// display error message
-	function displayError(message) {
-		hideLoading();
-		failureMessage.innerText = message;
-		failureMessage.style.display = 'block';
-	}
+        } else {
+          displayError(errorMessage);
+          $('#wf-form-Create-wholesaler-fail').show();
 
-	// hiding the loading indicator
-	function hideLoading() {
-		$('#waitingdots').hide();
-	}
+          setTimeout(function () {
+            $('#wf-form-Create-wholesaler-fail').hide();
+          }, 6000);
 
-	// hide the form
-	function hideForm() {
-		form.style.display = 'none';
-	}
 
-	// show the loading indicator
-	function showLoading() {
-		//hideForm(); if you want to hide the form --> uncomment
-		$('#waitingdots').show();
-	}
+        }
+      }
 
-	// show the form
-	function showForm() {
-		form.style.display = 'block';
-	}
-
-	// listen for xhr events
-	function addListeners(xhr) {
-		xhr.addEventListener('loadstart', showLoading);
-	}
-
-	// add xhr settings
-	function addSettings(xhr) {
-		xhr.timeout = requestTimeout;
-	}
-
-	// triggered form submit 
-	function triggerSubmit(event) {
-
-		// prevent default behavior form submit behavior
-		event.preventDefault();
-		
-		// setup + send xhr request
-		var formData = {
-            	'whname': $("#Wholesaler-Name").val(),
-              'taxId': $("#taxId").val(),
-              'platformUrl': $("#platformUrl").val(),
-              'form':"new-Wholesaler"
-   	       	};
-		let xhr = new XMLHttpRequest();
-		xhr.open('POST', 'https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3');
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-		addListeners(xhr);
-		addSettings(xhr);
-		xhr.send(JSON.stringify(formData));
-
-		// capture xhr response
-		xhr.onload = function() {
-			if (xhr.status === 200) {
-        $('#waitingdots').hide();
-        $('#wf-form-Create-wholesaler').hide();
-        $('#wf-form-Create-wholesaler-done').show();
-
-				setTimeout(function(){
-        $('#wf-form-Create-wholesaler-done').hide(); 
-				}, 3000);
-        
-
-				
-			} else {
-				displayError(errorMessage);
-        $('#wf-form-Create-wholesaler-fail').show(); 
-
-				setTimeout(function(){
-        $('#wf-form-Create-wholesaler-fail').hide(); 
-				}, 6000);
- 
-        
-			}
-		}
-
-		// capture xhr request timeout
-		xhr.ontimeout = function() {
-			displayError(errorMessageTimedOut);
-		}
-  	setTimeout(function(){
+      // capture xhr request timeout
+      xhr.ontimeout = function () {
+        displayError(errorMessageTimedOut);
+      }
+      setTimeout(function () {
         window.location.reload();
-				}, 4000);
-	}
+      }, 4000);
+    }
 
-	// replace with your form ID
-	const form = document.getElementById('wf-form-Create-wholesaler');
+    // replace with your form ID
+    const form = document.getElementById('wf-form-Create-wholesaler');
 
-	// set the Webflow Error Message Div Block ID to 'error-message'
-	let failureMessage = document.getElementById('WarningMessage');
+    // set the Webflow Error Message Div Block ID to 'error-message'
+    let failureMessage = document.getElementById('WarningMessage');
 
-	// set the Webflow Success Message Div Block ID to 'success-message'
-	//let successMessage = document.getElementById('success-message');
+    // set the Webflow Success Message Div Block ID to 'success-message'
+    //let successMessage = document.getElementById('success-message');
 
-	// set request timeout in milliseconds (1000ms = 1second)
-	let requestTimeout = 100000;
+    // set request timeout in milliseconds (1000ms = 1second)
+    let requestTimeout = 100000;
 
-	// error messages
-	let errorMessageTimedOut = 'Oops! Seems this timed out. Please try again.';
-	let errorMessage = 'Oops! Something went wrong. Please try again.';
+    // error messages
+    let errorMessageTimedOut = 'Oops! Seems this timed out. Please try again.';
+    let errorMessage = 'Oops! Something went wrong. Please try again.';
 
-	// capture form submit
-	form.addEventListener('submit', triggerSubmit);
+    // capture form submit
+    form.addEventListener('submit', triggerSubmit);
+
+  });
+
+  makeWebflowFormAjax($(formId));
+  makeWebflowFormAjaxDelete($(formIdDelete));
+  makeWebflowFormAjaxInvite($(formIdInvite));
+  makeWebflowFormAjaxCreate($(formIdCreate));
+
+  document.addEventListener("DOMContentLoaded", function (event) {
+    LogoutNonUser();
+    getShops();
+    getUsers();
+    getWholesalers();
+    getIntegrations();
+
+  });
 
 });
