@@ -1,4 +1,4 @@
-console.log("Script Loaded v2");
+console.log("Script Loaded v3");
 function docReady(fn) {
   // see if DOM is already available
   if (
