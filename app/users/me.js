@@ -417,9 +417,6 @@ docReady(function () {
         const userfamilyname = document.getElementById("userfamilyname");
         userfamilyname.textContent = UserInfo.UserAttributes[3].Value;
         const useremail = document.getElementById("useremail");
-        const useremailWebinar = document.getElementById("useremail-webinar");
-        useremailWebinar.value = UserInfo.UserAttributes[4].Value;
-        useremail.textContent = UserInfo.UserAttributes[4].Value;
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
           "Witaj, " +
