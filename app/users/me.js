@@ -395,8 +395,6 @@ docReady(function () {
     });
   };
 
-  makeWebflowFormAjaxCreate($(formIdChangePassword));
-
   function getUser() {
     var datatosend = {
       AccessToken: accessToken,
@@ -442,6 +440,7 @@ docReady(function () {
     request.send(JSON.stringify(datatosend));
   }
 
+  makeWebflowFormAjaxCreate($(formIdChangePassword));
   makeWebflowFormAjax($(formId));
   getInvitations();
   getOrganiations();
