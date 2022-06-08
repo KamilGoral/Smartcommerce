@@ -256,7 +256,7 @@ docReady(function () {
           tenantName.textContent = invitation.tenantName;
 
           const rejectButton = row.getElementsByTagName("a")[1];
-          rejectButton.setAttribute("onclick", "decisionInviation(this)");
+          row.onclick = decisionInviation;
           rejectButton.setAttribute(
             "action",
             InvokeURL + "users/me/invitations/" + invitation.id
@@ -300,7 +300,7 @@ docReady(function () {
           const style = document.getElementById("samplerow");
           const row = style.cloneNode(true);
           const h6 = row.getElementsByTagName("H6")[0];
-          row.setAttribute("onclick", "LoginIntoOrganization(this)");
+          row.onclick = LoginIntoOrganization;
           row.setAttribute("OrganizationName", organization.name);
           row.setAttribute("OrganizationclientId", organization.clientId);
           row.setAttribute("id", "");
@@ -416,7 +416,6 @@ docReady(function () {
         username.textContent = UserInfo.UserAttributes[2].Value;
         const userfamilyname = document.getElementById("userfamilyname");
         userfamilyname.textContent = UserInfo.UserAttributes[3].Value;
-        const useremail = document.getElementById("useremail");
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
           "Witaj, " +
