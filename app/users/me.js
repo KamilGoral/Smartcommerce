@@ -1,75 +1,5 @@
 console.log("Script Loaded v3");
 
-function LoginIntoOrganization(organizationContainer) {
-  console.log(organizationContainer);
-  const OrganizationclientId = organizationContainer.getAttribute(
-    "OrganizationclientId"
-  );
-  const OrganizationName =
-    organizationContainer.getAttribute("OrganizationName");
-  var data = {
-    smartToken: smartToken,
-    OrganizationclientId: OrganizationclientId,
-    OrganizationName: OrganizationName,
-  };
-  $.ajax({
-    type: "POST",
-    url: "https://hook.integromat.com/3k5pcq058xulm1gafamujedv9hwx6qn8",
-    cors: true,
-    beforeSend: function () {
-      $("#waitingdots").show();
-    },
-    complete: function () {
-      $("#waitingdots").hide();
-    },
-    contentType: "application/json",
-    dataType: "json",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(data),
-    success: function (resultData) {
-      function setCookieAndSession(cName, cValue, expirationSec) {
-        let date = new Date();
-        date.setTime(date.getTime() + expirationSec * 1000);
-        const expires = "expires=" + date.toUTCString();
-        document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
-      }
-      setCookieAndSession(
-        "sprytnyToken",
-        "Bearer " + resultData.AccessToken,
-        resultData.ExpiresIn
-      );
-      sessionStorage.clear();
-      sessionStorage.setItem("OrganizationclientId", OrganizationclientId);
-      sessionStorage.setItem("OrganizationName", OrganizationName);
-      if (typeof successCallback === "function") {
-        result = successCallback(resultData);
-        if (!result) {
-          return;
-        }
-      }
-      window.location.replace(
-        "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
-      );
-    },
-    error: function (jqXHR, exception) {
-      console.log(jqXHR);
-      console.log(exception);
-      return;
-    },
-  });
-  event.preventDefault();
-  return false;
-}
-
 function docReady(fn) {
   // see if DOM is already available
   if (
@@ -286,6 +216,74 @@ docReady(function () {
       }
     };
     request.send();
+  }
+
+  function LoginIntoOrganization(evt) {
+    console.log(evt);
+    console.log(evt.currentTarget.OrganizationclientId);
+    var OrganizationName = evt.currentTarget.OrganizationName;
+    var OrganizationclientId = evt.currentTarget.OrganizationclientId;
+    var data = {
+      smartToken: smartToken,
+      OrganizationclientId: OrganizationclientId,
+      OrganizationName: OrganizationName,
+    };
+    $.ajax({
+      type: "POST",
+      url: "https://hook.integromat.com/3k5pcq058xulm1gafamujedv9hwx6qn8",
+      cors: true,
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      contentType: "application/json",
+      dataType: "json",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: JSON.stringify(data),
+      success: function (resultData) {
+        function setCookieAndSession(cName, cValue, expirationSec) {
+          let date = new Date();
+          date.setTime(date.getTime() + expirationSec * 1000);
+          const expires = "expires=" + date.toUTCString();
+          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+        }
+        setCookieAndSession(
+          "sprytnyToken",
+          "Bearer " + resultData.AccessToken,
+          resultData.ExpiresIn
+        );
+        sessionStorage.clear();
+        sessionStorage.setItem("OrganizationclientId", OrganizationclientId);
+        sessionStorage.setItem("OrganizationName", OrganizationName);
+        if (typeof successCallback === "function") {
+          result = successCallback(resultData);
+          if (!result) {
+            return;
+          }
+        }
+        window.location.replace(
+          "https://" +
+            DomainName +
+            "/app/tenants/organization" +
+            "?name=" +
+            OrganizationName +
+            "&clientId=" +
+            OrganizationclientId
+        );
+      },
+      error: function (jqXHR, exception) {
+        console.log(jqXHR);
+        console.log(exception);
+        return;
+      },
+    });
+    event.preventDefault();
+    return false;
   }
 
   function getOrganiations() {
