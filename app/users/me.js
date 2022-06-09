@@ -141,6 +141,7 @@ docReady(function () {
   }
 
   function LoginIntoOrganization(organizationContainer) {
+    console.log(organizationContainer);
     const OrganizationclientId = organizationContainer.getAttribute(
       "OrganizationclientId"
     );
@@ -300,7 +301,7 @@ docReady(function () {
           const style = document.getElementById("samplerow");
           const row = style.cloneNode(true);
           const h6 = row.getElementsByTagName("H6")[0];
-          row.onclick = LoginIntoOrganization;
+          row.onclick = LoginIntoOrganization(this);
           row.setAttribute("OrganizationName", organization.name);
           row.setAttribute("OrganizationclientId", organization.clientId);
           row.setAttribute("id", "");
