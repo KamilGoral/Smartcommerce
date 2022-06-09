@@ -305,9 +305,6 @@ docReady(function () {
           row.setAttribute("OrganizationName", organization.name);
           row.setAttribute("OrganizationclientId", organization.clientId);
           row.setAttribute("id", organization.clientId);
-          document
-            .getElementById(organization.clientId)
-            .addEventListener("click", LoginIntoOrganization, false);
           row.style.display = "flex";
           h6.textContent = organization.name;
           var mycolour = StringToColour(organization.name);
@@ -317,6 +314,9 @@ docReady(function () {
             " 27%, rgb(255, 255, 255) 28%)";
           row.style.background = "" + some_fancy_gradient + " no-repeat";
           orgContainer.appendChild(row);
+          document
+            .getElementById(organization.clientId)
+            .addEventListener("click", LoginIntoOrganization, false);
         });
       }
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
