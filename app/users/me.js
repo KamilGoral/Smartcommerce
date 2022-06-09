@@ -300,6 +300,7 @@ docReady(function () {
           const style = document.getElementById("samplerow");
           const row = style.cloneNode(true);
           const h6 = row.getElementsByTagName("H6")[0];
+          h6.style.pointerEvents = "none";
           row.setAttribute("OrganizationName", organization.name);
           row.setAttribute("OrganizationclientId", organization.clientId);
           row.setAttribute("id", organization.clientId);
