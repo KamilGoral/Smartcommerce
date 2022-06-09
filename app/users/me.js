@@ -220,9 +220,9 @@ docReady(function () {
 
   function LoginIntoOrganization(evt) {
     console.log(evt);
-    console.log(evt.currentTarget.OrganizationclientId);
-    var OrganizationName = evt.currentTarget.OrganizationName;
-    var OrganizationclientId = evt.currentTarget.OrganizationclientId;
+    var OrganizationName = evt.srcElement.attributes.organizationname.value;
+    var OrganizationclientId =
+      evt.srcElement.attributes.organizationclientid.value;
     var data = {
       smartToken: smartToken,
       OrganizationclientId: OrganizationclientId,
