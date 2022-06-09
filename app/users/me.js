@@ -302,10 +302,12 @@ docReady(function () {
           const style = document.getElementById("samplerow");
           const row = style.cloneNode(true);
           const h6 = row.getElementsByTagName("H6")[0];
-          row.onclick = LoginIntoOrganization;
           row.setAttribute("OrganizationName", organization.name);
           row.setAttribute("OrganizationclientId", organization.clientId);
-          row.setAttribute("id", "");
+          row.setAttribute("id", organization.clientId);
+          document
+            .getElementById(organization.clientId)
+            .addEventListener("click", LoginIntoOrganization, false);
           row.style.display = "flex";
           h6.textContent = organization.name;
           var mycolour = StringToColour(organization.name);
