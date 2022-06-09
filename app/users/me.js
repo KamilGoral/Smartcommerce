@@ -220,6 +220,7 @@ docReady(function () {
 
   function LoginIntoOrganization(evt) {
     console.log(evt);
+    console.log(this);
     var OrganizationName = evt.srcElement.attributes.organizationname.value;
     var OrganizationclientId =
       evt.srcElement.attributes.organizationclientid.value;
