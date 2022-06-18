@@ -911,13 +911,20 @@ docReady(function () {
 
   $('div[role="tab"]').click(function () {
     setTimeout(function () {
+      console.log("Adjust Table Size");
       $.fn.dataTable
         .tables({
           visible: true,
           api: true,
         })
         .columns.adjust();
-    }, 300);
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .fixedHeader.adjust();
+    }, 100);
   });
 
   Webflow.push(function () {
