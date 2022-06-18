@@ -181,8 +181,131 @@ docReady(function () {
       toParse.sort(function (a, b) {
         return b.enabled - a.enabled;
       });
+      console.lof(toParse);
 
       if (request.status >= 200 && request.status < 400) {
+        var tableWh = $("#table_wholesalers_list").DataTable({
+          ajax: toParse,
+          pagingType: "full_numbers",
+          dom: '<"top">frt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 10,
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          columns: [
+            {
+              orderable: false,
+              data: null,
+              width: "36px",
+              defaultContent:
+                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+            },
+            {
+              orderable: false,
+              data: "name",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "taxId",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: false,
+              data: "address",
+              render: function (data) {
+                if (data !== null) {
+                  return (
+                    data.state &&
+                    data.state[0].toUpperCase() + data.state.slice(1)
+                  );
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: false,
+              data: "platformUrl",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: false,
+              data: "onlineOfferSupport",
+              render: function (data) {
+                if (data !== null) {
+                  if (data === true) {
+                    return "Tak";
+                  } else {
+                    return "Nie";
+                  }
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: false,
+              data: "enabled",
+              render: function (data) {
+                if (data !== null) {
+                  if (data === true) {
+                    return "Tak";
+                  } else {
+                    return "Nie";
+                  }
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+          ],
+        });
+
         const userContainer = document.getElementById("Wholesaler-Container");
         toParse.forEach((wholesaler) => {
           const style = document.getElementById("sampleRowWholesaler");
@@ -798,165 +921,6 @@ docReady(function () {
               creationDate[0] + " " + creationTime[0].slice(0, -4);
 
             return lastModificationDate;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-    ],
-  });
-
-  var tableWh = $("#table_wholesalers_list").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top">frt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 10,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'</div>",
-      processing: "<div class='spinner'</div>",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-      aria: {
-        sortAscending: ": Sortowanie rosnące",
-        sortDescending: ": Sortowanie malejące",
-      },
-    },
-    ajax: function (data, callback, settings) {
-      $.ajaxSetup({
-        headers: {
-          Authorization: orgToken,
-        },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-      });
-      console.log(data);
-      console.log(data.order.length);
-
-      $.get(
-        InvokeURL + "wholesalers",
-        {
-          sort: sort,
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
-        },
-        function (res) {
-          // map your server's response to the DataTables format and pass it to
-          // DataTables' callback
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        }
-      );
-    },
-    processing: false,
-    serverSide: false,
-    search: {
-      return: true,
-    },
-    columns: [
-      {
-        orderable: false,
-        data: null,
-        width: "36px",
-        defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-      },
-      {
-        orderable: false,
-        data: "name",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "taxId",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "address",
-        render: function (data) {
-          if (data !== null) {
-            return (
-              data.state && data.state[0].toUpperCase() + data.state.slice(1)
-            );
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "platformUrl",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "onlineOfferSupport",
-        render: function (data) {
-          if (data !== null) {
-            if (data === true) {
-              return "Tak";
-            } else {
-              return "Nie";
-            }
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "enabled",
-        render: function (data) {
-          if (data !== null) {
-            if (data === true) {
-              return "Tak";
-            } else {
-              return "Nie";
-            }
           }
           if (data === null) {
             return "";
