@@ -221,7 +221,7 @@ docReady(function () {
                 "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
             },
             {
-              orderable: false,
+              orderable: true,
               data: "name",
               render: function (data) {
                 if (data !== null) {
@@ -245,7 +245,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "address",
               render: function (data) {
                 if (data !== null) {
@@ -261,7 +261,8 @@ docReady(function () {
             },
             {
               orderable: false,
-              data: "platformUrl",
+              data: "wholesalerKey",
+              visible: false,
               render: function (data) {
                 if (data !== null) {
                   return data;
@@ -272,7 +273,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "onlineOfferSupport",
               render: function (data) {
                 if (data !== null) {
@@ -288,7 +289,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "enabled",
               render: function (data) {
                 if (data !== null) {
