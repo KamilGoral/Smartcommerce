@@ -262,7 +262,6 @@ docReady(function () {
             {
               orderable: false,
               data: "wholesalerKey",
-              visible: false,
               render: function (data) {
                 if (data !== null) {
                   return data;
