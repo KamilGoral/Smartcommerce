@@ -184,7 +184,7 @@ docReady(function () {
       console.log(toParse);
 
       if (request.status >= 200 && request.status < 400) {
-        var tableWh = $("#table_wholesalers_list").DataTable({
+        $("#table_wholesalers_list").DataTable({
           ajax: toParse,
           dataSrc: "",
           pagingType: "full_numbers",
@@ -306,50 +306,9 @@ docReady(function () {
             },
           ],
         });
-
-        const userContainer = document.getElementById("Wholesaler-Container");
-        toParse.forEach((wholesaler) => {
-          const style = document.getElementById("sampleRowWholesaler");
-          const row = style.cloneNode(true);
-          row.setAttribute("id", "");
-          row.style.display = "flex";
-          const wholesalerKey = row.getElementsByTagName("H6")[0];
-          wholesalerKey.textContent = wholesaler.wholesalerKey;
-          const wholesalerState = row.getElementsByTagName("H6")[1];
-          wholesalerState.textContent = wholesaler.address.state;
-          const wholesalerOnline = row.getElementsByTagName("H6")[3];
-          const wholesalerStatus = row.getElementsByTagName("H6")[5];
-          const whLogo = row.getElementsByClassName("whlogo")[0];
-          var img = "url('data:image/png;base64, " + wholesaler.image + "')";
-          whLogo.style.backgroundImage = img;
-
-          if (wholesaler.enabled == true) {
-            wholesalerStatus.textContent = "Aktywny";
-            wholesalerStatus.style.color = "green";
-          } else {
-            wholesalerStatus.textContent = "Nieaktywny";
-          }
-
-          if (wholesaler.onlineOfferSupport == true) {
-            wholesalerOnline.textContent = "Tak";
-            wholesalerOnline.style.color = "green";
-          } else {
-            wholesalerOnline.textContent = "Nie";
-          }
-
-          row.setAttribute(
-            "href",
-            "https://" +
-              DomainName +
-              "/app/wholesalers/wholesaler" +
-              "?wholesalerKey=" +
-              wholesaler.wholesalerKey
-          );
-          userContainer.appendChild(row);
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
+      }
+      if (request.status == 401) {
+        console.log("Unauthorized");
       }
     };
     request.send();
@@ -941,6 +900,16 @@ docReady(function () {
     );
   });
 
+  $("#table_wholesalers_list").on("click", "tr", function () {
+    var rowData = table.row(this).data();
+    window.location.replace(
+      "https://" +
+        DomainName +
+        "/app/wholesalers/wholesaler?wholesalerKey=" +
+        rowData.wholesalerKey
+    );
+  });
+
   $('div[role="tab"]').click(function () {
     setTimeout(function () {
       $.fn.dataTable
@@ -949,7 +918,7 @@ docReady(function () {
           api: true,
         })
         .columns.adjust();
-    }, 100);
+    }, 300);
   });
 
   Webflow.push(function () {
@@ -1069,6 +1038,6 @@ docReady(function () {
   LogoutNonUser();
   getShops();
   getUsers();
-  getWholesalers();
   getIntegrations();
+  getWholesalers();
 });
