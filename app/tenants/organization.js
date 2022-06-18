@@ -910,8 +910,13 @@ docReady(function () {
   });
 
   $('div[role="tablist"]').click(function () {
-    $("#table_wholesalers_list").DataTable().columns.adjust();
-    $("#table_pricelists_list").DataTable().columns.adjust();
+    console.log("Adjusting");
+    // We have to wait 100ms fade out is done
+    setTimeout(() => {
+      console.log("Delayed for 1 second.");
+      $("#table_wholesalers_list").DataTable().columns.adjust();
+      $("#table_pricelists_list").DataTable().columns.adjust();
+    }, 200);
   });
 
   Webflow.push(function () {
