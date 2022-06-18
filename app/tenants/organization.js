@@ -910,21 +910,8 @@ docReady(function () {
   });
 
   $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      console.log("Adjust Table Size");
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .fixedHeader.adjust();
-    }, 100);
+    $("#table_wholesalers_list").DataTable().columns.adjust();
+    $("#table_pricelists_list").DataTable().columns.adjust();
   });
 
   Webflow.push(function () {
