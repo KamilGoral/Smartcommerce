@@ -697,7 +697,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "company",
+        data: "wholesalerKey",
         render: function (data) {
           if (data !== null) {
             return data;
@@ -862,10 +862,10 @@ docReady(function () {
 
       switch (whichColumns) {
         case 6:
-          whichColumns = "enabled:";
+          whichColumns = "wholesalerKey:";
           break;
         default:
-          whichColumns = "enabled:";
+          whichColumns = "wholesalerKey:";
       }
 
       var sort = "" + whichColumns + direction;
