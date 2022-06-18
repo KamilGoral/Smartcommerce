@@ -184,9 +184,10 @@ docReady(function () {
       console.log(toParse);
 
       if (request.status >= 200 && request.status < 400) {
-        $("#table_wholesalers_list").DataTable({
+        var tableWh = $("#table_wholesalers_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
+          order: [],
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
@@ -262,6 +263,7 @@ docReady(function () {
             {
               orderable: false,
               data: "wholesalerKey",
+              visible: false,
               render: function (data) {
                 if (data !== null) {
                   return data;
@@ -900,13 +902,12 @@ docReady(function () {
   });
 
   $("#table_wholesalers_list").on("click", "tr", function () {
-    var rowData2 = table.row(this).data();
-    console.log(rowData2);
+    var rowData = tableWh.row(this).data();
     window.location.replace(
       "https://" +
         DomainName +
         "/app/wholesalers/wholesaler?wholesalerKey=" +
-        rowData2.wholesalerKey
+        rowData.wholesalerKey
     );
   });
 
