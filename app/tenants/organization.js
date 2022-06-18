@@ -909,7 +909,7 @@ docReady(function () {
     );
   });
 
-  $('div[role="tab"]').click(function () {
+  $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjust Table Size");
       $.fn.dataTable
