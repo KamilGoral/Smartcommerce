@@ -141,9 +141,10 @@ docReady(function () {
     return colour;
   }
 
-  function decisionInviation(invitation) {
-    const actionUrl = invitation.getAttribute("action");
-    const decision = invitation.getAttribute("decision");
+  function decisionInviation(evt) {
+    evt.preventDefault();
+    const actionUrl = this.getAttribute("action");
+    const decision = this.getAttribute("decision");
     var isTrueSet = decision === "accept";
     let request = new XMLHttpRequest();
     var data = [
@@ -220,10 +221,11 @@ docReady(function () {
 
   function LoginIntoOrganization(evt) {
     console.log(evt);
+    evt.preventDefault();
     console.log(this);
-    var OrganizationName = evt.srcElement.attributes.organizationname.value;
-    var OrganizationclientId =
-      evt.srcElement.attributes.organizationclientid.value;
+    console.log(this.getAttribute(organizationname));
+    var OrganizationName = this.getAttribute(organizationname);
+    var OrganizationclientId = this.getAttribute(organizationclientid);
     var data = {
       smartToken: smartToken,
       OrganizationclientId: OrganizationclientId,
