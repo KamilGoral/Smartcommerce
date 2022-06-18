@@ -21,7 +21,6 @@ docReady(function () {
   }
 
   var Webflow = Webflow || [];
-
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");
   var DomainName = getCookie("sprytnyDomainName");
@@ -698,7 +697,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "wholesalerKey",
+        data: "name",
         render: function (data) {
           if (data !== null) {
             return data;
@@ -808,6 +807,191 @@ docReady(function () {
     ],
   });
 
+  var tableWh = $("#table_wholesalers_list").DataTable({
+    pagingType: "full_numbers",
+    order: [],
+    dom: '<"top">rt<"bottom"lip>',
+    scrollY: "60vh",
+    scrollCollapse: true,
+    pageLength: 10,
+    language: {
+      emptyTable: "Brak danych do wyświetlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+      infoEmpty: "Brak danych",
+      infoFiltered: "(z _MAX_ rezultatów)",
+      lengthMenu: "Pokaż _MENU_ rekordów",
+      loadingRecords: "<div class='spinner'</div>",
+      processing: "<div class='spinner'</div>",
+      search: "Szukaj:",
+      zeroRecords: "Brak pasujących rezultatów",
+      paginate: {
+        first: "<<",
+        last: ">>",
+        next: " >",
+        previous: "< ",
+      },
+      aria: {
+        sortAscending: ": Sortowanie rosnące",
+        sortDescending: ": Sortowanie malejące",
+      },
+    },
+    ajax: function (data, callback, settings) {
+      $.ajaxSetup({
+        headers: {
+          Authorization: orgToken,
+        },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+      });
+      console.log(data);
+      console.log(data.order.length);
+
+      var whichColumns = "";
+      var direction = "desc";
+
+      if (data.order.length == 0) {
+        whichColumns = 0;
+      } else {
+        whichColumns = data.order[0]["column"];
+        direction = data.order[0]["dir"];
+      }
+
+      switch (whichColumns) {
+        case 0:
+          whichColumns = "createDate:";
+          break;
+        case 2:
+          whichColumns = "createDate:";
+          break;
+        case 3:
+          whichColumns = "createDate:";
+          break;
+        default:
+          whichColumns = "createDate:";
+      }
+
+      var sort = "" + whichColumns + direction;
+
+      $.get(
+        InvokeURL + "wholesalers?perPage=1000",
+        {
+          sort: sort,
+          perPage: data.length,
+          page: (data.start + data.length) / data.length,
+        },
+        function (res) {
+          // map your server's response to the DataTables format and pass it to
+          // DataTables' callback
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        }
+      );
+    },
+    processing: true,
+    serverSide: true,
+    search: {
+      return: true,
+    },
+    columns: [
+      {
+        orderable: false,
+        data: null,
+        width: "36px",
+        defaultContent:
+          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+      },
+      {
+        orderable: false,
+        data: "name",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "taxId",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "address",
+        render: function (data) {
+          if (data !== null) {
+            return (
+              data.state && data.state[0].toUpperCase() + data.state.slice(1)
+            );
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "platformUrl",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "onlineOfferSupport",
+        render: function (data) {
+          if (data !== null) {
+            if (data === true) {
+              return "Tak";
+            } else {
+              return "Nie";
+            }
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "enabled",
+        render: function (data) {
+          if (data !== null) {
+            if (data === true) {
+              return "Tak";
+            } else {
+              return "Nie";
+            }
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+    ],
+  });
+
   $("#table_pricelists_list").on("click", "tr", function () {
     var rowData = table.row(this).data();
     window.location.replace(
@@ -818,7 +1002,7 @@ docReady(function () {
     );
   });
 
-  $('div[role="tablist"]').click(function () {
+  $('div[role="tab"]').click(function () {
     setTimeout(function () {
       $.fn.dataTable
         .tables({
@@ -826,7 +1010,7 @@ docReady(function () {
           api: true,
         })
         .columns.adjust();
-    }, 200);
+    }, 100);
   });
 
   Webflow.push(function () {
