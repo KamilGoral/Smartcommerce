@@ -900,12 +900,13 @@ docReady(function () {
   });
 
   $("#table_wholesalers_list").on("click", "tr", function () {
-    var rowData = table.row(this).data();
+    var rowData2 = table.row(this).data();
+    console.log(rowData2);
     window.location.replace(
       "https://" +
         DomainName +
         "/app/wholesalers/wholesaler?wholesalerKey=" +
-        rowData.wholesalerKey
+        rowData2.wholesalerKey
     );
   });
 
