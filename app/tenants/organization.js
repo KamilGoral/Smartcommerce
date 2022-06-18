@@ -217,8 +217,8 @@ docReady(function () {
             {
               orderable: false,
               data: "image",
-              width: "52px",
-              height: "52px",
+              width: "36px",
+              height: "36px",
               render: function (data) {
                 if (data !== null) {
                   return "<div class='details-container2'><img src='data:image/png;base64," + data + "' alt='logo'></img></div>"
