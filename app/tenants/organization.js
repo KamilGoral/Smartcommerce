@@ -810,7 +810,7 @@ docReady(function () {
   var tableWh = $("#table_wholesalers_list").DataTable({
     pagingType: "full_numbers",
     order: [],
-    dom: '<"top">rt<"bottom"lip>',
+    dom: '<"top">frt<"bottom"lip>',
     scrollY: "60vh",
     scrollCollapse: true,
     pageLength: 10,
@@ -847,31 +847,9 @@ docReady(function () {
           $("#waitingdots").hide();
         },
       });
-      console.log(data);
-      console.log(data.order.length);
-
-      var whichColumns = "";
-      var direction = "desc";
-
-      if (data.order.length == 0) {
-        whichColumns = 0;
-      } else {
-        whichColumns = data.order[0]["column"];
-        direction = data.order[0]["dir"];
-      }
-
-      switch (whichColumns) {
-        case 6:
-          whichColumns = "wholesalerKey:";
-          break;
-        default:
-          whichColumns = "wholesalerKey:";
-      }
-
-      var sort = "" + whichColumns + direction;
 
       $.get(
-        InvokeURL + "wholesalers",
+        InvokeURL + "wholesalers?perPage=1000",
         {
           sort: sort,
           perPage: data.length,
@@ -888,8 +866,8 @@ docReady(function () {
         }
       );
     },
-    processing: true,
-    serverSide: true,
+    processing: false,
+    serverSide: false,
     search: {
       return: true,
     },
