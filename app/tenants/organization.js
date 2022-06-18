@@ -181,7 +181,7 @@ docReady(function () {
       toParse.sort(function (a, b) {
         return b.enabled - a.enabled;
       });
-      console.lof(toParse);
+      console.log(toParse);
 
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
