@@ -847,9 +847,11 @@ docReady(function () {
           $("#waitingdots").hide();
         },
       });
+      console.log(data);
+      console.log(data.order.length);
 
       $.get(
-        InvokeURL + "wholesalers?perPage=1000",
+        InvokeURL + "wholesalers",
         {
           sort: sort,
           perPage: data.length,
