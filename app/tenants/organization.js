@@ -307,6 +307,16 @@ docReady(function () {
             },
           ],
         });
+
+        $("#table_wholesalers_list").on("click", "tr", function () {
+          var rowData = tableWh.row(this).data();
+          window.location.replace(
+            "https://" +
+              DomainName +
+              "/app/wholesalers/wholesaler?wholesalerKey=" +
+              rowData.wholesalerKey
+          );
+        });
       }
       if (request.status == 401) {
         console.log("Unauthorized");
@@ -898,16 +908,6 @@ docReady(function () {
         DomainName +
         "/app/pricelists/pricelist?priceListId=" +
         rowData.priceListId
-    );
-  });
-
-  $("#table_wholesalers_list").on("click", "tr", function () {
-    var rowData = tableWh.row(this).data();
-    window.location.replace(
-      "https://" +
-        DomainName +
-        "/app/wholesalers/wholesaler?wholesalerKey=" +
-        rowData.wholesalerKey
     );
   });
 
