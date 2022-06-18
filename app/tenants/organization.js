@@ -697,7 +697,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "name",
+        data: "company",
         render: function (data) {
           if (data !== null) {
             return data;
@@ -861,23 +861,17 @@ docReady(function () {
       }
 
       switch (whichColumns) {
-        case 0:
-          whichColumns = "createDate:";
-          break;
-        case 2:
-          whichColumns = "createDate:";
-          break;
-        case 3:
-          whichColumns = "createDate:";
+        case 6:
+          whichColumns = "enabled:";
           break;
         default:
-          whichColumns = "createDate:";
+          whichColumns = "enabled:";
       }
 
       var sort = "" + whichColumns + direction;
 
       $.get(
-        InvokeURL + "wholesalers?perPage=1000",
+        InvokeURL + "wholesalers",
         {
           sort: sort,
           perPage: data.length,
