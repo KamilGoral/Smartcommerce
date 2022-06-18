@@ -186,6 +186,7 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
           ajax: toParse,
+          dataSrc: "",
           pagingType: "full_numbers",
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
