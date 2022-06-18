@@ -216,10 +216,10 @@ docReady(function () {
           columns: [
             {
               orderable: false,
-              data: null,
+              data: "image",
               width: "36px",
               defaultContent:
-                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+                "<div class='details-container2'><img src='"+ "data:image/png;base64," + data +"' alt='offer'></img></div>",
             },
             {
               orderable: true,
