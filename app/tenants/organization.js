@@ -217,10 +217,17 @@ docReady(function () {
           columns: [
             {
               orderable: false,
-              data: null,
+              data: "image",
               width: "36px",
-              defaultContent:
-                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+              height: "36px",
+              render: function (data) {
+                if (data !== null) {
+                  return "<div class='details-container2'><img src='data:image/png;base64," + data + "' alt='logo'></img></div>"
+                }
+                if (data === null) {
+                  return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>"
+                }
+              },                
             },
             {
               orderable: true,
@@ -761,8 +768,6 @@ docReady(function () {
           page: (data.start + data.length) / data.length,
         },
         function (res) {
-          // map your server's response to the DataTables format and pass it to
-          // DataTables' callback
           callback({
             recordsTotal: res.total,
             recordsFiltered: res.total,
@@ -782,7 +787,7 @@ docReady(function () {
         data: null,
         width: "36px",
         defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
       },
       {
         orderable: false,
