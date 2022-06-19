@@ -183,7 +183,6 @@ docReady(function () {
       toParse.sort(function (a, b) {
         return b.enabled - a.enabled;
       });
-      console.log(toParse);
 
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
@@ -340,7 +339,6 @@ docReady(function () {
           "Integrations-Container"
         );
         toParse.forEach((integration) => {
-          console.log(integration);
           const style = document.getElementById("Sample-Integration");
           const row = style.cloneNode(true);
           row.style.display = "flex";
@@ -413,7 +411,6 @@ docReady(function () {
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
-                console.log(e);
                 return;
               }
             }
@@ -574,8 +571,6 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            console.log(resultData);
-
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
               if (!result) {
@@ -731,8 +726,6 @@ docReady(function () {
           $("#waitingdots").hide();
         },
       });
-      console.log(data);
-      console.log(data.order.length);
 
       var whichColumns = "";
       var direction = "desc";
@@ -914,10 +907,8 @@ docReady(function () {
   });
 
   $('div[role="tablist"]').click(function () {
-    console.log("Adjusting");
     // We have to wait 100ms fade out is done
     setTimeout(() => {
-      console.log("Delayed for 1 second.");
       $("#table_wholesalers_list").DataTable().columns.adjust();
       $("#table_pricelists_list").DataTable().columns.adjust();
     }, 200);
