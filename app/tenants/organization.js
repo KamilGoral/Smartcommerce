@@ -125,6 +125,8 @@ docReady(function () {
   }
 
   function getUsers() {
+    var userRole = getCookie("sprytnyUserRole");
+    console.log(userRole);
     let url = new URL(InvokeURL + "users");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1031,6 +1033,7 @@ docReady(function () {
     form.addEventListener("submit", triggerSubmit);
   });
 
+  getUserRole();
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
