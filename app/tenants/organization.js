@@ -72,8 +72,13 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         console.log(data);
         console.log(data.role);
-        document.cookie = "sprytnyUserRole=" + data.role;
-        +"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        function setCookieAndSession(cName, cValue, expirationSec) {
+          let date = new Date();
+          date.setTime(date.getTime() + expirationSec * 1000);
+          const expires = "expires=" + date.toUTCString();
+          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+        }
+        setCookieAndSession("sprytnyUserRole", data.role, 1440);
       } else {
         console.log("error");
       }
@@ -125,8 +130,6 @@ docReady(function () {
   }
 
   function getUsers() {
-    var userRole = getCookie("sprytnyUserRole");
-    console.log(userRole);
     let url = new URL(InvokeURL + "users");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -222,12 +225,16 @@ docReady(function () {
               height: "36px",
               render: function (data) {
                 if (data !== null) {
-                  return "<div class='details-container2'><img src='data:image/png;base64," + data + "' alt='logo'></img></div>"
+                  return (
+                    "<div class='details-container2'><img src='data:image/png;base64," +
+                    data +
+                    "' alt='logo'></img></div>"
+                  );
                 }
                 if (data === null) {
-                  return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>"
+                  return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
                 }
-              },                
+              },
             },
             {
               orderable: true,
@@ -1029,14 +1036,18 @@ docReady(function () {
     form.addEventListener("submit", triggerSubmit);
   });
 
+  LogoutNonUser();
   getUserRole();
+  getShops();
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
-  LogoutNonUser();
-  getShops();
-  getUsers();
-  getIntegrations();
-  getWholesalers();
+
+  var userRole = getCookie("sprytnyUserRole");
+  if (userRole == "admin") {
+    getUsers();
+    getIntegrations();
+    getWholesalers();
+  }
 });
