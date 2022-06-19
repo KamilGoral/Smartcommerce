@@ -426,11 +426,18 @@ docReady(function () {
           " " +
           UserInfo.UserAttributes[3].Value +
           "!";
-        document.cookie = "sprytnyUser=" + UserInfo.UserAttributes[4].Value;
-        +"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
-        console.log(UserInfo.Username);
-        document.cookie = "sprytnyUsername=" + UserInfo.Username;
-        +"; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        function setCookieAndSession(cName, cValue, expirationSec) {
+          let date = new Date();
+          date.setTime(date.getTime() + expirationSec * 1000);
+          const expires = "expires=" + date.toUTCString();
+          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+        }
+        setCookieAndSession(
+          "sprytnyUser",
+          UserInfo.UserAttributes[4].Value,
+          1440
+        );
+        setCookieAndSession("sprytnyUsername", UserInfo.Username, 1440);
       }
       if (request.status == 401) {
         console.log("error");
