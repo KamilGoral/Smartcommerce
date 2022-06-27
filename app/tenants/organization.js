@@ -24,7 +24,7 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");
   var DomainName = getCookie("sprytnyDomainName");
-  var userKey = getCookie("sprytnyUsername");
+  var userKey = getCookie("sprytnyUsername") || "me";
   var clientId = new URL(location.href).searchParams.get("clientId");
   var organizationName = new URL(document.location.href).searchParams.get(
     "name"
@@ -226,13 +226,13 @@ docReady(function () {
               render: function (data) {
                 if (data !== null) {
                   return (
-                    "<div class='details-container2'><img src='data:image/png;base64," +
+                    "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
                     data +
                     "' alt='logo'></img></div>"
                   );
                 }
                 if (data === null) {
-                  return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
+                  return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
                 }
               },
             },
