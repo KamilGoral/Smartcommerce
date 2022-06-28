@@ -1043,11 +1043,7 @@ docReady(function () {
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
-
-  var userRole = getCookie("sprytnyUserRole");
-  if (userRole == "admin") {
-    getUsers();
-    getIntegrations();
-    getWholesalers();
-  }
+  getUsers();
+  getIntegrations();
+  getWholesalers();
 });
