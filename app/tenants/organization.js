@@ -33,6 +33,7 @@ docReady(function () {
   var formIdDelete = "#wf-form-DeleteOrganization";
   var formIdInvite = "#wf-form-Invite-User";
   var formIdCreate = "#wf-form-Create-Shop";
+  var formIdNewWh = "#wf-form-Create-wholesaler";
   const orgName = document.getElementById("orgName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
@@ -926,115 +927,73 @@ docReady(function () {
     }, 200);
   });
 
-  Webflow.push(function () {
-    // display error message
-    function displayError(message) {
-      hideLoading();
-      failureMessage.innerText = message;
-      failureMessage.style.display = "block";
-    }
+  makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $(".w-form-done", container);
+        var failBlock = $(".w-form-fail", container);
+        var action =
+          "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3";
+        var data = {
+          whname: $("#Wholesaler-Name").val(),
+          taxId: $("#taxId").val(),
+          platformUrl: $("#platformUrl").val(),
+          form: "new-Wholesaler",
+        };
 
-    // hiding the loading indicator
-    function hideLoading() {
-      $("#waitingdots").hide();
-    }
-
-    // hide the form
-    function hideForm() {
-      form.style.display = "none";
-    }
-
-    // show the loading indicator
-    function showLoading() {
-      //hideForm(); if you want to hide the form --> uncomment
-      $("#waitingdots").show();
-    }
-
-    // show the form
-    function showForm() {
-      form.style.display = "block";
-    }
-
-    // listen for xhr events
-    function addListeners(xhr) {
-      xhr.addEventListener("loadstart", showLoading);
-    }
-
-    // add xhr settings
-    function addSettings(xhr) {
-      xhr.timeout = requestTimeout;
-    }
-
-    // triggered form submit
-    function triggerSubmit(event) {
-      // prevent default behavior form submit behavior
-      event.preventDefault();
-
-      // setup + send xhr request
-      var formData = {
-        whname: $("#Wholesaler-Name").val(),
-        taxId: $("#taxId").val(),
-        platformUrl: $("#platformUrl").val(),
-        form: "new-Wholesaler",
-      };
-      let xhr = new XMLHttpRequest();
-      xhr.open(
-        "POST",
-        "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3"
-      );
-      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-      addListeners(xhr);
-      addSettings(xhr);
-      xhr.send(JSON.stringify(formData));
-
-      // capture xhr response
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          $("#waitingdots").hide();
-          $("#wf-form-Create-wholesaler").hide();
-          $("#wf-form-Create-wholesaler-done").show();
-
-          setTimeout(function () {
-            $("#wf-form-Create-wholesaler-done").hide();
-          }, 3000);
-        } else {
-          displayError(errorMessage);
-          $("#wf-form-Create-wholesaler-fail").show();
-
-          setTimeout(function () {
-            $("#wf-form-Create-wholesaler-fail").hide();
-          }, 6000);
-        }
-      };
-
-      // capture xhr request timeout
-      xhr.ontimeout = function () {
-        displayError(errorMessageTimedOut);
-      };
-      setTimeout(function () {
-        window.location.reload();
-      }, 4000);
-    }
-
-    // replace with your form ID
-    const form = document.getElementById("wf-form-Create-wholesaler");
-
-    // set the Webflow Error Message Div Block ID to 'error-message'
-    let failureMessage = document.getElementById("WarningMessage");
-
-    // set the Webflow Success Message Div Block ID to 'success-message'
-    //let successMessage = document.getElementById('success-message');
-
-    // set request timeout in milliseconds (1000ms = 1second)
-    let requestTimeout = 100000;
-
-    // error messages
-    let errorMessageTimedOut = "Oops! Seems this timed out. Please try again.";
-    let errorMessage = "Oops! Something went wrong. Please try again.";
-
-    // capture form submit
-    form.addEventListener("submit", triggerSubmit);
-  });
+        $.ajax({
+          type: "POST",
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.hide();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
   LogoutNonUser();
   getUserRole();
@@ -1043,6 +1002,8 @@ docReady(function () {
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
+  makeWebflowFormAjaxNewWh($(formIdNewWh));
+
   getUsers();
   getIntegrations();
   getWholesalers();
