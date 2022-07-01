@@ -940,6 +940,7 @@ docReady(function () {
           whname: $("#Wholesaler-Name").val(),
           taxId: $("#taxId").val(),
           platformUrl: $("#platformUrl").val(),
+          organizationName: $("#organizationName").text(),
           form: "new-Wholesaler",
         };
 
