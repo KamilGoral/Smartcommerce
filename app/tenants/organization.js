@@ -924,7 +924,7 @@ docReady(function () {
     setTimeout(() => {
       $("#table_wholesalers_list").DataTable().columns.adjust();
       $("#table_pricelists_list").DataTable().columns.adjust();
-    }, 200);
+    }, 400);
   });
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
