@@ -920,11 +920,9 @@ docReady(function () {
   });
 
   $('div[role="tablist"]').click(function () {
-    // We have to wait 50ms fade out is done
-    setTimeout(() => {
-      $("#table_wholesalers_list").DataTable().columns.adjust();
-      $("#table_pricelists_list").DataTable().columns.adjust();
-    }, 51);
+    setTimeout(function () {
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    }, 200);
   });
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
