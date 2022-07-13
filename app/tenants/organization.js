@@ -308,31 +308,25 @@ docReady(function () {
             {
               orderable: true,
               data: "enabled",
-              render: function (data) {
-                if (data !== null) {
-                  if (data === true) {
-                    return "Tak";
-                  } else {
-                    return "Nie";
-                  }
+              render: function (data, type, row) {
+                if (type === "display") {
+                  return '<input type="checkbox"  class="editor-active">';
                 }
-                if (data === null) {
-                  return "";
-                }
+                return data;
               },
             },
           ],
         });
 
-        $("#table_wholesalers_list").on("click", "tr", function () {
-          var rowData = tableWh.row(this).data();
-          window.location.replace(
-            "https://" +
-              DomainName +
-              "/app/wholesalers/wholesaler?wholesalerKey=" +
-              rowData.wholesalerKey
-          );
-        });
+        $("#table_wholesalers_list").on(
+          "change",
+          "input.editor-active",
+          function () {
+            var rowData = tableWh.row(this).data();
+            console.log(rowData);
+            console.log(table.row($(this).closest("tr")).id());
+          }
+        );
       }
       if (request.status == 401) {
         console.log("Unauthorized");
