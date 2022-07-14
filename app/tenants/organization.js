@@ -430,7 +430,7 @@ docReady(function () {
             } else {
               console.log(this.getAttribute("wholesalerkey"));
               console.log("Aktywny był")
-              updateStatus(true, this.getAttribute("wholesalerkey"))
+              updateStatus(false, this.getAttribute("wholesalerkey"))
             }
           }
         );
