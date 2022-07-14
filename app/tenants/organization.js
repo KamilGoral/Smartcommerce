@@ -311,9 +311,9 @@ docReady(function () {
               render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<label class="w-checkbox switch-field-2"><div class="w-checkbox-input w-checkbox-input--inputType-custom switch-2 w--redirected-checked"></div><input type="checkbox" checked class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></label>';
+                    return '<input type="checkbox" checked class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;">';
                   } else {
-                    return '<label class="w-checkbox switch-field-2"><div class="w-checkbox-input w-checkbox-input--inputType-custom switch-2"></div><input type="checkbox" class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></label>';
+                    return '<input type="checkbox" class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;">';
                   }
                 }
                 return data;
@@ -326,9 +326,10 @@ docReady(function () {
           "change",
           "input.editor-active",
           function () {
-            var rowData = tableWh.row(this).data();
-            console.log(rowData);
-            console.log(table.row($(this).closest("tr")).id());
+            var tr = $(this).closest('tr');
+            var row = table.row(tr);
+            console.log(tr,row)
+            console.log($(this))
           }
         );
       }
