@@ -5,7 +5,7 @@ function docReady(fn) {
     document.readyState === "complete" ||
     document.readyState === "interactive"
   ) {
-    // call on next available tick
+    // call on next available tick1
     setTimeout(fn, 1);
   } else {
     document.addEventListener("DOMContentLoaded", fn);
