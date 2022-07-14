@@ -50,6 +50,99 @@ docReady(function () {
     clientId
   );
 
+  function updateStatus(changeOfStatus, wholesalerKey) {
+    var form = $('#wf-form-WholesalerChangeStatusForm ');
+    var container = form.parent();
+    var doneBlock = $(".w-form-done", container);
+    var failBlock = $(".w-form-fail", container);
+
+    var data = [{
+      "op": "replace",
+      "path": "/enabled",
+      "value": changeOfStatus
+    }];
+
+    $.ajax({
+      type: "PATCH",
+      url: InvokeURL + "wholesalers/" + wholesalerKey,
+      cors: true,
+      beforeSend: function () {
+        $('#waitingdots').show();
+      },
+      complete: function () {
+        $('#waitingdots').hide();
+      },
+      contentType: 'application/json',
+      dataType: 'json',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': orgToken
+      },
+      data: JSON.stringify(data),
+      success: function (resultData) {
+        console.log(resultData);
+
+
+        if (resultData.enabled == true) {
+          console.log("Aktywny")
+        } else {
+          console.log("Nieaktywny")
+        };
+
+
+        if (typeof successCallback === 'function') {
+          // call custom callback
+          result = successCallback(resultData);
+          if (!result) {
+            // show error (fail) block
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+            return;
+          }
+        }
+        // show success (done) block
+        doneBlock.show();
+        setTimeout(function () { doneBlock.hide(); }, 2000);
+        failBlock.hide();
+      },
+      error: function (jqXHR, exception) {
+        console.log(jqXHR);
+        console.log(exception);
+        //$('#customSwitchText').attr('disabled', 'disabled');
+        var msg = '';
+        if (jqXHR.status === 0) {
+          msg = 'Nie masz połączenia z internetem.';
+        } else if (jqXHR.status == 404) {
+          msg = 'Nie znaleziono strony';
+        } else if (jqXHR.status == 403) {
+          msg = 'Nie masz uprawnień do tej czynności';
+        } else if (jqXHR.status == 409) {
+          msg = 'Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.';
+        } else if (jqXHR.status == 500) {
+          msg = 'Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].';
+        } else if (exception === 'parsererror') {
+          msg = 'Nie udało się odczytać danych';
+        } else if (exception === 'timeout') {
+          msg = 'Przekroczony czas oczekiwania';
+        } else if (exception === 'abort') {
+          msg = 'Twoje żądanie zostało zaniechane';
+        } else {
+          msg = '' + jqXHR.responseText;
+        }
+        const message = document.getElementById("WarningMessage");
+        message.textContent = msg;
+        form.show();
+        doneBlock.hide();
+        failBlock.show();
+        setTimeout(function () { failBlock.hide(); }, 2000);
+        return;
+
+      },
+    });
+  }
+
   function LogoutNonUser() {
     if (
       getCookie("sprytnyInvokeURL") == null ||
@@ -311,9 +404,9 @@ docReady(function () {
               render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" value="'+ row['wholesalerKey'] +'"></div>';
+                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"></div>';
                   } else {
-                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" value="'+ row['wholesalerKey'] +'"></div>';
+                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"></div>';
                   }
                 }
                 return data;
@@ -331,11 +424,13 @@ docReady(function () {
             console.log(tr, row)
             console.log($(this))
             if (this.checked) {
-              console.log(this);
+              console.log(this.wholesalerKey);
               console.log("Nieaktywny był")
+              updateStatus(true, this.wholesalerKey)
             } else {
-              console.log(this);
+              console.log(this.wholesalerKey);
               console.log("Aktywny był")
+              updateStatus(true, this.wholesalerKey)
             }
           }
         );
@@ -1000,101 +1095,7 @@ docReady(function () {
     });
   };
 
-  function updateStatus(changeOfStatus, wholesalerKey) {
-    var form = $('#wf-form-WholesalerChangeStatusForm ');
-    var container = form.parent();
-    var doneBlock = $(".w-form-done", container);
-    var failBlock = $(".w-form-fail", container);
 
-    var data = [{
-      "op": "replace",
-      "path": "/enabled",
-      "value": changeOfStatus
-    }];
-
-    $.ajax({
-      type: "PATCH",
-      url: InvokeURL + "wholesalers/" + wholesalerKey,
-      cors: true,
-      beforeSend: function () {
-        $('#waitingdots').show();
-      },
-      complete: function () {
-        $('#waitingdots').hide();
-      },
-      contentType: 'application/json',
-      dataType: 'json',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': orgToken
-      },
-      data: JSON.stringify(data),
-      success: function (resultData) {
-        console.log(resultData);
-
-
-        if (resultData.enabled == true) {
-          console.log("Aktywny")
-          //$('#customSwitchText').prop('checked', true);
-          //document.querySelector("#wf-form-WholesalerChangeStatusForm > label > div").classList.add("w--redirected-checked");
-        } else {
-          console.log("Nieaktywny")
-          //$('#customSwitchText').prop('checked', false);
-        };
-
-
-        if (typeof successCallback === 'function') {
-          // call custom callback
-          result = successCallback(resultData);
-          if (!result) {
-            // show error (fail) block
-            doneBlock.hide();
-            failBlock.show();
-            console.log(e);
-            return;
-          }
-        }
-        // show success (done) block
-        doneBlock.show();
-        setTimeout(function () { doneBlock.hide(); }, 2000);
-        failBlock.hide();
-      },
-      error: function (jqXHR, exception) {
-        console.log(jqXHR);
-        console.log(exception);
-        //$('#customSwitchText').attr('disabled', 'disabled');
-        var msg = '';
-        if (jqXHR.status === 0) {
-          msg = 'Nie masz połączenia z internetem.';
-        } else if (jqXHR.status == 404) {
-          msg = 'Nie znaleziono strony';
-        } else if (jqXHR.status == 403) {
-          msg = 'Nie masz uprawnień do tej czynności';
-        } else if (jqXHR.status == 409) {
-          msg = 'Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.';
-        } else if (jqXHR.status == 500) {
-          msg = 'Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].';
-        } else if (exception === 'parsererror') {
-          msg = 'Nie udało się odczytać danych';
-        } else if (exception === 'timeout') {
-          msg = 'Przekroczony czas oczekiwania';
-        } else if (exception === 'abort') {
-          msg = 'Twoje żądanie zostało zaniechane';
-        } else {
-          msg = '' + jqXHR.responseText;
-        }
-        const message = document.getElementById("WarningMessage");
-        message.textContent = msg;
-        form.show();
-        doneBlock.hide();
-        failBlock.show();
-        setTimeout(function () { failBlock.hide(); }, 2000);
-        return;
-
-      },
-    });
-  }
 
   LogoutNonUser();
   getUserRole();
