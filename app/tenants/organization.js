@@ -390,9 +390,9 @@ docReady(function () {
               render: function (data) {
                 if (data !== null) {
                   if (data === true) {
-                    return "Tak";
+                    return '<p clas="positive">Tak</p>';
                   } else {
-                    return "Nie";
+                    return '<p clas="negative">Nie</p>';
                   }
                 }
                 if (data === null) {
@@ -406,9 +406,9 @@ docReady(function () {
               render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<label class="switch"><input type="checkbox" checked class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
+                    return '<label class="switchCss"><input type="checkbox" checked class="editor-active"  wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
                   } else {
-                    return '<label class="switch"><input type="checkbox" class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
+                    return '<label class="switchCss"><input type="checkbox" class="editor-active" wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
                   }
                 }
                 return data;
