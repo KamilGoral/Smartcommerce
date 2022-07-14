@@ -310,7 +310,7 @@ docReady(function () {
               data: "enabled",
               render: function (data, type, row) {
                 if (type === "display") {
-                  return '<input type="checkbox"  class="editor-active">';
+                  return '<label class="w-checkbox switch-field-2"><div class="w-checkbox-input w-checkbox-input--inputType-custom switch-2"></div><input class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></label>';
                 }
                 return data;
               },
