@@ -311,9 +311,9 @@ docReady(function () {
               render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></div>';
+                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2"></div>';
                   } else {
-                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></div>';
+                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2"></div>';
                   }
                 }
                 return data;
