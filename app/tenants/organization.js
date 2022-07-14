@@ -406,9 +406,9 @@ docReady(function () {
               render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"></div>';
+                    return '<label class="switch"><input type="checkbox" checked class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
                   } else {
-                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"></div>';
+                    return '<label class="switch"><input type="checkbox" class="editor-active" name="customSwitchText2" wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
                   }
                 }
                 return data;
