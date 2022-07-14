@@ -421,18 +421,16 @@ docReady(function () {
           "change",
           "input.editor-active",
           function () {
-            var tr = $(this).closest('tr');
-            var row = table.row(tr).data();
-            console.log(tr, row)
-            console.log($(this))
+            var myValue = $(this);
+            console.log(myValue)
             if (this.checked) {
-              console.log(this.wholesalerkey);
+              console.log(this.getAttribute("wholesalerkey"));
               console.log("Nieaktywny był")
-              updateStatus(true, this.wholesalerkey)
+              updateStatus(true, this.getAttribute("wholesalerkey"))
             } else {
-              console.log(this.wholesalerkey);
+              console.log(this.getAttribute("wholesalerkey"));
               console.log("Aktywny był")
-              updateStatus(true, this.wholesalerKey)
+              updateStatus(true, this.getAttribute("wholesalerkey"))
             }
           }
         );
