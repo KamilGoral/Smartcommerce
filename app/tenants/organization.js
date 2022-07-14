@@ -308,15 +308,25 @@ docReady(function () {
             {
               orderable: true,
               data: "enabled",
-              render: function (data, type, row) {
+              visible: false,
+              render: function (data, type) {
                 if (type === "display") {
                   if (data) {
-                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2"></div>';
+                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" value="{}"></div>';
                   } else {
-                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2"></div>';
+                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" value="{}"></div>';
                   }
                 }
                 return data;
+              },
+            },
+            {
+              "orderable": true,
+              "data": "",
+              "render": (data, type, full) => {
+                return $.map(full['enabled'].concat(full['wholesalerKey']), function(d, i) {
+                  return d + ' ' + i;
+                }).join(',<br />');
               },
             },
           ],
@@ -332,10 +342,10 @@ docReady(function () {
             console.log($(this))
             if (this.checked) {
               console.log(this);
-              console.log("Aktywny")
+              console.log("Nieaktywny był")
             } else {
               console.log(this);
-              console.log("Nieaktywny")
+              console.log("Aktywny był")
             }
           }
         );
