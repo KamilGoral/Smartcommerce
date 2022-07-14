@@ -109,6 +109,7 @@ docReady(function () {
         failBlock.hide();
       },
       error: function (jqXHR, exception) {
+        console.log("błąd")
         console.log(jqXHR);
         console.log(exception);
         //$('#customSwitchText').attr('disabled', 'disabled');
@@ -132,8 +133,8 @@ docReady(function () {
         } else {
           msg = '' + jqXHR.responseText;
         }
-        const message = document.getElementById("WarningMessage");
-        message.textContent = msg;
+
+        $('.warningmessagetext').text(msg);
         form.show();
         doneBlock.hide();
         failBlock.show();
@@ -425,11 +426,11 @@ docReady(function () {
             console.log(tr, row)
             console.log($(this))
             if (this.checked) {
-              console.log(this.wholesalerKey);
+              console.log(this.wholesalerkey);
               console.log("Nieaktywny był")
-              updateStatus(true, this.wholesalerKey)
+              updateStatus(true, this.wholesalerkey)
             } else {
-              console.log(this.wholesalerKey);
+              console.log(this.wholesalerkey);
               console.log("Aktywny był")
               updateStatus(true, this.wholesalerKey)
             }
