@@ -43,11 +43,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function LogoutNonUser() {
@@ -111,10 +111,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-              DomainName +
-              "/app/shops/shop" +
-              "?shopKey=" +
-              shop.shopKey
+            DomainName +
+            "/app/shops/shop" +
+            "?shopKey=" +
+            shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -310,7 +310,11 @@ docReady(function () {
               data: "enabled",
               render: function (data, type, row) {
                 if (type === "display") {
-                  return '<label class="w-checkbox switch-field-2"><div class="w-checkbox-input w-checkbox-input--inputType-custom switch-2"></div><input class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></label>';
+                  if (data) {
+                    return '<label class="w-checkbox switch-field-2"><div class="w-checkbox-input w-checkbox-input--inputType-custom switch-2 w--redirected-checked"></div><input type="checkbox" checked class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></label>';
+                  } else {
+                    return '<label class="w-checkbox switch-field-2"><div class="w-checkbox-input w-checkbox-input--inputType-custom switch-2"></div><input type="checkbox" class="editor-active" name="customSwitchText2" style="opacity: 0; position: absolute; z-index: -1;"></label>';
+                  }
                 }
                 return data;
               },
@@ -372,9 +376,9 @@ docReady(function () {
             row.setAttribute(
               "href",
               "https://" +
-                DomainName +
-                "/app/integrations/integration?integrationKey=" +
-                integration.integrationKey
+              DomainName +
+              "/app/integrations/integration?integrationKey=" +
+              integration.integrationKey
             );
           }
 
@@ -907,9 +911,9 @@ docReady(function () {
     var rowData = table.row(this).data();
     window.location.replace(
       "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?priceListId=" +
-        rowData.priceListId
+      DomainName +
+      "/app/pricelists/pricelist?priceListId=" +
+      rowData.priceListId
     );
   });
 
