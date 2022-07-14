@@ -308,25 +308,15 @@ docReady(function () {
             {
               orderable: true,
               data: "enabled",
-              visible: false,
-              render: function (data, type) {
+              render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" value="{}"></div>';
+                    return '<div><input type="checkbox" checked class="editor-active" name="customSwitchText2" value="'+ row['wholesalerKey'] +'"></div>';
                   } else {
-                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" value="{}"></div>';
+                    return '<div><input type="checkbox" class="editor-active" name="customSwitchText2" value="'+ row['wholesalerKey'] +'"></div>';
                   }
                 }
                 return data;
-              },
-            },
-            {
-              "orderable": true,
-              "data": "",
-              "render": (data, type, full) => {
-                return $.map(full['enabled'].concat(full['wholesalerKey']), function(d, i) {
-                  return d + ' ' + i;
-                }).join(',<br />');
               },
             },
           ],
