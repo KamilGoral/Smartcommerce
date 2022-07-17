@@ -390,9 +390,9 @@ docReady(function () {
               render: function (data) {
                 if (data !== null) {
                   if (data === true) {
-                    return '<p clas="positive">Tak</p>';
+                    return '<spann class="positive">Tak</spann>';
                   } else {
-                    return '<p clas="negative">Nie</p>';
+                    return '<spann class="negative">Nie</spann>';
                   }
                 }
                 if (data === null) {
