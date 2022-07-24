@@ -613,7 +613,6 @@ docReady(function () {
                 },
                 complete: function () {
                     $('#waitingdots').hide();
-                    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
                 }
             });
             $.get(InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr, function (res) {
@@ -820,7 +819,7 @@ docReady(function () {
             "dom": '<"pull-left"f><"pull-right"l>tip'
         });
     });
-    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+
 
 
 function getWholesalersSh() {
@@ -855,4 +854,4 @@ getWholesalersSh()
 $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
 
 })
- 
+$.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); 
