@@ -291,7 +291,7 @@ docReady(function () {
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
-          pageLength: 10,
+          pageLength: 100,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
