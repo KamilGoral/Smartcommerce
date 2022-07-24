@@ -854,5 +854,9 @@ function getWholesalersSh() {
 getWholesalersSh()
 
 })
-$($.fn.dataTable.tables(true)).DataTable()
-   .columns.adjust();
+
+setTimeout(function(){
+    $($.fn.dataTable.tables(true)).DataTable()
+    .columns.adjust();
+    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); 
+}, 4000);
