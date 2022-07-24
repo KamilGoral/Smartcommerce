@@ -115,9 +115,7 @@ docReady(function () {
         request.onload = function () {
             var data = JSON.parse(this.response);
             var toParse = data.items;
-            console.log(toParse);
             if (request.status >= 200 && request.status < 400) {
-                console.log(Object.keys(toParse).length);
                 const wholesalerContainer = document.getElementById("WholesalerSelector");
                 const wholesalerContainerEdit = document.getElementById("Wholesaler-Selector-Edit");
                 toParse.forEach(wholesaler => {
@@ -839,10 +837,10 @@ docReady(function () {
                 "data": "onlineOffer",
                 "width": "108px",
                 "render": function (data) {
-                    if (data !== null) {
+                    if (data.lastDownload.createDate !== null) {
                         var createDate = "";
                         var offset = new Date().getTimezoneOffset();
-                        var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
+                        var localeTime = new Date(Date.parse(data.lastDownload.createDate) - offset * 60 * 1000).toISOString();
                         var creationDate = localeTime.split('T');
                         var creationTime = creationDate[1].split('Z');
                         createDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
@@ -1428,9 +1426,6 @@ docReady(function () {
                 }
                 var method = "PATCH";
 
-
-                console.log(data);
-
                 $.ajax({
                     type: method,
                     url: action,
@@ -1510,7 +1505,6 @@ docReady(function () {
             $('#waitingdots').hide();
             if (xhr.readyState === 4) {
                 var response = JSON.parse(xhr.responseText);
-                console.log(response);
                 if (xhr.status === 201) {
                     document.getElementById("wf-form-doneCreate-Order").style.display = "block";
 
