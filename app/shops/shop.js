@@ -811,6 +811,7 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": "wholesalerKey",
+                "width": "256px",
                 "render": function (data) {
                     if (data !== null) {
                         return data
@@ -839,7 +840,13 @@ docReady(function () {
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
-                        return data.lastDownload.createDate
+                        var createDate = "";
+                        var offset = new Date().getTimezoneOffset();
+                        var localeTime = new Date(Date.parse(data) - offset * 60 * 1000).toISOString();
+                        var creationDate = localeTime.split('T');
+                        var creationTime = creationDate[1].split('Z');
+                        createDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
+                        return createDate
                     }
                     else {
                         return ""
@@ -852,7 +859,13 @@ docReady(function () {
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
-                        return data.lastDownload.status
+                        var statusWh = data.lastDownload.status;
+
+                        if (statusWh === "Succeeded") {
+                            return '<spann class="positive">Sukces</spann>';
+                          } else {
+                            return '<spann class="negative">Problem</spann>';
+                          }
                     }
                     else {
                         return ""
@@ -862,6 +875,7 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": "onlineOffer",
+                "visible": false,
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
