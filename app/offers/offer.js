@@ -613,6 +613,7 @@ docReady(function () {
                 },
                 complete: function () {
                     $('#waitingdots').hide();
+                    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
                 }
             });
             $.get(InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr, function (res) {
@@ -851,6 +852,7 @@ function getWholesalersSh() {
 }
 
 getWholesalersSh()
+$.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
 
 })
  
