@@ -818,6 +818,7 @@ docReady(function () {
         $('tableSelector').DataTable({
             "dom": '<"pull-left"f><"pull-right"l>tip'
         });
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); 
     });
 
 
@@ -851,7 +852,7 @@ function getWholesalersSh() {
 }
 
 getWholesalersSh()
-$.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
 
 })
-$.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); 
+$($.fn.dataTable.tables(true)).DataTable()
+   .columns.adjust();
