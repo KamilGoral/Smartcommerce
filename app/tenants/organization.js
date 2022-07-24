@@ -1020,12 +1020,6 @@ docReady(function () {
     );
   });
 
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-    }, 200);
-  });
-
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -1100,13 +1094,19 @@ docReady(function () {
   LogoutNonUser();
   getUserRole();
   getShops();
+  getUsers();
+  getIntegrations();
+  getWholesalers();
+
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
-  makeWebflowFormAjaxNewWh($(formIdNewWh));
+  makeWebflowFormAjaxNewWh($(formIdNewWh));  
 
-  getUsers();
-  getIntegrations();
-  getWholesalers();
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    }, 200);
+  });
 });
