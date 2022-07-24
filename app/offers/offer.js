@@ -29,7 +29,6 @@ docReady(function () {
     var counter = 0;
     var shopKey = new URL(location.href).searchParams.get("shopKey");
     var offerId = new URL(location.href).searchParams.get("offerId");
-    var offerId = new URL(location.href).searchParams.get("offerId");
     var OfferDate = new Date(parseInt(offerId) * 1000).toISOString();
     var OfferDateHuman = OfferDate.split('T');
     var OfferDateHumanTime = OfferDateHuman[1].split('Z');
@@ -45,7 +44,6 @@ docReady(function () {
     const OfferDateBread = document.getElementById("OfferDateBread");
     OfferDateBread.textContent = OfferDateHuman[0] + ' ' + OfferDateHumanTime[0];
     OfferDateBread.setAttribute("href", "https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + offerId);
-   
 
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
         var elem = document.getElementById("DataTablesModule");
@@ -816,15 +814,12 @@ docReady(function () {
         getProductDetails(rowData)
         getProductHistory(rowData)
     });
-
-
     $(document).ready(function ($) {
         $('tableSelector').DataTable({
             "dom": '<"pull-left"f><"pull-right"l>tip'
         });
     });
-
-
+    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
 
 
 function getWholesalersSh() {
@@ -856,8 +851,6 @@ function getWholesalersSh() {
 }
 
 getWholesalersSh()
-setTimeout(function () {
-    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-  }, 200);
+
 })
  
