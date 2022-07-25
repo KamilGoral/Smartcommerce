@@ -1495,6 +1495,7 @@ docReady(function () {
         $('#waitingdots').show();
         const xhr = new XMLHttpRequest();
         var myUploadedFile = document.getElementById("orderfile").files[0];
+        var action = InvokeURL + "shops/" + shopKey + "/orders";
         xhr.open("POST", action);
         xhr.setRequestHeader('Accept', 'application/json');
         xhr.setRequestHeader('Content-Type', 'application/octet-stream');
