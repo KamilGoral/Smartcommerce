@@ -473,7 +473,7 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": null,
-                "width": "138px",
+                "width": "72px",
                 "render": function (data, type, row) {
                     if (type === "display") {
                         return '<div class="action-container"><a href="#" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
