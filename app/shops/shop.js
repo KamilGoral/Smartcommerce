@@ -983,6 +983,7 @@ docReady(function () {
                     var data2 = JSON.parse(this.response);
                     if (request2.status >= 200 && request2.status < 400 && data2.profile !== null) {
                         $("#Wholesaler-profile-Selector").val(data2.profile.id).change();
+                        $('#UsernameEdit').val(data2.credentials.username).change();
                         $('#waitingdots').hide();
                     } else {
                         $('#waitingdots').hide();
@@ -996,7 +997,6 @@ docReady(function () {
             $("#EditCredentialsModal").css("display", "flex");
             $("#Wholesaler-profile-Selector-box").hide();
             $('#Wholesaler-Selector-Edit').attr('disabled', true);
-            $('#UsernameEdit').val(data2.credentials.username).change();
             $("#logisticMinimumEdit").val(parseInt(rowData.logisticMinimum)).change();
             $("#Wholesaler-Selector-Edit").val(rowData.wholesalerKey).change();
             $('#Wholesaler-profile-Selector')
