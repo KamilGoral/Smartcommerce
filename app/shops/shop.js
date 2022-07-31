@@ -949,9 +949,6 @@ docReady(function () {
                     console.log(data2)
                     if (request2.status >= 200 && request2.status < 400 && data2.profile !== null) {
                         $("#Wholesaler-profile-Selector").val(data2.profile.id).change();
-                        if (data2.credentials.extraFields !== null) {
-                            $('#CompanyEdit').val(data2.credentials.extraFields.company).change();
-                        }
                         $('#waitingdots').hide();
                     } else {
                         $('#waitingdots').hide();
