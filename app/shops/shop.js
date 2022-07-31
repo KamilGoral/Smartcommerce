@@ -740,7 +740,7 @@ docReady(function () {
             "dom": '<"top">rt<"bottom"lip>',
             "scrollY": "60vh",
             "scrollCollapse": true,
-            "pageLength": 10,
+            "pageLength": 100,
             "language": {
                 "emptyTable": "Brak danych do wyświetlenia",
                 "info": "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -996,6 +996,7 @@ docReady(function () {
             $("#EditCredentialsModal").css("display", "flex");
             $("#Wholesaler-profile-Selector-box").hide();
             $('#Wholesaler-Selector-Edit').attr('disabled', true);
+            $('#UsernameEdit').val(data2.credentials.username).change();
             $("#logisticMinimumEdit").val(parseInt(rowData.logisticMinimum)).change();
             $("#Wholesaler-Selector-Edit").val(rowData.wholesalerKey).change();
             $('#Wholesaler-profile-Selector')
@@ -1170,14 +1171,14 @@ docReady(function () {
             });
         });
     };
-    makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+    makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
         forms.each(function () {
             var form = $(this);
             form.on("submit", function (event) {
                 var container = form.parent();
                 var doneBlock = $("#w-form-done4", container);
                 var failBlock = $("#w-form-fail4", container);
-                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val();
+                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val() + "/online-offer";
                 var method = "PATCH";
                 var LogisticMinimumEdit = parseInt($('#logisticMinimumEdit').val());
                 if (isNaN(LogisticMinimumEdit)) {
@@ -1187,24 +1188,27 @@ docReady(function () {
                 if ($('#CompanyEdit').val()) {
                     var data = [{
                         "op": "add",
-                        "path": "/onlineOffer/username",
+                        "path": "/credentials/username",
                         "value": $('#UsernameEdit').val()
                     },
                     {
                         "op": "add",
-                        "path": "/onlineOffer/password",
+                        "path": "/credentials/password",
                         "value": $('#PasswordEdit').val()
                     },
                     {
                         "op": "add",
-                        "path": "/logisticMinimum",
-                        "value": LogisticMinimumEdit
+                        "path": "/credentials/extraFields",
+                        "value": {
+                            "company": $('#CompanyEdit').val()
+                        }
                     },
                     {
                         "op": "add",
-                        "path": "/onlineOffer/extraFields",
+                        "path": "/profile",
                         "value": {
-                            "company": $('#CompanyEdit').val()
+                            "id": $("#Wholesaler-profile-Selector").val(),
+                            "name": $("#Wholesaler-profile-Selector").attr("name")
                         }
                     }
                     ]
@@ -1212,41 +1216,34 @@ docReady(function () {
                     if ($("#Wholesaler-profile-Selector").val() != "null") {
                         var data = [{
                             "op": "add",
-                            "path": "/onlineOffer/username",
+                            "path": "/credentials/username",
                             "value": $('#UsernameEdit').val()
                         },
                         {
                             "op": "add",
-                            "path": "/onlineOffer/password",
+                            "path": "/credentials/password",
                             "value": $('#PasswordEdit').val()
                         },
                         {
                             "op": "add",
-                            "path": "/logisticMinimum",
-                            "value": LogisticMinimumEdit
-                        },
-                        {
-                            "op": "add",
-                            "path": "/onlineOffer/profile/id",
-                            "value": $("#Wholesaler-profile-Selector").val()
+                            "path": "/profile",
+                            "value": {
+                                "id": $("#Wholesaler-profile-Selector").val(),
+                                "name": $("#Wholesaler-profile-Selector").attr("name")
+                            }
                         }
                         ]
                     } else {
                         var data = [{
                             "op": "add",
-                            "path": "/onlineOffer/username",
+                            "path": "/credentials/username",
                             "value": $('#UsernameEdit').val()
                         },
                         {
                             "op": "add",
-                            "path": "/onlineOffer/password",
+                            "path": "/credentials/password",
                             "value": $('#PasswordEdit').val()
                         },
-                        {
-                            "op": "add",
-                            "path": "/logisticMinimum",
-                            "value": LogisticMinimumEdit
-                        }
                         ]
                     }
                 }
@@ -1658,7 +1655,7 @@ docReady(function () {
 
     makeWebflowFormAjaxDelete($(formIdDelete));
     makeWebflowFormAjaxNew($(formIdNew));
-    makeWebflowFormAjax($(formIdEdit));
+    makeWebflowFormAjaxWh($(formIdEdit));
     makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
     makeWebflowFormAjax($("#wf-form-EditShopInformation"));
     makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
