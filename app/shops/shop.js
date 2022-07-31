@@ -23,7 +23,6 @@ docReady(function () {
     };
 
     var shopKey = new URL(location.href).searchParams.get("shopKey");
-    var offerId = new URL(location.href).searchParams.get("offerId");
     var formIdDelete = "#wf-form-DeleteWholesalerCredential";
     var formIdEdit = "#wf-form-CredentialsFormEdit";
     var formIdNew = "#wf-form-CredentialsForm";
@@ -477,7 +476,7 @@ docReady(function () {
                 "width": "138px",
                 "render": function (data, type, row) {
                     if (type === "display") {
-                        return '<div class="action-container"><a href="#" action="check" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Sprawdź</a><a href="#" action="visit" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
+                        return '<div class="action-container"><a href="#" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
                     }
                 }
             }
@@ -496,22 +495,27 @@ docReady(function () {
         });
 
         $('#table_offers').on('click', 'a', function () {
-            console.log(this);
-            console.log(this.getAttribute("action"))
-            console.log(this.getAttribute("status"))
-            console.log(this.getAttribute("offerId"))
 
-            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "in progress") {
+            if (this.getAttribute("status") == "in progress") {
                 alert("Oferta w trakcie tworzenia. Proszę poczekaj...")
             }
-            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "error") {
+            if (this.getAttribute("status") == "error") {
                 alert("Oops! Coś poszło nie tak. Spróbuj ponownie...");
             }
-            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "ready") {
-                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.offerId);
+            if (this.getAttribute("status") == "ready") {
+                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId"));
             }
-            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "incomplete") {
-                alert("Uwaga! Oferta nie jest komplenta. ");
+            if (this.getAttribute("status") == "incomplete") {
+                $.ajax({
+                    url: InvokeURL + 'shops/' + shopKey + "/offers/" + this.getAttribute("offerId") + "/status",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization",orgToken)},
+                    success: function (data) {
+                        console.log(data.messages)
+                    }
+                });
+                alert("Uwaga! Oferta nie jest komplenta. " + data.messages );
+                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId"));
             }
         });
     }
