@@ -474,6 +474,7 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": null,
+                "width": "138px",
                 "render": function (data, type, row) {
                     if (type === "display") {
                         return '<div class="action-container"><a href="#" action="check" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Sprawdź</a><a href="#" action="visit" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
@@ -496,23 +497,22 @@ docReady(function () {
 
         $('#table_offers').on('click', 'a', function () {
             console.log(this);
-            console.log(this.action);
-            console.log(this.status);
-            console.log(this.offerId);
+            console.log(this.getAttribute("action"))
+            console.log(this.getAttribute("status"))
+            console.log(this.getAttribute("offerId"))
 
-            if (this.status == "in progress") {
+            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "in progress") {
                 alert("Oferta w trakcie tworzenia. Proszę poczekaj...")
             }
-            if (this.status == "error") {
+            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "error") {
                 alert("Oops! Coś poszło nie tak. Spróbuj ponownie...");
             }
-            if (this.status == "ready") {
+            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "ready") {
                 window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.offerId);
             }
-            if (this.status == "incomplete") {
+            if (this.getAttribute("action") == "visit" && this.getAttribute("status") == "incomplete") {
                 alert("Uwaga! Oferta nie jest komplenta. ");
             }
-
         });
     }
     function getPriceLists() {
