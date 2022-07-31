@@ -477,7 +477,7 @@ docReady(function () {
                 "orderable": false,
                 "data": null,
                 "width": "36px",
-                "defaultContent": '<a href="#" class="buttonoutline editme w-button">Sprawdź</a><a href="#" class="buttonoutline editme w-button">Przejdź</a>' 
+                "defaultContent": '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Sprawdź</a><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>' 
             }
             ],
             "initComplete": function (settings, json) {
@@ -493,7 +493,8 @@ docReady(function () {
 
         });
 
-        $('#table_offers').on('click', 'tr', function () {
+        $('#table_offers').on('click', 'a', function () {
+            console.log(this);
             var rowData = table.row(this).data();
             if (rowData.status == "in progress") {
                 alert("Oferta w trakcie tworzenia. Proszę poczekaj...")
