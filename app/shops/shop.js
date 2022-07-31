@@ -419,7 +419,6 @@ docReady(function () {
                 "orderable": false,
                 "visible": false,
                 "data": "offerId",
-                "width": "324px",
                 "render": function (data) {
                     if (data !== null) {
                         return data
@@ -452,7 +451,6 @@ docReady(function () {
             {
                 "orderable": true,
                 "data": "status",
-                "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
                         if (data == "ready") {
@@ -476,8 +474,11 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": null,
-                "width": "36px",
-                "defaultContent": '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Sprawdź</a><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>' 
+                "render": function (data, type, row) {
+                    if (type === "display") {
+                        return '<div class="action-container"><a href="#" check="true"status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Sprawdź</a><a href="#" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
+                    }
+                }
             }
             ],
             "initComplete": function (settings, json) {
@@ -868,9 +869,9 @@ docReady(function () {
 
                         if (statusWh === "Succeeded") {
                             return '<spann class="positive">Sukces</spann>';
-                          } else {
+                        } else {
                             return '<spann class="negative">Problem</spann>';
-                          }
+                        }
                     }
                     else {
                         return ""
