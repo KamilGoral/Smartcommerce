@@ -1010,20 +1010,20 @@ docReady(function () {
 
     }
 
-    makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+    makeWebflowFormAjaxDeleteWh = function (forms, successCallback, errorCallback) {
         forms.each(function () {
             var form = $(this);
             form.on("submit", function (event) {
                 var container = form.parent();
                 var doneBlock = $("#w-form-done3", container);
                 var failBlock = $("#w-form-fail3", container);
-                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val();
+                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val() + "/online-offer";
                 var method = "PATCH";
 
 
                 var data = [{
                     "op": "remove",
-                    "path": "/onlineOffer"
+                    "path": "/credentials"
                 }];
                 $.ajax({
                     type: method,
@@ -1084,23 +1084,23 @@ docReady(function () {
                 var container = form.parent();
                 var doneBlock = $("#w-form-done2", container);
                 var failBlock = $("#w-form-fail2", container);
-                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#WholesalerSelector').val();
+                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#WholesalerSelector').val() + "/online-offer";
                 var method = "PATCH";
                 //mirex case
                 if ($('#Company').val()) {
                     var data = [{
                         "op": "add",
-                        "path": "/onlineOffer/username",
+                        "path": "/credentials/username",
                         "value": $('#Username').val()
                     },
                     {
                         "op": "add",
-                        "path": "/onlineOffer/password",
+                        "path": "/credentials/password",
                         "value": $('#Password').val()
                     },
                     {
                         "op": "add",
-                        "path": "/onlineOffer/extraFields",
+                        "path": "/credentials/extraFields",
                         "value": {
                             "company": $('#Company').val()
                         }
@@ -1109,12 +1109,12 @@ docReady(function () {
                 } else {
                     var data = [{
                         "op": "add",
-                        "path": "/onlineOffer/username",
+                        "path": "/credentials/username",
                         "value": $('#Username').val()
                     },
                     {
                         "op": "add",
-                        "path": "/onlineOffer/password",
+                        "path": "/credentials/password",
                         "value": $('#Password').val()
                     }
                     ]
@@ -1653,7 +1653,7 @@ docReady(function () {
         FileUpload();
     });
 
-    makeWebflowFormAjaxDelete($(formIdDelete));
+    makeWebflowFormAjaxDeleteWh($(formIdDelete));
     makeWebflowFormAjaxNew($(formIdNew));
     makeWebflowFormAjaxWh($(formIdEdit));
     makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
