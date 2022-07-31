@@ -509,14 +509,14 @@ docReady(function () {
                 $.ajax({
                     url: InvokeURL + 'shops/' + shopKey + "/offers/" + this.getAttribute("offerId") + "/status",
                     beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization",orgToken)},
+                        xhr.setRequestHeader("Authorization", orgToken)
+                    },
                     success: function (data) {
                         console.log(data.messages)
-                        alert("Uwaga! Oferta nie jest komplenta. " + data.messages );
-                        window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId"));
+                        if (confirm("Uwaga! Oferta nie jest komplenta. " + data.messages)) document.location = "https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId")
                     }
                 });
-                
+
             }
         });
     }
