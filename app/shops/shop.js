@@ -476,7 +476,7 @@ docReady(function () {
                 "data": null,
                 "render": function (data, type, row) {
                     if (type === "display") {
-                        return '<div class="action-container"><a href="#" check="true"status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Sprawdź</a><a href="#" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
+                        return '<div class="action-container"><a href="#" action="check" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Sprawdź</a><a href="#" action="visit" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
                     }
                 }
             }
@@ -496,19 +496,21 @@ docReady(function () {
 
         $('#table_offers').on('click', 'a', function () {
             console.log(this);
-            var rowData = table.row(this).data();
-            if (rowData.status == "in progress") {
+            console.log(this.action);
+            console.log(this.status);
+            console.log(this.offerId);
+
+            if (this.status == "in progress") {
                 alert("Oferta w trakcie tworzenia. Proszę poczekaj...")
             }
-            if (rowData.status == "error") {
+            if (this.status == "error") {
                 alert("Oops! Coś poszło nie tak. Spróbuj ponownie...");
             }
-            if (rowData.status == "ready") {
-                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + rowData.offerId);
+            if (this.status == "ready") {
+                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.offerId);
             }
-            if (rowData.status == "incomplete") {
+            if (this.status == "incomplete") {
                 alert("Uwaga! Oferta nie jest komplenta. ");
-                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + rowData.offerId);
             }
 
         });
