@@ -939,6 +939,28 @@ docReady(function () {
         $('#table_wholesalers').on('click', 'tr', function () {
             var rowData = table.row(this).data();
 
+            function pickProfile() {
+                let url2 = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey + "/online-offer");
+                let request2 = new XMLHttpRequest();
+                request2.open('GET', url2, true);
+                request2.setRequestHeader("Authorization", orgToken);
+                request2.onload = function () {
+                    var data2 = JSON.parse(this.response);
+                    console.log(data2)
+                    if (request2.status >= 200 && request2.status < 400 && data2.profile !== null) {
+                        $("#Wholesaler-profile-Selector").val(data2.profile.id).change();
+                        $('#waitingdots').hide();
+                    } else {
+                        $('#waitingdots').hide();
+                    }
+                    if (request2.status >= 200 && request2.status < 400 && data2.credentials.extraFields.company !== null) {
+                        $('#CompanyEdit').val(data2.credentials.extraFields.company).change();
+                    }
+                    $('#UsernameEdit').val(data2.credentials.username).change();
+                }
+                request2.send();
+            }
+
             function getProfile() {
 
                 let url = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey + "/online-offer/profiles");
@@ -964,6 +986,7 @@ docReady(function () {
                             optProfile.innerHTML = profile.name;
                             wholesalerProfileContainer.appendChild(optProfile);
                         });
+                        pickProfile();
                     } else if (request.status == 401) {
                         console.log("Unauthorized");
                     } else {
@@ -973,26 +996,6 @@ docReady(function () {
                 }
                 request.send();
             };
-
-            function pickProfile() {
-                let url2 = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey + "/online-offer");
-                let request2 = new XMLHttpRequest();
-                request2.open('GET', url2, true);
-                request2.setRequestHeader("Authorization", orgToken);
-                request2.onload = function () {
-                    var data2 = JSON.parse(this.response);
-                    console.log(data2)
-                    if (request2.status >= 200 && request2.status < 400 && data2.profile !== null) {
-                        $("#Wholesaler-profile-Selector").val(data2.profile.id).change();   
-                        $('#waitingdots').hide();
-                    } else {
-                        $('#waitingdots').hide();
-                    }
-                    $('#UsernameEdit').val(data2.credentials.username).change();
-                    $('#CompanyEdit').val(data2.credentials.extraFields.company).change();
-                }
-                request2.send();
-            }
 
             $('#waitingdots').show();
             getProfile();
