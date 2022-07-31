@@ -496,24 +496,27 @@ docReady(function () {
 
         $('#table_offers').on('click', 'a', function () {
 
-            if (this.getAttribute("status") == "in progress") {
+            var clikedEl = this;
+
+            if (clikedEl.getAttribute("status") == "in progress") {
                 alert("Oferta w trakcie tworzenia. Proszę poczekaj...")
             }
-            if (this.getAttribute("status") == "error") {
+            if (clikedEl.getAttribute("status") == "error") {
                 alert("Oops! Coś poszło nie tak. Spróbuj ponownie...");
             }
-            if (this.getAttribute("status") == "ready") {
-                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId"));
+            if (clikedEl.getAttribute("status") == "ready") {
+                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + clikedEl.getAttribute("offerId"));
             }
-            if (this.getAttribute("status") == "incomplete") {
+            if (clikedEl.getAttribute("status") == "incomplete") {
                 $.ajax({
-                    url: InvokeURL + 'shops/' + shopKey + "/offers/" + this.getAttribute("offerId") + "/status",
+                    url: InvokeURL + 'shops/' + shopKey + "/offers/" + clikedEl.getAttribute("offerId") + "/status",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", orgToken)
                     },
                     success: function (data) {
-                        console.log(data.messages)
-                        if (confirm("Uwaga! Oferta nie jest komplenta. " + data.messages)) document.location = "https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId")
+                        console.log(data.messages);
+                        console.log(clikedEl);
+                        if (confirm("Uwaga! Oferta nie jest komplenta. " + data.messages)) document.location = "https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + clikedEl.getAttribute("offerId")
                     }
                 });
 
