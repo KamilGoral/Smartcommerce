@@ -512,9 +512,9 @@ docReady(function () {
                         xhr.setRequestHeader("Authorization",orgToken)},
                     success: function (data) {
                         console.log(data.messages)
+                        alert("Uwaga! Oferta nie jest komplenta. " + data.messages );
                     }
                 });
-                alert("Uwaga! Oferta nie jest komplenta. " + data.messages );
                 window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + this.getAttribute("offerId"));
             }
         });
