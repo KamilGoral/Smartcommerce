@@ -472,6 +472,12 @@ docReady(function () {
                         return ""
                     };
                 }
+            },
+            {
+                "orderable": false,
+                "data": null,
+                "width": "36px",
+                "defaultContent": '<a href="#" class="buttonoutline editme w-button">Sprawdź</a><a href="#" class="buttonoutline editme w-button">Przejdź</a>' 
             }
             ],
             "initComplete": function (settings, json) {
