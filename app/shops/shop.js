@@ -827,6 +827,19 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": "wholesalerKey",
+                "visible": false,
+                "render": function (data) {
+                    if (data !== null) {
+                        return data
+                    }
+                    else {
+                        return ""
+                    }
+                }
+            },
+            {
+                "orderable": false,
+                "data": "name",
                 "width": "256px",
                 "render": function (data) {
                     if (data !== null) {
@@ -852,53 +865,52 @@ docReady(function () {
             },
             {
                 "orderable": false,
-                "data": "onlineOffer",
-                "width": "108px",
-                "render": function (data) {
-                    if (data.lastDownload.createDate !== null) {
-                        var createDate = "";
-                        var offset = new Date().getTimezoneOffset();
-                        var localeTime = new Date(Date.parse(data.lastDownload.createDate) - offset * 60 * 1000).toISOString();
-                        var creationDate = localeTime.split('T');
-                        var creationTime = creationDate[1].split('Z');
-                        createDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
-                        return createDate
-                    }
-                    else {
-                        return ""
-                    }
-                }
-            },
-            {
-                "orderable": false,
-                "data": "onlineOffer",
+                "data": "connections.ftp",
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
-                        var statusWh = data.lastDownload.status;
-
-                        if (statusWh === "Succeeded") {
-                            return '<spann class="positive">Sukces</spann>';
+                        if (data.enabled) {
+                            return '<spann class="positive">Tak</spann>';
                         } else {
-                            return '<spann class="negative">Problem</spann>';
+                            return '<spann class="negative">Nie</spann>';
                         }
                     }
                     else {
-                        return ""
+                        return '<spann class="negative">Nie</spann>';
                     }
                 }
             },
             {
                 "orderable": false,
-                "data": "onlineOffer",
-                "visible": false,
+                "data": "connections.wms",
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
-                        return data.username
+                        if (data.enabled) {
+                            return '<spann class="positive">Tak</spann>';
+                        } else {
+                            return '<spann class="negative">Nie</spann>';
+                        }
                     }
                     else {
-                        return ""
+                        return '<spann class="negative">Nie</spann>';
+                    }
+                }
+            },
+            {
+                "orderable": false,
+                "data": "connections.onlineOffer",
+                "width": "108px",
+                "render": function (data) {
+                    if (data !== null) {
+                        if (data.enabled) {
+                            return '<spann class="positive">Tak</spann>';
+                        } else {
+                            return '<spann class="negative">Nie</spann>';
+                        }
+                    }
+                    else {
+                        return '<spann class="negative">Nie</spann>';
                     }
                 }
             },
