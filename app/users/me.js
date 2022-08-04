@@ -141,9 +141,10 @@ docReady(function () {
     return colour;
   }
 
-  function decisionInviation() {
-    const actionUrl = this.getAttribute("action");
-    const decision = this.getAttribute("decision");
+  function decisionInviation(but) {
+    console.log(but);
+    const actionUrl = but.getAttribute("action");
+    const decision = but.getAttribute("decision");
     var isTrueSet = decision === "accept";
     let request = new XMLHttpRequest();
     var data = [
