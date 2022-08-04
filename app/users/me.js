@@ -26,7 +26,6 @@ docReady(function () {
   var formId = "#wf-form-Create-Organization-Form";
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
-  var ClientID = sessionStorage.getItem("OrganizationclientId");
   var useremail = document.getElementById("useremail").text;
   var formIdChangePassword = "#wf-form-Form-Change-Password";
 
@@ -351,7 +350,7 @@ docReady(function () {
         var data = {
           "Current-Password": inputdata[0].value,
           "New-Password": inputdata[1].value,
-          ClientID: ClientID,
+          ClientID: OrganizationclientId,
           AccessToken: accessToken,
           "User-Email": $("#useremail").text(),
         };
