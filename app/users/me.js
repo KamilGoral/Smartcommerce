@@ -141,8 +141,7 @@ docReady(function () {
     return colour;
   }
 
-  function decisionInviation(evt) {
-    evt.preventDefault();
+  function decisionInviation() {
     const actionUrl = this.getAttribute("action");
     const decision = this.getAttribute("decision");
     var isTrueSet = decision === "accept";
