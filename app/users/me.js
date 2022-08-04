@@ -194,6 +194,10 @@ docReady(function () {
             InvokeURL + "users/me/invitations/" + invitation.id
           );
           rejectButton.setAttribute("decision", "reject");
+          rejectButton.onclick = function () {
+            console.log(button);
+            decisionInviation(button)
+          }
 
           const acceptButton = row.getElementsByTagName("a")[0];
           acceptButton.setAttribute(
@@ -201,6 +205,10 @@ docReady(function () {
             InvokeURL + "users/me/invitations/" + invitation.id
           );
           acceptButton.setAttribute("decision", "accept");
+          acceptButton.onclick = function () {
+            console.log(button);
+            decisionInviation(button)
+          }
           orgContainer.appendChild(row);
         });
       }
@@ -442,16 +450,6 @@ docReady(function () {
       }
     };
     request.send(JSON.stringify(datatosend));
-  }
-
-  let buttons = document.getElementsByClassName('feature-icon-wrapper-2');
-
-  for (var i = 0; i < buttons.length; i++) {
-    var button = buttons[i];
-    button.onclick = function () {
-      console.log(button);
-      decisionInviation(button)
-    }
   }
 
   makeWebflowFormAjaxCreate($(formIdChangePassword));
