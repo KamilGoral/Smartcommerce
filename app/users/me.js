@@ -425,6 +425,8 @@ docReady(function () {
         username.textContent = UserInfo.UserAttributes[2].Value;
         const userfamilyname = document.getElementById("userfamilyname");
         userfamilyname.textContent = UserInfo.UserAttributes[3].Value;
+        var useremail = document.getElementById("useremail");
+        useremail.textContent = UserInfo.UserAttributes[4].Value;
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
           "Witaj, " +
@@ -432,6 +434,8 @@ docReady(function () {
           " " +
           UserInfo.UserAttributes[3].Value +
           "!";
+
+
         function setCookieAndSession(cName, cValue, expirationSec) {
           let date = new Date();
           date.setTime(date.getTime() + expirationSec * 1000);
