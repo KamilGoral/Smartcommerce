@@ -451,4 +451,5 @@ docReady(function () {
   getInvitations();
   getOrganiations();
   getUser();
+  
 });

@@ -23,6 +23,7 @@ docReady(function () {
     };
 
     var shopKey = new URL(location.href).searchParams.get("shopKey");
+    var offerId = new URL(location.href).searchParams.get("offerId");
     var formIdDelete = "#wf-form-DeleteWholesalerCredential";
     var formIdEdit = "#wf-form-CredentialsFormEdit";
     var formIdNew = "#wf-form-CredentialsForm";
@@ -418,6 +419,7 @@ docReady(function () {
                 "orderable": false,
                 "visible": false,
                 "data": "offerId",
+                "width": "324px",
                 "render": function (data) {
                     if (data !== null) {
                         return data
@@ -450,6 +452,7 @@ docReady(function () {
             {
                 "orderable": true,
                 "data": "status",
+                "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
                         if (data == "ready") {
@@ -469,16 +472,6 @@ docReady(function () {
                         return ""
                     };
                 }
-            },
-            {
-                "orderable": false,
-                "data": null,
-                "width": "72px",
-                "render": function (data, type, row) {
-                    if (type === "display") {
-                        return '<div class="action-container"><a href="#" status="' + row["status"] + '" offerId="' + row["offerId"] + '" class="buttonoutline editme w-button">Przejdź</a></div>'
-                    }
-                }
             }
             ],
             "initComplete": function (settings, json) {
@@ -494,33 +487,22 @@ docReady(function () {
 
         });
 
-        $('#table_offers').on('click', 'a', function () {
-
-            var clikedEl = this;
-
-            if (clikedEl.getAttribute("status") == "in progress") {
+        $('#table_offers').on('click', 'tr', function () {
+            var rowData = table.row(this).data();
+            if (rowData.status == "in progress") {
                 alert("Oferta w trakcie tworzenia. Proszę poczekaj...")
             }
-            if (clikedEl.getAttribute("status") == "error") {
+            if (rowData.status == "error") {
                 alert("Oops! Coś poszło nie tak. Spróbuj ponownie...");
             }
-            if (clikedEl.getAttribute("status") == "ready") {
-                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + clikedEl.getAttribute("offerId"));
+            if (rowData.status == "ready") {
+                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + rowData.offerId);
             }
-            if (clikedEl.getAttribute("status") == "incomplete") {
-                $.ajax({
-                    url: InvokeURL + 'shops/' + shopKey + "/offers/" + clikedEl.getAttribute("offerId") + "/status",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", orgToken)
-                    },
-                    success: function (data) {
-                        console.log(data.messages);
-                        console.log(clikedEl);
-                        if (confirm("Uwaga! Oferta nie jest komplenta. " + data.messages)) document.location = "https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + clikedEl.getAttribute("offerId")
-                    }
-                });
+            if (rowData.status == "incomplete") {
+                alert("Uwaga! Oferta nie jest komplenta. ");
+                window.location.replace("https://" + DomainName + "/app/offers/offer?shopKey=" + shopKey + "&offerId=" + rowData.offerId);
+            }
 
-            }
         });
     }
     function getPriceLists() {
@@ -740,7 +722,7 @@ docReady(function () {
             "dom": '<"top">rt<"bottom"lip>',
             "scrollY": "60vh",
             "scrollCollapse": true,
-            "pageLength": 100,
+            "pageLength": 10,
             "language": {
                 "emptyTable": "Brak danych do wyświetlenia",
                 "info": "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -827,19 +809,6 @@ docReady(function () {
             {
                 "orderable": false,
                 "data": "wholesalerKey",
-                "visible": false,
-                "render": function (data) {
-                    if (data !== null) {
-                        return data
-                    }
-                    else {
-                        return ""
-                    }
-                }
-            },
-            {
-                "orderable": false,
-                "data": "name",
                 "width": "256px",
                 "render": function (data) {
                     if (data !== null) {
@@ -859,58 +828,59 @@ docReady(function () {
                         return data
                     }
                     else {
-                        return "-"
+                        return ""
                     }
                 }
             },
             {
                 "orderable": false,
-                "data": "connections.ftp",
+                "data": "onlineOffer",
                 "width": "108px",
                 "render": function (data) {
-                    if (data !== null) {
-                        if (data.enabled) {
-                            return '<spann class="positive">Tak</spann>';
-                        } else {
-                            return '<spann class="negative">Nie</spann>';
-                        }
+                    if (data.lastDownload.createDate !== null) {
+                        var createDate = "";
+                        var offset = new Date().getTimezoneOffset();
+                        var localeTime = new Date(Date.parse(data.lastDownload.createDate) - offset * 60 * 1000).toISOString();
+                        var creationDate = localeTime.split('T');
+                        var creationTime = creationDate[1].split('Z');
+                        createDate = creationDate[0] + ' ' + creationTime[0].slice(0, -4);
+                        return createDate
                     }
                     else {
-                        return '<spann class="negative">Nie</spann>';
+                        return ""
                     }
                 }
             },
             {
                 "orderable": false,
-                "data": "connections.wms",
+                "data": "onlineOffer",
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
-                        if (data.enabled) {
-                            return '<spann class="positive">Tak</spann>';
-                        } else {
-                            return '<spann class="negative">Nie</spann>';
-                        }
+                        var statusWh = data.lastDownload.status;
+
+                        if (statusWh === "Succeeded") {
+                            return '<spann class="positive">Sukces</spann>';
+                          } else {
+                            return '<spann class="negative">Problem</spann>';
+                          }
                     }
                     else {
-                        return '<spann class="negative">Nie</spann>';
+                        return ""
                     }
                 }
             },
             {
                 "orderable": false,
-                "data": "connections.onlineOffer",
+                "data": "onlineOffer",
+                "visible": false,
                 "width": "108px",
                 "render": function (data) {
                     if (data !== null) {
-                        if (data.enabled) {
-                            return '<spann class="positive">Tak</spann>';
-                        } else {
-                            return '<spann class="negative">Nie</spann>';
-                        }
+                        return data.username
                     }
                     else {
-                        return '<spann class="negative">Nie</spann>';
+                        return ""
                     }
                 }
             },
@@ -939,29 +909,9 @@ docReady(function () {
         $('#table_wholesalers').on('click', 'tr', function () {
             var rowData = table.row(this).data();
 
-            function pickProfile() {
-                let url2 = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey + "/online-offer");
-                let request2 = new XMLHttpRequest();
-                request2.open('GET', url2, true);
-                request2.setRequestHeader("Authorization", orgToken);
-                request2.onload = function () {
-                    var data2 = JSON.parse(this.response);
-                    console.log(data2)
-                    if (request2.status >= 200 && request2.status < 400 && data2.profile !== null) {
-                        $("#Wholesaler-profile-Selector").val(data2.profile.id).change();
-                        $('#waitingdots').hide();
-                    } else {
-                        $('#waitingdots').hide();
-                    }
-                    
-                    $('#UsernameEdit').val(data2.credentials.username).change();
-                }
-                request2.send();
-            }
-
             function getProfile() {
 
-                let url = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey + "/online-offer/profiles");
+                let url = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey + "/profiles");
                 if (rowData.wholesalerKey == "mirex") {
                     $("#CompanyDivEdit").show();
                 } else {
@@ -978,13 +928,12 @@ docReady(function () {
                         $("#Wholesaler-profile-Selector-box").show();
                         $("#Wholesaler-profile-Selector").attr('required', '');
                         const wholesalerProfileContainer = document.getElementById("Wholesaler-profile-Selector");
-                        toParse.forEach(profile => {
+                        toParse.forEach(wholesaler => {
                             var optProfile = document.createElement('option');
-                            optProfile.value = profile.id;
-                            optProfile.innerHTML = profile.name;
+                            optProfile.value = wholesaler.id;
+                            optProfile.innerHTML = wholesaler.name;
                             wholesalerProfileContainer.appendChild(optProfile);
                         });
-                        pickProfile();
                     } else if (request.status == 401) {
                         console.log("Unauthorized");
                     } else {
@@ -995,11 +944,29 @@ docReady(function () {
                 request.send();
             };
 
+            function pickProfile() {
+                let url2 = new URL(InvokeURL + 'shops/' + shopKey + "/wholesalers/" + rowData.wholesalerKey);
+                let request2 = new XMLHttpRequest();
+                request2.open('GET', url2, true);
+                request2.setRequestHeader("Authorization", orgToken);
+                request2.onload = function () {
+                    var data2 = JSON.parse(this.response);
+                    if (request2.status >= 200 && request2.status < 400 && data2.onlineOffer.profile !== null) {
+                        $("#Wholesaler-profile-Selector").val(data2.onlineOffer.profile.id).change();
+                        $('#waitingdots').hide();
+                    } else {
+                        $('#waitingdots').hide();
+                    }
+                }
+                request2.send();
+            }
+
             $('#waitingdots').show();
             getProfile();
             $("#EditCredentialsModal").css("display", "flex");
             $("#Wholesaler-profile-Selector-box").hide();
             $('#Wholesaler-Selector-Edit').attr('disabled', true);
+            $("#UsernameEdit").val(rowData.onlineOffer.username).change();
             $("#logisticMinimumEdit").val(parseInt(rowData.logisticMinimum)).change();
             $("#Wholesaler-Selector-Edit").val(rowData.wholesalerKey).change();
             $('#Wholesaler-profile-Selector')
@@ -1013,20 +980,20 @@ docReady(function () {
 
     }
 
-    makeWebflowFormAjaxDeleteWh = function (forms, successCallback, errorCallback) {
+    makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
         forms.each(function () {
             var form = $(this);
             form.on("submit", function (event) {
                 var container = form.parent();
                 var doneBlock = $("#w-form-done3", container);
                 var failBlock = $("#w-form-fail3", container);
-                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val() + "/online-offer";
+                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val();
                 var method = "PATCH";
 
 
                 var data = [{
                     "op": "remove",
-                    "path": "/credentials"
+                    "path": "/onlineOffer"
                 }];
                 $.ajax({
                     type: method,
@@ -1087,23 +1054,23 @@ docReady(function () {
                 var container = form.parent();
                 var doneBlock = $("#w-form-done2", container);
                 var failBlock = $("#w-form-fail2", container);
-                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#WholesalerSelector').val() + "/online-offer";
+                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#WholesalerSelector').val();
                 var method = "PATCH";
                 //mirex case
                 if ($('#Company').val()) {
                     var data = [{
                         "op": "add",
-                        "path": "/credentials/username",
+                        "path": "/onlineOffer/username",
                         "value": $('#Username').val()
                     },
                     {
                         "op": "add",
-                        "path": "/credentials/password",
+                        "path": "/onlineOffer/password",
                         "value": $('#Password').val()
                     },
                     {
                         "op": "add",
-                        "path": "/credentials/extraFields",
+                        "path": "/onlineOffer/extraFields",
                         "value": {
                             "company": $('#Company').val()
                         }
@@ -1112,12 +1079,12 @@ docReady(function () {
                 } else {
                     var data = [{
                         "op": "add",
-                        "path": "/credentials/username",
+                        "path": "/onlineOffer/username",
                         "value": $('#Username').val()
                     },
                     {
                         "op": "add",
-                        "path": "/credentials/password",
+                        "path": "/onlineOffer/password",
                         "value": $('#Password').val()
                     }
                     ]
@@ -1174,14 +1141,14 @@ docReady(function () {
             });
         });
     };
-    makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
+    makeWebflowFormAjaxEdit = function (forms, successCallback, errorCallback) {
         forms.each(function () {
             var form = $(this);
             form.on("submit", function (event) {
                 var container = form.parent();
                 var doneBlock = $("#w-form-done4", container);
                 var failBlock = $("#w-form-fail4", container);
-                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val() + "/online-offer";
+                var action = InvokeURL + "shops/" + shopKey + "/wholesalers/" + $('#Wholesaler-Selector-Edit').val();
                 var method = "PATCH";
                 var LogisticMinimumEdit = parseInt($('#logisticMinimumEdit').val());
                 if (isNaN(LogisticMinimumEdit)) {
@@ -1191,27 +1158,24 @@ docReady(function () {
                 if ($('#CompanyEdit').val()) {
                     var data = [{
                         "op": "add",
-                        "path": "/credentials/username",
+                        "path": "/onlineOffer/username",
                         "value": $('#UsernameEdit').val()
                     },
                     {
                         "op": "add",
-                        "path": "/credentials/password",
+                        "path": "/onlineOffer/password",
                         "value": $('#PasswordEdit').val()
                     },
                     {
                         "op": "add",
-                        "path": "/credentials/extraFields",
-                        "value": {
-                            "company": $('#CompanyEdit').val()
-                        }
+                        "path": "/logisticMinimum",
+                        "value": LogisticMinimumEdit
                     },
                     {
                         "op": "add",
-                        "path": "/profile",
+                        "path": "/onlineOffer/extraFields",
                         "value": {
-                            "id": $("#Wholesaler-profile-Selector").val(),
-                            "name": $("#Wholesaler-profile-Selector").attr("name")
+                            "company": $('#CompanyEdit').val()
                         }
                     }
                     ]
@@ -1219,34 +1183,41 @@ docReady(function () {
                     if ($("#Wholesaler-profile-Selector").val() != "null") {
                         var data = [{
                             "op": "add",
-                            "path": "/credentials/username",
+                            "path": "/onlineOffer/username",
                             "value": $('#UsernameEdit').val()
                         },
                         {
                             "op": "add",
-                            "path": "/credentials/password",
+                            "path": "/onlineOffer/password",
                             "value": $('#PasswordEdit').val()
                         },
                         {
                             "op": "add",
-                            "path": "/profile",
-                            "value": {
-                                "id": $("#Wholesaler-profile-Selector").val(),
-                                "name": $("#Wholesaler-profile-Selector").attr("name")
-                            }
+                            "path": "/logisticMinimum",
+                            "value": LogisticMinimumEdit
+                        },
+                        {
+                            "op": "add",
+                            "path": "/onlineOffer/profile/id",
+                            "value": $("#Wholesaler-profile-Selector").val()
                         }
                         ]
                     } else {
                         var data = [{
                             "op": "add",
-                            "path": "/credentials/username",
+                            "path": "/onlineOffer/username",
                             "value": $('#UsernameEdit').val()
                         },
                         {
                             "op": "add",
-                            "path": "/credentials/password",
+                            "path": "/onlineOffer/password",
                             "value": $('#PasswordEdit').val()
                         },
+                        {
+                            "op": "add",
+                            "path": "/logisticMinimum",
+                            "value": LogisticMinimumEdit
+                        }
                         ]
                     }
                 }
@@ -1510,70 +1481,6 @@ docReady(function () {
         });
     }
 
-    makeWebflowFormAjaxRefreshOffer = function (forms, successCallback, errorCallback) {
-        forms.each(function () {
-            var form = $(this);
-            form.on("submit", function (event) {
-                var container = form.parent();
-                var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
-                var failBlock = $("#wf-form-RefreshOfferFormfail", container);
-                var action = InvokeURL + "shops/" + shopKey + "/offers";
-                var method = "POST";
-                var data = "";
-
-                $.ajax({
-                    type: method,
-                    url: action,
-                    cors: true,
-                    beforeSend: function () {
-                        $('#waitingdots').show();
-                    },
-                    complete: function () {
-                        $('#waitingdots').hide();
-                    },
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': orgToken
-                    },
-                    data: JSON.stringify(data),
-                    success: function (resultData) {
-                        if (typeof successCallback === 'function') {
-                            result = successCallback(resultData);
-                            if (!result) {
-                                form.show();
-                                doneBlock.hide();
-                                failBlock.show();
-                                console.log(e);
-                                return;
-                            }
-                        }
-                        form.show();
-                        doneBlock.show();
-                        doneBlock.fadeOut(3000)
-                        failBlock.hide();
-                        window.setTimeout(function () {
-                            location.reload();
-                        }, 2000);
-                    },
-                    error: function (e) {
-                        if (typeof errorCallback === 'function') {
-                            errorCallback(e)
-                        }
-                        form.show();
-                        doneBlock.hide();
-                        failBlock.show();
-                        console.log(e);
-                    }
-                });
-                event.preventDefault();
-                return false;
-            });
-        });
-    }
-
     $("#WholesalerSelector").on("change", function () {
         console.log($(this).val());
         if ($(this).val() == "mirex") {
@@ -1656,12 +1563,11 @@ docReady(function () {
         FileUpload();
     });
 
-    makeWebflowFormAjaxDeleteWh($(formIdDelete));
+    makeWebflowFormAjaxDelete($(formIdDelete));
     makeWebflowFormAjaxNew($(formIdNew));
-    makeWebflowFormAjaxWh($(formIdEdit));
+    makeWebflowFormAjaxEdit($("#wf-form-CredentialsFormEdit"));
     makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
     makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-    makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
     getShop();
     getWholesalersSh();
