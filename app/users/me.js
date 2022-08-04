@@ -350,7 +350,6 @@ docReady(function () {
         var data = {
           "Current-Password": inputdata[0].value,
           "New-Password": inputdata[1].value,
-          ClientID: OrganizationclientId,
           AccessToken: accessToken,
           "User-Email": $("#useremail").text(),
         };
