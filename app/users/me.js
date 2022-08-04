@@ -195,8 +195,8 @@ docReady(function () {
           );
           rejectButton.setAttribute("decision", "reject");
           rejectButton.onclick = function () {
-            console.log(button);
-            decisionInviation(button)
+            console.log(rejectButton);
+            decisionInviation(rejectButton)
           }
 
           const acceptButton = row.getElementsByTagName("a")[0];
@@ -206,8 +206,8 @@ docReady(function () {
           );
           acceptButton.setAttribute("decision", "accept");
           acceptButton.onclick = function () {
-            console.log(button);
-            decisionInviation(button)
+            console.log(acceptButton);
+            decisionInviation(acceptButton)
           }
           orgContainer.appendChild(row);
         });
