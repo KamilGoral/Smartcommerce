@@ -119,11 +119,26 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const statusContainer = document.getElementById("StatusContainer");
         var LastStatusMessage = document.getElementById("LastStatusMessage");
+        var firstData = toParse[0];
+
+        var firstCreateDate = "";
+        var firstStatus = "";
+        if (firstData.status === "Succeeded") {
+          firstStatus = "Suckes";
+        }
+        var offset = new Date().getTimezoneOffset();
+        var localeTime = new Date(
+          Date.parse(firstData.createDate) - offset * 60 * 1000
+        ).toISOString();
+        var creationDate = localeTime.split("T");
+        var creationTime = creationDate[1].split("Z");
+        firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+
         LastStatusMessage.textContent =
           "Status: " +
-          toParse[0].status +
+          firstStatus +
           ". Data pobrania ostatniej oferty: " +
-          toParse[0].createDate;
+          firstCreateDate;
 
         toParse.forEach((status) => {
           const style = document.getElementById("sampleStatus");
