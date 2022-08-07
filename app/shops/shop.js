@@ -528,7 +528,7 @@ docReady(function () {
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
-      var MessageContainer = $("#WarningMessageContainer", container);
+      var MessageContainer = $("#WarningMessageContainer");
       var MessageText = document.getElementById("WarningMessageMain");
 
       if (clikedEl.getAttribute("status") == "in progress") {
