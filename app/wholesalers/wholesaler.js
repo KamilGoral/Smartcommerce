@@ -149,9 +149,9 @@ docReady(function () {
           LastStatusMessage.textContent =
             "Status: " +
             firstStatus +
-            "Problem: " +
+            " Informacja: " +
             firstMessage +
-            ". Data próby pobrania oferty: " +
+            " Data próby pobrania oferty: " +
             firstCreateDate;
         }
 
@@ -198,7 +198,7 @@ docReady(function () {
           "shops/" +
           shopKey +
           "/wholesalers/" +
-          $("#Wholesaler-Selector-Edit").val() +
+          wholesalerKey +
           "/online-offer";
         var method = "PATCH";
 
@@ -376,7 +376,7 @@ docReady(function () {
           "shops/" +
           shopKey +
           "/wholesalers/" +
-          $("#Wholesaler-Selector-Edit").val() +
+          wholesalerKey +
           "/online-offer";
         var method = "PATCH";
 
