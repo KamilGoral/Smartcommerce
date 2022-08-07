@@ -528,21 +528,21 @@ docReady(function () {
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
-      var MessageContainer = document.getElementById("WarningMessageContainer");
+      var MessageContainer = $("#WarningMessageContainer", container);
       var MessageText = document.getElementById("WarningMessageMain");
 
       if (clikedEl.getAttribute("status") == "in progress") {
         MessageText.textContent =
           "Oferta w trakcie tworzenia. Proszę poczekaj...";
         MessageContainer.style.display = "flex";
-        MessageContainer.fadeOut(3000);
+        $("#WarningMessageContainer").fadeOut(3000);
         MessageContainer.style.display = "none";
       }
       if (clikedEl.getAttribute("status") == "error") {
         MessageText.textContent =
           "Oops! Coś poszło nie tak. Spróbuj ponownie...";
         MessageContainer.style.display = "flex";
-        MessageContainer.fadeOut(3000);
+        $("#WarningMessageContainer").fadeOut(3000);
         MessageContainer.style.display = "none";
       }
       if (clikedEl.getAttribute("status") == "ready") {
@@ -571,15 +571,16 @@ docReady(function () {
             MessageText.textContent =
               "Uwaga! Oferta nie jest komplenta. " + data.messages;
             MessageContainer.style.display = "flex";
-            MessageContainer.fadeOut(5000);
-            MessageContainer.style.display = "none";
-            document.location =
-              "https://" +
-              DomainName +
-              "/app/offers/offer?shopKey=" +
-              shopKey +
-              "&offerId=" +
-              clikedEl.getAttribute("offerId");
+            $("#WarningMessageContainer").fadeOut(3000, function () {
+              MessageContainer.style.display = "none";
+              document.location =
+                "https://" +
+                DomainName +
+                "/app/offers/offer?shopKey=" +
+                shopKey +
+                "&offerId=" +
+                clikedEl.getAttribute("offerId");
+            });
           },
         });
       }
