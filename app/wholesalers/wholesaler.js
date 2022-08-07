@@ -104,7 +104,7 @@ docReady(function () {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "/online-offer/status-history"
+        "/online-offer/status-history?sort=createDate:desc&per_page=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -116,6 +116,13 @@ docReady(function () {
 
       if (request.status >= 200 && request.status < 400) {
         const statusContainer = document.getElementById("StatusContainer");
+        var LastStatusMessage = document.getElementById("LastStatusMessage");
+        LastStatusMessage.textContent =
+          "Status: " +
+          toParse[0].status +
+          ". Data pobrania ostatniej oferty: " +
+          toParse[0].createDate;
+
         toParse.forEach((status) => {
           const style = document.getElementById("sampleStatus");
           const row = style.cloneNode(true);
