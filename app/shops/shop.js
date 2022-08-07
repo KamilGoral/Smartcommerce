@@ -1014,6 +1014,12 @@ docReady(function () {
 
     $("#table_wholesalers").on("click", "tr", function () {
       var rowData = table.row(this).data();
+
+      if (rowData.wholesalerKey == "mirex") {
+        $("#CompanyDivEdit").show();
+      } else {
+        $("#CompanyDivEdit").hide();
+      }
       $("#EditCredentialsModal").css("display", "flex");
       $("#Wholesaler-profile-Selector-box").hide();
       $("#Wholesaler-Selector-Edit").attr("disabled", true);
@@ -1062,11 +1068,6 @@ docReady(function () {
               rowData.wholesalerKey +
               "/online-offer/profiles"
           );
-          if (rowData.wholesalerKey == "mirex") {
-            $("#CompanyDivEdit").show();
-          } else {
-            $("#CompanyDivEdit").hide();
-          }
           let request = new XMLHttpRequest();
           request.open("GET", url, true);
           request.setRequestHeader("Authorization", orgToken);
