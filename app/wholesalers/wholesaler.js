@@ -26,18 +26,10 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
-  var wholesalerKey = new URL(document.location.href).searchParams.get(
-    "wholesalerKey"
-  );
-  const ShopBread = document.getElementById("ShopBread");
-  var shopKey = new URL(document.location.href).searchParams.get("shopKey");
-  ShopBread.textContent = shopKey;
-  ShopBread.setAttribute(
-    "href",
-    "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
-  );
+
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
+
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
@@ -50,7 +42,18 @@ docReady(function () {
       ClientID
   );
 
-  const WholesalerIdBread = document.getElementById("WholesalerIdBread");
+  const ShopBread = document.getElementById("ShopBread0");
+  var shopKey = new URL(document.location.href).searchParams.get("shopKey");
+  ShopBread.textContent = shopKey;
+  ShopBread.setAttribute(
+    "href",
+    "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
+  );
+
+  const WholesalerIdBread = document.getElementById("WholesalerBread0");
+  var wholesalerKey = new URL(document.location.href).searchParams.get(
+    "shopKey"
+  );
   WholesalerIdBread.textContent = wholesalerKey;
   WholesalerIdBread.setAttribute("href", window.location.href);
 
