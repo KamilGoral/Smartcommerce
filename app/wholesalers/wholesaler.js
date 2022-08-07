@@ -97,6 +97,36 @@ docReady(function () {
     request.send();
   }
 
+  function getWholesalerHistory() {
+    let url = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "online-offer/status-history"
+    );
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", smartToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      console.log(toParse);
+
+      if (request.status >= 200 && request.status < 400) {
+        const statusContainer = document.getElementById("StatusContainer");
+        toParse.forEach((status) => {
+          const style = document.getElementById("sampleStatus");
+          const row = style.cloneNode(true);
+          row.style.display = "block";
+          statusContainer.appendChild(row);
+        });
+      }
+    };
+    request.send();
+  }
+
   function LogoutNonUser() {
     if (
       getCookie("sprytnyInvokeURL") == null ||
@@ -110,5 +140,6 @@ docReady(function () {
   }
 
   getWholesaler();
+  getWholesalerHistory();
   LogoutNonUser();
 });
