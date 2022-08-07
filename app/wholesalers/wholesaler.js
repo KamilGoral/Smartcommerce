@@ -108,7 +108,7 @@ docReady(function () {
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
-    request.setRequestHeader("Authorization", smartToken);
+    request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
