@@ -52,7 +52,7 @@ docReady(function () {
 
   const WholesalerIdBread = document.getElementById("WholesalerBread0");
   var wholesalerKey = new URL(document.location.href).searchParams.get(
-    "shopKey"
+    "wholesalerKey"
   );
   WholesalerIdBread.textContent = wholesalerKey;
   WholesalerIdBread.setAttribute("href", window.location.href);
