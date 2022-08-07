@@ -64,15 +64,9 @@ docReady(function () {
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       var data = JSON.parse(this.response);
-
+      console.log(data);
       if (request.status >= 200 && request.status < 400) {
-        document.getElementById("sampleWholesaler").style.display = "block";
-        const itemContainer = document.getElementById("wholesaler-Container");
-        const item = document.getElementById("sampleWholesaler");
-        const wholesalerName = document.getElementById("whName");
-        const wholesalerName2 = document.getElementById("whName2");
-        const whEnabled = document.getElementById("customSwitchText");
-        const whWebsite = document.getElementById("whWebsite");
+        const wholesalerName = document.getElementById("WholesalerName");
         const whPlatformUrl = document.getElementById("whPlatformUrl");
         const whTaxId = document.getElementById("whTaxId");
         const whCountry = document.getElementById("whCountry");
@@ -84,9 +78,6 @@ docReady(function () {
         const whLogo = document.getElementById("whLogo");
         whLogo.src = "data:image/png;base64," + data.image;
         wholesalerName.textContent = data.company;
-        wholesalerName2.textContent = data.name;
-        whWebsite.textContent = data.website;
-        whWebsite.setAttribute("href", "" + data.website);
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
         } else {
@@ -99,7 +90,6 @@ docReady(function () {
         whTown.textContent = data.address.town;
         whState.textContent = data.address.state;
         whPostcode.textContent = data.address.postcode;
-        itemContainer.appendChild(item);
       } else {
         console.log("error");
       }
