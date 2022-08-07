@@ -123,9 +123,8 @@ docReady(function () {
 
         var firstCreateDate = "";
         var firstStatus = "";
-        if (firstData.status === "Succeeded") {
-          firstStatus = "Suckes";
-        }
+        var firstMessage = "";
+
         var offset = new Date().getTimezoneOffset();
         var localeTime = new Date(
           Date.parse(firstData.createDate) - offset * 60 * 1000
@@ -134,11 +133,29 @@ docReady(function () {
         var creationTime = creationDate[1].split("Z");
         firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
 
-        LastStatusMessage.textContent =
-          "Status: " +
-          firstStatus +
-          ". Data pobrania ostatniej oferty: " +
-          firstCreateDate;
+        if (firstData.status === "Succeeded") {
+          firstStatus = "Suckes";
+
+          LastStatusMessage.textContent =
+            "Status: " +
+            firstStatus +
+            ". Data pobrania ostatniej oferty: " +
+            firstCreateDate;
+        }
+        if (firstData.status === "Failed") {
+          firstStatus = "Problem";
+          firstMessage = firstData.message;
+
+          LastStatusMessage.textContent =
+            "Status: " +
+            firstStatus +
+            "Problem: " +
+            firstMessage +
+            ". Data próby pobrania oferty: " +
+            firstCreateDate;
+        }
+
+        firstMessage;
 
         toParse.forEach((status) => {
           const style = document.getElementById("sampleStatus");

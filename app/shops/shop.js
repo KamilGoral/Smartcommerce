@@ -119,20 +119,12 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const wholesalerContainer =
           document.getElementById("WholesalerSelector");
-        const wholesalerContainerEdit = document.getElementById(
-          "Wholesaler-Selector-Edit"
-        );
         toParse.forEach((wholesaler) => {
           if (wholesaler.onlineOfferSupport) {
             var opt = document.createElement("option");
             opt.value = wholesaler.wholesalerKey;
             opt.innerHTML = wholesaler.name;
             wholesalerContainer.appendChild(opt);
-
-            var optEdit = document.createElement("option");
-            optEdit.value = wholesaler.wholesalerKey;
-            optEdit.innerHTML = wholesaler.name;
-            wholesalerContainerEdit.appendChild(optEdit);
           }
         });
         if (request.status == 401) {
