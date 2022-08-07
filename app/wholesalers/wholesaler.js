@@ -26,6 +26,8 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
+  var formIdEdit = "#wf-form-CredentialsFormEdit";
+  var formIdDelete = "#wf-form-DeleteWholesalerCredential";
 
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
@@ -152,7 +154,262 @@ docReady(function () {
     }
   }
 
+  makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#w-form-done4", container);
+        var failBlock = $("#w-form-fail4", container);
+        var action =
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          $("#Wholesaler-Selector-Edit").val() +
+          "/online-offer";
+        var method = "PATCH";
+
+        //mirex case
+        if ($("#CompanyEdit").val()) {
+          var data = [
+            {
+              op: "add",
+              path: "/credentials/username",
+              value: $("#UsernameEdit").val(),
+            },
+            {
+              op: "add",
+              path: "/credentials/password",
+              value: $("#PasswordEdit").val(),
+            },
+            {
+              op: "add",
+              path: "/credentials/extraFields",
+              value: {
+                company: $("#CompanyEdit").val(),
+              },
+            },
+            {
+              op: "add",
+              path: "/profile",
+              value: {
+                id: $("#Wholesaler-profile-Selector").val(),
+                name: $("#Wholesaler-profile-Selector").attr("name"),
+              },
+            },
+          ];
+        } else {
+          if ($("#Wholesaler-profile-Selector").val() != "null") {
+            var data = [
+              {
+                op: "add",
+                path: "/credentials/username",
+                value: $("#UsernameEdit").val(),
+              },
+              {
+                op: "add",
+                path: "/credentials/password",
+                value: $("#PasswordEdit").val(),
+              },
+              {
+                op: "add",
+                path: "/profile",
+                value: {
+                  id: $("#Wholesaler-profile-Selector").val(),
+                  name: $("#Wholesaler-profile-Selector").attr("name"),
+                },
+              },
+            ];
+          } else {
+            var data = [
+              {
+                op: "add",
+                path: "/credentials/username",
+                value: $("#UsernameEdit").val(),
+              },
+              {
+                op: "add",
+                path: "/credentials/password",
+                value: $("#PasswordEdit").val(),
+              },
+            ];
+          }
+        }
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            $("#UsernameEdit").val("");
+            $("#PasswordEdit").val("");
+
+            if ($("#Wholesaler-profile-Selector").val() === "null") {
+              let url = action + "/profiles";
+              console.log(url);
+              if ($("#Wholesaler-Selector-Edit").val() == "mirex") {
+                $("#CompanyDivEdit").show();
+              } else {
+                $("#CompanyDivEdit").hide();
+              }
+              let request = new XMLHttpRequest();
+              request.open("GET", url, true);
+              request.setRequestHeader("Authorization", orgToken);
+              request.onload = function () {
+                var data = JSON.parse(this.response);
+                var toParse = data.items;
+                if (
+                  request.status >= 200 &&
+                  request.status < 400 &&
+                  data.total > 0
+                ) {
+                  $("#Wholesaler-profile-Selector-box").show();
+                  $("#Wholesaler-profile-Selector").attr("required", "");
+                  const wholesalerProfileContainer = document.getElementById(
+                    "Wholesaler-profile-Selector"
+                  );
+                  toParse.forEach((profile) => {
+                    var optProfile = document.createElement("option");
+                    optProfile.value = profile.id;
+                    optProfile.innerHTML = profile.name;
+                    wholesalerProfileContainer.appendChild(optProfile);
+                  });
+                } else if (request.status == 401) {
+                  console.log("Unauthorized");
+                } else {
+                  $("#Wholesaler-profile-Selector-box").hide();
+                  $("#Wholesaler-profile-Selector").removeAttr("required");
+                }
+              };
+              request.send();
+            }
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
+  makeWebflowFormAjaxDeleteWh = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#w-form-done3", container);
+        var failBlock = $("#w-form-fail3", container);
+        var action =
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          $("#Wholesaler-Selector-Edit").val() +
+          "/online-offer";
+        var method = "PATCH";
+
+        var data = [
+          {
+            op: "remove",
+            path: "/credentials",
+          },
+        ];
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(data),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 2000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   getWholesaler();
   getWholesalerHistory();
   LogoutNonUser();
+
+  makeWebflowFormAjaxDeleteWh($(formIdDelete));
+  makeWebflowFormAjaxWh($(formIdEdit));
 });
