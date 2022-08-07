@@ -104,7 +104,7 @@ docReady(function () {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "online-offer/status-history"
+        "/online-offer/status-history"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -120,6 +120,12 @@ docReady(function () {
           const style = document.getElementById("sampleStatus");
           const row = style.cloneNode(true);
           row.style.display = "block";
+          if (status.status === "Failed") {
+            row.classList.add("fail");
+          }
+          if (status.status === "Incomplete") {
+            row.classList.add("warning");
+          }
           statusContainer.appendChild(row);
         });
       }
