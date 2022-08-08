@@ -601,6 +601,10 @@ docReady(function () {
     });
   };
 
+  $("#UsernameEdit").change(function () {
+    $("#Wholesaler-profile-Selector").val("null").change();
+  });
+
   getWholesaler();
   getProfile();
   getWholesalerHistory();
