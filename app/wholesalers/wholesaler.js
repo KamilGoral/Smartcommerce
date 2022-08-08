@@ -436,6 +436,8 @@ docReady(function () {
             form.show();
             doneBlock.hide();
             failBlock.show();
+            failBlock.fadeOut(3000);
+            failBlock.hide();
             console.log(e);
           },
         });
@@ -518,6 +520,8 @@ docReady(function () {
             form.show();
             doneBlock.hide();
             failBlock.show();
+            failBlock.fadeOut(3000);
+            failBlock.hide();
             console.log(e);
           },
         });
@@ -584,10 +588,9 @@ docReady(function () {
             }
             form.show();
             doneBlock.show();
+            doneBlock.fadeOut(3000);
+            doneBlock.hide();
             failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 2000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -596,6 +599,8 @@ docReady(function () {
             form.show();
             doneBlock.hide();
             failBlock.show();
+            failBlock.fadeOut(3000);
+            failBlock.hide();
             console.log(e);
           },
         });
