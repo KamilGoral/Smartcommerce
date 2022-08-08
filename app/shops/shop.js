@@ -240,7 +240,6 @@ docReady(function () {
           orderable: false,
           visible: false,
           data: "orderId",
-          width: "324px",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -253,7 +252,6 @@ docReady(function () {
         {
           orderable: false,
           data: "createdBy",
-          width: "108px",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -266,7 +264,6 @@ docReady(function () {
         {
           orderable: false,
           data: "name",
-          width: "108px",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -488,7 +485,6 @@ docReady(function () {
         {
           orderable: false,
           data: null,
-          width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
               return (
@@ -916,7 +912,6 @@ docReady(function () {
         {
           orderable: false,
           data: "name",
-          width: "256px",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -928,7 +923,6 @@ docReady(function () {
         {
           orderable: false,
           data: "logisticMinimum",
-          width: "108px",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -940,7 +934,6 @@ docReady(function () {
         {
           orderable: false,
           data: "connections.ftp",
-          width: "108px",
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
@@ -956,7 +949,6 @@ docReady(function () {
         {
           orderable: false,
           data: "connections.wms",
-          width: "108px",
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
@@ -972,7 +964,6 @@ docReady(function () {
         {
           orderable: false,
           data: "connections.onlineOffer",
-          width: "108px",
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
@@ -988,7 +979,6 @@ docReady(function () {
         {
           orderable: false,
           data: null,
-          width: "36px",
           defaultContent:
             '<a href="#" class="buttonoutline editme w-button">Przejdź</a>',
         },
