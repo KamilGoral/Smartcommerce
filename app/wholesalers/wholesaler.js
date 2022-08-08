@@ -28,6 +28,7 @@ docReady(function () {
   const orgName = document.getElementById("orgName");
   var formIdEdit = "#wf-form-CredentialsFormEdit";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
+  var formWhLogistic = "#wf-form-LogisticMinimumForm";
 
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
@@ -611,4 +612,5 @@ docReady(function () {
 
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
+  makeWebflowFormAjaxWhLogistic($(formWhLogistic));
 });
