@@ -80,7 +80,9 @@ docReady(function () {
         const whPostcode = document.getElementById("whPostcode");
         const whLogo = document.getElementById("whLogo");
         whLogo.src = "data:image/png;base64," + data.image;
+        whLogo.style.objectFit = "cover";
         wholesalerName.textContent = data.company;
+
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
         } else {
