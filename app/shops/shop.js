@@ -238,6 +238,7 @@ docReady(function () {
         },
         {
           orderable: false,
+          visible: false,
           data: "orderId",
           width: "324px",
           render: function (data) {
@@ -467,16 +468,16 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data == "ready") {
-                return "Gotowa";
+                return '<spann class="positive">Gotowa</spann>';
               }
               if (data == "error") {
-                return "Problem";
+                return '<spann class="negative">Problem</spann>';
               }
               if (data == "in progress") {
-                return "W trakcie";
+                return '<spann class="medium">W trakcie</spann>';
               }
               if (data == "incomplete") {
-                return "Niekompletna";
+                return '<spann class="medium">Niekompletna</spann>';
               }
             }
             if (data === null) {
@@ -736,6 +737,7 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               var endDate = "";
+              var nowDate = new Date().toISOString();
               var offset = new Date().getTimezoneOffset();
               var localeTime = new Date(
                 Date.parse(data) - offset * 60 * 1000
@@ -744,7 +746,11 @@ docReady(function () {
               var creationTime = creationDate[1].split("Z");
               endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
 
-              return endDate;
+              if (data > nowDate) {
+                return '<spann class="positive">' + endDate + "</spann>";
+              } else {
+                return '<spann class="medium">' + endDate + "</spann>";
+              }
             }
             if (data === null) {
               return "";
