@@ -139,6 +139,7 @@ docReady(function () {
         wholesalerKey +
         "/online-offer/profiles"
     );
+
     if (wholesalerKey == "mirex") {
       $("#CompanyDivEdit").show();
     } else {
@@ -173,12 +174,6 @@ docReady(function () {
     request.send();
 
     $("#waitingdots").show();
-    getProfile();
-    $("#EditCredentialsModal").css("display", "flex");
-    $("#Wholesaler-profile-Selector-box").hide();
-    $("#Wholesaler-Selector-Edit").attr("disabled", true);
-    $("#logisticMinimumEdit").val(parseInt(rowData.logisticMinimum)).change();
-    $("#Wholesaler-Selector-Edit").val(rowData.wholesalerKey).change();
     $("#Wholesaler-profile-Selector")
       .find("option")
       .remove()
