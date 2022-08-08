@@ -980,7 +980,7 @@ docReady(function () {
           orderable: false,
           data: null,
           defaultContent:
-            '<a href="#" class="buttonoutline editme w-button">Przejdź</a>',
+            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
         },
       ],
       initComplete: function (settings, json) {
