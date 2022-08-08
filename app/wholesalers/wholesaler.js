@@ -287,6 +287,12 @@ docReady(function () {
           "/online-offer";
         var method = "PATCH";
 
+        if (wholesalerKey == "mirex") {
+          $("#CompanyDivEdit").show();
+        } else {
+          $("#CompanyDivEdit").hide();
+        }
+
         //mirex case
         if ($("#CompanyEdit").val()) {
           var data = [
@@ -305,14 +311,6 @@ docReady(function () {
               path: "/credentials/extraFields",
               value: {
                 company: $("#CompanyEdit").val(),
-              },
-            },
-            {
-              op: "add",
-              path: "/profile",
-              value: {
-                id: $("#Wholesaler-profile-Selector").val(),
-                name: $("#Wholesaler-profile-Selector").attr("name"),
               },
             },
           ];
@@ -386,17 +384,10 @@ docReady(function () {
             doneBlock.show();
             doneBlock.fadeOut(3000);
             failBlock.hide();
-            $("#UsernameEdit").val("");
-            $("#PasswordEdit").val("");
 
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               let url = action + "/profiles";
               console.log(url);
-              if ($("#Wholesaler-Selector-Edit").val() == "mirex") {
-                $("#CompanyDivEdit").show();
-              } else {
-                $("#CompanyDivEdit").hide();
-              }
               let request = new XMLHttpRequest();
               request.open("GET", url, true);
               request.setRequestHeader("Authorization", orgToken);
