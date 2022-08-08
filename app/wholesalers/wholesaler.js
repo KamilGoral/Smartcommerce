@@ -99,6 +99,95 @@ docReady(function () {
     request.send();
   }
 
+  function pickProfile() {
+    $("#waitingdots").show();
+    let url2 = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer"
+    );
+    let request2 = new XMLHttpRequest();
+    request2.open("GET", url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function () {
+      var data2 = JSON.parse(this.response);
+      console.log(data2);
+      if (
+        request2.status >= 200 &&
+        request2.status < 400 &&
+        data2.profile !== null
+      ) {
+        $("#Wholesaler-profile-Selector").val(data2.profile.id).change();
+        $("#waitingdots").hide();
+      } else {
+        $("#waitingdots").hide();
+      }
+      $("#UsernameEdit").val(data2.credentials.username).change();
+    };
+    request2.send();
+  }
+
+  function getProfile() {
+    let url = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/profiles"
+    );
+    if (wholesalerKey == "mirex") {
+      $("#CompanyDivEdit").show();
+    } else {
+      $("#CompanyDivEdit").hide();
+    }
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400 && data.total > 0) {
+        $("#Wholesaler-profile-Selector-box").show();
+        $("#Wholesaler-profile-Selector").attr("required", "");
+        const wholesalerProfileContainer = document.getElementById(
+          "Wholesaler-profile-Selector"
+        );
+        toParse.forEach((profile) => {
+          var optProfile = document.createElement("option");
+          optProfile.value = profile.id;
+          optProfile.innerHTML = profile.name;
+          wholesalerProfileContainer.appendChild(optProfile);
+        });
+        pickProfile();
+      } else if (request.status == 401) {
+        console.log("Unauthorized");
+      } else {
+        $("#Wholesaler-profile-Selector-box").hide();
+        $("#Wholesaler-profile-Selector").removeAttr("required");
+      }
+    };
+    request.send();
+
+    $("#waitingdots").show();
+    getProfile();
+    $("#EditCredentialsModal").css("display", "flex");
+    $("#Wholesaler-profile-Selector-box").hide();
+    $("#Wholesaler-Selector-Edit").attr("disabled", true);
+    $("#logisticMinimumEdit").val(parseInt(rowData.logisticMinimum)).change();
+    $("#Wholesaler-Selector-Edit").val(rowData.wholesalerKey).change();
+    $("#Wholesaler-profile-Selector")
+      .find("option")
+      .remove()
+      .end()
+      .append("<option value=null>Wybierz profil</option>")
+      .val("null");
+    pickProfile();
+  }
+
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
@@ -439,6 +528,7 @@ docReady(function () {
   };
 
   getWholesaler();
+  getProfile();
   getWholesalerHistory();
   LogoutNonUser();
 
