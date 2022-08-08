@@ -444,6 +444,88 @@ docReady(function () {
     });
   };
 
+  makeWebflowFormAjaxWhLogistic = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#w-form-done4", container);
+        var failBlock = $("#w-form-fail4", container);
+        var action =
+          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
+
+        var method = "PATCH";
+
+        if (parseInt($("#logisticMinimumEdit").val()) > 0) {
+          var data = [
+            {
+              op: "add",
+              path: "/logisticMinimum",
+              value: parseInt($("#logisticMinimumEdit").val()),
+            },
+          ];
+        } else {
+          var data = [
+            {
+              op: "remove",
+              path: "/logisticMinimum",
+            },
+          ];
+        }
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   makeWebflowFormAjaxDeleteWh = function (
     forms,
     successCallback,
