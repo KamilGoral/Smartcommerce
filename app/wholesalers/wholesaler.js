@@ -69,6 +69,10 @@ docReady(function () {
       var data = JSON.parse(this.response);
       console.log(data);
       if (request.status >= 200 && request.status < 400) {
+        if (data.onlineOfferSupport) {
+          onlineOfferSupportFlow();
+        }
+
         const wholesalerName = document.getElementById("WholesalerName");
         const whPlatformUrl = document.getElementById("whPlatformUrl");
         const whTaxId = document.getElementById("whTaxId");
@@ -608,9 +612,16 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
+  //onlineOfferSupport//
+
   getWholesaler();
-  getProfile();
-  getWholesalerHistory();
+  function onlineOfferSupportFlow() {
+    getProfile();
+    getWholesalerHistory();
+  }
+
+  //oniline Support not supported flow //
+
   LogoutNonUser();
 
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
