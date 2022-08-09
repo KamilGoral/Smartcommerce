@@ -88,6 +88,7 @@ docReady(function () {
         } else {
           $("#loginButton").hide();
         }
+        //
         whTaxId.textContent = data.taxId;
         whCountry.textContent = data.address.country;
         whLine1.textContent = data.address.line1;
