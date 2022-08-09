@@ -61,6 +61,9 @@ docReady(function () {
   WholesalerIdBread.setAttribute("href", window.location.href);
 
   function getWholesaler() {
+    $("#CompanyDivEdit").hide();
+    $("#Wholesaler-profile-Selector-box").hide();
+    $("#status-container").hide();
     var request = new XMLHttpRequest();
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
     request.open("GET", apiUrl.toString(), true);
@@ -71,6 +74,9 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         if (data.onlineOfferSupport) {
           onlineOfferSupportFlow();
+          $("#CompanyDivEdit").show();
+          $("#Wholesaler-profile-Selector-box").show();
+          $("#status-container").show();
         }
 
         const wholesalerName = document.getElementById("WholesalerName");
