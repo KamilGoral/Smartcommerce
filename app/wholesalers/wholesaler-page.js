@@ -111,7 +111,7 @@ docReady(function () {
                 const ftpPassword = document.getElementById("ftpPassword");
                 
                 ftpUsername.textContent = data.credentials.username;
-                ftpPassword.textContent = data.credentials.password;
+                ftpPassword.textContent = "*****"
 
             } else {
                 console.log("error");
@@ -179,17 +179,33 @@ docReady(function () {
                         doneBlock.show();
                         failBlock.hide();
                     },
-                    error: function (e) {
-                        if (typeof errorCallback === "function") {
-                            errorCallback(e);
+                    error: function (jqXHR, exception) {
+                        console.log(jqXHR);
+                        console.log(exception);
+                        var msg = "";
+                        var MessageText = document.getElementById("WarningMessage");
+                        if (jqXHR.status === 0) {
+                          msg = "Not connect.\n Verify Network.";
+                        } else if (jqXHR.status === 403) {
+                          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+                        } else if (jqXHR.status === 500) {
+                          msg = "Internal Server Error [500].";
+                        } else if (exception === "parsererror") {
+                          msg = "Requested JSON parse failed.";
+                        } else if (exception === "timeout") {
+                          msg = "Time out error.";
+                        } else if (exception === "abort") {
+                          msg = "Ajax request aborted.";
+                        } else {
+                          msg = "" + jqXHR.responseText;
                         }
+                        MessageText.textContent = msg;
+                        $("#wf-form-Create-wholesaler-fail").fadeOut(5000);
                         form.show();
                         doneBlock.hide();
                         failBlock.show();
-                        failBlock.fadeOut(3000);
-                        failBlock.hide();
                         console.log(e);
-                    },
+                      },
                 });
                 event.preventDefault();
                 return false;
