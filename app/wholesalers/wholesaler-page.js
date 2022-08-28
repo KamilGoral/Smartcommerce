@@ -81,6 +81,10 @@ docReady(function () {
                 } else {
                     $("#loginButton").hide();
                 }
+
+                if (data.onlineOfferSupport == true) {
+                    $("#Iehurt").addClass(".enabled")
+                }
                 //
                 whTaxId.textContent = data.taxId;
                 whCountry.textContent = data.address.country;
@@ -112,6 +116,9 @@ docReady(function () {
                 
                 ftpUsername.textContent = data.credentials.username;
                 ftpPassword.textContent = "*****"
+                if (data.onlineOfferSupport == true) {
+                    $("#Iftp").addClass(".enabled")
+                }
 
             } else {
                 console.log("error");
@@ -317,10 +324,13 @@ docReady(function () {
             window.location.href = "https://sprytnykupiec.pl/login-page";
         }
     }
+    
+    getWholesaler();
+    getFTP();
+
     makeWebflowFormAjaxServerWh($(formIdNewServer));
     makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
     LogoutNonUser();
-    getWholesaler();
-    getFTP();
+    
 
 });
