@@ -188,6 +188,7 @@ docReady(function () {
                         const ftpPassword = document.getElementById("ftpPassword");      
                         ftpUsername.textContent = resultData.credentials.username
                         ftpPassword.textContent = resultData.credentials.password
+                        $("#Iftp").addClass("enabled")
 
                         doneBlock.show();
                         failBlock.hide();
