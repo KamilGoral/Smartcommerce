@@ -104,8 +104,6 @@ docReady(function () {
                 var failBlock = $("#wf-form-Create-wholesaler-fail", container);
                 var action =
                     InvokeURL +
-                    "shops/" +
-                    shopKey +
                     "/wholesalers/" +
                     wholesalerKey +
                     "/ftp";
