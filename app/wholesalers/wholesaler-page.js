@@ -176,6 +176,12 @@ docReady(function () {
                         const credentialsbox = document.getElementById("credentialsbox");
                         credentialsbox.innerHTML = "Login: " + resultData.credentials.username + "<br />";
                         credentialsbox.innerHTML += "Hasło: " + resultData.credentials.password + "<br />";
+
+                        const ftpUsername = document.getElementById("ftpUsername");
+                        const ftpPassword = document.getElementById("ftpPassword");      
+                        ftpUsername.textContent = resultData.credentials.username
+                        ftpPassword.textContent = resultData.credentials.password
+                        
                         doneBlock.show();
                         failBlock.hide();
                     },
