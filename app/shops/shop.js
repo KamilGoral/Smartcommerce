@@ -1361,7 +1361,6 @@ docReady(function () {
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
-                console.log(e);
                 return;
               }
             }
@@ -1398,7 +1397,6 @@ docReady(function () {
             form.show();
             doneBlock.hide();
             failBlock.show();
-            console.log(e);
           },
         });
         event.preventDefault();
