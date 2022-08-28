@@ -96,6 +96,30 @@ docReady(function () {
         request.send();
     }
 
+    function getFTP() {
+        var request = new XMLHttpRequest();
+        let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey + "/ftp");
+        request.open("GET", apiUrl.toString(), true);
+        request.setRequestHeader("Authorization", orgToken);
+        request.onload = function () {
+            var data = JSON.parse(this.response);
+            console.log(data);
+            if (request.status >= 200 && request.status < 400) {
+
+
+                const ftpUsername = document.getElementById("ftpUsername");
+                const ftpPassword = document.getElementById("ftpPassword");
+                
+                ftpUsername.textContent = data.credentials.username;
+                ftpPassword.textContent = data.credentials.password;
+
+            } else {
+                console.log("error");
+            }
+        };
+        request.send();
+    }
+
     makeWebflowFormAjaxServerWh = function (forms, successCallback, errorCallback) {
         forms.each(function () {
             var form = $(this);
@@ -136,10 +160,7 @@ docReady(function () {
                     },
                     data: JSON.stringify(data),
                     success: function (resultData) {
-                        console.log(resultData.credentials.username);
-                        console.log(resultData.credentials.password);
-                        const credentialsbox = document.getElementById("credentialsbox");
-                        credentialsbox.textContent = "Login: " + resultData.credentials.username + "Hasło: " + resultData.credentials.password;
+                        
                         if (typeof successCallback === "function") {
                             result = successCallback(resultData);
                             if (!result) {
@@ -150,7 +171,11 @@ docReady(function () {
                                 return;
                             }
                         }
-                        form.show();
+                        form.hide();
+                        console.log(resultData.credentials.username);
+                        console.log(resultData.credentials.password);
+                        const credentialsbox = document.getElementById("credentialsbox");
+                        credentialsbox.textContent = "Login: " + resultData.credentials.username + "\nHasło: " + resultData.credentials.password;
                         doneBlock.show();
                         failBlock.hide();
                     },
@@ -262,6 +287,7 @@ docReady(function () {
     makeWebflowFormAjaxServerWh($(formIdNewServer));
     makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
     LogoutNonUser();
-    getWholesaler()
+    getWholesaler();
+    getFTP();
 
 });
