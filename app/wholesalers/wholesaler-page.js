@@ -116,9 +116,7 @@ docReady(function () {
                 
                 ftpUsername.textContent = data.credentials.username;
                 ftpPassword.textContent = "*****"
-                if (data.onlineOfferSupport == true) {
-                    $("#Iftp").addClass("enabled")
-                }
+                $("#Iftp").addClass("enabled")
 
             } else {
                 console.log("error");
