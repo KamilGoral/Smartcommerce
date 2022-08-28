@@ -29,6 +29,7 @@ docReady(function () {
     var ClientID = sessionStorage.getItem("OrganizationclientId");
     var OrganizationName = sessionStorage.getItem("OrganizationName");
     var formIdNewServer = "#wf-form-Create-server";
+    var formIdDeleteServer = "#wf-form-Delete-server";
 
     const OrganizationBread0 = document.getElementById("OrganizationBread0");
     OrganizationBread0.textContent = OrganizationName;
@@ -110,11 +111,11 @@ docReady(function () {
                 var method = "POST";
 
 
-                var data = [
+                var data = 
                     {
                         username: $("#Wholesaler-Login").val(),
                     }
-                ];
+                ;
 
                 $.ajax({
                     type: method,
@@ -168,6 +169,80 @@ docReady(function () {
         });
     };
 
+    makeWebflowFormAjaxDeleteServerWh = function (
+        forms,
+        successCallback,
+        errorCallback
+      ) {
+        forms.each(function () {
+          var form = $(this);
+          form.on("submit", function (event) {
+            var container = form.parent();
+            var doneBlock = $("#wf-form-Delete-wholesaler-done", container);
+            var failBlock = $("#wf-form-Delete-wholesaler-fail", container);
+            var action =
+              InvokeURL +
+              "/wholesalers/" +
+              wholesalerKey +
+              "/ftp";
+            var method = "DELETE";
+    
+            var data = [
+            ];
+            
+            $.ajax({
+              type: method,
+              url: action,
+              cors: true,
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              contentType: "application/json",
+              dataType: "json",
+              data: JSON.stringify(data),
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  result = successCallback(resultData);
+                  if (!result) {
+                    form.show();
+                    doneBlock.hide();
+                    failBlock.show();
+                    console.log(e);
+                    return;
+                  }
+                }
+                form.show();
+                doneBlock.show();
+                doneBlock.fadeOut(3000);
+                doneBlock.hide();
+                failBlock.hide();
+              },
+              error: function (e) {
+                if (typeof errorCallback === "function") {
+                  errorCallback(e);
+                }
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                failBlock.fadeOut(3000);
+                failBlock.hide();
+                console.log(e);
+              },
+            });
+            event.preventDefault();
+            return false;
+          });
+        });
+      };
+
     function LogoutNonUser() {
         if (
             getCookie("sprytnyInvokeURL") == null ||
@@ -180,6 +255,7 @@ docReady(function () {
         }
     }
     makeWebflowFormAjaxServerWh($(formIdNewServer));
+    makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
     LogoutNonUser();
     getWholesaler()
 
