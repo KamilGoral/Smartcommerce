@@ -83,7 +83,7 @@ docReady(function () {
                 }
 
                 if (data.onlineOfferSupport == true) {
-                    $("#Iehurt").addClass(".enabled")
+                    $("#Iehurt").addClass("enabled")
                 }
                 //
                 whTaxId.textContent = data.taxId;
@@ -117,7 +117,7 @@ docReady(function () {
                 ftpUsername.textContent = data.credentials.username;
                 ftpPassword.textContent = "*****"
                 if (data.onlineOfferSupport == true) {
-                    $("#Iftp").addClass(".enabled")
+                    $("#Iftp").addClass("enabled")
                 }
 
             } else {
@@ -324,7 +324,7 @@ docReady(function () {
             window.location.href = "https://sprytnykupiec.pl/login-page";
         }
     }
-    
+
     getWholesaler();
     getFTP();
 
