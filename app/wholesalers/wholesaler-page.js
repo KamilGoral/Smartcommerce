@@ -182,7 +182,6 @@ docReady(function () {
                         console.log(jqXHR);
                         console.log(exception);
                         var msg = "";
-                        var MessageText = document.getElementById("WarningMessage");
                         if (jqXHR.status === 0) {
                           msg = "Not connect.\n Verify Network.";
                         } else if (jqXHR.status === 403) {
@@ -198,11 +197,11 @@ docReady(function () {
                         } else {
                           msg = "" + jqXHR.responseText;
                         }
-                        MessageText.textContent = msg;
-                        $("#wf-form-Create-wholesaler-fail").fadeOut(5000);
+                        $('.warningmessagetext').text(msg);
                         form.show();
                         doneBlock.hide();
                         failBlock.show();
+                        failBlock.fadeOut(5000);
                       },
                 });
                 event.preventDefault();
