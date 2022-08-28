@@ -136,7 +136,10 @@ docReady(function () {
                     },
                     data: JSON.stringify(data),
                     success: function (resultData) {
-                        console.log(resultData);
+                        console.log(resultData.credentials.username);
+                        console.log(temp1.credentials.password);
+                        const credentialsbox = document.getElementById("credentialsbox");
+                        credentialsbox.textContent = "Login: " + resultData.credentials.username + "Hasło: " + temp1.credentials.password;
                         if (typeof successCallback === "function") {
                             result = successCallback(resultData);
                             if (!result) {
@@ -189,7 +192,7 @@ docReady(function () {
     
             var data = [
             ];
-            
+
             $.ajax({
               type: method,
               url: action,
@@ -208,17 +211,7 @@ docReady(function () {
                 "Content-Type": "application/json",
                 Authorization: orgToken,
               },
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  result = successCallback(resultData);
-                  if (!result) {
-                    form.show();
-                    doneBlock.hide();
-                    failBlock.show();
-                    console.log(e);
-                    return;
-                  }
-                }
+              success: function () {
                 form.show();
                 doneBlock.show();
                 doneBlock.fadeOut(3000);
