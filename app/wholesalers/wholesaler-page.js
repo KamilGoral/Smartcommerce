@@ -111,11 +111,11 @@ docReady(function () {
                 var method = "POST";
 
 
-                var data = 
-                    {
-                        username: $("#Wholesaler-Login").val(),
-                    }
-                ;
+                var data =
+                {
+                    username: $("#Wholesaler-Login").val(),
+                }
+                    ;
 
                 $.ajax({
                     type: method,
@@ -137,9 +137,9 @@ docReady(function () {
                     data: JSON.stringify(data),
                     success: function (resultData) {
                         console.log(resultData.credentials.username);
-                        console.log(temp1.credentials.password);
+                        console.log(resultData.credentials.password);
                         const credentialsbox = document.getElementById("credentialsbox");
-                        credentialsbox.textContent = "Login: " + resultData.credentials.username + "Hasło: " + temp1.credentials.password;
+                        credentialsbox.textContent = "Login: " + resultData.credentials.username + "Hasło: " + resultData.credentials.password;
                         if (typeof successCallback === "function") {
                             result = successCallback(resultData);
                             if (!result) {
@@ -176,65 +176,77 @@ docReady(function () {
         forms,
         successCallback,
         errorCallback
-      ) {
+    ) {
         forms.each(function () {
-          var form = $(this);
-          form.on("submit", function (event) {
-            var container = form.parent();
-            var doneBlock = $("#wf-form-Delete-wholesaler-done", container);
-            var failBlock = $("#wf-form-Delete-wholesaler-fail", container);
-            var action =
-              InvokeURL +
-              "/wholesalers/" +
-              wholesalerKey +
-              "/ftp";
-            var method = "DELETE";
-    
-            var data = [
-            ];
+            var form = $(this);
+            form.on("submit", function (event) {
+                var container = form.parent();
+                var doneBlock = $("#wf-form-Delete-wholesaler-done", container);
+                var failBlock = $("#wf-form-Delete-wholesaler-fail", container);
+                var action =
+                    InvokeURL +
+                    "/wholesalers/" +
+                    wholesalerKey +
+                    "/ftp";
+                var method = "DELETE";
 
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              contentType: "application/json",
-              dataType: "json",
-              data: JSON.stringify(data),
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              success: function () {
-                form.show();
-                doneBlock.show();
-                doneBlock.fadeOut(3000);
-                doneBlock.hide();
-                failBlock.hide();
-              },
-              error: function (e) {
-                if (typeof errorCallback === "function") {
-                  errorCallback(e);
-                }
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                failBlock.fadeOut(3000);
-                failBlock.hide();
-                console.log(e);
-              },
+                var data = [
+                ];
+
+                $.ajax({
+                    type: method,
+                    url: action,
+                    cors: true,
+                    beforeSend: function () {
+                        $("#waitingdots").show();
+                    },
+                    complete: function () {
+                        $("#waitingdots").hide();
+                    },
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        Authorization: orgToken,
+                    },
+                    success: function (resultData) {
+                        console.log(resultData)
+                        if (typeof successCallback === "function") {
+                            result = successCallback(resultData);
+                            if (!result) {
+                                form.show();
+                                doneBlock.hide();
+                                failBlock.show();
+                                console.log(e);
+                                return;
+                            }
+                        }
+                        form.show();
+                        doneBlock.show();
+                        failBlock.hide();
+                        window.setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+                    },
+                    error: function (e) {
+                        if (typeof errorCallback === "function") {
+                            errorCallback(e);
+                        }
+                        form.show();
+                        doneBlock.hide();
+                        failBlock.show();
+                        failBlock.fadeOut(3000);
+                        failBlock.hide();
+                        console.log(e);
+                    },
+                });
+                event.preventDefault();
+                return false;
             });
-            event.preventDefault();
-            return false;
-          });
         });
-      };
+    };
 
     function LogoutNonUser() {
         if (
