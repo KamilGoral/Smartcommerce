@@ -174,7 +174,8 @@ docReady(function () {
                         console.log(resultData.credentials.username);
                         console.log(resultData.credentials.password);
                         const credentialsbox = document.getElementById("credentialsbox");
-                        credentialsbox.textContent = "Login: " + resultData.credentials.username + "\nHasło: " + resultData.credentials.password;
+                        credentialsbox.innerHTML = "Login: " + resultData.credentials.username + "<br />";
+                        credentialsbox.innerHTML += "Hasło: " + resultData.credentials.password + "<br />";
                         doneBlock.show();
                         failBlock.hide();
                     },
