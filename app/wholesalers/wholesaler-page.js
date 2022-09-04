@@ -276,7 +276,7 @@ docReady(function () {
                         form.hide();
                         console.log(resultData.credentials.username);
                         console.log(resultData.credentials.password);
-                        $('.successmessagetext').text("Gotowe! Hasło zostało zresetowane !Nowe hasło to: " + resultData.credentials.password);
+                        $('.successmessagetext').text("Gotowe! Hasło zostało zresetowane ! Nowe hasło to: " + resultData.credentials.password + ". Za moment strona zostanie odświeżona");
                         
                         const ftpUsername = document.getElementById("ftpUsername");
                         const ftpPassword = document.getElementById("ftpPassword");      
@@ -289,7 +289,7 @@ docReady(function () {
                         failBlock.hide();
                         window.setTimeout(function () {
                             location.reload();
-                        }, 5000);
+                        }, 10000);
                     },
                     error: function (jqXHR, exception) {
                         console.log(jqXHR);

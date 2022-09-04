@@ -643,7 +643,7 @@ docReady(function () {
         var sort = "" + whichColumns + direction;
 
         $.get(
-          InvokeURL + "shops/" + shopKey + "/price-lists",
+          InvokeURL + "/price-lists?shopKey=" + shopKey,
           {
             sort: sort,
             perPage: data.length,
