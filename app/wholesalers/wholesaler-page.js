@@ -117,9 +117,14 @@ docReady(function () {
                 ftpUsername.textContent = data.credentials.username;
                 ftpPassword.textContent = "*****"
                 $("#Iftp").addClass("enabled")
+                $("#credentials").removeClass("hide")
+                $("#informations").removeClass("hide")
+                $("#deleteserver").removeClass("hide")
 
             } else {
                 console.log("error");
+                $("#createserver").removeClass("hide")
+                $("#informations").removeClass("hide")
             }
         };
         request.send();
@@ -323,9 +328,9 @@ docReady(function () {
             window.location.href = "https://sprytnykupiec.pl/login-page";
         }
     }
-
-    getWholesaler();
     getFTP();
+    getWholesaler();
+    
 
     makeWebflowFormAjaxServerWh($(formIdNewServer));
     makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
