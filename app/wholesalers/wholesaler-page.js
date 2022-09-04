@@ -30,6 +30,7 @@ docReady(function () {
     var OrganizationName = sessionStorage.getItem("OrganizationName");
     var formIdNewServer = "#wf-form-Create-server";
     var formIdDeleteServer = "#wf-form-Delete-server";
+    var formIdResetPassword = "#wf-form-Reset-password";
 
     const OrganizationBread0 = document.getElementById("OrganizationBread0");
     OrganizationBread0.textContent = OrganizationName;
@@ -229,6 +230,97 @@ docReady(function () {
         });
     };
 
+    makeWebflowFormAjaxResetPassword = function (forms, successCallback, errorCallback) {
+        forms.each(function () {
+            var form = $(this);
+            form.on("submit", function (event) {
+                var container = form.parent();
+                var doneBlock = $("#wf-form-Reset-password-done", container);
+                var failBlock = $("#wf-form-Reset-password-fail", container);
+                var action =
+                    InvokeURL +
+                    "/wholesalers/" +
+                    wholesalerKey +
+                    "/ftp/reset-password";
+                var method = "GET";
+
+                $.ajax({
+                    type: method,
+                    url: action,
+                    cors: true,
+                    beforeSend: function () {
+                        $("#waitingdots").show();
+                    },
+                    complete: function () {
+                        $("#waitingdots").hide();
+                    },
+                    contentType: "application/json",
+                    dataType: "json",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        Authorization: orgToken,
+                    },
+                    success: function (resultData) {
+                        
+                        if (typeof successCallback === "function") {
+                            result = successCallback(resultData);
+                            if (!result) {
+                                form.show();
+                                doneBlock.hide();
+                                failBlock.show();
+                                return;
+                            }
+                        }
+                        form.hide();
+                        console.log(resultData.credentials.username);
+                        console.log(resultData.credentials.password);
+                        const credentialsbox = document.getElementById("credentialsbox");
+                        credentialsbox.innerHTML = "Login: " + resultData.credentials.username + "<br />";
+                        credentialsbox.innerHTML += "Hasło: " + resultData.credentials.password + "<br />";
+
+                        const ftpUsername = document.getElementById("ftpUsername");
+                        const ftpPassword = document.getElementById("ftpPassword");      
+                        ftpUsername.textContent = resultData.credentials.username
+                        ftpPassword.textContent = resultData.credentials.password
+                        $("#Iftp").addClass("enabled")
+                        $("#credentials").removeClass("hide")
+
+                        doneBlock.show();
+                        failBlock.hide();
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(jqXHR);
+                        console.log(exception);
+                        var msg = "";
+                        if (jqXHR.status === 0) {
+                          msg = "Not connect.\n Verify Network.";
+                        } else if (jqXHR.status === 403) {
+                          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+                        } else if (jqXHR.status === 500) {
+                          msg = "Internal Server Error [500].";
+                        } else if (exception === "parsererror") {
+                          msg = "Requested JSON parse failed.";
+                        } else if (exception === "timeout") {
+                          msg = "Time out error.";
+                        } else if (exception === "abort") {
+                          msg = "Ajax request aborted.";
+                        } else {
+                          msg = "" + jqXHR.responseJSON.message;
+                        }
+                        $('.warningmessagetext').text(msg);
+                        form.show();
+                        doneBlock.hide();
+                        failBlock.show();
+                        failBlock.fadeOut(5000);
+                      },
+                });
+                event.preventDefault();
+                return false;
+            });
+        });
+    };
+
     makeWebflowFormAjaxDeleteServerWh = function (
         forms,
         successCallback,
@@ -334,6 +426,7 @@ docReady(function () {
     
 
     makeWebflowFormAjaxServerWh($(formIdNewServer));
+    makeWebflowFormAjaxServerResetPassword($(formIdResetPassword));
     makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
     LogoutNonUser();
     
