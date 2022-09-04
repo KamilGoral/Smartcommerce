@@ -121,6 +121,7 @@ docReady(function () {
                 $("#credentials").removeClass("hide")
                 $("#informations").removeClass("hide")
                 $("#deleteserver").removeClass("hide")
+                $("#resetpassword").removeClass("hide")
 
             } else {
                 console.log("error");
@@ -426,7 +427,7 @@ docReady(function () {
     
 
     makeWebflowFormAjaxServerWh($(formIdNewServer));
-    makeWebflowFormAjaxServerResetPassword($(formIdResetPassword));
+    makeWebflowFormAjaxResetPassword($(formIdResetPassword));
     makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
     LogoutNonUser();
     
