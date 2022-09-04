@@ -259,7 +259,6 @@ docReady(function () {
           const style = document.getElementById("sampleStatus");
           const row = style.cloneNode(true);
           row.style.display = "block";
-          row.classList.add("tippy");
           var firstCreateDate = "";
           var offset = new Date().getTimezoneOffset();
           var localeTime = new Date(
@@ -268,7 +267,7 @@ docReady(function () {
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
           firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
-          
+
           if (item.status === "Failed") {
             row.classList.add("fail");
             row.classList.add("tippy");
@@ -651,4 +650,14 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
+
+  tippy('.tippy', {          // Add the class tippy to your element
+    theme: 'light',          // Dark or Light
+    animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
+    duration: 250,           // Duration of the Animation
+    arrow: true,             // Add arrow to the tooltip
+    arrowType: 'round',      // Sharp, round or empty for none
+    delay: [0, 50],          // Trigger delay in & out
+    maxWidth: 240,           // Optional, max width settings
+  })
 });
