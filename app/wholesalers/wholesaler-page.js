@@ -276,10 +276,8 @@ docReady(function () {
                         form.hide();
                         console.log(resultData.credentials.username);
                         console.log(resultData.credentials.password);
-                        const credentialsbox = document.getElementById("credentialsbox");
-                        credentialsbox.innerHTML = "Login: " + resultData.credentials.username + "<br />";
-                        credentialsbox.innerHTML += "Hasło: " + resultData.credentials.password + "<br />";
-
+                        $('.successmessagetext').text("Gotowe! Hasło zostało zresetowane !Nowe hasło to: " + resultData.credentials.password);
+                        
                         const ftpUsername = document.getElementById("ftpUsername");
                         const ftpPassword = document.getElementById("ftpPassword");      
                         ftpUsername.textContent = resultData.credentials.username
@@ -289,6 +287,9 @@ docReady(function () {
 
                         doneBlock.show();
                         failBlock.hide();
+                        window.setTimeout(function () {
+                            location.reload();
+                        }, 5000);
                     },
                     error: function (jqXHR, exception) {
                         console.log(jqXHR);
