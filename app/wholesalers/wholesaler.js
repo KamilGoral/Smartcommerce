@@ -20,6 +20,7 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
+
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");
@@ -635,6 +636,36 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
+  function LoadTippy() {
+    $.getScript("https://unpkg.com/popper.js@1", function (data, textStatus, jqxhr) {
+      console.log(data); // data returned
+      console.log(textStatus); // success
+      console.log(jqxhr.status); // 200
+      console.log('Load was performed.');
+    });
+    $.getScript("https://unpkg.com/tippy.js@4", function (data, textStatus, jqxhr) {
+      console.log(data); // data returned
+      console.log(textStatus); // success
+      console.log(jqxhr.status); // 200
+      console.log('Load was performed.');
+    });
+
+    tippy('.tippy', {          // Add the class tippy to your element
+      theme: 'light',          // Dark or Light
+      animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
+      duration: 250,           // Duration of the Animation
+      arrow: true,             // Add arrow to the tooltip
+      arrowType: 'round',      // Sharp, round or empty for none
+      delay: [0, 50],          // Trigger delay in & out
+      maxWidth: 240,           // Optional, max width settings
+    })
+
+
+  }
+
+  //loadTippyContent//
+  LoadTippy();
+
   //onlineOfferSupport//
 
   getWholesaler();
@@ -651,13 +682,4 @@ docReady(function () {
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
 
-  tippy('.tippy', {          // Add the class tippy to your element
-    theme: 'light',          // Dark or Light
-    animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
-    duration: 250,           // Duration of the Animation
-    arrow: true,             // Add arrow to the tooltip
-    arrowType: 'round',      // Sharp, round or empty for none
-    delay: [0, 50],          // Trigger delay in & out
-    maxWidth: 240,           // Optional, max width settings
-  })
 });
