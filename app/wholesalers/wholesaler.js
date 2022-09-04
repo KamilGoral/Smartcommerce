@@ -38,11 +38,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -117,11 +117,11 @@ docReady(function () {
     $("#waitingdots").show();
     let url2 = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -147,11 +147,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/profiles"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/profiles"
     );
 
     if (wholesalerKey == "mirex") {
@@ -200,11 +200,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/status-history?sort=createDate:desc&per_page=30"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/status-history?sort=createDate:asc&per_page=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -255,15 +255,30 @@ docReady(function () {
 
         firstMessage;
 
-        toParse.forEach((status) => {
+        toParse.forEach((item) => {
           const style = document.getElementById("sampleStatus");
           const row = style.cloneNode(true);
           row.style.display = "block";
-          if (status.status === "Failed") {
+          row.classList.add("tippy");
+          var firstCreateDate = "";
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(
+            Date.parse(item.createDate) - offset * 60 * 1000
+          ).toISOString();
+          var creationDate = localeTime.split("T");
+          var creationTime = creationDate[1].split("Z");
+          firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+          
+          if (item.status === "Failed") {
             row.classList.add("fail");
+            row.setAttribute("data-tippy-content", firstCreateDate + " Problem");
           }
-          if (status.status === "Incomplete") {
+          if (item.status === "Incomplete") {
             row.classList.add("warning");
+            row.setAttribute("data-tippy-content", firstCreateDate + " Niekompletna");
+          }
+          if (item.status === "Succeeded") {
+            row.setAttribute("data-tippy-content", firstCreateDate + " Sukces");
           }
           statusContainer.appendChild(row);
         });
