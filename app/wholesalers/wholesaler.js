@@ -660,8 +660,8 @@ docReady(function () {
     });
   }
 
-  //loadTippyContent//
-  LoadTippy();
+
+  
 
   //onlineOfferSupport//
 
@@ -674,6 +674,9 @@ docReady(function () {
   //oniline Support not supported flow //
 
   LogoutNonUser();
+
+  //loadTippyContent//
+  LoadTippy();
 
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
