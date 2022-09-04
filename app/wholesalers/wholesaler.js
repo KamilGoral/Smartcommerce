@@ -271,13 +271,16 @@ docReady(function () {
           
           if (item.status === "Failed") {
             row.classList.add("fail");
+            row.classList.add("tippy");
             row.setAttribute("data-tippy-content", firstCreateDate + " Problem");
           }
           if (item.status === "Incomplete") {
             row.classList.add("warning");
+            row.classList.add("tippy");
             row.setAttribute("data-tippy-content", firstCreateDate + " Niekompletna");
           }
           if (item.status === "Succeeded") {
+            row.classList.add("tippy");
             row.setAttribute("data-tippy-content", firstCreateDate + " Sukces");
           }
           statusContainer.appendChild(row);
