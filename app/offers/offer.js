@@ -683,7 +683,7 @@ docReady(function () {
                         return '<p class="negative">' + data.premium + '</p>'
                     };
                 } else {
-                    return '<p class="medium">-</p>'
+                    return '<p class="noneexisting">-</p>'
                 }
             }
         },
