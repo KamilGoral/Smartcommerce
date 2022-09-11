@@ -869,11 +869,11 @@ docReady(function () {
         case 0:
           whichColumns = "createDate:";
           break;
-        case 2:
-          whichColumns = "createDate:";
+        case 1:
+          whichColumns = "startDate:";
           break;
-        case 3:
-          whichColumns = "createDate:";
+        case 2:
+          whichColumns = "endDate:";
           break;
         default:
           whichColumns = "createDate:";
@@ -944,7 +944,7 @@ docReady(function () {
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "startDate",
         render: function (data) {
           if (data !== null) {
@@ -965,7 +965,7 @@ docReady(function () {
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "endDate",
         render: function (data) {
           if (data !== null) {

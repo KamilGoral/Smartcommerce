@@ -442,7 +442,7 @@ docReady(function () {
             var typeOfPromotion = ''
             if (item.promotion != null) {
                 tableRowHtml += '<td>' + '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg">' + '</td>';
-                if (item.promotion.type === 'rigidBundle') {
+                if (item.promotion.type === 'rigid bundle') {
                     typeOfPromotion = 'Sztywny pakiet'
                 }
                 if (item.promotion.type === 'worth') {
@@ -451,13 +451,13 @@ docReady(function () {
                 if (item.promotion.type === 'quantity') {
                     typeOfPromotion = 'Laczna ilosc'
                 }
-                if (item.promotion.type === 'packageMix') {
+                if (item.promotion.type === 'package mix') {
                     typeOfPromotion = 'Mix opakowan'
                 }
-                if (item.promotion.type === 'quantityBundle') {
+                if (item.promotion.type === 'quantity bundle') {
                     typeOfPromotion = 'Pakietowa'
                 }
-                if (item.promotion.type === 'notCumulativeQuantity') {
+                if (item.promotion.type === 'not cumulative quantity') {
                     typeOfPromotion = 'Okresowa'
                 }
 
