@@ -859,20 +859,20 @@ docReady(function () {
       var direction = "desc";
 
       if (data.order.length == 0) {
-        whichColumns = 0;
+        whichColumns = 2;
       } else {
         whichColumns = data.order[0]["column"];
         direction = data.order[0]["dir"];
       }
 
       switch (whichColumns) {
-        case 0:
+        case 2:
           whichColumns = "createDate:";
           break;
-        case 1:
+        case 3:
           whichColumns = "startDate:";
           break;
-        case 2:
+        case 4:
           whichColumns = "endDate:";
           break;
         default:
