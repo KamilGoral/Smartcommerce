@@ -108,6 +108,37 @@ docReady(function () {
       var data = JSON.parse(this.response);
 
       if (request.status >= 200 && request.status < 400) {
+        const wholesalerKey = document.getElementById("wholesalerKey");
+        const createdBy = document.getElementById("createdBy");
+        const createDate = document.getElementById("createDate");
+        const lastModificationDate = document.getElementById(
+          "lastModificationDate"
+        );
+        const startDate = document.getElementById("startDate");
+        const endDate = document.getElementById("endDate");
+        shopKeysStart = data.shopKeys;
+
+        function ToHumanTime(data) {
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(
+            Date.parse(data) - offset * 60 * 1000
+          ).toISOString();
+          var creationDate = localeTime.split("T");
+          var creationTime = creationDate[1].split("Z");
+          var humanTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
+          return humanTime;
+        }
+        wholesalerKey.textContent = data.wholesalerKey;
+        createdBy.textContent = data.createdBy;
+        createDate.textContent = ToHumanTime(data.createDate);
+        lastModificationDate.textContent = ToHumanTime(
+          data.lastModificationDate
+        );
+        startDate.textContent = ToHumanTime(data.startDate);
+        $("#startDate").datepicker("setDate", new Date(data.startDate));
+        endDate.textContent = ToHumanTime(data.endDate);
+        $("#endDate").datepicker("setDate", new Date(data.endDate));
+
         const select = document.getElementById("shopKeys");
         var ShopArray = data.shopKeys;
         for (const option of document.querySelectorAll("#shopKeys option")) {
