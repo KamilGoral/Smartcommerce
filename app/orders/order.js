@@ -401,283 +401,284 @@ docReady(function () {
     );
   }
 
-  function GetSplittedProducts() {}
-  $.ajax({
-    type: "GET",
-    url:
-      InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers?perPage=10000",
-    cors: true,
-    contentType: "application/json",
-    dataType: "json",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: orgToken,
-    },
-    beforeSend: function () {
-      $("#waitingdots").show();
-    },
-    complete: function () {
-      $("#waitingdots").hide();
-    },
-    success: function (resultProducts) {
-      if (typeof successCallback === "function") {
-        result = successCallback(resultProducts);
-        if (!result) {
-          return;
+  function GetSplittedProducts() {
+    $.ajax({
+      type: "GET",
+      url:
+        InvokeURL +
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers?perPage=10000",
+      cors: true,
+      contentType: "application/json",
+      dataType: "json",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: orgToken,
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function (resultProducts) {
+        if (typeof successCallback === "function") {
+          result = successCallback(resultProducts);
+          if (!result) {
+            return;
+          }
         }
-      }
-      var products = resultProducts;
-      $("#splitted-products").show();
-      var table = $("#spl_table").DataTable({
-        pagingType: "full_numbers",
-        destroy: true,
-        order: [],
-        dom: '<"top"f>rt<"bottom"lip>',
-        scrollY: "60vh",
-        scrollCollapse: true,
-        pageLength: 25,
-        language: {
-          emptyTable: "Brak danych do wyświetlenia",
-          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-          infoEmpty: "Brak danych",
-          infoFiltered: "(z _MAX_ rezultatów)",
-          lengthMenu: "Pokaż _MENU_ rekordów",
-          loadingRecords: "<div class='spinner'</div>",
-          processing: "<div class='spinner'</div>",
-          search: "Szukaj:",
-          zeroRecords: "Brak pasujących rezultatów",
-          paginate: {
-            first: "<<",
-            last: ">>",
-            next: " >",
-            previous: "< ",
-          },
-          aria: {
-            sortAscending: ": Sortowanie rosnące",
-            sortDescending: ": Sortowanie malejące",
-          },
-        },
-        data: products.items,
-        search: {
-          return: true,
-        },
-        columns: [
-          {
-            orderable: false,
-            class: "details-control",
-            data: null,
-            defaultContent: "",
-          },
-          {
-            orderable: true,
-            data: "name",
-          },
-          {
-            orderable: true,
-            data: "gtin",
-          },
-          {
-            orderable: false,
-            data: "inStock",
-            render: function (data) {
-              if (data !== null) {
-                return "" + data.value;
-              }
-              if (data === null) {
-                return "0";
-              }
+        var products = resultProducts;
+        $("#splitted-products").show();
+        var table = $("#spl_table").DataTable({
+          pagingType: "full_numbers",
+          destroy: true,
+          order: [],
+          dom: '<"top"f>rt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 25,
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
             },
           },
-          {
-            orderable: false,
-            data: "quantity",
-            render: function (data) {
-              return (
-                '<input type="number" style="max-width: 80px" value="' +
-                data +
-                '"></td>'
-              );
+          data: products.items,
+          search: {
+            return: true,
+          },
+          columns: [
+            {
+              orderable: false,
+              class: "details-control",
+              data: null,
+              defaultContent: "",
             },
-          },
-          {
-            orderable: false,
-            data: "standardPrice",
-            render: function (data) {
-              if (data !== null) {
-                return "" + data.value.toFixed(2);
-              }
-              if (data === null) {
-                return "0";
-              }
+            {
+              orderable: true,
+              data: "name",
             },
-          },
-          {
-            orderable: true,
-            data: "wholesalerKey",
-            render: function (data) {
-              if (data == "unassigned") {
-                return "nieprzydzielone";
-              }
-              return data;
+            {
+              orderable: true,
+              data: "gtin",
             },
-          },
-          {
-            orderable: true,
-            data: "netPrice",
-          },
-
-          {
-            orderable: true,
-            data: "standardPrice",
-            render: function (data) {
-              if (
-                data !== null &&
-                data.hasOwnProperty("wholesalerPremium") &&
-                data.wholesalerPremium !== null
-              ) {
-                if (data.wholesalerPremium >= 0) {
-                  return (
-                    '<p class="positive">' + data.wholesalerPremium + "</p>"
-                  );
-                } else {
-                  return (
-                    '<p class="negative">' + data.wholesalerPremium + "</p>"
-                  );
+            {
+              orderable: false,
+              data: "inStock",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.value;
                 }
-              } else {
-                return '<p class="positive">0</p>';
-              }
+                if (data === null) {
+                  return "0";
+                }
+              },
             },
-          },
-          {
-            orderable: false,
-            data: "rotationIndicator",
-            defaultContent: "brak",
-            render: function (data) {
-              if (data == "AX") {
-                return '<p class="super">' + data + "</p>";
-              }
-              if (data == "AY" || data == "BX") {
-                return '<p class="positive">' + data + "</p>";
-              }
-              if (data == "AZ" || data == "CX" || data == "BY") {
-                return '<p class="medium">' + data + "</p>";
-              }
-              if (data == "BZ" || data == "CY") {
-                return '<p class="negative">' + data + "</p>";
-              }
-              if (data == "CZ") {
-                return '<p class="bad">' + data + "</p>";
-              }
-              if (data == null) {
-                return '<p class="noneexisting">' + "-" + "</p>";
-              }
+            {
+              orderable: false,
+              data: "quantity",
+              render: function (data) {
+                return (
+                  '<input type="number" style="max-width: 80px" value="' +
+                  data +
+                  '"></td>'
+                );
+              },
             },
-          },
-        ],
-        initComplete: function (settings, json) {
-          var api = this.api();
-          $("#spl_table").wrap(
-            "<div style='overflow:auto; width:100%;position:relative;'></div>"
-          );
-          var textBox = $("#spl_table_filter label input");
-          $("#spl_table").on("click", "td.details-control", function () {
-            var tr = $(this).closest("tr");
-            var row = table.row(tr);
-            console.log(tr, row);
+            {
+              orderable: false,
+              data: "standardPrice",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.value.toFixed(2);
+                }
+                if (data === null) {
+                  return "0";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "wholesalerKey",
+              render: function (data) {
+                if (data == "unassigned") {
+                  return "nieprzydzielone";
+                }
+                return data;
+              },
+            },
+            {
+              orderable: true,
+              data: "netPrice",
+            },
 
-            if (row.child.isShown()) {
-              row.child.hide();
-              tr.removeClass("shown");
-            } else {
-              row.child(format(row.data())).show();
-              tr.addClass("shown");
-            }
-          });
-          $("#spl_table").on("focusout", "input", function () {
-            console.log($(this));
-            var cell = $(this).closest("td");
-            var row = $(this).closest("tr");
-            console.log(cell);
-            console.log(row);
-            console.log(table);
-            $(this).attr("value", $(this).val());
-            var data = table.row($(this).parents("tr")).data();
-            console.log(data);
-            var payload = [];
-            var product = {
-              op: "replace",
-              path: "/" + data.gtin + "/quantity",
-              value: parseInt($(this).val()),
-            };
-            payload.push(product);
-            var action =
-              InvokeURL +
-              "shops/" +
-              shopKey +
-              "/orders/" +
-              orderId +
-              "/products";
-            var method = "PATCH";
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              data: JSON.stringify(payload),
-              processData: false,
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  result = successCallback(resultData);
-                  if (!result) {
-                    return;
+            {
+              orderable: true,
+              data: "standardPrice",
+              render: function (data) {
+                if (
+                  data !== null &&
+                  data.hasOwnProperty("wholesalerPremium") &&
+                  data.wholesalerPremium !== null
+                ) {
+                  if (data.wholesalerPremium >= 0) {
+                    return (
+                      '<p class="positive">' + data.wholesalerPremium + "</p>"
+                    );
+                  } else {
+                    return (
+                      '<p class="negative">' + data.wholesalerPremium + "</p>"
+                    );
                   }
+                } else {
+                  return '<p class="positive">0</p>';
                 }
-                var data = resultData;
               },
-              error: function (jqXHR, exception) {
-                console.log(jqXHR);
-                console.log(exception);
-                return;
+            },
+            {
+              orderable: false,
+              data: "rotationIndicator",
+              defaultContent: "brak",
+              render: function (data) {
+                if (data == "AX") {
+                  return '<p class="super">' + data + "</p>";
+                }
+                if (data == "AY" || data == "BX") {
+                  return '<p class="positive">' + data + "</p>";
+                }
+                if (data == "AZ" || data == "CX" || data == "BY") {
+                  return '<p class="medium">' + data + "</p>";
+                }
+                if (data == "BZ" || data == "CY") {
+                  return '<p class="negative">' + data + "</p>";
+                }
+                if (data == "CZ") {
+                  return '<p class="bad">' + data + "</p>";
+                }
+                if (data == null) {
+                  return '<p class="noneexisting">' + "-" + "</p>";
+                }
               },
-            });
-          });
-          textBox.unbind();
-          textBox.bind("keyup input", function (e) {
-            if (e.keyCode == 13) {
-              api.search(this.value).draw();
-            }
-          });
-        },
-      });
+            },
+          ],
+          initComplete: function (settings, json) {
+            var api = this.api();
+            $("#spl_table").wrap(
+              "<div style='overflow:auto; width:100%;position:relative;'></div>"
+            );
+            var textBox = $("#spl_table_filter label input");
+            $("#spl_table").on("click", "td.details-control", function () {
+              var tr = $(this).closest("tr");
+              var row = table.row(tr);
+              console.log(tr, row);
 
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: "smooth",
-      });
-    },
-    error: function (jqXHR, exception) {
-      return;
-    },
-  });
+              if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass("shown");
+              } else {
+                row.child(format(row.data())).show();
+                tr.addClass("shown");
+              }
+            });
+            $("#spl_table").on("focusout", "input", function () {
+              console.log($(this));
+              var cell = $(this).closest("td");
+              var row = $(this).closest("tr");
+              console.log(cell);
+              console.log(row);
+              console.log(table);
+              $(this).attr("value", $(this).val());
+              var data = table.row($(this).parents("tr")).data();
+              console.log(data);
+              var payload = [];
+              var product = {
+                op: "replace",
+                path: "/" + data.gtin + "/quantity",
+                value: parseInt($(this).val()),
+              };
+              payload.push(product);
+              var action =
+                InvokeURL +
+                "shops/" +
+                shopKey +
+                "/orders/" +
+                orderId +
+                "/products";
+              var method = "PATCH";
+              $.ajax({
+                type: method,
+                url: action,
+                cors: true,
+                beforeSend: function () {
+                  $("#waitingdots").show();
+                },
+                complete: function () {
+                  $("#waitingdots").hide();
+                },
+                contentType: "application/json",
+                dataType: "json",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                  Authorization: orgToken,
+                },
+                data: JSON.stringify(payload),
+                processData: false,
+                success: function (resultData) {
+                  if (typeof successCallback === "function") {
+                    result = successCallback(resultData);
+                    if (!result) {
+                      return;
+                    }
+                  }
+                  var data = resultData;
+                },
+                error: function (jqXHR, exception) {
+                  console.log(jqXHR);
+                  console.log(exception);
+                  return;
+                },
+              });
+            });
+            textBox.unbind();
+            textBox.bind("keyup input", function (e) {
+              if (e.keyCode == 13) {
+                api.search(this.value).draw();
+              }
+            });
+          },
+        });
+
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+      },
+      error: function (jqXHR, exception) {
+        return;
+      },
+    });
+  }
 
   $("#zipcontainer").on("click", "img", function () {
     var fileformat = $(this).attr("fileformat");
