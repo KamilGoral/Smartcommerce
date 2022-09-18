@@ -509,15 +509,15 @@ docReady(function () {
     scrollCollapse: true,
     pageLength: 10,
     language: {
-      emptyTable: "Brak danych do wyÄšÂwietlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatÄĹw",
+      emptyTable: "Brak danych do wyświetlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
       infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatÄĹw)",
-      lengthMenu: "PokaÄšĹş _MENU_ rekordÄĹw",
+      infoFiltered: "(z _MAX_ rezultatów)",
+      lengthMenu: "Pokaż _MENU_ rekordów",
       loadingRecords: "<div class='spinner'</div>",
       processing: "<div class='spinner'</div>",
       search: "Szukaj:",
-      zeroRecords: "Brak pasujĂÂcych rezultatÄĹw",
+      zeroRecords: "Brak pasujących rezultatów",
       paginate: {
         first: "<<",
         last: ">>",
@@ -525,8 +525,8 @@ docReady(function () {
         previous: "< ",
       },
       aria: {
-        sortAscending: ": Sortowanie rosnĂÂce",
-        sortDescending: ": Sortowanie malejĂÂce",
+        sortAscending: ": Sortowanie rosnące",
+        sortDescending: ": Sortowanie malejące",
       },
     },
     ajax: function (data, callback, settings) {
@@ -949,15 +949,15 @@ docReady(function () {
         scrollCollapse: true,
         pageLength: 25,
         language: {
-          emptyTable: "Brak danych do wyswietlenia",
-          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatĂÂÄšÂw",
+          emptyTable: "Brak danych do wyświetlenia",
+          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
           infoEmpty: "Brak danych",
-          infoFiltered: "(z _MAX_ rezultatĂÂÄšÂw)",
-          lengthMenu: "PokaĂĹĄÄšĹ _MENU_ rekordĂÂÄšÂw",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
           loadingRecords: "<div class='spinner'</div>",
           processing: "<div class='spinner'</div>",
           search: "Szukaj:",
-          zeroRecords: "Brak pasujacych rezultatĂÂÄšÂw",
+          zeroRecords: "Brak pasujących rezultatów",
           paginate: {
             first: "<<",
             last: ">>",
@@ -965,8 +965,8 @@ docReady(function () {
             previous: "< ",
           },
           aria: {
-            sortAscending: ": Sortowanie rosnÄÂĂÂce",
-            sortDescending: ": Sortowanie malejÄÂĂÂce",
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
           },
         },
         data: products.items,
