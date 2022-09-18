@@ -531,11 +531,11 @@ docReady(function () {
     },
     ajax: function (data, callback, settings) {
       $("#before-split-products").show();
-      var eanCode = "";
+      var GTINCode = "";
       var productName = "";
       let isnum = /^\d+$/.test(data.search.value);
       if (isnum) {
-        eanCode = data.search.value;
+        GTINCode = data.search.value;
       } else {
         productName = data.search.value;
       }
@@ -556,7 +556,7 @@ docReady(function () {
           perPage: data.length,
           page: (data.start + data.length) / data.length,
           name: "like:" + productName,
-          ean: eanCode,
+          gtin: GTINCode,
         },
         function (res) {
           console.log(res);
@@ -586,7 +586,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "ean",
+        data: "gtin",
       },
       {
         orderable: false,
@@ -746,7 +746,7 @@ docReady(function () {
     var payload = [];
     var product = {
       op: "replace",
-      path: "/" + data.ean + "/quantity",
+      path: "/" + data.gtin + "/quantity",
       value: parseInt($(this).val()),
     };
     payload.push(product);
@@ -986,7 +986,7 @@ docReady(function () {
           },
           {
             orderable: true,
-            data: "ean",
+            data: "gtin",
           },
           {
             orderable: false,
@@ -1119,7 +1119,7 @@ docReady(function () {
             var payload = [];
             var product = {
               op: "replace",
-              path: "/" + data.ean + "/quantity",
+              path: "/" + data.gtin + "/quantity",
               value: parseInt($(this).val()),
             };
             payload.push(product);
