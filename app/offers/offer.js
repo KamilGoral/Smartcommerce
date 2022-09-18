@@ -774,7 +774,7 @@ docReady(function () {
         case 7:
           whichColumns = "standardPrice:";
           break;
-        case 10:
+        case 11:
           whichColumns = "rotationIndicator:";
           break;
         default:
