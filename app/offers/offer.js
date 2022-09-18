@@ -902,11 +902,14 @@ docReady(function () {
             var size = Object.keys(mysorteddata).length;
             if (size > 0) {
               var bestOffer = data[0];
-              return "" + bestOffer.netPrice;
+              if (bestOffer.promotion != null) {
+                return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg"></td>';
+              }
+              return '<p class="noneexisting">-</p>';
             }
-            return "0";
+            return '<p class="noneexisting">-</p>';
           }
-          return "0";
+          return '<p class="noneexisting">-</p>';
         },
       },
       {
