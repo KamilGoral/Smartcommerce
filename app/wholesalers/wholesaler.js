@@ -20,7 +20,6 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
-
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");
@@ -39,11 +38,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -118,11 +117,11 @@ docReady(function () {
     $("#waitingdots").show();
     let url2 = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -148,11 +147,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/profiles"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/profiles"
     );
 
     if (wholesalerKey == "mirex") {
@@ -201,11 +200,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/status-history?sort=createDate:asc&per_page=30"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/status-history?sort=createDate:desc&per_page=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -267,17 +266,24 @@ docReady(function () {
           ).toISOString();
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
-          firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+          firstCreateDate =
+            creationDate[0] + " " + creationTime[0].slice(0, -4);
 
           if (item.status === "Failed") {
             row.classList.add("fail");
             row.classList.add("tippy");
-            row.setAttribute("data-tippy-content", firstCreateDate + " Problem");
+            row.setAttribute(
+              "data-tippy-content",
+              firstCreateDate + " Problem"
+            );
           }
           if (item.status === "Incomplete") {
             row.classList.add("warning");
             row.classList.add("tippy");
-            row.setAttribute("data-tippy-content", firstCreateDate + " Niekompletna");
+            row.setAttribute(
+              "data-tippy-content",
+              firstCreateDate + " Niekompletna"
+            );
           }
           if (item.status === "Succeeded") {
             row.classList.add("tippy");
@@ -639,31 +645,35 @@ docReady(function () {
   });
 
   function LoadTippy() {
-    $.getScript("https://unpkg.com/popper.js@1", function (data, textStatus, jqxhr) {
-      console.log(data); // data returned
-      console.log(textStatus); // success
-      console.log(jqxhr.status); // 200
-      console.log('Load was performed.');
-      $.getScript("https://unpkg.com/tippy.js@4", function (data, textStatus, jqxhr) {
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
         console.log(data); // data returned
         console.log(textStatus); // success
         console.log(jqxhr.status); // 200
-        console.log('Load was performed.');
-        tippy('.tippy', {          // Add the class tippy to your element
-          theme: 'light',          // Dark or Light
-          animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
-          duration: 250,           // Duration of the Animation
-          arrow: true,             // Add arrow to the tooltip
-          arrowType: 'round',      // Sharp, round or empty for none
-          delay: [0, 50],          // Trigger delay in & out
-          maxWidth: 240,           // Optional, max width settings
-        })
-      });
-    });
+        console.log("Load was performed.");
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            console.log(data); // data returned
+            console.log(textStatus); // success
+            console.log(jqxhr.status); // 200
+            console.log("Load was performed.");
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
   }
-
-
-
 
   //onlineOfferSupport//
 
@@ -680,5 +690,4 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
-
 });
