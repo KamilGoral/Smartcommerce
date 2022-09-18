@@ -43,56 +43,56 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey) {
     console.log("starting Updating function");
-    var form = $('#wf-form-WholesalerChangeStatusForm ');
+    var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
     var doneBlock = $(".w-form-done", container);
     var failBlock = $(".w-form-fail", container);
 
-    var data = [{
-      "op": "replace",
-      "path": "/enabled",
-      "value": changeOfStatus
-    }];
+    var data = [
+      {
+        op: "replace",
+        path: "/enabled",
+        value: changeOfStatus,
+      },
+    ];
 
     $.ajax({
       type: "PATCH",
       url: InvokeURL + "wholesalers/" + wholesalerKey,
       cors: true,
       beforeSend: function () {
-        $('#waitingdots').show();
+        $("#waitingdots").show();
       },
       complete: function () {
-        $('#waitingdots').hide();
+        $("#waitingdots").hide();
       },
-      contentType: 'application/json',
-      dataType: 'json',
+      contentType: "application/json",
+      dataType: "json",
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': orgToken
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: orgToken,
       },
       data: JSON.stringify(data),
       success: function (resultData) {
         console.log(resultData);
 
-
         if (resultData.enabled == true) {
-          console.log("Aktywny")
+          console.log("Aktywny");
         } else {
-          console.log("Nieaktywny")
-        };
+          console.log("Nieaktywny");
+        }
 
-
-        if (typeof successCallback === 'function') {
+        if (typeof successCallback === "function") {
           // call custom callback
           result = successCallback(resultData);
           if (!result) {
@@ -105,42 +105,47 @@ docReady(function () {
         }
         // show success (done) block
         doneBlock.show();
-        setTimeout(function () { doneBlock.hide(); }, 2000);
+        setTimeout(function () {
+          doneBlock.hide();
+        }, 2000);
         failBlock.hide();
       },
       error: function (jqXHR, exception) {
-        console.log("błąd")
+        console.log("błąd");
         console.log(jqXHR);
         console.log(exception);
         //$('#customSwitchText').attr('disabled', 'disabled');
-        var msg = '';
+        var msg = "";
         if (jqXHR.status === 0) {
-          msg = 'Nie masz połączenia z internetem.';
+          msg = "Nie masz połączenia z internetem.";
         } else if (jqXHR.status == 404) {
-          msg = 'Nie znaleziono strony';
+          msg = "Nie znaleziono strony";
         } else if (jqXHR.status == 403) {
-          msg = 'Nie masz uprawnień do tej czynności';
+          msg = "Nie masz uprawnień do tej czynności";
         } else if (jqXHR.status == 409) {
-          msg = 'Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.';
+          msg =
+            "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
         } else if (jqXHR.status == 500) {
-          msg = 'Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].';
-        } else if (exception === 'parsererror') {
-          msg = 'Nie udało się odczytać danych';
-        } else if (exception === 'timeout') {
-          msg = 'Przekroczony czas oczekiwania';
-        } else if (exception === 'abort') {
-          msg = 'Twoje żądanie zostało zaniechane';
+          msg =
+            "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+        } else if (exception === "parsererror") {
+          msg = "Nie udało się odczytać danych";
+        } else if (exception === "timeout") {
+          msg = "Przekroczony czas oczekiwania";
+        } else if (exception === "abort") {
+          msg = "Twoje żądanie zostało zaniechane";
         } else {
-          msg = '' + jqXHR.responseText;
+          msg = "" + jqXHR.responseText;
         }
 
-        $('.warningmessagetext').text(msg);
+        $(".warningmessagetext").text(msg);
         form.show();
         doneBlock.hide();
         failBlock.show();
-        setTimeout(function () { failBlock.hide(); }, 2000);
+        setTimeout(function () {
+          failBlock.hide();
+        }, 2000);
         return;
-
       },
     });
   }
@@ -206,10 +211,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-            DomainName +
-            "/app/shops/shop" +
-            "?shopKey=" +
-            shop.shopKey
+              DomainName +
+              "/app/shops/shop" +
+              "?shopKey=" +
+              shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -406,9 +411,17 @@ docReady(function () {
               render: function (data, type, row) {
                 if (type === "display") {
                   if (data) {
-                    return '<label class="switchCss"><input type="checkbox" checked class="editor-active"  wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
+                    return (
+                      '<label class="switchCss"><input type="checkbox" checked class="editor-active"  wholesalerKey="' +
+                      row["wholesalerKey"] +
+                      '"><span class="slider round"></span></label>'
+                    );
                   } else {
-                    return '<label class="switchCss"><input type="checkbox" class="editor-active" wholesalerKey="' + row['wholesalerKey'] + '"><span class="slider round"></span></label>';
+                    return (
+                      '<label class="switchCss"><input type="checkbox" class="editor-active" wholesalerKey="' +
+                      row["wholesalerKey"] +
+                      '"><span class="slider round"></span></label>'
+                    );
                   }
                 }
                 return data;
@@ -419,8 +432,14 @@ docReady(function () {
               data: "wholesalerKey",
               render: function (data) {
                 if (data !== null) {
-                    return '<div class="action-container"><a href="https://' + DomainName + "/app/wholesalers/wholesaler-page?wholesalerKey=" + data +'"class="buttonoutline editme w-button">Przejdź</a></div>'
-                  }
+                  return (
+                    '<div class="action-container"><a href="https://' +
+                    DomainName +
+                    "/app/wholesalers/wholesaler-page?wholesalerKey=" +
+                    data +
+                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
+                  );
+                }
                 if (data === null) {
                   return "";
                 }
@@ -434,15 +453,15 @@ docReady(function () {
           "input.editor-active",
           function () {
             var myValue = $(this);
-            console.log(myValue)
+            console.log(myValue);
             if (this.checked) {
               console.log(this.getAttribute("wholesalerkey"));
-              console.log("Nieaktywny był")
-              updateStatus(true, this.getAttribute("wholesalerkey"))
+              console.log("Nieaktywny był");
+              updateStatus(true, this.getAttribute("wholesalerkey"));
             } else {
               console.log(this.getAttribute("wholesalerkey"));
-              console.log("Aktywny był")
-              updateStatus(false, this.getAttribute("wholesalerkey"))
+              console.log("Aktywny był");
+              updateStatus(false, this.getAttribute("wholesalerkey"));
             }
           }
         );
@@ -491,9 +510,9 @@ docReady(function () {
             row.setAttribute(
               "href",
               "https://" +
-              DomainName +
-              "/app/integrations/integration?integrationKey=" +
-              integration.integrationKey
+                DomainName +
+                "/app/integrations/integration?integrationKey=" +
+                integration.integrationKey
             );
           }
 
@@ -1026,9 +1045,9 @@ docReady(function () {
     var rowData = table.row(this).data();
     window.location.replace(
       "https://" +
-      DomainName +
-      "/app/pricelists/pricelist?priceListId=" +
-      rowData.priceListId
+        DomainName +
+        "/app/pricelists/pricelist?priceListId=" +
+        rowData.priceListId
     );
   });
 
@@ -1101,8 +1120,6 @@ docReady(function () {
     });
   };
 
-
-
   LogoutNonUser();
   getUserRole();
   getShops();
@@ -1114,11 +1131,11 @@ docReady(function () {
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
-  makeWebflowFormAjaxNewWh($(formIdNewWh));  
+  makeWebflowFormAjaxNewWh($(formIdNewWh));
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-    }, 200);
+    }, 400);
   });
 });
