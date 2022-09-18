@@ -874,7 +874,7 @@ docReady(function () {
               return '<p class="negative">' + data.premium + "</p>";
             }
           } else {
-            return '<p class="noneexisting">-</p>';
+            return "-";
           }
         },
       },
@@ -905,11 +905,11 @@ docReady(function () {
               if (bestOffer.promotion != null) {
                 return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg"></td>';
               }
-              return '<p class="noneexisting">-</p>';
+              return "-";
             }
-            return '<p class="noneexisting">-</p>';
+            return "-";
           }
-          return '<p class="noneexisting">-</p>';
+          return "-";
         },
       },
       {
