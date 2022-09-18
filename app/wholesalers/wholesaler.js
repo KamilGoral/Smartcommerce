@@ -624,6 +624,9 @@ docReady(function () {
             }
             form.show();
             doneBlock.show();
+            setTimeout(function () {
+              console.log("Czekam");
+            }, 2000);
             doneBlock.fadeOut(3000);
             window.location.href =
               "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
