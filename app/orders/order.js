@@ -798,115 +798,7 @@ docReady(function () {
     });
   });
 
-  function format(d) {
-    console.log(d);
-    const arr = d.asks;
-    const lowest = arr.reduce((acc, loc) =>
-      acc.netPrice < loc.netPrice ? acc : loc
-    );
-    arr.sort(function (first, second) {
-      return first.netPrice - second.netPrice;
-    });
-
-    var toDisplayHtml = "";
-
-    function myFunction(item) {
-      if (item.set === null) {
-        item.set = "-";
-      }
-      if (item.netNetPrice === null) {
-        item.netNetPrice = "-";
-      }
-      var typeOfSource = "";
-      if (item.source === "price list") {
-        typeOfSource = "Cennik";
-      }
-      if (item.source === "online offer") {
-        typeOfSource = "E-hurt";
-      }
-      if (item.source === "PC-Market integration") {
-        typeOfSource = "Pc-Market";
-      }
-      var tableRowHtml =
-        "<tr>" +
-        "<td>" +
-        item.wholesalerKey +
-        "</td>" +
-        "<td>" +
-        item.netPrice +
-        "</td>" +
-        "<td>" +
-        item.netNetPrice +
-        "</td>" +
-        "<td>" +
-        item.set +
-        "</td>" +
-        "<td>" +
-        typeOfSource +
-        "</td>";
-      var typeOfPromotion = "";
-      if (item.promotion != null) {
-        tableRowHtml +=
-          "<td>" +
-          '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg">' +
-          "</td>";
-        if (item.promotion.type === "rigid bundle") {
-          typeOfPromotion = "Sztywny pakiet";
-        }
-        if (item.promotion.type === "worth") {
-          typeOfPromotion = "Laczna wartosc";
-        }
-        if (item.promotion.type === "quantity") {
-          typeOfPromotion = "Laczna ilosc";
-        }
-        if (item.promotion.type === "package mix") {
-          typeOfPromotion = "Mix opakowan";
-        }
-        if (item.promotion.type === "quantity bundle") {
-          typeOfPromotion = "Pakietowa";
-        }
-        if (item.promotion.type === "not cumulative quantity") {
-          typeOfPromotion = "Okresowa";
-        }
-
-        tableRowHtml +=
-          "<td>" +
-          typeOfPromotion +
-          "</td>" +
-          "<td>" +
-          item.promotion.worthThreshold +
-          "</td>" +
-          "<td>" +
-          item.promotion.quantityThreshold +
-          "</td>" +
-          "<td>" +
-          item.promotion.package +
-          "</td>" +
-          "</tr>";
-      } else {
-        tableRowHtml +=
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "</tr>";
-      }
-      toDisplayHtml += tableRowHtml;
-    }
-    console.log(arr);
-    arr.forEach(myFunction);
-    return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Prog zlotowkowy</th><th>Prog ilosciowy</th><th>Opakowanie</th></tr>" +
-      toDisplayHtml +
-      "</table>"
-    );
-  }
+  function GetSplittedProducts() {}
 
   $.ajax({
     type: "GET",
@@ -1191,5 +1083,6 @@ docReady(function () {
       GetSplittedProducts();
     });
   }
+
   getOffers();
 });
