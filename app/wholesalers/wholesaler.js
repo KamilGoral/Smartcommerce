@@ -223,7 +223,7 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const statusContainer = document.getElementById("StatusContainer");
         var LastStatusMessage = document.getElementById("LastStatusMessage");
-        var firstData = toParse[toParse.length - 1];
+        var firstData = toParse[0];
 
         var firstCreateDate = "";
         var firstStatus = "";
