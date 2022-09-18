@@ -625,6 +625,8 @@ docReady(function () {
             form.show();
             doneBlock.show();
             doneBlock.fadeOut(3000);
+            window.location.href =
+              "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             doneBlock.hide();
             failBlock.hide();
           },
@@ -636,6 +638,8 @@ docReady(function () {
             doneBlock.hide();
             failBlock.show();
             failBlock.fadeOut(3000);
+            window.location.href =
+              "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             failBlock.hide();
             console.log(e);
           },
