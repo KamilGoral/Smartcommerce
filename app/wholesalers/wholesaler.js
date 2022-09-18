@@ -66,6 +66,11 @@ docReady(function () {
     $("#status-container").hide();
     var request = new XMLHttpRequest();
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
+
+    if (wholesalerKey === "mirex") {
+      $("#CompanyDivEdit").show();
+    }
+
     request.open("GET", apiUrl.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
@@ -74,7 +79,8 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         if (data.onlineOfferSupport) {
           onlineOfferSupportFlow();
-          $("#CompanyDivEdit").show();
+          const onlineSupportBadge = document.getElementById("Iehurt");
+          onlineSupportBadge.classList.add("enabled");
           $("#Wholesaler-profile-Selector-box").show();
           $("#status-container").show();
         }
@@ -217,7 +223,7 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const statusContainer = document.getElementById("StatusContainer");
         var LastStatusMessage = document.getElementById("LastStatusMessage");
-        var firstData = toParse[0];
+        var firstData = toParse[toParse.length - 1];
 
         var firstCreateDate = "";
         var firstStatus = "";
