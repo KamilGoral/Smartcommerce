@@ -80,7 +80,7 @@ docReady(function () {
       products: [],
     };
 
-    function validateEan(barcode) {
+    function validateGTIN(barcode) {
       if (typeof barcode == "number") {
         var x = barcode.toString().length;
         if (x >= 5 && x <= 13) {
@@ -96,7 +96,7 @@ docReady(function () {
           var checkSum = 0;
           if (isNaN(lastDigit)) {
             return false;
-          } // not a valid upc/ean
+          } // not a valid upc/GTIN
 
           var arr = barcode
             .substring(0, barcode.length - 1)
@@ -108,7 +108,7 @@ docReady(function () {
           for (var i = 0; i < arr.length; i++) {
             if (isNaN(arr[i])) {
               return false;
-            } // can't be a valid upc/ean we're checking for
+            } // can't be a valid upc/GTIN we're checking for
 
             if (i % 2 == 0) {
               oddTotal += Number(arr[i]) * 3;
@@ -132,20 +132,20 @@ docReady(function () {
 
     function validateProduct(element) {
       if (
-        validateEan(element.ean) &&
+        validateGTIN(element.gtin) &&
         typeof element.name == "string" &&
         typeof element.price == "number" &&
         !isNaN(element.price) &&
         element.price > 0
       ) {
         myValidProducts.products.push({
-          ean: "" + validateEan(element.ean),
+          gtin: "" + validateGTIN(element.gtin),
           name: element.name,
           price: element.price,
         });
       } else {
         myInvalidProducts.products.push({
-          ean: "" + element.ean,
+          gtin: "" + element.gtin,
           name: element.name,
           price: element.price,
         });
@@ -174,7 +174,7 @@ docReady(function () {
     var preDuplicates = myValidProducts.products;
 
     const filteredArr = preDuplicates.reduce((acc, current) => {
-      const x = acc.find((item) => item.ean === current.ean);
+      const x = acc.find((item) => item.gtin === current.gtin);
       if (!x) {
         return acc.concat([current]);
       } else {
@@ -184,8 +184,8 @@ docReady(function () {
     var filteredArray = preDuplicates.filter(
       (value) => !filteredArr.includes(value)
     );
-    var old = new Set(filteredArray.map(({ ean }) => ean));
-    var resultData = filteredArr.filter(({ ean }) => !old.has(ean));
+    var old = new Set(filteredArray.map(({ gtin }) => gtin));
+    var resultData = filteredArr.filter(({ gtin }) => !old.has(gtin));
 
     console.log(resultData);
 
@@ -229,7 +229,7 @@ docReady(function () {
         autoWidth: true,
         columns: [
           {
-            data: "ean",
+            data: "gtin",
           },
           {
             data: "name",
@@ -272,7 +272,7 @@ docReady(function () {
         autoWidth: true,
         columns: [
           {
-            data: "ean",
+            data: "gtin",
           },
           {
             data: "name",
@@ -305,11 +305,11 @@ docReady(function () {
         transformHeader: function (h, i) {
           switch (h.trim().toLowerCase()) {
             case "ean":
-              return "ean";
+              return "gtin";
             case "kod":
-              return "ean";
+              return "gtin";
             case "kod ean":
-              return "ean";
+              return "gtin";
             case "nazwa":
               return "name";
             case "nazwa_indeksu":
