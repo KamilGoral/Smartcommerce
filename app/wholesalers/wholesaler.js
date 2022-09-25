@@ -72,6 +72,30 @@ docReady(function () {
       $("#CompanyDivEdit").hide();
     }
 
+    let url2 = new URL(
+      InvokeURL +
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
+    );
+    let request2 = new XMLHttpRequest();
+    request2.open("GET", url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function () {
+      var data2 = JSON.parse(this.response);
+      console.log(data2);
+      if (request2.status >= 200 && request2.status < 400) {
+        console.log(request2.status)
+      } else {
+        console.log(request2.status)
+      }
+      $("#UsernameEdit").val(data2.credentials.username).change();
+    };
+    request2.send();
+
+
     var request = new XMLHttpRequest();
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
     request.open("GET", apiUrl.toString(), true);
@@ -120,37 +144,6 @@ docReady(function () {
     request.send();
   }
 
-  function pickProfile() {
-    $("#waitingdots").show();
-    let url2 = new URL(
-      InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer"
-    );
-    let request2 = new XMLHttpRequest();
-    request2.open("GET", url2, true);
-    request2.setRequestHeader("Authorization", orgToken);
-    request2.onload = function () {
-      var data2 = JSON.parse(this.response);
-      console.log(data2);
-      if (
-        request2.status >= 200 &&
-        request2.status < 400 &&
-        data2.profile !== null
-      ) {
-        $("#Wholesaler-profile-Selector").val(data2.profile.id).change();
-        $("#waitingdots").hide();
-      } else {
-        $("#waitingdots").hide();
-        $("#Wholesaler-profile-Selector").hide();
-      }
-      $("#UsernameEdit").val(data2.credentials.username).change();
-    };
-    request2.send();
-  }
 
   function getProfile() {
     let url = new URL(
@@ -218,7 +211,7 @@ docReady(function () {
       var LastStatusMessage = document.getElementById("LastStatusMessage");
 
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        
+
         var firstData = toParse[0];
 
         var firstCreateDate = "";
@@ -287,7 +280,7 @@ docReady(function () {
           statusContainer.appendChild(row);
         });
         //loadTippyContent//
-      LoadTippy();
+        LoadTippy();
       } else {
         LastStatusMessage.textContent = "Gotowy do integracji !"
       }
@@ -451,13 +444,13 @@ docReady(function () {
                   $("#Wholesaler-profile-Selector").removeAttr("required");
 
                   LastStatusMessage.textContent = "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj."
-                  const Iehurt= document.getElementById("Iehurt");
+                  const Iehurt = document.getElementById("Iehurt");
                   Iehurt.classList.add("enabled");
                   form.show();
                   doneBlock.show();
                   doneBlock.fadeOut(3000);
                   failBlock.hide();
-                  
+
 
                 }
               };
