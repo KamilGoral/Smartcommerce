@@ -414,7 +414,9 @@ docReady(function () {
                 doneBlock.hide();
                 failBlock.show();
                 console.log(e);
-                location.reload();
+                window.setTimeout(function () {
+                  location.reload();
+              }, 10000);
                 return;
               }
             }
@@ -478,14 +480,16 @@ docReady(function () {
               $("#waitingdots").hide();
               $('.successmessagetext').text("Uwaga! Proszę wybrać profil właściwy dla konfigurowanego sklepu.");
               doneBlock.show();
-              doneBlock.fadeOut(3000);
+              doneBlock.fadeOut(9000);
 
             } else {
               form.show();
               doneBlock.show();
               doneBlock.fadeOut(3000);
               failBlock.hide();
-              location.reload();
+              window.setTimeout(function () {
+                location.reload();
+            }, 10000);
             }
           },
           error: function (e) {
@@ -498,7 +502,9 @@ docReady(function () {
             failBlock.fadeOut(3000);
             failBlock.hide();
             console.log(e);
-            location.reload();
+            window.setTimeout(function () {
+              location.reload();
+          }, 10000);
           },
         });
         event.preventDefault();
@@ -649,7 +655,9 @@ docReady(function () {
             form.show();
             doneBlockDelete.show();
             doneBlockDelete.fadeOut(3000);
-            location.reload();
+            window.setTimeout(function () {
+              location.reload();
+          }, 10000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
