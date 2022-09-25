@@ -659,8 +659,9 @@ docReady(function () {
             doneBlockDelete.show();
             doneBlockDelete.fadeOut(3000);
             window.setTimeout(function () {
-              location.reload();
-          }, 10000);
+              window.location.replace("href",
+              "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey);
+          }, 5000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
