@@ -480,7 +480,7 @@ docReady(function () {
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
               $("#waitingdots").hide();
-              $('.successmessagetext').text("Uwaga! Proszę wybrać profil właściwy dla konfigurowanego sklepu.");
+              $('.successmessagetext').text("Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu.");
               doneBlock.show();
 
 
