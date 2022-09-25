@@ -129,6 +129,12 @@ docReady(function () {
         LastStatusMessage.textContent = "Dostawca gotowy do integracji"
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
+        $("#Wholesaler-profile-Selector")
+      .find("option")
+      .remove()
+      .end()
+      .append("<option value=null>Wybierz profil</option>")
+      .val("null");
       }
       
     };
@@ -340,7 +346,7 @@ docReady(function () {
           ];
         } else {
           //edit case
-          if ($("#Wholesaler-profile-Selector").val() != "null") {
+          if ($("#Wholesaler-profile-Selector").val() != "null" ) {
             var data = [
               {
                 op: "add",
@@ -409,6 +415,7 @@ docReady(function () {
 
             // add case
             if ($("#Wholesaler-profile-Selector").val() === "null") {
+              $("#waitingdots").show();
 
               let url = new URL(
                 InvokeURL +
@@ -455,13 +462,14 @@ docReady(function () {
                 }
               };
               request.send();
-              $("#waitingdots").show();
+              $("#waitingdots").hide();
               $("#Wholesaler-profile-Selector")
                 .find("option")
                 .remove()
                 .end()
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
+              $("#waitingdots").hide();
 
 
             } else {
@@ -630,6 +638,7 @@ docReady(function () {
             }
             form.show();
             doneBlockDelete.show();
+            doneBlockDelete.fadeOut(3000);
             location.reload();
           },
           error: function (e) {
