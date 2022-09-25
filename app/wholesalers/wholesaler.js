@@ -293,9 +293,9 @@ docReady(function () {
       } else {
         LastStatusMessage.textContent = "Gotowy do integracji !"
       }
-    };
-    //loadTippyContent need to be there//
+      //loadTippyContent need to be there//
     LoadTippy();
+    }; 
     request.send();
   }
 
