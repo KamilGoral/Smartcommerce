@@ -1034,18 +1034,18 @@ docReady(function () {
             {
               op: "add",
               path: "/credentials/username",
-              value: $("#UsernameEdit").val(),
+              value: $("#Username").val(),
             },
             {
               op: "add",
               path: "/credentials/password",
-              value: $("#PasswordEdit").val(),
+              value: $("#Password").val(),
             },
             {
               op: "add",
               path: "/credentials/extraFields",
               value: {
-                company: $("#CompanyEdit").val(),
+                company: $("#Company").val(),
               },
             },
           ];
@@ -1056,12 +1056,12 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val(),
+                value: $("#Username").val(),
               },
               {
                 op: "add",
                 path: "/credentials/password",
-                value: $("#PasswordEdit").val(),
+                value: $("#Password").val(),
               },
               {
                 op: "add",
@@ -1078,12 +1078,12 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val(),
+                value: $("#Username").val(),
               },
               {
                 op: "add",
                 path: "/credentials/password",
-                value: $("#PasswordEdit").val(),
+                value: $("#Password").val(),
               },
             ];
           }
