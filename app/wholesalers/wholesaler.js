@@ -82,7 +82,6 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         if (data.onlineOfferSupport) {
           onlineOfferSupportFlow();
-          $("#CompanyDivEdit").show();
           $("#Wholesaler-profile-Selector-box").show();
           $("#status-container").show();
         }
