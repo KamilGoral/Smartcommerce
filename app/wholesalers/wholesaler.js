@@ -688,6 +688,7 @@ docReady(function () {
   function onlineOfferSupportFlow() {
     getProfile();
     getWholesalerHistory();
+    $("#waitingdots").hide();
   }
 
   //oniline Support not supported flow //
@@ -697,5 +698,6 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
+  $("#waitingdots").hide();
 
 });
