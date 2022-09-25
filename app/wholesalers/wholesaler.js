@@ -86,10 +86,45 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       console.log(data2);
-      if (request2.status >= 200 && request2.status < 400) {
-        console.log(request2.status)
+      if (request2.status >= 200 && request2.status < 400 && data2.lastDownload) {
+
+        var firstData = data2.lastDownload;
+        var firstCreateDate = "";
+        var firstStatus = "";
+        var firstMessage = "";
+
+        var offset = new Date().getTimezoneOffset();
+        var localeTime = new Date(
+          Date.parse(firstData.createDate) - offset * 60 * 1000
+        ).toISOString();
+        var creationDate = localeTime.split("T");
+        var creationTime = creationDate[1].split("Z");
+        firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+
+        if (firstData.status === "Succeeded") {
+          firstStatus = "Suckes";
+
+          LastStatusMessage.textContent =
+            "Status: " +
+            firstStatus +
+            ". Data pobrania ostatniej oferty: " +
+            firstCreateDate;
+        }
+        if (firstData.status === "Failed") {
+          firstStatus = "Problem";
+          firstMessage = firstData.message;
+
+          LastStatusMessage.textContent =
+            "Status: " +
+            firstStatus +
+            " Informacja: " +
+            firstMessage +
+            " Data próby pobrania oferty: " +
+            firstCreateDate;
+        }
+
+        firstMessage;
       } else {
-        console.log(request2.status)
       }
       $("#UsernameEdit").val(data2.credentials.username).change();
     };
@@ -211,44 +246,6 @@ docReady(function () {
       var LastStatusMessage = document.getElementById("LastStatusMessage");
 
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
-
-        var firstData = toParse[0];
-
-        var firstCreateDate = "";
-        var firstStatus = "";
-        var firstMessage = "";
-
-        var offset = new Date().getTimezoneOffset();
-        var localeTime = new Date(
-          Date.parse(firstData.createDate) - offset * 60 * 1000
-        ).toISOString();
-        var creationDate = localeTime.split("T");
-        var creationTime = creationDate[1].split("Z");
-        firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-        if (firstData.status === "Succeeded") {
-          firstStatus = "Suckes";
-
-          LastStatusMessage.textContent =
-            "Status: " +
-            firstStatus +
-            ". Data pobrania ostatniej oferty: " +
-            firstCreateDate;
-        }
-        if (firstData.status === "Failed") {
-          firstStatus = "Problem";
-          firstMessage = firstData.message;
-
-          LastStatusMessage.textContent =
-            "Status: " +
-            firstStatus +
-            " Informacja: " +
-            firstMessage +
-            " Data próby pobrania oferty: " +
-            firstCreateDate;
-        }
-
-        firstMessage;
 
         toParse.forEach((item) => {
           const style = document.getElementById("sampleStatus");
