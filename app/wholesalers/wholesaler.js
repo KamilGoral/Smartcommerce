@@ -449,10 +449,16 @@ docReady(function () {
                 } else {
                   $("#Wholesaler-profile-Selector-box").hide();
                   $("#Wholesaler-profile-Selector").removeAttr("required");
+
+                  LastStatusMessage.textContent = "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj."
+                  const Iehurt= document.getElementById("Iehurt");
+                  Iehurt.classList.add("enabled");
                   form.show();
                   doneBlock.show();
                   doneBlock.fadeOut(3000);
                   failBlock.hide();
+                  
+
                 }
               };
               request.send();
