@@ -41,6 +41,7 @@ docReady(function () {
     "&clientId=" +
     ClientID
   );
+  $("#Wholesaler-profile-Selector-box").hide();
 
   function getShop() {
     var request = new XMLHttpRequest();
