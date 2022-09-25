@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   function getShop() {
@@ -315,11 +315,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          rowData.orderId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/orders/order?orderId=" +
+        rowData.orderId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -536,11 +536,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -794,11 +794,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?priceListId=" +
-          rowData.priceListId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/pricelists/pricelist?priceListId=" +
+        rowData.priceListId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -1010,7 +1010,6 @@ docReady(function () {
         rowData.wholesalerKey;
     });
   }
-
   makeWebflowFormAjaxNew = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -1026,42 +1025,68 @@ docReady(function () {
           $("#WholesalerSelector").val() +
           "/online-offer";
         var method = "PATCH";
-        //mirex case
-        if ($("#Company").val()) {
+
+
+        if ($("#CompanyEdit").val()) {
+          //mirex case
           var data = [
             {
               op: "add",
               path: "/credentials/username",
-              value: $("#Username").val(),
+              value: $("#UsernameEdit").val(),
             },
             {
               op: "add",
               path: "/credentials/password",
-              value: $("#Password").val(),
+              value: $("#PasswordEdit").val(),
             },
             {
               op: "add",
               path: "/credentials/extraFields",
               value: {
-                company: $("#Company").val(),
+                company: $("#CompanyEdit").val(),
               },
             },
           ];
         } else {
-          var data = [
-            {
-              op: "add",
-              path: "/credentials/username",
-              value: $("#Username").val(),
-            },
-            {
-              op: "add",
-              path: "/credentials/password",
-              value: $("#Password").val(),
-            },
-          ];
+          //edit case
+          if ($("#Wholesaler-profile-Selector").val() != "null" ) {
+            var data = [
+              {
+                op: "add",
+                path: "/credentials/username",
+                value: $("#UsernameEdit").val(),
+              },
+              {
+                op: "add",
+                path: "/credentials/password",
+                value: $("#PasswordEdit").val(),
+              },
+              {
+                op: "add",
+                path: "/profile",
+                value: {
+                  id: $("#Wholesaler-profile-Selector").val(),
+                  name: $("#Wholesaler-profile-Selector").attr("name"),
+                },
+              },
+            ];
+          } else {
+            // add case
+            var data = [
+              {
+                op: "add",
+                path: "/credentials/username",
+                value: $("#UsernameEdit").val(),
+              },
+              {
+                op: "add",
+                path: "/credentials/password",
+                value: $("#PasswordEdit").val(),
+              },
+            ];
+          }
         }
-
         $.ajax({
           type: method,
           url: action,
@@ -1088,15 +1113,80 @@ docReady(function () {
                 doneBlock.hide();
                 failBlock.show();
                 console.log(e);
+                window.setTimeout(function () {
+                  location.reload();
+              }, 5000);
                 return;
               }
             }
-            form.show();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 2000);
+
+            // add case
+            if ($("#Wholesaler-profile-Selector").val() === "null") {
+              $("#waitingdots").show();
+
+              let url = new URL(
+                InvokeURL +
+                "shops/" +
+                shopKey +
+                "/wholesalers/" +
+                $("#WholesalerSelector").val() +
+                "/online-offer/profiles"
+              );
+
+              let request = new XMLHttpRequest();
+              request.open("GET", url, true);
+              request.setRequestHeader("Authorization", orgToken);
+              request.onload = function () {
+                var data = JSON.parse(this.response);
+                var toParse = data.items;
+                if (request.status >= 200 && request.status < 400 && data.total > 0) {
+                  $("#Wholesaler-profile-Selector-box").show();
+                  $("#Wholesaler-profile-Selector").attr("required", "");
+                  const wholesalerProfileContainer = document.getElementById(
+                    "Wholesaler-profile-Selector"
+                  );
+                  toParse.forEach((profile) => {
+                    var optProfile = document.createElement("option");
+                    optProfile.value = profile.id;
+                    optProfile.innerHTML = profile.name;
+                    wholesalerProfileContainer.appendChild(optProfile);
+                  });
+                } else if (request.status == 401) {
+                  console.log("Unauthorized");
+                } else {
+                  $("#Wholesaler-profile-Selector-box").hide();
+                  $("#Wholesaler-profile-Selector").removeAttr("required");
+
+                  form.show();
+                  doneBlock.show();
+                  doneBlock.fadeOut(3000);
+                  failBlock.hide();
+
+
+                }
+              };
+              request.send();
+              $("#waitingdots").hide();
+              $("#Wholesaler-profile-Selector")
+                .find("option")
+                .remove()
+                .end()
+                .append("<option value=null>Wybierz profil</option>")
+                .val("null");
+              $("#waitingdots").hide();
+              $('.successmessagetext').text("Uwaga! Proszę wybrać profil właściwy dla konfigurowanego sklepu.");
+              doneBlock.show();
+
+            } else {
+              form.show();
+              $('.successmessagetext').text("Dostawca został pomyślnie skonfigurowany.");
+              doneBlock.show();
+              doneBlock.fadeOut(4000);
+              failBlock.hide();
+              window.setTimeout(function () {
+                location.reload();
+            }, 4000);
+            }
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -1105,7 +1195,12 @@ docReady(function () {
             form.show();
             doneBlock.hide();
             failBlock.show();
+            failBlock.fadeOut(3000);
+            failBlock.hide();
             console.log(e);
+            window.setTimeout(function () {
+              location.reload();
+          }, 10000);
           },
         });
         event.preventDefault();
@@ -1113,6 +1208,7 @@ docReady(function () {
       });
     });
   };
+
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1469,11 +1565,11 @@ docReady(function () {
               window.setTimeout(function () {
                 window.location.replace(
                   "https://" +
-                    DomainName +
-                    "/app/orders/order?orderId=" +
-                    response.orderId +
-                    "&shopKey=" +
-                    shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
                 );
               }, 100);
             },
