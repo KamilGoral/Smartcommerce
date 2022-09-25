@@ -126,6 +126,7 @@ docReady(function () {
         firstMessage;
         
       } else {
+        LastStatusMessage.textContent = "Dostawca gotowy do integracji"
       }
       
     };
