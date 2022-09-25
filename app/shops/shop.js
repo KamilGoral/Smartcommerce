@@ -100,7 +100,6 @@ docReady(function () {
         shTownInput.value = data.address.town;
         shStateInput.value = data.address.state;
         shPostcodeInput.value = data.address.postcode;
-        shPcmarketShopId.value = data.pcmarketShopId;
       } else {
         console.log("error");
       }
@@ -135,6 +134,33 @@ docReady(function () {
     };
     request.send();
   }
+
+  function getPCShopsId(){
+    let url = new URL(
+      InvokeURL +
+      "integrations/pcmarket"
+    );
+
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.shops;
+      if (request.status >= 200 && request.status < 400 && data.shops.length > 0) {
+        const wholesalerProfileContainer = document.getElementById(
+          "NewPcmMarketShopId"
+        );
+        toParse.forEach((profile) => {
+          var optProfile = document.createElement("option");
+          optProfile.value = profile.id;
+          optProfile.innerHTML = profile.shortName;
+          wholesalerProfileContainer.appendChild(optProfile);
+        });
+      } else if (request.status == 401) {
+        console.log("Unauthorized");
+  }
+
   function getOrders() {
     var table = $("#table_orders").DataTable({
       pagingType: "full_numbers",
