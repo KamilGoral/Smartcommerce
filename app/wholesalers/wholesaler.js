@@ -124,7 +124,7 @@ docReady(function () {
             firstStatus +
             " Informacja: " +
             firstMessage +
-            " Data próby pobrania oferty: " +
+            ". Data próby pobrania oferty: " +
             firstCreateDate;
         }
 
@@ -414,6 +414,7 @@ docReady(function () {
                 doneBlock.hide();
                 failBlock.show();
                 console.log(e);
+                location.reload();
                 return;
               }
             }
@@ -482,6 +483,7 @@ docReady(function () {
               doneBlock.show();
               doneBlock.fadeOut(3000);
               failBlock.hide();
+              location.reload();
             }
           },
           error: function (e) {
@@ -494,6 +496,7 @@ docReady(function () {
             failBlock.fadeOut(3000);
             failBlock.hide();
             console.log(e);
+            location.reload();
           },
         });
         event.preventDefault();
