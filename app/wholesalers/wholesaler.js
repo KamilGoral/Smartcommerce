@@ -480,16 +480,17 @@ docReady(function () {
               $("#waitingdots").hide();
               $('.successmessagetext').text("Uwaga! Proszę wybrać profil właściwy dla konfigurowanego sklepu.");
               doneBlock.show();
-              doneBlock.fadeOut(9000);
+
 
             } else {
               form.show();
+              $('.successmessagetext').text("Dostawca został pomyślnie skonfigurowany.");
               doneBlock.show();
-              doneBlock.fadeOut(3000);
+              doneBlock.fadeOut(4000);
               failBlock.hide();
               window.setTimeout(function () {
                 location.reload();
-            }, 10000);
+            }, 4000);
             }
           },
           error: function (e) {
