@@ -111,9 +111,14 @@ docReady(function () {
             firstCreateDate;
         }
         if (firstData.status === "Failed") {
+          const statusmessagebox = document.getElementById("statusmessagebox");
+          statusmessagebox.classList.add("problem");          
           firstStatus = "Problem";
           firstMessage = firstData.message;
 
+          if (firstMessage = "Profile for wholesaler have to be set." ){
+            firstMessage = "Proszę wybrać profil dla dostawcy z listy"
+          }
           LastStatusMessage.textContent =
             "Status: " +
             firstStatus +
