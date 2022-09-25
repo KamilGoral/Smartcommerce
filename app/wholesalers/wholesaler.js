@@ -216,7 +216,7 @@ docReady(function () {
       var toParse = data.items;
       console.log(toParse);
 
-      if (request.status >= 200 && request.status < 400) {
+      if (request.status >= 200 && request.status < 400 && data.total > 0) {
         const statusContainer = document.getElementById("StatusContainer");
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         var firstData = toParse[0];
@@ -286,9 +286,9 @@ docReady(function () {
           }
           statusContainer.appendChild(row);
         });
-      }
-      //loadTippyContent//
+        //loadTippyContent//
       LoadTippy();
+      }
     };
     request.send();
   }
