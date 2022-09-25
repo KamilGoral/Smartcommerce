@@ -87,7 +87,7 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       console.log(data2);
       if (request2.status >= 200 && request2.status < 400 && data2.lastDownload) {
-
+        $("#UsernameEdit").val(data2.credentials.username).change();
         var firstData = data2.lastDownload;
         var firstCreateDate = "";
         var firstStatus = "";
@@ -124,9 +124,10 @@ docReady(function () {
         }
 
         firstMessage;
+        
       } else {
       }
-      $("#UsernameEdit").val(data2.credentials.username).change();
+      
     };
     request2.send();
 
