@@ -124,7 +124,7 @@ docReady(function () {
         }
 
         firstMessage;
-        
+        onlineOfferSupportFlow();       
       } else {
         LastStatusMessage.textContent = "Dostawca gotowy do integracji"
       }
@@ -142,7 +142,6 @@ docReady(function () {
       console.log(data);
       if (request.status >= 200 && request.status < 400) {
         if (data.onlineOfferSupport) {
-          onlineOfferSupportFlow();
           $("#Wholesaler-profile-Selector-box").show();
           $("#status-container").show();
         }
