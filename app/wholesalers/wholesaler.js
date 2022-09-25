@@ -20,6 +20,7 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
+
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");
@@ -38,11 +39,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -64,13 +65,15 @@ docReady(function () {
     $("#CompanyDivEdit").hide();
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
-    var request = new XMLHttpRequest();
-    let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
 
-    if (wholesalerKey === "mirex") {
+    if (wholesalerKey == "mirex") {
       $("#CompanyDivEdit").show();
+    } else {
+      $("#CompanyDivEdit").hide();
     }
 
+    var request = new XMLHttpRequest();
+    let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
     request.open("GET", apiUrl.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
@@ -79,8 +82,7 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         if (data.onlineOfferSupport) {
           onlineOfferSupportFlow();
-          const onlineSupportBadge = document.getElementById("Iehurt");
-          onlineSupportBadge.classList.add("enabled");
+          $("#CompanyDivEdit").show();
           $("#Wholesaler-profile-Selector-box").show();
           $("#status-container").show();
         }
@@ -123,11 +125,11 @@ docReady(function () {
     $("#waitingdots").show();
     let url2 = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -144,6 +146,7 @@ docReady(function () {
         $("#waitingdots").hide();
       } else {
         $("#waitingdots").hide();
+        $("#Wholesaler-profile-Selector").hide();
       }
       $("#UsernameEdit").val(data2.credentials.username).change();
     };
@@ -153,18 +156,13 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/profiles"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/profiles"
     );
 
-    if (wholesalerKey == "mirex") {
-      $("#CompanyDivEdit").show();
-    } else {
-      $("#CompanyDivEdit").hide();
-    }
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -183,7 +181,6 @@ docReady(function () {
           optProfile.innerHTML = profile.name;
           wholesalerProfileContainer.appendChild(optProfile);
         });
-        pickProfile();
       } else if (request.status == 401) {
         console.log("Unauthorized");
       } else {
@@ -200,17 +197,16 @@ docReady(function () {
       .end()
       .append("<option value=null>Wybierz profil</option>")
       .val("null");
-    pickProfile();
   }
 
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/status-history?sort=createDate:desc&per_page=30"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/status-history?sort=createDate:asc&per_page=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -272,24 +268,17 @@ docReady(function () {
           ).toISOString();
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
-          firstCreateDate =
-            creationDate[0] + " " + creationTime[0].slice(0, -4);
+          firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
 
           if (item.status === "Failed") {
             row.classList.add("fail");
             row.classList.add("tippy");
-            row.setAttribute(
-              "data-tippy-content",
-              firstCreateDate + " Problem"
-            );
+            row.setAttribute("data-tippy-content", firstCreateDate + " Problem");
           }
           if (item.status === "Incomplete") {
             row.classList.add("warning");
             row.classList.add("tippy");
-            row.setAttribute(
-              "data-tippy-content",
-              firstCreateDate + " Niekompletna"
-            );
+            row.setAttribute("data-tippy-content", firstCreateDate + " Niekompletna");
           }
           if (item.status === "Succeeded") {
             row.classList.add("tippy");
@@ -332,14 +321,9 @@ docReady(function () {
           "/online-offer";
         var method = "PATCH";
 
-        if (wholesalerKey == "mirex") {
-          $("#CompanyDivEdit").show();
-        } else {
-          $("#CompanyDivEdit").hide();
-        }
 
-        //mirex case
         if ($("#CompanyEdit").val()) {
+          //mirex case
           var data = [
             {
               op: "add",
@@ -360,6 +344,7 @@ docReady(function () {
             },
           ];
         } else {
+          //edit case
           if ($("#Wholesaler-profile-Selector").val() != "null") {
             var data = [
               {
@@ -382,6 +367,7 @@ docReady(function () {
               },
             ];
           } else {
+            // add case
             var data = [
               {
                 op: "add",
@@ -425,25 +411,26 @@ docReady(function () {
                 return;
               }
             }
-            form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            failBlock.hide();
 
+            // add case
             if ($("#Wholesaler-profile-Selector").val() === "null") {
-              let url = action + "/profiles";
-              console.log(url);
+
+              let url = new URL(
+                InvokeURL +
+                "shops/" +
+                shopKey +
+                "/wholesalers/" +
+                wholesalerKey +
+                "/online-offer/profiles"
+              );
+
               let request = new XMLHttpRequest();
               request.open("GET", url, true);
               request.setRequestHeader("Authorization", orgToken);
               request.onload = function () {
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
-                if (
-                  request.status >= 200 &&
-                  request.status < 400 &&
-                  data.total > 0
-                ) {
+                if (request.status >= 200 && request.status < 400 && data.total > 0) {
                   $("#Wholesaler-profile-Selector-box").show();
                   $("#Wholesaler-profile-Selector").attr("required", "");
                   const wholesalerProfileContainer = document.getElementById(
@@ -460,9 +447,27 @@ docReady(function () {
                 } else {
                   $("#Wholesaler-profile-Selector-box").hide();
                   $("#Wholesaler-profile-Selector").removeAttr("required");
+                  form.show();
+                  doneBlock.show();
+                  doneBlock.fadeOut(3000);
+                  failBlock.hide();
                 }
               };
               request.send();
+              $("#waitingdots").show();
+              $("#Wholesaler-profile-Selector")
+                .find("option")
+                .remove()
+                .end()
+                .append("<option value=null>Wybierz profil</option>")
+                .val("null");
+
+
+            } else {
+              form.show();
+              doneBlock.show();
+              doneBlock.fadeOut(3000);
+              failBlock.hide();
             }
           },
           error: function (e) {
@@ -624,12 +629,7 @@ docReady(function () {
             }
             form.show();
             doneBlock.show();
-            setTimeout(function () {
-              console.log("Czekam");
-            }, 2000);
             doneBlock.fadeOut(3000);
-            window.location.href =
-              "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             doneBlock.hide();
             failBlock.hide();
           },
@@ -641,8 +641,6 @@ docReady(function () {
             doneBlock.hide();
             failBlock.show();
             failBlock.fadeOut(3000);
-            window.location.href =
-              "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             failBlock.hide();
             console.log(e);
           },
@@ -658,35 +656,31 @@ docReady(function () {
   });
 
   function LoadTippy() {
-    $.getScript(
-      "https://unpkg.com/popper.js@1",
-      function (data, textStatus, jqxhr) {
+    $.getScript("https://unpkg.com/popper.js@1", function (data, textStatus, jqxhr) {
+      console.log(data); // data returned
+      console.log(textStatus); // success
+      console.log(jqxhr.status); // 200
+      console.log('Load was performed.');
+      $.getScript("https://unpkg.com/tippy.js@4", function (data, textStatus, jqxhr) {
         console.log(data); // data returned
         console.log(textStatus); // success
         console.log(jqxhr.status); // 200
-        console.log("Load was performed.");
-        $.getScript(
-          "https://unpkg.com/tippy.js@4",
-          function (data, textStatus, jqxhr) {
-            console.log(data); // data returned
-            console.log(textStatus); // success
-            console.log(jqxhr.status); // 200
-            console.log("Load was performed.");
-            tippy(".tippy", {
-              // Add the class tippy to your element
-              theme: "light", // Dark or Light
-              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
-              duration: 250, // Duration of the Animation
-              arrow: true, // Add arrow to the tooltip
-              arrowType: "round", // Sharp, round or empty for none
-              delay: [0, 50], // Trigger delay in & out
-              maxWidth: 240, // Optional, max width settings
-            });
-          }
-        );
-      }
-    );
+        console.log('Load was performed.');
+        tippy('.tippy', {          // Add the class tippy to your element
+          theme: 'light',          // Dark or Light
+          animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
+          duration: 250,           // Duration of the Animation
+          arrow: true,             // Add arrow to the tooltip
+          arrowType: 'round',      // Sharp, round or empty for none
+          delay: [0, 50],          // Trigger delay in & out
+          maxWidth: 240,           // Optional, max width settings
+        })
+      });
+    });
   }
+
+
+
 
   //onlineOfferSupport//
 
@@ -703,4 +697,5 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
+
 });
