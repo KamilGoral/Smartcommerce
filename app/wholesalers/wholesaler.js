@@ -124,9 +124,10 @@ docReady(function () {
         }
 
         firstMessage;
-        onlineOfferSupportFlow();       
+        onlineOfferSupportFlow();     
       } else {
         LastStatusMessage.textContent = "Dostawca gotowy do integracji"
+        $("#Wholesaler-profile-Selector-box").hide();
       }
       
     };
@@ -142,7 +143,6 @@ docReady(function () {
       console.log(data);
       if (request.status >= 200 && request.status < 400) {
         if (data.onlineOfferSupport) {
-          $("#Wholesaler-profile-Selector-box").show();
           $("#status-container").show();
         }
 
