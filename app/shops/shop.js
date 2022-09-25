@@ -135,7 +135,7 @@ docReady(function () {
     request.send();
   }
 
-  function getPCShopsId(){
+  function getPCShopsId() {
     let url = new URL(
       InvokeURL +
       "integrations/pcmarket"
@@ -157,8 +157,11 @@ docReady(function () {
           optProfile.innerHTML = profile.shortName;
           wholesalerProfileContainer.appendChild(optProfile);
         });
-      } else if (request.status == 401) {
+      } else {
         console.log("Unauthorized");
+      }
+    }
+    request.send();
   }
 
   function getOrders() {
@@ -1077,7 +1080,7 @@ docReady(function () {
           ];
         } else {
           //edit case
-          if ($("#Wholesaler-profile-Selector").val() != "null" ) {
+          if ($("#Wholesaler-profile-Selector").val() != "null") {
             var data = [
               {
                 op: "add",
@@ -1142,7 +1145,7 @@ docReady(function () {
                 console.log(e);
                 window.setTimeout(function () {
                   location.reload();
-              }, 5000);
+                }, 5000);
                 return;
               }
             }
@@ -1212,7 +1215,7 @@ docReady(function () {
               failBlock.hide();
               window.setTimeout(function () {
                 location.reload();
-            }, 4000);
+              }, 4000);
             }
           },
           error: function (e) {
@@ -1227,7 +1230,7 @@ docReady(function () {
             console.log(e);
             window.setTimeout(function () {
               location.reload();
-          }, 10000);
+            }, 10000);
           },
         });
         event.preventDefault();
@@ -1632,6 +1635,7 @@ docReady(function () {
   getOffers();
   getPriceLists();
   getWholesalers();
+  getPCShopsId();
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
