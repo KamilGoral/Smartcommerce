@@ -476,7 +476,9 @@ docReady(function () {
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
               $("#waitingdots").hide();
-
+              $('.successmessagetext').text("Uwaga! Proszę wybrać profil właściwy dla konfigurowanego sklepu.");
+              doneBlock.show();
+              doneBlock.fadeOut(3000);
 
             } else {
               form.show();
