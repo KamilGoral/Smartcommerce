@@ -215,10 +215,11 @@ docReady(function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
       console.log(toParse);
+      const statusContainer = document.getElementById("StatusContainer");
+      var LastStatusMessage = document.getElementById("LastStatusMessage");
 
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        const statusContainer = document.getElementById("StatusContainer");
-        var LastStatusMessage = document.getElementById("LastStatusMessage");
+        
         var firstData = toParse[0];
 
         var firstCreateDate = "";
@@ -288,6 +289,8 @@ docReady(function () {
         });
         //loadTippyContent//
       LoadTippy();
+      } else {
+        LastStatusMessage.textContent = "Gotowy do integracji !"
       }
     };
     request.send();
