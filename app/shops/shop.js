@@ -1609,12 +1609,13 @@ docReady(function () {
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
+      console.log("Adjusting")
       $.fn.dataTable
         .tables({
           visible: true,
           api: true,
         })
         .columns.adjust();
-    }, 200);
+    }, 300);
   });
 });
