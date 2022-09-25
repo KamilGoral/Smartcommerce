@@ -276,12 +276,13 @@ docReady(function () {
           }
           statusContainer.appendChild(row);
         });
-        //loadTippyContent//
-        LoadTippy();
+        
       } else {
         LastStatusMessage.textContent = "Gotowy do integracji !"
       }
     };
+    //loadTippyContent need to be there//
+    LoadTippy();
     request.send();
   }
 
@@ -579,8 +580,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#w-form-done3", container);
-        var failBlock = $("#w-form-fail3", container);
+        var doneBlockDelete = $("#w-form-done3", container);
+        var failBlockDelete = $("#w-form-fail3", container);
         var action =
           InvokeURL +
           "shops/" +
@@ -619,27 +620,25 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                doneBlockDelete.hide();
+                failBlockDelete.show();
                 console.log(e);
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            doneBlock.hide();
-            failBlock.hide();
+            doneBlockDelete.show();
+            location.reload();
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(3000);
-            failBlock.hide();
+            doneBlockDelete.hide();
+            failBlockDelete.show();
+            failBlockDelete.fadeOut(3000);
+            failBlockDelete.hide();
             console.log(e);
           },
         });
@@ -655,15 +654,7 @@ docReady(function () {
 
   function LoadTippy() {
     $.getScript("https://unpkg.com/popper.js@1", function (data, textStatus, jqxhr) {
-      console.log(data); // data returned
-      console.log(textStatus); // success
-      console.log(jqxhr.status); // 200
-      console.log('Load was performed.');
       $.getScript("https://unpkg.com/tippy.js@4", function (data, textStatus, jqxhr) {
-        console.log(data); // data returned
-        console.log(textStatus); // success
-        console.log(jqxhr.status); // 200
-        console.log('Load was performed.');
         tippy('.tippy', {          // Add the class tippy to your element
           theme: 'light',          // Dark or Light
           animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
