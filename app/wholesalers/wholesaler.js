@@ -302,7 +302,7 @@ docReady(function () {
         });
 
       } else {
-        LastStatusMessage.textContent = "Gotowy do integracji !"
+        console.log("here")
       }
       //loadTippyContent need to be there//
       LoadTippy();
@@ -427,7 +427,7 @@ docReady(function () {
                 console.log(e);
                 window.setTimeout(function () {
                   location.reload();
-                }, 10000);
+                }, 4000);
                 return;
               }
             }
@@ -516,7 +516,7 @@ docReady(function () {
             console.log(e);
             window.setTimeout(function () {
               location.reload();
-            }, 10000);
+            }, 4000);
           },
         });
         event.preventDefault();
@@ -669,7 +669,7 @@ docReady(function () {
             doneBlockDelete.fadeOut(3000);
             window.setTimeout(function () {
               window.location.replace("https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey);
-            }, 5000);
+            }, 4000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
