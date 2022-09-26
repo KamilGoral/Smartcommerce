@@ -1181,18 +1181,19 @@ docReady(function () {
                     optProfile.innerHTML = profile.name;
                     wholesalerProfileContainer.appendChild(optProfile);
                   });
-                } else if (request.status == 401) {
-                  console.log("Unauthorized");
                 } else {
                   $("#Wholesaler-profile-Selector-box").hide();
                   $("#Wholesaler-profile-Selector").removeAttr("required");
 
                   form.show();
+                  $("#waitingdots").hide();
+                  $('.successmessagetext').text("Dostawca dodany. Za moment następi przekierowanie...");
                   doneBlock.show();
                   doneBlock.fadeOut(3000);
                   failBlock.hide();
-
-
+                  window.setTimeout(function () {
+                    location.reload();
+                  }, 4000);
                 }
               };
               request.send();
