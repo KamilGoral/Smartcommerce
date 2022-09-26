@@ -90,7 +90,7 @@ docReady(function () {
       if (request2.status >= 200 && request2.status < 400) {
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
-        if (data2.lastDownload) {
+        if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
           var firstCreateDate = "";
           var firstStatus = "";
@@ -114,7 +114,7 @@ docReady(function () {
               firstCreateDate;
           }
           if (firstData.status === "Failed") {
-            
+
             statusmessagebox.classList.add("problem");
             firstStatus = "Problem";
             firstMessage = firstData.message;
