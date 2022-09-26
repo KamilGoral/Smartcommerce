@@ -659,8 +659,7 @@ docReady(function () {
             doneBlockDelete.show();
             doneBlockDelete.fadeOut(3000);
             window.setTimeout(function () {
-              window.location.replace("href",
-              "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey);
+              window.location.replace("https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey);
           }, 5000);
           },
           error: function (e) {
