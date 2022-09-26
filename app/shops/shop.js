@@ -1145,7 +1145,7 @@ docReady(function () {
                 console.log(e);
                 window.setTimeout(function () {
                   location.reload();
-                }, 5000);
+                }, 3500);
                 return;
               }
             }
@@ -1193,7 +1193,7 @@ docReady(function () {
                   failBlock.hide();
                   window.setTimeout(function () {
                     location.reload();
-                  }, 4000);
+                  }, 3500);
                 }
               };
               request.send();
@@ -1216,7 +1216,7 @@ docReady(function () {
               failBlock.hide();
               window.setTimeout(function () {
                 location.reload();
-              }, 4000);
+              }, 3500);
             }
           },
           error: function (e) {
@@ -1231,7 +1231,7 @@ docReady(function () {
             console.log(e);
             window.setTimeout(function () {
               location.reload();
-            }, 10000);
+            }, 3500);
           },
         });
         event.preventDefault();
@@ -1284,7 +1284,7 @@ docReady(function () {
             failBlock.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 2000);
+            }, 3500);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -1430,7 +1430,7 @@ docReady(function () {
             $("#PasswordEdit").val("");
             window.setTimeout(function () {
               location.reload();
-            }, 2000);
+            }, 3500);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -1497,7 +1497,7 @@ docReady(function () {
             failBlock.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 2000);
+            }, 3500);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
