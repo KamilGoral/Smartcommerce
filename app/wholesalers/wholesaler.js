@@ -30,6 +30,7 @@ docReady(function () {
   var formIdEdit = "#wf-form-CredentialsFormEdit";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-LogisticMinimumForm";
+  const Iehurt = document.getElementById("Iehurt");
 
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
@@ -86,62 +87,70 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       console.log(data2);
-      if (request2.status >= 200 && request2.status < 400 && data2.lastDownload) {
+      if (request2.status >= 200 && request2.status < 400) {
+        const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
-        var firstData = data2.lastDownload;
-        var firstCreateDate = "";
-        var firstStatus = "";
-        var firstMessage = "";
+        if (data2.lastDownload) {
+          var firstData = data2.lastDownload;
+          var firstCreateDate = "";
+          var firstStatus = "";
+          var firstMessage = "";
 
-        var offset = new Date().getTimezoneOffset();
-        var localeTime = new Date(
-          Date.parse(firstData.createDate) - offset * 60 * 1000
-        ).toISOString();
-        var creationDate = localeTime.split("T");
-        var creationTime = creationDate[1].split("Z");
-        firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(
+            Date.parse(firstData.createDate) - offset * 60 * 1000
+          ).toISOString();
+          var creationDate = localeTime.split("T");
+          var creationTime = creationDate[1].split("Z");
+          firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
 
-        if (firstData.status === "Succeeded") {
-          firstStatus = "Suckes";
+          if (firstData.status === "Succeeded") {
+            firstStatus = "Suckes";
 
-          LastStatusMessage.textContent =
-            "Status: " +
-            firstStatus +
-            ". Data pobrania ostatniej oferty: " +
-            firstCreateDate;
-        }
-        if (firstData.status === "Failed") {
-          const statusmessagebox = document.getElementById("statusmessagebox");
-          statusmessagebox.classList.add("problem");          
-          firstStatus = "Problem";
-          firstMessage = firstData.message;
-
-          if (firstMessage = "Profile for wholesaler have to be set." ){
-            firstMessage = "Proszę wybrać profil dla dostawcy z listy"
+            LastStatusMessage.textContent =
+              "Status: " +
+              firstStatus +
+              ". Data pobrania ostatniej oferty: " +
+              firstCreateDate;
           }
-          LastStatusMessage.textContent =
-            "Status: " +
-            firstStatus +
-            " Informacja: " +
-            firstMessage +
-            ". Data próby pobrania oferty: " +
-            firstCreateDate;
+          if (firstData.status === "Failed") {
+            
+            statusmessagebox.classList.add("problem");
+            firstStatus = "Problem";
+            firstMessage = firstData.message;
+
+            if (firstMessage = "Profile for wholesaler have to be set.") {
+              firstMessage = "Proszę wybrać profil dla dostawcy z listy"
+            }
+            LastStatusMessage.textContent =
+              "Status: " +
+              firstStatus +
+              " Informacja: " +
+              firstMessage +
+              ". Data próby pobrania oferty: " +
+              firstCreateDate;
+          }
+
+        } else {
+          LastStatusMessage.textContent = "Dostawca poprawnie skonfigurowany. Wkrótce nastąpi pierwsze pobranie oferty"
+          Iehurt.classList.add("enabled");
         }
+
 
         firstMessage;
-        onlineOfferSupportFlow();     
+        onlineOfferSupportFlow();
       } else {
         LastStatusMessage.textContent = "Dostawca gotowy do integracji"
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
-      .find("option")
-      .remove()
-      .end()
-      .append("<option value=null>Wybierz profil</option>")
-      .val("null");
+          .find("option")
+          .remove()
+          .end()
+          .append("<option value=null>Wybierz profil</option>")
+          .val("null");
       }
-      
+
     };
     request2.send();
 
@@ -291,13 +300,13 @@ docReady(function () {
           }
           statusContainer.appendChild(row);
         });
-        
+
       } else {
         LastStatusMessage.textContent = "Gotowy do integracji !"
       }
       //loadTippyContent need to be there//
-    LoadTippy();
-    }; 
+      LoadTippy();
+    };
     request.send();
   }
 
@@ -353,7 +362,7 @@ docReady(function () {
           ];
         } else {
           //edit case
-          if ($("#Wholesaler-profile-Selector").val() != "null" ) {
+          if ($("#Wholesaler-profile-Selector").val() != "null") {
             var data = [
               {
                 op: "add",
@@ -418,7 +427,7 @@ docReady(function () {
                 console.log(e);
                 window.setTimeout(function () {
                   location.reload();
-              }, 10000);
+                }, 10000);
                 return;
               }
             }
@@ -492,7 +501,7 @@ docReady(function () {
               failBlock.hide();
               window.setTimeout(function () {
                 location.reload();
-            }, 4000);
+              }, 4000);
             }
           },
           error: function (e) {
@@ -507,7 +516,7 @@ docReady(function () {
             console.log(e);
             window.setTimeout(function () {
               location.reload();
-          }, 10000);
+            }, 10000);
           },
         });
         event.preventDefault();
@@ -660,7 +669,7 @@ docReady(function () {
             doneBlockDelete.fadeOut(3000);
             window.setTimeout(function () {
               window.location.replace("https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey);
-          }, 5000);
+            }, 5000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
