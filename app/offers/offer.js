@@ -252,9 +252,7 @@ docReady(function () {
         pSales90.textContent = displayData(
           dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)
         );
-        const pSales90Change = document.getElementById("pSales90Change");
-        pSales90Change.textContent =
-          "(" +
+        "(" +
           displayData(
             parseFloat(
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
