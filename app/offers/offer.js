@@ -553,13 +553,13 @@ docReady(function () {
         item.netNetPrice = "-";
       }
       var typeOfSource = "";
-      if (item.source === "price list") {
+      if (item.source === "price-list") {
         typeOfSource = "Cennik";
       }
-      if (item.source === "online offer") {
+      if (item.source === "online-offer") {
         typeOfSource = "E-hurt";
       }
-      if (item.source === "PC-Market integration") {
+      if (item.source === "konsola-kupca") {
         typeOfSource = "Pc-Market";
       }
 
