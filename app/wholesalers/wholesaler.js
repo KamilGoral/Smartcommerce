@@ -20,7 +20,6 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
-
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");
@@ -40,11 +39,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -75,11 +74,11 @@ docReady(function () {
 
     let url2 = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -102,7 +101,8 @@ docReady(function () {
           ).toISOString();
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
-          firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+          firstCreateDate =
+            creationDate[0] + " " + creationTime[0].slice(0, -4);
 
           if (firstData.status === "Succeeded") {
             firstStatus = "Suckes";
@@ -114,13 +114,12 @@ docReady(function () {
               firstCreateDate;
           }
           if (firstData.status === "Failed") {
-
             statusmessagebox.classList.add("problem");
             firstStatus = "Problem";
             firstMessage = firstData.message;
 
-            if (firstMessage = "Profile for wholesaler have to be set.") {
-              firstMessage = "Proszę wybrać profil dla dostawcy z listy"
+            if ((firstMessage = "Profile for wholesaler have to be set.")) {
+              firstMessage = "Proszę wybrać profil dla dostawcy z listy";
             }
             LastStatusMessage.textContent =
               "Status: " +
@@ -130,17 +129,16 @@ docReady(function () {
               ". Data próby pobrania oferty: " +
               firstCreateDate;
           }
-
         } else {
-          LastStatusMessage.textContent = "Dostawca poprawnie skonfigurowany. Wkrótce nastąpi pierwsze pobranie oferty"
+          LastStatusMessage.textContent =
+            "Dostawca poprawnie skonfigurowany. Wkrótce nastąpi pierwsze pobranie oferty";
           Iehurt.classList.add("enabled");
         }
-
 
         firstMessage;
         onlineOfferSupportFlow();
       } else {
-        LastStatusMessage.textContent = "Dostawca gotowy do integracji"
+        LastStatusMessage.textContent = "Dostawca gotowy do integracji";
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
@@ -150,10 +148,8 @@ docReady(function () {
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
       }
-
     };
     request2.send();
-
 
     var request = new XMLHttpRequest();
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
@@ -201,15 +197,14 @@ docReady(function () {
     request.send();
   }
 
-
   function getProfile() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/profiles"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -253,11 +248,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/status-history?sort=createDate:asc&per_page=30"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -270,7 +265,6 @@ docReady(function () {
       var LastStatusMessage = document.getElementById("LastStatusMessage");
 
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
-
         toParse.forEach((item) => {
           const style = document.getElementById("sampleStatus");
           const row = style.cloneNode(true);
@@ -282,17 +276,24 @@ docReady(function () {
           ).toISOString();
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
-          firstCreateDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+          firstCreateDate =
+            creationDate[0] + " " + creationTime[0].slice(0, -4);
 
           if (item.status === "Failed") {
             row.classList.add("fail");
             row.classList.add("tippy");
-            row.setAttribute("data-tippy-content", firstCreateDate + " Problem");
+            row.setAttribute(
+              "data-tippy-content",
+              firstCreateDate + " Problem"
+            );
           }
           if (item.status === "Incomplete") {
             row.classList.add("warning");
             row.classList.add("tippy");
-            row.setAttribute("data-tippy-content", firstCreateDate + " Niekompletna");
+            row.setAttribute(
+              "data-tippy-content",
+              firstCreateDate + " Niekompletna"
+            );
           }
           if (item.status === "Succeeded") {
             row.classList.add("tippy");
@@ -300,9 +301,8 @@ docReady(function () {
           }
           statusContainer.appendChild(row);
         });
-
       } else {
-        console.log("here")
+        console.log("here");
       }
       //loadTippyContent need to be there//
       LoadTippy();
@@ -337,7 +337,6 @@ docReady(function () {
           wholesalerKey +
           "/online-offer";
         var method = "PATCH";
-
 
         if ($("#CompanyEdit").val()) {
           //mirex case
@@ -438,11 +437,11 @@ docReady(function () {
 
               let url = new URL(
                 InvokeURL +
-                "shops/" +
-                shopKey +
-                "/wholesalers/" +
-                wholesalerKey +
-                "/online-offer/profiles"
+                  "shops/" +
+                  shopKey +
+                  "/wholesalers/" +
+                  wholesalerKey +
+                  "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -451,7 +450,11 @@ docReady(function () {
               request.onload = function () {
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
-                if (request.status >= 200 && request.status < 400 && data.total > 0) {
+                if (
+                  request.status >= 200 &&
+                  request.status < 400 &&
+                  data.total > 0
+                ) {
                   $("#Wholesaler-profile-Selector-box").show();
                   $("#Wholesaler-profile-Selector").attr("required", "");
                   const wholesalerProfileContainer = document.getElementById(
@@ -469,15 +472,14 @@ docReady(function () {
                   $("#Wholesaler-profile-Selector-box").hide();
                   $("#Wholesaler-profile-Selector").removeAttr("required");
 
-                  LastStatusMessage.textContent = "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj."
+                  LastStatusMessage.textContent =
+                    "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj.";
                   const Iehurt = document.getElementById("Iehurt");
                   Iehurt.classList.add("enabled");
                   form.show();
                   doneBlock.show();
                   doneBlock.fadeOut(3000);
                   failBlock.hide();
-
-
                 }
               };
               request.send();
@@ -489,13 +491,15 @@ docReady(function () {
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
               $("#waitingdots").hide();
-              $('.successmessagetext').text("Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu.");
+              $(".successmessagetext").text(
+                "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
+              );
               doneBlock.show();
-
-
             } else {
               form.show();
-              $('.successmessagetext').text("Dostawca został pomyślnie skonfigurowany.");
+              $(".successmessagetext").text(
+                "Dostawca został pomyślnie skonfigurowany."
+              );
               doneBlock.show();
               doneBlock.fadeOut(4000);
               failBlock.hide();
@@ -668,7 +672,9 @@ docReady(function () {
             doneBlockDelete.show();
             doneBlockDelete.fadeOut(3000);
             window.setTimeout(function () {
-              window.location.replace("https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey);
+              window.location.replace(
+                "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
+              );
             }, 4000);
           },
           error: function (e) {
@@ -694,23 +700,27 @@ docReady(function () {
   });
 
   function LoadTippy() {
-    $.getScript("https://unpkg.com/popper.js@1", function (data, textStatus, jqxhr) {
-      $.getScript("https://unpkg.com/tippy.js@4", function (data, textStatus, jqxhr) {
-        tippy('.tippy', {          // Add the class tippy to your element
-          theme: 'light',          // Dark or Light
-          animation: 'scale',      // Options, shift-away, shift-toward, scale, persepctive
-          duration: 250,           // Duration of the Animation
-          arrow: true,             // Add arrow to the tooltip
-          arrowType: 'round',      // Sharp, round or empty for none
-          delay: [0, 50],          // Trigger delay in & out
-          maxWidth: 240,           // Optional, max width settings
-        })
-      });
-    });
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
   }
-
-
-
 
   //onlineOfferSupport//
 
@@ -729,5 +739,4 @@ docReady(function () {
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
   $("#waitingdots").hide();
-
 });

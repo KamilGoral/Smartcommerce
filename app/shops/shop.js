@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -136,10 +136,7 @@ docReady(function () {
   }
 
   function getPCShopsId() {
-    let url = new URL(
-      InvokeURL +
-      "integrations/pcmarket"
-    );
+    let url = new URL(InvokeURL + "integrations/pcmarket");
 
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -147,10 +144,13 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.shops;
-      if (request.status >= 200 && request.status < 400 && data.shops.length > 0) {
-        const wholesalerProfileContainer = document.getElementById(
-          "NewPcmMarketShopId"
-        );
+      if (
+        request.status >= 200 &&
+        request.status < 400 &&
+        data.hasOwnProperty("shops") > 0
+      ) {
+        const wholesalerProfileContainer =
+          document.getElementById("NewPcmMarketShopId");
         toParse.forEach((profile) => {
           var optProfile = document.createElement("option");
           optProfile.value = profile.id;
@@ -160,7 +160,7 @@ docReady(function () {
       } else {
         console.log("Unauthorized");
       }
-    }
+    };
     request.send();
   }
 
@@ -345,11 +345,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/orders/order?orderId=" +
-        rowData.orderId +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/orders/order?orderId=" +
+          rowData.orderId +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
@@ -566,11 +566,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -824,11 +824,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?priceListId=" +
-        rowData.priceListId +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/pricelists/pricelist?priceListId=" +
+          rowData.priceListId +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
@@ -1056,8 +1056,7 @@ docReady(function () {
           "/online-offer";
         var method = "PATCH";
 
-
-        if ($("#CompanyEdit").val()) {
+        if ($("#Company").val()) {
           //mirex case
           var data = [
             {
@@ -1156,11 +1155,11 @@ docReady(function () {
 
               let url = new URL(
                 InvokeURL +
-                "shops/" +
-                shopKey +
-                "/wholesalers/" +
-                $("#WholesalerSelector").val() +
-                "/online-offer/profiles"
+                  "shops/" +
+                  shopKey +
+                  "/wholesalers/" +
+                  $("#WholesalerSelector").val() +
+                  "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -1169,7 +1168,11 @@ docReady(function () {
               request.onload = function () {
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
-                if (request.status >= 200 && request.status < 400 && data.total > 0) {
+                if (
+                  request.status >= 200 &&
+                  request.status < 400 &&
+                  data.total > 0
+                ) {
                   $("#Wholesaler-profile-Selector-box").show();
                   $("#Wholesaler-profile-Selector").attr("required", "");
                   const wholesalerProfileContainer = document.getElementById(
@@ -1187,7 +1190,9 @@ docReady(function () {
 
                   form.show();
                   $("#waitingdots").hide();
-                  $('.successmessagetext').text("Dostawca dodany. Za moment następi przekierowanie...");
+                  $(".successmessagetext").text(
+                    "Dostawca dodany. Za moment następi przekierowanie..."
+                  );
                   doneBlock.show();
                   doneBlock.fadeOut(3000);
                   failBlock.hide();
@@ -1205,12 +1210,15 @@ docReady(function () {
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
               $("#waitingdots").hide();
-              $('.successmessagetext').text("Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu.");
+              $(".successmessagetext").text(
+                "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
+              );
               doneBlock.show();
-
             } else {
               form.show();
-              $('.successmessagetext').text("Dostawca został pomyślnie skonfigurowany.");
+              $(".successmessagetext").text(
+                "Dostawca został pomyślnie skonfigurowany."
+              );
               doneBlock.show();
               doneBlock.fadeOut(4000);
               failBlock.hide();
@@ -1239,7 +1247,6 @@ docReady(function () {
       });
     });
   };
-
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1596,11 +1603,11 @@ docReady(function () {
               window.setTimeout(function () {
                 window.location.replace(
                   "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                    DomainName +
+                    "/app/orders/order?orderId=" +
+                    response.orderId +
+                    "&shopKey=" +
+                    shopKey
                 );
               }, 100);
             },
@@ -1640,7 +1647,7 @@ docReady(function () {
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
-      console.log("Adjusting")
+      console.log("Adjusting");
       $.fn.dataTable
         .tables({
           visible: true,
