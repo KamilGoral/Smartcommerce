@@ -758,6 +758,7 @@ docReady(function () {
         whichColumns = data.order[0]["column"];
         direction = data.order[0]["dir"];
       }
+      console.log(data);
 
       switch (whichColumns) {
         case 2:
