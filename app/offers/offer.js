@@ -683,6 +683,7 @@ docReady(function () {
       },
     },
     ajax: function (data, callback, settings) {
+      console.loeg(data.order);
       var QStr =
         "?perPage=" +
         data.length +
@@ -761,7 +762,7 @@ docReady(function () {
 
       switch (whichColumns) {
         case 2:
-          whichColumns = "name";
+          whichColumns = "name:";
         case 4:
           whichColumns = "inStock:";
           break;
