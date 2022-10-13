@@ -1056,8 +1056,9 @@ docReady(function () {
           "/online-offer";
         var method = "PATCH";
 
-        if ($("#Company").val()) {
+        if ($("#Company").val() != "") {
           //mirex case
+          console.log("mirex");
           var data = [
             {
               op: "add",
