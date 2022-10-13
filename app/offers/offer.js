@@ -763,6 +763,7 @@ docReady(function () {
       switch (whichColumns) {
         case 2:
           whichColumns = "name:";
+          break;
         case 4:
           whichColumns = "inStock:";
           break;
