@@ -683,7 +683,6 @@ docReady(function () {
       },
     },
     ajax: function (data, callback, settings) {
-      console.loeg(data.order);
       var QStr =
         "?perPage=" +
         data.length +
