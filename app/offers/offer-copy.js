@@ -848,7 +848,7 @@ docReady(function () {
       {
         orderable: false,
         data: null,
-        defaultContent: "<p>8</p>",
+        defaultContent: "8",
       },
 
       {
@@ -951,7 +951,7 @@ docReady(function () {
       {
         orderable: false,
         data: null,
-        defaultContent: "<p>TYMBARK</p>",
+        defaultContent: "TYMBARK",
       },
       {
         orderable: false,
