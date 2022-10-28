@@ -391,7 +391,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "onlineOfferSupport",
+              data: "platformUrl",
               render: function (data) {
                 if (data !== null) {
                   if (data === true) {
