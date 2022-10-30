@@ -1077,8 +1077,11 @@ docReady(function () {
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
-              location.reload();
-            }, 3500);
+              document.location =
+                "https://" +
+                DomainName +
+                "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID
+            }, 3000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {

@@ -43,11 +43,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey) {
@@ -211,10 +211,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-              DomainName +
-              "/app/shops/shop" +
-              "?shopKey=" +
-              shop.shopKey
+            DomainName +
+            "/app/shops/shop" +
+            "?shopKey=" +
+            shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -401,6 +401,23 @@ docReady(function () {
               },
             },
             {
+              orderable: false,
+              data: "connections.retroactive",
+              width: "108px",
+              visible: true,
+              render: function (data) {
+                if (data !== null) {
+                  if (data.enabled) {
+                    return '<spann class="positive">Tak</spann>';
+                  } else {
+                    return '<spann class="negative">Nie</spann>';
+                  }
+                } else {
+                  return '<spann class="negative">Nie</spann>';
+                }
+              },
+            },
+            {
               orderable: true,
               data: "enabled",
               render: function (data, type, row) {
@@ -505,9 +522,9 @@ docReady(function () {
             row.setAttribute(
               "href",
               "https://" +
-                DomainName +
-                "/app/integrations/integration?integrationKey=" +
-                integration.integrationKey
+              DomainName +
+              "/app/integrations/integration?integrationKey=" +
+              integration.integrationKey
             );
           }
 
@@ -1040,9 +1057,9 @@ docReady(function () {
     var rowData = table.row(this).data();
     window.location.replace(
       "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?priceListId=" +
-        rowData.priceListId
+      DomainName +
+      "/app/pricelists/pricelist?priceListId=" +
+      rowData.priceListId
     );
   });
 
