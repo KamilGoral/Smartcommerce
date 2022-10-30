@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -317,11 +317,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          rowData.orderId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/orders/order?orderId=" +
+        rowData.orderId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -538,11 +538,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -796,11 +796,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?priceListId=" +
-          rowData.priceListId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/pricelists/pricelist?priceListId=" +
+        rowData.priceListId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -935,16 +935,32 @@ docReady(function () {
         },
         {
           orderable: false,
-          data: "connections.ftp",
+          data: "connections.retroactive",
+          visible: false,
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e636ea2af5f4ac88239cb_lew_icon.svg' alt='Tak'></img></div>"
               } else {
                 return '<spann class="negative">Nie</spann>';
               }
             } else {
-              return '<spann class="negative">Nie</spann>';
+              return '<spann class="noneexisting">-</spann>';
+            }
+          },
+        },
+        {
+          orderable: false,
+          data: "connections.ftp",
+          render: function (data) {
+            if (data !== null) {
+              if (data.enabled) {
+                return '<spann class="positive">Aktywny</spann>';
+              } else {
+                return '<spann class="medium">Dostępny</spann>';
+              }
+            } else {
+              return '<spann class="noneexisting">-</spann>';
             }
           },
         },
@@ -954,12 +970,12 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
+                return '<spann class="positive">Aktywny</spann>';
               } else {
-                return '<spann class="negative">Nie</spann>';
+                return '<spann class="medium">Dostępny</spann>';
               }
             } else {
-              return '<spann class="negative">Nie</spann>';
+              return '<spann class="noneexisting">-</spann>';
             }
           },
         },
@@ -969,12 +985,12 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
+                return '<spann class="positive">Aktywny</spann>';
               } else {
-                return '<spann class="negative">Nie</spann>';
+                return '<spann class="medium">Dostępny</spann>';
               }
             } else {
-              return '<spann class="negative">Nie</spann>';
+              return '<spann class="noneexisting">-</spann>';
             }
           },
         },
@@ -1360,11 +1376,11 @@ docReady(function () {
               window.setTimeout(function () {
                 window.location.replace(
                   "https://" +
-                    DomainName +
-                    "/app/orders/order?orderId=" +
-                    response.orderId +
-                    "&shopKey=" +
-                    shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
                 );
               }, 100);
             },
