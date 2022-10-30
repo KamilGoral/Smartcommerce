@@ -810,13 +810,12 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
+      console.log(data)
       var data = JSON.parse(this.response);
-      var toParse = data.items;
-      toParse.sort(function (a, b) {
-        return b.enabled - a.enabled;
-      });
+      
       if (request.status >= 200 && request.status < 400) {
         var table = $("#table_wholesalers").DataTable({
+          data: toParse,
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">rt<"bottom"lip>',
@@ -993,405 +992,405 @@ docReady(function () {
     }
   }
 
-      makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
-        forms.each(function () {
-          var form = $(this);
-          form.on("submit", function (event) {
-            var container = form.parent();
-            var doneBlock = $("#ShopDeleteSuccess", container);
-            var failBlock = $("#ShopDeleteFail", container);
-            var action = InvokeURL + "shops/" + shopKey;
-            var method = "DELETE";
+  makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#ShopDeleteSuccess", container);
+        var failBlock = $("#ShopDeleteFail", container);
+        var action = InvokeURL + "shops/" + shopKey;
+        var method = "DELETE";
 
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  result = successCallback(resultData);
-                  if (!result) {
-                    form.show();
-                    doneBlock.hide();
-                    failBlock.show();
-                    console.log(e);
-                    return;
-                  }
-                }
-                form.show();
-                doneBlock.show();
-                failBlock.hide();
-                window.setTimeout(function () {
-                  document.location =
-                    "https://" +
-                    DomainName +
-                    "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID
-                }, 3000);
-              },
-              error: function (e) {
-                if (typeof errorCallback === "function") {
-                  errorCallback(e);
-                }
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
                 console.log(e);
-              },
-            });
-            event.preventDefault();
-            return false;
-          });
-        });
-      };
-      makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
-        forms.each(function () {
-          var form = $(this);
-          form.on("submit", function (event) {
-            var container = form.parent();
-            var doneBlock = $("#w-form-done4", container);
-            var failBlock = $("#w-form-fail4", container);
-            var action = InvokeURL + "shops/" + shopKey;
-            var PcMarketId = parseInt($("#NewPcmMarketShopId").val());
-            var data = [
-              {
-                op: "add",
-                path: "/name",
-                value: $("#NewShopName").val(),
-              },
-              {
-                op: "add",
-                path: "/key",
-                value: $("#NewShopKey").val(),
-              },
-              {
-                op: "add",
-                path: "/pcmarketShopId",
-                value: PcMarketId,
-              },
-              {
-                op: "add",
-                path: "/address/country",
-                value: $("#NewShopCountry").val(),
-              },
-              {
-                op: "add",
-                path: "/address/line1",
-                value: $("#NewShopLine").val(),
-              },
-              {
-                op: "add",
-                path: "/address/town",
-                value: $("#NewShopTown").val(),
-              },
-              {
-                op: "add",
-                path: "/address/state",
-                value: $("#NewShopState").val(),
-              },
-              {
-                op: "add",
-                path: "/address/postcode",
-                value: $("#NewShopPostCode").val(),
-              },
-            ];
-            if (isNaN(PcMarketId)) {
-              data = [
-                {
-                  op: "add",
-                  path: "/name",
-                  value: $("#NewShopName").val(),
-                },
-                {
-                  op: "add",
-                  path: "/key",
-                  value: $("#NewShopKey").val(),
-                },
-                {
-                  op: "add",
-                  path: "/address/country",
-                  value: $("#NewShopCountry").val(),
-                },
-                {
-                  op: "add",
-                  path: "/address/line1",
-                  value: $("#NewShopLine").val(),
-                },
-                {
-                  op: "add",
-                  path: "/address/town",
-                  value: $("#NewShopTown").val(),
-                },
-                {
-                  op: "add",
-                  path: "/address/state",
-                  value: $("#NewShopState").val(),
-                },
-                {
-                  op: "add",
-                  path: "/address/postcode",
-                  value: $("#NewShopPostCode").val(),
-                },
-              ];
+                return;
+              }
             }
-            var method = "PATCH";
-
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              data: JSON.stringify(data),
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  result = successCallback(resultData);
-                  if (!result) {
-                    form.show();
-                    doneBlock.hide();
-                    failBlock.show();
-                    console.log(e);
-                    return;
-                  }
-                }
-                form.show();
-                doneBlock.show();
-                doneBlock.fadeOut(3000);
-                failBlock.hide();
-                $("#UsernameEdit").val("");
-                $("#PasswordEdit").val("");
-                window.setTimeout(function () {
-                  location.reload();
-                }, 3500);
-              },
-              error: function (e) {
-                if (typeof errorCallback === "function") {
-                  errorCallback(e);
-                }
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                console.log(e);
-              },
-            });
-            event.preventDefault();
-            return false;
-          });
-        });
-      };
-
-      makeWebflowFormAjaxRefreshOffer = function (
-        forms,
-        successCallback,
-        errorCallback
-      ) {
-        forms.each(function () {
-          var form = $(this);
-          form.on("submit", function (event) {
-            var container = form.parent();
-            var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
-            var failBlock = $("#wf-form-RefreshOfferFormfail", container);
-            var action = InvokeURL + "shops/" + shopKey + "/offers";
-            var method = "POST";
-            var data = "";
-
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              data: JSON.stringify(data),
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  result = successCallback(resultData);
-                  if (!result) {
-                    form.show();
-                    doneBlock.hide();
-                    failBlock.show();
-                    return;
-                  }
-                }
-                form.show();
-                doneBlock.show();
-                doneBlock.fadeOut(3000);
-                failBlock.hide();
-                window.setTimeout(function () {
-                  location.reload();
-                }, 3500);
-              },
-              error: function (jqXHR, exception) {
-                console.log(jqXHR);
-                console.log(exception);
-                var msg = "";
-                var MessageText = document.getElementById("WarningMessageMain");
-                if (jqXHR.status === 0) {
-                  msg = "Not connect.\n Verify Network.";
-                } else if (jqXHR.status === 403) {
-                  msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-                } else if (jqXHR.status === 500) {
-                  msg = "Internal Server Error [500].";
-                } else if (exception === "parsererror") {
-                  msg = "Requested JSON parse failed.";
-                } else if (exception === "timeout") {
-                  msg = "Time out error.";
-                } else if (exception === "abort") {
-                  msg = "Ajax request aborted.";
-                } else {
-                  msg = "" + jqXHR.responseText;
-                }
-                MessageText.textContent = msg;
-                $("#WarningMessageContainer").fadeOut(3000);
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-              },
-            });
-            event.preventDefault();
-            return false;
-          });
-        });
-      };
-
-
-      function FileUpload() {
-        $("#waitingdots").show();
-        const xhr = new XMLHttpRequest();
-        var myUploadedFile = document.getElementById("orderfile").files[0];
-        var action = InvokeURL + "shops/" + shopKey + "/orders";
-        xhr.open("POST", action);
-        xhr.setRequestHeader("Accept", "application/json");
-        xhr.setRequestHeader("Content-Type", "application/octet-stream");
-        xhr.setRequestHeader("Authorization", orgToken);
-        xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
-
-        xhr.onreadystatechange = function () {
-          $("#waitingdots").hide();
-          if (xhr.readyState === 4) {
-            var response = JSON.parse(xhr.responseText);
-            if (xhr.status === 201) {
-              document.getElementById("wf-form-doneCreate-Order").style.display =
-                "block";
-
-              var action =
-                InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-              var method = "PATCH";
-              var data = [
-                {
-                  op: "add",
-                  path: "/name",
-                  value: $("#OrderName").val(),
-                },
-              ];
-
-              $.ajax({
-                type: method,
-                url: action,
-                cors: true,
-                beforeSend: function () {
-                  $("#waitingdots").show();
-                },
-                complete: function () {
-                  $("#waitingdots").hide();
-                },
-                contentType: "application/json",
-                dataType: "json",
-                data: JSON.stringify(data),
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                  Authorization: orgToken,
-                },
-                success: function (resultData) {
-                  document.getElementById(
-                    "wf-form-doneCreate-Order"
-                  ).style.display = "block";
-                  window.setTimeout(function () {
-                    window.location.replace(
-                      "https://" +
-                      DomainName +
-                      "/app/orders/order?orderId=" +
-                      response.orderId +
-                      "&shopKey=" +
-                      shopKey
-                    );
-                  }, 100);
-                },
-                error: function (e) {
-                  if (typeof errorCallback === "function") {
-                    errorCallback(e);
-                  }
-                  console.log(e);
-                },
-              });
-            } else {
-              document.getElementById("wf-form-failCreate-Order").style.display =
-                "block";
-              console.log("failed");
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              document.location =
+                "https://" +
+                DomainName +
+                "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID
+            }, 3000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
             }
-          }
-        };
-        xhr.send(myUploadedFile);
-      }
-
-      UploadButton.addEventListener("click", (event) => {
-        FileUpload();
-      });
-
-      makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-      makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-      makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
-
-      getShop();
-      getOrders();
-      getOffers();
-      getPriceLists();
-      getWholesalers();
-      getPCShopsId();
-
-      $('div[role="tablist"]').click(function () {
-        setTimeout(function () {
-          console.log("Adjusting");
-          $.fn.dataTable
-            .tables({
-              visible: true,
-              api: true,
-            })
-            .columns.adjust();
-        }, 300);
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
       });
     });
+  };
+  makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#w-form-done4", container);
+        var failBlock = $("#w-form-fail4", container);
+        var action = InvokeURL + "shops/" + shopKey;
+        var PcMarketId = parseInt($("#NewPcmMarketShopId").val());
+        var data = [
+          {
+            op: "add",
+            path: "/name",
+            value: $("#NewShopName").val(),
+          },
+          {
+            op: "add",
+            path: "/key",
+            value: $("#NewShopKey").val(),
+          },
+          {
+            op: "add",
+            path: "/pcmarketShopId",
+            value: PcMarketId,
+          },
+          {
+            op: "add",
+            path: "/address/country",
+            value: $("#NewShopCountry").val(),
+          },
+          {
+            op: "add",
+            path: "/address/line1",
+            value: $("#NewShopLine").val(),
+          },
+          {
+            op: "add",
+            path: "/address/town",
+            value: $("#NewShopTown").val(),
+          },
+          {
+            op: "add",
+            path: "/address/state",
+            value: $("#NewShopState").val(),
+          },
+          {
+            op: "add",
+            path: "/address/postcode",
+            value: $("#NewShopPostCode").val(),
+          },
+        ];
+        if (isNaN(PcMarketId)) {
+          data = [
+            {
+              op: "add",
+              path: "/name",
+              value: $("#NewShopName").val(),
+            },
+            {
+              op: "add",
+              path: "/key",
+              value: $("#NewShopKey").val(),
+            },
+            {
+              op: "add",
+              path: "/address/country",
+              value: $("#NewShopCountry").val(),
+            },
+            {
+              op: "add",
+              path: "/address/line1",
+              value: $("#NewShopLine").val(),
+            },
+            {
+              op: "add",
+              path: "/address/town",
+              value: $("#NewShopTown").val(),
+            },
+            {
+              op: "add",
+              path: "/address/state",
+              value: $("#NewShopState").val(),
+            },
+            {
+              op: "add",
+              path: "/address/postcode",
+              value: $("#NewShopPostCode").val(),
+            },
+          ];
+        }
+        var method = "PATCH";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            $("#UsernameEdit").val("");
+            $("#PasswordEdit").val("");
+            window.setTimeout(function () {
+              location.reload();
+            }, 3500);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
+  makeWebflowFormAjaxRefreshOffer = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
+        var failBlock = $("#wf-form-RefreshOfferFormfail", container);
+        var action = InvokeURL + "shops/" + shopKey + "/offers";
+        var method = "POST";
+        var data = "";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 3500);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            var MessageText = document.getElementById("WarningMessageMain");
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status === 403) {
+              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+            } else if (jqXHR.status === 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseText;
+            }
+            MessageText.textContent = msg;
+            $("#WarningMessageContainer").fadeOut(3000);
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
+
+  function FileUpload() {
+    $("#waitingdots").show();
+    const xhr = new XMLHttpRequest();
+    var myUploadedFile = document.getElementById("orderfile").files[0];
+    var action = InvokeURL + "shops/" + shopKey + "/orders";
+    xhr.open("POST", action);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
+    xhr.setRequestHeader("Authorization", orgToken);
+    xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
+
+    xhr.onreadystatechange = function () {
+      $("#waitingdots").hide();
+      if (xhr.readyState === 4) {
+        var response = JSON.parse(xhr.responseText);
+        if (xhr.status === 201) {
+          document.getElementById("wf-form-doneCreate-Order").style.display =
+            "block";
+
+          var action =
+            InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+          var method = "PATCH";
+          var data = [
+            {
+              op: "add",
+              path: "/name",
+              value: $("#OrderName").val(),
+            },
+          ];
+
+          $.ajax({
+            type: method,
+            url: action,
+            cors: true,
+            beforeSend: function () {
+              $("#waitingdots").show();
+            },
+            complete: function () {
+              $("#waitingdots").hide();
+            },
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: orgToken,
+            },
+            success: function (resultData) {
+              document.getElementById(
+                "wf-form-doneCreate-Order"
+              ).style.display = "block";
+              window.setTimeout(function () {
+                window.location.replace(
+                  "https://" +
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
+                );
+              }, 100);
+            },
+            error: function (e) {
+              if (typeof errorCallback === "function") {
+                errorCallback(e);
+              }
+              console.log(e);
+            },
+          });
+        } else {
+          document.getElementById("wf-form-failCreate-Order").style.display =
+            "block";
+          console.log("failed");
+        }
+      }
+    };
+    xhr.send(myUploadedFile);
+  }
+
+  UploadButton.addEventListener("click", (event) => {
+    FileUpload();
+  });
+
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
+  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+
+  getShop();
+  getOrders();
+  getOffers();
+  getPriceLists();
+  getWholesalers();
+  getPCShopsId();
+
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
+  });
+});
