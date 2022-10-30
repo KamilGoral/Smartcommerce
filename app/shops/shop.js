@@ -22,8 +22,6 @@ docReady(function () {
   }
 
   var shopKey = new URL(location.href).searchParams.get("shopKey");
-  var formIdNew = "#wf-form-CredentialsForm";
-
   var orgToken = getCookie("sprytnyToken");
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
@@ -106,32 +104,6 @@ docReady(function () {
     };
 
     // Send request
-    request.send();
-  }
-  function getWholesalersSh() {
-    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
-        const wholesalerContainer =
-          document.getElementById("WholesalerSelector");
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.onlineOfferSupport) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer.appendChild(opt);
-          }
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
-      }
-    };
     request.send();
   }
 
@@ -1040,214 +1012,6 @@ docReady(function () {
         rowData.wholesalerKey;
     });
   }
-  makeWebflowFormAjaxNew = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#w-form-done2", container);
-        var failBlock = $("#w-form-fail2", container);
-        var action =
-          InvokeURL +
-          "shops/" +
-          shopKey +
-          "/wholesalers/" +
-          $("#WholesalerSelector").val() +
-          "/online-offer";
-        var method = "PATCH";
-
-        if ($("#Company").val() != "") {
-          //mirex case
-          console.log("mirex");
-          var data = [
-            {
-              op: "add",
-              path: "/credentials/username",
-              value: $("#Username").val(),
-            },
-            {
-              op: "add",
-              path: "/credentials/password",
-              value: $("#Password").val(),
-            },
-            {
-              op: "add",
-              path: "/credentials/extraFields",
-              value: {
-                company: $("#Company").val(),
-              },
-            },
-          ];
-        } else {
-          //edit case
-          if ($("#Wholesaler-profile-Selector").val() != "null") {
-            var data = [
-              {
-                op: "add",
-                path: "/credentials/username",
-                value: $("#Username").val(),
-              },
-              {
-                op: "add",
-                path: "/credentials/password",
-                value: $("#Password").val(),
-              },
-              {
-                op: "add",
-                path: "/profile",
-                value: {
-                  id: $("#Wholesaler-profile-Selector").val(),
-                  name: $("#Wholesaler-profile-Selector").attr("name"),
-                },
-              },
-            ];
-          } else {
-            // add case
-            var data = [
-              {
-                op: "add",
-                path: "/credentials/username",
-                value: $("#Username").val(),
-              },
-              {
-                op: "add",
-                path: "/credentials/password",
-                value: $("#Password").val(),
-              },
-            ];
-          }
-        }
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                console.log(e);
-                window.setTimeout(function () {
-                  location.reload();
-                }, 3500);
-                return;
-              }
-            }
-
-            // add case
-            if ($("#Wholesaler-profile-Selector").val() === "null") {
-              $("#waitingdots").show();
-
-              let url = new URL(
-                InvokeURL +
-                  "shops/" +
-                  shopKey +
-                  "/wholesalers/" +
-                  $("#WholesalerSelector").val() +
-                  "/online-offer/profiles"
-              );
-
-              let request = new XMLHttpRequest();
-              request.open("GET", url, true);
-              request.setRequestHeader("Authorization", orgToken);
-              request.onload = function () {
-                var data = JSON.parse(this.response);
-                var toParse = data.items;
-                if (
-                  request.status >= 200 &&
-                  request.status < 400 &&
-                  data.total > 0
-                ) {
-                  $("#Wholesaler-profile-Selector-box").show();
-                  $("#Wholesaler-profile-Selector").attr("required", "");
-                  const wholesalerProfileContainer = document.getElementById(
-                    "Wholesaler-profile-Selector"
-                  );
-                  toParse.forEach((profile) => {
-                    var optProfile = document.createElement("option");
-                    optProfile.value = profile.id;
-                    optProfile.innerHTML = profile.name;
-                    wholesalerProfileContainer.appendChild(optProfile);
-                  });
-                } else {
-                  $("#Wholesaler-profile-Selector-box").hide();
-                  $("#Wholesaler-profile-Selector").removeAttr("required");
-
-                  form.show();
-                  $("#waitingdots").hide();
-                  $(".successmessagetext").text(
-                    "Dostawca dodany. Za moment następi przekierowanie..."
-                  );
-                  doneBlock.show();
-                  doneBlock.fadeOut(3000);
-                  failBlock.hide();
-                  window.setTimeout(function () {
-                    location.reload();
-                  }, 3500);
-                }
-              };
-              request.send();
-              $("#waitingdots").hide();
-              $("#Wholesaler-profile-Selector")
-                .find("option")
-                .remove()
-                .end()
-                .append("<option value=null>Wybierz profil</option>")
-                .val("null");
-              $("#waitingdots").hide();
-              $(".successmessagetext").text(
-                "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
-              );
-              doneBlock.show();
-            } else {
-              form.show();
-              $(".successmessagetext").text(
-                "Dostawca został pomyślnie skonfigurowany."
-              );
-              doneBlock.show();
-              doneBlock.fadeOut(4000);
-              failBlock.hide();
-              window.setTimeout(function () {
-                location.reload();
-              }, 3500);
-            }
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(3000);
-            failBlock.hide();
-            console.log(e);
-            window.setTimeout(function () {
-              location.reload();
-            }, 3500);
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1540,14 +1304,6 @@ docReady(function () {
     });
   };
 
-  $("#WholesalerSelector").on("change", function () {
-    console.log($(this).val());
-    if ($(this).val() == "mirex") {
-      $("#CompanyDiv").show();
-    } else {
-      $("#CompanyDiv").hide();
-    }
-  });
 
   function FileUpload() {
     $("#waitingdots").show();
@@ -1633,13 +1389,11 @@ docReady(function () {
     FileUpload();
   });
 
-  makeWebflowFormAjaxNew($(formIdNew));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjax($("#wf-form-EditShopInformation"));
   makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
   getShop();
-  getWholesalersSh();
   getOrders();
   getOffers();
   getPriceLists();
