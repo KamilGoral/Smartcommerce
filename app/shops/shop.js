@@ -806,9 +806,11 @@ docReady(function () {
   }
   function getWholesalers() {
     console.log("here")
-    let url = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers");
+    let url2 = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers");
     let request = new XMLHttpRequest();
-    request.open("GET", url, true);
+    console.log(request);
+    console.log(url2);
+    request.open("GET", url2, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       var data = JSON.parse(this.response);
