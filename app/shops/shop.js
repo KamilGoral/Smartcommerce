@@ -805,15 +805,17 @@ docReady(function () {
     });
   }
   function getWholesalers() {
-    console.log("here")
-    let url2 = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1");
-    let request2 = new XMLHttpRequest();
-    request2.open("GET", url2, true);
-    request2.setRequestHeader("Authorization", orgToken);
-    request2.onload = function () {
+    let url = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
-      console.log(toParse)
+      toParse.sort(function (a, b) {
+        return b.enabled - a.enabled;
+      });
+
       if (request.status >= 200 && request.status < 400) {
         var table = $("#table_wholesalers").DataTable({
           data: toParse,
@@ -972,13 +974,12 @@ docReady(function () {
             "&wholesalerKey=" +
             rowData.wholesalerKey;
         });
-        if (request2.status == 401) {
-          console.log("Unauthorized");
-        }
-      };
-      
-    }
-    request2.send();
+      }
+      if (request.status == 401) {
+        console.log("Unauthorized");
+      }
+    };
+    request.send();
   }
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
