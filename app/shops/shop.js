@@ -936,7 +936,7 @@ docReady(function () {
         {
           orderable: false,
           data: "connections.retroactive",
-          visible: false,
+          visible: true,
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
