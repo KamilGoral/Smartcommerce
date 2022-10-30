@@ -811,9 +811,8 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
-      console.log(data)
       var data = JSON.parse(this.response);
-
+      var toParse = data.items;
       if (request.status >= 200 && request.status < 400) {
         var table = $("#table_wholesalers").DataTable({
           data: toParse,
