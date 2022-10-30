@@ -715,6 +715,10 @@ docReady(function () {
         if ($("#best").is(":checked")) {
           QStr = QStr + ":best";
         }
+        if ($("#exclusive").is(":checked")) {
+          QStr = QStr + ":exclusive";
+        }
+        
       }
       var PRmin = parseInt($("#PRmin").val(), 10);
       var PRmax = parseInt($("#PRmax").val(), 10);

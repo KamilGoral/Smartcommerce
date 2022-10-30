@@ -909,7 +909,7 @@ docReady(function () {
             {
               orderable: true,
               data: "connections.ftp",
-              width: "108px",
+              width: "72px",
               render: function (data) {
                 if (data !== null) {
                   if (data.enabled) {
@@ -925,7 +925,7 @@ docReady(function () {
             {
               orderable: true,
               data: "connections.wms",
-              width: "108px",
+              width: "72px",
               render: function (data) {
                 if (data !== null) {
                   if (data.enabled) {
@@ -941,7 +941,7 @@ docReady(function () {
             {
               orderable: true,
               data: "connections.onlineOffer",
-              width: "108px",
+              width: "72px",
               render: function (data) {
                 if (data !== null) {
                   if (data.enabled) {
