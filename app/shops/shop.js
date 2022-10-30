@@ -925,6 +925,7 @@ docReady(function () {
         {
           orderable: false,
           data: "logisticMinimum",
+          width: "108px",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -936,13 +937,14 @@ docReady(function () {
         {
           orderable: false,
           data: "connections.retroactive",
+          width: "108px",
           visible: true,
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
                 return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg' alt='Tak'></img></div>";
               } else {
-                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6869a2af5f8bca827035_horizontal-rule.svg' alt='Nie'></img></div>";
               }
             } else {
               return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
@@ -952,6 +954,7 @@ docReady(function () {
         {
           orderable: false,
           data: "connections.ftp",
+          width: "108px",
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
@@ -960,28 +963,30 @@ docReady(function () {
                 return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6869a2af5f8bca827035_horizontal-rule.svg' alt='Nie'></img></div>";
             }
           },
         },
         {
           orderable: false,
           data: "connections.wms",
+          width: "108px",
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
                 return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg' alt='Tak'></img></div>";
               } else {
-                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6869a2af5f8bca827035_horizontal-rule.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6869a2af5f8bca827035_horizontal-rule.svg' alt='Nie'></img></div>";
             }
           },
         },
         {
           orderable: false,
           data: "connections.onlineOffer",
+          width: "108px",
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
@@ -990,13 +995,14 @@ docReady(function () {
                 return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6869a2af5f8bca827035_horizontal-rule.svg' alt='Nie'></img></div>";
             }
           },
         },
         {
           orderable: false,
           data: null,
+          width: "108px",
           defaultContent:
             '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
         },
