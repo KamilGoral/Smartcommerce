@@ -813,7 +813,7 @@ docReady(function () {
     request.onload = function () {
       console.log(data)
       var data = JSON.parse(this.response);
-      
+
       if (request.status >= 200 && request.status < 400) {
         var table = $("#table_wholesalers").DataTable({
           data: toParse,
@@ -960,21 +960,8 @@ docReady(function () {
                 '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
             },
           ],
-          initComplete: function (settings, json) {
-            var api = this.api();
-            var textBox = $("#table_wholesalers_filter label input");
-            textBox.unbind();
-            textBox.bind("keyup input", function (e) {
-              if (
-                (e.keyCode == 8 && !textBox.val()) ||
-                (e.keyCode == 46 && !textBox.val())
-              ) {
-              } else if (e.keyCode == 13 || !textBox.val()) {
-                api.search(this.value).draw();
-              }
-            });
-          },
         });
+
         $("#table_wholesalers").on("click", "tr", function () {
           var rowData = table.row(this).data();
           document.location =
