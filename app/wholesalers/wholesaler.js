@@ -138,7 +138,7 @@ docReady(function () {
         firstMessage;
         onlineOfferSupportFlow();
       } else {
-        LastStatusMessage.textContent = "Dostawca gotowy do integracji";
+        LastStatusMessage.textContent = "Wpisz login i hasło do e-hurtowni aby skonfigurować dostawcę";
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
