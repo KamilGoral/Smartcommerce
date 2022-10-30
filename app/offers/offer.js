@@ -38,11 +38,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -57,11 +57,11 @@ docReady(function () {
   OfferDateBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/offers/offer?shopKey=" +
-      shopKey +
-      "&offerId=" +
-      offerId
+    DomainName +
+    "/app/offers/offer?shopKey=" +
+    shopKey +
+    "&offerId=" +
+    offerId
   );
 
   $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
@@ -181,11 +181,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/products/" +
-        rowData.gtin +
-        "/history?perPage=365&page=1"
+      "shops/" +
+      shopKey +
+      "/products/" +
+      rowData.gtin +
+      "/history?perPage=365&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -218,7 +218,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -232,7 +232,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -245,7 +245,7 @@ docReady(function () {
           Math.round(
             (rowData.inStock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -258,7 +258,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -710,6 +710,11 @@ docReady(function () {
         })
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
+
+      $(document).on('click', 'input[type="checkbox"]', function () {
+        $('input[type="checkbox"]').not(this).prop('checked', false);
+      });
+
       if (whKeyIndiStr) {
         QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
         if ($("#best").is(":checked")) {
@@ -718,7 +723,8 @@ docReady(function () {
         if ($("#exclusive").is(":checked")) {
           QStr = QStr + ":exclusive";
         }
-        
+
+
       }
       var PRmin = parseInt($("#PRmin").val(), 10);
       var PRmax = parseInt($("#PRmax").val(), 10);
