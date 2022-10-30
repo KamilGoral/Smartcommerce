@@ -807,10 +807,10 @@ docReady(function () {
   function getWholesalers() {
     console.log("here")
     let url2 = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1");
-    let request = new XMLHttpRequest();
-    request.open("GET", url2, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
+    let request2 = new XMLHttpRequest();
+    request2.open("GET", url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
       console.log(toParse)
@@ -972,12 +972,13 @@ docReady(function () {
             "&wholesalerKey=" +
             rowData.wholesalerKey;
         });
-        if (request.status == 401) {
+        if (request2.status == 401) {
           console.log("Unauthorized");
         }
       };
-      request.send();
+      
     }
+    request2.send();
   }
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
