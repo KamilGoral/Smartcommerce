@@ -805,635 +805,593 @@ docReady(function () {
     });
   }
   function getWholesalers() {
-    var table = $("#table_wholesalers").DataTable({
-      pagingType: "full_numbers",
-      order: [],
-      dom: '<"top">rt<"bottom"lip>',
-      scrollY: "60vh",
-      scrollCollapse: true,
-      pageLength: 100,
-      language: {
-        emptyTable: "Brak danych do wyświetlenia",
-        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-        infoEmpty: "Brak danych",
-        infoFiltered: "(z _MAX_ rezultatów)",
-        lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'</div>",
-        processing: "<div class='spinner'</div>",
-        search: "Szukaj:",
-        zeroRecords: "Brak pasujących rezultatów",
-        paginate: {
-          first: "<<",
-          last: ">>",
-          next: " >",
-          previous: "< ",
-        },
-        aria: {
-          sortAscending: ": Sortowanie rosnące",
-          sortDescending: ": Sortowanie malejące",
-        },
-      },
-      ajax: function (data, callback, settings) {
-        $.ajaxSetup({
-          headers: {
-            Authorization: orgToken,
+    let url = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      toParse.sort(function (a, b) {
+        return b.enabled - a.enabled;
+      });
+      if (request.status >= 200 && request.status < 400) {
+        var table = $("#table_wholesalers").DataTable({
+          pagingType: "full_numbers",
+          order: [],
+          dom: '<"top">rt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 100,
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
           },
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-        });
-
-        var whichColumns = "";
-        var direction = "desc";
-
-        if (data.order.length == 0) {
-          whichColumns = 0;
-        } else {
-          whichColumns = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-        }
-
-        switch (whichColumns) {
-          case 2:
-            whichColumns = "wholesalerKey:";
-            break;
-          case 3:
-            whichColumns = "wholesalerKey";
-            break;
-          default:
-            whichColumns = "wholesalerKey:";
-        }
-
-        var sort = "" + whichColumns + direction;
-        $.get(
-          InvokeURL + "shops/" + shopKey + "/wholesalers",
-          {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
-          },
-          function (res) {
-            // map your server's response to the DataTables format and pass it to
-            // DataTables' callback
-            callback({
-              recordsTotal: res.total,
-              recordsFiltered: res.total,
-              data: res.items,
+          columns: [
+            {
+              orderable: false,
+              data: null,
+              width: "36px",
+              defaultContent:
+                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+            },
+            {
+              orderable: false,
+              data: "wholesalerKey",
+              visible: false,
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                } else {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "name",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                } else {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "logisticMinimum",
+              width: "108px",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                } else {
+                  return "-";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "connections.retroactive",
+              width: "108px",
+              visible: true,
+              render: function (data) {
+                if (data !== null) {
+                  if (data.enabled) {
+                    return '<spann class="positive">Tak</spann>';
+                  } else {
+                    return '<spann class="negative">Nie</spann>';
+                  }
+                } else {
+                  return '<spann class="negative">Nie</spann>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "connections.ftp",
+              width: "108px",
+              render: function (data) {
+                if (data !== null) {
+                  if (data.enabled) {
+                    return '<spann class="positive">Tak</spann>';
+                  } else {
+                    return '<spann class="medium">Dodaj</spann>';
+                  }
+                } else {
+                  return '<spann class="negative">Nie</spann>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "connections.wms",
+              width: "108px",
+              render: function (data) {
+                if (data !== null) {
+                  if (data.enabled) {
+                    return '<spann class="positive">Tak</spann>';
+                  } else {
+                    return '<spann class="noneexisting">Brak</spann>';
+                  }
+                } else {
+                  return '<spann class="noneexisting">Brak</spann>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "connections.onlineOffer",
+              width: "108px",
+              render: function (data) {
+                if (data !== null) {
+                  if (data.enabled) {
+                    return '<spann class="positive">Tak</spann>';
+                  } else {
+                    return '<spann class="medium">Dodaj</spann>';
+                  }
+                } else {
+                  return '<spann class="noneexisting">Brak</spann>';
+                }
+              },
+            },
+            {
+              orderable: false,
+              data: null,
+              width: "108px",
+              defaultContent:
+                '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+            },
+          ],
+          initComplete: function (settings, json) {
+            var api = this.api();
+            var textBox = $("#table_wholesalers_filter label input");
+            textBox.unbind();
+            textBox.bind("keyup input", function (e) {
+              if (
+                (e.keyCode == 8 && !textBox.val()) ||
+                (e.keyCode == 46 && !textBox.val())
+              ) {
+              } else if (e.keyCode == 13 || !textBox.val()) {
+                api.search(this.value).draw();
+              }
             });
-          }
-        );
-      },
-      processing: true,
-      serverSide: true,
-      search: {
-        return: true,
-      },
-      columns: [
-        {
-          orderable: false,
-          data: null,
-          width: "36px",
-          defaultContent:
-            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-        },
-        {
-          orderable: false,
-          data: "wholesalerKey",
-          visible: false,
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            } else {
-              return "";
-            }
           },
-        },
-        {
-          orderable: false,
-          data: "name",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            } else {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "logisticMinimum",
-          width: "108px",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            } else {
-              return "-";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "connections.retroactive",
-          width: "108px",
-          visible: true,
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="negative">Nie</spann>';
-              }
-            } else {
-              return '<spann class="negative">Nie</spann>';
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "connections.ftp",
-          width: "108px",
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="medium">Dodaj</spann>';
-              }
-            } else {
-              return '<spann class="negative">Nie</spann>';
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "connections.wms",
-          width: "108px",
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="noneexisting">Brak</spann>';
-              }
-            } else {
-              return '<spann class="noneexisting">Brak</spann>';
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "connections.onlineOffer",
-          width: "108px",
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="medium">Dodaj</spann>';
-              }
-            } else {
-              return '<spann class="noneexisting">Brak</spann>';
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: null,
-          width: "108px",
-          defaultContent:
-            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-        },
-      ],
-      initComplete: function (settings, json) {
-        var api = this.api();
-        var textBox = $("#table_wholesalers_filter label input");
-        textBox.unbind();
-        textBox.bind("keyup input", function (e) {
-          if (
-            (e.keyCode == 8 && !textBox.val()) ||
-            (e.keyCode == 46 && !textBox.val())
-          ) {
-          } else if (e.keyCode == 13 || !textBox.val()) {
-            api.search(this.value).draw();
-          }
         });
-      },
-    });
-
-    $("#table_wholesalers").on("click", "tr", function () {
-      var rowData = table.row(this).data();
-      document.location =
-        "https://" +
-        DomainName +
-        "/app/wholesalers/wholesaler?shopKey=" +
-        shopKey +
-        "&wholesalerKey=" +
-        rowData.wholesalerKey;
-    });
+        $("#table_wholesalers").on("click", "tr", function () {
+          var rowData = table.row(this).data();
+          document.location =
+            "https://" +
+            DomainName +
+            "/app/wholesalers/wholesaler?shopKey=" +
+            shopKey +
+            "&wholesalerKey=" +
+            rowData.wholesalerKey;
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      };
+      request.send();
+    }
   }
 
-  makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#ShopDeleteSuccess", container);
-        var failBlock = $("#ShopDeleteFail", container);
-        var action = InvokeURL + "shops/" + shopKey;
-        var method = "DELETE";
+      makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+        forms.each(function () {
+          var form = $(this);
+          form.on("submit", function (event) {
+            var container = form.parent();
+            var doneBlock = $("#ShopDeleteSuccess", container);
+            var failBlock = $("#ShopDeleteFail", container);
+            var action = InvokeURL + "shops/" + shopKey;
+            var method = "DELETE";
 
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-          },
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
+            $.ajax({
+              type: method,
+              url: action,
+              cors: true,
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  result = successCallback(resultData);
+                  if (!result) {
+                    form.show();
+                    doneBlock.hide();
+                    failBlock.show();
+                    console.log(e);
+                    return;
+                  }
+                }
+                form.show();
+                doneBlock.show();
+                failBlock.hide();
+                window.setTimeout(function () {
+                  document.location =
+                    "https://" +
+                    DomainName +
+                    "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID
+                }, 3000);
+              },
+              error: function (e) {
+                if (typeof errorCallback === "function") {
+                  errorCallback(e);
+                }
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
                 console.log(e);
-                return;
-              }
-            }
-            form.show();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              document.location =
-                "https://" +
-                DomainName +
-                "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID
-            }, 3000);
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            console.log(e);
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
-  makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#w-form-done4", container);
-        var failBlock = $("#w-form-fail4", container);
-        var action = InvokeURL + "shops/" + shopKey;
-        var PcMarketId = parseInt($("#NewPcmMarketShopId").val());
-        var data = [
-          {
-            op: "add",
-            path: "/name",
-            value: $("#NewShopName").val(),
-          },
-          {
-            op: "add",
-            path: "/key",
-            value: $("#NewShopKey").val(),
-          },
-          {
-            op: "add",
-            path: "/pcmarketShopId",
-            value: PcMarketId,
-          },
-          {
-            op: "add",
-            path: "/address/country",
-            value: $("#NewShopCountry").val(),
-          },
-          {
-            op: "add",
-            path: "/address/line1",
-            value: $("#NewShopLine").val(),
-          },
-          {
-            op: "add",
-            path: "/address/town",
-            value: $("#NewShopTown").val(),
-          },
-          {
-            op: "add",
-            path: "/address/state",
-            value: $("#NewShopState").val(),
-          },
-          {
-            op: "add",
-            path: "/address/postcode",
-            value: $("#NewShopPostCode").val(),
-          },
-        ];
-        if (isNaN(PcMarketId)) {
-          data = [
-            {
-              op: "add",
-              path: "/name",
-              value: $("#NewShopName").val(),
-            },
-            {
-              op: "add",
-              path: "/key",
-              value: $("#NewShopKey").val(),
-            },
-            {
-              op: "add",
-              path: "/address/country",
-              value: $("#NewShopCountry").val(),
-            },
-            {
-              op: "add",
-              path: "/address/line1",
-              value: $("#NewShopLine").val(),
-            },
-            {
-              op: "add",
-              path: "/address/town",
-              value: $("#NewShopTown").val(),
-            },
-            {
-              op: "add",
-              path: "/address/state",
-              value: $("#NewShopState").val(),
-            },
-            {
-              op: "add",
-              path: "/address/postcode",
-              value: $("#NewShopPostCode").val(),
-            },
-          ];
-        }
-        var method = "PATCH";
-
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                console.log(e);
-                return;
-              }
-            }
-            form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            failBlock.hide();
-            $("#UsernameEdit").val("");
-            $("#PasswordEdit").val("");
-            window.setTimeout(function () {
-              location.reload();
-            }, 3500);
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            console.log(e);
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
-
-  makeWebflowFormAjaxRefreshOffer = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
-        var failBlock = $("#wf-form-RefreshOfferFormfail", container);
-        var action = InvokeURL + "shops/" + shopKey + "/offers";
-        var method = "POST";
-        var data = "";
-
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                return;
-              }
-            }
-            form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 3500);
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            var MessageText = document.getElementById("WarningMessageMain");
-            if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
-            } else if (jqXHR.status === 403) {
-              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-            } else if (jqXHR.status === 500) {
-              msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-              msg = "Time out error.";
-            } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
-            } else {
-              msg = "" + jqXHR.responseText;
-            }
-            MessageText.textContent = msg;
-            $("#WarningMessageContainer").fadeOut(3000);
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
-
-
-  function FileUpload() {
-    $("#waitingdots").show();
-    const xhr = new XMLHttpRequest();
-    var myUploadedFile = document.getElementById("orderfile").files[0];
-    var action = InvokeURL + "shops/" + shopKey + "/orders";
-    xhr.open("POST", action);
-    xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Content-Type", "application/octet-stream");
-    xhr.setRequestHeader("Authorization", orgToken);
-    xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
-
-    xhr.onreadystatechange = function () {
-      $("#waitingdots").hide();
-      if (xhr.readyState === 4) {
-        var response = JSON.parse(xhr.responseText);
-        if (xhr.status === 201) {
-          document.getElementById("wf-form-doneCreate-Order").style.display =
-            "block";
-
-          var action =
-            InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-          var method = "PATCH";
-          var data = [
-            {
-              op: "add",
-              path: "/name",
-              value: $("#OrderName").val(),
-            },
-          ];
-
-          $.ajax({
-            type: method,
-            url: action,
-            cors: true,
-            beforeSend: function () {
-              $("#waitingdots").show();
-            },
-            complete: function () {
-              $("#waitingdots").hide();
-            },
-            contentType: "application/json",
-            dataType: "json",
-            data: JSON.stringify(data),
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: orgToken,
-            },
-            success: function (resultData) {
-              document.getElementById(
-                "wf-form-doneCreate-Order"
-              ).style.display = "block";
-              window.setTimeout(function () {
-                window.location.replace(
-                  "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
-                );
-              }, 100);
-            },
-            error: function (e) {
-              if (typeof errorCallback === "function") {
-                errorCallback(e);
-              }
-              console.log(e);
-            },
+              },
+            });
+            event.preventDefault();
+            return false;
           });
-        } else {
-          document.getElementById("wf-form-failCreate-Order").style.display =
-            "block";
-          console.log("failed");
-        }
+        });
+      };
+      makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+        forms.each(function () {
+          var form = $(this);
+          form.on("submit", function (event) {
+            var container = form.parent();
+            var doneBlock = $("#w-form-done4", container);
+            var failBlock = $("#w-form-fail4", container);
+            var action = InvokeURL + "shops/" + shopKey;
+            var PcMarketId = parseInt($("#NewPcmMarketShopId").val());
+            var data = [
+              {
+                op: "add",
+                path: "/name",
+                value: $("#NewShopName").val(),
+              },
+              {
+                op: "add",
+                path: "/key",
+                value: $("#NewShopKey").val(),
+              },
+              {
+                op: "add",
+                path: "/pcmarketShopId",
+                value: PcMarketId,
+              },
+              {
+                op: "add",
+                path: "/address/country",
+                value: $("#NewShopCountry").val(),
+              },
+              {
+                op: "add",
+                path: "/address/line1",
+                value: $("#NewShopLine").val(),
+              },
+              {
+                op: "add",
+                path: "/address/town",
+                value: $("#NewShopTown").val(),
+              },
+              {
+                op: "add",
+                path: "/address/state",
+                value: $("#NewShopState").val(),
+              },
+              {
+                op: "add",
+                path: "/address/postcode",
+                value: $("#NewShopPostCode").val(),
+              },
+            ];
+            if (isNaN(PcMarketId)) {
+              data = [
+                {
+                  op: "add",
+                  path: "/name",
+                  value: $("#NewShopName").val(),
+                },
+                {
+                  op: "add",
+                  path: "/key",
+                  value: $("#NewShopKey").val(),
+                },
+                {
+                  op: "add",
+                  path: "/address/country",
+                  value: $("#NewShopCountry").val(),
+                },
+                {
+                  op: "add",
+                  path: "/address/line1",
+                  value: $("#NewShopLine").val(),
+                },
+                {
+                  op: "add",
+                  path: "/address/town",
+                  value: $("#NewShopTown").val(),
+                },
+                {
+                  op: "add",
+                  path: "/address/state",
+                  value: $("#NewShopState").val(),
+                },
+                {
+                  op: "add",
+                  path: "/address/postcode",
+                  value: $("#NewShopPostCode").val(),
+                },
+              ];
+            }
+            var method = "PATCH";
+
+            $.ajax({
+              type: method,
+              url: action,
+              cors: true,
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              data: JSON.stringify(data),
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  result = successCallback(resultData);
+                  if (!result) {
+                    form.show();
+                    doneBlock.hide();
+                    failBlock.show();
+                    console.log(e);
+                    return;
+                  }
+                }
+                form.show();
+                doneBlock.show();
+                doneBlock.fadeOut(3000);
+                failBlock.hide();
+                $("#UsernameEdit").val("");
+                $("#PasswordEdit").val("");
+                window.setTimeout(function () {
+                  location.reload();
+                }, 3500);
+              },
+              error: function (e) {
+                if (typeof errorCallback === "function") {
+                  errorCallback(e);
+                }
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+              },
+            });
+            event.preventDefault();
+            return false;
+          });
+        });
+      };
+
+      makeWebflowFormAjaxRefreshOffer = function (
+        forms,
+        successCallback,
+        errorCallback
+      ) {
+        forms.each(function () {
+          var form = $(this);
+          form.on("submit", function (event) {
+            var container = form.parent();
+            var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
+            var failBlock = $("#wf-form-RefreshOfferFormfail", container);
+            var action = InvokeURL + "shops/" + shopKey + "/offers";
+            var method = "POST";
+            var data = "";
+
+            $.ajax({
+              type: method,
+              url: action,
+              cors: true,
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              data: JSON.stringify(data),
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  result = successCallback(resultData);
+                  if (!result) {
+                    form.show();
+                    doneBlock.hide();
+                    failBlock.show();
+                    return;
+                  }
+                }
+                form.show();
+                doneBlock.show();
+                doneBlock.fadeOut(3000);
+                failBlock.hide();
+                window.setTimeout(function () {
+                  location.reload();
+                }, 3500);
+              },
+              error: function (jqXHR, exception) {
+                console.log(jqXHR);
+                console.log(exception);
+                var msg = "";
+                var MessageText = document.getElementById("WarningMessageMain");
+                if (jqXHR.status === 0) {
+                  msg = "Not connect.\n Verify Network.";
+                } else if (jqXHR.status === 403) {
+                  msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+                } else if (jqXHR.status === 500) {
+                  msg = "Internal Server Error [500].";
+                } else if (exception === "parsererror") {
+                  msg = "Requested JSON parse failed.";
+                } else if (exception === "timeout") {
+                  msg = "Time out error.";
+                } else if (exception === "abort") {
+                  msg = "Ajax request aborted.";
+                } else {
+                  msg = "" + jqXHR.responseText;
+                }
+                MessageText.textContent = msg;
+                $("#WarningMessageContainer").fadeOut(3000);
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+              },
+            });
+            event.preventDefault();
+            return false;
+          });
+        });
+      };
+
+
+      function FileUpload() {
+        $("#waitingdots").show();
+        const xhr = new XMLHttpRequest();
+        var myUploadedFile = document.getElementById("orderfile").files[0];
+        var action = InvokeURL + "shops/" + shopKey + "/orders";
+        xhr.open("POST", action);
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.setRequestHeader("Authorization", orgToken);
+        xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
+
+        xhr.onreadystatechange = function () {
+          $("#waitingdots").hide();
+          if (xhr.readyState === 4) {
+            var response = JSON.parse(xhr.responseText);
+            if (xhr.status === 201) {
+              document.getElementById("wf-form-doneCreate-Order").style.display =
+                "block";
+
+              var action =
+                InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+              var method = "PATCH";
+              var data = [
+                {
+                  op: "add",
+                  path: "/name",
+                  value: $("#OrderName").val(),
+                },
+              ];
+
+              $.ajax({
+                type: method,
+                url: action,
+                cors: true,
+                beforeSend: function () {
+                  $("#waitingdots").show();
+                },
+                complete: function () {
+                  $("#waitingdots").hide();
+                },
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                  Authorization: orgToken,
+                },
+                success: function (resultData) {
+                  document.getElementById(
+                    "wf-form-doneCreate-Order"
+                  ).style.display = "block";
+                  window.setTimeout(function () {
+                    window.location.replace(
+                      "https://" +
+                      DomainName +
+                      "/app/orders/order?orderId=" +
+                      response.orderId +
+                      "&shopKey=" +
+                      shopKey
+                    );
+                  }, 100);
+                },
+                error: function (e) {
+                  if (typeof errorCallback === "function") {
+                    errorCallback(e);
+                  }
+                  console.log(e);
+                },
+              });
+            } else {
+              document.getElementById("wf-form-failCreate-Order").style.display =
+                "block";
+              console.log("failed");
+            }
+          }
+        };
+        xhr.send(myUploadedFile);
       }
-    };
-    xhr.send(myUploadedFile);
-  }
 
-  UploadButton.addEventListener("click", (event) => {
-    FileUpload();
-  });
+      UploadButton.addEventListener("click", (event) => {
+        FileUpload();
+      });
 
-  makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+      makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
+      makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+      makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
-  getShop();
-  getOrders();
-  getOffers();
-  getPriceLists();
-  getWholesalers();
-  getPCShopsId();
+      getShop();
+      getOrders();
+      getOffers();
+      getPriceLists();
+      getWholesalers();
+      getPCShopsId();
 
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      console.log("Adjusting");
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-    }, 300);
-  });
-});
+      $('div[role="tablist"]').click(function () {
+        setTimeout(function () {
+          console.log("Adjusting");
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
+        }, 300);
+      });
+    });

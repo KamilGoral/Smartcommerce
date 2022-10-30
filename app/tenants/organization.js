@@ -401,7 +401,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "connections.retroactive",
               width: "108px",
               visible: true,
@@ -440,7 +440,7 @@ docReady(function () {
               },
             },
             {
-              orderable: true,
+              orderable: false,
               data: "wholesalerKey",
               render: function (data) {
                 if (data !== null) {
