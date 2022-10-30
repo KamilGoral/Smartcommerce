@@ -940,12 +940,12 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e636ea2af5f4ac88239cb_lew_icon.svg' alt='Tak'></img></div>"
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg' alt='Tak'></img></div>";
               } else {
-                return '<spann class="negative">Nie</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return '<spann class="noneexisting">-</spann>';
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
             }
           },
         },
@@ -955,12 +955,12 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return '<spann class="positive">Aktywny</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg' alt='Tak'></img></div>";
               } else {
-                return '<spann class="medium">Dostępny</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return '<spann class="noneexisting">-</spann>';
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
             }
           },
         },
@@ -970,12 +970,12 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return '<spann class="positive">Aktywny</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg' alt='Tak'></img></div>";
               } else {
-                return '<spann class="medium">Dostępny</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return '<spann class="noneexisting">-</spann>';
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
             }
           },
         },
@@ -985,12 +985,12 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.enabled) {
-                return '<spann class="positive">Aktywny</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg' alt='Tak'></img></div>";
               } else {
-                return '<spann class="medium">Dostępny</spann>';
+                return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61adc96c69b1b233f5234bc8_add.svg' alt='Dodaj'></img></div>";
               }
             } else {
-              return '<spann class="noneexisting">-</spann>';
+              return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/635e673470620b3faed453ef_cross.svg' alt='Nie'></img></div>";
             }
           },
         },
