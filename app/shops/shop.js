@@ -805,6 +805,7 @@ docReady(function () {
     });
   }
   function getWholesalers() {
+    console.log("here")
     let url = new URL(InvokeURL + "shops/" + shopKey + "/wholesalers");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1375,11 +1376,11 @@ docReady(function () {
   makeWebflowFormAjax($("#wf-form-EditShopInformation"));
   makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
+  getWholesalers();
   getShop();
   getOrders();
   getOffers();
   getPriceLists();
-  getWholesalers();
   getPCShopsId();
 
   $('div[role="tablist"]').click(function () {
