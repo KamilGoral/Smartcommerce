@@ -138,7 +138,8 @@ docReady(function () {
         firstMessage;
         onlineOfferSupportFlow();
       } else {
-        LastStatusMessage.textContent = "Wpisz login i hasło do e-hurtowni aby utworzyć połączenie";
+        $("#login-credentials-container").hide()
+        $("#LastStatusMessage").text("Dostępne formy integracji - WMS, FTPS");
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
