@@ -1147,7 +1147,19 @@ docReady(function () {
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
-      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-    }, 400);
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
+  });
+  $("#table_wholesalers_list").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_pricelists_list").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
   });
 });
