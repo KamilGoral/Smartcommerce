@@ -85,10 +85,8 @@ docReady(function () {
     request2.setRequestHeader("Authorization", orgToken);
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
-      console.log(data2);
       if (request2.status >= 200 && request2.status < 400) {
-        $("#logistic-minimum-container").removeClass("hide")
-        $("#delete-wholesalers-container").removeClass("hide")
+        
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
         if (data2.lastDownload !== null) {
@@ -151,6 +149,8 @@ docReady(function () {
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
       }
+      $("#logistic-minimum-container").removeClass("hide")
+      $("#delete-wholesalers-container").removeClass("hide")
     };
     request2.send();
 
