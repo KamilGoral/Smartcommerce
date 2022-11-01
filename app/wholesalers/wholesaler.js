@@ -39,11 +39,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -74,11 +74,11 @@ docReady(function () {
 
     let url2 = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -87,6 +87,8 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       console.log(data2);
       if (request2.status >= 200 && request2.status < 400) {
+        $("#logistic-minimum-container").show()
+        $("#delete-wholesalers-container").show()
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
         if (data2.lastDownload !== null) {
@@ -201,11 +203,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/profiles"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -249,11 +251,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/status-history?sort=createDate:asc&perPage=30"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -438,11 +440,11 @@ docReady(function () {
 
               let url = new URL(
                 InvokeURL +
-                  "shops/" +
-                  shopKey +
-                  "/wholesalers/" +
-                  wholesalerKey +
-                  "/online-offer/profiles"
+                "shops/" +
+                shopKey +
+                "/wholesalers/" +
+                wholesalerKey +
+                "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
