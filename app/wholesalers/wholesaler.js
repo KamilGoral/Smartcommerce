@@ -86,7 +86,8 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
-        
+        $("#logistic-minimum-container").removeClass("hide");
+        $("#delete-wholesalers-container").removeClass("hide");
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
         if (data2.lastDownload !== null) {
@@ -138,7 +139,9 @@ docReady(function () {
         firstMessage;
         onlineOfferSupportFlow();
       } else {
-        $("#login-credentials-container").hide()
+        $("#logistic-minimum-container").removeClass("hide");
+        $("#delete-wholesalers-container").removeClass("hide");
+        $("#login-credentials-container").hide();
         $("#LastStatusMessage").text("Dostępne formy integracji - WMS, FTPS");
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
@@ -149,8 +152,7 @@ docReady(function () {
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
       }
-      $("#logistic-minimum-container").removeClass("hide")
-      $("#delete-wholesalers-container").removeClass("hide")
+
     };
     request2.send();
 
