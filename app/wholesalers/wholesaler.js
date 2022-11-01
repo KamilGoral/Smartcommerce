@@ -87,8 +87,8 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       console.log(data2);
       if (request2.status >= 200 && request2.status < 400) {
-        $("#logistic-minimum-container").show()
-        $("#delete-wholesalers-container").show()
+        $("#logistic-minimum-container").removeClass("hide")
+        $("#delete-wholesalers-container").removeClass("hide")
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
         if (data2.lastDownload !== null) {
