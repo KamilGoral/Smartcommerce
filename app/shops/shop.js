@@ -1383,4 +1383,16 @@ docReady(function () {
         .columns.adjust();
     }, 300);
   });
+  $("#table_pricelists_list").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_wholesalers").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_orders").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_offers").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
 });

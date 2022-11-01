@@ -344,7 +344,7 @@ docReady(function () {
             {
               op: "add",
               path: "/credentials/username",
-              value: $("#UsernameEdit").val(),
+              value: $("#UsernameEdit").val().trim(),
             },
             {
               op: "add",
@@ -366,7 +366,7 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val(),
+                value: $("#UsernameEdit").val().trim(),
               },
               {
                 op: "add",
@@ -388,7 +388,7 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val(),
+                value: $("#UsernameEdit").val().trim(),
               },
               {
                 op: "add",
