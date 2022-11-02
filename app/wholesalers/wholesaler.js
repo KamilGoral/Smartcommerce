@@ -141,7 +141,6 @@ docReady(function () {
       } else {
         $("#logistic-minimum-container").removeClass("hide");
         $("#delete-wholesalers-container").removeClass("hide");
-        $("#login-credentials-container").hide();
         $("#LastStatusMessage").text("Dostępne formy integracji - WMS, FTPS");
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
@@ -229,7 +228,7 @@ docReady(function () {
         toParse.forEach((profile) => {
           var optProfile = document.createElement("option");
           optProfile.value = profile.id;
-          optProfile.name = profile.name;
+          optProfile.name = profile.id;
           optProfile.innerHTML = profile.name;
           wholesalerProfileContainer.appendChild(optProfile);
         });
