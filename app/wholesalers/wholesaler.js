@@ -471,6 +471,17 @@ docReady(function () {
                     optProfile.innerHTML = profile.name;
                     wholesalerProfileContainer.appendChild(optProfile);
                   });
+                } else if (
+                  request.status >= 200 &&
+                  request.status < 400 &&
+                  data.total === 0
+                ) {
+                  LastStatusMessage.textContent =
+                    "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj.";
+                  $(".successmessagetext").text("Pomyślnie dodano dostawcę");
+                  window.setTimeout(function () {
+                    location.reload();
+                  }, 2000);
                 } else if (request.status == 401) {
                   console.log("Unauthorized");
                 } else {
