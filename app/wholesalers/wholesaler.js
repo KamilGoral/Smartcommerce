@@ -229,6 +229,7 @@ docReady(function () {
         toParse.forEach((profile) => {
           var optProfile = document.createElement("option");
           optProfile.value = profile.id;
+          optProfile.name = profile.name;
           optProfile.innerHTML = profile.name;
           wholesalerProfileContainer.appendChild(optProfile);
         });
