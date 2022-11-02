@@ -141,7 +141,6 @@ docReady(function () {
       } else {
         $("#logistic-minimum-container").removeClass("hide");
         $("#delete-wholesalers-container").removeClass("hide");
-        $("#LastStatusMessage").text("Dostępne formy integracji - WMS, FTPS");
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
