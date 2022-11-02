@@ -183,7 +183,7 @@ docReady(function () {
 
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
-          $("#login-credentials-container").hide();
+          $("#login-credentials-container").show();
         } else {
           $("#loginButton").hide();
         }
