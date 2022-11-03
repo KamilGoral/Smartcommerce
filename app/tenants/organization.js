@@ -43,11 +43,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey) {
@@ -211,10 +211,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-            DomainName +
-            "/app/shops/shop" +
-            "?shopKey=" +
-            shop.shopKey
+              DomainName +
+              "/app/shops/shop" +
+              "?shopKey=" +
+              shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -522,9 +522,9 @@ docReady(function () {
             row.setAttribute(
               "href",
               "https://" +
-              DomainName +
-              "/app/integrations/integration?integrationKey=" +
-              integration.integrationKey
+                DomainName +
+                "/app/integrations/integration?integrationKey=" +
+                integration.integrationKey
             );
           }
 
@@ -1057,9 +1057,9 @@ docReady(function () {
     var rowData = table.row(this).data();
     window.location.replace(
       "https://" +
-      DomainName +
-      "/app/pricelists/pricelist?priceListId=" +
-      rowData.priceListId
+        DomainName +
+        "/app/pricelists/pricelist?priceListId=" +
+        rowData.priceListId
     );
   });
 
@@ -1132,12 +1132,36 @@ docReady(function () {
     });
   };
 
+  function LoadTippy() {
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
+  }
+
   LogoutNonUser();
   getUserRole();
   getShops();
   getUsers();
   getIntegrations();
   getWholesalers();
+  LoadTippy();
 
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
