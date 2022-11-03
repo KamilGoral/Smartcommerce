@@ -848,7 +848,7 @@ docReady(function () {
   var table = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
     order: [],
-    dom: '<"top">rt<"bottom"lip>',
+    dom: '<"top">frt<"bottom"lip>',
     scrollY: "60vh",
     scrollCollapse: true,
     pageLength: 10,
@@ -1001,6 +1001,7 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var endDate = "";
+            var nowDate = new Date().toISOString();
             var offset = new Date().getTimezoneOffset();
             var localeTime = new Date(
               Date.parse(data) - offset * 60 * 1000
@@ -1009,7 +1010,11 @@ docReady(function () {
             var creationTime = creationDate[1].split("Z");
             endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
 
-            return endDate;
+            if (data > nowDate) {
+              return '<spann class="positive">' + endDate + "</spann>";
+            } else {
+              return '<spann class="medium">' + endDate + "</spann>";
+            }
           }
           if (data === null) {
             return "";
