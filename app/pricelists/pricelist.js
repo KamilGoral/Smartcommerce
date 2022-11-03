@@ -36,9 +36,7 @@ docReady(function () {
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const priceListIdBread = document.getElementById("priceListIdBread");
   priceListIdBread.setAttribute("href", window.location.href);
-  priceListIdBread.textContent = priceListId;
   const priceListIdBreadBig = document.getElementById("priceListIdBreadBig");
-  priceListIdBreadBig.textContent = "Szczegóły cennika - " + priceListId;
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
     "href",
@@ -49,26 +47,6 @@ docReady(function () {
       "&clientId=" +
       ClientID
   );
-  const ShopBread = document.getElementById("ShopKeyBread");
-
-  if (shopKey) {
-    ShopBread.textContent = shopKey;
-    ShopBread.setAttribute(
-      "href",
-      "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
-    );
-  } else {
-    ShopBread.textContent = "Cennik";
-    ShopBread.setAttribute(
-      "href",
-      "https://" +
-        DomainName +
-        "/app/tenants/organization?name=" +
-        OrganizationName +
-        "&clientId=" +
-        ClientID
-    );
-  }
 
   function getShops() {
     let url = new URL(InvokeURL + "shops");
