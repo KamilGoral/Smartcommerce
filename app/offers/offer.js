@@ -828,13 +828,13 @@ docReady(function () {
         orderable: false,
         class: "details-control",
         data: null,
-        width: "8px",
+        width: "16px",
         defaultContent: "",
       },
       {
         orderable: false,
         class: "details-control2",
-        width: "8px",
+        width: "16px",
         data: null,
         defaultContent:
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
