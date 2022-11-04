@@ -1045,6 +1045,7 @@ docReady(function () {
               animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
               duration: 250, // Duration of the Animation
               arrow: true, // Add arrow to the tooltip
+              allowHTML: true, // Add HTML content
               arrowType: "round", // Sharp, round or empty for none
               delay: [0, 50], // Trigger delay in & out
               maxWidth: 240, // Optional, max width settings
@@ -1126,7 +1127,7 @@ docReady(function () {
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
           console.log("Adjusting");
 
-          if (++x === 2) {
+          if (++x === 1) {
             window.clearInterval(intervalID);
           }
         }, 1000);
