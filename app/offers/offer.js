@@ -1116,7 +1116,7 @@ docReady(function () {
         console.log("Table initialisation complete: " + new Date().getTime());
         var x = 0;
         var intervalID = setInterval(function () {
-          // Your logic here
+          // For some reason we have to fire this function multiple times in order to work...
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
           console.log("Adjusting");
 
