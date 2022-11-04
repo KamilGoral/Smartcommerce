@@ -1099,13 +1099,13 @@ docReady(function () {
       } else {
         $("#positivestatus").css("display", "flex");
       }
+      LoadTippy();
     };
     request.send();
   }
 
   getOfferStatus();
   getWholesalersSh();
-  LoadTippy();
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
