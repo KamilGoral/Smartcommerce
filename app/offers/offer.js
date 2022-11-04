@@ -1009,10 +1009,6 @@ docReady(function () {
     },
   });
 
-  setTimeout(function () {
-    table.columns.adjust();
-  }, 500);
-
   $("#table_id tbody").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
     var row = table.row(tr);
@@ -1113,13 +1109,11 @@ docReady(function () {
   getOfferStatus();
   getWholesalersSh();
 
-  $(document).ready(function ($) {
+  $(document).load(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $("#table_id_length").on("show", function (e) {
-      $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-    });
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
     LoadTippy();
   });
 });
