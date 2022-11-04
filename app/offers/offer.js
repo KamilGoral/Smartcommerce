@@ -1114,7 +1114,16 @@ docReady(function () {
     $("#table_id")
       .on("init.dt", function () {
         console.log("Table initialisation complete: " + new Date().getTime());
-        $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+
+        var numberOfTimes = 5;
+        delay = 1000;
+
+        for (let i = 0; i < numberOfTimes; i++) {
+          setTimeout(
+            $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw(),
+            delay * i
+          );
+        }
       })
       .dataTable();
   });
