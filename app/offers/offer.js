@@ -1008,6 +1008,11 @@ docReady(function () {
       });
     },
   });
+
+  setTimeout(function () {
+    table.columns.adjust();
+  }, 500);
+
   $("#table_id tbody").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
     var row = table.row(tr);
@@ -1106,15 +1111,12 @@ docReady(function () {
   }
 
   getOfferStatus();
-  $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
   getWholesalersSh();
-  $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     LoadTippy();
   });
 });
