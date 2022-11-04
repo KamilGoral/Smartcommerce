@@ -1113,9 +1113,8 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-  });
-
-  $("#table_id").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+    $("#table_id").on("show", function (e) {
+      $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+    });
   });
 });
