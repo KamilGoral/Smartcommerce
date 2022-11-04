@@ -1114,17 +1114,16 @@ docReady(function () {
     $("#table_id")
       .on("init.dt", function () {
         console.log("Table initialisation complete: " + new Date().getTime());
+        var x = 0;
+        var intervalID = setInterval(function () {
+          // Your logic here
+          $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+          console.log("Adjusting");
 
-        var numberOfTimes = 5;
-        delay = 1000;
-
-        for (let i = 0; i < numberOfTimes; i++) {
-          console.log(i);
-          setTimeout(
-            $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw(),
-            delay * i
-          );
-        }
+          if (++x === 5) {
+            window.clearInterval(intervalID);
+          }
+        }, 1000);
       })
       .dataTable();
   });
