@@ -643,6 +643,8 @@ docReady(function () {
     );
   }
 
+  console.log("Table initialisation start: " + new Date().getTime());
+
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
     order: [],
@@ -1045,7 +1047,6 @@ docReady(function () {
         );
       }
     );
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
   }
 
   function getWholesalersSh() {
@@ -1109,7 +1110,12 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
     LoadTippy();
+    $("#table_id")
+      .on("init.dt", function () {
+        console.log("Table initialisation complete: " + new Date().getTime());
+        $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+      })
+      .dataTable();
   });
 });
