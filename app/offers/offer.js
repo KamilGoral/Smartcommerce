@@ -802,6 +802,12 @@ docReady(function () {
         headers: {
           Authorization: orgToken,
         },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
       });
       $.get(
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
