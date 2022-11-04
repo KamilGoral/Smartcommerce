@@ -185,7 +185,7 @@ docReady(function () {
         shopKey +
         "/products/" +
         rowData.gtin +
-        "/history?perPage=365&page=1"
+        "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
