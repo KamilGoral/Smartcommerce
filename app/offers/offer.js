@@ -1119,6 +1119,7 @@ docReady(function () {
         delay = 1000;
 
         for (let i = 0; i < numberOfTimes; i++) {
+          console.log(i);
           setTimeout(
             $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw(),
             delay * i
