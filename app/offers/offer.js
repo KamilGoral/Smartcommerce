@@ -1105,12 +1105,12 @@ docReady(function () {
 
   getOfferStatus();
   getWholesalersSh();
+  LoadTippy();
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    LoadTippy();
     $("#table_id")
       .on("init.dt", function () {
         console.log("Table initialisation complete: " + new Date().getTime());
