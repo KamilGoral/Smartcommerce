@@ -1027,12 +1027,6 @@ docReady(function () {
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
-  $(document).ready(function ($) {
-    $("tableSelector").DataTable({
-      dom: '<"pull-left"f><"pull-right"l>tip',
-    });
-    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-  });
 
   function LoadTippy() {
     $.getScript(
@@ -1114,9 +1108,11 @@ docReady(function () {
   getOfferStatus();
   getWholesalersSh();
   LoadTippy();
-});
 
-setTimeout(function () {
-  $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-}, 4000);
+  $(document).ready(function ($) {
+    $("tableSelector").DataTable({
+      dom: '<"pull-left"f><"pull-right"l>tip',
+    });
+    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+  });
+});
