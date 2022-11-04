@@ -1126,7 +1126,7 @@ docReady(function () {
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
           console.log("Adjusting");
 
-          if (++x === 5) {
+          if (++x === 2) {
             window.clearInterval(intervalID);
           }
         }, 1000);
