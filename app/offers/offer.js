@@ -800,12 +800,6 @@ docReady(function () {
         headers: {
           Authorization: orgToken,
         },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
       });
       $.get(
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
@@ -818,7 +812,7 @@ docReady(function () {
         }
       );
     },
-    processing: true,
+    processing: false,
     serverSide: true,
     search: {
       return: true,
@@ -995,7 +989,6 @@ docReady(function () {
       },
     ],
     initComplete: function (settings, json) {
-      table.columns.adjust;
       var api = this.api();
       var textBox = $("#table_id_filter label input");
       $(".filterinput").on("change", function () {
@@ -1007,6 +1000,7 @@ docReady(function () {
           api.search(this.value).draw();
         }
       });
+      $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
     },
   });
 
@@ -1051,6 +1045,7 @@ docReady(function () {
         );
       }
     );
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
   }
 
   function getWholesalersSh() {
@@ -1114,8 +1109,7 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    table.columns.adjust().draw();
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
     LoadTippy();
-    table.columns.adjust().draw();
   });
 });
