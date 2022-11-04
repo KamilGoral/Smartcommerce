@@ -1106,7 +1106,9 @@ docReady(function () {
   }
 
   getOfferStatus();
+  $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
   getWholesalersSh();
+  $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
