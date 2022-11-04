@@ -995,6 +995,7 @@ docReady(function () {
       },
     ],
     initComplete: function (settings, json) {
+      table.columns.adjust;
       var api = this.api();
       var textBox = $("#table_id_filter label input");
       $(".filterinput").on("change", function () {
@@ -1113,7 +1114,8 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+    table.columns.adjust().draw();
     LoadTippy();
+    table.columns.adjust().draw();
   });
 });
