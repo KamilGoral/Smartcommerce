@@ -828,13 +828,13 @@ docReady(function () {
         orderable: false,
         class: "details-control",
         data: null,
-        width: "16px",
+        width: "20px",
         defaultContent: "",
       },
       {
         orderable: false,
         class: "details-control2",
-        width: "16px",
+        width: "20px",
         data: null,
         defaultContent:
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
@@ -1112,9 +1112,7 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $("#table_id").on("show", function (e) {
-      $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-    });
+    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     LoadTippy();
   });
 });
