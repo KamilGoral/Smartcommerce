@@ -1107,7 +1107,6 @@ docReady(function () {
 
   getOfferStatus();
   getWholesalersSh();
-  LoadTippy();
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
@@ -1116,5 +1115,6 @@ docReady(function () {
     $("#table_id").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
     });
+    LoadTippy();
   });
 });
