@@ -1034,6 +1034,29 @@ docReady(function () {
     $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
   });
 
+  function LoadTippy() {
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
+  }
+
   function getWholesalersSh() {
     let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
     let request = new XMLHttpRequest();
@@ -1063,7 +1086,34 @@ docReady(function () {
     request.send();
   }
 
+  function getOfferStatus() {
+    let url = new URL(
+      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
+    );
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      if (
+        request.status >= 200 &&
+        request.status < 400 &&
+        data.status === "incomplete"
+      ) {
+        $("#warningstatus").css("display", "flex");
+        $("#warningstatus").attr("data-tippy-content", data.messages);
+      } else if (request.status == 401) {
+        console.log("Unauthorized");
+      } else {
+        $("#positivestatus").css("display", "flex");
+      }
+    };
+    request.send();
+  }
+
+  getOfferStatus();
   getWholesalersSh();
+  LoadTippy();
 });
 
 setTimeout(function () {
