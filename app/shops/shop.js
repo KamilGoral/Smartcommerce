@@ -1301,9 +1301,6 @@ docReady(function () {
       $("#waitingdots").hide();
       if (xhr.readyState === 4) {
         var response = JSON.parse(xhr.responseText);
-        document.getElementById("wf-form-doneCreate-Order").style.display =
-          "block";
-
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
         var method = "PATCH";
