@@ -204,23 +204,23 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "logisticMinimum",
-              render: function (data) {
-                if (data === null ) {
-                  return "-";
-                } else {
-                  return data;
-                }
-              },
-            },
-            {
-              orderable: true,
               data: "wholesalerKey",
               render: function (data) {
                 if (data === "unassigned") {
                   return "NIEPRZYDZIELONE";
                 } else {
                   return data.toUpperCase();
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "logisticMinimum",
+              render: function (data) {
+                if (data === null ) {
+                  return "-";
+                } else {
+                  return data;
                 }
               },
             },
