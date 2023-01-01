@@ -1371,7 +1371,6 @@ docReady(function () {
       else {
          var jqXHR = xhr ;
           console.log(jqXHR);
-          console.log(exception);
           var msg = "";
           if (jqXHR.status === 0) {
             msg = "Not connect.\n Verify Network."; 
