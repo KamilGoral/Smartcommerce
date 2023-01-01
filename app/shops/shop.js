@@ -1288,12 +1288,13 @@ docReady(function () {
     $("#waitingdots").show();
     const xhr = new XMLHttpRequest();
     var formData = new FormData();
-    console.log(formData);
+
     var myUploadedFiles = document.getElementById("orderfile").files;
     for (var i = 0; i < myUploadedFiles.length; i++) {
       formData.append("file", myUploadedFiles[i]);
     }
     formData.append("name", $("#OrderName").val());
+    console.log(formData);
     var action = InvokeURL + "shops/" + shopKey + "/orders";
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
