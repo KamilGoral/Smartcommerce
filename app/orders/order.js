@@ -217,6 +217,8 @@ docReady(function () {
               orderable: true,
               data: null,
               render: function (data) {
+                console.log(data)
+
                 if (data.logisticMinimum === null ) {
                   return "-";
                 } else {
