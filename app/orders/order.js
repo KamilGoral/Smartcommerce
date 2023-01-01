@@ -264,7 +264,7 @@ docReady(function () {
           ],
           rowCallback: function (row, data) {
             console.log(data)
-            if ( data.logisticMinimum ==! null && data.value ==! null && data.logisticMinimum < data.value ) {
+            if ( data.logisticMinimum ==! null && data.value ==! null && data.logisticMinimum > data.value ) {
               $('td', row).css("background-color", "#FFFAE6");
               console.log("here")
             } 
