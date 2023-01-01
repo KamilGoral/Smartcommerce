@@ -1364,6 +1364,7 @@ docReady(function () {
       }
     };
     xhr.send(formData);
+  }
   
 
   UploadButton.addEventListener("click", (event) => {
