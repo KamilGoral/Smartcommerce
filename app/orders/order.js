@@ -263,8 +263,10 @@ docReady(function () {
             },
           ],
           rowCallback: function (row, data) {
+            console.log(data)
             if ( data.logisticMinimum < data.value ) {
               $('td', row).css("background-color", "FFFAE6");
+              console.log("here")
             } 
           },
           initComplete: function (settings, json) {
