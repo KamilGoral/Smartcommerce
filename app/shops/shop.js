@@ -1365,8 +1365,7 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            MessageText.textContent = msg;
-            $(".warningmessagetext").text();
+            $(".warningmessagetext").text(msg);
             $("#wf-form-failCreate-Order").show();
             $("#wf-form-failCreate-Order").fadeOut(3000);
           },
