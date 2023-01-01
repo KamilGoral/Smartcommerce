@@ -262,6 +262,11 @@ docReady(function () {
               },
             },
           ],
+          rowCallback: function (row, data) {
+            if ( data.logisticMinimum < data.value ) {
+              $('td', row).css("background-color", "FFFAE6");
+            } 
+          },
           initComplete: function (settings, json) {
             var api = this.api();
             var textBox = $("#table_splited_wh filter label input");
