@@ -1301,7 +1301,7 @@ docReady(function () {
     xhr.setRequestHeader("Authorization", orgToken);
     xhr.onreadystatechange = function() {
       $("#waitingdots").hide();
-      if (xhr.readyState === 4 && xhr.status === 201 ) {
+      if (xhr.status === 201 ) {
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
