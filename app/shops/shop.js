@@ -1369,26 +1369,18 @@ docReady(function () {
         });
       }
       else {
-        var response = xhr.responseText
-        console.log(xhr)
-        console.log(xhr.response)
-         var jqXHR ="siema";
-          var exception= "siema2";
+         var jqXHR = xhr ;
           console.log(jqXHR);
           console.log(exception);
           var msg = "";
           if (jqXHR.status === 0) {
-            msg = "Not connect.\n Verify Network.";
+            msg = "Not connect.\n Verify Network."; 
+          } else if (jqXHR.status === 400) {
+            msg = xhr.response.message;
           } else if (jqXHR.status === 403) {
             msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
           } else if (jqXHR.status === 500) {
             msg = "Internal Server Error [500].";
-          } else if (exception === "parsererror") {
-            msg = "Requested JSON parse failed.";
-          } else if (exception === "timeout") {
-            msg = "Time out error.";
-          } else if (exception === "abort") {
-            msg = "Ajax request aborted.";
           } else {
             msg = "" + jqXHR.responseText;
           }
