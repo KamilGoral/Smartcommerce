@@ -222,11 +222,11 @@ docReady(function () {
                 if (data.logisticMinimum === null ) {
                   return "-";
                 } else {
-                  var toGo = data.logisticMinimum - data.value
-                  if ( toGo > 0){
-                    return data + " (" + toGo + ")"
+                  var toGo = (data.logisticMinimum - data.value).toFixed(2);
+                  if ( toGo > 0 ) {
+                    return data.logisticMinimum + " (" + toGo + ")"
                   }
-                  return data;
+                  return data.logisticMinimum;
                 }
               },
             },
