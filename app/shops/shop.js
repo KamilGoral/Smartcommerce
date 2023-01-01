@@ -1299,7 +1299,7 @@ docReady(function () {
     xhr.setRequestHeader("Authorization", orgToken);
     xhr.onreadystatechange = function() {
       $("#waitingdots").hide();
-      if (xhr.readyState === 4) {
+      if (xhr.readyState === 4 && xhr.status ==! 400 ) {
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
@@ -1364,9 +1364,35 @@ docReady(function () {
             }
             $(".warningmessagetext").text(msg);
             $("#wf-form-failCreate-Order").show();
-            $("#wf-form-failCreate-Order").fadeOut(3000);
+            $("#wf-form-failCreate-Order").fadeOut(9000);
           },
         });
+      }
+      else {
+        var response = JSON.parse(xhr.responseText);
+         var jqXHR ="siema";
+          var exception= "siema2";
+          console.log(jqXHR);
+          console.log(exception);
+          var msg = "";
+          if (jqXHR.status === 0) {
+            msg = "Not connect.\n Verify Network.";
+          } else if (jqXHR.status === 403) {
+            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+          } else if (jqXHR.status === 500) {
+            msg = "Internal Server Error [500].";
+          } else if (exception === "parsererror") {
+            msg = "Requested JSON parse failed.";
+          } else if (exception === "timeout") {
+            msg = "Time out error.";
+          } else if (exception === "abort") {
+            msg = "Ajax request aborted.";
+          } else {
+            msg = "" + jqXHR.responseText;
+          }
+          $(".warningmessagetext").text(msg);
+          $("#wf-form-failCreate-Order").show();
+          $("#wf-form-failCreate-Order").fadeOut(9000);
       }
     };
     xhr.send(formData);
