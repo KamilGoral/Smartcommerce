@@ -215,7 +215,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "logisticMinimum",
+              data: null,
               render: function (data) {
                 if (data.logisticMinimum === null ) {
                   return "-";
