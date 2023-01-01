@@ -217,9 +217,13 @@ docReady(function () {
               orderable: true,
               data: "logisticMinimum",
               render: function (data) {
-                if (data === null ) {
+                if (data.logisticMinimum === null ) {
                   return "-";
                 } else {
+                  var toGo = data.logisticMinimum - data.value
+                  if ( toGo > 0){
+                    return data + " (" + toGo + ")"
+                  }
                   return data;
                 }
               },
