@@ -1287,14 +1287,16 @@ docReady(function () {
   function FileUpload() {
     $("#waitingdots").show();
     const xhr = new XMLHttpRequest();
-    var myUploadedFile = document.getElementById("orderfile").files[0];
+    var formData = new FormData();
+    var myUploadedFiles = document.getElementById("orderfile").files;
+    for (var i = 0; i < myUploadedFiles.length; i++) {
+      formData.append("file", myUploadedFiles[i]);
+    }
+    formData.append("name", $("#OrderName").val());
     var action = InvokeURL + "shops/" + shopKey + "/orders";
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.setRequestHeader("Authorization", orgToken);
-    xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
-
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
       if (xhr.readyState === 4) {
@@ -1302,7 +1304,7 @@ docReady(function () {
         if (xhr.status === 201) {
           document.getElementById("wf-form-doneCreate-Order").style.display =
             "block";
-
+  
           var action =
             InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
           var method = "PATCH";
@@ -1313,7 +1315,7 @@ docReady(function () {
               value: $("#OrderName").val(),
             },
           ];
-
+  
           $.ajax({
             type: method,
             url: action,
@@ -1361,8 +1363,8 @@ docReady(function () {
         }
       }
     };
-    xhr.send(myUploadedFile);
-  }
+    xhr.send(formData);
+  
 
   UploadButton.addEventListener("click", (event) => {
     FileUpload();
