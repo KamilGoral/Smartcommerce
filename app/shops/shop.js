@@ -1369,7 +1369,9 @@ docReady(function () {
         });
       }
       else {
-        var response = JSON.parse(xhr.responseText);
+        var response = xhr.responseText
+        console.log(xhr)
+        console.log(xhr.response)
          var jqXHR ="siema";
           var exception= "siema2";
           console.log(jqXHR);
