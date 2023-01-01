@@ -1369,25 +1369,26 @@ docReady(function () {
         });
       }
       else {
-         var jqXHR = xhr ;
-          console.log(jqXHR);
+          jsonResponse = JSON.parse(xhr.responseText);
+          console.log(xhr);
           var msg = "";
-          if (jqXHR.status === 0) {
+          if (xhr.status === 0) {
             msg = "Not connect.\n Verify Network."; 
-          } else if (jqXHR.status === 400) {
-            msg = xhr.response.message;
-          } else if (jqXHR.status === 403) {
+          } else if (xhr.status === 400) {
+            msg = jsonResponse.message;
+          } else if (xhr.status === 403) {
             msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-          } else if (jqXHR.status === 500) {
+          } else if (xhr.status === 500) {
             msg = "Internal Server Error [500].";
           } else {
-            msg = "" + jqXHR.responseText;
+            msg = jsonResponse.message;
           }
           $(".warningmessagetext").text(msg);
           $("#wf-form-failCreate-Order").show();
           $("#wf-form-failCreate-Order").fadeOut(9000);
       }
     };
+    console.log("1")
     xhr.send(formData);
   }
 
