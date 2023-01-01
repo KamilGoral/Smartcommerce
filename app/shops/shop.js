@@ -1297,74 +1297,85 @@ docReady(function () {
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
       $("#waitingdots").hide();
       if (xhr.readyState === 4) {
         var response = JSON.parse(xhr.responseText);
-        if (xhr.status === 201) {
-          document.getElementById("wf-form-doneCreate-Order").style.display =
-            "block";
-  
-          var action =
-            InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-          var method = "PATCH";
-          var data = [
-            {
-              op: "add",
-              path: "/name",
-              value: $("#OrderName").val(),
-            },
-          ];
-  
-          $.ajax({
-            type: method,
-            url: action,
-            cors: true,
-            beforeSend: function () {
-              $("#waitingdots").show();
-            },
-            complete: function () {
-              $("#waitingdots").hide();
-            },
-            contentType: "application/json",
-            dataType: "json",
-            data: JSON.stringify(data),
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: orgToken,
-            },
-            success: function (resultData) {
-              document.getElementById(
-                "wf-form-doneCreate-Order"
-              ).style.display = "block";
-              window.setTimeout(function () {
-                window.location.replace(
-                  "https://" +
-                    DomainName +
-                    "/app/orders/order?orderId=" +
-                    response.orderId +
-                    "&shopKey=" +
-                    shopKey
-                );
-              }, 100);
-            },
-            error: function (e) {
-              if (typeof errorCallback === "function") {
-                errorCallback(e);
-              }
-              console.log(e);
-            },
-          });
-        } else {
-          document.getElementById("wf-form-failCreate-Order").style.display =
-            "block";
-          console.log("failed");
-        }
+        document.getElementById("wf-form-doneCreate-Order").style.display =
+          "block";
+
+        var action =
+          InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+        var method = "PATCH";
+        var data = [{
+          op: "add",
+          path: "/name",
+          value: $("#OrderName").val(),
+        }, ];
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function() {
+            $("#waitingdots").show();
+          },
+          complete: function() {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(data),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function(resultData) {
+            document.getElementById(
+              "wf-form-doneCreate-Order"
+            ).style.display = "block";
+            window.setTimeout(function() {
+              window.location.replace(
+                "https://" +
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
+              );
+            }, 100);
+          },
+          error: function(jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status === 403) {
+              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+            } else if (jqXHR.status === 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseText;
+            }
+            MessageText.textContent = msg;
+            $(".warningmessagetext").text();
+            $("#wf-form-failCreate-Order").show();
+            $("#wf-form-failCreate-Order").fadeOut(3000);
+          },
+        });
       }
     };
     xhr.send(formData);
   }
+
   
 
   UploadButton.addEventListener("click", (event) => {
