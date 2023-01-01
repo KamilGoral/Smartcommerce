@@ -1299,7 +1299,7 @@ docReady(function () {
     xhr.setRequestHeader("Authorization", orgToken);
     xhr.onreadystatechange = function() {
       $("#waitingdots").hide();
-      if (xhr.readyState === 4 && xhr.status ==! 400 ) {
+      if (xhr.readyState === 4 && xhr.status === 201 ) {
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
@@ -1309,7 +1309,6 @@ docReady(function () {
           path: "/name",
           value: $("#OrderName").val(),
         }, ];
-
         $.ajax({
           type: method,
           url: action,
@@ -1389,7 +1388,6 @@ docReady(function () {
           $("#wf-form-failCreate-Order").fadeOut(9000);
       }
     };
-    console.log("1")
     xhr.send(formData);
   }
 
