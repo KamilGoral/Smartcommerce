@@ -1385,6 +1385,7 @@ docReady(function () {
           }
           $(".warningmessagetext").text(msg);
           $("#wf-form-failCreate-Order").show();
+          $("#orderfile").val('');
           $("#wf-form-failCreate-Order").fadeOut(9000);
       }
     };
