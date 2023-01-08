@@ -105,7 +105,8 @@ docReady(function() {
     }
     var sklepiki = getIDS()
     console.log(sklepiki);
-    const optionsHTML = sklepiki.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+    var sklepiki2 = ["142","1","2916","381"];
+    const optionsHTML = sklepiki2.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
     const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
     let url = new URL(InvokeURL + "shops");
