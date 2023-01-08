@@ -80,7 +80,7 @@ docReady(function() {
 
   function getShops() {
 
-    var times = {1: 36, 2:66, 3:41}
+    var times = {}
     let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
     let request2 = new XMLHttpRequest();
     request2.open('GET', url2, true);
@@ -89,15 +89,18 @@ docReady(function() {
         var data2 = JSON.parse(this.response);
         var toParse2 = data2.items;
         if (request2.status >= 200 && request2.status < 400) {
-        console.log(toParse2)
+            console.log(toParse2)
+            toParse2.forEach((item, index) => {
+                times[index + 1] = item.id;
+                });
         };
         if (request2.status == 401) {
         console.log("Unauthorized");
         }
         }
     request2.send();
-    
-    console.log(toParse2)
+
+    console.log(times)
     console.log("....")
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
