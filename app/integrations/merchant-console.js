@@ -182,10 +182,8 @@ docReady(function() {
             console.log(row)
             console.log(data)
             console.log($(this))
-            var tdObject = $(this).find('td:eq(3)'); //locate the <td> holding select;
-            var selectObject = tdObject.find("select"); //grab the <select> tag assuming that there will be only single select box within that <td> 
-            console.log(tdObject);
-            console.log(selectObject);
+            var tdObject = $(this).find('select'); //locate the <td> holding select;
+            console.log(select)
 
           }
       });
