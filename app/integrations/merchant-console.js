@@ -179,9 +179,10 @@ docReady(function() {
           }
         ],
         rowCallback: function (row, data) {
-            console.log(row)
-            console.log(data)
-            $("td:eq(3)", row).removeAttr('selected').filter('[value=' + data.merchantConsoleShopId +']').attr('selected', true)
+            console.log(row);
+            console.log(data.merchantConsoleShopId);
+            console.log($("td:eq(3) select", row));
+            $("td:eq(3) select", row).removeAttr('selected').filter('[value=' + data.merchantConsoleShopId +']').attr('selected', true)
           }
       });
     };
