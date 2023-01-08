@@ -99,7 +99,6 @@ docReady(function() {
         }
         }
     request2.send();
-
     console.log(times)
     console.log("....")
     let url = new URL(InvokeURL + "shops");
@@ -108,6 +107,8 @@ docReady(function() {
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function() {
         var data2 = JSON.parse(this.response);
+        console.log("tutaj");
+        console.log(times)
         var tableShops = $("#table_integrated_shops_list").DataTable({
           data: data2.items,
           pagingType: "full_numbers",
@@ -173,8 +174,9 @@ docReady(function() {
               "render": function (data, type, row, meta){
                 var $select = $("<select></select>", {
                 });
+                console.log(times);
+                console.log(data)
                 $.each(times, function (k, v) {
-
                     var $option = $("<option></option>", {
                         "text": v,
                         "value": v
