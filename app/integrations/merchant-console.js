@@ -98,6 +98,7 @@ docReady(function() {
       }
     }
     request2.send();
+    console.log(times);
     const optionsHTML = times.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
     const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
