@@ -80,21 +80,7 @@ docReady(function() {
 
   function getShops() {
 
-
-    async function getData() {
-
-        fetch(InvokeURL + 'integrations/merchant-console/shops', {
-            headers: {Authentication: orgToken}
-            })
-            .then(resp => resp.json())
-            .then(json => console.log(json))
-            }
-            
     console.log("start");
-    getData();
-    console.log("teraz");
-
-
     function getIDS() {
         var times = [""]
         let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
@@ -118,6 +104,8 @@ docReady(function() {
         request2.send();     
     }
     var sklepiki = getIDS()
+    console.log("teraz");
+
     console.log(sklepiki);
     var sklepiki2 = ["142","1","2916","381"];
     const optionsHTML = sklepiki2.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
@@ -298,8 +286,11 @@ docReady(function() {
         });
       });
     };
+    console.log(sklepiki);
     request.send();
+    console.log(sklepiki);
   }
+  console.log(sklepiki);
 
   
 
