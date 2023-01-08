@@ -171,9 +171,10 @@ docReady(function() {
                 stringHTML = "<select>"  
                 times.forEach((item) => {
                     stringHTML = stringHTML+ "<option value='"+item+"'>"+item+"</option"
+                    console.log(stringHTML);
                   });
-                stringHTML = stringHTML + "</select>";
-                console.log(stringHTML);
+                finalString = stringHTML + "</select>";
+                console.log(finalString);
                 return "0"
             }
           }
