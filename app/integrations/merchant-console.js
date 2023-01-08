@@ -101,6 +101,7 @@ docReady(function() {
 
     console.log(times);
     const optionsHTML = times.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+    console.log(optionsHTML)
     const selectHTML = `<select>${optionsHTML}</select>`;
     console.log(selectHTML);
 
