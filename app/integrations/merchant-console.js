@@ -89,8 +89,8 @@ docReady(function() {
       var data2 = JSON.parse(this.response);
       var toParse2 = data2.items;
       if (request2.status >= 200 && request2.status < 400) {
-        toParse2.forEach((item, index) => {
-          times[index + 1] = item.id;
+        toParse2.forEach((item) => {
+          item.id;
         });
       };
       if (request2.status == 401) {
@@ -168,8 +168,6 @@ docReady(function() {
             data: "merchantConsoleShopId",
             "render": function(data) {  
                 console.log(times);
-                arrayObject = Object.values(times);
-                console.log(arrayObject);
                 var string = ""
                 
                 return string
