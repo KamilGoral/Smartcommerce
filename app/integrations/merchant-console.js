@@ -86,7 +86,7 @@ docReady(function() {
       let request2 = new XMLHttpRequest();
       request2.open('GET', url2, true);
       request2.setRequestHeader("Authorization", orgToken);
-      request2.onload = function() {
+      request2.onload = async function() {
         var data2 = JSON.parse(this.response);
         var toParse2 = data2.items;
         if (request2.status >= 200 && request2.status < 400) {
