@@ -173,26 +173,15 @@ docReady(function() {
           {
             orderable: true,
             data: "merchantConsoleShopId",
-            "render": function (data, type, row, meta){
-                var $select = $("<select></select>", {
-                });
-                $.each(times, function (k, v) {
-                    console.log(v)
-                    var $option = $("<option></option>", {
-                        "text": v,
-                        "value": v
-                    });
-                    if (data == v) {
-                        $option.attr("selected", "selected")
-                    }
-                    console.log($option)
-                    $select.append($option);
-                });
-                console.log($select);
-                return $select.prop("outerHTML");
-}
+            "render": function(data) {
+                return selectHTML.toString()
+            }
           }
         ],
+        rowCallback: function (row, data) {
+            var selectValue = $('select option[value=' + data.merchantConsoleShopId + ']').val();
+            console.log(selectValue)       
+          }
       });
     };
     request.send();
