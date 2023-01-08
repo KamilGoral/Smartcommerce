@@ -94,14 +94,15 @@ docReady(function() {
             times.push(item.id);
           });
           console.log(times)
+          return await new Promise(resolve => request2.onload = resolve(times));
         };
         if (request2.status == 401) {
           console.log("Unauthorized");
           console.log(times)
+          return await new Promise(resolve => request2.onload = resolve(times));
         }
       }
       request2.send();
-      return await new Promise(resolve => request2.onload = resolve(times));
     }
 
     function createAll(sklepy) {
