@@ -94,10 +94,12 @@ docReady(function() {
                 toParse2.forEach((item) => {
                 times.push(item.id);
                 });
+                console.log(times)
                 return times
             };
             if (request2.status == 401) {
                 console.log("Unauthorized");
+                console.log(times)
                 return times
             }
         }
