@@ -45,9 +45,6 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         document.getElementById('Sample-Integration').style.display = "grid";
         
-
-        const IntegrationHeader = document.getElementById('IntegrationHeader');
-        IntegrationHeader.textContent = data.name;
         const integrationDescription = document.getElementById('integrationDescription');
         integrationDescription.textContent = data.description;
         const integrationLogo = document.getElementById('integrationLogo');
