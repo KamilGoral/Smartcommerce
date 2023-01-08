@@ -79,33 +79,7 @@ docReady(function() {
   };
 
   function getShops() {
-
     console.log("start");
-
-    async function getIDS() {
-        var times = [""]
-        let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
-        let request2 = new XMLHttpRequest();
-        request2.open('GET', url2, true);
-        request2.setRequestHeader("Authorization", orgToken);
-        request2.onload = function() {
-        var data2 = JSON.parse(this.response);
-        var toParse2 = data2.items;
-            if (request2.status >= 200 && request2.status < 400) {
-                toParse2.forEach((item) => {
-                times.push(item.id);
-                });
-                console.log(times)
-                return times
-            };
-            if (request2.status == 401) {
-                console.log("Unauthorized");
-                console.log(times)
-                return times
-            }
-        }
-        request2.send();     
-    }
     var sklepiki = getIDS()
     console.log("teraz");
 
@@ -295,7 +269,31 @@ docReady(function() {
         request.send();
         console.log(sklepiki);
         }
-    createAll()
+
+    async function getIDS() {
+        var times = [""]
+        let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
+        let request2 = new XMLHttpRequest();
+        request2.open('GET', url2, true);
+        request2.setRequestHeader("Authorization", orgToken);
+        request2.onload = function() {
+        var data2 = JSON.parse(this.response);
+        var toParse2 = data2.items;
+            if (request2.status >= 200 && request2.status < 400) {
+                toParse2.forEach((item) => {
+                times.push(item.id);
+                });
+                console.log(times)
+                return times
+            };
+            if (request2.status == 401) {
+                console.log("Unauthorized");
+                console.log(times)
+                return times
+            }
+        }
+        request2.send();     
+    }
   }
 
   
