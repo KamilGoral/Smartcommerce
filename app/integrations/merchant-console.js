@@ -89,13 +89,15 @@ docReady(function() {
                 'Authorization': orgToken, 
             })
         });
-        const data = await response.json();
+        const data = response.json();
         console.log(data);
       }
-    
+    console.log("start");
     getData();
+    console.log("teraz");
     
-    async function getIDS() {
+
+    function getIDS() {
         var times = [""]
         let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
         let request2 = new XMLHttpRequest();
