@@ -88,14 +88,15 @@ docReady(function() {
     request2.onload = function () {
         var data2 = JSON.parse(this.response);
         var toParse2 = data2.items;
-        if (request.status >= 200 && request.status < 400) {
+        if (request2.status >= 200 && request2.status < 400) {
         console.log(toParse2)
         };
-        if (request.status == 401) {
+        if (request2.status == 401) {
         console.log("Unauthorized");
         }
         }
     request2.send();
+    
     console.log(toParse2)
     console.log("....")
     let url = new URL(InvokeURL + "shops");
