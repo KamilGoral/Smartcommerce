@@ -80,7 +80,7 @@ docReady(function() {
 
   function getShops() {
 
-    var times = []
+    var times = [""]
     let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
     let request2 = new XMLHttpRequest();
     request2.open('GET', url2, true);
@@ -98,10 +98,8 @@ docReady(function() {
       }
     }
     request2.send();
-
-    console.log(times);
     const optionsHTML = times.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
-    const selectHTML = `<select class="id100"><option value="0">""</option>${optionsHTML}</select>`;
+    const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
