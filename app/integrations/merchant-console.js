@@ -183,7 +183,7 @@ docReady(function() {
             console.log(data)
             console.log($(this))
             var tdObject = $(this).find('select'); //locate the <td> holding select;
-            console.log(select)
+            console.log(tdObject)
 
           }
       });
