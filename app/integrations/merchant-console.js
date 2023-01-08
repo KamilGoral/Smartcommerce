@@ -179,8 +179,12 @@ docReady(function() {
           }
         ],
         rowCallback: function (row, data) {
-            var selectValue = $('select option[value=' + data.merchantConsoleShopId + ']').val();
-            console.log(selectValue)       
+            console.log(row)
+            console.log(data)
+            console.log($(this))
+            // var tdObject = $(this).find('td:eq(2)'); //locate the <td> holding select;
+            // var selectObject = tdObject.find("select"); //grab the <select> tag assuming that there will be only single select box within that <td> 
+            // var selCntry = selectObject.val(); // get the selected country from current <tr>
           }
       });
     };
