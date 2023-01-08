@@ -98,7 +98,11 @@ docReady(function() {
       }
     }
     request2.send();
+
     console.log(times);
+    const optionsHTML = xd.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+    console.log(optionsHTML);
+
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -168,13 +172,8 @@ docReady(function() {
             orderable: true,
             data: "merchantConsoleShopId",
             "render": function(data) {
-                stringHTML = "<select>"  
-                times.forEach((item) => {
-                    console.log(item);
-                  });
-                finalString = stringHTML + "</select>";
-                console.log(finalString);
-                return "0"
+                console.log(optionsHTML)
+                return "<select>" + optionsHTML.toString() + "/select"
             }
           }
         ],
