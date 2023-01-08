@@ -94,15 +94,14 @@ docReady(function() {
             times.push(item.id);
           });
           console.log(times)
-          return times
         };
         if (request2.status == 401) {
           console.log("Unauthorized");
           console.log(times)
-          return times
         }
       }
       request2.send();
+      return await new Promise(resolve => xhr.onload = resolve(times));
     }
 
     function createAll(sklepy) {
@@ -288,6 +287,7 @@ docReady(function() {
 
     async function main() {
       let result = await getIDS();
+      console.log(result);
         setTimeout(() => {
             console.log("Delayed for 4 second.");
           }, "4000")
