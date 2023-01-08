@@ -166,11 +166,12 @@ docReady(function() {
           {
             orderable: true,
             data: "merchantConsoleShopId",
-            "render": function(data, type, row, meta) {
-                console.log(data)
-                console.log(times)
-
-                return "<select><option value='"+data+"'>"+data+"</option></select>"
+            "render": function(data) {
+                console.log(data);
+                console.log(times);
+                var string = "<select><option value='"+data+"'>"+data+"</option></select>";
+                console.log(string)
+                return string
             }
           }
         ],
