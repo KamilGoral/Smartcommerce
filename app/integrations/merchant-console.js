@@ -80,7 +80,7 @@ docReady(function() {
 
   function getShops() {
 
-    var times = {}
+    var times = []
     let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
     let request2 = new XMLHttpRequest();
     request2.open('GET', url2, true);
@@ -90,7 +90,7 @@ docReady(function() {
       var toParse2 = data2.items;
       if (request2.status >= 200 && request2.status < 400) {
         toParse2.forEach((item) => {
-          item.id;
+          times.push(item.id);
         });
       };
       if (request2.status == 401) {
@@ -98,6 +98,7 @@ docReady(function() {
       }
     }
     request2.send();
+    console.log(times);
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
