@@ -85,114 +85,109 @@ docReady(function() {
     let request2 = new XMLHttpRequest();
     request2.open('GET', url2, true);
     request2.setRequestHeader("Authorization", orgToken);
-    request2.onload = function () {
-        var data2 = JSON.parse(this.response);
-        var toParse2 = data2.items;
-        if (request2.status >= 200 && request2.status < 400) {
-            console.log(toParse2)
-            toParse2.forEach((item, index) => {
-                times[index + 1] = item.id;
-                });
-        };
-        if (request2.status == 401) {
+    request2.onload = function() {
+      var data2 = JSON.parse(this.response);
+      var toParse2 = data2.items;
+      if (request2.status >= 200 && request2.status < 400) {
+        console.log(toParse2)
+        toParse2.forEach((item, index) => {
+          times[index + 1] = item.id;
+        });
+      };
+      if (request2.status == 401) {
         console.log("Unauthorized");
-        }
-        }
+      }
+    }
     request2.send();
-    console.log(times)
-    console.log("....")
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function() {
-        var data2 = JSON.parse(this.response);
-        console.log("tutaj");
-        console.log(times)
-        var tableShops = $("#table_integrated_shops_list").DataTable({
-          data: data2.items,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 10,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
+      var data2 = JSON.parse(this.response);
+      var tableShops = $("#table_integrated_shops_list").DataTable({
+        data: data2.items,
+        pagingType: "full_numbers",
+        order: [],
+        dom: '<"top">frt<"bottom"lip>',
+        scrollY: "60vh",
+        scrollCollapse: true,
+        pageLength: 10,
+        language: {
+          emptyTable: "Brak danych do wyświetlenia",
+          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+          infoEmpty: "Brak danych",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
+          loadingRecords: "<div class='spinner'</div>",
+          processing: "<div class='spinner'</div>",
+          search: "Szukaj:",
+          zeroRecords: "Brak pasujących rezultatów",
+          paginate: {
+            first: "<<",
+            last: ">>",
+            next: " >",
+            previous: "< ",
+          },
+          aria: {
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
+          },
+        },
+        columns: [{
+            orderable: false,
+            data: null,
+            width: "36px",
+            defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+          },
+          {
+            orderable: true,
+            data: "name",
+            render: function(data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
             },
           },
-          columns: [{
-              orderable: false,
-              data: null,
-              width: "36px",
-              defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+          {
+            orderable: true,
+            data: "shopKey",
+            render: function(data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
             },
-            {
-              orderable: true,
-              data: "name",
-              render: function(data) {
-                if (data !== null) {
-                  return data;
+          },
+          {
+            orderable: true,
+            data: "merchantConsoleShopId",
+            "render": function(data, type, row, meta) {
+              function createSelectOptions(obj) {
+                const select = document.createElement("select");
+
+                for (const key in obj) {
+                  const option = document.createElement("option");
+                  option.value = obj[key];
+                  option.textContent = key;
+                  select.appendChild(option);
                 }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "shopKey",
-              render: function(data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "merchantConsoleShopId",
-              "render": function (data, type, row, meta){
-                var $select = $("<select></select>", {
-                });
-                console.log(times);
-                console.log(data)
-                $.each(times, function (k, v) {
-                    var $option = $("<option></option>", {
-                        "text": v,
-                        "value": v
-                    });
-                    if (data == v) {
-                        $option.attr("selected", "selected")
-                    }
-                    $select.append($option);
-                });
-                return $select.prop("outerHTML");
-}
+
+                return select;
+              }
+              const selectElement = createSelectOptions(times);
+              return selectElement
             }
-          ],
-        });
-  };
-    request.send();   
+          }
+        ],
+      });
+    };
+    request.send();
   }
 
   var formIdPcMarket = "#wf-form-pcmarket";
