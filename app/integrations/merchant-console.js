@@ -81,7 +81,7 @@ docReady(function() {
   function getShops() {
 
     async function getIDS() {
-      var times = [""]
+      let times = [""]
       let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
       let request2 = new XMLHttpRequest();
       request2.open('GET', url2, true);
@@ -289,7 +289,14 @@ docReady(function() {
 
     async function main() {
       let result = await getIDS();
-      createAll(result);
+      setTimeout(() => {
+        console.log("Delayed for 2 second.");
+      }, "2000")
+      if (result !== undefined) {
+        createAll(result);
+      }
+      
+      
     }
 
     main();
