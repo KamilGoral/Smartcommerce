@@ -100,7 +100,7 @@ docReady(function() {
     request2.send();
 
     console.log(times);
-    const optionsHTML = xd.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+    const optionsHTML = times.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
     console.log(optionsHTML);
 
     let url = new URL(InvokeURL + "shops");
