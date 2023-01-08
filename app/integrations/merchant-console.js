@@ -184,10 +184,57 @@ docReady(function() {
           }
       });
       $("#table_integrated_shops_list").on("change", "select", function () {
-        console.log(parseInt($(this).val()));
+        var merchantConsoleShopId =parseInt($(this).val());
         var row = $(this).closest('tr');
         var shopKey = table.row( row ).data().shopKey;
+        console.log(merchantConsoleShopId)
         console.log(shopKey);
+
+        var payload = [];
+        var product = {
+            op: "replace",
+            path: "/shopKey",
+            value: shopKey,
+        };
+        payload.push(product);
+        var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
+        var method = "PATCH";
+        $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function () {
+            $("#waitingdots").show();
+        },
+        complete: function () {
+            $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+        },
+        data: JSON.stringify(payload),
+        processData: false,
+        success: function (resultData) {
+            console.log("success")
+            if (typeof successCallback === "function") {
+            result = successCallback(resultData);
+            if (!result) {
+                return;
+            }
+            }
+            var data = resultData;
+        },
+        error: function (jqXHR, exception) {
+            console.log("error")
+            console.log(jqXHR);
+            console.log(exception);
+            return;
+        },
+        });
       });
     };
     request.send();
