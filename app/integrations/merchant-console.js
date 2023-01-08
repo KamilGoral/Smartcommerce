@@ -236,7 +236,11 @@ docReady(function() {
               $(".error-message-fixed-main").css("background-color", "#52c41a");
               $("#WarningMessageContainer").show();
               $("#WarningMessageContainer").fadeOut(6000);
-              location.reload()
+              setTimeout(() => {
+                console.log("Delayed for 6 second.");
+                location.reload()
+              }, "6000")
+              
 
               if (typeof successCallback === "function") {
                 result = successCallback(resultData);
@@ -277,7 +281,10 @@ docReady(function() {
               $(".error-message-fixed-main").css("background-color", "#ffc53d");
               $("#WarningMessageContainer").show();
               $("#WarningMessageContainer").fadeOut(6000);
-              location.reload()
+              setTimeout(() => {
+                console.log("Delayed for 6 second.");
+                location.reload()
+              }, "6000")
               return;
             },
           });
