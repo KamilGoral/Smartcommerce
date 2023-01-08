@@ -111,7 +111,7 @@ docReady(function() {
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function() {
       var data2 = JSON.parse(this.response);
-      var tableShops = $("#table_integrated_shops_list").DataTable({
+      var table = $("#table_integrated_shops_list").DataTable({
         data: data2.items,
         pagingType: "full_numbers",
         order: [],
