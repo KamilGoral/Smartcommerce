@@ -170,6 +170,7 @@ docReady(function() {
                 console.log(times);
                 arrayObject = Object.values(times);
                 console.log(arrayObject);
+                var string = ""
                 
                 return string
             }
