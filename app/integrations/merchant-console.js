@@ -290,7 +290,6 @@ docReady(function() {
     request.send();
     console.log(sklepiki);
   }
-  console.log(sklepiki);
 
   
 
