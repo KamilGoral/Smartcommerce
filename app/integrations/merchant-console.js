@@ -1,4 +1,5 @@
 console.log("Script Loaded v3");
+
 function docReady(fn) {
   // see if DOM is already available
   if (
@@ -12,8 +13,8 @@ function docReady(fn) {
   }
 }
 
-docReady(function () {
- function getCookie(name) {
+docReady(function() {
+  function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
@@ -44,7 +45,7 @@ docReady(function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         document.getElementById('Sample-Integration').style.display = "grid";
-        
+
         const integrationDescription = document.getElementById('integrationDescription');
         integrationDescription.textContent = data.description;
         const integrationLogo = document.getElementById('integrationLogo');
@@ -71,67 +72,87 @@ docReady(function () {
         const integrationDbName = document.getElementById('dbname');
         integrationDbName.value = data.credentials.dbname;
 
-        var tableShops = $("#table_integrated_shops_list").DataTable({
-          data: data.shops,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 10,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          columns: [{
-              orderable: false,
-              data: null,
-              width: "36px",
-              defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-            },
-            {
-              orderable: true,
-              data: "id",
-              render: function(data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
+        let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
+        let request2 = new XMLHttpRequest();
+        request2.open('GET', url2, true);
+        request2.setRequestHeader("Authorization", orgToken);
+        request2.onload = function() {
+          var data2 = JSON.parse(this.response);
+          var tableShops = $("#table_integrated_shops_list").DataTable({
+            data: data2.items,
+            pagingType: "full_numbers",
+            order: [],
+            dom: '<"top">frt<"bottom"lip>',
+            scrollY: "60vh",
+            scrollCollapse: true,
+            pageLength: 10,
+            language: {
+              emptyTable: "Brak danych do wyświetlenia",
+              info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+              infoEmpty: "Brak danych",
+              infoFiltered: "(z _MAX_ rezultatów)",
+              lengthMenu: "Pokaż _MENU_ rekordów",
+              loadingRecords: "<div class='spinner'</div>",
+              processing: "<div class='spinner'</div>",
+              search: "Szukaj:",
+              zeroRecords: "Brak pasujących rezultatów",
+              paginate: {
+                first: "<<",
+                last: ">>",
+                next: " >",
+                previous: "< ",
+              },
+              aria: {
+                sortAscending: ": Sortowanie rosnące",
+                sortDescending: ": Sortowanie malejące",
               },
             },
-            {
-              orderable: true,
-              data: "name",
-              render: function(data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
+            columns: [{
+                orderable: false,
+                data: null,
+                width: "36px",
+                defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
               },
-            }
-          ],
-        });
+              {
+                orderable: true,
+                data: "id",
+                render: function(data) {
+                  if (data !== null) {
+                    return data;
+                  }
+                  if (data === null) {
+                    return "";
+                  }
+                },
+              },
+              {
+                orderable: true,
+                data: "name",
+                render: function(data) {
+                  if (data !== null) {
+                    return data;
+                  }
+                  if (data === null) {
+                    return "";
+                  }
+                },
+              },
+              {
+                orderable: true,
+                data: "shortName",
+                render: function(data) {
+                  if (data !== null) {
+                    return data;
+                  }
+                  if (data === null) {
+                    return "";
+                  }
+                },
+              }
+            ],
+          });
+        }
+
 
         if (request.status === 401) {
           console.log("Unauthorized");
@@ -219,6 +240,5 @@ docReady(function () {
   getIntegrations();
   $('#waitingdots').hide();
   makeWebflowFormAjaxCreate($(formIdPcMarket));
-
 
 })
