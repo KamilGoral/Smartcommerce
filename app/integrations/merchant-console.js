@@ -284,9 +284,7 @@ docReady(function() {
           });
         });
       };
-      console.log(sklepiki);
       request.send();
-      console.log(sklepiki);
     }
 
     async function main() {
