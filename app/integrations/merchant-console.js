@@ -173,10 +173,22 @@ docReady(function() {
           {
             orderable: true,
             data: "merchantConsoleShopId",
-            "render": function(data) {
-                console.log(data)
-                return selectHTML.toString()
-            }
+            "render": function (data, type, row, meta){
+                var $select = $("<select></select>", {
+                });
+                $.each(times, function (k, v) {
+
+                    var $option = $("<option></option>", {
+                        "text": v,
+                        "value": v
+                    });
+                    if (data == v) {
+                        $option.attr("selected", "selected")
+                    }
+                    $select.append($option);
+                });
+                return $select.prop("outerHTML");
+}
           }
         ],
       });
