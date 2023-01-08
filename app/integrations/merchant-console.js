@@ -184,7 +184,8 @@ docReady(function() {
           }
       });
       $("#table_integrated_shops_list").on("change", "select", function () {
-        console.log(parseInt($(this).val()))
+        console.log(parseInt($(this).val()));
+        console.log( table.row( this ).data() );
       });
     };
     request.send();
