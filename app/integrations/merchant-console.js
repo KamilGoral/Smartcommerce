@@ -253,8 +253,10 @@ docReady(function() {
               msg = "Twoje żądanie zostało zaniechane";
             } else {
               msg = "" + jqXHR.responseText;
-            }    
+            } 
+
             $(".warningmessagetext").text(msg);
+            $("#WarningMessageContainer").show();
             $("#WarningMessageContainer").fadeOut(3000);
             return;
         },
