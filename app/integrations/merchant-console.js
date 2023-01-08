@@ -71,12 +71,18 @@ docReady(function() {
         integrationEngine.value = data.credentials.engine;
         const integrationDbName = document.getElementById('dbname');
         integrationDbName.value = data.credentials.dbname;
+        if (request.status === 401) {
+          console.log("Unauthorized");
+        };
+      };
+    };
+    request.send();
 
-        let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
-        let request2 = new XMLHttpRequest();
-        request2.open('GET', url2, true);
-        request2.setRequestHeader("Authorization", orgToken);
-        request2.onload = function() {
+    let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
+    let request2 = new XMLHttpRequest();
+    request2.open('GET', url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function() {
           var data2 = JSON.parse(this.response);
           var tableShops = $("#table_integrated_shops_list").DataTable({
             data: data2.items,
@@ -151,15 +157,8 @@ docReady(function() {
               }
             ],
           });
-        }
-
-
-        if (request.status === 401) {
-          console.log("Unauthorized");
-        };
-      };
     };
-    request.send();
+    request2.send();
   };
 
   var formIdPcMarket = "#wf-form-pcmarket";
