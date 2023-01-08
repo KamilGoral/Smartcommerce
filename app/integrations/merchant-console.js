@@ -188,6 +188,8 @@ docReady(function() {
         var row = table.row(tr);
         console.log(row);
         console.log($(this));
+        var info = table.row($(this).parents("tr")).data();
+        console.log(info);
       });
     };
     request.send();
