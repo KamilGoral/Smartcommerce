@@ -199,7 +199,6 @@ docReady(function() {
           console.log(previousMCSId)
           console.log(shopKey);
 
-          if (merchantConsoleShopId = 0) {} else {};
 
           var payload = [];
           var product = {
