@@ -94,6 +94,7 @@ docReady(function() {
             times.push(item.id);
           });
           console.log(times)
+          createAll(times)
           return await new Promise(resolve => request2.onload = resolve(times));
         };
         if (request2.status == 401) {
