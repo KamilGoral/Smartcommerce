@@ -222,7 +222,7 @@ docReady(function() {
             console.log("success");
             console.log(resultData);
             $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
-            $("WarningMessageContainer").css("background-color","#00754e");
+            $("WarningMessageContainer").css("background-color","#52c41a");
             $("#WarningMessageContainer").show();
             $("#WarningMessageContainer").fadeOut(9000);
             if (typeof successCallback === "function") {
@@ -261,6 +261,7 @@ docReady(function() {
             } 
 
             $(".warningmessagetext").text(msg);
+            $("WarningMessageContainer").css("background-color","#ffc53d");
             $("#WarningMessageContainer").show();
             $("#WarningMessageContainer").fadeOut(9000);
             return;
