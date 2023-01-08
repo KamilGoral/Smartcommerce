@@ -184,7 +184,7 @@ docReady(function() {
           }
       });
       $("#table_integrated_shops_list").on("change", "select", function () {
-        var merchantConsoleShopId =parseInt($(this).val());
+        var merchantConsoleShopId = parseInt($(this).val());
         var row = $(this).closest('tr');
         var shopKey = table.row( row ).data().shopKey;
         console.log(merchantConsoleShopId)
@@ -226,12 +226,37 @@ docReady(function() {
                 return;
             }
             }
-            var data = resultData;
+            console.log(resultData)
         },
         error: function (jqXHR, exception) {
             console.log("error")
             console.log(jqXHR);
             console.log(exception);
+            console.log(resultData)
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Nie masz połączenia z internetem.";
+            } else if (jqXHR.status == 404) {
+              msg = "Nie znaleziono strony";
+            } else if (jqXHR.status == 403) {
+              msg = "Nie masz uprawnień do tej czynności";
+            } else if (jqXHR.status == 409) {
+              msg =
+                "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
+            } else if (jqXHR.status == 500) {
+              msg =
+                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+            } else if (exception === "parsererror") {
+              msg = "Nie udało się odczytać danych";
+            } else if (exception === "timeout") {
+              msg = "Przekroczony czas oczekiwania";
+            } else if (exception === "abort") {
+              msg = "Twoje żądanie zostało zaniechane";
+            } else {
+              msg = "" + jqXHR.responseText;
+            }    
+            $(".warningmessagetext").text(msg);
+            $("#WarningMessageContainer").fadeOut(3000);
             return;
         },
         });
