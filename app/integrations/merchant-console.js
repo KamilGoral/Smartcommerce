@@ -93,7 +93,6 @@ docReady(function() {
           toParse2.forEach((item) => {
             times.push(item.id);
           });
-          console.log(times)
           createAll(times)
           return await new Promise(resolve => request2.onload = resolve(times));
         };
@@ -289,8 +288,6 @@ docReady(function() {
 
     async function main() {
         let result = await getIDS();
-        console.log(result);
-        // createAll(result);
     }
     main();
 
