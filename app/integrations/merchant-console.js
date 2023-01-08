@@ -168,15 +168,9 @@ docReady(function() {
             data: "merchantConsoleShopId",
             "render": function(data) {  
                 console.log(times);
-                console.log(Object.values(times))                
-                let str = "";
-                  Object.entries(times).forEach(([key, value]) => {
-                    str += `<option value="${value}">${key}: ${value}</option>`;
-                  });
-                console.log(data);
-                console.log(str);
-                var string = '<select>'+str+'</select>';
-                console.log(string)
+                arrayObject = Object.values(times);
+                console.log(arrayObject);
+                
                 return string
             }
           }
