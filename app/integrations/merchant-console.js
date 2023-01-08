@@ -170,8 +170,7 @@ docReady(function() {
             "render": function(data) {
                 stringHTML = "<select>"  
                 times.forEach((item) => {
-                    stringHTML = stringHTML+ "<option value='"+item+"'>"+item+"</option"
-                    console.log(stringHTML);
+                    console.log(item);
                   });
                 finalString = stringHTML + "</select>";
                 console.log(finalString);
