@@ -172,6 +172,7 @@ docReady(function() {
                     str += `<option value="${times[key]}">${times[key]}</option>`;
                   }
                 console.log(data)
+                console.log(str)
                 var string = "<select>"+str+"</select>";
                 console.log(string)
                 return string
