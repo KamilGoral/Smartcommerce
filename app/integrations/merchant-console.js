@@ -103,7 +103,7 @@ docReady(function() {
     const temp1 = [1, 2916, 381, 142];
 
     const optionsHTML = temp1.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
-    const selectHTML = `<select>${optionsHTML}</select>`;
+    const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
@@ -181,11 +181,7 @@ docReady(function() {
         rowCallback: function (row, data) {
             console.log(row)
             console.log(data)
-            console.log($(this))
-            var tdObject = $(this).find('select'); //locate the <td> holding select;
-            console.log(tdObject)
-            console.log($('td:eq(4)', row))
-
+            $("td:eq(3)", row).removeAttr('selected').filter('[value=' + data.merchantConsoleShopId +']').attr('selected', true)
           }
       });
     };
