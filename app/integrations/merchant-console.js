@@ -101,7 +101,7 @@ docReady(function() {
         }
       }
       request2.send();
-      return await new Promise(resolve => xhr.onload = resolve(times));
+      return await new Promise(resolve => request2.onload = resolve(times));
     }
 
     function createAll(sklepy) {
@@ -286,11 +286,8 @@ docReady(function() {
     }
 
     async function main() {
-      let result = await getIDS();
-      console.log(result);
-        setTimeout(() => {
-            console.log("Delayed for 4 second.");
-          }, "4000")
+        let result = await getIDS();
+        console.log(result);
         createAll(result);
     }
     main();
