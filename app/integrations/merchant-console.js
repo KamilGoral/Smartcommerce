@@ -107,8 +107,7 @@ docReady(function() {
 
     function createAll(sklepy) {
       console.log(sklepy);
-      var sklepiki2 = ["142", "1", "2916", "381", "17"];
-      const optionsHTML = sklepiki2.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+      const optionsHTML = sklepy.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
       const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
       let url = new URL(InvokeURL + "shops");
