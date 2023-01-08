@@ -185,7 +185,9 @@ docReady(function() {
       });
       $("#table_integrated_shops_list").on("change", "select", function () {
         console.log(parseInt($(this).val()));
-        console.log( table.row( this ).data() );
+        var row = $(this).closest('tr');
+        var shopKey = table.row( row ).data().shopKey;
+        console.log(shopKey);
       });
     };
     request.send();
