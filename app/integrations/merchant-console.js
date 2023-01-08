@@ -166,13 +166,14 @@ docReady(function() {
           {
             orderable: true,
             data: "merchantConsoleShopId",
-            "render": function(data) {                  
+            "render": function(data) {  
+                console.log(times);                
                   let str = "";
                   for (const key in times) {
                     str += `<option value="${times[key]}">${times[key]}</option>`;
                   }
-                console.log(data)
-                console.log(str)
+                console.log(data);
+                console.log(str);
                 var string = "<select>"+str+"</select>";
                 console.log(string)
                 return string
