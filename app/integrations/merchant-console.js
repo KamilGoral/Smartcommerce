@@ -168,21 +168,17 @@ docReady(function() {
             orderable: true,
             data: "merchantConsoleShopId",
             "render": function(data, type, row, meta) {
-              function createSelectOptions(obj) {
-                const select = document.createElement("select");
-
-                for (const key in obj) {
+                console.log(data)
+                var $select = $("<select></select>", {
+                });
+                for (const key in times) {
                   const option = document.createElement("option");
-                  option.value = obj[key];
+                  option.value = times[key];
                   option.textContent = key;
                   select.appendChild(option);
                 }
-
-                return select;
-              }
-              const selectElement = createSelectOptions(times);
-              console.log(selectElement);
-              return selectElement
+                console.log($select)
+              return $select.prop("outerHTML");
             }
           }
         ],
