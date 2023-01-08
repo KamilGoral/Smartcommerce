@@ -183,8 +183,10 @@ docReady(function() {
             $("td:eq(3) select", row).change();
           }
       });
-      $("#table_integrated_shops_list").on("focusout", "select", function () {
-        console.log(data);
+      $("#table_integrated_shops_list").on("change", "select", function () {
+        var tr = $(this).closest("tr");
+        var row = table.row(tr);
+        console.log(row);
         console.log($(this));
       });
     };
