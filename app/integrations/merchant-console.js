@@ -179,10 +179,10 @@ docReady(function() {
           }
         ],
         rowCallback: function (row, data) {
-            console.log(row);
             console.log(data.merchantConsoleShopId);
             console.log($("td:eq(3) select", row));
-            $("td:eq(3) select", row).removeAttr('selected').filter('[value=' + data.merchantConsoleShopId +']').attr('selected', true)
+            $("td:eq(3) select", row).val(data.merchantConsoleShopId);
+            $("td:eq(3) select", row).change();
           }
       });
     };
