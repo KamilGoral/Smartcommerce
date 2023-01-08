@@ -219,14 +219,18 @@ docReady(function() {
         data: JSON.stringify(payload),
         processData: false,
         success: function (resultData) {
-            console.log("success")
+            console.log("success");
+            console.log(resultData);
+            $(".warningmessagetext").text("Suckes");
+            $("#WarningMessageContainer").show();
+            $("#WarningMessageContainer").fadeOut(9000);
             if (typeof successCallback === "function") {
             result = successCallback(resultData);
             if (!result) {
                 return;
             }
             }
-            console.log(resultData)
+            
         },
         error: function (jqXHR, exception) {
             console.log("error")
@@ -257,7 +261,7 @@ docReady(function() {
 
             $(".warningmessagetext").text(msg);
             $("#WarningMessageContainer").show();
-            $("#WarningMessageContainer").fadeOut(3000);
+            $("#WarningMessageContainer").fadeOut(9000);
             return;
         },
         });
