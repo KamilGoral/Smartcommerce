@@ -289,16 +289,11 @@ docReady(function() {
 
     async function main() {
       let result = await getIDS();
-      while (result === undefined) {
         setTimeout(() => {
-            console.log("Delayed for 1 second.");
-          }, "2000")
-      }
+            console.log("Delayed for 4 second.");
+          }, "4000")
         createAll(result);
-      
-      
     }
-
     main();
 
   }
