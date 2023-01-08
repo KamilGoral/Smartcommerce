@@ -232,7 +232,6 @@ docReady(function() {
             console.log("error")
             console.log(jqXHR);
             console.log(exception);
-            console.log(resultData)
             var msg = "";
             if (jqXHR.status === 0) {
               msg = "Nie masz połączenia z internetem.";
