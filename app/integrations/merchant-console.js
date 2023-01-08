@@ -167,11 +167,14 @@ docReady(function() {
           {
             orderable: true,
             data: "merchantConsoleShopId",
-            "render": function(data) {  
-                console.log(times);
-                var string = ""
-                
-                return string
+            "render": function(data) {
+                stringHTML = "<select>"  
+                times.forEach((item) => {
+                    stringHTML = stringHTML+ "<option value='"+item+"'>"+item+"</option"
+                  });
+                stringHTML = stringHTML + "</select>";
+                console.log(stringHTML);
+                return "0"
             }
           }
         ],
