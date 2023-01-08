@@ -81,7 +81,8 @@ docReady(function() {
   function getShops() {
 
     console.log("start");
-    function getIDS() {
+    
+    async function getIDS() {
         var times = [""]
         let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
         let request2 = new XMLHttpRequest();
@@ -108,189 +109,192 @@ docReady(function() {
     var sklepiki = getIDS()
     console.log("teraz");
 
-    console.log(sklepiki);
-    var sklepiki2 = ["142","1","2916","381"];
-    const optionsHTML = sklepiki2.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
-    const selectHTML = `<select class="id100">${optionsHTML}</select>`;
+    async function createAll() {
+        await getIDS();
+        console.log(sklepiki);
+        var sklepiki2 = ["142","1","2916","381","17"];
+        const optionsHTML = sklepiki2.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+        const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
-    let url = new URL(InvokeURL + "shops");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function() {
-      var data2 = JSON.parse(this.response);
-      var table = $("#table_integrated_shops_list").DataTable({
-        data: data2.items,
-        pagingType: "full_numbers",
-        order: [],
-        dom: '<"top">frt<"bottom"lip>',
-        scrollY: "60vh",
-        scrollCollapse: true,
-        pageLength: 10,
-        language: {
-          emptyTable: "Brak danych do wyświetlenia",
-          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-          infoEmpty: "Brak danych",
-          infoFiltered: "(z _MAX_ rezultatów)",
-          lengthMenu: "Pokaż _MENU_ rekordów",
-          loadingRecords: "<div class='spinner'</div>",
-          processing: "<div class='spinner'</div>",
-          search: "Szukaj:",
-          zeroRecords: "Brak pasujących rezultatów",
-          paginate: {
-            first: "<<",
-            last: ">>",
-            next: " >",
-            previous: "< ",
-          },
-          aria: {
-            sortAscending: ": Sortowanie rosnące",
-            sortDescending: ": Sortowanie malejące",
-          },
-        },
-        columns: [{
-            orderable: false,
-            data: null,
-            width: "36px",
-            defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-          },
-          {
-            orderable: true,
-            data: "name",
-            render: function(data) {
-              if (data !== null) {
-                return data;
-              }
-              if (data === null) {
-                return "";
-              }
+        let url = new URL(InvokeURL + "shops");
+        let request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.setRequestHeader("Authorization", orgToken);
+        request.onload = function() {
+        var data2 = JSON.parse(this.response);
+        var table = $("#table_integrated_shops_list").DataTable({
+            data: data2.items,
+            pagingType: "full_numbers",
+            order: [],
+            dom: '<"top">frt<"bottom"lip>',
+            scrollY: "60vh",
+            scrollCollapse: true,
+            pageLength: 10,
+            language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+                first: "<<",
+                last: ">>",
+                next: " >",
+                previous: "< ",
             },
-          },
-          {
-            orderable: true,
-            data: "shopKey",
-            render: function(data) {
-              if (data !== null) {
-                return data;
-              }
-              if (data === null) {
-                return "";
-              }
+            aria: {
+                sortAscending: ": Sortowanie rosnące",
+                sortDescending: ": Sortowanie malejące",
             },
-          },
-          {
-            orderable: true,
-            data: "merchantConsoleShopId",
-            "render": function(data) {
-                return selectHTML.toString()
+            },
+            columns: [{
+                orderable: false,
+                data: null,
+                width: "36px",
+                defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+            },
+            {
+                orderable: true,
+                data: "name",
+                render: function(data) {
+                if (data !== null) {
+                    return data;
+                }
+                if (data === null) {
+                    return "";
+                }
+                },
+            },
+            {
+                orderable: true,
+                data: "shopKey",
+                render: function(data) {
+                if (data !== null) {
+                    return data;
+                }
+                if (data === null) {
+                    return "";
+                }
+                },
+            },
+            {
+                orderable: true,
+                data: "merchantConsoleShopId",
+                "render": function(data) {
+                    return selectHTML.toString()
+                }
             }
-          }
-        ],
-        rowCallback: function (row, data) {
-            $("td:eq(3) select", row).val(data.merchantConsoleShopId);
-            $("td:eq(3) select", row).change();
-          }
-      });
-      $("#table_integrated_shops_list").on("change", "select", function () {
-        var merchantConsoleShopId = parseInt($(this).val());
-        var row = $(this).closest('tr');
-        var shopKey = table.row( row ).data().shopKey;
-        var previousMCSId = table.row( row ).data().merchantConsoleShopId;
-        ///dodać wielątkowanie replace a add a null na usuniecie
-        console.log(times)
-        console.log(merchantConsoleShopId)
-        console.log(previousMCSId)
-        console.log(shopKey);
-
-        if (merchantConsoleShopId = 0){
-        } else {
-        };
-
-        var payload = [];
-        var product = {
-            op: "add",
-            path: "/shopKey",
-            value: shopKey,
-        };
-        payload.push(product);
-        var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
-        var method = "PATCH";
-        $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-            $("#waitingdots").show();
-        },
-        complete: function () {
-            $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-        },
-        data: JSON.stringify(payload),
-        processData: false,
-        success: function (resultData) {
-            console.log("success");
-            console.log(resultData);
-            $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
-            $(".error-message-fixed-main").css("background-color","#52c41a");
-            $("#WarningMessageContainer").show();
-            $("#WarningMessageContainer").fadeOut(6000);
-            location.reload()
-
-            if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-                return;
+            ],
+            rowCallback: function (row, data) {
+                $("td:eq(3) select", row).val(data.merchantConsoleShopId);
+                $("td:eq(3) select", row).change();
             }
-            }
-            
-        },
-        error: function (jqXHR, exception) {
-            console.log("error")
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            if (jqXHR.status === 0) {
-              msg = "Nie masz połączenia z internetem.";
-            } else if (jqXHR.status == 404) {
-              msg = "Nie znaleziono strony";
-            } else if (jqXHR.status == 403) {
-              msg = "Nie masz uprawnień do tej czynności";
-            } else if (jqXHR.status == 409) {
-              msg =
-                "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
-            } else if (jqXHR.status == 500) {
-              msg =
-                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
-            } else if (exception === "parsererror") {
-              msg = "Nie udało się odczytać danych";
-            } else if (exception === "timeout") {
-              msg = "Przekroczony czas oczekiwania";
-            } else if (exception === "abort") {
-              msg = "Twoje żądanie zostało zaniechane";
-            } else {
-              msg = "" + jqXHR.responseText;
-            } 
-
-            $(".warningmessagetext").text(msg);
-            $(".error-message-fixed-main").css("background-color","#ffc53d");
-            $("#WarningMessageContainer").show();
-            $("#WarningMessageContainer").fadeOut(6000);
-            location.reload()
-            return;
-        },
         });
-      });
-    };
-    console.log(sklepiki);
-    request.send();
-    console.log(sklepiki);
+        $("#table_integrated_shops_list").on("change", "select", function () {
+            var merchantConsoleShopId = parseInt($(this).val());
+            var row = $(this).closest('tr');
+            var shopKey = table.row( row ).data().shopKey;
+            var previousMCSId = table.row( row ).data().merchantConsoleShopId;
+            ///dodać wielątkowanie replace a add a null na usuniecie
+            console.log(times)
+            console.log(merchantConsoleShopId)
+            console.log(previousMCSId)
+            console.log(shopKey);
+
+            if (merchantConsoleShopId = 0){
+            } else {
+            };
+
+            var payload = [];
+            var product = {
+                op: "add",
+                path: "/shopKey",
+                value: shopKey,
+            };
+            payload.push(product);
+            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
+            var method = "PATCH";
+            $.ajax({
+            type: method,
+            url: action,
+            cors: true,
+            beforeSend: function () {
+                $("#waitingdots").show();
+            },
+            complete: function () {
+                $("#waitingdots").hide();
+            },
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+            },
+            data: JSON.stringify(payload),
+            processData: false,
+            success: function (resultData) {
+                console.log("success");
+                console.log(resultData);
+                $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
+                $(".error-message-fixed-main").css("background-color","#52c41a");
+                $("#WarningMessageContainer").show();
+                $("#WarningMessageContainer").fadeOut(6000);
+                location.reload()
+
+                if (typeof successCallback === "function") {
+                result = successCallback(resultData);
+                if (!result) {
+                    return;
+                }
+                }
+                
+            },
+            error: function (jqXHR, exception) {
+                console.log("error")
+                console.log(jqXHR);
+                console.log(exception);
+                var msg = "";
+                if (jqXHR.status === 0) {
+                msg = "Nie masz połączenia z internetem.";
+                } else if (jqXHR.status == 404) {
+                msg = "Nie znaleziono strony";
+                } else if (jqXHR.status == 403) {
+                msg = "Nie masz uprawnień do tej czynności";
+                } else if (jqXHR.status == 409) {
+                msg =
+                    "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                } else if (jqXHR.status == 500) {
+                msg =
+                    "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+                } else if (exception === "parsererror") {
+                msg = "Nie udało się odczytać danych";
+                } else if (exception === "timeout") {
+                msg = "Przekroczony czas oczekiwania";
+                } else if (exception === "abort") {
+                msg = "Twoje żądanie zostało zaniechane";
+                } else {
+                msg = "" + jqXHR.responseText;
+                } 
+
+                $(".warningmessagetext").text(msg);
+                $(".error-message-fixed-main").css("background-color","#ffc53d");
+                $("#WarningMessageContainer").show();
+                $("#WarningMessageContainer").fadeOut(6000);
+                location.reload()
+                return;
+            },
+            });
+        });
+        };
+        console.log(sklepiki);
+        request.send();
+        console.log(sklepiki);
+        }
   }
 
   
