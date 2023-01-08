@@ -81,7 +81,7 @@ docReady(function() {
   function getShops() {
 
     console.log("start");
-    
+
     async function getIDS() {
         var times = [""]
         let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
@@ -295,6 +295,7 @@ docReady(function() {
         request.send();
         console.log(sklepiki);
         }
+    createAll()
   }
 
   
