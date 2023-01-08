@@ -194,7 +194,7 @@ docReady(function() {
           var shopKey = table.row(row).data().shopKey;
           var previousMCSId = table.row(row).data().merchantConsoleShopId;
           ///dodać wielątkowanie replace a add a null na usuniecie
-          console.log(times)
+          console.log(sklepy)
           console.log(merchantConsoleShopId)
           console.log(previousMCSId)
           console.log(shopKey);
