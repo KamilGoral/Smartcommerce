@@ -265,6 +265,7 @@ docReady(function() {
   };
 
   getIntegrations();
+  getShops();
   $('#waitingdots').hide();
   makeWebflowFormAjaxCreate($(formIdPcMarket));
 
