@@ -100,10 +100,8 @@ docReady(function() {
     request2.send();
 
     console.log(times);
-    const temp1 = [1, 2916, 381, 142];
-
-    const optionsHTML = temp1.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
-    const selectHTML = `<select class="id100">${optionsHTML}</select>`;
+    const optionsHTML = times.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
+    const selectHTML = `<select class="id100"><option value="0">""</option>${optionsHTML}</select>`;
 
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
@@ -187,8 +185,16 @@ docReady(function() {
         var merchantConsoleShopId = parseInt($(this).val());
         var row = $(this).closest('tr');
         var shopKey = table.row( row ).data().shopKey;
+        var previousMCSId = table.row( row ).data().merchantConsoleShopId;
+        ///dodać wielątkowanie replace a add a null na usuniecie
+        console.log(times)
         console.log(merchantConsoleShopId)
+        console.log(previousMCSId)
         console.log(shopKey);
+
+        if (merchantConsoleShopId = 0){
+        } else {
+        };
 
         var payload = [];
         var product = {
@@ -224,7 +230,9 @@ docReady(function() {
             $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
             $(".error-message-fixed-main").css("background-color","#52c41a");
             $("#WarningMessageContainer").show();
-            $("#WarningMessageContainer").fadeOut(9000);
+            $("#WarningMessageContainer").fadeOut(6000);
+            location.reload()
+
             if (typeof successCallback === "function") {
             result = successCallback(resultData);
             if (!result) {
@@ -246,7 +254,7 @@ docReady(function() {
               msg = "Nie masz uprawnień do tej czynności";
             } else if (jqXHR.status == 409) {
               msg =
-                "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
+                "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
             } else if (jqXHR.status == 500) {
               msg =
                 "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
@@ -263,7 +271,8 @@ docReady(function() {
             $(".warningmessagetext").text(msg);
             $(".error-message-fixed-main").css("background-color","#ffc53d");
             $("#WarningMessageContainer").show();
-            $("#WarningMessageContainer").fadeOut(9000);
+            $("#WarningMessageContainer").fadeOut(6000);
+            location.reload()
             return;
         },
         });
