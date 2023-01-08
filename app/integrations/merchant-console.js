@@ -294,6 +294,7 @@ docReady(function() {
         }
         request2.send();     
     }
+    createAll()
   }
 
   
