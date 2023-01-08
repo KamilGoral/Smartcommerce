@@ -103,7 +103,7 @@ docReady(function() {
     const temp1 = [1, 2916, 381, 142];
 
     const optionsHTML = temp1.reduce((html, value) => html + `<option value="${value}">${value}</option>`, "");
-    const selectHTML = `<select id="temp1-select">${optionsHTML}</select>`;
+    const selectHTML = `<select>${optionsHTML}</select>`;
 
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
@@ -174,7 +174,8 @@ docReady(function() {
             orderable: true,
             data: "merchantConsoleShopId",
             "render": function(data) {
-                return selectHTML.outerHTML.toString()
+                console.log(data)
+                return selectHTML.toString()
             }
           }
         ],
