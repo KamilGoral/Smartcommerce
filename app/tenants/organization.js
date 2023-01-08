@@ -523,8 +523,7 @@ docReady(function () {
               "href",
               "https://" +
                 DomainName +
-                "/app/integrations/integration?integrationKey=" +
-                integration.integrationKey
+                "/app/integrations/merchant-console"
             );
           }
 
