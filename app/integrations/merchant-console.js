@@ -171,14 +171,18 @@ docReady(function() {
                 console.log(data)
                 var $select = $("<select></select>", {
                 });
-                for (const key in times) {
-                  const option = document.createElement("option");
-                  option.value = times[key];
-                  option.textContent = key;
-                  select.appendChild(option);
-                }
-                console.log($select)
-              return $select.prop("outerHTML");
+                $.each(times, function (k, v) {
+ 
+                    var $option = $("<option></option>", {
+                        "text": v,
+                        "value": v
+                    });
+                    if (data == v) {
+                        $option.attr("selected", "selected")
+                    }
+                    $select.append($option);
+                });
+                return $select.prop("outerHTML");
             }
           }
         ],
