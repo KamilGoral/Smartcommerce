@@ -192,7 +192,7 @@ docReady(function() {
 
         var payload = [];
         var product = {
-            op: "replace",
+            op: "add",
             path: "/shopKey",
             value: shopKey,
         };
