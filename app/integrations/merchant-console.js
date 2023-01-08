@@ -83,19 +83,17 @@ docReady(function() {
 
     async function getData() {
 
-        const response = fetch(InvokeURL + 'integrations/merchant-console/shops', { 
-            method: 'GET', 
-            headers: new Headers({
-                'Authorization': orgToken, 
+        fetch(InvokeURL + 'integrations/merchant-console/shops', {
+            headers: {Authentication: orgToken}
             })
-        });
-        const data = response.json();
-        console.log(data);
-      }
+            .then(resp => resp.json())
+            .then(json => console.log(json))
+            }
+            
     console.log("start");
     getData();
     console.log("teraz");
-    
+
 
     function getIDS() {
         var times = [""]
