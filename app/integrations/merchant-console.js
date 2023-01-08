@@ -184,6 +184,7 @@ docReady(function() {
             console.log($(this))
             var tdObject = $(this).find('select'); //locate the <td> holding select;
             console.log(tdObject)
+            console.log($('td:eq(4)', row))
 
           }
       });
