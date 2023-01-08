@@ -170,7 +170,7 @@ docReady(function() {
                 console.log(times);
                 console.log(Object.values(times))                
                 let str = "";
-                  Object.entries(obj).forEach(([key, value]) => {
+                  Object.entries(times).forEach(([key, value]) => {
                     str += `<option value="${value}">${key}: ${value}</option>`;
                   });
                 console.log(data);
