@@ -177,7 +177,7 @@ docReady(function() {
                 var $select = $("<select></select>", {
                 });
                 $.each(times, function (k, v) {
-
+                    console.log(v)
                     var $option = $("<option></option>", {
                         "text": v,
                         "value": v
@@ -185,8 +185,10 @@ docReady(function() {
                     if (data == v) {
                         $option.attr("selected", "selected")
                     }
+                    console.log($option)
                     $select.append($option);
                 });
+                console.log($select);
                 return $select.prop("outerHTML");
 }
           }
