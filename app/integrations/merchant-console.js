@@ -181,7 +181,7 @@ docReady(function() {
                 return select;
               }
               const selectElement = createSelectOptions(times);
-              return selectElement
+              return selectElement.prop("outerHTML")
             }
           }
         ],
