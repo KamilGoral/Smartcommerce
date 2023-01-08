@@ -289,7 +289,7 @@ docReady(function() {
     async function main() {
         let result = await getIDS();
         console.log(result);
-        createAll(result);
+        // createAll(result);
     }
     main();
 
