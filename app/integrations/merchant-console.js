@@ -82,6 +82,7 @@ docReady(function() {
 
     
     function getIDS() {
+        console.log(times)
         var times = [""]
         let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
         let request2 = new XMLHttpRequest();
@@ -94,12 +95,15 @@ docReady(function() {
                 toParse2.forEach((item) => {
                 times.push(item.id);
                 });
+                console.log(times)
             };
             if (request2.status == 401) {
                 console.log("Unauthorized");
             }
         }
+        console.log(times)
         request2.send();
+        console.log(times)
         return times
     }
 
