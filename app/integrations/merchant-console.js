@@ -221,7 +221,8 @@ docReady(function() {
         success: function (resultData) {
             console.log("success");
             console.log(resultData);
-            $(".warningmessagetext").text("Suckes");
+            $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
+            $("WarningMessageContainer").css("background-color","#00754e");
             $("#WarningMessageContainer").show();
             $("#WarningMessageContainer").fadeOut(9000);
             if (typeof successCallback === "function") {
