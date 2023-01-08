@@ -80,8 +80,22 @@ docReady(function() {
 
   function getShops() {
 
+
+    async function getData() {
+
+        const response = fetch(InvokeURL + 'integrations/merchant-console/shops', { 
+            method: 'GET', 
+            headers: new Headers({
+                'Authorization': orgToken, 
+            })
+        });
+        const data = await response.json();
+        console.log(data);
+      }
     
-    function getIDS() {
+    getData();
+    
+    async function getIDS() {
         var times = [""]
         let url2 = new URL(InvokeURL + 'integrations/merchant-console/shops');
         let request2 = new XMLHttpRequest();
