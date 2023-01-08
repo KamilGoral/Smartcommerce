@@ -89,7 +89,6 @@ docReady(function() {
       var data2 = JSON.parse(this.response);
       var toParse2 = data2.items;
       if (request2.status >= 200 && request2.status < 400) {
-        console.log(toParse2)
         toParse2.forEach((item, index) => {
           times[index + 1] = item.id;
         });
@@ -169,20 +168,9 @@ docReady(function() {
             data: "merchantConsoleShopId",
             "render": function(data, type, row, meta) {
                 console.log(data)
-                var $select = $("<select></select>", {
-                });
-                $.each(times, function (k, v) {
- 
-                    var $option = $("<option></option>", {
-                        "text": v,
-                        "value": v
-                    });
-                    if (data == v) {
-                        $option.attr("selected", "selected")
-                    }
-                    $select.append($option);
-                });
-                return $select.prop("outerHTML");
+                console.log(times)
+
+                return "<select><option value='"+data+"'>"+data+"</option></select>"
             }
           }
         ],
