@@ -193,10 +193,34 @@ docReady(function() {
           var row = $(this).closest('tr');
           var shopKey = table.row(row).data().shopKey;
           var previousMCSId = table.row(row).data().merchantConsoleShopId;
+          console.log(previousMCSId)
+          // Pobierz dane z kolumny o nazwie "name"
+          var columnData = table.column('name:merchantConsoleShopId').data();
+          console.log(columnData)
           ///dodać wielątkowanie replace a add a null na usuniecie
+
           console.log(sklepy)
           console.log(merchantConsoleShopId)
-          console.log(previousMCSId)
+
+          var payload = [];
+
+          if (merchantConsoleShopId === 0) {
+              var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
+              var method = "DELETE";
+              var content = {
+                op: "remove",
+                path: "/shopKey",
+              };
+              payload.push(content);
+          } else if (sklepy.indexOf(merchantConsoleShopId) >= 0) {
+            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
+            var method = "DELETE";
+          } else {
+            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
+            var method = "DELETE";
+          }
+        
+          
           console.log(shopKey);
 
 
