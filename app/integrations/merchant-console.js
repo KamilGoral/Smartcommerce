@@ -187,7 +187,7 @@ docReady(function() {
             $("td:eq(3) select", row).change();
           }
         });
-        $("#table_integrated_shops_list").on("change", "select", function() {
+        $(".id100").on("change", "select", function() {
           var merchantConsoleShopId = parseInt($(this).val());
           var row = $(this).closest('tr');
           var shopKey = table.row(row).data().shopKey;
