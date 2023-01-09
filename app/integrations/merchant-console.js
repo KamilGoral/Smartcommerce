@@ -196,7 +196,7 @@ docReady(function() {
           // Pobierz dane z kolumny o nazwie "name"
           var columnData = table.column('name:merchantConsoleShopId').data();
           console.log(columnData)
-          ///dodać wielątkowanie replace a add a null na usuniecie
+          ///dodać wielątkowanie replace a add a null na usuniecie //
 
           console.log(sklepy)
           console.log(merchantConsoleShopId)
