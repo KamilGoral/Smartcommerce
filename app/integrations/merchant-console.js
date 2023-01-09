@@ -192,46 +192,43 @@ docReady(function() {
           var row = $(this).closest('tr');
           var shopKey = table.row(row).data().shopKey;
           var previousMCSId = table.row(row).data().merchantConsoleShopId;
-          console.log(previousMCSId)
-          // Pobierz dane z kolumny o nazwie "name"
-          var columnData = table.column('name:merchantConsoleShopId').data();
-          console.log(columnData)
+          var columnData = table.column(3).data();
+          console.log("Prveious:" + columnData)
           ///dodać wielątkowanie replace a add a null na usuniecie //
-
-          console.log(sklepy)
-          console.log(merchantConsoleShopId)
+          console.log("Prveious: " + previousMCSId);
+          console.log("sklepy: " + sklepy);
+          console.log("mcshopId: " + merchantConsoleShopId);
 
           var payload = [];
+          var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
+          var method = "PATCH";
 
           if (merchantConsoleShopId === 0) {
-              var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
-              var method = "DELETE";
+              console.log("delete")
               var content = {
                 op: "remove",
                 path: "/shopKey",
               };
               payload.push(content);
-          } else if (sklepy.indexOf(merchantConsoleShopId) >= 0) {
-            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
-            var method = "DELETE";
+          } else if (previousMCSId > 0) {
+            console.log("replace")
+            var content = {
+              op: "replace",
+              path: "/shopKey",
+              value: shopKey
+            }
+            payload.push(content);
           } else {
-            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
-            var method = "DELETE";
+            console.log("add")
+            var content = {
+              op: "add",
+              path: "/shopKey",
+              value: shopKey
+            }
+            payload.push(content);
           }
         
-          
-          console.log(shopKey);
 
-
-          var payload = [];
-          var product = {
-            op: "add",
-            path: "/shopKey",
-            value: shopKey,
-          };
-          payload.push(product);
-          var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
-          var method = "PATCH";
           $.ajax({
             type: method,
             url: action,
@@ -314,10 +311,6 @@ docReady(function() {
   }
 
 
-
-
-  var formIdPcMarket = "#wf-form-pcmarket";
-
   makeWebflowFormAjaxCreate = function(forms, successCallback, errorCallback) {
     forms.each(function() {
       var form = $(this);
@@ -325,8 +318,6 @@ docReady(function() {
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
-        var action = InvokeURL + "shops";
-
         var inputdata = form.serializeArray();
 
         var data = {
@@ -391,9 +382,71 @@ docReady(function() {
     });
   };
 
+  makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#IntegrationDeleteSuccess", container);
+        var failBlock = $("#IntegrationDeleteFail", container);
+        var action = InvokeURL + "integrations/" + integrationKeyId;
+        var method = "DELETE";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              document.location = "href", "https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID;
+            }, 5000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   getIntegrations();
   getShops();
   $('#waitingdots').hide();
-  makeWebflowFormAjaxCreate($(formIdPcMarket));
+  makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
 
 })
