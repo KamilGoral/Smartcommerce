@@ -89,9 +89,6 @@ docReady(function () {
         shPostcode.textContent = data.address.postcode;
         shShopKey.textContent = data.shopKey;
         pcMarketId.textContent = data.pcmarketShopId;
-        if (data.pcmarketShopId > 0) {
-          $("#NewPcmMarketShopId").val(data.pcmarketShopId);
-        }
 
         shNameInput.value = data.name;
         shKeyInput.value = data.shopKey;
@@ -106,35 +103,6 @@ docReady(function () {
     };
 
     // Send request
-    request.send();
-  }
-
-  function getPCShopsId() {
-    let url = new URL(InvokeURL + "integrations/pcmarket");
-
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.shops;
-      if (
-        request.status >= 200 &&
-        request.status < 400 &&
-        data.hasOwnProperty("shops") > 0
-      ) {
-        const wholesalerProfileContainer =
-          document.getElementById("NewPcmMarketShopId");
-        toParse.forEach((profile) => {
-          var optProfile = document.createElement("option");
-          optProfile.value = profile.id;
-          optProfile.innerHTML = profile.shortName;
-          wholesalerProfileContainer.appendChild(optProfile);
-        });
-      } else {
-        console.log("Unauthorized");
-      }
-    };
     request.send();
   }
 
@@ -1063,7 +1031,6 @@ docReady(function () {
         var doneBlock = $("#form-doneEditShopInformation", container);
         var failBlock = $("#form-failEditShopInformation", container);
         var action = InvokeURL + "shops/" + shopKey;
-        var PcMarketId = parseInt($("#NewPcmMarketShopId").val());
         var data = [
           {
             op: "add",
@@ -1074,11 +1041,6 @@ docReady(function () {
             op: "add",
             path: "/key",
             value: $("#NewShopKey").val(),
-          },
-          {
-            op: "add",
-            path: "/pcmarketShopId",
-            value: PcMarketId,
           },
           {
             op: "add",
@@ -1106,45 +1068,6 @@ docReady(function () {
             value: $("#NewShopPostCode").val(),
           },
         ];
-        if (isNaN(PcMarketId)) {
-          data = [
-            {
-              op: "add",
-              path: "/name",
-              value: $("#NewShopName").val(),
-            },
-            {
-              op: "add",
-              path: "/key",
-              value: $("#NewShopKey").val(),
-            },
-            {
-              op: "add",
-              path: "/address/country",
-              value: $("#NewShopCountry").val(),
-            },
-            {
-              op: "add",
-              path: "/address/line1",
-              value: $("#NewShopLine").val(),
-            },
-            {
-              op: "add",
-              path: "/address/town",
-              value: $("#NewShopTown").val(),
-            },
-            {
-              op: "add",
-              path: "/address/state",
-              value: $("#NewShopState").val(),
-            },
-            {
-              op: "add",
-              path: "/address/postcode",
-              value: $("#NewShopPostCode").val(),
-            },
-          ];
-        }
         var method = "PATCH";
 
         $.ajax({
@@ -1389,7 +1312,6 @@ docReady(function () {
   getOrders();
   getOffers();
   getPriceLists();
-  getPCShopsId();
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
