@@ -88,7 +88,7 @@ docReady(function () {
         shState.textContent = data.address.state;
         shPostcode.textContent = data.address.postcode;
         shShopKey.textContent = data.shopKey;
-        pcMarketId.textContent = data.pcmarketShopId;
+        pcMarketId.textContent = data.merchantConsoleShopId;
 
         shNameInput.value = data.name;
         shKeyInput.value = data.shopKey;
