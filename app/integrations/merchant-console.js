@@ -205,6 +205,7 @@ docReady(function() {
           
           var method = "PATCH";
 
+
           if (isNaN(merchantConsoleShopId)) {
               var action = InvokeURL + "integrations/merchant-console/shops/" + previousMCSId;
               console.log("delete")
@@ -253,9 +254,16 @@ docReady(function() {
             processData: false,
             success: function(resultData) {
               console.log("success");
-              console.log(resultData);
-              $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
-              $(".error-message-fixed-main").css("background-color", "#52c41a");
+                console.log(resultData);
+
+              if (isNaN(merchantConsoleShopId)) {               
+                $(".warningmessagetext").text("Sukces. Pomyślnie usunięto integracje sklepu z Konsolą Kupca");
+              } else {
+                $(".warningmessagetext").text("Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca");
+              }
+              console.log("success");
+              console.log(resultData);   
+              $(".error-message-fixed-main").css("background-color", "#00754e");
               $("#WarningMessageContainer").show();
               $("#WarningMessageContainer").fadeOut(6000);
 
