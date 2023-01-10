@@ -203,10 +203,10 @@ docReady(function() {
 
           var payload = [];
           var method = "PATCH";
-          var action = InvokeURL + "integrations/merchant-console/shops/" + previousMCSId;
+          
 
           if (isNaN(merchantConsoleShopId)) {
-              
+            var action = InvokeURL + "integrations/merchant-console/shops/" + previousMCSId;
               console.log("delete")
               var content = {
                 op: "remove",
@@ -215,6 +215,7 @@ docReady(function() {
               payload.push(content);
           } else if (previousMCSId > 0) {
             console.log("replace")
+            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
             var content = {
               op: "replace",
               path: "/shopKey",
@@ -223,6 +224,7 @@ docReady(function() {
             payload.push(content);
           } else {
             console.log("add")
+            var action = InvokeURL + "integrations/merchant-console/shops/" + merchantConsoleShopId;
             var content = {
               op: "add",
               path: "/shopKey",
