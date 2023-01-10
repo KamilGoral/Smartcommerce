@@ -382,7 +382,7 @@ docReady(function () {
                 path: "/profile",
                 value: {
                   id: $("#Wholesaler-profile-Selector").val(),
-                  name: $("#Wholesaler-profile-Selector").attr("name"),
+                  name: $("#Wholesaler-profile-Selector option:selected").text()
                 },
               },
             ];
@@ -438,8 +438,6 @@ docReady(function () {
             // add case
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               
-              $("#waitingdots").show();
-
               let url = new URL(
                 InvokeURL +
                   "shops/" +
@@ -450,10 +448,11 @@ docReady(function () {
               );
 
               let request = new XMLHttpRequest();
+              request.addEventListener("load", reqListener);
               request.open("GET", url, true);
               request.setRequestHeader("Authorization", orgToken);
               request.onload = function () {
-                $("#waitingdots").hide();
+
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
                 if (
@@ -469,7 +468,6 @@ docReady(function () {
                   toParse.forEach((profile) => {
                     var optProfile = document.createElement("option");
                     optProfile.value = profile.id;
-                    optProfile.name = profile.name;
                     optProfile.innerHTML = profile.name;
                     wholesalerProfileContainer.appendChild(optProfile);
                   });
