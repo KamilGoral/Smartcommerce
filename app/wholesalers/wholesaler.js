@@ -467,6 +467,7 @@ docReady(function () {
                   toParse.forEach((profile) => {
                     var optProfile = document.createElement("option");
                     optProfile.value = profile.id;
+                    optProfile.name = profile.name;
                     optProfile.innerHTML = profile.name;
                     wholesalerProfileContainer.appendChild(optProfile);
                   });
@@ -498,7 +499,6 @@ docReady(function () {
                 }
               };
               request.send();
-              $("#waitingdots").hide();
               $("#Wholesaler-profile-Selector")
                 .find("option")
                 .remove()
@@ -506,8 +506,16 @@ docReady(function () {
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
               $("#waitingdots").hide();
+              $("#waitingdots").show();
               $(".successmessagetext").text(
                 "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
+              );
+              setTimeout(function () {
+                console.log("Opoznienie na logowanie")
+              }, 4000);
+              $("#waitingdots").hide();
+              $(".successmessagetext").text(
+                "Proszę wybrać profil z listy dla konfigurowanego sklepu."
               );
               doneBlock.show();
             } else {

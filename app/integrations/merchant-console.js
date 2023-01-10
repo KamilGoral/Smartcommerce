@@ -194,12 +194,9 @@ docReady(function() {
           var previousMCSId = table.row(row).data().merchantConsoleShopId;
           var columnData = table.column(3).data();
           console.log("Prveious:" + columnData)
-          ///dodać wielątkowanie replace a add a null na usuniecie //
           console.log("Prveious: " + previousMCSId);
           console.log("sklepy: " + sklepy);
           console.log("mcshopId: " + merchantConsoleShopId);
-
-          //mcshopId: NaN to wtedy delete na previous
 
           var payload = [];
           var method = "PATCH";
