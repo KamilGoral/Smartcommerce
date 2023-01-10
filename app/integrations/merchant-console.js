@@ -202,12 +202,11 @@ docReady(function() {
           //mcshopId: NaN to wtedy delete na previous
 
           var payload = [];
-          
           var method = "PATCH";
-
+          var action = InvokeURL + "integrations/merchant-console/shops/" + previousMCSId;
 
           if (isNaN(merchantConsoleShopId)) {
-              var action = InvokeURL + "integrations/merchant-console/shops/" + previousMCSId;
+              
               console.log("delete")
               var content = {
                 op: "remove",
