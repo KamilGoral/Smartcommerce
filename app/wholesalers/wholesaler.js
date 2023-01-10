@@ -448,7 +448,8 @@ docReady(function () {
               );
 
               let request = new XMLHttpRequest();
-              request.addEventListener("load", reqListener);
+              request.addEventListener("load", $("#waitingdots").show());
+              req.addEventListener("loadend", $("#waitingdots").hide());
               request.open("GET", url, true);
               request.setRequestHeader("Authorization", orgToken);
               request.onload = function () {
