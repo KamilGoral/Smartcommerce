@@ -535,19 +535,39 @@ docReady(function () {
               }, 4000);
             }
           },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
+          error: function(jqXHR, exception) {
+            console.log("error")
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Nie masz połączenia z internetem.";
+            } else if (jqXHR.status == 404) {
+              msg = "Nie znaleziono strony";
+            } else if (jqXHR.status == 403) {
+              msg = "Nie masz uprawnień do tej czynności";
+            } else if (jqXHR.status == 409) {
+              msg =
+                "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+            } else if (jqXHR.status == 500) {
+              msg =
+                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+            } else if (exception === "parsererror") {
+              msg = "Nie udało się odczytać danych";
+            } else if (exception === "timeout") {
+              msg = "Przekroczony czas oczekiwania";
+            } else if (exception === "abort") {
+              msg = "Twoje żądanie zostało zaniechane";
+            } else {
+              msg = "" + jqXHR.responseText;
             }
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(3000);
-            failBlock.hide();
-            console.log(e);
-            window.setTimeout(function () {
-              location.reload();
-            }, 4000);
+              
+            $(".warningmessagetext").css("color", "#3a4570");
+            $(".warningmessagetext").text(msg);
+            $(".error-message-fixed-main").css("background-color", "#ffc53d");
+            $("#w-form-fail4").show()
+            $("#w-form-fail4").fadeOut(6000);
+            return;
           },
         });
         event.preventDefault();
