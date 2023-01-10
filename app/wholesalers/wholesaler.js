@@ -529,13 +529,11 @@ docReady(function () {
               $(".successmessagetext").text(
                 "Dostawca został pomyślnie skonfigurowany."
               );
-              doneBlock.show();
-              doneBlock.fadeOut(4000);
-              failBlock.hide();
-              window.setTimeout(function () {
-                console.log("reload2")
-                location.reload();
-              }, 4000);
+              $(".warningmessagetext").css("color", "#3a4570");
+              $(".warningmessagetext").text(msg);
+              $(".error-message-fixed-main").css("background-color", "#ffc53d");
+              $("#w-form-fail4").show()
+              $("#w-form-fail4").fadeOut(6000);
             }
           },
           error: function(jqXHR, exception) {
