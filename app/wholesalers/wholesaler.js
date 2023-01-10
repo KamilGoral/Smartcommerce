@@ -211,7 +211,17 @@ docReady(function () {
     );
 
     let request = new XMLHttpRequest();
+    request.addEventListener("load", reqListener );
+
     request.open("GET", url, true);
+    $("#waitingdots").show();
+
+    function reqListener() {
+      if (request.readyState === 4 && request.status === 200) {
+        // Hide the loaders
+        $("#waitingdots").hide();
+      }
+    }
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       var data = JSON.parse(this.response);
@@ -521,11 +531,12 @@ docReady(function () {
                 "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
               );
               $(".successmessagetext").text(
-                "Proszę wybrać profil z listy dla konfigurowanego sklepu."
+                "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
               );
               doneBlock.show();
             } else {
               form.show();
+              console.log("tutaj")
               $(".successmessagetext").text(
                 "Dostawca został pomyślnie skonfigurowany."
               );
@@ -560,7 +571,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Twoje żądanie zostało zaniechane";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
               
             $(".warningmessagetext").css("color", "#3a4570");
