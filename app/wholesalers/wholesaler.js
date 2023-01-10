@@ -455,7 +455,7 @@ docReady(function () {
 
               function reqListener() {
                 if (request.readyState === 4 && request.status === 200) {
-                  // Hide the loader
+                  // Hide the loaders
                   $("#waitingdots").hide();
                 }
               }
