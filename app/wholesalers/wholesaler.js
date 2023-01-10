@@ -437,6 +437,7 @@ docReady(function () {
 
             // add case
             if ($("#Wholesaler-profile-Selector").val() === "null") {
+              
               $("#waitingdots").show();
 
               let url = new URL(
@@ -452,6 +453,7 @@ docReady(function () {
               request.open("GET", url, true);
               request.setRequestHeader("Authorization", orgToken);
               request.onload = function () {
+                $("#waitingdots").hide();
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
                 if (
@@ -505,15 +507,9 @@ docReady(function () {
                 .end()
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
-              $("#waitingdots").hide();
-              $("#waitingdots").show();
               $(".successmessagetext").text(
                 "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
               );
-              setTimeout(function () {
-                console.log("Opoznienie na logowanie")
-              }, 4000);
-              $("#waitingdots").hide();
               $(".successmessagetext").text(
                 "Proszę wybrać profil z listy dla konfigurowanego sklepu."
               );
@@ -693,7 +689,7 @@ docReady(function () {
             }
             form.show();
             doneBlockDelete.show();
-            doneBlockDelete.fadeOut(3000);
+            doneBlockDelete.fadeOut(1000);
             window.setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
@@ -707,7 +703,7 @@ docReady(function () {
             form.show();
             doneBlockDelete.hide();
             failBlockDelete.show();
-            failBlockDelete.fadeOut(3000);
+            failBlockDelete.fadeOut(1000);
             failBlockDelete.hide();
             console.log(e);
           },
