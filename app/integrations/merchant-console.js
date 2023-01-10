@@ -321,7 +321,6 @@ docReady(function() {
 
   }
 
-
   makeWebflowFormAjaxCreate = function(forms, successCallback, errorCallback) {
     forms.each(function() {
       var form = $(this);
