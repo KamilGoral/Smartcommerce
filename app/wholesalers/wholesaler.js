@@ -429,6 +429,7 @@ docReady(function () {
                 failBlock.show();
                 console.log(e);
                 window.setTimeout(function () {
+                  console.log("reload1")
                   location.reload();
                 }, 4000);
                 return;
@@ -490,6 +491,7 @@ docReady(function () {
                     "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj.";
                   $(".successmessagetext").text("Pomyślnie dodano dostawcę");
                   window.setTimeout(function () {
+                    console.log("reload3")
                     location.reload();
                   }, 2000);
                 } else if (request.status == 401) {
@@ -531,6 +533,7 @@ docReady(function () {
               doneBlock.fadeOut(4000);
               failBlock.hide();
               window.setTimeout(function () {
+                console.log("reload2")
                 location.reload();
               }, 4000);
             }
