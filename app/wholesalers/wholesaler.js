@@ -448,9 +448,18 @@ docReady(function () {
               );
 
               let request = new XMLHttpRequest();
-              request.addEventListener("load", $("#waitingdots").show());
-              req.addEventListener("loadend", $("#waitingdots").hide());
+              request.addEventListener("load", reqListener );
+
               request.open("GET", url, true);
+              $("#waitingdots").show();
+
+              function reqListener() {
+                if (request.readyState === 4 && request.status === 200) {
+                  // Hide the loader
+                  $("#waitingdots").hide();
+                }
+              }
+
               request.setRequestHeader("Authorization", orgToken);
               request.onload = function () {
 
