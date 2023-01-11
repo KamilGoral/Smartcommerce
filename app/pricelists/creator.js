@@ -420,7 +420,10 @@ docReady(function () {
           success: function (resultData) {
             console.log(resultData);
             $("#Create-Pricelist-Success").show();
-            $("#Create-Pricelist-Success").fadeOut(3000);
+            $("#Create-Pricelist-Success").fadeOut(4000);
+            window.setTimeout(function () {
+              location.reload();
+          }, 4000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -434,10 +437,7 @@ docReady(function () {
             }
             form.show();
             $("#Create-Pricelist-Fail").show();
-            $("#Create-Pricelist-Fail").fadeOut(5000);
-            window.setTimeout(function () {
-              location.reload();
-          }, 5000);
+            $("#Create-Pricelist-Fail").fadeOut(5000);  
             return;
           },
         });
