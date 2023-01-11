@@ -569,12 +569,14 @@ docReady(function() {
                   console.log(lowestNetPrice)
 
                   if (currentPrice > lowestNetPrice) {
-                    return "1"
+                    return "<td>" +
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg">' +
+                    "</td>";
                   } else {
-                    return "0"
+                    return ""
                   }
                 } else {
-                  return "0"
+                  return ""
                 };
               
               },
