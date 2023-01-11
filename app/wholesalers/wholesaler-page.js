@@ -79,12 +79,9 @@ docReady(function () {
 
                 if (data.platformUrl !== null) {
                     whPlatformUrl.setAttribute("href", "" + data.platformUrl);
+                    $("#Iehurt").addClass("enabled")
                 } else {
                     $("#loginButton").hide();
-                }
-
-                if (data.onlineOfferSupport == true) {
-                    $("#Iehurt").addClass("enabled")
                 }
                 //
                 whTaxId.textContent = data.taxId;
