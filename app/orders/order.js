@@ -110,7 +110,7 @@ docReady(function() {
     console.log(exludedWholesalersAlready)
     const exludedWholesalers = searchIDs.join("&exclude=");
 
-    if (!isNaN(offerId)){
+    if (offerId.length > 0){
       UrlParameters = "offerId=" + offerId;
     } else {
       UrlParameters = "offerId=latest"
