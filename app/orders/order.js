@@ -328,7 +328,7 @@ docReady(function() {
 
   function format(d) {
     const arr = d.asks;
-    const lowest = arr.reduce((acc, loc) =>
+    arr.reduce((acc, loc) =>
       acc.netPrice < loc.netPrice ? acc : loc
     );
     var toDisplayHtml = "";
