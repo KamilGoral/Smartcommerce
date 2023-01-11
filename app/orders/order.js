@@ -566,6 +566,13 @@ docReady(function() {
                 let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
                 console.log(currentPrice)
                 console.log(lowestNetPrice)
+
+                if (currentPrice > lowestNetPrice) {
+                  return "1"
+                } else {
+                  return "0"
+                }
+
               }
             },
 
