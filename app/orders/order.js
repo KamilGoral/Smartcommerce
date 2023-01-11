@@ -558,6 +558,17 @@ docReady(function() {
               orderable: true,
               data: "netPrice",
             },
+            {
+              orderable: true,
+              data: null,
+              render: function(data) {
+                let currentPrice = data.netPrice;
+                let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
+                console.log(currentPrice)
+                console.log(lowestNetPrice)
+              }
+            },
+
 
             {
               orderable: true,
@@ -608,6 +619,12 @@ docReady(function() {
               },
             },
           ],
+          rowCallback: function(row, data) {
+            let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
+            if (data.netPrice > lowestNetPrice) {
+              $('td', row).css("background-color", "#FFFAE6");
+            }
+          },
           initComplete: function(settings, json) {
             var api = this.api();
             $("#spl_table").wrap(
