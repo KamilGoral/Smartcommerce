@@ -795,7 +795,6 @@ docReady(function() {
         headers,
       })
       .then((res) => {
-        console.log(res);
         res.headers.forEach((e) => headersResponse.push(e));
         console.log(headersResponse);
         return res.blob();
