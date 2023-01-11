@@ -829,27 +829,16 @@ docReady(function() {
 
       if ((data.search.value).lenght > 0) {
         let isnum = /^\d+$/.test(data.search.value);
-        console.log(isnum)
+        console.log(isnum);
         if (isnum) {
-          urlVariables.push({
-            key: "GTINCode",
-            value: searchBox
-          })
+          urlVariables.GTINCode = searchBox;
         } else {
-          urlVariables.push({
-            key: "productName",
-            value: searchBox
-          })
+          urlVariables.productName = searchBox;
         }
       }
-      urlVariables.push({
-        key: "perPage",
-        value: data.length
-      })
-      urlVariables.push({
-        key: "page",
-        value: (data.start + data.length) / data.length
-      })
+      urlVariables.perPage = data.length
+      urlVariables.page = (data.start + data.length) / data.length
+
 
       $.ajaxSetup({
         headers: {
