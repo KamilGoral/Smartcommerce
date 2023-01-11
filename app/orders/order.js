@@ -561,22 +561,20 @@ docReady(function() {
             {
               orderable: true,
               data: null,
+              class: "details-invisible",
               render: function(data) {
                   if (data.hasOwnProperty("asks") && data.asks !== null) {
                   let currentPrice = data.netPrice;
                   let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
                   if (currentPrice > lowestNetPrice) {
-                    return '<td style="font-size: 0;">' + "2" +
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg">' +
+                    return '<td>2<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg">' +
                     "</td>";
                   } else {
-                    return '<td style="font-size: 0;">' + "1" +
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg">' +
+                    return '<td>1<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg">' +
                     "</td>";
                   }
                 } else {
-                  return '<td style="font-size: 0;">0' + "0" +
-                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63becd43bae4d68e5b9f5cff_trivial.svg">' +
+                  return '<td>0<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63becd43bae4d68e5b9f5cff_trivial.svg">' +
                   "</td>";
                 };
               
