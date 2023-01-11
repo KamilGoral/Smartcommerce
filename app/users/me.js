@@ -145,29 +145,38 @@ docReady(function () {
     const actionUrl = but.getAttribute("action");
     const decision = but.getAttribute("decision");
     var isTrueSet = decision === "accept";
-    let request = new XMLHttpRequest();
     var data = [
-      {
-        op: "replace",
-        path: "/accepted",
-        value: isTrueSet,
-      },
+        {
+            op: "replace",
+            path: "/accepted",
+            value: isTrueSet,
+        },
     ];
 
-    request.open("PATCH", actionUrl, true);
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.setRequestHeader("Authorization", smartToken);
-    request.onload = function () {
-      let data = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
-        window.location.reload();
-      }
-      if (request.status == 401) {
-        MessageBox();
-      }
-    };
-    request.send(JSON.stringify(data));
-  }
+    $.ajax({
+        type: 'PATCH',
+        url: actionUrl,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        data: JSON.stringify(data),
+        contentType: 'application/json;charset=UTF-8',
+        headers: {
+            'Authorization': smartToken
+        },
+        success: function () {
+            window.location.reload();
+        },
+        error: function (jqXHR, exception) {
+            if (jqXHR.status === 401) {
+                MessageBox();
+            }
+        }
+    });
+}
 
   function getInvitations() {
     let url = new URL(InvokeURL + "users/me/invitations");

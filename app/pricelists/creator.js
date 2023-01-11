@@ -423,7 +423,7 @@ docReady(function () {
             $("#Create-Pricelist-Success").fadeOut(4000);
             window.setTimeout(function () {
               location.reload();
-          }, 4000);
+          }, 3000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
