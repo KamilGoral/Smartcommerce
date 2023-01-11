@@ -824,22 +824,18 @@ docReady(function() {
     },
     ajax: function(data, callback, settings) {
       $("#before-split-products").show();
-      var urlVariables = {};
-      var searchBox = data.search.value;
-
-      if ((data.search.value).lenght > 0) {
-        let isnum = /^\d+$/.test(data.search.value);
-        console.log(isnum);
-        if (isnum) {
-          urlVariables.GTINCode = searchBox;
-        } else {
-          urlVariables.productName = searchBox;
-        }
+      var QStr =
+        "?perPage=" +
+        data.length +
+        "&page=" +
+        (data.start + data.length) / data.length;
+      let searchBox = data.search.value;
+      if (/^\d+$/.test(searchBox)) {
+        QStr = QStr + "&gtin=" + searchBox;
+      } else if (searchBox) {
+        QStr = QStr + "&name=like:" + searchBox;
+      } else {
       }
-      urlVariables.perPage = data.length
-      urlVariables.page = (data.start + data.length) / data.length
-
-      console.log(urlVariables);
 
 
       $.ajaxSetup({
@@ -855,8 +851,7 @@ docReady(function() {
       });
 
       $.get(
-        InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products",
-        urlVariables,
+        InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products" + QStr,
         function(res) {
           console.log(res);
           callback({
