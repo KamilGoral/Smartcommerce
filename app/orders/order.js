@@ -567,13 +567,17 @@ docReady(function() {
                   let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
                   if (currentPrice > lowestNetPrice) {
                     return "<td>" +
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg">' +
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg">' +
                     "</td>";
                   } else {
-                    return ""
+                    return "<td>" +
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg">' +
+                    "</td>";
                   }
                 } else {
-                  return ""
+                  return "<td>" +
+                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg">' +
+                  "</td>";
                 };
               
               },
@@ -885,7 +889,6 @@ docReady(function() {
       $.get(
         InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products" + QStr,
         function(res) {
-          console.log(res);
           callback({
             recordsTotal: res.total,
             recordsFiltered: res.total,
