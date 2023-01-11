@@ -645,6 +645,7 @@ docReady(function() {
           },
           initComplete: function(settings, json) {
             var api = this.api();
+            $("#spl_table th").removeClass("details-invisible");
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
