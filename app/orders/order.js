@@ -328,7 +328,7 @@ docReady(function() {
 
   function format(d) {
     const arr = d.asks;
-    arr.reduce((acc, loc) =>
+    const lowest = arr.reduce((acc, loc) =>
       acc.netPrice < loc.netPrice ? acc : loc
     );
     var toDisplayHtml = "";
@@ -341,15 +341,16 @@ docReady(function() {
         item.netNetPrice = "-";
       }
       var typeOfSource = "";
-      if (item.source === "price list") {
+      if (item.source === "price-list") {
         typeOfSource = "Cennik";
       }
-      if (item.source === "online offer") {
+      if (item.source === "online-offer") {
         typeOfSource = "E-hurt";
       }
-      if (item.source === "PC-Market integration") {
+      if (item.source === "konsola-kupca") {
         typeOfSource = "Pc-Market";
       }
+
       var tableRowHtml =
         "<tr>" +
         "<td>" +
@@ -645,16 +646,15 @@ docReady(function() {
           },
           initComplete: function(settings, json) {
             var api = this.api();
-            $("#lowerprice th").removeClass("details-invisible");
+            $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
             var textBox = $("#spl_table_filter label input");
-            $("#spl_table").on("click", "td.details-control", function() {
+
+            $("#spl_table tbody").on("click", "td.details-control", function () {
               var tr = $(this).closest("tr");
               var row = table.row(tr);
-              console.log(tr, row);
-
               if (row.child.isShown()) {
                 row.child.hide();
                 tr.removeClass("shown");
@@ -663,6 +663,7 @@ docReady(function() {
                 tr.addClass("shown");
               }
             });
+
             $("#spl_table").on("focusout", "input", function() {
               console.log($(this));
               var cell = $(this).closest("td");
