@@ -576,7 +576,7 @@ docReady(function() {
                   }
                 } else {
                   return "<td>" +
-                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg">' +
+                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63becd43bae4d68e5b9f5cff_trivial.svg">' +
                   "</td>";
                 };
               
