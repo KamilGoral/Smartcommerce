@@ -839,6 +839,8 @@ docReady(function() {
       urlVariables.perPage = data.length
       urlVariables.page = (data.start + data.length) / data.length
 
+      console.log(urlVariables);
+
 
       $.ajaxSetup({
         headers: {
