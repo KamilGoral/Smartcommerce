@@ -107,7 +107,6 @@ docReady(function() {
     });
     var UrlParameters = ""
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
-    console.log(exludedWholesalersAlready)
     const exludedWholesalers = searchIDs.join("&exclude=");
 
     if (offerId.length > 0){
@@ -122,7 +121,6 @@ docReady(function() {
     if (exludedWholesalers.length > 0){
       UrlParameters = UrlParameters + "&exclude=" + exludedWholesalers
     }
-    console.log(UrlParameters)
     var action =
       InvokeURL +
       "shops/" +
@@ -223,7 +221,6 @@ docReady(function() {
               orderable: true,
               data: null,
               render: function(data) {
-                console.log(data)
 
                 if (data.logisticMinimum === null) {
                   return "-";
@@ -275,7 +272,6 @@ docReady(function() {
             },
           ],
           rowCallback: function(row, data) {
-            console.log(data)
             if (data.logisticMinimum > data.value) {
               $('td', row).css("background-color", "#FFFAE6");
             }
@@ -640,7 +636,6 @@ docReady(function() {
               console.log(table);
               $(this).attr("value", $(this).val());
               var data = table.row($(this).parents("tr")).data();
-              console.log(data);
               var payload = [];
               var product = {
                 op: "replace",
