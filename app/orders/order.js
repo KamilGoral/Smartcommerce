@@ -565,9 +565,6 @@ docReady(function() {
                   if (data.hasOwnProperty("asks") && data.asks !== null) {
                   let currentPrice = data.netPrice;
                   let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
-                  console.log(currentPrice)
-                  console.log(lowestNetPrice)
-
                   if (currentPrice > lowestNetPrice) {
                     return "<td>" +
                     '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg">' +
@@ -635,15 +632,11 @@ docReady(function() {
             if (data.hasOwnProperty("asks") && data.asks !== null ) {
               let currentPrice = data.netPrice;
               let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
-              console.log(currentPrice)
-              console.log(lowestNetPrice)
               if (data.netPrice > lowestNetPrice) {
                 $('td', row).css("background-color", "#FFFAE6");
               } else {
-                console.log("wysoko")
               }
             } else {
-              console.log("brak askow")
             }
           },
           initComplete: function(settings, json) {
