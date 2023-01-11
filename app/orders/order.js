@@ -562,7 +562,7 @@ docReady(function() {
               orderable: true,
               data: null,
               render: function(data) {
-                  if (data.hasOwnProperty("asks")) {
+                  if (data.hasOwnProperty("asks") && data.asks !== null) {
                   let currentPrice = data.netPrice;
                   let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
                   console.log(currentPrice)
@@ -630,7 +630,7 @@ docReady(function() {
           ],
           rowCallback: function(row, data) {
 
-            if (data.hasOwnProperty("asks")) {
+            if (data.hasOwnProperty("asks") && data.asks !== null ) {
               let currentPrice = data.netPrice;
               let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
               console.log(currentPrice)
