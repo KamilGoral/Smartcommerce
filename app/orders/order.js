@@ -562,18 +562,22 @@ docReady(function() {
               orderable: true,
               data: null,
               render: function(data) {
-                let currentPrice = data.netPrice;
-                let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
-                console.log(currentPrice)
-                console.log(lowestNetPrice)
+                  if (data.hasOwnProperty("asks")) {
+                  let currentPrice = data.netPrice;
+                  let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
+                  console.log(currentPrice)
+                  console.log(lowestNetPrice)
 
-                if (currentPrice > lowestNetPrice) {
-                  return "1"
+                  if (currentPrice > lowestNetPrice) {
+                    return "1"
+                  } else {
+                    return "0"
+                  }
                 } else {
                   return "0"
-                }
-
-              }
+                };
+              
+              },
             },
             {
               orderable: true,
@@ -625,9 +629,19 @@ docReady(function() {
             },
           ],
           rowCallback: function(row, data) {
-            let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
-            if (data.netPrice > lowestNetPrice) {
-              $('td', row).css("background-color", "#FFFAE6");
+
+            if (data.hasOwnProperty("asks")) {
+              let currentPrice = data.netPrice;
+              let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
+              console.log(currentPrice)
+              console.log(lowestNetPrice)
+              if (data.netPrice > lowestNetPrice) {
+                $('td', row).css("background-color", "#FFFAE6");
+              } else {
+                console.log("wysoko")
+              }
+            } else {
+              console.log("brak askow")
             }
           },
           initComplete: function(settings, json) {
