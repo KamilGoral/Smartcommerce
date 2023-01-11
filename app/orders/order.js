@@ -575,8 +575,6 @@ docReady(function() {
 
               }
             },
-
-
             {
               orderable: true,
               data: "standardPrice",
