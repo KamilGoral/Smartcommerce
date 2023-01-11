@@ -829,12 +829,22 @@ docReady(function () {
       $("#before-split-products").show();
       var GTINCode = "";
       var productName = "";
+      console.log(GTINCode)
+      
       let isnum = /^\d+$/.test(data.search.value);
+      console.log(isnum)
       if (isnum) {
         GTINCode = data.search.value;
       } else {
         productName = data.search.value;
       }
+      var urlVariables = 
+      {
+        perPage: data.length,
+        page: (data.start + data.length) / data.length,
+        name: "like:" + productName,
+        gtin: GTINCode,
+      };
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
@@ -846,14 +856,10 @@ docReady(function () {
           $("#waitingdots").hide();
         },
       });
+
       $.get(
-        InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products",
-        {
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
-          name: "like:" + productName,
-          gtin: GTINCode,
-        },
+        InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products", 
+        urlVariables,
         function (res) {
           console.log(res);
           callback({
