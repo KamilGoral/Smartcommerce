@@ -630,11 +630,13 @@ docReady(function() {
             },
           ],
           rowCallback: function(row, data) {
-
             if (data.hasOwnProperty("asks") && data.asks !== null ) {
               let currentPrice = data.netPrice;
               let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
               if (data.netPrice > lowestNetPrice) {
+                console.log(data)
+                console.log(currentPrice)
+                console.log(lowestNetPrice)
                 $('td', row).css("background-color", "#FFFAE6");
               } else {
               }
