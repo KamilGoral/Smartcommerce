@@ -166,10 +166,7 @@ docReady(function () {
       myInvalidProducts.products.length +
       ")";
     const validRows = document.getElementById("validRows");
-    validRows.textContent =
-      " 02. Podejrzyj zaimportowany cennik (" +
-      myValidProducts.products.length +
-      ")";
+    
 
     var preDuplicates = myValidProducts.products;
 
@@ -187,7 +184,11 @@ docReady(function () {
     var old = new Set(filteredArray.map(({ gtin }) => gtin));
     var resultData = filteredArr.filter(({ gtin }) => !old.has(gtin));
 
-    console.log(resultData);
+    
+    validRows.textContent =
+      " 02. Podejrzyj zaimportowany cennik (" +
+      resultData.length +
+      ")";
 
     $(document).ready(function () {
       var tables = $.fn.dataTable.fnTables(true);
@@ -434,6 +435,9 @@ docReady(function () {
             form.show();
             $("#Create-Pricelist-Fail").show();
             $("#Create-Pricelist-Fail").fadeOut(5000);
+            window.setTimeout(function () {
+              location.reload();
+          }, 5000);
             return;
           },
         });
