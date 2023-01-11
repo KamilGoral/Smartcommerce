@@ -666,9 +666,6 @@ docReady(function() {
               console.log($(this));
               var cell = $(this).closest("td");
               var row = $(this).closest("tr");
-              console.log(cell);
-              console.log(row);
-              console.log(table);
               $(this).attr("value", $(this).val());
               var data = table.row($(this).parents("tr")).data();
               var payload = [];
