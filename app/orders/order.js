@@ -105,25 +105,32 @@ docReady(function() {
         '"></label></div>'
       );
     });
-
+    var UrlParameters = ""
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
+    console.log(exludedWholesalersAlready)
     const exludedWholesalers = searchIDs.join("&exclude=");
-    const toUrlAll =
-      "&exclude=" +
-      exludedWholesalers +
-      "&exclude=" +
-      exludedWholesalersAlready;
 
+    if (!isNaN(offerId)){
+      UrlParameters = "offerId=" + offerId;
+    } else {
+      UrlParameters = "offerId=latest"
+    }
+
+    if (exludedWholesalersAlready.length > 0){
+      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready
+    }
+    if (exludedWholesalers.length > 0){
+      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalers
+    }
+    console.log(UrlParameters)
     var action =
       InvokeURL +
       "shops/" +
       shopKey +
       "/orders/" +
       orderId +
-      "/split?offerId=" +
-      offerId +
-      "&" +
-      toUrlAll;
+      "/split?" +
+      UrlParameters;
     $.ajax({
       type: method,
       url: action,
