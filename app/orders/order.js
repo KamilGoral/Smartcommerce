@@ -329,10 +329,9 @@ docReady(function() {
   function format(d) {
     const arr = d.asks;
     console.log(arr);
-    const lowest = arr.reduce((acc, loc) =>
-      acc.netPrice < loc.netPrice ? acc : loc
-    );
+    arr.sort((a, b) => (a.netPrice > b.netPrice) ? 1: -1);
     var toDisplayHtml = "";
+    console.log(arr);
 
     function myFunction(item) {
       if (item.set === null) {
@@ -572,11 +571,11 @@ docReady(function() {
                     var diffPercent = ((currentPrice - lowestNetPrice) / currentPrice * 100).toFixed(2)
                     return '<td>' + diffPercent + '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' + '</td>';
                   } else {
-                    return '<td>0.00<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                    return '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
                       "</td>";
                   }
                 } else {
-                  return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63becd43bae4d68e5b9f5cff_trivial.svg" style="margin-left: 4px;">' +
+                  return '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
                     "</td>";
                 };
 
