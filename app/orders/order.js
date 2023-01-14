@@ -109,16 +109,16 @@ docReady(function() {
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
 
-    if (offerId.length > 0){
+    if (offerId.length > 0) {
       UrlParameters = "offerId=" + offerId;
     } else {
       UrlParameters = "offerId=latest"
     }
 
-    if (exludedWholesalersAlready.length > 0){
+    if (exludedWholesalersAlready.length > 0) {
       UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready
     }
-    if (exludedWholesalers.length > 0){
+    if (exludedWholesalers.length > 0) {
       UrlParameters = UrlParameters + "&exclude=" + exludedWholesalers
     }
     var action =
@@ -564,22 +564,21 @@ docReady(function() {
               data: null,
               // class: "details-invisible",
               render: function(data) {
-                  if (data.hasOwnProperty("asks") && data.asks !== null) {
+                if (data.hasOwnProperty("asks") && data.asks !== null) {
                   let currentPrice = data.netPrice;
                   let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
                   if (currentPrice > lowestNetPrice) {
-                    var diffPercent = Math.round(( currentPrice - lowestNetPrice ) / currentPrice * 100 )
-                    return '<td>' + diffPercent + '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg">' +
-                    "</td>";
+                    var diffPercent = ((currentPrice - lowestNetPrice) / currentPrice * 100).toFixed(2)
+                    return '<td>' + diffPercent + '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' + '</td>';
                   } else {
-                    return '<td>0.00<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg">' +
-                    "</td>";
+                    return '<td>0.00<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                      "</td>";
                   }
                 } else {
-                  return '<td>"-"<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63becd43bae4d68e5b9f5cff_trivial.svg">' +
-                  "</td>";
+                  return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63becd43bae4d68e5b9f5cff_trivial.svg" style="margin-left: 4px;">' +
+                    "</td>";
                 };
-              
+
               },
             },
             {
@@ -632,15 +631,13 @@ docReady(function() {
             },
           ],
           rowCallback: function(row, data) {
-            if (data.hasOwnProperty("asks") && data.asks !== null ) {
+            if (data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice = data.netPrice;
               let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
               if (data.netPrice > lowestNetPrice) {
                 $('td', row).css("background-color", "#FFFAE6");
-              } else {
-              }
-            } else {
-            }
+              } else {}
+            } else {}
           },
           initComplete: function(settings, json) {
             var api = this.api();
@@ -655,74 +652,74 @@ docReady(function() {
                 api.search(this.value).draw();
               }
             });
-              $("#spl_table tbody").on("click", "td.details-control", function () {
-    var tr = $(this).closest("tr");
-    var row = table.row(tr);
-    if (row.child.isShown()) {
-      row.child.hide();
-      tr.removeClass("shown");
-    } else {
-      row.child(format(row.data())).show();
-      tr.addClass("shown");
-    }
-  });
+            $("#spl_table tbody").on("click", "td.details-control", function() {
+              var tr = $(this).closest("tr");
+              var row = table.row(tr);
+              if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass("shown");
+              } else {
+                row.child(format(row.data())).show();
+                tr.addClass("shown");
+              }
+            });
 
-  $("#spl_table").on("focusout", "input", function() {
-    console.log($(this));
-    var cell = $(this).closest("td");
-    var row = $(this).closest("tr");
-    $(this).attr("value", $(this).val());
-    var data = table.row($(this).parents("tr")).data();
-    var payload = [];
-    var product = {
-      op: "replace",
-      path: "/" + data.gtin + "/quantity",
-      value: parseInt($(this).val()),
-    };
-    payload.push(product);
-    var action =
-      InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/products";
-    var method = "PATCH";
-    $.ajax({
-      type: method,
-      url: action,
-      cors: true,
-      beforeSend: function() {
-        $("#waitingdots").show();
-      },
-      complete: function() {
-        $("#waitingdots").hide();
-      },
-      contentType: "application/json",
-      dataType: "json",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: orgToken,
-      },
-      data: JSON.stringify(payload),
-      processData: false,
-      success: function(resultData) {
-        if (typeof successCallback === "function") {
-          result = successCallback(resultData);
-          if (!result) {
-            return;
-          }
-        }
-        var data = resultData;
-      },
-      error: function(jqXHR, exception) {
-        console.log(jqXHR);
-        console.log(exception);
-        return;
-      },
-    });
-  });
+            $("#spl_table").on("focusout", "input", function() {
+              console.log($(this));
+              var cell = $(this).closest("td");
+              var row = $(this).closest("tr");
+              $(this).attr("value", $(this).val());
+              var data = table.row($(this).parents("tr")).data();
+              var payload = [];
+              var product = {
+                op: "replace",
+                path: "/" + data.gtin + "/quantity",
+                value: parseInt($(this).val()),
+              };
+              payload.push(product);
+              var action =
+                InvokeURL +
+                "shops/" +
+                shopKey +
+                "/orders/" +
+                orderId +
+                "/products";
+              var method = "PATCH";
+              $.ajax({
+                type: method,
+                url: action,
+                cors: true,
+                beforeSend: function() {
+                  $("#waitingdots").show();
+                },
+                complete: function() {
+                  $("#waitingdots").hide();
+                },
+                contentType: "application/json",
+                dataType: "json",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                  Authorization: orgToken,
+                },
+                data: JSON.stringify(payload),
+                processData: false,
+                success: function(resultData) {
+                  if (typeof successCallback === "function") {
+                    result = successCallback(resultData);
+                    if (!result) {
+                      return;
+                    }
+                  }
+                  var data = resultData;
+                },
+                error: function(jqXHR, exception) {
+                  console.log(jqXHR);
+                  console.log(exception);
+                  return;
+                },
+              });
+            });
           },
         });
 
@@ -866,8 +863,7 @@ docReady(function() {
         QStr = QStr + "&gtin=" + searchBox;
       } else if (searchBox) {
         QStr = QStr + "&name=like:" + searchBox;
-      } else {
-      }
+      } else {}
 
 
       $.ajaxSetup({
