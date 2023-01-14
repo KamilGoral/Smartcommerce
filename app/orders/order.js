@@ -328,6 +328,7 @@ docReady(function() {
 
   function format(d) {
     const arr = d.asks;
+    console.log(arr);
     const lowest = arr.reduce((acc, loc) =>
       acc.netPrice < loc.netPrice ? acc : loc
     );
@@ -659,6 +660,7 @@ docReady(function() {
                 row.child.hide();
                 tr.removeClass("shown");
               } else {
+                console.log(row.data);
                 row.child(format(row.data())).show();
                 tr.addClass("shown");
               }
