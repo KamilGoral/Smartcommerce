@@ -464,6 +464,8 @@ docReady(function () {
           }
         }
         var products = resultProducts;
+        console.log(products);
+
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
           order: [[8, "desc"]], // This is column that contain values "Obniz Cene"
@@ -748,6 +750,8 @@ docReady(function () {
             });
           },
         });
+        table.clear().draw();
+        table.rows.add(products.items).draw();
 
         window.scrollTo({
           top: document.body.scrollHeight,
