@@ -13,7 +13,7 @@ function docReady(fn) {
   }
 }
 
-docReady(function() {
+docReady(function () {
   // DOM is loaded and ready for manipulation here
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -33,11 +33,11 @@ docReady(function() {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -52,11 +52,11 @@ docReady(function() {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   function CreateOrder() {
@@ -65,19 +65,19 @@ docReady(function() {
     var offerId = e.value;
 
     var searchIDs = $("#table_splited_wh input:checkbox:checked")
-      .map(function() {
+      .map(function () {
         return $(this).val();
       })
       .toArray();
     var deletetedIds = $("#DeletedContainer input:checkbox:checked")
-      .map(function() {
+      .map(function () {
         return $(this).val();
       })
       .toArray();
     var deletetedIdstoDelete = $(
-        "#DeletedContainer input:checkbox:not(:checked)"
-      )
-      .map(function() {
+      "#DeletedContainer input:checkbox:not(:checked)"
+    )
+      .map(function () {
         return $(this).val();
       })
       .toArray();
@@ -91,35 +91,35 @@ docReady(function() {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
-    var UrlParameters = ""
+    var UrlParameters = "";
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
 
     if (offerId.length > 0) {
       UrlParameters = "offerId=" + offerId;
     } else {
-      UrlParameters = "offerId=latest"
+      UrlParameters = "offerId=latest";
     }
 
     if (exludedWholesalersAlready.length > 0) {
-      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready
+      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready;
     }
     if (exludedWholesalers.length > 0) {
-      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalers
+      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalers;
     }
     var action =
       InvokeURL +
@@ -133,10 +133,10 @@ docReady(function() {
       type: method,
       url: action,
       cors: true,
-      beforeSend: function() {
+      beforeSend: function () {
         $("#waitingdots").show();
       },
-      complete: function() {
+      complete: function () {
         $("#waitingdots").hide();
       },
       contentType: "application/json",
@@ -147,7 +147,7 @@ docReady(function() {
         Authorization: orgToken,
       },
       processData: false,
-      success: function(resultData) {
+      success: function (resultData) {
         if (typeof successCallback === "function") {
           result = successCallback(resultData);
           if (!result) {
@@ -201,15 +201,17 @@ docReady(function() {
           search: {
             return: true,
           },
-          columns: [{
+          columns: [
+            {
               orderable: false,
               data: null,
-              defaultContent: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
+              defaultContent:
+                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
             },
             {
               orderable: true,
               data: "wholesalerKey",
-              render: function(data) {
+              render: function (data) {
                 if (data === "unassigned") {
                   return "NIEPRZYDZIELONE";
                 } else {
@@ -220,14 +222,13 @@ docReady(function() {
             {
               orderable: true,
               data: null,
-              render: function(data) {
-
+              render: function (data) {
                 if (data.logisticMinimum === null) {
                   return "-";
                 } else {
                   var toGo = (data.logisticMinimum - data.value).toFixed(2);
                   if (toGo > 0) {
-                    return data.logisticMinimum + " (" + toGo + ")"
+                    return data.logisticMinimum + " (" + toGo + ")";
                   }
                   return data.logisticMinimum;
                 }
@@ -244,7 +245,7 @@ docReady(function() {
             {
               orderable: false,
               data: "wholesalerKey",
-              render: function(data) {
+              render: function (data) {
                 if (data === "agra") {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
                 } else {
@@ -255,7 +256,7 @@ docReady(function() {
             {
               orderable: false,
               data: "wholesalerKey",
-              render: function(data) {
+              render: function (data) {
                 if (data === "unassigned") {
                   return "";
                 }
@@ -271,16 +272,16 @@ docReady(function() {
               },
             },
           ],
-          rowCallback: function(row, data) {
+          rowCallback: function (row, data) {
             if (data.logisticMinimum > data.value) {
-              $('td', row).css("background-color", "#FFFAE6");
+              $("td", row).css("background-color", "#FFFAE6");
             }
           },
-          initComplete: function(settings, json) {
+          initComplete: function (settings, json) {
             var api = this.api();
             var textBox = $("#table_splited_wh filter label input");
             textBox.unbind();
-            textBox.bind("keyup input", function(e) {
+            textBox.bind("keyup input", function (e) {
               if (e.keyCode == 13) {
                 api.search(this.value).draw();
               }
@@ -299,7 +300,7 @@ docReady(function() {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.onload = function() {
+    request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
       if (request.status >= 200 && request.status < 400) {
@@ -329,7 +330,7 @@ docReady(function() {
   function format(d) {
     const arr = d.asks;
     console.log(arr);
-    arr.sort((a, b) => (a.netPrice > b.netPrice) ? 1: -1);
+    arr.sort((a, b) => (a.netPrice > b.netPrice ? 1 : -1));
     var toDisplayHtml = "";
     console.log(arr);
 
@@ -434,7 +435,8 @@ docReady(function() {
   function GetSplittedProducts() {
     $.ajax({
       type: "GET",
-      url: InvokeURL +
+      url:
+        InvokeURL +
         "shops/" +
         shopKey +
         "/orders/" +
@@ -448,13 +450,13 @@ docReady(function() {
         "Content-Type": "application/json",
         Authorization: orgToken,
       },
-      beforeSend: function() {
+      beforeSend: function () {
         $("#waitingdots").show();
       },
-      complete: function() {
+      complete: function () {
         $("#waitingdots").hide();
       },
-      success: function(resultProducts) {
+      success: function (resultProducts) {
         if (typeof successCallback === "function") {
           result = successCallback(resultProducts);
           if (!result) {
@@ -464,7 +466,7 @@ docReady(function() {
         var products = resultProducts;
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
-          order: [[8, 'desc']], // This is column that contain values "Obniz Cene"
+          order: [[8, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"f>rt<"bottom"lip>',
@@ -496,7 +498,8 @@ docReady(function() {
           search: {
             return: true,
           },
-          columns: [{
+          columns: [
+            {
               orderable: false,
               class: "details-control",
               data: null,
@@ -513,7 +516,7 @@ docReady(function() {
             {
               orderable: false,
               data: "inStock",
-              render: function(data) {
+              render: function (data) {
                 if (data !== null) {
                   return "" + data.value;
                 }
@@ -525,7 +528,7 @@ docReady(function() {
             {
               orderable: false,
               data: "quantity",
-              render: function(data) {
+              render: function (data) {
                 return (
                   '<input type="number" style="max-width: 80px" value="' +
                   data +
@@ -536,7 +539,7 @@ docReady(function() {
             {
               orderable: false,
               data: "standardPrice",
-              render: function(data) {
+              render: function (data) {
                 if (data !== null) {
                   return "" + data.value.toFixed(2);
                 }
@@ -548,7 +551,7 @@ docReady(function() {
             {
               orderable: true,
               data: "wholesalerKey",
-              render: function(data) {
+              render: function (data) {
                 if (data == "unassigned") {
                   return "nieprzydzielone";
                 }
@@ -562,29 +565,43 @@ docReady(function() {
             {
               orderable: true,
               data: null,
+              width: "72px",
               // class: "details-invisible",
-              render: function(data) {
+              render: function (data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
                   let currentPrice = data.netPrice;
-                  let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
+                  let lowestNetPrice = data.asks.length
+                    ? Math.min(...data.asks.map((a) => a.netPrice))
+                    : null;
                   if (currentPrice > lowestNetPrice) {
-                    var diffPercent = ((currentPrice - lowestNetPrice) / currentPrice * 100).toFixed(2)
-                    return '<td>' + diffPercent + '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' + '</td>';
+                    var diffPercent = (
+                      ((currentPrice - lowestNetPrice) / currentPrice) *
+                      100
+                    ).toFixed(2);
+                    return (
+                      "<td>" +
+                      diffPercent +
+                      '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
+                      "</td>"
+                    );
                   } else {
-                    return '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                      "</td>";
+                    return (
+                      '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                      "</td>"
+                    );
                   }
                 } else {
-                  return '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                    "</td>";
-                };
-
+                  return (
+                    '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                    "</td>"
+                  );
+                }
               },
             },
             {
               orderable: true,
               data: "standardPrice",
-              render: function(data) {
+              render: function (data) {
                 if (
                   data !== null &&
                   data.hasOwnProperty("wholesalerPremium") &&
@@ -608,7 +625,7 @@ docReady(function() {
               orderable: false,
               data: "rotationIndicator",
               defaultContent: "brak",
-              render: function(data) {
+              render: function (data) {
                 if (data == "AX") {
                   return '<p class="super">' + data + "</p>";
                 }
@@ -630,16 +647,20 @@ docReady(function() {
               },
             },
           ],
-          rowCallback: function(row, data) {
+          rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice = data.netPrice;
-              let lowestNetPrice = data.asks.length ? Math.min(...data.asks.map(a => a.netPrice)) : null;
+              let lowestNetPrice = data.asks.length
+                ? Math.min(...data.asks.map((a) => a.netPrice))
+                : null;
               if (data.netPrice > lowestNetPrice) {
-                $('td', row).css("background-color", "#FFFAE6");
-              } else {}
-            } else {}
+                $("td", row).css("background-color", "#FFFAE6");
+              } else {
+              }
+            } else {
+            }
           },
-          initComplete: function(settings, json) {
+          initComplete: function (settings, json) {
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
@@ -647,25 +668,29 @@ docReady(function() {
             );
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
-            textBox.bind("keyup input", function(e) {
+            textBox.bind("keyup input", function (e) {
               if (e.keyCode == 13) {
                 api.search(this.value).draw();
               }
             });
-            $("#spl_table tbody").on("click", "td.details-control", function() {
-              var tr = $(this).closest("tr");
-              var row = table.row(tr);
-              if (row.child.isShown()) {
-                row.child.hide();
-                tr.removeClass("shown");
-              } else {
-                console.log(row.data);
-                row.child(format(row.data())).show();
-                tr.addClass("shown");
+            $("#spl_table tbody").on(
+              "click",
+              "td.details-control",
+              function () {
+                var tr = $(this).closest("tr");
+                var row = table.row(tr);
+                if (row.child.isShown()) {
+                  row.child.hide();
+                  tr.removeClass("shown");
+                } else {
+                  console.log(row.data);
+                  row.child(format(row.data())).show();
+                  tr.addClass("shown");
+                }
               }
-            });
+            );
 
-            $("#spl_table").on("focusout", "input", function() {
+            $("#spl_table").on("focusout", "input", function () {
               console.log($(this));
               var cell = $(this).closest("td");
               var row = $(this).closest("tr");
@@ -690,10 +715,10 @@ docReady(function() {
                 type: method,
                 url: action,
                 cors: true,
-                beforeSend: function() {
+                beforeSend: function () {
                   $("#waitingdots").show();
                 },
-                complete: function() {
+                complete: function () {
                   $("#waitingdots").hide();
                 },
                 contentType: "application/json",
@@ -705,7 +730,7 @@ docReady(function() {
                 },
                 data: JSON.stringify(payload),
                 processData: false,
-                success: function(resultData) {
+                success: function (resultData) {
                   if (typeof successCallback === "function") {
                     result = successCallback(resultData);
                     if (!result) {
@@ -714,7 +739,7 @@ docReady(function() {
                   }
                   var data = resultData;
                 },
-                error: function(jqXHR, exception) {
+                error: function (jqXHR, exception) {
                   console.log(jqXHR);
                   console.log(exception);
                   return;
@@ -729,22 +754,22 @@ docReady(function() {
           behavior: "smooth",
         });
       },
-      error: function(jqXHR, exception) {
+      error: function (jqXHR, exception) {
         return;
       },
     });
   }
 
-  $("#zipcontainer").on("click", "img", function() {
+  $("#zipcontainer").on("click", "img", function () {
     var fileformat = $(this).attr("fileformat");
     const downloadLink = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers?filesFormat=" +
-      fileformat
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers?filesFormat=" +
+        fileformat
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -754,9 +779,9 @@ docReady(function() {
     $("#waitingdots").show();
     var headersResponse = [];
     fetch(downloadLink, {
-        mode: "cors",
-        headers: headers,
-      })
+      mode: "cors",
+      headers: headers,
+    })
       .then((res) => {
         res.headers.forEach((e) => headersResponse.push(e));
         console.log(headersResponse);
@@ -773,7 +798,7 @@ docReady(function() {
       });
   });
 
-  $("#table_splited_wh").on("click", "img", function() {
+  $("#table_splited_wh").on("click", "img", function () {
     //Get the cell of the input
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
@@ -783,12 +808,12 @@ docReady(function() {
     var wholesalerKey = data.wholesalerKey;
     const downloadLink = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers/" +
-      wholesalerKey
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers/" +
+        wholesalerKey
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -799,8 +824,8 @@ docReady(function() {
     var headersResponse = [];
 
     fetch(downloadLink, {
-        headers,
-      })
+      headers,
+    })
       .then((res) => {
         res.headers.forEach((e) => headersResponse.push(e));
         console.log(headersResponse);
@@ -852,7 +877,7 @@ docReady(function() {
         sortDescending: ": Sortowanie malejące",
       },
     },
-    ajax: function(data, callback, settings) {
+    ajax: function (data, callback, settings) {
       $("#before-split-products").show();
       var QStr =
         "?perPage=" +
@@ -864,24 +889,30 @@ docReady(function() {
         QStr = QStr + "&gtin=" + searchBox;
       } else if (searchBox) {
         QStr = QStr + "&name=like:" + searchBox;
-      } else {}
-
+      } else {
+      }
 
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
         },
-        beforeSend: function() {
+        beforeSend: function () {
           $("#waitingdots").show();
         },
-        complete: function() {
+        complete: function () {
           $("#waitingdots").hide();
         },
       });
 
       $.get(
-        InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products" + QStr,
-        function(res) {
+        InvokeURL +
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/products" +
+          QStr,
+        function (res) {
           callback({
             recordsTotal: res.total,
             recordsFiltered: res.total,
@@ -895,7 +926,8 @@ docReady(function() {
     search: {
       return: true,
     },
-    columns: [{
+    columns: [
+      {
         orderable: false,
         class: "details-control",
         data: null,
@@ -912,7 +944,7 @@ docReady(function() {
       {
         orderable: false,
         data: "inStock",
-        render: function(data) {
+        render: function (data) {
           if (data !== null) {
             return "" + data.value;
           }
@@ -924,7 +956,7 @@ docReady(function() {
       {
         orderable: false,
         data: "quantity",
-        render: function(data) {
+        render: function (data) {
           return (
             '<input type="number" style="max-width: 80px" value="' +
             data +
@@ -935,7 +967,7 @@ docReady(function() {
       {
         orderable: false,
         data: "standardPrice",
-        render: function(data) {
+        render: function (data) {
           if (data !== null) {
             return "" + data.value.toFixed(2);
           }
@@ -947,7 +979,7 @@ docReady(function() {
       {
         orderable: false,
         data: "asks",
-        render: function(data) {
+        render: function (data) {
           if (data !== null && data.netPrice !== null) {
             var mysorteddata = data.sort(
               (a, b) => (a.netPrice > b.netPrice && 1) || -1
@@ -965,7 +997,7 @@ docReady(function() {
       {
         orderable: false,
         data: "asks",
-        render: function(data) {
+        render: function (data) {
           if (data !== null && data.netNetPrice !== null) {
             var mysorteddata = data.sort(
               (a, b) => (a.netPrice > b.netPrice && 1) || -1
@@ -983,7 +1015,7 @@ docReady(function() {
         orderable: false,
         data: "asks",
         defaultContent: "brak",
-        render: function(data) {
+        render: function (data) {
           if (data !== null && data.netPrice !== null) {
             var mysorteddata = data.sort(
               (a, b) => (a.netPrice > b.netPrice && 1) || -1
@@ -1009,7 +1041,7 @@ docReady(function() {
         orderable: false,
         data: "rotationIndicator",
         defaultContent: "brak",
-        render: function(data) {
+        render: function (data) {
           if (data == "AX") {
             return '<p class="super">' + data + "</p>";
           }
@@ -1031,14 +1063,14 @@ docReady(function() {
         },
       },
     ],
-    initComplete: function(settings, json) {
+    initComplete: function (settings, json) {
       var api = this.api();
       $("#table_products").wrap(
         "<div style='overflow:auto; width:100%;position:relative;'></div>"
       );
       var textBox = $("#table_products_filter label input");
       textBox.unbind();
-      textBox.bind("keyup input", function(e) {
+      textBox.bind("keyup input", function (e) {
         if (e.keyCode == 13) {
           api.search(this.value).draw();
         }
@@ -1046,7 +1078,7 @@ docReady(function() {
     },
   });
 
-  $("#table_products").on("click", "td.details-control", function() {
+  $("#table_products").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
     var row = table.row(tr);
 
@@ -1059,7 +1091,7 @@ docReady(function() {
     }
   });
 
-  $("#table_products").on("focusout", "input", function() {
+  $("#table_products").on("focusout", "input", function () {
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
     $(this).attr("value", $(this).val());
@@ -1078,10 +1110,10 @@ docReady(function() {
       type: method,
       url: action,
       cors: true,
-      beforeSend: function() {
+      beforeSend: function () {
         $("#waitingdots").show();
       },
-      complete: function() {
+      complete: function () {
         $("#waitingdots").hide();
       },
       contentType: "application/json",
@@ -1093,7 +1125,7 @@ docReady(function() {
       },
       data: JSON.stringify(payload),
       processData: false,
-      success: function(resultData) {
+      success: function (resultData) {
         if (typeof successCallback === "function") {
           result = successCallback(resultData);
           if (!result) {
@@ -1102,7 +1134,7 @@ docReady(function() {
         }
         var data = resultData;
       },
-      error: function(jqXHR, exception) {
+      error: function (jqXHR, exception) {
         console.log(jqXHR);
         console.log(exception);
         return;
@@ -1110,13 +1142,11 @@ docReady(function() {
     });
   });
 
-
-
-  $(document).ready(function($) {
+  $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $("#table_splited").on("show", function(e) {
+    $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
     });
   });
