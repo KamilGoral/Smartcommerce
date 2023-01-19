@@ -236,7 +236,95 @@ docReady(function () {
             };
             payload.push(content);
           } else if (previousMCSId > 0) {
-            console.log("replace");
+            console.log("Deleting old one");
+            $.ajax({
+              type: method,
+              url:
+                InvokeURL +
+                "integrations/merchant-console/shops/" +
+                previousMCSId,
+              cors: true,
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              data: JSON.stringify([{ op: "remove", path: "/shopKey" }]),
+              processData: false,
+              success: function (resultData) {
+                console.log("success");
+                console.log(resultData);
+                $(".warningmessagetext").css("color", "#ffffff");
+                if (isNaN(merchantConsoleShopId)) {
+                  $(".warningmessagetext").text(
+                    "Sukces. Pomyślnie usunięto integracje sklepu z Konsolą Kupca"
+                  );
+                } else {
+                  $(".warningmessagetext").text(
+                    "Sukces. Pomyślnie zintegrowano sklep z Konsolą Kupca"
+                  );
+                }
+                $(".error-message-fixed-main").css(
+                  "background-color",
+                  "#00754e"
+                );
+                $("#WarningMessageContainer").show();
+                $("#WarningMessageContainer").fadeOut(6000);
+
+                if (typeof successCallback === "function") {
+                  result = successCallback(resultData);
+                  if (!result) {
+                    return;
+                  }
+                }
+              },
+              error: function (jqXHR, exception) {
+                console.log("error");
+                console.log(jqXHR);
+                console.log(exception);
+                var msg = "";
+                if (jqXHR.status === 0) {
+                  msg = "Nie masz połączenia z internetem.";
+                } else if (jqXHR.status == 404) {
+                  msg = "Nie znaleziono strony";
+                } else if (jqXHR.status == 403) {
+                  msg = "Nie masz uprawnień do tej czynności";
+                } else if (jqXHR.status == 409) {
+                  msg =
+                    "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                } else if (jqXHR.status == 500) {
+                  msg =
+                    "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+                } else if (exception === "parsererror") {
+                  msg = "Nie udało się odczytać danych";
+                } else if (exception === "timeout") {
+                  msg = "Przekroczony czas oczekiwania";
+                } else if (exception === "abort") {
+                  msg = "Twoje żądanie zostało zaniechane";
+                } else {
+                  msg = "" + jqXHR.responseText;
+                }
+
+                $(".warningmessagetext").css("color", "#3a4570");
+                $(".warningmessagetext").text(msg);
+                $(".error-message-fixed-main").css(
+                  "background-color",
+                  "#ffc53d"
+                );
+                $("#WarningMessageContainer").show();
+                $("#WarningMessageContainer").fadeOut(6000);
+                return;
+              },
+            });
+            console.log("Adding new one");
             var action =
               InvokeURL +
               "integrations/merchant-console/shops/" +
