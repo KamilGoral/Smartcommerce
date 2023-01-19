@@ -124,6 +124,17 @@ docReady(function () {
       request2.send();
     }
 
+    function format(d) {
+      var toDisplayHtml = "";
+      console.log(d);
+
+      return (
+        "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Prog zlotowkowy</th><th>Prog ilosciowy</th><th>Opakowanie</th></tr>" +
+        toDisplayHtml +
+        "</table>"
+      );
+    }
+
     function createAll(sklepy) {
       console.log(sklepy);
       const optionsHTML = sklepy.reduce(
@@ -171,10 +182,9 @@ docReady(function () {
           columns: [
             {
               orderable: false,
+              class: "details-control",
               data: null,
-              width: "36px",
-              defaultContent:
-                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+              defaultContent: "",
             },
             {
               orderable: true,
@@ -218,6 +228,26 @@ docReady(function () {
             $("td:eq(3) select", row).change();
           },
         });
+
+        $("#table_integrated_shops_list").on(
+          "click",
+          "td.details-control",
+          function () {
+            var tr = $(this).closest("tr");
+            var row = table.row(tr);
+            console.log(tr);
+            console.log(row);
+            console.log($(this));
+
+            if (row.child.isShown()) {
+              row.child.hide();
+              tr.removeClass("shown");
+            } else {
+              // row.child(format(row.data())).show();
+              tr.addClass("shown");
+            }
+          }
+        );
 
         $(".id100").on("focusin", function () {
           console.log("Saving value " + parseInt($(this).val()));
