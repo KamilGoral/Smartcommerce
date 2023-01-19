@@ -248,9 +248,11 @@ docReady(function () {
             if (row.child.isShown()) {
               row.child.hide();
               tr.removeClass("shown");
+              console.log("chowam");
             } else {
               row.child(format(row.data())).show();
               tr.addClass("shown");
+              console.log("pokazuje");
             }
           }
         );
