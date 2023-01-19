@@ -242,7 +242,7 @@ docReady(function () {
               "integrations/merchant-console/shops/" +
               merchantConsoleShopId;
             var content = {
-              op: "replace",
+              op: "add",
               path: "/shopKey",
               value: shopKey,
             };
