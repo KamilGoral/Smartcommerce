@@ -230,8 +230,8 @@ docReady(function () {
               pickMe = "";
             }
             console.log();
-            $("td:eq(3) select", row).val(data.merchantConsoleShopId);
-            $("td:eq(3) select", row).change();
+            $("td:eq(2) select", row).val(data.merchantConsoleShopId);
+            $("td:eq(2) select", row).change();
           },
         });
 
