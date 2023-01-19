@@ -210,7 +210,11 @@ docReady(function () {
             },
           ],
           rowCallback: function (row, data) {
-            $("td:eq(3) select", row).val(data.merchantConsoleShopId);
+            console.log(row);
+            console.log(data);
+            $("td:eq(3) select", row).val(
+              data.merchantConsoleShopId.toString()
+            );
             $("td:eq(3) select", row).change();
           },
         });
