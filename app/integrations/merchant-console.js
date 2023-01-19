@@ -239,6 +239,7 @@ docReady(function () {
             console.log("Deleting old one");
             $.ajax({
               type: method,
+              async: false, // important
               url:
                 InvokeURL +
                 "integrations/merchant-console/shops/" +
