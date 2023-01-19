@@ -698,55 +698,59 @@ docReady(function () {
               var row = $(this).closest("tr");
               $(this).attr("value", $(this).val());
               var data = table.row($(this).parents("tr")).data();
-              var payload = [];
-              var product = {
-                op: "replace",
-                path: "/" + data.gtin + "/quantity",
-                value: parseInt($(this).val()),
-              };
-              payload.push(product);
-              var action =
-                InvokeURL +
-                "shops/" +
-                shopKey +
-                "/orders/" +
-                orderId +
-                "/products";
-              var method = "PATCH";
-              $.ajax({
-                type: method,
-                url: action,
-                cors: true,
-                beforeSend: function () {
-                  $("#waitingdots").show();
-                },
-                complete: function () {
-                  $("#waitingdots").hide();
-                },
-                contentType: "application/json",
-                dataType: "json",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                  Authorization: orgToken,
-                },
-                data: JSON.stringify(payload),
-                processData: false,
-                success: function (resultData) {
-                  if (typeof successCallback === "function") {
-                    result = successCallback(resultData);
-                    if (!result) {
-                      return;
+              if (data.gtin !== null) {
+                var payload = [];
+                var product = {
+                  op: "replace",
+                  path: "/" + data.gtin + "/quantity",
+                  value: parseInt($(this).val()),
+                };
+                payload.push(product);
+                var action =
+                  InvokeURL +
+                  "shops/" +
+                  shopKey +
+                  "/orders/" +
+                  orderId +
+                  "/products";
+                var method = "PATCH";
+                $.ajax({
+                  type: method,
+                  url: action,
+                  cors: true,
+                  beforeSend: function () {
+                    $("#waitingdots").show();
+                  },
+                  complete: function () {
+                    $("#waitingdots").hide();
+                  },
+                  contentType: "application/json",
+                  dataType: "json",
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: orgToken,
+                  },
+                  data: JSON.stringify(payload),
+                  processData: false,
+                  success: function (resultData) {
+                    if (typeof successCallback === "function") {
+                      result = successCallback(resultData);
+                      if (!result) {
+                        return;
+                      }
                     }
-                  }
-                  var data = resultData;
-                },
-                error: function (jqXHR, exception) {
-                  console.log(jqXHR);
-                  console.log(exception);
-                  return;
-                },
-              });
+                    var data = resultData;
+                  },
+                  error: function (jqXHR, exception) {
+                    console.log(jqXHR);
+                    console.log(exception);
+                    return;
+                  },
+                });
+              } else {
+                console.log("GTIN is null");
+              }
             });
           },
         });
@@ -1085,6 +1089,9 @@ docReady(function () {
   $("#table_products").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
     var row = table.row(tr);
+    console.log(tr);
+    console.log(row);
+    console.log($(this));
 
     if (row.child.isShown()) {
       row.child.hide();
@@ -1098,52 +1105,59 @@ docReady(function () {
   $("#table_products").on("focusout", "input", function () {
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
+    console.log(cell);
+    console.log(row);
+    console.log($(this));
     $(this).attr("value", $(this).val());
     var data = table.row($(this).parents("tr")).data();
-    var payload = [];
-    var product = {
-      op: "replace",
-      path: "/" + data.gtin + "/quantity",
-      value: parseInt($(this).val()),
-    };
-    payload.push(product);
-    var action =
-      InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
-    var method = "PATCH";
-    $.ajax({
-      type: method,
-      url: action,
-      cors: true,
-      beforeSend: function () {
-        $("#waitingdots").show();
-      },
-      complete: function () {
-        $("#waitingdots").hide();
-      },
-      contentType: "application/json",
-      dataType: "json",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: orgToken,
-      },
-      data: JSON.stringify(payload),
-      processData: false,
-      success: function (resultData) {
-        if (typeof successCallback === "function") {
-          result = successCallback(resultData);
-          if (!result) {
-            return;
+    if (data.gtin !== null) {
+      var payload = [];
+      var product = {
+        op: "replace",
+        path: "/" + data.gtin + "/quantity",
+        value: parseInt($(this).val()),
+      };
+      payload.push(product);
+      var action =
+        InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
+      var method = "PATCH";
+      $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+        },
+        data: JSON.stringify(payload),
+        processData: false,
+        success: function (resultData) {
+          if (typeof successCallback === "function") {
+            result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
           }
-        }
-        var data = resultData;
-      },
-      error: function (jqXHR, exception) {
-        console.log(jqXHR);
-        console.log(exception);
-        return;
-      },
-    });
+          var data = resultData;
+        },
+        error: function (jqXHR, exception) {
+          console.log(jqXHR);
+          console.log(exception);
+          return;
+        },
+      });
+    } else {
+      console.log("GTIN is null");
+    }
   });
 
   $(document).ready(function ($) {
