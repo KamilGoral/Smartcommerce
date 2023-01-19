@@ -107,8 +107,6 @@ docReady(function () {
               id: item.id,
               shortName: item.shortName,
             });
-            times.push(item.id);
-            shortName;
           });
           createAll(times);
           return await new Promise(
