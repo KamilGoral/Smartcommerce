@@ -125,13 +125,16 @@ docReady(function () {
     }
 
     function format(d) {
-      var toDisplayHtml = "";
-      console.log(d);
-
+      var toDisplayHtml =
+        "<tr><td>Nazwa:</td><td>" +
+        d.name +
+        "</td><tr><td>Kosnola-Kupca SklepId</td><td>" +
+        d.merchantConsoleShopId +
+        "</td><tr><td>Klucz:</td><td>" +
+        d.shopKey +
+        "</td>";
       return (
-        "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Prog zlotowkowy</th><th>Prog ilosciowy</th><th>Opakowanie</th></tr>" +
-        toDisplayHtml +
-        "</table>"
+        "<table><tr><th>Dane</th><th></th></tr>" + toDisplayHtml + "</table>"
       );
     }
 
