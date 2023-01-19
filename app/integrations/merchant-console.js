@@ -62,11 +62,14 @@ docReady(function () {
         integrationLogo.src = "data:image/png;base64," + data.image;
         const integrationStatus = document.getElementById("integrationStatus");
         const integrationButton = document.getElementById("integrationButton");
+        const integrationBlock = document.getElementById("enabledblock");
 
         if (data.enabled === true) {
           integrationStatus.textContent = "Aktywny";
           integrationStatus.style.color = "green";
           integrationButton.value = "Zmień dane logowania";
+          getShops();
+          integrationBlock.style.display = "flex";
         } else {
           integrationStatus.textContent = "Nieaktywny";
         }
@@ -483,7 +486,6 @@ docReady(function () {
   };
 
   getIntegrations();
-  getShops();
   $("#waitingdots").hide();
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
