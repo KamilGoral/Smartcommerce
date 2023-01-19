@@ -93,7 +93,7 @@ docReady(function () {
 
   function getShops() {
     async function getIDS() {
-      let times = [""];
+      let times = [{ id: "", shortName: "" }];
       let url2 = new URL(InvokeURL + "integrations/merchant-console/shops");
       let request2 = new XMLHttpRequest();
       request2.open("GET", url2, true);
@@ -103,7 +103,12 @@ docReady(function () {
         var toParse2 = data2.items;
         if (request2.status >= 200 && request2.status < 400) {
           toParse2.forEach((item) => {
+            times.push({
+              id: item.id,
+              shortName: item.shortName,
+            });
             times.push(item.id);
+            shortName;
           });
           createAll(times);
           return await new Promise(
@@ -123,7 +128,8 @@ docReady(function () {
 
     function createAll(sklepy) {
       const optionsHTML = sklepy.reduce(
-        (html, value) => html + `<option value="${value}">${value}</option>`,
+        (html, value) =>
+          html + `<option value="${value.shortName}">${value.id}</option>`,
         ""
       );
       const selectHTML = `<select class="id100">${optionsHTML}</select>`;
@@ -186,6 +192,7 @@ docReady(function () {
             {
               orderable: true,
               data: "shopKey",
+              visible: false,
               render: function (data) {
                 if (data !== null) {
                   return data;
