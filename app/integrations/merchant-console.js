@@ -208,16 +208,18 @@ docReady(function () {
             $("td:eq(3) select", row).change();
           },
         });
+
+        $(".id100").on("focusin", function () {
+          console.log("Saving value " + parseInt($(this).val()));
+          $(this).data("val", parseInt($(this).val()));
+        });
+
         $(".id100").on("change", function () {
+          var shopKey = table.row($(this).closest("tr")).data().shopKey;
+          var previousMCSId = $(this).data("val");
           var merchantConsoleShopId = parseInt($(this).val());
-          var row = $(this).closest("tr");
-          var shopKey = table.row(row).data().shopKey;
-          var previousMCSId = table.row(row).data().merchantConsoleShopId;
-          var columnData = table.column(3).data();
-          console.log("Prveious:" + columnData);
-          console.log("Prveious: " + previousMCSId);
-          console.log("sklepy: " + sklepy);
-          console.log("mcshopId: " + merchantConsoleShopId);
+          console.log("Prev value " + previousMCSId);
+          console.log("New value " + merchantConsoleShopId);
 
           var payload = [];
           var method = "PATCH";
