@@ -125,9 +125,10 @@ docReady(function () {
     }
 
     function createAll(sklepy) {
+      console.log(sklepy);
       const optionsHTML = sklepy.reduce(
         (html, value) =>
-          html + `<option value="${value.shortName}">${value.id}</option>`,
+          html + `<option value="${value.id}">${value.shortName}</option>`,
         ""
       );
       const selectHTML = `<select class="id100">${optionsHTML}</select>`;
