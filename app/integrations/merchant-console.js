@@ -222,9 +222,11 @@ docReady(function () {
           rowCallback: function (row, data) {
             console.log(row);
             console.log(data);
-            $("td:eq(3) select", row).val(
-              data.merchantConsoleShopId.toString()
-            );
+            var selectValue = data.merchantConsoleShopId.toString();
+            if (selectValue === null) {
+              selectValue = "";
+            }
+            $("td:eq(3) select", row).val(selectValue);
             $("td:eq(3) select", row).change();
           },
         });
