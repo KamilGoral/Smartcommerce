@@ -142,7 +142,7 @@ docReady(function () {
       console.log(sklepy);
       const optionsHTML = sklepy.reduce(
         (html, value) =>
-          html + `<option value="${value.id}">${value.shortName}</option>`,
+          html + `<option value=${value.id}>${value.shortName}</option>`,
         ""
       );
       const selectHTML = `<select class="id100">${optionsHTML}</select>`;
@@ -225,9 +225,11 @@ docReady(function () {
           rowCallback: function (row, data) {
             console.log(row);
             console.log(data);
+            var pickMe = data.merchantConsoleShopId;
             if (data.merchantConsoleShopId === null) {
-              data.merchantConsoleShopId = "";
+              pickMe = "";
             }
+            console.log();
             $("td:eq(3) select", row).val(data.merchantConsoleShopId);
             $("td:eq(3) select", row).change();
           },
