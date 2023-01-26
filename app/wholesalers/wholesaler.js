@@ -533,7 +533,7 @@ docReady(function () {
               $(".successmessagetext").text(
                 "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
               );
-              doneBlock.show();
+              doneBlock.show(); 
             } else {
               form.show();
               console.log("tutaj")
@@ -545,6 +545,10 @@ docReady(function () {
               $(".error-message-fixed-main").css("background-color", "#ffc53d");
               $("#w-form-fail4").show()
               $("#w-form-fail4").fadeOut(6000);
+              window.setTimeout(function () {
+                console.log("reload3")
+                location.reload();
+              }, 3000);
             }
           },
           error: function(jqXHR, exception) {
