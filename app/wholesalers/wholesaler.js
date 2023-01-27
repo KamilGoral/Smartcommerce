@@ -542,8 +542,8 @@ docReady(function () {
               );
               $(".warningmessagetext").css("color", "#3a4570");
               $(".error-message-fixed-main").css("background-color", "#ffc53d");
-              $("#w-form-fail4").show()
-              $("#w-form-fail4").fadeOut(6000);
+              $("#w-form-done4").show()
+              $("#w-form-done4").fadeOut(6000);
               window.setTimeout(function () {
                 console.log("reload3")
                 location.reload();
