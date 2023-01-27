@@ -541,7 +541,6 @@ docReady(function () {
                 "Dostawca został pomyślnie skonfigurowany."
               );
               $(".warningmessagetext").css("color", "#3a4570");
-              $(".warningmessagetext").text(msg);
               $(".error-message-fixed-main").css("background-color", "#ffc53d");
               $("#w-form-fail4").show()
               $("#w-form-fail4").fadeOut(6000);
