@@ -140,6 +140,8 @@ docReady(function () {
         firstMessage;
         onlineOfferSupportFlow();
       } else {
+        var LastStatusMessage = document.getElementById("LastStatusMessage");
+        LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         $("#logistic-minimum-container").removeClass("hide");
         $("#delete-wholesalers-container").removeClass("hide");
         $("#Wholesaler-profile-Selector-box").hide();
@@ -212,7 +214,7 @@ docReady(function () {
     );
 
     let request = new XMLHttpRequest();
-    request.addEventListener("load", reqListener );
+    request.addEventListener("load", reqListener);
 
     request.open("GET", url, true);
     $("#waitingdots").show();
@@ -392,7 +394,9 @@ docReady(function () {
                 path: "/profile",
                 value: {
                   id: $("#Wholesaler-profile-Selector").val(),
-                  name: $("#Wholesaler-profile-Selector option:selected").text()
+                  name: $(
+                    "#Wholesaler-profile-Selector option:selected"
+                  ).text(),
                 },
               },
             ];
@@ -439,7 +443,7 @@ docReady(function () {
                 failBlock.show();
                 console.log(e);
                 window.setTimeout(function () {
-                  console.log("reload1")
+                  console.log("reload1");
                   location.reload();
                 }, 4000);
                 return;
@@ -448,7 +452,6 @@ docReady(function () {
 
             // add case
             if ($("#Wholesaler-profile-Selector").val() === "null") {
-              
               let url = new URL(
                 InvokeURL +
                   "shops/" +
@@ -459,7 +462,7 @@ docReady(function () {
               );
 
               let request = new XMLHttpRequest();
-              request.addEventListener("load", reqListener );
+              request.addEventListener("load", reqListener);
 
               request.open("GET", url, true);
               $("#waitingdots").show();
@@ -473,7 +476,6 @@ docReady(function () {
 
               request.setRequestHeader("Authorization", orgToken);
               request.onload = function () {
-
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
                 if (
@@ -501,7 +503,7 @@ docReady(function () {
                     "Wkrótce stworzymy ofertę dla tego dostawcy! Proszę czekaj.";
                   $(".successmessagetext").text("Pomyślnie dodano dostawcę");
                   window.setTimeout(function () {
-                    console.log("reload3")
+                    console.log("reload3");
                     location.reload();
                   }, 2000);
                 } else if (request.status == 401) {
@@ -533,25 +535,25 @@ docReady(function () {
               $(".successmessagetext").text(
                 "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
               );
-              doneBlock.show(); 
+              doneBlock.show();
             } else {
               form.show();
-              console.log("tutaj")
+              console.log("tutaj");
               $(".successmessagetext").text(
                 "Dostawca został pomyślnie skonfigurowany."
               );
               $(".warningmessagetext").css("color", "#3a4570");
               $(".error-message-fixed-main").css("background-color", "#ffc53d");
-              $("#w-form-done4").show()
+              $("#w-form-done4").show();
               $("#w-form-done4").fadeOut(6000);
               window.setTimeout(function () {
-                console.log("reload3")
+                console.log("reload3");
                 location.reload();
               }, 3000);
             }
           },
-          error: function(jqXHR, exception) {
-            console.log("error")
+          error: function (jqXHR, exception) {
+            console.log("error");
             console.log(jqXHR);
             console.log(exception);
             var msg = "";
@@ -576,11 +578,11 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseJSON.message;
             }
-              
+
             $(".warningmessagetext").css("color", "#3a4570");
             $(".warningmessagetext").text(msg);
             $(".error-message-fixed-main").css("background-color", "#ffc53d");
-            $("#w-form-fail4").show()
+            $("#w-form-fail4").show();
             $("#w-form-fail4").fadeOut(6000);
             return;
           },
