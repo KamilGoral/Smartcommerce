@@ -146,37 +146,37 @@ docReady(function () {
     const decision = but.getAttribute("decision");
     var isTrueSet = decision === "accept";
     var data = [
-        {
-            op: "replace",
-            path: "/accepted",
-            value: isTrueSet,
-        },
+      {
+        op: "replace",
+        path: "/accepted",
+        value: isTrueSet,
+      },
     ];
 
     $.ajax({
-        type: 'PATCH',
-        url: actionUrl,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        data: JSON.stringify(data),
-        contentType: 'application/json;charset=UTF-8',
-        headers: {
-            'Authorization': smartToken
-        },
-        success: function () {
-            window.location.reload();
-        },
-        error: function (jqXHR, exception) {
-            if (jqXHR.status === 401) {
-                MessageBox();
-            }
+      type: "PATCH",
+      url: actionUrl,
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      data: JSON.stringify(data),
+      contentType: "application/json;charset=UTF-8",
+      headers: {
+        Authorization: smartToken,
+      },
+      success: function () {
+        window.location.reload();
+      },
+      error: function (jqXHR, exception) {
+        if (jqXHR.status === 401) {
+          MessageBox();
         }
+      },
     });
-}
+  }
 
   function getInvitations() {
     let url = new URL(InvokeURL + "users/me/invitations");
@@ -204,8 +204,8 @@ docReady(function () {
           rejectButton.setAttribute("decision", "reject");
           rejectButton.onclick = function () {
             console.log(rejectButton);
-            decisionInviation(rejectButton)
-          }
+            decisionInviation(rejectButton);
+          };
 
           const acceptButton = row.getElementsByTagName("a")[0];
           acceptButton.setAttribute(
@@ -215,8 +215,8 @@ docReady(function () {
           acceptButton.setAttribute("decision", "accept");
           acceptButton.onclick = function () {
             console.log(acceptButton);
-            decisionInviation(acceptButton)
-          }
+            decisionInviation(acceptButton);
+          };
           orgContainer.appendChild(row);
         });
       }
@@ -282,12 +282,12 @@ docReady(function () {
         }
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
+            DomainName +
+            "/app/tenants/organization" +
+            "?name=" +
+            OrganizationName +
+            "&clientId=" +
+            OrganizationclientId
         );
       },
       error: function (jqXHR, exception) {
@@ -442,7 +442,6 @@ docReady(function () {
           UserInfo.UserAttributes[3].Value +
           "!";
 
-
         function setCookieAndSession(cName, cValue, expirationSec) {
           let date = new Date();
           date.setTime(date.getTime() + expirationSec * 1000);
@@ -463,10 +462,33 @@ docReady(function () {
     request.send(JSON.stringify(datatosend));
   }
 
+  function LoadTippy() {
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
+  }
+
   makeWebflowFormAjaxCreate($(formIdChangePassword));
   makeWebflowFormAjax($(formId));
   getInvitations();
   getOrganiations();
   getUser();
-
+  LoadTippy();
 });
