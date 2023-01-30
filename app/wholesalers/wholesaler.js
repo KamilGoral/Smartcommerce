@@ -132,6 +132,7 @@ docReady(function () {
               firstCreateDate;
           }
         } else {
+          var LastStatusMessage = document.getElementById("LastStatusMessage");
           LastStatusMessage.textContent =
             "Dostawca poprawnie skonfigurowany. Wkrótce nastąpi pierwsze pobranie oferty";
           Iehurt.classList.add("enabled");
