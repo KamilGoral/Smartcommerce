@@ -30,6 +30,7 @@ docReady(function () {
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-LogisticMinimumForm";
   const Iehurt = document.getElementById("Iehurt");
+  var LastStatusMessage = document.getElementById("LastStatusMessage");
 
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
@@ -276,7 +277,6 @@ docReady(function () {
       var toParse = data.items;
       console.log(toParse);
       const statusContainer = document.getElementById("StatusContainer");
-      var LastStatusMessage = document.getElementById("LastStatusMessage");
 
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
         toParse.forEach((item) => {
