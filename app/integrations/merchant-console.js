@@ -128,13 +128,13 @@ docReady(function () {
       var toDisplayHtml =
         "<tr><td>Nazwa:</td><td>" +
         d.name +
-        "</td><tr><td>Kosnola-Kupca SklepId</td><td>" +
+        "</td><tr><td>Konsola-Kupca SklepId:</td><td>" +
         d.merchantConsoleShopId +
-        "</td><tr><td>Klucz:</td><td>" +
+        "</td><tr><td>Klucz Sklepu:</td><td>" +
         d.shopKey +
         "</td>";
       return (
-        "<table><tr><th>Dane</th><th></th></tr>" + toDisplayHtml + "</table>"
+        "<table style='display: flex;' ><tr><th></th><th></th></tr>" + toDisplayHtml + "</table>"
       );
     }
 
