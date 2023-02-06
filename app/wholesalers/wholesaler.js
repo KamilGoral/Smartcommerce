@@ -108,6 +108,7 @@ docReady(function () {
 
           if (firstData.status === "Succeeded") {
             firstStatus = "Suckes";
+            var LastStatusMessage = document.getElementById("LastStatusMessage");
 
             LastStatusMessage.textContent =
               "Status: " +
@@ -123,6 +124,7 @@ docReady(function () {
             if ((firstMessage = "Profile for wholesaler have to be set.")) {
               firstMessage = "Proszę wybrać profil dla dostawcy z listy";
             }
+            var LastStatusMessage = document.getElementById("LastStatusMessage");
             LastStatusMessage.textContent =
               "Status: " +
               firstStatus +
