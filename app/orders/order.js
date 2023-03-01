@@ -157,13 +157,13 @@ docReady(function () {
 
         var data = resultData;
         const totalValue = document.getElementById("totalValue");
-        totalValue.textContent = data.totalValue + " zł";
+        totalValue.textContent = data.net_values.total + " zł";
         const maxValue = document.getElementById("maxValue");
-        maxValue.textContent = data.maxValue + " zł";
+        maxValue.textContent = data.net_values.max + " zł";
         const avgValue = document.getElementById("avgValue");
-        avgValue.textContent = data.avgValue + " zł";
+        avgValue.textContent = data.net_values.avg + " zł";
         const savings = document.getElementById("savings");
-        var numb = data.avgValue - data.totalValue;
+        var numb = data.net_values.avg - data.net_values.total;
         savings.textContent = numb.toFixed(2) + " zł";
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
@@ -236,7 +236,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "value",
+              data: "net_value",
             },
             {
               orderable: true,
