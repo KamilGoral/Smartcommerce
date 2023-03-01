@@ -213,9 +213,9 @@ docReady(function () {
               data: "wholesalerName",
               render: function (data) {
                 if (data === "unassigned") {
-                  return "NIEPRZYDZIELONE";
+                  return "Nieprzydzielone";
                 } else {
-                  return data.toUpperCase();
+                  return data;
                 }
               },
             },
