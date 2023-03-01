@@ -210,7 +210,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "wholesalerKey",
+              data: "wholesalerName",
               render: function (data) {
                 if (data === "unassigned") {
                   return "NIEPRZYDZIELONE";
