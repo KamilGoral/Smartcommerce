@@ -131,23 +131,16 @@ docReady(function () {
     }
 
     function validateProduct(element) {
-      if (
-        validateGTIN(element.gtin) &&
-        typeof element.name == "string" &&
-        typeof element.price == "number" &&
-        !isNaN(element.price) &&
-        element.price > 0
-      ) {
+      if (validateGTIN(element.gtin)) 
+      {
         myValidProducts.products.push({
           gtin: "" + validateGTIN(element.gtin),
           name: element.name,
-          price: element.price,
         });
       } else {
         myInvalidProducts.products.push({
           gtin: "" + element.gtin,
           name: element.name,
-          price: element.price,
         });
       }
     }
@@ -186,7 +179,7 @@ docReady(function () {
 
     
     validRows.textContent =
-      " 02. Podejrzyj zaimportowany cennik (" +
+      " 02. Podejrzyj zaimportowany kody (" +
       resultData.length +
       ")";
 
@@ -234,10 +227,7 @@ docReady(function () {
           },
           {
             data: "name",
-          },
-          {
-            data: "price",
-          },
+          }
         ],
       });
       var invalidproductsTable = $("#invalidproducts").DataTable({
@@ -277,10 +267,7 @@ docReady(function () {
           },
           {
             data: "name",
-          },
-          {
-            data: "price",
-          },
+          }
         ],
       });
     });
@@ -315,10 +302,6 @@ docReady(function () {
               return "name";
             case "nazwa_indeksu":
               return "name";
-            case "cena":
-              return "price";
-            case "cena po rabacie":
-              return "price";
             default:
               console.log("Sorry");
           }
@@ -332,6 +315,29 @@ docReady(function () {
     } else {
       alert("Dozwolony format pliku to .csv");
     }
+  }
+
+  function LoadTippy() {
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
   }
 
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
@@ -409,6 +415,7 @@ docReady(function () {
   };
   makeWebflowFormAjax($(formIdCreatePricing));
   getWholesalersSh();
+  LoadTippy();
 
   $(document).ready(function () {
     $.fn.dataTable.ext.errMode = () =>
