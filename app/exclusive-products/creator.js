@@ -369,14 +369,6 @@ docReady(function () {
                     })
                 }
 
-                var postData = productsFromTable.map(function (el) {
-                    var o = Object.assign({}, el);
-                    o.wholesalerKey = $("#WholesalerSelector").val();
-                    o.startDate = $("#startDate").val() + "T00:00:01.00Z";
-                    o.endDate = $("#endDate").val() + "T23:59:59.00Z";
-                    return o;
-                })
-
                 console.log(postData);
 
                 $.ajax({
