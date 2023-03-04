@@ -334,45 +334,6 @@ docReady(function () {
     }
   }
 
-  function getShops() {cof
-    let url = new URL(InvokeURL + "shops");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-
-      if (request.status >= 200 && request.status < 400) {
-        const shopKeysContainer = document.getElementById("shopKeys");
-        toParse.forEach((shop) => {
-          var opt = document.createElement("option");
-          opt.value = shop.shopKey;
-          opt.innerHTML = shop.name;
-          opt.selected = true;
-          shopKeysContainer.appendChild(opt);
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
-        $("option").mousedown(function (e) {
-          e.preventDefault();
-          var originalScrollTop = $(this).parent().scrollTop();
-          console.log(originalScrollTop);
-          $(this).prop("selected", $(this).prop("selected") ? false : true);
-          var self = this;
-          $(this).parent().focus();
-          setTimeout(function () {
-            $(self).parent().scrollTop(originalScrollTop);
-          }, 0);
-
-          return false;
-        });
-      }
-    };
-    request.send();
-  }
-
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -447,7 +408,6 @@ docReady(function () {
     });
   };
   makeWebflowFormAjax($(formIdCreatePricing));
-  getShops();
   getWholesalersSh();
 
   $(document).ready(function () {
