@@ -347,24 +347,26 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#Create-Pricelist-Success", container);
         var failBlock = $("#Create-Pricelist-Fail", container);
-        var action = InvokeURL + "price-lists";
+        var action = InvokeURL + "exclusive-products";
         var method = "POST";
         var table = $("#validproducts").DataTable();
         var productsFromTable = table.rows().data().toArray();
 
-        var productsToAdd = {
-          products: productsFromTable,
-        };
 
-        var dataRequest = {
-          wholesalerKey: $("#WholesalerSelector").val(),
-          startDate: $("#startDate").val() + "T00:00:01.00Z",
-          endDate: $("#endDate").val() + "T23:59:59.00Z",
-          shopKeys: $("#shopKeys").val(),
-        };
+        var arrOfObj = productsFromTable;
+          
+        var result = arrOfObj.map(function(el) {
+            var o = Object.assign({}, el);
+            o.wholesalerKey = $("#WholesalerSelector").val();
+            o.startDate = $("#startDate").val() + "T00:00:01.00Z";
+            o.endDate = $("#endDate").val() + "T23:59:59.00Z";
+        return o;
+        })
+          
+        console.log(arrOfObj);
+        console.log(result);
 
-        let postData = Object.assign(dataRequest, productsToAdd);
-        //
+        postData = result
 
         $.ajax({
           type: method,
