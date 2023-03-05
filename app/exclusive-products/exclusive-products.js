@@ -394,18 +394,14 @@ docReady(function () {
             $("#table_id").on("click", "img", function () {
                 //Get the cell of the input
                 var table = $("#table_id").DataTable();
-                var cell = $(this).closest("td");
-                var row = $(this).closest("tr");
                 var data = table.row($(this).parents("tr")).data();
                 var action = $(this).attr("action");
-                var wholesalerKey = data.wholesalerKey;
-                console.log(cell, row, data, action, wholesalerKey);
 
                 if (action = "delete") {
                     console.log("delete")
                     $.ajax({
                         type: "DELETE",
-                        url: InvokeURL + "exclusive-products/" + data.gtin,
+                        url: InvokeURL + "exclusive-products/" + data.uuid,
                         cors: true,
                         beforeSend: function () {
                             $("#waitingdots").show();
