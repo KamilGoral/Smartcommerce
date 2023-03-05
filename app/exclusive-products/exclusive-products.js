@@ -309,13 +309,13 @@ docReady(function () {
         initComplete: function (settings, json) {
             var api = this.api();
             var textBox = $("#table_id_filter label input");
-            $("#wholesalerPicker").on("focusout", "input", function () {
+            $("#wholesalerPicker").on("focusout", function () {
                 table.draw();
             });
-            $("#startDate").on("focusout", "input", function () {
+            $("#startDate").on("focusout", function () {
                 table.draw();
             });
-            $("#endDate").on("focusout", "input", function () {
+            $("#endDate").on("focusout", function () {
                 table.draw();
             });
             $(".filterinput").on("change", function () {
