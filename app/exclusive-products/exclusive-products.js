@@ -235,7 +235,7 @@ docReady(function () {
             orderable: true,
             data: null,
             defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' alt='edit'></img>",
           },
           
         ],
