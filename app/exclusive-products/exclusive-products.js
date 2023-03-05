@@ -210,7 +210,7 @@ docReady(function () {
                 data.hasOwnProperty("date") &&
                 data.date !== null
               ) {               
-                  return '<p class="neutral">' + data.date + "</p>";
+                  return data.date
               } else {
                 return "-";
               }
@@ -225,7 +225,7 @@ docReady(function () {
                 data.hasOwnProperty("username") &&
                 data.username !== null
               ) {               
-                  return '<p class="neutral">' + data.username + "</p>";
+                  return data.username
               } else {
                 return "-";
               }
