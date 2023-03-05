@@ -312,13 +312,13 @@ docReady(function () {
             $("#wholesalerPicker").on("focusout", function () {
                 table.draw();
             });
-            $("#startDate").on("focusout", function () {
+            $("#startDate").on("change", function () {
                 table.draw();
             });
-            $("#endDate").on("focusout", function () {
+            $("#endDate").on("change", function () {
                 table.draw();
             });
-            $(".filterinput").on("change", function () {
+            $(".filterinput").on("focusout", function () {
                 table.draw();
             });
             textBox.unbind();
