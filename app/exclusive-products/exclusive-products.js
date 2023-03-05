@@ -320,30 +320,6 @@ docReady(function () {
                 table.draw();
             });
 
-            $("#startDate")
-                .datepicker({
-                    onSelect: function (dateText) {
-                        console.log("Selected date: " + dateText + "; input's current value: " + this.value);
-                        $(this).change();
-                    }
-                })
-                .on("change", function () {
-                    console.log("Got change event from field");
-                });
-
-            $("#endDate")
-                .datepicker({
-                    onSelect: function (dateText) {
-                        console.log("Selected date: " + dateText + "; input's current value: " + this.value);
-                        $(this).change();
-                    }
-                })
-                .on("change", function () {
-                    console.log("Got change event from field");
-                });
-
-
-
             $(".filterinput").on("focusout", function () {
                 table.draw();
             });
