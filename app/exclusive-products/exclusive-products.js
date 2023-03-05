@@ -275,7 +275,7 @@ docReady(function () {
                         var nowDate = new Date().toISOString();
                         var offset = new Date().getTimezoneOffset();
                         var localeTime = new Date(
-                            Date.parse(data) - offset * 60 * 1000
+                            Date.parse(data.endDate) - offset * 60 * 1000
                         ).toISOString();
                         var creationDate = localeTime.split("T");
                         var creationTime = creationDate[1].split("Z");
