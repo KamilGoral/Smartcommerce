@@ -1,4 +1,8 @@
 console.log("Script Loaded v3");
+var script = document.createElement("SCRIPT");
+script.src = 'https://code.jquery.com/ui/1.12.1/jquery-ui.js';
+script.type = 'text/javascript';
+document.getElementsByTagName("head")[0].appendChild(script);
 function docReady(fn) {
     // see if DOM is already available
     if (
@@ -41,6 +45,57 @@ docReady(function () {
     const ExclusiveWizardBread = document.getElementById("ExclusiveResults");
     ExclusiveWizardBread.setAttribute("href", "" + window.location.href);
     var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
+
+    $('#startDate').datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy-mm-dd",
+        dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+        dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        firstDay: 1,
+        monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+        defaultDate: 1,
+        minDate: new Date()
+      }).datepicker("setDate", new Date(Date.now() + (3600 * 1000 * 24)));
+      
+      $('#endDate').datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy-mm-dd",
+        dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+        dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        firstDay: 1,
+        monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+        defaultDate: 1,
+        minDate: new Date()
+      }).datepicker("setDate", new Date(Date.now() + (3600 * 1000 * 24)));
+      
+      $("#startDate").datepicker({
+          onSelect: function(dateText) {
+            console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+            $(this).change();
+          }
+        })
+        .on("change", function() {
+          console.log("Got change event from field");
+        });
+      
+      $("#endDate")
+        .datepicker({
+          onSelect: function(dateText) {
+            console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+            $(this).change();
+          }
+        })
+        .on("change", function() {
+          console.log("Got change event from field");
+        });
+      
+
+
+
 
     var table = $("#table_id").DataTable({
         pagingType: "full_numbers",
