@@ -468,7 +468,7 @@ docReady(function () {
                         $("#endDate-Exclusive-Edit").datepicker("setDate", new Date(Date.parse(data.endDate)));
                     } else
                     {
-                        $("#NeverSingle-Edit").prop( "checked", true );
+                        $("#NeverSingleEdit").prop( "checked", true );
                         $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
                     }
                 }
