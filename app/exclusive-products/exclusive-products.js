@@ -463,7 +463,7 @@ docReady(function () {
 
                 }
                 if (action === "edit") {
-                    console.log("edit")''
+                    console.log("edit");
                     console.log(new Date(Date.now()));
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop( "disabled", true );
