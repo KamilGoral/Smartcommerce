@@ -420,14 +420,9 @@ docReady(function () {
                 //Get the cell of the input
                 var table = $("#table_id").DataTable();
                 var data = table.row($(this).parents("tr")).data();
-                
-
-                
                 var action = $(this).attr("action");
-                console.log($(this));
-                console.log(action)
+
                 if (action === "delete") {
-                    console.log("delete")
                     $.ajax({
                         type: "DELETE",
                         url: InvokeURL + "exclusive-products/" + data.uuid,
@@ -463,16 +458,20 @@ docReady(function () {
 
                 }
                 if (action === "edit") {
-                    console.log("edit");
-                    console.log(new Date(Date.now()));
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop( "disabled", true );
                     $("#GTINInputEdit").val(data.gtin);
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
-                    $("#endDate-Exclusive-Edit").datepicker("setDate", new Date(Date.parse(data.endDate)));
-                }
 
+                    if (data.hasOwnProperty('endDate')){
+                        $("#endDate-Exclusive-Edit").datepicker("setDate", new Date(Date.parse(data.endDate)));
+                    } else
+                    {
+                        $("#NeverSingle-Edit").prop( "checked", true );
+                        $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
+                    }
+                }
             });
 
             $(".dataTables_filter input").on("focusout", function () {
