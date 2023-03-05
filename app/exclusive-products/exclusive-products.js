@@ -243,19 +243,41 @@ docReady(function () {
                 data: "endDate",
                 render: function (data) {
                     if (data !== null) {
-                        var lastModificationDate = "";
+                        var endDate = "";
+                        var nowDate = new Date().toISOString();
                         var offset = new Date().getTimezoneOffset();
                         var localeTime = new Date(
                             Date.parse(data) - offset * 60 * 1000
                         ).toISOString();
                         var creationDate = localeTime.split("T");
                         var creationTime = creationDate[1].split("Z");
-                        lastModificationDate =
+                        endDate =
                             creationDate[0] + " " + creationTime[0].slice(0, -4);
-                        return lastModificationDate;
+
+                        if (data > nowDate) {
+                            return '<spann class="positive">' + endDate + "</spann>";
+                        } else {
+                            return '<spann class="medium">' + endDate + "</spann>";
+                        }
+
                     }
                     if (data === null) {
-                        return "";
+                        return '<spann class="positive">' + "Nigdy" + "</spann>";
+                    }
+                },
+            },
+            {
+                orderable: true,
+                data: "lastModified",
+                render: function (data) {
+                    if (
+                        data !== null &&
+                        data.hasOwnProperty("username") &&
+                        data.username !== null
+                    ) {
+                        return data.username
+                    } else {
+                        return "-";
                     }
                 },
             },
@@ -279,21 +301,6 @@ docReady(function () {
                     }
                     if (data === null) {
                         return "";
-                    }
-                },
-            },
-            {
-                orderable: true,
-                data: "lastModified",
-                render: function (data) {
-                    if (
-                        data !== null &&
-                        data.hasOwnProperty("username") &&
-                        data.username !== null
-                    ) {
-                        return data.username
-                    } else {
-                        return "-";
                     }
                 },
             },
