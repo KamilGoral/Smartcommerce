@@ -240,7 +240,7 @@ docReady(function () {
             },
             {
                 orderable: true,
-                data: "wholesalerName",
+                data: null,
                 render: function (data) {
                     if (data.wholesalerName !== null &&
                         data.hasOwnProperty("wholesalerName") &&
