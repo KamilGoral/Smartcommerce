@@ -197,7 +197,7 @@ docReady(function () {
             orderable: true,
             data: "startDate",
             render: function (data) {
-                if (data !== null&&) {
+                if (data !== null) {
                   var lastModificationDate = "";
                   var offset = new Date().getTimezoneOffset();
                   var localeTime = new Date(
@@ -218,7 +218,7 @@ docReady(function () {
             orderable: true,
             data: "endDate",
             render: function (data) {
-                if (data !== null&&) {
+                if (data !== null) {
                   var lastModificationDate = "";
                   var offset = new Date().getTimezoneOffset();
                   var localeTime = new Date(
