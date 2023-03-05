@@ -368,7 +368,7 @@ docReady(function () {
             });
 
             $("#startDate").datepicker({
-                onSelect: function (dateText) {
+                onSelect: function (dateText) {WholesalerSelector
                     console.log("Selected date: " + dateText + "; input's current value: " + this.value);
                     $(this).change();
                 }
@@ -483,6 +483,22 @@ docReady(function () {
                         opt.value = wholesaler.wholesalerKey;
                         opt.innerHTML = wholesaler.name;
                         wholesalerContainer.appendChild(opt);
+                    }
+
+                });
+
+                const wholesalerContainer2 =
+                    document.getElementById("WholesalerSelector-Exclusive-Edit");
+                var opt = document.createElement("option");
+                opt.value = null;
+                opt.innerHTML = "BLOKADA";
+                wholesalerContainer2.appendChild(opt);
+                toParse.forEach((wholesaler) => {
+                    if (wholesaler.enabled) {
+                        var opt = document.createElement("option");
+                        opt.value = wholesaler.wholesalerKey;
+                        opt.innerHTML = wholesaler.name;
+                        wholesalerContainer2.appendChild(opt);
                     }
 
                 });
