@@ -267,10 +267,10 @@ docReady(function () {
             },
             {
                 orderable: true,
-                data: "endDate",
+                data: null,
                 render: function (data) {
-                    if (data !== null && 
-                        typeof data !== 'undefined') {
+                    if (data.endDate !== null && 
+                        typeof data.endDate !== 'undefined') {
                         var endDate = "";
                         var nowDate = new Date().toISOString();
                         var offset = new Date().getTimezoneOffset();
@@ -289,7 +289,7 @@ docReady(function () {
                         }
 
                     }
-                    if (data === null) {
+                    if (typeof data.endDate === 'undefined') {
                         return '<spann class="positive">' + "Nigdy" + "</spann>";
                     }
                 },
