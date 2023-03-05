@@ -399,6 +399,10 @@ docReady(function () {
                 console.log(Object.keys(toParse).length);
                 const wholesalerContainer =
                     document.getElementById("wholesalerPicker");
+                    var opt = document.createElement("option");
+                    opt.value = null;
+                    opt.innerHTML = "BLOKADA";
+                    wholesalerContainer.appendChild(opt);  
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
