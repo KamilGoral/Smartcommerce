@@ -53,8 +53,19 @@ docReady(function () {
             var toParse = data.items;
             if (request.status >= 200 && request.status < 400) {
                 console.log(Object.keys(toParse).length);
+
                 const wholesalerContainer =
                     document.getElementById("WholesalerSelector");
+                toParse.forEach((wholesaler) => {
+                    if (wholesaler.enabled) {
+                        var opt = document.createElement("option");
+                        opt.value = wholesaler.wholesalerKey;
+                        opt.innerHTML = wholesaler.name;
+                        wholesalerContainer.appendChild(opt);
+                    }
+
+                });
+
                 const wholesalerContainer2 =
                     document.getElementById("WholesalerSelector-Exclusive-2");
                 toParse.forEach((wholesaler) => {
@@ -62,7 +73,6 @@ docReady(function () {
                         var opt = document.createElement("option");
                         opt.value = wholesaler.wholesalerKey;
                         opt.innerHTML = wholesaler.name;
-                        wholesalerContainer.appendChild(opt);
                         wholesalerContainer2.appendChild(opt);
                     }
 
