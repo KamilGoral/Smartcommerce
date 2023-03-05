@@ -164,7 +164,6 @@ docReady(function () {
                 whichColumns = data.order[0]["column"];
                 direction = data.order[0]["dir"];
             }
-            console.log(data);
 
             switch (whichColumns) {
                 case 1:
@@ -364,7 +363,7 @@ docReady(function () {
         initComplete: function (settings, json) {
             var api = this.api();
             var textBox = $("#table_id_filter label input");
-            $("#wholesalerPicker").on("focusout", function () {
+            $("#wholesalerPicker").on("change", function () {
                 table.draw();
             });
 
@@ -419,12 +418,14 @@ docReady(function () {
                         success: function (resultData) {
                             console.log(resultData);
                             table.row($(this).parents('tr')).remove().draw();
+                            $("#deleteInline-Success").show();
                             $("#deleteInline-Success").fadeOut(4000);
                         },
                         error: function (jqXHR, exception) {
                             console.log(jqXHR);
                             console.log(jqXHR);
                             console.log(exception);
+                            $("#deleteInline-Fail").show();
                             $("#deleteInline-Fail").fadeOut(4000);
                             return;
                         },
