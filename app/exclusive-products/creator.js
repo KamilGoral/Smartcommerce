@@ -55,13 +55,17 @@ docReady(function () {
                 console.log(Object.keys(toParse).length);
                 const wholesalerContainer =
                     document.getElementById("WholesalerSelector");
+                const wholesalerContainer2 =
+                    document.getElementById("WholesalerSelector-Exclusive-2");
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
                         opt.value = wholesaler.wholesalerKey;
                         opt.innerHTML = wholesaler.name;
                         wholesalerContainer.appendChild(opt);
+                        wholesalerContainer2.appendChild(opt);
                     }
+
                 });
                 if (request.status == 401) {
                     console.log("Unauthorized");
@@ -429,26 +433,26 @@ docReady(function () {
 
                 if ($('#NeverSingle').is(":checked")) {
 
-                    var postData = 
-                    [{
-                        "gtin": $("#GTINInput").val(),
-                        "name": "name1",
-                        "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
-                        "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-                        "neverExpires": true
-                    }]
+                    var postData =
+                        [{
+                            "gtin": $("#GTINInput").val(),
+                            "name": "name1",
+                            "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
+                            "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
+                            "neverExpires": true
+                        }]
                 }
 
                 else {
-                    var postData = 
-                    [{
-                        "gtin": $("#GTINInput").val(),
-                        "name": "name1",
-                        "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
-                        "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-                        "endDate": $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
-                        "neverExpires": false
-                    }]
+                    var postData =
+                        [{
+                            "gtin": $("#GTINInput").val(),
+                            "name": "name1",
+                            "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
+                            "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
+                            "endDate": $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+                            "neverExpires": false
+                        }]
                 }
 
                 console.log(postData);
@@ -476,7 +480,7 @@ docReady(function () {
                         form.show();
                         $("#Create-Exclusive-Success").show();
                         $("#Create-Pricelist-Success").fadeOut(4000);
-                        $("#WholesalerSelector-Exclusive-2").val('');     
+                        $("#WholesalerSelector-Exclusive-2").val('');
                     },
                     error: function (jqXHR, exception) {
                         console.log(jqXHR);
