@@ -270,8 +270,7 @@ docReady(function () {
                 data: "endDate",
                 render: function (data) {
                     if (data !== null && 
-                        data.hasOwnProperty("endDate") &&
-                        data.endDate !== null) {
+                        typeof data !== 'undefined') {
                         var endDate = "";
                         var nowDate = new Date().toISOString();
                         var offset = new Date().getTimezoneOffset();
