@@ -419,11 +419,13 @@ docReady(function () {
                         success: function (resultData) {
                             console.log(resultData);
                             table.row($(this).parents('tr')).remove().draw();
+                            $("#deleteInline-Success").fadeOut(4000);
                         },
                         error: function (jqXHR, exception) {
                             console.log(jqXHR);
                             console.log(jqXHR);
                             console.log(exception);
+                            $("#deleteInline-Fail").fadeOut(4000);
                             return;
                         },
                     });
