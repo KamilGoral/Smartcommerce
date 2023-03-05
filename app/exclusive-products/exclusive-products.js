@@ -47,256 +47,286 @@ docReady(function () {
         order: [],
         dom: '<"top"fB>rt<"bottom"lip>',
         buttons: [
-          {
-            extend: "copyHtml5",
-            text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
-            titleAttr: "Copy",
-          },
-          {
-            extend: "excelHtml5",
-            text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
-            titleAttr: "Excel",
-          },
-          {
-            extend: "pdfHtml5",
-            text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
-            titleAttr: "PDF",
-          },
+            {
+                extend: "copyHtml5",
+                text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+                titleAttr: "Copy",
+            },
+            {
+                extend: "excelHtml5",
+                text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+                titleAttr: "Excel",
+            },
+            {
+                extend: "pdfHtml5",
+                text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+                titleAttr: "PDF",
+            },
         ],
         scrollY: "60vh",
         scrollCollapse: true,
         pageLength: 25,
         language: {
-          emptyTable: "Brak danych do wyswietlenia",
-          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
-          infoEmpty: "Brak danych",
-          infoFiltered: "(z _MAX_ rezultatow)",
-          lengthMenu: "Pokaz _MENU_ rezulatow",
-          search: "Szukaj:",
-          zeroRecords: "Brak pasujacych rezultatow",
-          paginate: {
-            first: "<<",
-            last: ">>",
-            next: " >",
-            previous: "< ",
-          },
+            emptyTable: "Brak danych do wyswietlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatow)",
+            lengthMenu: "Pokaz _MENU_ rezulatow",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujacych rezultatow",
+            paginate: {
+                first: "<<",
+                last: ">>",
+                next: " >",
+                previous: "< ",
+            },
         },
         ajax: function (data, callback, settings) {
-          var QStr =
-            "?perPage=" +
-            data.length +
-            "&page=" +
-            (data.start + data.length) / data.length;
-          let searchBox = data.search.value;
-          if (/^\d+$/.test(searchBox)) {
-            QStr = QStr + "&gtin=" + searchBox;
-          } else if (searchBox) {
-            QStr = QStr + "&name=like:" + searchBox;
-          } else {
-          }
-          var whKeyIndi = $("#wholesalerPicker")
-            .map(function () {
-              return this.value;
-            })
-            .get();
-          var whKeyIndiStr = whKeyIndi.toString();
-          if (whKeyIndiStr != "") {
-            QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
-          }
-    
-          var whichColumns = "";
-          var direction = "desc";
-    
-          if (data.order.length == 0) {
-            whichColumns = 0;
-          } else {
-            whichColumns = data.order[0]["column"];
-            direction = data.order[0]["dir"];
-          }
-          console.log(data);
-    
-          switch (whichColumns) {
-            case 2:
-              whichColumns = "name:";
-              break;
-            case 4:
-              whichColumns = "inStock:";
-              break;
-            case 5:
-              whichColumns = "marketPremium:";
-              break;
-            case 6:
-              whichColumns = "standardPremium:";
-              break;
-            case 7:
-              whichColumns = "standardPrice:";
-              break;
-            case 11:
-              whichColumns = "rotationIndicator:";
-              break;
-            default:
-              whichColumns = "null";
-          }
-    
-          var sort = "&sort=" + whichColumns + direction;
-          if (whichColumns != "null") {
-            QStr = QStr + sort;
-          }
-    
-          $.ajaxSetup({
-            headers: {
-              Authorization: orgToken,
-            },
-            beforeSend: function () {
-              $("#waitingdots").show();
-            },
-            complete: function () {
-              $("#waitingdots").hide();
-            },
-          });
-          $.get(
-            InvokeURL + "exclusive-products" + QStr,
-            function (res) {
-              callback({
-                recordsTotal: res.total,
-                recordsFiltered: res.total,
-                data: res.items,
-              });
+            var QStr =
+                "?perPage=" +
+                data.length +
+                "&page=" +
+                (data.start + data.length) / data.length;
+            let searchBox = data.search.value;
+            if (/^\d+$/.test(searchBox)) {
+                QStr = QStr + "&gtin=" + searchBox;
+            } else if (searchBox) {
+                QStr = QStr + "&name=like:" + searchBox;
+            } else {
             }
-          );
+
+            var whKeyIndi = $("#wholesalerPicker")
+                .map(function () {
+                    return this.value;
+                })
+                .get();
+            var whKeyIndiStr = whKeyIndi.toString();
+            if (whKeyIndiStr != "") {
+                QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
+            }
+
+            var startDatePicker = $("#startDate")
+                .map(function () {
+                    return this.value;
+                })
+                .get();
+            var startDatePickerStr = startDatePicker.toString();
+            if (startDatePickerStr != "") {
+                QStr = QStr + "&startDate=" + startDatePickerStr;
+            }
+
+            var endDatePicker = $("#endDate")
+                .map(function () {
+                    return this.value;
+                })
+                .get();
+            var endDatePickerStr = endDatePicker.toString();
+            if (endDatePickerStr != "") {
+                QStr = QStr + "&endDate=" + endDatePickerStr;
+            }
+
+            var whichColumns = "";
+            var direction = "desc";
+
+            if (data.order.length == 0) {
+                whichColumns = 0;
+            } else {
+                whichColumns = data.order[0]["column"];
+                direction = data.order[0]["dir"];
+            }
+            console.log(data);
+
+            switch (whichColumns) {
+                case 2:
+                    whichColumns = "name:";
+                    break;
+                case 4:
+                    whichColumns = "inStock:";
+                    break;
+                case 5:
+                    whichColumns = "marketPremium:";
+                    break;
+                case 6:
+                    whichColumns = "standardPremium:";
+                    break;
+                case 7:
+                    whichColumns = "standardPrice:";
+                    break;
+                case 11:
+                    whichColumns = "rotationIndicator:";
+                    break;
+                default:
+                    whichColumns = "null";
+            }
+
+            var sort = "&sort=" + whichColumns + direction;
+            if (whichColumns != "null") {
+                QStr = QStr + sort;
+            }
+
+            $.ajaxSetup({
+                headers: {
+                    Authorization: orgToken,
+                },
+                beforeSend: function () {
+                    $("#waitingdots").show();
+                },
+                complete: function () {
+                    $("#waitingdots").hide();
+                },
+            });
+            $.get(
+                InvokeURL + "exclusive-products" + QStr,
+                function (res) {
+                    callback({
+                        recordsTotal: res.total,
+                        recordsFiltered: res.total,
+                        data: res.items,
+                    });
+                }
+            );
         },
         processing: false,
         serverSide: true,
         search: {
-          return: true,
+            return: true,
         },
         columns: [
-          {
-            visible: false,
-            orderable: false,
-            data: "uuid",
-          },
-          {
-            orderable: true,
-            data: "gtin",
-          },
-          {
-            orderable: true,
-            data: "name",
-          },
-          {
-            orderable: true,
-            data: "wholesalerName",
-          },
-          {
-            visible: false,
-            orderable: false,
-            data: "wholesalerKey",
-          },
-          {
-            orderable: true,
-            data: "startDate",
-            render: function (data) {
-                if (data !== null) {
-                  var lastModificationDate = "";
-                  var offset = new Date().getTimezoneOffset();
-                  var localeTime = new Date(
-                    Date.parse(data) - offset * 60 * 1000
-                  ).toISOString();
-                  var creationDate = localeTime.split("T");
-                  var creationTime = creationDate[1].split("Z");
-                  lastModificationDate =
-                    creationDate[0] + " " + creationTime[0].slice(0, -4);
-                  return lastModificationDate;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-          },
-          {
-            orderable: true,
-            data: "endDate",
-            render: function (data) {
-                if (data !== null) {
-                  var lastModificationDate = "";
-                  var offset = new Date().getTimezoneOffset();
-                  var localeTime = new Date(
-                    Date.parse(data) - offset * 60 * 1000
-                  ).toISOString();
-                  var creationDate = localeTime.split("T");
-                  var creationTime = creationDate[1].split("Z");
-                  lastModificationDate =
-                    creationDate[0] + " " + creationTime[0].slice(0, -4);
-                  return lastModificationDate;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-          },
-          {
-            orderable: true,
-            data: "lastModified",
-            render: function (data) {
-                if (data !== null&&
-                    data.hasOwnProperty("date") &&
-                    data.date !== null) {
-                  var lastModificationDate = "";
-                  var offset = new Date().getTimezoneOffset();
-                  var localeTime = new Date(
-                    Date.parse(data.date) - offset * 60 * 1000
-                  ).toISOString();
-                  var creationDate = localeTime.split("T");
-                  var creationTime = creationDate[1].split("Z");
-                  lastModificationDate =
-                    creationDate[0] + " " + creationTime[0].slice(0, -4);
-                  return lastModificationDate;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-          },
-          {
-            orderable: true,
-            data: "lastModified",
-            render: function (data) {
-              if (
-                data !== null &&
-                data.hasOwnProperty("username") &&
-                data.username !== null
-              ) {               
-                  return data.username
-              } else {
-                return "-";
-              }
+            {
+                visible: false,
+                orderable: false,
+                data: "uuid",
             },
-          },
-          {
-            orderable: true,
-            data: null,
-            width: "48px",
-            defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' alt='edit'></img>",
-          },
-          
+            {
+                orderable: true,
+                data: "gtin",
+            },
+            {
+                orderable: true,
+                data: "name",
+            },
+            {
+                orderable: true,
+                data: "wholesalerName",
+            },
+            {
+                visible: false,
+                orderable: false,
+                data: "wholesalerKey",
+            },
+            {
+                orderable: true,
+                data: "startDate",
+                render: function (data) {
+                    if (data !== null) {
+                        var lastModificationDate = "";
+                        var offset = new Date().getTimezoneOffset();
+                        var localeTime = new Date(
+                            Date.parse(data) - offset * 60 * 1000
+                        ).toISOString();
+                        var creationDate = localeTime.split("T");
+                        var creationTime = creationDate[1].split("Z");
+                        lastModificationDate =
+                            creationDate[0] + " " + creationTime[0].slice(0, -4);
+                        return lastModificationDate;
+                    }
+                    if (data === null) {
+                        return "";
+                    }
+                },
+            },
+            {
+                orderable: true,
+                data: "endDate",
+                render: function (data) {
+                    if (data !== null) {
+                        var lastModificationDate = "";
+                        var offset = new Date().getTimezoneOffset();
+                        var localeTime = new Date(
+                            Date.parse(data) - offset * 60 * 1000
+                        ).toISOString();
+                        var creationDate = localeTime.split("T");
+                        var creationTime = creationDate[1].split("Z");
+                        lastModificationDate =
+                            creationDate[0] + " " + creationTime[0].slice(0, -4);
+                        return lastModificationDate;
+                    }
+                    if (data === null) {
+                        return "";
+                    }
+                },
+            },
+            {
+                orderable: true,
+                data: "lastModified",
+                render: function (data) {
+                    if (data !== null &&
+                        data.hasOwnProperty("date") &&
+                        data.date !== null) {
+                        var lastModificationDate = "";
+                        var offset = new Date().getTimezoneOffset();
+                        var localeTime = new Date(
+                            Date.parse(data.date) - offset * 60 * 1000
+                        ).toISOString();
+                        var creationDate = localeTime.split("T");
+                        var creationTime = creationDate[1].split("Z");
+                        lastModificationDate =
+                            creationDate[0] + " " + creationTime[0].slice(0, -4);
+                        return lastModificationDate;
+                    }
+                    if (data === null) {
+                        return "";
+                    }
+                },
+            },
+            {
+                orderable: true,
+                data: "lastModified",
+                render: function (data) {
+                    if (
+                        data !== null &&
+                        data.hasOwnProperty("username") &&
+                        data.username !== null
+                    ) {
+                        return data.username
+                    } else {
+                        return "-";
+                    }
+                },
+            },
+            {
+                orderable: true,
+                data: null,
+                width: "48px",
+                defaultContent:
+                    "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' alt='edit'></img>",
+            },
+
         ],
         initComplete: function (settings, json) {
-          var api = this.api();
-          var textBox = $("#table_id_filter label input");
-          $(".filterinput").on("change", function () {
-            table.draw();
-          });
-          textBox.unbind();
-          textBox.bind("keyup input", function (e) {
-            if (e.keyCode == 13) {
-              api.search(this.value).draw();
-            }
-          });
-          $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+            var api = this.api();
+            var textBox = $("#table_id_filter label input");
+            $("#wholesalerPicker").on("focusout", "input", function () {
+                table.draw();
+            });
+            $("#startDate").on("focusout", "input", function () {
+                table.draw();
+            });
+            $("#endDate").on("focusout", "input", function () {
+                table.draw();
+            });
+            $(".filterinput").on("change", function () {
+                table.draw();
+            });
+            textBox.unbind();
+            textBox.bind("keyup input", function (e) {
+                if (e.keyCode == 13) {
+                    api.search(this.value).draw();
+                }
+            });
+            $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
         },
-      });
+    });
 
     function getWholesalersSh() {
         let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
