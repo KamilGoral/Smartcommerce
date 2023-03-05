@@ -167,17 +167,20 @@ docReady(function () {
             console.log(data);
 
             switch (whichColumns) {
+                case 1:
+                    whichColumns = "gtin:";
+                    break;
                 case 2:
                     whichColumns = "name:";
                     break;
-                case 4:
-                    whichColumns = "inStock:";
+                case 3:
+                    whichColumns = "wholesalerKey:";
                     break;
                 case 5:
-                    whichColumns = "marketPremium:";
+                    whichColumns = "startDate:";
                     break;
                 case 6:
-                    whichColumns = "standardPremium:";
+                    whichColumns = "endDate:";
                     break;
                 case 7:
                     whichColumns = "standardPrice:";
@@ -295,7 +298,7 @@ docReady(function () {
                 },
             },
             {
-                orderable: true,
+                orderable: false,
                 data: "lastModified",
                 render: function (data) {
                     if (
@@ -310,7 +313,7 @@ docReady(function () {
                 },
             },
             {
-                orderable: true,
+                orderable: false,
                 data: "lastModified",
                 render: function (data) {
                     if (data !== null &&
@@ -333,7 +336,7 @@ docReady(function () {
                 },
             },
             {
-                orderable: true,
+                orderable: false,
                 data: null,
                 width: "48px",
                 defaultContent:
