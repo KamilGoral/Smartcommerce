@@ -41,6 +41,7 @@ docReady(function () {
     const ExclusiveWizardBread = document.getElementById("ExclusiveWizardBread");
     ExclusiveWizardBread.setAttribute("href", "" + window.location.href);
     var formIdCreatePricing = "#wf-form-NewPricingList";
+    var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
 
     function getWholesalersSh() {
         let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
@@ -418,6 +419,88 @@ docReady(function () {
             });
         });
     };
+
+    makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
+        forms.each(function () {
+            var form = $(this);
+            form.on("submit", function (event) {
+                var action = InvokeURL + "exclusive-products";
+                var method = "POST";
+
+                if ($('#NeverSingle').is(":checked")) {
+
+                    var postData = 
+                    [{
+                        "gtin": $("#GTINInput").val(),
+                        "name": "name1",
+                        "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
+                        "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
+                        "neverExpires": true
+                    }]
+                }
+
+                else {
+                    var postData = 
+                    [{
+                        "gtin": $("#GTINInput").val(),
+                        "name": "name1",
+                        "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
+                        "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
+                        "endDate": $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+                        "neverExpires": false
+                    }]
+                }
+
+                console.log(postData);
+
+                $.ajax({
+                    type: method,
+                    url: action,
+                    cors: true,
+                    beforeSend: function () {
+                        $("#waitingdots").show();
+                    },
+                    complete: function () {
+                        $("#waitingdots").hide();
+                    },
+                    contentType: "application/json",
+                    dataType: "json",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        Authorization: orgToken,
+                    },
+                    data: JSON.stringify(postData),
+                    success: function (resultData) {
+                        console.log(resultData);
+                        form.show();
+                        $("#Create-Exclusive-Success").show();
+                        $("#Create-Pricelist-Success").fadeOut(4000);
+                        $("#WholesalerSelector-Exclusive-2").val('');     
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(jqXHR);
+                        console.log(jqXHR);
+                        console.log(exception);
+                        var msg =
+                            "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+                        var elements = document.getElementsByClassName("warningmessagetext");
+                        for (var i = 0; i < elements.length; i++) {
+                            elements[i].textContent = msg;
+                        }
+                        form.show();
+                        $("#Create-Pricelist-Fail").show();
+                        $("#Create-Pricelist-Fail").fadeOut(5000);
+                        return;
+                    },
+                });
+                event.preventDefault();
+                return false;
+            });
+        });
+    };
+
+    makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
     makeWebflowFormAjax($(formIdCreatePricing));
     getWholesalersSh();
     LoadTippy();
