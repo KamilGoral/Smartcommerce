@@ -241,6 +241,15 @@ docReady(function () {
             {
                 orderable: true,
                 data: "wholesalerName",
+                render: function (data) {
+                    if (data.wholesalerName !== null &&
+                        typeof data.wholesalerName !== 'undefined' &&
+                        data.hasOwnProperty("wholesalerName")) {
+                        return data.wholesalerName;
+                    } else {
+                        return "BLOKADA";
+                    }
+                },
             },
             {
                 visible: false,
@@ -280,7 +289,7 @@ docReady(function () {
                 orderable: true,
                 data: null,
                 render: function (data) {
-                    if (data.endDate !== null && 
+                    if (data.endDate !== null &&
                         typeof data.endDate !== 'undefined') {
                         var endDate = "";
                         var nowDate = new Date().toISOString();
@@ -407,10 +416,10 @@ docReady(function () {
                 console.log(Object.keys(toParse).length);
                 const wholesalerContainer =
                     document.getElementById("wholesalerPicker");
-                    var opt = document.createElement("option");
-                    opt.value = null;
-                    opt.innerHTML = "BLOKADA";
-                    wholesalerContainer.appendChild(opt);  
+                var opt = document.createElement("option");
+                opt.value = null;
+                opt.innerHTML = "BLOKADA";
+                wholesalerContainer.appendChild(opt);
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
