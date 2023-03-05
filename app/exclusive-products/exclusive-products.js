@@ -243,8 +243,8 @@ docReady(function () {
                 data: "wholesalerName",
                 render: function (data) {
                     if (data.wholesalerName !== null &&
-                        typeof data.wholesalerName !== 'undefined' &&
-                        data.hasOwnProperty("wholesalerName")) {
+                        data.hasOwnProperty("wholesalerName") &&
+                        typeof data.wholesalerName !== 'undefined') {
                         return data.wholesalerName;
                     } else {
                         return "BLOKADA";
