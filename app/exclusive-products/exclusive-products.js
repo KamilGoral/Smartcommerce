@@ -394,6 +394,9 @@ docReady(function () {
                 //Get the cell of the input
                 var table = $("#table_id").DataTable();
                 var data = table.row($(this).parents("tr")).data();
+                console.log($(this));
+                var cell = $(this).closest("td");
+                console.log(cell);
                 var action = $(this).attr("action");
 
                 if (action = "delete") {
@@ -440,7 +443,6 @@ docReady(function () {
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
                     $("#endDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
                 }
-
 
             });
 
