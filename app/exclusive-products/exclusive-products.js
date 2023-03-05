@@ -432,6 +432,15 @@ docReady(function () {
                     });
 
                 }
+                if (action = "edit") {
+                    $('#EditExclusivePopup').css('display', 'flex');
+                    $("#GTINInputEdit").prop( "disabled", true );
+                    $("#GTINInputEdit").val(data.gtin);
+                    $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
+                    $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
+                    $("#endDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
+                }
+
 
             });
 
