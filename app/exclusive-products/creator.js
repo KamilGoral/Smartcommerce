@@ -371,6 +371,8 @@ docReady(function () {
                 var table = $("#validproducts").DataTable();
                 var productsFromTable = table.rows().data().toArray();
 
+                
+
                 if ($('#Never').is(":checked")) {
                     var postData = productsFromTable.map(function (el) {
                         var o = Object.assign({}, el);
