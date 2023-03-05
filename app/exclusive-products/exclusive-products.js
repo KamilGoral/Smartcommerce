@@ -68,6 +68,32 @@ docReady(function () {
         minDate: new Date()
     })
 
+    $('#startDate-Exclusive-Edit').datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy-mm-dd",
+        dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+        dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        firstDay: 1,
+        monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+        defaultDate: 1,
+        minDate: new Date()
+    }).datepicker("setDate", new Date(Date.now()));
+
+    $('#endDate-Exclusive-Edit').datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy-mm-dd",
+        dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+        dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        firstDay: 1,
+        monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+        defaultDate: 1,
+        minDate: new Date()
+    })
+
 
     var table = $("#table_id").DataTable({
         pagingType: "full_numbers",
@@ -437,7 +463,8 @@ docReady(function () {
 
                 }
                 if (action === "edit") {
-                    console.log("edit")
+                    console.log("edit");
+                    console.log(new Date(Date.now()));
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop( "disabled", true );
                     $("#GTINInputEdit").val(data.gtin);
