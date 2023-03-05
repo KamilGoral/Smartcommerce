@@ -53,9 +53,9 @@ docReady(function () {
         monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
         defaultDate: 1,
         minDate: new Date()
-      }).datepicker("setDate", new Date(Date.now()));
-      
-      $('#endDate').datepicker({
+    }).datepicker("setDate", new Date(Date.now()));
+
+    $('#endDate').datepicker({
         dateFormat: "yy-mm-dd",
         altFormat: "yy-mm-dd",
         dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
@@ -66,9 +66,9 @@ docReady(function () {
         monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
         defaultDate: 1,
         minDate: new Date()
-      })
-      
-      
+    })
+
+
     var table = $("#table_id").DataTable({
         pagingType: "full_numbers",
         order: [],
@@ -269,7 +269,9 @@ docReady(function () {
                 orderable: true,
                 data: "endDate",
                 render: function (data) {
-                    if (data !== null) {
+                    if (data !== null && 
+                        data.hasOwnProperty("endDate") &&
+                        data.endDate !== null) {
                         var endDate = "";
                         var nowDate = new Date().toISOString();
                         var offset = new Date().getTimezoneOffset();
@@ -348,27 +350,27 @@ docReady(function () {
             });
 
             $("#startDate").datepicker({
-                onSelect: function(dateText) {
-                  console.log("Selected date: " + dateText + "; input's current value: " + this.value);
-                  $(this).change();
+                onSelect: function (dateText) {
+                    console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+                    $(this).change();
                 }
-              })
-              .on("change", function() {
-                console.log("Got change event from field");
-                table.draw();
-              });
-            
+            })
+                .on("change", function () {
+                    console.log("Got change event from field");
+                    table.draw();
+                });
+
             $("#endDate")
-              .datepicker({
-                onSelect: function(dateText) {
-                  console.log("Selected date: " + dateText + "; input's current value: " + this.value);
-                  $(this).change();
-                }
-              })
-              .on("change", function() {
-                console.log("Got change event from field");
-                table.draw();
-              });
+                .datepicker({
+                    onSelect: function (dateText) {
+                        console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+                        $(this).change();
+                    }
+                })
+                .on("change", function () {
+                    console.log("Got change event from field");
+                    table.draw();
+                });
 
             $(".dataTables_filter input").on("focusout", function () {
                 table.draw();
