@@ -1,8 +1,4 @@
 console.log("Script Loaded v3");
-var script = document.createElement("SCRIPT");
-script.src = 'https://code.jquery.com/ui/1.12.1/jquery-ui.js';
-script.type = 'text/javascript';
-document.getElementsByTagName("head")[0].appendChild(script);
 function docReady(fn) {
     // see if DOM is already available
     if (
@@ -57,7 +53,7 @@ docReady(function () {
         monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
         defaultDate: 1,
         minDate: new Date()
-      }).datepicker("setDate", new Date(Date.now() + (3600 * 1000 * 24)));
+      }).datepicker("setDate", new Date(Date.now()));
       
       $('#endDate').datepicker({
         dateFormat: "yy-mm-dd",
@@ -70,33 +66,9 @@ docReady(function () {
         monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
         defaultDate: 1,
         minDate: new Date()
-      }).datepicker("setDate", new Date(Date.now() + (3600 * 1000 * 24)));
+      })
       
-      $("#startDate").datepicker({
-          onSelect: function(dateText) {
-            console.log("Selected date: " + dateText + "; input's current value: " + this.value);
-            $(this).change();
-          }
-        })
-        .on("change", function() {
-          console.log("Got change event from field");
-        });
       
-      $("#endDate")
-        .datepicker({
-          onSelect: function(dateText) {
-            console.log("Selected date: " + dateText + "; input's current value: " + this.value);
-            $(this).change();
-          }
-        })
-        .on("change", function() {
-          console.log("Got change event from field");
-        });
-      
-
-
-
-
     var table = $("#table_id").DataTable({
         pagingType: "full_numbers",
         order: [],
@@ -161,7 +133,7 @@ docReady(function () {
             }
 
             // This is usefull
-            var nowTime = new Date(Date.now() + (3600 * 1000 * 24)).toISOString().split('T')[0]
+            var nowTime = new Date(Date.now()).toISOString().split('T')[0]
 
             var startDatePicker = $("#startDate")
                 .map(function () {
@@ -179,7 +151,7 @@ docReady(function () {
                 })
                 .get();
             var endDatePickerStr = endDatePicker.toString();
-            if (endDatePickerStr != nowTime) {
+            if (endDatePickerStr != "") {
                 QStr = QStr + "&endDate=lte:" + endDatePickerStr;
             }
 
@@ -374,6 +346,27 @@ docReady(function () {
             $("#wholesalerPicker").on("focusout", function () {
                 table.draw();
             });
+
+            $("#startDate").datepicker({
+                onSelect: function(dateText) {
+                  console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+                  $(this).change();
+                }
+              })
+              .on("change", function() {
+                console.log("Got change event from field");
+              });
+            
+            $("#endDate")
+              .datepicker({
+                onSelect: function(dateText) {
+                  console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+                  $(this).change();
+                }
+              })
+              .on("change", function() {
+                console.log("Got change event from field");
+              });
 
             $(".dataTables_filter input").on("focusout", function () {
                 table.draw();
