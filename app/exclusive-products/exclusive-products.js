@@ -402,8 +402,37 @@ docReady(function () {
                 console.log(cell, row, data, action, wholesalerKey);
 
                 if (action = "delete") {
-                    table.row($(this).parents('tr')).remove().draw();
-                  }
+                    console.log("delete")
+                    $.ajax({
+                        type: "DELETE",
+                        url: InvokeURL + "exclusive-products/" + data.gtin,
+                        cors: true,
+                        beforeSend: function () {
+                            $("#waitingdots").show();
+                        },
+                        complete: function () {
+                            $("#waitingdots").hide();
+                        },
+                        contentType: "application/json",
+                        dataType: "json",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                            Authorization: orgToken,
+                        },
+                        success: function (resultData) {
+                            console.log(resultData);
+                            table.row($(this).parents('tr')).remove().draw();
+                        },
+                        error: function (jqXHR, exception) {
+                            console.log(jqXHR);
+                            console.log(jqXHR);
+                            console.log(exception);
+                            return;
+                        },
+                    });
+
+                }
 
             });
 
