@@ -356,7 +356,7 @@ docReady(function () {
                 data: null,
                 width: "48px",
                 defaultContent:
-                    "<div style='cursor: pointer'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='edit'></img></div>",
+                    "<div style='cursor: pointer'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></div><div style='cursor: pointer'></img><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img></div>",
             },
 
         ],
@@ -394,12 +394,13 @@ docReady(function () {
                 //Get the cell of the input
                 var table = $("#table_id").DataTable();
                 var data = table.row($(this).parents("tr")).data();
-                console.log($(this));
-                var cell = $(this).closest("td");
-                console.log(cell);
-                var action = $(this).attr("action");
+                
 
-                if (action = "delete") {
+                
+                var action = $(this).attr("action");
+                console.log($(this));
+                console.log(action)
+                if (action === "delete") {
                     console.log("delete")
                     $.ajax({
                         type: "DELETE",
@@ -435,7 +436,8 @@ docReady(function () {
                     });
 
                 }
-                if (action = "edit") {
+                if (action === "edit") {
+                    console.log("edit")
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop( "disabled", true );
                     $("#GTINInputEdit").val(data.gtin);
