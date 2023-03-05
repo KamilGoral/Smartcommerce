@@ -100,7 +100,7 @@ docReady(function () {
             })
             .get();
           var whKeyIndiStr = whKeyIndi.toString();
-          if (whKeyIndiStr) {
+          if (whKeyIndiStr != "") {
             QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
           }
     
@@ -172,6 +172,7 @@ docReady(function () {
         },
         columns: [
           {
+            visible: false,
             orderable: false,
             data: "uuid",
           },
@@ -182,6 +183,15 @@ docReady(function () {
           {
             orderable: true,
             data: "name",
+          },
+          {
+            orderable: true,
+            data: "wholesalerName",
+          },
+          {
+            visible: false,
+            orderable: false,
+            data: "wholesalerKey",
           },
           {
             orderable: true,
