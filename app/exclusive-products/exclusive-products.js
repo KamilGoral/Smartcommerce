@@ -246,6 +246,14 @@ docReady(function () {
                 visible: false,
                 orderable: false,
                 data: "wholesalerKey",
+                render: function (data) {
+                    if (data !== null) {
+                        return data;
+                    }
+                    if (data === null) {
+                        return "BLOKADA";
+                    }
+                },
             },
             {
                 orderable: true,
