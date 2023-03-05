@@ -105,14 +105,17 @@ docReady(function () {
                 QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
             }
 
+            // This is usefull
+            var nowTime = new Date(Date.now() + (3600 * 1000 * 24)).toISOString().split('T')[0]
+
             var startDatePicker = $("#startDate")
                 .map(function () {
                     return this.value;
                 })
                 .get();
             var startDatePickerStr = startDatePicker.toString();
-            if (startDatePickerStr != "") {
-                QStr = QStr + "&startDate=" + startDatePickerStr;
+            if (startDatePickerStr != nowTime) {
+                QStr = QStr + "&startDate=gte:" + startDatePickerStr;
             }
 
             var endDatePicker = $("#endDate")
@@ -121,8 +124,8 @@ docReady(function () {
                 })
                 .get();
             var endDatePickerStr = endDatePicker.toString();
-            if (endDatePickerStr != "") {
-                QStr = QStr + "&endDate=" + endDatePickerStr;
+            if (endDatePickerStr != nowTime) {
+                QStr = QStr + "&endDate=lte:" + endDatePickerStr;
             }
 
             var whichColumns = "";
