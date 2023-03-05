@@ -355,6 +355,7 @@ docReady(function () {
               })
               .on("change", function() {
                 console.log("Got change event from field");
+                table.draw();
               });
             
             $("#endDate")
@@ -366,6 +367,7 @@ docReady(function () {
               })
               .on("change", function() {
                 console.log("Got change event from field");
+                table.draw();
               });
 
             $(".dataTables_filter input").on("focusout", function () {
