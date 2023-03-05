@@ -230,7 +230,7 @@ docReady(function () {
                         var creationDate = localeTime.split("T");
                         var creationTime = creationDate[1].split("Z");
                         lastModificationDate =
-                            creationDate[0] + " " + creationTime[0].slice(0, -4);
+                            creationDate[0];// + " " + creationTime[0].slice(0, -4);
                         return lastModificationDate;
                     }
                     if (data === null) {
@@ -252,7 +252,7 @@ docReady(function () {
                         var creationDate = localeTime.split("T");
                         var creationTime = creationDate[1].split("Z");
                         endDate =
-                            creationDate[0] + " " + creationTime[0].slice(0, -4);
+                            creationDate[0];// + " " + creationTime[0].slice(0, -4);
 
                         if (data > nowDate) {
                             return '<spann class="positive">' + endDate + "</spann>";
@@ -319,12 +319,31 @@ docReady(function () {
             $("#wholesalerPicker").on("focusout", function () {
                 table.draw();
             });
-            $("#startDate").on("change", function () {
-                table.draw();
-            });
-            $("#endDate").on("change", function () {
-                table.draw();
-            });
+
+            $("#startDate")
+                .datepicker({
+                    onSelect: function (dateText) {
+                        console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+                        $(this).change();
+                    }
+                })
+                .on("change", function () {
+                    console.log("Got change event from field");
+                });
+
+            $("#endDate")
+                .datepicker({
+                    onSelect: function (dateText) {
+                        console.log("Selected date: " + dateText + "; input's current value: " + this.value);
+                        $(this).change();
+                    }
+                })
+                .on("change", function () {
+                    console.log("Got change event from field");
+                });
+
+
+
             $(".filterinput").on("focusout", function () {
                 table.draw();
             });
