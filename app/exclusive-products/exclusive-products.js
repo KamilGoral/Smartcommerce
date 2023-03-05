@@ -320,7 +320,7 @@ docReady(function () {
                 table.draw();
             });
 
-            $(".filterinput").on("focusout", function () {
+            $(".dataTables_filter input").on("focusout", function () {
                 table.draw();
             });
             textBox.unbind();
