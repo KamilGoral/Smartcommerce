@@ -479,8 +479,8 @@ docReady(function () {
                         console.log(resultData);
                         form.show();
                         $("#Create-Exclusive-Success").show();
-                        $("#Create-Pricelist-Success").fadeOut(4000);
-                        $("#WholesalerSelector-Exclusive-2").val('');
+                        $("#Create-Exclusive-Success").fadeOut(4000);
+                        $("#GTINInput").val('');
                     },
                     error: function (jqXHR, exception) {
                         console.log(jqXHR);
@@ -494,7 +494,7 @@ docReady(function () {
                         }
                         form.show();
                         $("#Create-Pricelist-Fail").show();
-                        $("#Create-Pricelist-Fail").fadeOut(5000);
+                        $("#Create-Pricelist-Fail").fadeOut(7000);
                         return;
                     },
                 });
