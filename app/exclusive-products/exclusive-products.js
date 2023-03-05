@@ -401,6 +401,10 @@ docReady(function () {
                 var wholesalerKey = data.wholesalerKey;
                 console.log(cell, row, data, action, wholesalerKey);
 
+                if (action = "delete") {
+                    table.row($(this).parents('tr')).remove().draw();
+                  }
+
             });
 
             $(".dataTables_filter input").on("focusout", function () {
