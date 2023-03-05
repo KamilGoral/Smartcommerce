@@ -56,6 +56,10 @@ docReady(function () {
 
                 const wholesalerContainer =
                     document.getElementById("WholesalerSelector");
+                    var opt = document.createElement("option");
+                    opt.value = null;
+                    opt.innerHTML = "BLOKADA";
+                    wholesalerContainer.appendChild(opt);    
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
@@ -68,6 +72,10 @@ docReady(function () {
 
                 const wholesalerContainer2 =
                     document.getElementById("WholesalerSelector-Exclusive-2");
+                    var opt = document.createElement("option");
+                    opt.value = null;
+                    opt.innerHTML = "BLOKADA";
+                    wholesalerContainer2.appendChild(opt);  
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
