@@ -196,25 +196,67 @@ docReady(function () {
           {
             orderable: true,
             data: "startDate",
+            render: function (data) {
+                if (data !== null&&) {
+                  var lastModificationDate = "";
+                  var offset = new Date().getTimezoneOffset();
+                  var localeTime = new Date(
+                    Date.parse(data) - offset * 60 * 1000
+                  ).toISOString();
+                  var creationDate = localeTime.split("T");
+                  var creationTime = creationDate[1].split("Z");
+                  lastModificationDate =
+                    creationDate[0] + " " + creationTime[0].slice(0, -4);
+                  return lastModificationDate;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
           },
           {
             orderable: true,
             data: "endDate",
+            render: function (data) {
+                if (data !== null&&) {
+                  var lastModificationDate = "";
+                  var offset = new Date().getTimezoneOffset();
+                  var localeTime = new Date(
+                    Date.parse(data) - offset * 60 * 1000
+                  ).toISOString();
+                  var creationDate = localeTime.split("T");
+                  var creationTime = creationDate[1].split("Z");
+                  lastModificationDate =
+                    creationDate[0] + " " + creationTime[0].slice(0, -4);
+                  return lastModificationDate;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
           },
           {
             orderable: true,
             data: "lastModified",
             render: function (data) {
-              if (
-                data !== null &&
-                data.hasOwnProperty("date") &&
-                data.date !== null
-              ) {               
-                  return data.date
-              } else {
-                return "-";
-              }
-            },
+                if (data !== null&&
+                    data.hasOwnProperty("date") &&
+                    data.date !== null) {
+                  var lastModificationDate = "";
+                  var offset = new Date().getTimezoneOffset();
+                  var localeTime = new Date(
+                    Date.parse(data.date) - offset * 60 * 1000
+                  ).toISOString();
+                  var creationDate = localeTime.split("T");
+                  var creationTime = creationDate[1].split("Z");
+                  lastModificationDate =
+                    creationDate[0] + " " + creationTime[0].slice(0, -4);
+                  return lastModificationDate;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
           },
           {
             orderable: true,
@@ -234,6 +276,7 @@ docReady(function () {
           {
             orderable: true,
             data: null,
+            width: "48px",
             defaultContent:
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' alt='edit'></img>",
           },
