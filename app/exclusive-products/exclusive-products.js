@@ -357,7 +357,7 @@ docReady(function () {
                 data: null,
                 width: "48px",
                 defaultContent:
-                    "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' alt='edit'></img><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='edit'></img>",
+                    "<div style='cursor: pointer'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='edit'></img></div>",
             },
 
         ],
@@ -390,6 +390,18 @@ docReady(function () {
                     console.log("Got change event from field");
                     table.draw();
                 });
+
+            $("#table_id").on("click", "img", function () {
+                //Get the cell of the input
+                var table = $("#table_id").DataTable();
+                var cell = $(this).closest("td");
+                var row = $(this).closest("tr");
+                var data = table.row($(this).parents("tr")).data();
+                var action = $(this).attr("action");
+                var wholesalerKey = data.wholesalerKey;
+                console.log(cell, row, data, action, wholesalerKey);
+
+            });
 
             $(".dataTables_filter input").on("focusout", function () {
                 table.draw();
