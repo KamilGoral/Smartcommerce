@@ -457,7 +457,7 @@ docReady(function () {
                             "name": "name1",
                             "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
                             "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-                            "neverExpires": true
+                            "endDate": "infinity",
                         }]
                 }
 
@@ -469,7 +469,6 @@ docReady(function () {
                             "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
                             "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
                             "endDate": $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
-                            "neverExpires": false
                         }]
                 }
 
