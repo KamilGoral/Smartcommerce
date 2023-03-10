@@ -53,7 +53,7 @@ docReady(function () {
         monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
         defaultDate: 1,
         minDate: new Date()
-    }).datepicker("setDate", new Date(Date.now()));
+    })
 
     $('#endDate').datepicker({
         dateFormat: "yy-mm-dd",
@@ -93,6 +93,32 @@ docReady(function () {
         defaultDate: 1,
         minDate: new Date()
     })
+
+    $('#startDate-Exclusive-2').datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy-mm-dd",
+        dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+        dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        firstDay: 1,
+        monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+        defaultDate: 1,
+        minDate: new Date()
+    }).datepicker("setDate", new Date(Date.now()));
+
+    $('#endDate-Exclusive-2').datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy-mm-dd",
+        dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+        dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+        firstDay: 1,
+        monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+        monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+        defaultDate: 1,
+        minDate: new Date()
+    }).datepicker("setDate", new Date(Date.now()));
 
 
     var table = $("#table_id").DataTable({
@@ -574,7 +600,6 @@ docReady(function () {
                             "name": "name1",
                             "wholesalerKey": $("#WholesalerSelector-Exclusive-2").val(),
                             "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-                            "neverExpires": true,
                             "endDate": "infinity"
                         }]
                 }
