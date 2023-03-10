@@ -378,7 +378,7 @@ docReady(function () {
                         var o = Object.assign({}, el);
                         o.wholesalerKey = $("#WholesalerSelector").val();
                         o.startDate = $("#startDate").val() + "T00:00:01.00Z";
-                        o.neverExpires = true;
+                        o.endDate = "infinity"
                         return o;
                     })
                 }
@@ -389,7 +389,6 @@ docReady(function () {
                         o.wholesalerKey = $("#WholesalerSelector").val();
                         o.startDate = $("#startDate").val() + "T00:00:01.00Z";
                         o.endDate = $("#endDate").val() + "T23:59:59.00Z";
-                        o.neverExpires = false;
                         return o;
                     })
                 }
