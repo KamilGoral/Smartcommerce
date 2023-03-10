@@ -240,7 +240,11 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "products",
+              data: "products.bestMatch",
+            },
+            {
+              orderable: true,
+              data: "products.exclusive",
             },
             {
               orderable: false,
