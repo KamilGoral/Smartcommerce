@@ -364,6 +364,7 @@ docReady(function () {
             {
               orderable: true,
               data: "address",
+              visible: false,
               render: function (data) {
                 if (data !== null) {
                   return (
@@ -790,7 +791,7 @@ docReady(function () {
         var action = InvokeURL + "shops";
         var data = {
           name: $("#newShopName").val(),
-          shopKey: $("#newShopKey").val(),
+          shopKey: $("#newShopKey").val().toUpperCase(),
         };
         $.ajax({
           type: "POST",
@@ -1009,7 +1010,7 @@ docReady(function () {
             var creationTime = creationDate[1].split("Z");
             endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
 
-            if (data > nowDate) {
+            if (data >= nowDate) {
               return '<spann class="positive">' + endDate + "</spann>";
             } else {
               return '<spann class="medium">' + endDate + "</spann>";
