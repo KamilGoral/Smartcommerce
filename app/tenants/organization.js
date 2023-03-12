@@ -462,7 +462,7 @@ docReady(function () {
           "rowCallback": function( row, data ) {
             if ( data.wholesalerKey == "iglomen-czerwionka") {
               console.log("iglomen")
-              $('td:eq(4)', row).html( '<b>A</b>' );
+              $('td:eq(3)', row).html( '<spann class="negative">Nie</spann>' );
             }
           }
         });
