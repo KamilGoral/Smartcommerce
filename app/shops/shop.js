@@ -937,6 +937,13 @@ docReady(function () {
                 '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
             },
           ],
+          //delete this rowCallback after support for Iglomen Sellitem
+          "rowCallback": function( row, data ) {
+            if ( data.wholesalerKey == "iglomen-czerwionka") {
+              console.log("iglomen")
+              $('td:eq(7)', row).html( '<spann class="noneexisting">Brak</spann>' );
+            }
+          } 
         });
 
         $("#table_wholesalers").on("click", "tr", function () {
