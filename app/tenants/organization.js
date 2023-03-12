@@ -459,6 +459,12 @@ docReady(function () {
               },
             },
           ],
+          "rowCallback": function( row, data ) {
+            if ( data.wholesalerKey == "iglomen-czerwionka") {
+              console.log("iglomen")
+              $('td:eq(4)', row).html( '<b>A</b>' );
+            }
+          }
         });
 
         $("#table_wholesalers_list").on(
