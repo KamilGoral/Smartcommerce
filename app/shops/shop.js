@@ -941,7 +941,7 @@ docReady(function () {
           "rowCallback": function( row, data ) {
             if ( data.wholesalerKey == "iglomen-czerwionka") {
               console.log("iglomen")
-              $('td:eq(7)', row).html( '<spann class="noneexisting">Brak</spann>' );
+              $('td:eq(6)', row).html( '<spann class="noneexisting">Brak</spann>' );
             }
           } 
         });
