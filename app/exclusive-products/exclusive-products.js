@@ -193,7 +193,6 @@ docReady(function () {
                 })
                 .get();
             var startDatePickerStr = startDatePicker.toString();
-            console.log(startDatePickerStr);
             if (startDatePickerStr != "") {
                 QStr = QStr + "&startDate=gte:" + startDatePickerStr;
             }
@@ -486,7 +485,6 @@ docReady(function () {
 
                 }
                 if (action === "edit") {
-                    console.log(data);
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
@@ -526,7 +524,6 @@ docReady(function () {
             var data = JSON.parse(this.response);
             var toParse = data.items;
             if (request.status >= 200 && request.status < 400) {
-                console.log(Object.keys(toParse).length);
                 const wholesalerContainer =
                     document.getElementById("wholesalerPicker");
                 var opt = document.createElement("option");
