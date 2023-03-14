@@ -655,8 +655,8 @@ docReady(function () {
                     success: function (resultData) {
                         console.log(resultData);
                         form.show();
-                        $("#Create-Exclusive-Success").show();
-                        $("#Create-Exclusive-Success").fadeOut(4000);
+                        $("#Create-Pricelist-Success").show();
+                        $("#Create-Pricelist-Success").fadeOut(4000);
                         $("#GTINInput").val('');
                     },
                     error: function (jqXHR, exception) {
@@ -670,8 +670,8 @@ docReady(function () {
                             elements[i].textContent = msg;
                         }
                         form.show();
-                        $("#Create-Pricelist-Fail").show();
-                        $("#Create-Pricelist-Fail").fadeOut(7000);
+                        $("#SingleExclusiveForm-Fail2").show();
+                        $("#SingleExclusiveForm-Fail2").fadeOut(7000);
                         return;
                     },
                 });
