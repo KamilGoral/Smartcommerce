@@ -420,7 +420,8 @@ docReady(function () {
             });
 
             $("#startDate").datepicker({
-                onSelect: function (dateText) {WholesalerSelector
+                onSelect: function (dateText) {
+                    WholesalerSelector
                     console.log("Selected date: " + dateText + "; input's current value: " + this.value);
                     $(this).change();
                 }
@@ -485,16 +486,15 @@ docReady(function () {
                 }
                 if (action === "edit") {
                     $('#EditExclusivePopup').css('display', 'flex');
-                    $("#GTINInputEdit").prop( "disabled", true );
+                    $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
 
-                    if (data.hasOwnProperty('endDate')){
+                    if (data.hasOwnProperty('endDate')) {
                         $("#endDate-Exclusive-Edit").datepicker("setDate", new Date(Date.parse(data.endDate)));
-                    } else
-                    {
-                        $("#NeverSingleEdit").prop("checked", true );
+                    } else {
+                        $("#NeverSingleEdit").prop("checked", true);
                         $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
                     }
                 }
@@ -552,6 +552,23 @@ docReady(function () {
                         opt.innerHTML = wholesaler.name;
                         wholesalerContainer2.appendChild(opt);
                     }
+                });
+
+                const wholesalerContainer3 =
+                    document.getElementById("WholesalerSelector-Exclusive-2");
+                var opt = document.createElement("option");
+                opt.value = null;
+                opt.innerHTML = "BLOKADA";
+                wholesalerContainer3.appendChild(opt);
+                toParse.forEach((wholesaler) => {
+                    if (wholesaler.enabled) {
+                        var opt = document.createElement("option");
+                        opt.value = wholesaler.wholesalerKey;
+                        opt.innerHTML = wholesaler.name;
+                        wholesalerContainer3.appendChild(opt);
+                    }
+
+
 
                 });
                 if (request.status == 401) {

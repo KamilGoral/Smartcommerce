@@ -459,12 +459,13 @@ docReady(function () {
               },
             },
           ],
+          //delete this rowCallback after support for Iglomen Sellitem
           "rowCallback": function( row, data ) {
             if ( data.wholesalerKey == "iglomen-czerwionka") {
               console.log("iglomen")
               $('td:eq(3)', row).html( '<spann class="negative">Nie</spann>' );
             }
-          }
+          } 
         });
 
         $("#table_wholesalers_list").on(
