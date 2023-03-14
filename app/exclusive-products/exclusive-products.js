@@ -193,8 +193,7 @@ docReady(function () {
                 .get();
             var startDatePickerStr = startDatePicker.toString();
             console.log(startDatePickerStr);
-            console.log(nowTime);
-            if (startDatePickerStr != nowTime) {
+            if (startDatePickerStr != "") {
                 QStr = QStr + "&startDate=gte:" + startDatePickerStr;
             }
 
