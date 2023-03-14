@@ -486,6 +486,7 @@ docReady(function () {
 
                 }
                 if (action === "edit") {
+                    console.log(data);
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
