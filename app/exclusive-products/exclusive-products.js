@@ -635,9 +635,10 @@ docReady(function () {
                 }
 
                 if ($("#WholesalerSelector-Exclusive-2").val() === "null"){
-                    delete postData.wholesalerKey
+                    delete postData[0].wholesalerKey
+                    console.log("delete wholesalerKey")
                 }
-                
+
                 console.log(postData);
 
                 $.ajax({
