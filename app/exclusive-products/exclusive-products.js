@@ -490,7 +490,7 @@ docReady(function () {
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
-                    $("#exclusiveProductId").attr("uuid",data.uuid);
+                    $("#exclusiveProductId").val(data.uuid);
                     
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
@@ -692,7 +692,7 @@ docReady(function () {
                 var action = InvokeURL + "exclusive-products/" + $("#exclusiveProductId").val();
                 var method = "PATCH";
 
-                if ($('#NeverSingle').is(":checked")) {
+                if ($('#NeverSingleEdit').is(":checked")) {
 
                     var postData =
                         [{
