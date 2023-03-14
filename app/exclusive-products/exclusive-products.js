@@ -41,6 +41,7 @@ docReady(function () {
     const ExclusiveWizardBread = document.getElementById("ExclusiveResults");
     ExclusiveWizardBread.setAttribute("href", "" + window.location.href);
     var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
+    var formIdEditSingleExclusive = "#wf-form-SingleExclusiveForm-Edit-2";
 
     $('#startDate').datepicker({
         dateFormat: "yy-mm-dd",
@@ -488,6 +489,7 @@ docReady(function () {
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
+                    $("#GTINInputEdit").val(data.uuid);
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
 
@@ -681,6 +683,100 @@ docReady(function () {
         });
     };
 
+    makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
+        forms.each(function () {
+            var form = $(this);
+            form.on("submit", function (event) {
+                var action = InvokeURL + "exclusive-products/" + $("#exclusiveProductId").val();
+                var method = "PATCH";
+
+                if ($('#NeverSingle').is(":checked")) {
+
+                    var postData =
+                        [{
+                            "op": "replace",
+                            "path": "/startDate",
+                            "value": $("#startDate-Exclusive-Edit").val() + "T00:00:01.00Z"
+                            },
+                            {
+                            "op": "replace",
+                            "path": "/endDate",
+                            "value": "infinity"
+                            },
+                            {
+                            "op": "replace",
+                            "path": "/wholesalerKey",
+                            "value": $("#WholesalerSelector-Exclusive-Edit").val()
+                            }]
+                }
+
+                else {
+                    var postData =
+                        [{
+                            "op": "replace",
+                            "path": "/startDate",
+                            "value": $("#startDate-Exclusive-Edit").val() + "T00:00:01.00Z"
+                            },
+                            {
+                            "op": "replace",
+                            "path": "/endDate",
+                            "value": $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+                            },
+                            {
+                            "op": "replace",
+                            "path": "/wholesalerKey",
+                            "value": $("#WholesalerSelector-Exclusive-Edit").val()
+                            }]
+                }
+
+                console.log(postData);
+
+                $.ajax({
+                    type: method,
+                    url: action,
+                    cors: true,
+                    beforeSend: function () {
+                        $("#waitingdots").show();
+                    },
+                    complete: function () {
+                        $("#waitingdots").hide();
+                    },
+                    contentType: "application/json",
+                    dataType: "json",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        Authorization: orgToken,
+                    },
+                    data: JSON.stringify(postData),
+                    success: function (resultData) {
+                        console.log(resultData);
+                        form.show();
+                        $("#Edit-Exclusive-Success").show();
+                        $("#Edit-Exclusive-Success").fadeOut(4000);
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(jqXHR);
+                        console.log(jqXHR);
+                        console.log(exception);
+                        var msg =
+                            "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+                        var elements = document.getElementsByClassName("warningmessagetext");
+                        for (var i = 0; i < elements.length; i++) {
+                            elements[i].textContent = msg;
+                        }
+                        form.show();
+                        $("#Edit-Exclusive-Fail").show();
+                        $("#Edit-Exclusive-Fail").fadeOut(7000);
+                        return;
+                    },
+                });
+                event.preventDefault();
+                return false;
+            });
+        });
+    };
+    makeWebflowFormAjaxSingleEdit($(formIdEditSingleExclusive));
     makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
     getWholesalersSh();
     LoadTippy();
