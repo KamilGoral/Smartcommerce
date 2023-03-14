@@ -56,10 +56,10 @@ docReady(function () {
 
                 const wholesalerContainer =
                     document.getElementById("WholesalerSelector");
-                    var opt = document.createElement("option");
-                    opt.value = null;
-                    opt.innerHTML = "BLOKADA";
-                    wholesalerContainer.appendChild(opt);    
+                var opt = document.createElement("option");
+                opt.value = null;
+                opt.innerHTML = "BLOKADA";
+                wholesalerContainer.appendChild(opt);
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
@@ -72,10 +72,10 @@ docReady(function () {
 
                 const wholesalerContainer2 =
                     document.getElementById("WholesalerSelector-Exclusive-2");
-                    var opt = document.createElement("option");
-                    opt.value = null;
-                    opt.innerHTML = "BLOKADA";
-                    wholesalerContainer2.appendChild(opt);  
+                var opt = document.createElement("option");
+                opt.value = null;
+                opt.innerHTML = "BLOKADA";
+                wholesalerContainer2.appendChild(opt);
                 toParse.forEach((wholesaler) => {
                     if (wholesaler.enabled) {
                         var opt = document.createElement("option");
@@ -392,6 +392,13 @@ docReady(function () {
                     })
                 }
 
+                if ($("#WholesalerSelector").val() === "null") {
+                    for (var i = 0; i < postData.length; i++) {
+                        delete postData[i].wholesalerKey;
+                    }
+                    console.log("delete wholesalerKey")
+                }
+
                 console.log(postData);
 
                 $.ajax({
@@ -470,6 +477,12 @@ docReady(function () {
                             "startDate": $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
                             "endDate": $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
                         }]
+                }
+                if ($("#WholesalerSelector-Exclusive-2").val() === "null"){
+                    for (var i = 0; i < postData.length; i++) {
+                        delete postData[i].wholesalerKey;
+                      }
+                    console.log("delete wholesalerKey")
                 }
 
                 console.log(postData);
