@@ -610,6 +610,7 @@ docReady(function () {
                 var action = InvokeURL + "exclusive-products";
                 var method = "POST";
 
+
                 if ($('#NeverSingle').is(":checked")) {
 
                     var postData =
@@ -633,6 +634,10 @@ docReady(function () {
                         }]
                 }
 
+                if ($("#WholesalerSelector-Exclusive-2").val() === "null"){
+                    delete postData.wholesalerKey
+                }
+                
                 console.log(postData);
 
                 $.ajax({
