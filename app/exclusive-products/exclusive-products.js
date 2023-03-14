@@ -490,7 +490,8 @@ docReady(function () {
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
-                    $("#GTINInputEdit").val(data.uuid);
+                    $("#exclusiveProductId").attr("uuid",data.uuid);
+                    
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
 
