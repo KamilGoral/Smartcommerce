@@ -51,8 +51,7 @@ docReady(function () {
         firstDay: 1,
         monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
         monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
-        defaultDate: 1,
-        minDate: new Date()
+        defaultDate: 1
     })
 
     $('#endDate').datepicker({
@@ -193,6 +192,8 @@ docReady(function () {
                 })
                 .get();
             var startDatePickerStr = startDatePicker.toString();
+            console.log(startDatePickerStr);
+            console.log(nowTime);
             if (startDatePickerStr != nowTime) {
                 QStr = QStr + "&startDate=gte:" + startDatePickerStr;
             }
