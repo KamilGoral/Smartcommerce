@@ -126,7 +126,7 @@ docReady(function () {
   }
 
   function getUsers() {
-    let url = new URL(InvokeURL + "users");
+    let url = new URL(InvokeURL + "users?perPage=30");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
