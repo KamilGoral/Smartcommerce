@@ -767,7 +767,7 @@ docReady(function () {
       window.location.replace(
         "https://" +
           DomainName +
-          "/app/pricelists/pricelist?priceListId=" +
+          "/app/pricelists/pricelist?uuid=" +
           rowData.priceListId +
           "&shopKey=" +
           shopKey
