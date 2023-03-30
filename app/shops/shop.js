@@ -653,7 +653,7 @@ docReady(function () {
         },
         {
           orderable: false,
-          visible: true,
+          visible: false,
           data: "uuid",
           render: function (data) {
             if (data !== null) {
@@ -787,7 +787,7 @@ docReady(function () {
         "https://" +
           DomainName +
           "/app/pricelists/pricelist?uuid=" +
-          rowData.priceListId +
+          rowData.uuid +
           "&shopKey=" +
           shopKey
       );
