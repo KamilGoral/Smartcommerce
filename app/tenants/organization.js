@@ -1068,7 +1068,7 @@ docReady(function () {
             return data;
           }
           if (data === null) {
-            return "";
+            return "-";
           }
         },
       }
