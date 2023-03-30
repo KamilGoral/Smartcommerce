@@ -653,6 +653,19 @@ docReady(function () {
         },
         {
           orderable: false,
+          visible: false,
+          data: "uuid",
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            }
+            if (data === null) {
+              return "";
+            }
+          },
+        },
+        {
+          orderable: false,
           data: "wholesalerKey",
           render: function (data) {
             if (data !== null) {
