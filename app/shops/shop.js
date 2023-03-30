@@ -653,7 +653,7 @@ docReady(function () {
         },
         {
           orderable: false,
-          visible: false,
+          visible: true,
           data: "uuid",
           render: function (data) {
             if (data !== null) {
