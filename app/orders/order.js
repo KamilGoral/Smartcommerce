@@ -157,13 +157,13 @@ docReady(function () {
 
         var data = resultData;
         const totalValue = document.getElementById("totalValue");
-        totalValue.textContent = data.net_values.total + " zł";
+        totalValue.textContent = data.netValues.total + " zł";
         const maxValue = document.getElementById("maxValue");
-        maxValue.textContent = data.net_values.max + " zł";
+        maxValue.textContent = data.netValues.max + " zł";
         const avgValue = document.getElementById("avgValue");
-        avgValue.textContent = data.net_values.avg + " zł";
+        avgValue.textContent = data.netValues.avg + " zł";
         const savings = document.getElementById("savings");
-        var numb = data.net_values.avg - data.net_values.total;
+        var numb = data.netValues.avg - data.netValues.total;
         savings.textContent = numb.toFixed(2) + " zł";
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
