@@ -133,7 +133,6 @@ docReady(function () {
     function validateProduct(element) {
       if (
         validateGTIN(element.gtin) &&
-        typeof element.name == "string" &&
         typeof element.price == "number" &&
         !isNaN(element.price) &&
         element.price > 0
