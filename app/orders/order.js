@@ -236,7 +236,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "netValues.total",  
+              data: "netValue",  
             },
             {
               orderable: true,
