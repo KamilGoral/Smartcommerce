@@ -626,8 +626,6 @@ docReady(function () {
           "</td>" +
           "<td>" +
           "</td>" +
-          "<td>" +
-          "</td>" +
           "</tr>";
       }
       toDisplayHtml += tableRowHtml;

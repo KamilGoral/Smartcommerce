@@ -413,38 +413,33 @@ docReady(function () {
         }
 
         tableRowHtml +=
-          "<td>" +
-          typeOfPromotion +
-          "</td>" +
-          "<td>" +
-          item.promotion.worthThreshold +
-          "</td>" +
-          "<td>" +
-          item.promotion.quantityThreshold +
-          "</td>" +
-          "<td>" +
-          item.promotion.package +
-          "</td>" +
-          "</tr>";
+        "<td>" +
+        typeOfPromotion +
+        "</td>" +
+        "<td>" +
+        item.promotion.threshold +
+        "</td>" +
+        "<td>" +
+        item.promotion.package +
+        "</td>" +
+        "</tr>";
       } else {
         tableRowHtml +=
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "</tr>";
+        "<td>" +
+        "</td>" +
+        "<td>" +
+        "</td>" +
+        "<td>" +
+        "</td>" +
+        "<td>" +
+        "</td>" +
+        "</tr>";
       }
       toDisplayHtml += tableRowHtml;
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Prog zlotowkowy</th><th>Prog ilosciowy</th><th>Opakowanie</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Opakowanie</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
