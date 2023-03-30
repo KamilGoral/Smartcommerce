@@ -25,7 +25,7 @@ docReady(function () {
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
   var shopKey = new URL(location.href).searchParams.get("shopKey");
-  var priceListId = new URL(location.href).searchParams.get("priceListId");
+  var priceListId = new URL(location.href).searchParams.get("uuid");
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var formIdEditPriceList = "#wf-form-UpdatePriceList";
   var formIdDeletePriceList = "#wf-form-DeletePriceList";
@@ -107,10 +107,10 @@ docReady(function () {
           return humanTime;
         }
         wholesalerKey.textContent = data.wholesalerKey;
-        createdBy.textContent = data.createdBy;
-        createDate.textContent = ToHumanTime(data.createDate);
+        createdBy.textContent = data["created.by"];
+        createDate.textContent = ToHumanTime(data["created.at"]);
         lastModificationDate.textContent = ToHumanTime(
-          data.lastModificationDate
+          data["modified.at"]
         );
         startDate.textContent = ToHumanTime(data.startDate);
         $("#startDate").datepicker("setDate", new Date(data.startDate));
