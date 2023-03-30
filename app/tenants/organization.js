@@ -231,7 +231,7 @@ docReady(function () {
   }
 
   function getUsers() {
-    let url = new URL(InvokeURL + "users");
+    let url = new URL(InvokeURL + "users?perPage=30");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -460,12 +460,12 @@ docReady(function () {
             },
           ],
           //delete this rowCallback after support for Iglomen Sellitem
-          "rowCallback": function( row, data ) {
-            if ( data.wholesalerKey == "iglomen-czerwionka") {
-              console.log("iglomen")
-              $('td:eq(3)', row).html( '<spann class="negative">Nie</spann>' );
+          rowCallback: function (row, data) {
+            if (data.wholesalerKey == "iglomen-czerwionka") {
+              console.log("iglomen");
+              $("td:eq(3)", row).html('<spann class="negative">Nie</spann>');
             }
-          } 
+          },
         });
 
         $("#table_wholesalers_list").on(
@@ -529,9 +529,7 @@ docReady(function () {
           } else {
             row.setAttribute(
               "href",
-              "https://" +
-                DomainName +
-                "/app/integrations/merchant-console"
+              "https://" + DomainName + "/app/integrations/merchant-console"
             );
           }
 
