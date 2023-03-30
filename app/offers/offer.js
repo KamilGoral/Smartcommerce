@@ -610,10 +610,7 @@ docReady(function () {
           typeOfPromotion +
           "</td>" +
           "<td>" +
-          item.promotion.worthThreshold +
-          "</td>" +
-          "<td>" +
-          item.promotion.quantityThreshold +
+          item.promotion.threshold +
           "</td>" +
           "<td>" +
           item.promotion.package +
@@ -637,7 +634,7 @@ docReady(function () {
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Prog zlotowkowy</th><th>Prog ilosciowy</th><th>Opakowanie</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Opakowanie</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
