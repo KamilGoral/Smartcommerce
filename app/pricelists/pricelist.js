@@ -107,10 +107,10 @@ docReady(function () {
           return humanTime;
         }
         wholesalerKey.textContent = data.wholesalerKey;
-        createdBy.textContent = data["created.by"];
-        createDate.textContent = ToHumanTime(data["created.at"]);
+        createdBy.textContent = data.created.by
+        createDate.textContent = ToHumanTime(data.created.at);
         lastModificationDate.textContent = ToHumanTime(
-          data["modified.at"]
+          data.modified.at
         );
         startDate.textContent = ToHumanTime(data.startDate);
         $("#startDate").datepicker("setDate", new Date(data.startDate));
