@@ -600,16 +600,16 @@ docReady(function () {
 
         switch (whichColumns) {
           case 0:
-            whichColumns = "createDate:";
+            whichColumns = "created.at:";
             break;
           case 2:
-            whichColumns = "createDate:";
+            whichColumns = "created.at:";
             break;
           case 3:
-            whichColumns = "createDate:";
+            whichColumns = "created.at:";
             break;
           default:
-            whichColumns = "createDate:";
+            whichColumns = "created.at:";
         }
 
         var sort = "" + whichColumns + direction;
@@ -659,7 +659,7 @@ docReady(function () {
         },
         {
           orderable: true,
-          data: "createDate",
+          data: "created.at",
           render: function (data) {
             if (data !== null) {
               var createDate = "";
@@ -727,7 +727,7 @@ docReady(function () {
         },
         {
           orderable: false,
-          data: "createdBy",
+          data: "created.by",
           render: function (data) {
             if (data !== null) {
               return data;
@@ -739,7 +739,7 @@ docReady(function () {
         },
         {
           orderable: false,
-          data: "lastModificationDate",
+          data: "modified.at",
           render: function (data) {
             if (data !== null) {
               var lastModificationDate = "";
