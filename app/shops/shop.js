@@ -448,6 +448,12 @@ docReady(function () {
               if (data == "incomplete") {
                 return '<spann class="medium">Niekompletna</spann>';
               }
+              if (data == "batching") {
+                return '<spann class="medium">W kolejce</spann>';
+              }
+              if (data == "forced") {
+                return '<spann class="medium">W kolejce</spann>';
+              }
             }
             if (data === null) {
               return "";
