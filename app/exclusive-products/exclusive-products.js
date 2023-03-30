@@ -736,6 +736,11 @@ docReady(function () {
 
                 console.log(postData);
 
+                if ($("#WholesalerSelector-Exclusive-Edit").val() === "null"){
+                    delete postData[0].wholesalerKey
+                    console.log("delete wholesalerKey")
+                }
+
                 $.ajax({
                     type: method,
                     url: action,

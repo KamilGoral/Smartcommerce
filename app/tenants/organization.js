@@ -905,7 +905,7 @@ docReady(function () {
 
       switch (whichColumns) {
         case 2:
-          whichColumns = "createDate:";
+          whichColumns = "created.at:";
           break;
         case 3:
           whichColumns = "startDate:";
@@ -914,7 +914,7 @@ docReady(function () {
           whichColumns = "endDate:";
           break;
         default:
-          whichColumns = "createDate:";
+          whichColumns = "created.at:";
       }
 
       var sort = "" + whichColumns + direction;
@@ -962,7 +962,7 @@ docReady(function () {
       },
       {
         orderable: true,
-        data: "createDate",
+        data: "created.at",
         render: function (data) {
           if (data !== null) {
             var createDate = "";
@@ -1030,7 +1030,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "createdBy",
+        data: "created.by",
         render: function (data) {
           if (data !== null) {
             return data;
@@ -1042,7 +1042,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "lastModificationDate",
+        data: "modified.at",
         render: function (data) {
           if (data !== null) {
             var lastModificationDate = "";
@@ -1062,6 +1062,18 @@ docReady(function () {
           }
         },
       },
+      {
+        orderable: false,
+        data: "modified.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      }
     ],
   });
 
@@ -1070,8 +1082,8 @@ docReady(function () {
     window.location.replace(
       "https://" +
         DomainName +
-        "/app/pricelists/pricelist?priceListId=" +
-        rowData.priceListId
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
     );
   });
 
