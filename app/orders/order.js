@@ -297,6 +297,7 @@ docReady(function () {
           },
           initComplete: function (settings, json) {
             var api = this.api();
+            console.log(api.column(6).data())
 
             var myCondition = api
               .column(6)
@@ -308,7 +309,7 @@ docReady(function () {
 
             console.log(myCondition)
 
-            if (myCondition) {
+            if (myCondition > 0) {
               // Hide Office column
               api.column(6).visible(false);
             }
