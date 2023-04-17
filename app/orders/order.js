@@ -314,7 +314,6 @@ docReady(function () {
             if (totalEclusiveProducts === 0) {
               // Hide Office column
               table.column(5).visible(false); // Produkty na wyłączność
-              console.log(table.column(5));
               console.log("hide");
             }
 
@@ -597,6 +596,29 @@ docReady(function () {
             {
               orderable: true,
               data: "netPrice",
+            },
+            {
+              orderable: false,
+              data: "assignmentSource",
+              render: function(data) {
+                if (data !== null) {
+                  if (data === "bestMatch") {
+                    return (
+                      '<p class="positive">Sprytny</p>'
+                    );
+                  } else if (data === "exclusive")
+                  {
+                    return (
+                      '<p class="negative">Bloday</p>'
+                    );
+                  } else
+                  {
+                    return '<p class="positive">User</p>';
+                  }
+                } else {
+                  return '<p class="neutral">-</p>';
+                }
+              },
             },
             {
               orderable: true,
