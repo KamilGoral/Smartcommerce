@@ -594,19 +594,17 @@ docReady(function () {
             {
               orderable: false,
               data: "assignmentSource",
-              render: function(data) {
+              render: function (data) {
                 if (data !== null) {
                   if (data === "bestMatch") {
                     return (
-                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d47f2d8bcb3a744667f31_people.svg">'
+                      '<div data-tippy-content="Sprytny Kupiec" class="tippy" style="display: flex;" tabindex="0"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins"></div>'
                     );
-                  } else if (data === "exclusive")
-                  {
+                  } else if (data === "exclusive") {
                     return (
                       '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg">'
                     );
-                  } else
-                  {
+                  } else {
                     return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg">'
                   }
                 } else {
