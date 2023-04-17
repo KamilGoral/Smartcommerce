@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -52,11 +52,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/orders/order?orderId=" +
-      OrderIdBread +
-      "&shopKey=" +
-      shopKey
+    DomainName +
+    "/app/orders/order?orderId=" +
+    OrderIdBread +
+    "&shopKey=" +
+    shopKey
   );
 
   function CreateOrder() {
@@ -91,18 +91,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-          wholesaler +
-          '">' +
-          wholesaler +
-          '<input type="checkbox" class="theClass" id="' +
-          wholesaler +
-          '" value="' +
-          wholesaler +
-          '" name="' +
-          wholesaler +
-          '"><label class="mylabel" for="' +
-          wholesaler +
-          '"></label></div>'
+        wholesaler +
+        '">' +
+        wholesaler +
+        '<input type="checkbox" class="theClass" id="' +
+        wholesaler +
+        '" value="' +
+        wholesaler +
+        '" name="' +
+        wholesaler +
+        '"><label class="mylabel" for="' +
+        wholesaler +
+        '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -236,7 +236,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "netValue",  
+              data: "netValue",
             },
             {
               orderable: true,
@@ -297,6 +297,22 @@ docReady(function () {
           },
           initComplete: function (settings, json) {
             var api = this.api();
+
+            var myCondition = api
+              .column(6)
+              .data()
+              .filter(function (value, index) {
+                return value > 0 ? true : false;
+              })
+              .count();
+
+            console.log(myCondition)
+
+            if (myCondition) {
+              // Hide Office column
+              api.column(6).visible(false);
+            }
+
             var textBox = $("#table_splited_wh filter label input");
             textBox.unbind();
             textBox.bind("keyup input", function (e) {
@@ -413,27 +429,27 @@ docReady(function () {
         }
 
         tableRowHtml +=
-        "<td>" +
-        typeOfPromotion +
-        "</td>" +
-        "<td>" +
-        item.promotion.threshold +
-        "</td>" +
-        "<td>" +
-        item.promotion.package +
-        "</td>" +
-        "</tr>";
+          "<td>" +
+          typeOfPromotion +
+          "</td>" +
+          "<td>" +
+          item.promotion.threshold +
+          "</td>" +
+          "<td>" +
+          item.promotion.package +
+          "</td>" +
+          "</tr>";
       } else {
         tableRowHtml +=
-        "<td>" +
-        "</td>" +
-        "<td>" +
-        "</td>" +
-        "<td>" +
-        "</td>" +
-        "<td>" +
-        "</td>" +
-        "</tr>";
+          "<td>" +
+          "</td>" +
+          "<td>" +
+          "</td>" +
+          "<td>" +
+          "</td>" +
+          "<td>" +
+          "</td>" +
+          "</tr>";
       }
       toDisplayHtml += tableRowHtml;
     }
@@ -785,12 +801,12 @@ docReady(function () {
     var fileformat = $(this).attr("fileformat");
     const downloadLink = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+      "shops/" +
+      shopKey +
+      "/orders/" +
+      orderId +
+      "/wholesalers?filesFormat=" +
+      fileformat
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -829,12 +845,12 @@ docReady(function () {
     var wholesalerKey = data.wholesalerKey;
     const downloadLink = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+      "shops/" +
+      shopKey +
+      "/orders/" +
+      orderId +
+      "/wholesalers/" +
+      wholesalerKey
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -927,12 +943,12 @@ docReady(function () {
 
       $.get(
         InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/products" +
-          QStr,
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products" +
+        QStr,
         function (res) {
           callback({
             recordsTotal: res.total,
