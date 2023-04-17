@@ -495,7 +495,7 @@ docReady(function () {
 
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
-          order: [[8, "desc"]], // This is column that contain values "Obniz Cene"
+          order: [[9, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"f>rt<"bottom"lip>',
@@ -711,6 +711,7 @@ docReady(function () {
             }
           },
           initComplete: function (settings, json) {
+            LoadTippy()
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
@@ -1234,5 +1235,28 @@ docReady(function () {
     });
   }
 
+  function LoadTippy() {
+    $.getScript(
+      "https://unpkg.com/popper.js@1",
+      function (data, textStatus, jqxhr) {
+        $.getScript(
+          "https://unpkg.com/tippy.js@4",
+          function (data, textStatus, jqxhr) {
+            tippy(".tippy", {
+              // Add the class tippy to your element
+              theme: "light", // Dark or Light
+              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
+              duration: 250, // Duration of the Animation
+              arrow: true, // Add arrow to the tooltip
+              allowHTML: true, // Add HTML content
+              arrowType: "round", // Sharp, round or empty for none
+              delay: [0, 50], // Trigger delay in & out
+              maxWidth: 240, // Optional, max width settings
+            });
+          }
+        );
+      }
+    );
+  }
   getOffers();
 });
