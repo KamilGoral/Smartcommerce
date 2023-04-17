@@ -297,6 +297,8 @@ docReady(function () {
           },
           initComplete: function (settings, json) {
             var api = this.api();
+            console.log(api)
+            console.log(api.data())
             console.log(api.column(6).data())
 
             var myCondition = api
