@@ -598,14 +598,16 @@ docReady(function () {
                 if (data !== null) {
                   if (data === "bestMatch") {
                     return (
-                      '<div data-tippy-content="Sprytny Kupiec" class="tippy" style="display: flex;" tabindex="0"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins"></div>'
+                      '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins"></div>'
                     );
                   } else if (data === "exclusive") {
                     return (
-                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg">'
+                      '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins"></div>'
                     );
                   } else {
-                    return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg">'
+                    return (
+                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins"></div>'
+                    );
                   }
                 } else {
                   return '<p class="neutral">-</p>';
