@@ -296,24 +296,22 @@ docReady(function () {
             }
           },
           initComplete: function (settings, json) {
-            var api = this.api();
-            console.log(api)
-            console.log(api.data())
-            console.log(api.column(6).data())
 
-            var myCondition = api
-              .column(6)
-              .data()
-              .filter(function (value, index) {
-                return value > 0 ? true : false;
-              })
-              .count();
+            var totalEclusiveProducts = 0;
+            var table = $('#table_splited_wh').DataTable();
 
-            console.log(myCondition)
+            table.rows().every(function () {
+              var rowData = this.data();
+              var productQuantity = parseInt(rowData[5]); // products.exclusive 2
+              totalEclusiveProducts += productQuantity;
+            });
 
-            if (myCondition > 0) {
+
+            console.log(totalEclusiveProducts)
+
+            if (totalEclusiveProducts = 0) {
               // Hide Office column
-              api.column(6).visible(false);
+              table.column(6).visible(false); // Produkty na wyłączność
             }
 
             var textBox = $("#table_splited_wh filter label input");
