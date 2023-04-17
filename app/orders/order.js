@@ -302,6 +302,7 @@ docReady(function () {
 
             table.rows().every(function () {
               var rowData = this.data();
+              console.log(rowData);
               var productQuantity = parseInt(rowData[5]); // products.exclusive 2
               totalEclusiveProducts += productQuantity;
             });
