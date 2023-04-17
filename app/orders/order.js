@@ -598,7 +598,7 @@ docReady(function () {
                 if (data !== null) {
                   if (data === "bestMatch") {
                     return (
-                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6079a3d3617a361278a90e78_favicon-32x32.png">'
+                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d47f2d8bcb3a744667f31_people.svg">'
                     );
                   } else if (data === "exclusive")
                   {
