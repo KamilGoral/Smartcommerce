@@ -302,19 +302,13 @@ docReady(function () {
 
             table.rows().every(function () {
               var rowData = this.data();
-              console.log(rowData);
               var productQuantity = parseInt(rowData["products"]["exclusive"]);
-              console.log(productQuantity);
               totalEclusiveProducts += productQuantity;
             });
-
-
-            console.log(totalEclusiveProducts)
 
             if (totalEclusiveProducts === 0) {
               // Hide Office column
               table.column(5).visible(false); // Produkty na wyłączność
-              console.log("hide");
             }
 
             var textBox = $("#table_splited_wh filter label input");
@@ -604,16 +598,16 @@ docReady(function () {
                 if (data !== null) {
                   if (data === "bestMatch") {
                     return (
-                      '<p class="positive">Sprytny</p>'
+                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6079a3d3617a361278a90e78_favicon-32x32.png">'
                     );
                   } else if (data === "exclusive")
                   {
                     return (
-                      '<p class="negative">Bloday</p>'
+                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg">'
                     );
                   } else
                   {
-                    return '<p class="positive">User</p>';
+                    return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg">'
                   }
                 } else {
                   return '<p class="neutral">-</p>';
