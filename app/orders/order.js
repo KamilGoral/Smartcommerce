@@ -311,9 +311,11 @@ docReady(function () {
 
             console.log(totalEclusiveProducts)
 
-            if (totalEclusiveProducts = 0) {
+            if (totalEclusiveProducts === 0) {
               // Hide Office column
-              table.column(6).visible(false); // Produkty na wyłączność
+              table.column(5).visible(false); // Produkty na wyłączność
+              console.log(table.column(5));
+              console.log("hide");
             }
 
             var textBox = $("#table_splited_wh filter label input");
