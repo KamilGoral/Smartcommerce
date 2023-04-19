@@ -59,7 +59,7 @@ docReady(function () {
     shopKey
   );
 
-  async function  CreateOrder() {
+  async function CreateOrder() {
     await makeChangesToOrder();
     var method = "GET";
     var e = document.getElementById("offerId");
@@ -833,6 +833,7 @@ docReady(function () {
         });
       } else {
         console.log("no changes");
+        resolve({ message: "No changes made" }); // Dodajemy resolve z odpowiednim komunikatem
       }
     });
   }
