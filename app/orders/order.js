@@ -522,19 +522,19 @@ docReady(function () {
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
 
-      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
-      if (jsonData !== null) {
-        jsonData.sort((a, b) => a.netPrice - b.netPrice);
+      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli askData nie jest równy null
+      if (askData !== null) {
+        askData.sort((a, b) => a.netPrice - b.netPrice);
 
-        // Usuwanie powtarzających się pozycji dostawców z jsonData
-        jsonData = jsonData.filter((item, index, self) => {
+        // Usuwanie powtarzających się pozycji dostawców z askData
+        askData = askData.filter((item, index, self) => {
           return index === self.findIndex((t) => (
             t.wholesalerKey === item.wholesalerKey
           ));
         });
 
         // Dodawanie dostawców z JSON na górze listy wyboru
-        jsonData.forEach((item) => {
+        askData.forEach((item) => {
           const wholesaler = wholesalersData.find(wholesaler => wholesaler.wholesalerKey === item.wholesalerKey);
           const wholesalerName = wholesaler ? wholesaler.name : item.wholesalerKey;
           selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''}>${wholesalerName}</option>`;
@@ -546,7 +546,7 @@ docReady(function () {
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
       wholesalersData.forEach((wholesaler) => {
-        if (!jsonData || !jsonData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
+        if (!askData || !askData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''} style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
