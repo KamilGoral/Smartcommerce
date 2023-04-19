@@ -517,6 +517,7 @@ docReady(function () {
 
   function generateWholesalerSelect(selectedWholesalerKey, jsonData) {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
+    const askData = jsonData.asks;
 
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
@@ -546,7 +547,7 @@ docReady(function () {
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
       wholesalersData.forEach((wholesaler) => {
         if (!jsonData || !jsonData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}" style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''} style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -681,7 +682,7 @@ docReady(function () {
             orderable: true,
             data: null,
             render: function (data) {
-              return generateWholesalerSelect(data.wholesalerKey, data.asks);
+              return generateWholesalerSelect(data.wholesalerKey, data);
             },
           },
           {
