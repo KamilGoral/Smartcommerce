@@ -278,6 +278,17 @@ docReady(function () {
               }
             },
             {
+              orderable: true,
+              data: "products",
+              render: function (data) {
+                if (data.exclusive === null) {
+                  return "-";
+                } else {
+                  return data.order;
+                }
+              }
+            },
+            {
               orderable: false,
               data: "wholesalerKey",
               render: function (data) {
@@ -315,17 +326,24 @@ docReady(function () {
           initComplete: function (settings, json) {
 
             var totalEclusiveProducts = 0;
+            var totalOrderedProducts = 0;
             var table = $('#table_splited_wh').DataTable();
 
             table.rows().every(function () {
               var rowData = this.data();
               var productQuantity = parseInt(rowData["products"]["exclusive"]);
+              var productQuantity2 = parseInt(rowData["products"]["exclusive"]);
               totalEclusiveProducts += productQuantity;
+              totalOrderedProducts += productQuantity2;
             });
 
             if (totalEclusiveProducts === 0) {
               // Hide Office column
               table.column(5).visible(false); // Produkty na wyłączność
+            }
+            if (totalOrderedProducts === 0) {
+              // Hide Office column
+              table.column(6).visible(false); // Produkty na wyłączność
             }
 
             var textBox = $("#table_splited_wh filter label input");
