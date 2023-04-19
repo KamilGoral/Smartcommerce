@@ -480,33 +480,36 @@ docReady(function () {
     );
   }
 
-  function generateWholesalerSelect(selectedWholesalerKey, rowData) {
+  function generateWholesalerSelect(selectedWholesalerKey, jsonData) {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
-
+    
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = '<select class="wholesalerSelect">';
-
-      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice'
-      rowData.sort((a, b) => a.netPrice - b.netPrice);
-
-      // Dodawanie dostawców z JSON na górze listy wyboru
-      rowData.forEach((item) => {
-        selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected' : ''}>${item.wholesalerKey}</option>`;
-      });
-
+      
+      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
+      if (jsonData !== null) {
+        jsonData.sort((a, b) => a.netPrice - b.netPrice);
+        
+        // Dodawanie dostawców z JSON na górze listy wyboru
+        jsonData.forEach((item) => {
+          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected' : ''}>${item.wholesalerKey} - ${item.netPrice.toFixed(2)}</option>`;
+        });
+      }
+      
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
       wholesalersData.forEach((wholesaler) => {
-        if (!rowData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
+        if (!jsonData || !jsonData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey ? ' selected' : ''}>${wholesaler.name}</option>`;
         }
       });
-
+  
       selectHTML += "</select>";
       return selectHTML;
     } else {
       return "Brak dostawców do wyboru.";
     }
   }
+  
 
   function GetSplittedProducts() {
     $.ajax({
