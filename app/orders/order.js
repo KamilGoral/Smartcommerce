@@ -480,6 +480,34 @@ docReady(function () {
     );
   }
 
+  function generateWholesalerSelect(selectedWholesalerKey, rowData) {
+    const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
+
+    if (wholesalersData && wholesalersData.length > 0) {
+      let selectHTML = '<select class="wholesalerSelect">';
+
+      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice'
+      rowData.sort((a, b) => a.netPrice - b.netPrice);
+
+      // Dodawanie dostawców z JSON na górze listy wyboru
+      rowData.forEach((item) => {
+        selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected' : ''}>${item.wholesalerKey}</option>`;
+      });
+
+      // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
+      wholesalersData.forEach((wholesaler) => {
+        if (!rowData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey ? ' selected' : ''}>${wholesaler.name}</option>`;
+        }
+      });
+
+      selectHTML += "</select>";
+      return selectHTML;
+    } else {
+      return "Brak dostawców do wyboru.";
+    }
+  }
+
   function GetSplittedProducts() {
     $.ajax({
       type: "GET",
@@ -600,12 +628,9 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "wholesalerKey",
+              data: null,
               render: function (data) {
-                if (data == "unassigned") {
-                  return "nieprzydzielone";
-                }
-                return data;
+                return generateWholesalerSelect(data.wholesalerKey, data.asks);
               },
             },
             {
