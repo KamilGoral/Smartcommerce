@@ -67,6 +67,7 @@ docReady(function () {
       // Usuń wszystkie rekordy z tabeli podzielonych produktów
       const tableToClear = $('#spl_table').DataTable();
       tableToClear.clear().draw();
+      $("#spl_table_wrapper").hide();
 
       // Wymaż wartwę blur
       removeBlurOverlay();
@@ -539,6 +540,8 @@ docReady(function () {
   }
 
   function GetSplittedProducts() {
+
+    $("#spl_table_wrapper").show();
     $.ajax({
       type: "GET",
       url: InvokeURL +
@@ -874,7 +877,7 @@ docReady(function () {
     }
   );
 
-  function addBlurOverlay(targetDivId) {
+  function addBlurOverlay(targetDivId, messageText) {
     // Upewnij się, że nakładka nie została już dodana
     if (!$('#' + targetDivId).prev().hasClass('blur-overlay')) {
       const targetDiv = $('#' + targetDivId);
@@ -882,7 +885,7 @@ docReady(function () {
       const messageDiv = $('<div></div>');
 
       // Dodaj tekst do messageDiv
-      messageDiv.text('Dokonałeś zmian w produktach, musisz podzielić zamówienie ponownie.');
+      messageDiv.text(messageText);
 
       // Ustaw inline CSS dla messageDiv
       messageDiv.css({
@@ -939,7 +942,7 @@ docReady(function () {
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$('.blur-overlay').length) {
-        addBlurOverlay('table-content');
+        addBlurOverlay('table-content', 'Dokonałeś zmian w produktach, podziel zamówienie ponownie.');
       }
     } else {
       // Usuń nakładkę, jeśli liczba rekordów wynosi 0
