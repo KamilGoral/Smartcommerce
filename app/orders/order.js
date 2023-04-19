@@ -403,8 +403,6 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
         var toParse = data.items;
-        console.log(toParse)
-        console.log(Object.keys(toParse).length);
         sessionStorage.setItem("wholesalersData", JSON.stringify(toParse));
       }
 
@@ -417,10 +415,8 @@ docReady(function () {
 
   function format(d) {
     const arr = d.asks;
-    console.log(arr);
     arr.sort((a, b) => (a.netPrice > b.netPrice ? 1 : -1));
     var toDisplayHtml = "";
-    console.log(arr);
 
     function myFunction(item) {
       if (item.set === null) {
@@ -590,8 +586,6 @@ docReady(function () {
           }
         }
         var products = resultProducts;
-        console.log(products);
-
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
           order: [
@@ -875,7 +869,6 @@ docReady(function () {
           },
         });
       } else {
-        console.log("no changes");
         resolve({ message: "No changes made" }); // Dodajemy resolve z odpowiednim komunikatem
       }
     });
@@ -893,7 +886,6 @@ docReady(function () {
         row.child.hide();
         tr.removeClass("shown");
       } else {
-        console.log(row.data);
         row.child(format(row.data())).show();
         tr.addClass("shown");
       }
@@ -962,7 +954,6 @@ docReady(function () {
   });
 
   function checkChangesPayload() {
-    console.log(changesPayload);
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$('.blur-overlay').length) {
@@ -1004,7 +995,6 @@ docReady(function () {
     })
       .then((res) => {
         res.headers.forEach((e) => headersResponse.push(e));
-        console.log(headersResponse);
         return res.blob();
       })
       .then((blobby) => {
@@ -1048,7 +1038,6 @@ docReady(function () {
     })
       .then((res) => {
         res.headers.forEach((e) => headersResponse.push(e));
-        console.log(headersResponse);
         return res.blob();
       })
       .then((blobby) => {
