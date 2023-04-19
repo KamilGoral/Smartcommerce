@@ -505,7 +505,7 @@ docReady(function () {
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
-        selectHTML += `<option value="unassigned" selected style="font-weight: bold">nieprzydzielony</option>`;
+        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
@@ -522,13 +522,10 @@ docReady(function () {
     }
   }
 
-
-
   function GetSplittedProducts() {
     $.ajax({
       type: "GET",
-      url:
-        InvokeURL +
+      url: InvokeURL +
         "shops/" +
         shopKey +
         "/orders/" +
@@ -542,13 +539,13 @@ docReady(function () {
         "Content-Type": "application/json",
         Authorization: orgToken,
       },
-      beforeSend: function () {
+      beforeSend: function() {
         $("#waitingdots").show();
       },
-      complete: function () {
+      complete: function() {
         $("#waitingdots").hide();
       },
-      success: function (resultProducts) {
+      success: function(resultProducts) {
         if (typeof successCallback === "function") {
           result = successCallback(resultProducts);
           if (!result) {
@@ -560,7 +557,9 @@ docReady(function () {
 
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
-          order: [[9, "desc"]], // This is column that contain values "Obniz Cene"
+          order: [
+            [9, "desc"]
+          ], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"f>rt<"bottom"lip>',
@@ -592,8 +591,7 @@ docReady(function () {
           search: {
             return: true,
           },
-          columns: [
-            {
+          columns: [{
               orderable: false,
               class: "details-control",
               data: null,
@@ -610,7 +608,7 @@ docReady(function () {
             {
               orderable: false,
               data: "inStock",
-              render: function (data) {
+              render: function(data) {
                 if (data !== null) {
                   return "" + data.value;
                 }
@@ -622,7 +620,7 @@ docReady(function () {
             {
               orderable: false,
               data: "quantity",
-              render: function (data) {
+              render: function(data) {
                 return (
                   '<input type="number" style="max-width: 80px" value="' +
                   data +
@@ -633,7 +631,7 @@ docReady(function () {
             {
               orderable: false,
               data: "standardPrice",
-              render: function (data) {
+              render: function(data) {
                 if (data !== null) {
                   return "" + data.value.toFixed(2);
                 }
@@ -645,7 +643,7 @@ docReady(function () {
             {
               orderable: true,
               data: null,
-              render: function (data) {
+              render: function(data) {
                 return generateWholesalerSelect(data.wholesalerKey, data.asks);
               },
             },
@@ -656,7 +654,7 @@ docReady(function () {
             {
               orderable: false,
               data: "assignmentSource",
-              render: function (data) {
+              render: function(data) {
                 if (data !== null) {
                   if (data === "bestMatch") {
                     return (
@@ -681,12 +679,12 @@ docReady(function () {
               data: null,
               width: "72px",
               // class: "details-invisible",
-              render: function (data) {
+              render: function(data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
                   let currentPrice = data.netPrice;
-                  let lowestNetPrice = data.asks.length
-                    ? Math.min(...data.asks.map((a) => a.netPrice))
-                    : null;
+                  let lowestNetPrice = data.asks.length ?
+                    Math.min(...data.asks.map((a) => a.netPrice)) :
+                    null;
                   if (currentPrice > lowestNetPrice) {
                     var diffPercent = (
                       ((currentPrice - lowestNetPrice) / currentPrice) *
@@ -715,7 +713,7 @@ docReady(function () {
             {
               orderable: true,
               data: "standardPrice",
-              render: function (data) {
+              render: function(data) {
                 if (
                   data !== null &&
                   data.hasOwnProperty("wholesalerPremium") &&
@@ -739,7 +737,7 @@ docReady(function () {
               orderable: false,
               data: "rotationIndicator",
               defaultContent: "brak",
-              render: function (data) {
+              render: function(data) {
                 if (data == "AX") {
                   return '<p class="super">' + data + "</p>";
                 }
@@ -761,20 +759,18 @@ docReady(function () {
               },
             },
           ],
-          rowCallback: function (row, data) {
+          rowCallback: function(row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice = data.netPrice;
-              let lowestNetPrice = data.asks.length
-                ? Math.min(...data.asks.map((a) => a.netPrice))
-                : null;
+              let lowestNetPrice = data.asks.length ?
+                Math.min(...data.asks.map((a) => a.netPrice)) :
+                null;
               if (data.netPrice > lowestNetPrice) {
                 $("td", row).css("background-color", "#FFFAE6");
-              } else {
-              }
-            } else {
-            }
+              } else {}
+            } else {}
           },
-          initComplete: function (settings, json) {
+          initComplete: function(settings, json) {
             LoadTippy()
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
@@ -783,103 +779,102 @@ docReady(function () {
             );
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
-            textBox.bind("keyup input", function (e) {
+            textBox.bind("keyup input", function(e) {
               if (e.keyCode == 13) {
                 api.search(this.value).draw();
               }
             });
-            $("#spl_table tbody").on(
-              "click",
-              "td.details-control",
-              function () {
-                var tr = $(this).closest("tr");
-                var row = table.row(tr);
-                if (row.child.isShown()) {
-                  row.child.hide();
-                  tr.removeClass("shown");
-                } else {
-                  console.log(row.data);
-                  row.child(format(row.data())).show();
-                  tr.addClass("shown");
-                }
-              }
-            );
-
-            $("#spl_table").on("focusout", "input", function () {
-              console.log($(this));
-              var cell = $(this).closest("td");
-              var row = $(this).closest("tr");
-              $(this).attr("value", $(this).val());
-              var data = table.row($(this).parents("tr")).data();
-              if (data.gtin !== null) {
-                var payload = [];
-                var product = {
-                  op: "replace",
-                  path: "/" + data.gtin + "/quantity",
-                  value: parseInt($(this).val()),
-                };
-                payload.push(product);
-                var action =
-                  InvokeURL +
-                  "shops/" +
-                  shopKey +
-                  "/orders/" +
-                  orderId +
-                  "/products";
-                var method = "PATCH";
-                $.ajax({
-                  type: method,
-                  url: action,
-                  cors: true,
-                  beforeSend: function () {
-                    $("#waitingdots").show();
-                  },
-                  complete: function () {
-                    $("#waitingdots").hide();
-                  },
-                  contentType: "application/json",
-                  dataType: "json",
-                  headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    Authorization: orgToken,
-                  },
-                  data: JSON.stringify(payload),
-                  processData: false,
-                  success: function (resultData) {
-                    if (typeof successCallback === "function") {
-                      result = successCallback(resultData);
-                      if (!result) {
-                        return;
-                      }
-                    }
-                    var data = resultData;
-                  },
-                  error: function (jqXHR, exception) {
-                    console.log(jqXHR);
-                    console.log(exception);
-                    return;
-                  },
-                });
-              } else {
-                console.log("GTIN is null");
-              }
-            });
           },
         });
-        table.clear().draw();
-        table.rows.add(products.items).draw();
 
         window.scrollTo({
           top: document.body.scrollHeight,
           behavior: "smooth",
         });
       },
-      error: function (jqXHR, exception) {
+      error: function(jqXHR, exception) {
         return;
       },
     });
   }
+
+  $("#spl_table tbody").on(
+    "click",
+    "td.details-control",
+    function() {
+      var tr = $(this).closest("tr");
+      var row = table.row(tr);
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass("shown");
+      } else {
+        console.log(row.data);
+        row.child(format(row.data())).show();
+        tr.addClass("shown");
+      }
+    }
+  );
+
+  $("#spl_table").on("focusout", "input", function() {
+    console.log($(this));
+    var cell = $(this).closest("td");
+    var row = $(this).closest("tr");
+    $(this).attr("value", $(this).val());
+    var data = table.row($(this).parents("tr")).data();
+    if (data.gtin !== null) {
+      var payload = [];
+      var product = {
+        op: "replace",
+        path: "/" + data.gtin + "/quantity",
+        value: parseInt($(this).val()),
+      };
+      payload.push(product);
+      var action =
+        InvokeURL +
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products";
+      var method = "PATCH";
+      $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function() {
+          $("#waitingdots").show();
+        },
+        complete: function() {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+        },
+        data: JSON.stringify(payload),
+        processData: false,
+        success: function(resultData) {
+          if (typeof successCallback === "function") {
+            result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
+          }
+          var data = resultData;
+        },
+        error: function(jqXHR, exception) {
+          console.log(jqXHR);
+          console.log(exception);
+          return;
+        },
+      });
+    } else {
+      console.log("GTIN is null");
+    }
+  });
 
   $("#zipcontainer").on("click", "img", function () {
     var fileformat = $(this).attr("fileformat");
@@ -1286,9 +1281,6 @@ docReady(function () {
   for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", (event) => {
       CreateOrder();
-      $("#splitted-products").hide();
-      var tableProducts = $("#table_splited").DataTable();
-      tableProducts.clear().draw();
     });
   }
 
