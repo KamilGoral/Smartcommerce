@@ -60,6 +60,21 @@ docReady(function () {
   );
 
   async function CreateOrder() {
+
+    const tableId = '#spl_table';
+
+    if ($.fn.dataTable.isDataTable(tableId)) {
+      // Usuń wszystkie rekordy z tabeli podzielonych produktów
+      const tableToClear = $('#spl_table').DataTable();
+      tableToClear.clear().draw();
+
+      // Wymaż wartwę blur
+      removeBlurOverlay();
+
+    } else {
+      // Tabela nie została zainicjalizowana jako DataTable
+    }
+
     await makeChangesToOrder();
     var method = "GET";
     var e = document.getElementById("offerId");
@@ -803,14 +818,6 @@ docReady(function () {
     return new Promise((resolve, reject) => {
 
       if (changesPayload.length > 0) {
-
-        // Usuń wszystkie rekordy z tabeli podzielonych produktów
-        const tableToClear = $('#spl_table').DataTable();
-        tableToClear.clear().draw();
-
-        // Wymaż wartwę blur
-        removeBlurOverlay();
-
 
         var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
         var method = "PATCH";
