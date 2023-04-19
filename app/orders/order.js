@@ -482,20 +482,22 @@ docReady(function () {
 
   function generateWholesalerSelect(selectedWholesalerKey, jsonData) {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
-    
+  
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = '<select class="wholesalerSelect">';
-      
+  
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
       if (jsonData !== null) {
         jsonData.sort((a, b) => a.netPrice - b.netPrice);
-        
+  
         // Dodawanie dostawców z JSON na górze listy wyboru
         jsonData.forEach((item) => {
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''}>${item.name}}</option>`;
+          const wholesaler = wholesalersData.find(wholesaler => wholesaler.wholesalerKey === item.wholesalerKey);
+          const wholesalerName = wholesaler ? wholesaler.name : item.wholesalerKey;
+          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''}>${wholesalerName}</option>`;
         });
       }
-      
+  
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
       wholesalersData.forEach((wholesaler) => {
         if (!jsonData || !jsonData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
@@ -509,6 +511,7 @@ docReady(function () {
       return "Brak dostawców do wyboru.";
     }
   }
+  
   
 
   function GetSplittedProducts() {
