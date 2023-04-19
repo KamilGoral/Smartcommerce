@@ -59,8 +59,8 @@ docReady(function () {
     shopKey
   );
 
-  function CreateOrder() {
-    makeChangesToOrder();
+  async function  CreateOrder() {
+    await makeChangesToOrder();
     var method = "GET";
     var e = document.getElementById("offerId");
     var offerId = e.value;
@@ -540,13 +540,13 @@ docReady(function () {
         "Content-Type": "application/json",
         Authorization: orgToken,
       },
-      beforeSend: function() {
+      beforeSend: function () {
         $("#waitingdots").show();
       },
-      complete: function() {
+      complete: function () {
         $("#waitingdots").hide();
       },
-      success: function(resultProducts) {
+      success: function (resultProducts) {
         if (typeof successCallback === "function") {
           result = successCallback(resultProducts);
           if (!result) {
@@ -593,174 +593,174 @@ docReady(function () {
             return: true,
           },
           columns: [{
-              orderable: false,
-              class: "details-control",
-              data: null,
-              defaultContent: "",
+            orderable: false,
+            class: "details-control",
+            data: null,
+            defaultContent: "",
+          },
+          {
+            orderable: true,
+            data: "name",
+          },
+          {
+            orderable: true,
+            data: "gtin",
+          },
+          {
+            orderable: false,
+            data: "inStock",
+            render: function (data) {
+              if (data !== null) {
+                return "" + data.value;
+              }
+              if (data === null) {
+                return "0";
+              }
             },
-            {
-              orderable: true,
-              data: "name",
+          },
+          {
+            orderable: false,
+            data: "quantity",
+            render: function (data) {
+              return (
+                '<input type="number" style="max-width: 80px" value="' +
+                data +
+                '"></td>'
+              );
             },
-            {
-              orderable: true,
-              data: "gtin",
+          },
+          {
+            orderable: false,
+            data: "standardPrice",
+            render: function (data) {
+              if (data !== null) {
+                return "" + data.value.toFixed(2);
+              }
+              if (data === null) {
+                return "0";
+              }
             },
-            {
-              orderable: false,
-              data: "inStock",
-              render: function(data) {
-                if (data !== null) {
-                  return "" + data.value;
-                }
-                if (data === null) {
-                  return "0";
-                }
-              },
+          },
+          {
+            orderable: true,
+            data: null,
+            render: function (data) {
+              return generateWholesalerSelect(data.wholesalerKey, data.asks);
             },
-            {
-              orderable: false,
-              data: "quantity",
-              render: function(data) {
-                return (
-                  '<input type="number" style="max-width: 80px" value="' +
-                  data +
-                  '"></td>'
-                );
-              },
-            },
-            {
-              orderable: false,
-              data: "standardPrice",
-              render: function(data) {
-                if (data !== null) {
-                  return "" + data.value.toFixed(2);
-                }
-                if (data === null) {
-                  return "0";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: null,
-              render: function(data) {
-                return generateWholesalerSelect(data.wholesalerKey, data.asks);
-              },
-            },
-            {
-              orderable: true,
-              data: "netPrice",
-            },
-            {
-              orderable: false,
-              data: "assignmentSource",
-              render: function(data) {
-                if (data !== null) {
-                  if (data === "bestMatch") {
-                    return (
-                      '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins"></div>'
-                    );
-                  } else if (data === "exclusive") {
-                    return (
-                      '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins"></div>'
-                    );
-                  } else {
-                    return (
-                      '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins"></div>'
-                    );
-                  }
+          },
+          {
+            orderable: true,
+            data: "netPrice",
+          },
+          {
+            orderable: false,
+            data: "assignmentSource",
+            render: function (data) {
+              if (data !== null) {
+                if (data === "bestMatch") {
+                  return (
+                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins"></div>'
+                  );
+                } else if (data === "exclusive") {
+                  return (
+                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins"></div>'
+                  );
                 } else {
-                  return '<p class="neutral">-</p>';
+                  return (
+                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins"></div>'
+                  );
                 }
-              },
+              } else {
+                return '<p class="neutral">-</p>';
+              }
             },
-            {
-              orderable: true,
-              data: null,
-              width: "72px",
-              // class: "details-invisible",
-              render: function(data) {
-                if (data.hasOwnProperty("asks") && data.asks !== null) {
-                  let currentPrice = data.netPrice;
-                  let lowestNetPrice = data.asks.length ?
-                    Math.min(...data.asks.map((a) => a.netPrice)) :
-                    null;
-                  if (currentPrice > lowestNetPrice) {
-                    var diffPercent = (
-                      ((currentPrice - lowestNetPrice) / currentPrice) *
-                      100
-                    ).toFixed(2);
-                    return (
-                      "<td>" +
-                      diffPercent +
-                      '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
-                      "</td>"
-                    );
-                  } else {
-                    return (
-                      '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                      "</td>"
-                    );
-                  }
+          },
+          {
+            orderable: true,
+            data: null,
+            width: "72px",
+            // class: "details-invisible",
+            render: function (data) {
+              if (data.hasOwnProperty("asks") && data.asks !== null) {
+                let currentPrice = data.netPrice;
+                let lowestNetPrice = data.asks.length ?
+                  Math.min(...data.asks.map((a) => a.netPrice)) :
+                  null;
+                if (currentPrice > lowestNetPrice) {
+                  var diffPercent = (
+                    ((currentPrice - lowestNetPrice) / currentPrice) *
+                    100
+                  ).toFixed(2);
+                  return (
+                    "<td>" +
+                    diffPercent +
+                    '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
+                    "</td>"
+                  );
                 } else {
                   return (
                     '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
                     "</td>"
                   );
                 }
-              },
+              } else {
+                return (
+                  '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                  "</td>"
+                );
+              }
             },
-            {
-              orderable: true,
-              data: "standardPrice",
-              render: function(data) {
-                if (
-                  data !== null &&
-                  data.hasOwnProperty("wholesalerPremium") &&
-                  data.wholesalerPremium !== null
-                ) {
-                  if (data.wholesalerPremium >= 0) {
-                    return (
-                      '<p class="positive">' + data.wholesalerPremium + "</p>"
-                    );
-                  } else {
-                    return (
-                      '<p class="negative">' + data.wholesalerPremium + "</p>"
-                    );
-                  }
+          },
+          {
+            orderable: true,
+            data: "standardPrice",
+            render: function (data) {
+              if (
+                data !== null &&
+                data.hasOwnProperty("wholesalerPremium") &&
+                data.wholesalerPremium !== null
+              ) {
+                if (data.wholesalerPremium >= 0) {
+                  return (
+                    '<p class="positive">' + data.wholesalerPremium + "</p>"
+                  );
                 } else {
-                  return '<p class="positive">0</p>';
+                  return (
+                    '<p class="negative">' + data.wholesalerPremium + "</p>"
+                  );
                 }
-              },
+              } else {
+                return '<p class="positive">0</p>';
+              }
             },
-            {
-              orderable: false,
-              data: "rotationIndicator",
-              defaultContent: "brak",
-              render: function(data) {
-                if (data == "AX") {
-                  return '<p class="super">' + data + "</p>";
-                }
-                if (data == "AY" || data == "BX") {
-                  return '<p class="positive">' + data + "</p>";
-                }
-                if (data == "AZ" || data == "CX" || data == "BY") {
-                  return '<p class="medium">' + data + "</p>";
-                }
-                if (data == "BZ" || data == "CY") {
-                  return '<p class="negative">' + data + "</p>";
-                }
-                if (data == "CZ") {
-                  return '<p class="bad">' + data + "</p>";
-                }
-                if (data == null) {
-                  return '<p class="noneexisting">' + "-" + "</p>";
-                }
-              },
+          },
+          {
+            orderable: false,
+            data: "rotationIndicator",
+            defaultContent: "brak",
+            render: function (data) {
+              if (data == "AX") {
+                return '<p class="super">' + data + "</p>";
+              }
+              if (data == "AY" || data == "BX") {
+                return '<p class="positive">' + data + "</p>";
+              }
+              if (data == "AZ" || data == "CX" || data == "BY") {
+                return '<p class="medium">' + data + "</p>";
+              }
+              if (data == "BZ" || data == "CY") {
+                return '<p class="negative">' + data + "</p>";
+              }
+              if (data == "CZ") {
+                return '<p class="bad">' + data + "</p>";
+              }
+              if (data == null) {
+                return '<p class="noneexisting">' + "-" + "</p>";
+              }
             },
+          },
           ],
-          rowCallback: function(row, data) {
+          rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice = data.netPrice;
               let lowestNetPrice = data.asks.length ?
@@ -768,10 +768,10 @@ docReady(function () {
                 null;
               if (data.netPrice > lowestNetPrice) {
                 $("td", row).css("background-color", "#FFFAE6");
-              } else {}
-            } else {}
+              } else { }
+            } else { }
           },
-          initComplete: function(settings, json) {
+          initComplete: function (settings, json) {
             LoadTippy()
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
@@ -780,7 +780,7 @@ docReady(function () {
             );
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
-            textBox.bind("keyup input", function(e) {
+            textBox.bind("keyup input", function (e) {
               if (e.keyCode == 13) {
                 api.search(this.value).draw();
               }
@@ -793,61 +793,56 @@ docReady(function () {
           behavior: "smooth",
         });
       },
-      error: function(jqXHR, exception) {
+      error: function (jqXHR, exception) {
         return;
       },
     });
   }
 
   function makeChangesToOrder() {
+    return new Promise((resolve, reject) => {
 
-    if (changesPayload.length > 0) {
-    var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
-    var method = "PATCH";
-    $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
+      if (changesPayload.length > 0) {
+        var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
+        var method = "PATCH";
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
             $("#waitingdots").show();
-        },
-        complete: function () {
+          },
+          complete: function () {
             $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-        },
-        data: JSON.stringify(changesPayload),
-        processData: false,
-        success: function (resultData) {
-            if (typeof successCallback === "function") {
-                var result = successCallback(resultData);
-                if (!result) {
-                    return;
-                }
-            }
-            var data = resultData;
-        },
-        error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            return;
-        },
+          },
+          data: JSON.stringify(changesPayload),
+          processData: false,
+          success: function (resultData) {
+            resolve(resultData);
+          },
+          error: function (jqXHR, exception) {
+            reject({ jqXHR, exception });
+          },
+        });
+      } else {
+        console.log("no changes");
+      }
     });
-  } else {
-    console.log("no changes");
   }
-}
+
   $("#spl_table").on(
     "click",
     "td.details-control",
-    function() {
+    function () {
       //Get the righ table
-    var table = $("#spl_table").DataTable();
+      var table = $("#spl_table").DataTable();
       var tr = $(this).closest("tr");
       var row = table.row(tr);
       if (row.child.isShown()) {
@@ -1201,11 +1196,11 @@ docReady(function () {
     const existingObj = changesPayload.find(item => item.path === newObj.path);
 
     if (existingObj) {
-        existingObj.value = newObj.value;
+      existingObj.value = newObj.value;
     } else {
-        changesPayload.push(newObj);
+      changesPayload.push(newObj);
     }
-}
+  }
 
   $("#spl_table").on("focusout", "input", function () {
 
