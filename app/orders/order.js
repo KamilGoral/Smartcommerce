@@ -859,31 +859,53 @@ docReady(function () {
   );
 
   function addBlurOverlay(targetDivId) {
-    const targetDiv = $('#' + targetDivId);
-    const overlayDiv = $('<div></div>');
-
-    // Set the inline styles for the overlay div
-    overlayDiv.css({
-      position: 'absolute',
-      width: targetDiv.outerWidth(),
-      height: targetDiv.outerHeight(),
-      top: targetDiv.position().top,
-      left: targetDiv.position().left,
-      backgroundColor: 'rgba(255, 255, 255, 0.7)', // Adjust the opacity as needed
-      backdropFilter: 'blur(5px)', // Adjust the blur amount as needed
-      pointerEvents: 'none', // Prevent interactions
-      zIndex: 10 // Set a higher z-index to ensure it's above the target div
-    });
-
-    // Add the overlay div before the target div
-    targetDiv.before(overlayDiv);
+    // Upewnij się, że nakładka nie została już dodana
+    if (!$('#' + targetDivId).prev().hasClass('blur-overlay')) {
+      const targetDiv = $('#' + targetDivId);
+      const overlayDiv = $('<div class="blur-overlay"></div>');
+      const messageDiv = $('<div></div>');
+  
+      // Dodaj tekst do messageDiv
+      messageDiv.text('Dokonałeś zmian w produktach, musisz podzielić zamówienie ponownie.');
+  
+      // Ustaw inline CSS dla messageDiv
+      messageDiv.css({
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        textAlign: 'center',
+        color: 'black', // Ustaw kolor tekstu
+        fontSize: '16px', // Ustaw rozmiar czcionki
+        fontWeight: 'bold' // Ustaw pogrubienie czcionki
+      });
+  
+      overlayDiv.css({
+        position: 'absolute',
+        width: targetDiv.outerWidth(),
+        height: targetDiv.outerHeight(),
+        top: targetDiv.position().top,
+        left: targetDiv.position().left,
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(0.5px)',
+        pointerEvents: 'none',
+        zIndex: 10
+      });
+  
+      // Dodaj messageDiv do overlayDiv
+      overlayDiv.append(messageDiv);
+  
+      // Dodaj overlayDiv przed targetDiv
+      targetDiv.before(overlayDiv);
+    }
   }
+  
 
   function checkChangesPayload() {
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$('.blur-overlay').length) {
-        addBlurOverlay('splitedwhcontainer');
+        addBlurOverlay('splitted-wholesalers');
       }
     } else {
       // Usuń nakładkę, jeśli liczba rekordów wynosi 0
