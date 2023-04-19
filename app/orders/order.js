@@ -826,6 +826,7 @@ docReady(function () {
           processData: false,
           success: function (resultData) {
             resolve(resultData);
+            changesPayload = [];
           },
           error: function (jqXHR, exception) {
             reject({ jqXHR, exception });
@@ -856,6 +857,48 @@ docReady(function () {
       }
     }
   );
+
+  function addBlurOverlay(targetDivId) {
+    const targetDiv = $('#' + targetDivId);
+    const overlayDiv = $('<div></div>');
+
+    // Set the inline styles for the overlay div
+    overlayDiv.css({
+      position: 'absolute',
+      width: targetDiv.outerWidth(),
+      height: targetDiv.outerHeight(),
+      top: targetDiv.position().top,
+      left: targetDiv.position().left,
+      backgroundColor: 'rgba(255, 255, 255, 0.7)', // Adjust the opacity as needed
+      backdropFilter: 'blur(5px)', // Adjust the blur amount as needed
+      pointerEvents: 'none', // Prevent interactions
+      zIndex: 10 // Set a higher z-index to ensure it's above the target div
+    });
+
+    // Add the overlay div before the target div
+    targetDiv.before(overlayDiv);
+  }
+
+  function checkChangesPayload() {
+    if (changesPayload.length > 0) {
+      // Dodaj nakładkę tylko wtedy, gdy nie istnieje
+      if (!$('.blur-overlay').length) {
+        addBlurOverlay('#splitedwhcontainer');
+      }
+    } else {
+      // Usuń nakładkę, jeśli liczba rekordów wynosi 0
+      removeBlurOverlay();
+    }
+  }  
+
+  function removeBlurOverlay() {
+    $('.blur-overlay').remove();
+  }
+
+  // Wywołaj funkcję checkChangesPayload() po każdej zmianie w polach select i input
+  $('select, input').on('change', function () {
+    checkChangesPayload();
+  });
 
 
   $("#zipcontainer").on("click", "img", function () {
