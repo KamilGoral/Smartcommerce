@@ -359,6 +359,27 @@ docReady(function () {
     request.send();
   }
 
+  function getWholesalersSh() {
+    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(this.response);
+        var toParse = data.items;
+        console.log(toParse)
+        console.log(Object.keys(toParse).length);
+        sessionStorage.setItem("wholesalersData", JSON.stringify(toParse));
+      }
+
+      if (request.status == 401) {
+        console.log("Unauthorized");
+      }
+    }
+    request.send();
+  }
+
   function format(d) {
     const arr = d.asks;
     console.log(arr);
@@ -606,7 +627,7 @@ docReady(function () {
                     );
                   } else {
                     return (
-                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins"></div>'
+                      '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins"></div>'
                     );
                   }
                 } else {
@@ -1261,4 +1282,5 @@ docReady(function () {
     );
   }
   getOffers();
+  getWholesalersSh();
 });
