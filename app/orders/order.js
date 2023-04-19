@@ -60,6 +60,7 @@ docReady(function () {
   );
 
   function CreateOrder() {
+    makeChangesToOrder();
     var method = "GET";
     var e = document.getElementById("offerId");
     var offerId = e.value;
@@ -798,6 +799,49 @@ docReady(function () {
     });
   }
 
+  function makeChangesToOrder() {
+
+    if (changesPayload.length > 0) {
+    var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
+    var method = "PATCH";
+    $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function () {
+            $("#waitingdots").show();
+        },
+        complete: function () {
+            $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+        },
+        data: JSON.stringify(changesPayload),
+        processData: false,
+        success: function (resultData) {
+            if (typeof successCallback === "function") {
+                var result = successCallback(resultData);
+                if (!result) {
+                    return;
+                }
+            }
+            var data = resultData;
+        },
+        error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            return;
+        },
+    });
+  } else {
+    console.log("no changes");
+  }
+}
   $("#spl_table").on(
     "click",
     "td.details-control",
@@ -1178,6 +1222,8 @@ docReady(function () {
         value: parseInt($(this).val()),
       };
       addObject(changesPayload, product);
+      //Emulate changes for user
+      $("#waitingdots").show(1).delay(150).hide(1);
       console.log(changesPayload)
     } else {
       console.log("GTIN is null");
@@ -1199,6 +1245,8 @@ docReady(function () {
         value: $(this).val(),
       };
       addObject(changesPayload, product);
+      //Emulate changes for user
+      $("#waitingdots").show(1).delay(150).hide(1);
       console.log(changesPayload)
     } else {
       console.log("GTIN is null");
