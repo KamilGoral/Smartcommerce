@@ -921,14 +921,14 @@ docReady(function () {
   }
 
   $(window).on('resize', function () {
-    updateOverlaySize('splitted-wholesalers');
+    updateOverlaySize('table-content');
   });
 
   function checkChangesPayload() {
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$('.blur-overlay').length) {
-        addBlurOverlay('splitted-wholesalers');
+        addBlurOverlay('table-content');
       }
     } else {
       // Usuń nakładkę, jeśli liczba rekordów wynosi 0
