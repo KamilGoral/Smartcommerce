@@ -803,6 +803,11 @@ docReady(function () {
     return new Promise((resolve, reject) => {
 
       if (changesPayload.length > 0) {
+
+        // Usuń wszystkie rekordy z tabeli podzielonych produktów
+        const tableToClear = $('#spl_table').DataTable();
+        tableToClear.clear().draw();
+
         var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
         var method = "PATCH";
         $.ajax({
@@ -864,10 +869,10 @@ docReady(function () {
       const targetDiv = $('#' + targetDivId);
       const overlayDiv = $('<div class="blur-overlay"></div>');
       const messageDiv = $('<div></div>');
-  
+
       // Dodaj tekst do messageDiv
       messageDiv.text('Dokonałeś zmian w produktach, musisz podzielić zamówienie ponownie.');
-  
+
       // Ustaw inline CSS dla messageDiv
       messageDiv.css({
         position: 'absolute',
@@ -879,7 +884,7 @@ docReady(function () {
         fontSize: '16px', // Ustaw rozmiar czcionki
         fontWeight: 'bold' // Ustaw pogrubienie czcionki
       });
-  
+
       overlayDiv.css({
         position: 'absolute',
         width: targetDiv.outerWidth(),
@@ -891,15 +896,33 @@ docReady(function () {
         pointerEvents: 'none',
         zIndex: 10
       });
-  
+
       // Dodaj messageDiv do overlayDiv
       overlayDiv.append(messageDiv);
-  
+
       // Dodaj overlayDiv przed targetDiv
       targetDiv.before(overlayDiv);
     }
   }
-  
+
+  function updateOverlaySize(targetDivId) {
+    const targetDiv = $('#' + targetDivId);
+    const overlayDiv = targetDiv.prev('.blur-overlay');
+
+    // Sprawdź, czy nakładka istnieje, zanim zaktualizujesz jej rozmiar
+    if (overlayDiv.length) {
+      overlayDiv.css({
+        width: targetDiv.outerWidth(),
+        height: targetDiv.outerHeight(),
+        top: targetDiv.position().top,
+        left: targetDiv.position().left
+      });
+    }
+  }
+
+  $(window).on('resize', function () {
+    updateOverlaySize('splitted-wholesalers');
+  });
 
   function checkChangesPayload() {
     if (changesPayload.length > 0) {
