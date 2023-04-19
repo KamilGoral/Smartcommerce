@@ -957,6 +957,7 @@ docReady(function () {
   });
 
   function checkChangesPayload() {
+    console.log(changesPayload);
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$('.blur-overlay').length) {
@@ -974,7 +975,6 @@ docReady(function () {
 
   // Wywołaj funkcję checkChangesPayload() po każdej zmianie w polach select i input
   $('body').on('change', 'select, input', function () {
-    console.log("zmiana");
     checkChangesPayload();
   });
 
