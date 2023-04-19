@@ -550,7 +550,7 @@ docReady(function () {
         }
       });
 
-      selectHTML += "<option value='' style='font-weight: bold'>Anuluj wybór</option></select>";
+      selectHTML += "<option value='remove' style='font-weight: bold'>Anuluj wybór</option></select>";
       return selectHTML;
     } else {
       return "Brak dostawców do wyboru.";
@@ -1114,8 +1114,8 @@ docReady(function () {
 
     console.log(data);
     console.log($(this).val());
-    
-    if (data.gtin !== null && $(this).val() === '') {
+
+    if (data.gtin !== null && $(this).val() === "remove") {
       var product = {
         op: "remove",
         path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
