@@ -817,67 +817,6 @@ docReady(function () {
     }
   );
 
-  $("#spl_table").on("focusout", "input", function() {
-    //Get the righ table
-    var table = $("#spl_table").DataTable();
-    var cell = $(this).closest("td");
-    var row = $(this).closest("tr");
-    $(this).attr("value", $(this).val());
-    var data = table.row($(this).parents("tr")).data();
-    if (data.gtin !== null) {
-      var payload = [];
-      var product = {
-        op: "replace",
-        path: "/" + data.gtin + "/quantity",
-        value: parseInt($(this).val()),
-      };
-      payload.push(product);
-      var action =
-        InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/products";
-      var method = "PATCH";
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function() {
-          $("#waitingdots").show();
-        },
-        complete: function() {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        data: JSON.stringify(payload),
-        processData: false,
-        success: function(resultData) {
-          if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              return;
-            }
-          }
-          var data = resultData;
-        },
-        error: function(jqXHR, exception) {
-          console.log(jqXHR);
-          console.log(exception);
-          return;
-        },
-      });
-    } else {
-      console.log("GTIN is null");
-    }
-  });
 
   $("#zipcontainer").on("click", "img", function () {
     var fileformat = $(this).attr("fileformat");
@@ -1214,11 +1153,11 @@ docReady(function () {
 
   var changesPayload = [];
 
-  $("#table_products").on("focusout", "input", function () {
+  $("#spl_table").on("focusout", "input", function () {
 
     //Get the righ table
     //Change amount of product
-    var table = $("#table_products").DataTable();
+    var table = $("#spl_table").DataTable();
 
     $(this).attr("value", $(this).val());
     var data = table.row($(this).parents("tr")).data();
@@ -1235,11 +1174,11 @@ docReady(function () {
     }
   });
 
-  $("#table_products").on("focusout", "select", function () {
+  $("#spl_table").on("focusout", "select", function () {
 
     //Get the righ table
     //Change wholesaler of product
-    var table = $("#table_products").DataTable();
+    var table = $("#spl_table").DataTable();
 
     $(this).attr("value", $(this).val());
     var data = table.row($(this).parents("tr")).data();
