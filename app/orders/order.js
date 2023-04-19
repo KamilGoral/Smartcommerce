@@ -678,6 +678,14 @@ docReady(function () {
           {
             orderable: true,
             data: "netPrice",
+            render: function (data) {
+              if (data !== null) {
+                return "" + data.value.toFixed(2);
+              }
+              if (data === null) {
+                return "0";
+              }
+            },
           },
           {
             orderable: true,
