@@ -683,15 +683,15 @@ docReady(function () {
           },
           {
             orderable: true,
+            data: "netPrice",
+          },
+          {
+            orderable: true,
             data: null,
             render: function (data) {
               return '<p style="font-size: 0;display: none">'+ data.wholesalerKey +'</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks);
               // this is needed for proper sorting
             },
-          },
-          {
-            orderable: true,
-            data: "netPrice",
           },
           {
             orderable: true,
