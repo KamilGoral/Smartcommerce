@@ -492,7 +492,7 @@ docReady(function () {
         
         // Dodawanie dostawców z JSON na górze listy wyboru
         jsonData.forEach((item) => {
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected' : ''}>${item.wholesalerKey} - ${item.netPrice.toFixed(2)}</option>`;
+          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''}>${item.name}}</option>`;
         });
       }
       
