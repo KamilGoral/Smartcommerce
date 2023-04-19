@@ -798,7 +798,7 @@ docReady(function () {
     });
   }
 
-  $("#spl_table tbody").on(
+  $("#spl_table").on(
     "click",
     "td.details-control",
     function() {
@@ -1197,9 +1197,6 @@ docReady(function () {
   $("#table_products").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
     var row = table.row(tr);
-    console.log(tr);
-    console.log(row);
-    console.log($(this));
 
     if (row.child.isShown()) {
       row.child.hide();
