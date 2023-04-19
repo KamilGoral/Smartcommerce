@@ -973,10 +973,6 @@ docReady(function () {
     $('.blur-overlay').remove();
   }
 
-  // Wywołaj funkcję checkChangesPayload() po każdej zmianie w polach select i input
-  $('body').on('change', 'select, input', function () {
-    checkChangesPayload();
-  });
 
 
   $("#zipcontainer").on("click", "img", function () {
@@ -1097,7 +1093,7 @@ docReady(function () {
       addObject(changesPayload, product);
       //Emulate changes for user
       $("#waitingdots").show(1).delay(150).hide(1);
-      console.log(changesPayload)
+      checkChangesPayload();
     } else {
       console.log("GTIN is null");
     }
@@ -1120,7 +1116,7 @@ docReady(function () {
       addObject(changesPayload, product);
       //Emulate changes for user
       $("#waitingdots").show(1).delay(150).hide(1);
-      console.log(changesPayload)
+      checkChangesPayload();
     }
     else if (data.gtin !== null && $(this).val()) {
       var product = {
@@ -1131,7 +1127,7 @@ docReady(function () {
       addObject(changesPayload, product);
       //Emulate changes for user
       $("#waitingdots").show(1).delay(150).hide(1);
-      console.log(changesPayload)
+      checkChangesPayload();
     } else {
       console.log("GTIN is null");
     }
