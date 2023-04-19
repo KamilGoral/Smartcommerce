@@ -546,7 +546,7 @@ docReady(function () {
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
       wholesalersData.forEach((wholesaler) => {
         if (!jsonData || !jsonData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''} style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''} style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
