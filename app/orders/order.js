@@ -629,10 +629,14 @@ docReady(function () {
             return: true,
           },
           columns: [{
-            orderable: false,
-            class: "details-control",
             data: null,
-            defaultContent: "",
+            defaultContent: '',
+            createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
+              if (rowData.asks && rowData.asks.length > 0) {
+                $(cell).addClass('details-control');
+              }
+            },
+            orderable: false
           },
           {
             orderable: true,
