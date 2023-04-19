@@ -889,15 +889,15 @@ docReady(function () {
       // Usuń nakładkę, jeśli liczba rekordów wynosi 0
       removeBlurOverlay();
     }
-  }  
+  }
 
   function removeBlurOverlay() {
     $('.blur-overlay').remove();
   }
 
   // Wywołaj funkcję checkChangesPayload() po każdej zmianie w polach select i input
-  $('select, input').on('change', function () {
-    console.log("zmiana")
+  $('body').on('change', 'select, input', function () {
+    console.log("zmiana");
     checkChangesPayload();
   });
 
