@@ -1153,6 +1153,16 @@ docReady(function () {
 
   var changesPayload = [];
 
+  function addObject(changesPayload, newObj) {
+    const existingObj = changesPayload.find(item => item.path === newObj.path);
+
+    if (existingObj) {
+        existingObj.value = newObj.value;
+    } else {
+        changesPayload.push(newObj);
+    }
+}
+
   $("#spl_table").on("focusout", "input", function () {
 
     //Get the righ table
@@ -1167,7 +1177,7 @@ docReady(function () {
         path: "/" + data.gtin + "/quantity",
         value: parseInt($(this).val()),
       };
-      changesPayload.push(product);
+      addObject(changesPayload, product);
       console.log(changesPayload)
     } else {
       console.log("GTIN is null");
@@ -1188,7 +1198,7 @@ docReady(function () {
         path: "/" + data.gtin + "/rigidAssigment/wholesalerKey",
         value: $(this).val(),
       };
-      changesPayload.push(product);
+      addObject(changesPayload, product);
       console.log(changesPayload)
     } else {
       console.log("GTIN is null");
