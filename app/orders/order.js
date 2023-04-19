@@ -550,7 +550,7 @@ docReady(function () {
         }
       });
 
-      selectHTML += "<option value='' selected style='font-weight: bold'>Anuluj</option></select>";
+      selectHTML += "<option value='' style='font-weight: bold'> wybór</option></select>";
       return selectHTML;
     } else {
       return "Brak dostawców do wyboru.";
