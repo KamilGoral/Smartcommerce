@@ -1112,14 +1112,15 @@ docReady(function () {
     $(this).attr("value", $(this).val());
     var data = table.row($(this).parents("tr")).data();
 
-    console.log(data);
-    console.log($(this).val());
-
     if (data.gtin !== null && $(this).val() === "remove") {
       var product = {
         op: "remove",
         path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
       }
+      addObject(changesPayload, product);
+      //Emulate changes for user
+      $("#waitingdots").show(1).delay(150).hide(1);
+      console.log(changesPayload)
     }
     else if (data.gtin !== null && $(this).val()) {
       var product = {
