@@ -191,7 +191,7 @@ docReady(function () {
           pagingType: "full_numbers",
           pageLength: 10,
           destroy: true,
-          order: [[3, "desc"]],
+          order: [[3, "desc"],[ 5, "desc" ]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak danych do wyświetlenia",
