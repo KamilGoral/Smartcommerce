@@ -808,6 +808,10 @@ docReady(function () {
         const tableToClear = $('#spl_table').DataTable();
         tableToClear.clear().draw();
 
+        // Wymaż wartwę blur
+        removeBlurOverlay();
+
+
         var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
         var method = "PATCH";
         $.ajax({
