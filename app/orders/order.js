@@ -802,6 +802,8 @@ docReady(function () {
     "click",
     "td.details-control",
     function() {
+      //Get the righ table
+    var table = $("#spl_table").DataTable();
       var tr = $(this).closest("tr");
       var row = table.row(tr);
       if (row.child.isShown()) {
@@ -816,7 +818,8 @@ docReady(function () {
   );
 
   $("#spl_table").on("focusout", "input", function() {
-    console.log($(this));
+    //Get the righ table
+    var table = $("#spl_table").DataTable();
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
     $(this).attr("value", $(this).val());
@@ -915,7 +918,7 @@ docReady(function () {
   });
 
   $("#table_splited_wh").on("click", "img", function () {
-    //Get the cell of the input
+    //Get the righ table
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
@@ -1195,6 +1198,8 @@ docReady(function () {
   });
 
   $("#table_products").on("click", "td.details-control", function () {
+    //Get the righ table
+    var table = $("#table_products").DataTable();
     var tr = $(this).closest("tr");
     var row = table.row(tr);
 
@@ -1208,6 +1213,8 @@ docReady(function () {
   });
 
   $("#table_products").on("focusout", "input", function () {
+    //Get the righ table
+    var table = $("#table_products").DataTable();
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
     console.log(cell);
