@@ -689,7 +689,7 @@ docReady(function () {
             data: "netPrice",
           },
           {
-            orderable: false,
+            orderable: true,
             data: "assignmentSource",
             render: function (data) {
               if (data !== null) {
