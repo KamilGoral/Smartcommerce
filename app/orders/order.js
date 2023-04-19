@@ -332,7 +332,7 @@ docReady(function () {
             table.rows().every(function () {
               var rowData = this.data();
               var productQuantity = parseInt(rowData["products"]["exclusive"]);
-              var productQuantity2 = parseInt(rowData["products"]["exclusive"]);
+              var productQuantity2 = parseInt(rowData["products"]["order"]);
               totalEclusiveProducts += productQuantity;
               totalOrderedProducts += productQuantity2;
             });
