@@ -1241,7 +1241,7 @@ docReady(function () {
     if (data.gtin !== null) {
       var product = {
         op: "replace",
-        path: "/" + data.gtin + "/rigidAssigment/wholesalerKey",
+        path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
         value: $(this).val(),
       };
       addObject(changesPayload, product);
