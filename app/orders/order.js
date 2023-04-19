@@ -484,7 +484,7 @@ docReady(function () {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
 
     if (wholesalersData && wholesalersData.length > 0) {
-      let selectHTML = '<select class="wholesalerSelect">';
+      let selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
       if (jsonData !== null) {
