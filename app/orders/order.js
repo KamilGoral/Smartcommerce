@@ -517,7 +517,7 @@ docReady(function () {
 
   function generateWholesalerSelect(selectedWholesalerKey, jsonData) {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
-    const askData = jsonData.asks;
+    var askData = jsonData.asks;
 
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
