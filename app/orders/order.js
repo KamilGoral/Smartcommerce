@@ -550,7 +550,7 @@ docReady(function () {
         }
       });
 
-      selectHTML += "<option value='' style='font-weight: bold'> wybór</option></select>";
+      selectHTML += "<option value='' style='font-weight: bold'>Anuluj wybór</option></select>";
       return selectHTML;
     } else {
       return "Brak dostawców do wyboru.";
@@ -1111,6 +1111,10 @@ docReady(function () {
 
     $(this).attr("value", $(this).val());
     var data = table.row($(this).parents("tr")).data();
+
+    console.log(data);
+    console.log($(this).val());
+    
     if (data.gtin !== null && $(this).val() === '') {
       var product = {
         op: "remove",
