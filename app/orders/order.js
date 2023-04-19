@@ -171,7 +171,7 @@ docReady(function () {
             return;
           }
         }
-
+        $("#table-content").show();
         var data = resultData;
         const totalValue = document.getElementById("totalValue");
         totalValue.textContent = data.netValues.total + " zł";
@@ -1179,6 +1179,9 @@ docReady(function () {
       }
     );
   }
+
+  CreateOrder();
+  
   getOffers();
   getWholesalersSh();
 });
