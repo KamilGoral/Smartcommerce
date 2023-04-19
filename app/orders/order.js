@@ -503,6 +503,9 @@ docReady(function () {
           const wholesalerName = wholesaler ? wholesaler.name : item.wholesalerKey;
           selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''}>${wholesalerName}</option>`;
         });
+      } else {
+        // Dodawanie nieprzydzielone górze listy wyboru
+        selectHTML += `<option value="unassigned" selected style="font-weight: bold">nieprzydzielony</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
