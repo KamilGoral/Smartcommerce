@@ -897,6 +897,7 @@ docReady(function () {
 
   // Wywołaj funkcję checkChangesPayload() po każdej zmianie w polach select i input
   $('select, input').on('change', function () {
+    console.log("zmiana")
     checkChangesPayload();
   });
 
