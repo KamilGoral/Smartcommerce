@@ -680,7 +680,7 @@ docReady(function () {
             data: "netPrice",
             render: function (data) {
               if (data !== null) {
-                return "" + data.value.toFixed(2);
+                return "" + data.toFixed(2);
               }
               if (data === null) {
                 return "0";
