@@ -685,7 +685,7 @@ docReady(function () {
             orderable: true,
             data: null,
             render: function (data) {
-              return generateWholesalerSelect(data.wholesalerKey, data.asks);
+              return '<p style="font-size: 0;">'+ data.wholesalerKey +'</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks);
             },
           },
           {
