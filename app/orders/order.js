@@ -883,7 +883,7 @@ docReady(function () {
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$('.blur-overlay').length) {
-        addBlurOverlay('#splitedwhcontainer');
+        addBlurOverlay('splitedwhcontainer');
       }
     } else {
       // Usuń nakładkę, jeśli liczba rekordów wynosi 0
