@@ -677,12 +677,15 @@ docReady(function () {
           },
           {
             orderable: true,
-            data: "netPrice",
+            data: null,
             render: function (data) {
-              if (data !== null) {
-                return "" + data.toFixed(2);
+              if (data.netNetPrice !== null) {
+                return "" + data.netNetPrice.toFixed(2);
               }
-              if (data === null) {
+              if (data.netNetPrice === null && data.netPrice !== null) {
+                return "" + data.netPrice.toFixed(2);
+              }
+              if (data.netNetPrice === null && data.netPrice !== null) {
                 return "0";
               }
             },
