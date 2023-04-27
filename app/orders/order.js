@@ -723,15 +723,23 @@ docReady(function () {
             data: null,
             width: "72px",
             // class: "details-invisible",
-            render: function (data) {
+            render: function(data) {
               if (data.hasOwnProperty("asks") && data.asks !== null) {
-                let currentPrice = data.netPrice;
-                let lowestNetPrice = data.asks.length ?
-                  Math.min(...data.asks.map((a) => a.netPrice)) :
-                  null;
-                if (currentPrice > lowestNetPrice) {
+                if (data.netNetPrice == !null) {
+                  let currentPrice = data.netNetPrice;
+                  let lowestPrice = data.asks.length ?
+                    Math.min(...data.asks.map((a) => a.netNetPrice)) :
+                    null;
+                } else {
+                  let currentPrice = data.netPrice;
+                  let lowestPrice = data.asks.length ?
+                    Math.min(...data.asks.map((a) => a.netPrice)) :
+                    null;
+                }
+                
+                if (currentPrice > lowestPrice) {
                   var diffPercent = (
-                    ((currentPrice - lowestNetPrice) / currentPrice) *
+                    ((currentPrice - lowestPrice) / currentPrice) *
                     100
                   ).toFixed(2);
                   return (
