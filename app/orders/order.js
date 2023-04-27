@@ -730,13 +730,13 @@ docReady(function () {
                 if (data.netNetPrice !== null) {
                   currentPrice = data.netNetPrice;
                   lowestPrice = data.asks.length ?
-                    Math.min(...data.asks.map((a) => a.netNetPrice)) :
+                    Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
                     null;
                     console.log("this row")
                 } else {
                   currentPrice = data.netPrice;
                   lowestPrice = data.asks.length ?
-                    Math.min(...data.asks.map((a) => a.netPrice)) :
+                    Math.min(...data.asks.map((a) => a.netPrice).filter((price) => price !== null)) :
                     null;
                 }
 
@@ -821,13 +821,13 @@ docReady(function () {
               if (data.netNetPrice !== null) {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length ?
-                  Math.min(...data.asks.map((a) => a.netNetPrice)) :
+                  Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
                   null;
                 console.log("this row")
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length ?
-                  Math.min(...data.asks.map((a) => a.netPrice)) :
+                  Math.min(...data.asks.map((a) => a.netPrice).filter((price) => price !== null)) :
                   null;
               }
               
