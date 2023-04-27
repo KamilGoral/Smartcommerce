@@ -727,11 +727,12 @@ docReady(function () {
               if (data.hasOwnProperty("asks") && data.asks !== null) {
                 let currentPrice = 0
                 let lowestPrice = 0
-                if (data.netNetPrice == !null) {
+                if (data.netNetPrice !== null) {
                   currentPrice = data.netNetPrice;
                   lowestPrice = data.asks.length ?
                     Math.min(...data.asks.map((a) => a.netNetPrice)) :
                     null;
+                    console.log("this row")
                 } else {
                   currentPrice = data.netPrice;
                   lowestPrice = data.asks.length ?
