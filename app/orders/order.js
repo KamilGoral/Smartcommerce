@@ -656,11 +656,14 @@ docReady(function () {
             orderable: false,
             data: "quantity",
             render: function (data) {
-              return (
+              if (data !== null) {
                 '<input type="number" style="max-width: 80px" value="' +
                 data +
                 '"></td>'
-              );
+              }
+              if (data === null) {
+                return "0";
+              }
             },
           },
           {
@@ -677,15 +680,12 @@ docReady(function () {
           },
           {
             orderable: true,
-            data: null,
+            data: "netPrice",
             render: function (data) {
-              if (data.netNetPrice !== null) {
-                return "" + data.netNetPrice.toFixed(2);
+              if (data !== null) {
+                return "" + data.toFixed(2);
               }
-              if (data.netNetPrice === null && data.netPrice !== null) {
-                return "" + data.netPrice.toFixed(2);
-              }
-              if (data.netNetPrice === null && data.netPrice !== null) {
+              if (data === null) {
                 return "0";
               }
             },
