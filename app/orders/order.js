@@ -656,14 +656,11 @@ docReady(function () {
             orderable: false,
             data: "quantity",
             render: function (data) {
-              if (data !== null) {
+              return (
                 '<input type="number" style="max-width: 80px" value="' +
                 data +
                 '"></td>'
-              }
-              if (data === null) {
-                return "0";
-              }
+              );
             },
           },
           {
