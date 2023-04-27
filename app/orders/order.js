@@ -816,14 +816,26 @@ docReady(function () {
           ],
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
-              let currentPrice = data.netPrice;
-              let lowestNetPrice = data.asks.length ?
-                Math.min(...data.asks.map((a) => a.netPrice)) :
-                null;
-              if (data.netPrice > lowestNetPrice) {
+              let currentPrice = 0
+              let lowestPrice = 0
+              if (data.netNetPrice !== null) {
+                currentPrice = data.netNetPrice;
+                lowestPrice = data.asks.length ?
+                  Math.min(...data.asks.map((a) => a.netNetPrice)) :
+                  null;
+                console.log("this row")
+              } else {
+                currentPrice = data.netPrice;
+                lowestPrice = data.asks.length ?
+                  Math.min(...data.asks.map((a) => a.netPrice)) :
+                  null;
+              }
+              
+              if (currentPrice > lowestPrice) {
                 $("td", row).css("background-color", "#FFFAE6");
-              } else { }
-            } else { }
+                }
+
+              } else {}
           },
           initComplete: function (settings, json) {
             LoadTippy()
