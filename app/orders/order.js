@@ -723,16 +723,18 @@ docReady(function () {
             data: null,
             width: "72px",
             // class: "details-invisible",
-            render: function(data) {
+            render: function (data) {
               if (data.hasOwnProperty("asks") && data.asks !== null) {
+                let currentPrice = 0
+                let lowestPrice = 0
                 if (data.netNetPrice == !null) {
-                  var currentPrice = data.netNetPrice;
-                  var lowestPrice = data.asks.length ?
+                  currentPrice = data.netNetPrice;
+                  lowestPrice = data.asks.length ?
                     Math.min(...data.asks.map((a) => a.netNetPrice)) :
                     null;
                 } else {
-                  var currentPrice = data.netPrice;
-                  var lowestPrice = data.asks.length ?
+                  currentPrice = data.netPrice;
+                  lowestPrice = data.asks.length ?
                     Math.min(...data.asks.map((a) => a.netPrice)) :
                     null;
                 }
