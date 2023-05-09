@@ -663,6 +663,7 @@ docReady(function () {
                         console.log(resultData);
                         form.show();
                         $("#Create-Pricelist-Success").show();
+                        refreshTable();
                         $("#Create-Pricelist-Success").fadeOut(4000);
                         $("#GTINInput").val('');
                     },
@@ -763,6 +764,7 @@ docReady(function () {
                         console.log(resultData);
                         form.show();
                         $("#Edit-Exclusive-Success").show();
+                        refreshTable();
                         $("#Edit-Exclusive-Success").fadeOut(4000);
                     },
                     error: function (jqXHR, exception) {
@@ -786,6 +788,35 @@ docReady(function () {
             });
         });
     };
+
+    function refreshTable() {
+
+        $.ajaxSetup({
+          headers: {
+            Authorization: orgToken,
+          },
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+        });
+      
+
+        $.get(
+          InvokeURL + "exclusive-products" + QStr,
+          function (res) {
+
+            var tabela = $('#table_id').DataTable();
+            tabela.clear().rows.add(res.items).draw();
+          }
+        );
+      }
+      
+      
+
+
     makeWebflowFormAjaxSingleEdit($(formIdEditSingleExclusive));
     makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
     getWholesalersSh();
