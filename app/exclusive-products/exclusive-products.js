@@ -353,7 +353,7 @@ docReady(function () {
                         endDate =
                             creationDate[0];// + " " + creationTime[0].slice(0, -4);
 
-                        if (data > nowDate) {
+                        if (data.endDate >= nowDate) {
                             return '<spann class="positive">' + endDate + "</spann>";
                         } else {
                             return '<spann class="medium">' + endDate + "</spann>";
