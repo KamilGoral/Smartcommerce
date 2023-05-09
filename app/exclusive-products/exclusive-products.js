@@ -726,7 +726,7 @@ docReady(function () {
                             {
                             "op": "replace",
                             "path": "/endDate",
-                            "value": $("endDate-Exclusive-Edit").val() + "T00:00:01.00Z",
+                            "value": $("#endDate-Exclusive-Edit").val() + "T00:00:01.00Z",
                             },
                             {
                             "op": "replace",
