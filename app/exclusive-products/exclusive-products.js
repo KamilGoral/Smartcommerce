@@ -802,10 +802,11 @@ docReady(function () {
             $("#waitingdots").hide();
           },
         });
+        
       
 
         $.get(
-          InvokeURL + "exclusive-products" + QStr,
+          InvokeURL + "exclusive-products",
           function (res) {
 
             var tabela = $('#table_id').DataTable();
