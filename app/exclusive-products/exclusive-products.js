@@ -282,6 +282,16 @@ docReady(function () {
                 data: "uuid",
             },
             {
+                visible: false,
+                orderable: false,
+                data: "created.at",
+            },
+            {
+                visible: false,
+                orderable: false,
+                data: "created.by",
+            },
+            {
                 orderable: true,
                 data: "gtin",
             },
@@ -488,6 +498,10 @@ docReady(function () {
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
+                    $("#CreatorInputEdit").prop("disabled", true);
+                    $("#CreatorInputEdit").val(data.created.by);
+                    $("#CreatedInputEdit").prop("disabled", true);
+                    $("#CreatedInputEdit").val(data.created.at);
                     $("#exclusiveProductId").val(data.uuid);
                     
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
