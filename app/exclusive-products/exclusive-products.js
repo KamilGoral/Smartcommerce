@@ -501,9 +501,17 @@ docReady(function () {
                     $("#Creator").prop("disabled", true);
                     $("#Creator").val(data.created.by);
                     $("#Created").prop("disabled", true);
-                    $("#Created").val(data.created.at);
+                    var offset = new Date().getTimezoneOffset();
+                    var localeTime = new Date(
+                        Date.parse(data.created.at) - offset * 60 * 1000
+                    ).toISOString();
+                    var creationDate = localeTime.split("T");
+                    var creationTime = creationDate[1].split("Z");
+                    CreatedTime =
+                        creationDate[0] + " " + creationTime[0].slice(0, -4);
+                    $("#Created").val(CreatedTime);
                     $("#exclusiveProductId").val(data.uuid);
-                    
+
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
                     $("#startDate-Exclusive-Edit").datepicker("setDate", new Date(Date.now()));
 
@@ -648,7 +656,7 @@ docReady(function () {
                         }]
                 }
 
-                if ($("#WholesalerSelector-Exclusive-2").val() === "null"){
+                if ($("#WholesalerSelector-Exclusive-2").val() === "null") {
                     delete postData[0].wholesalerKey
                     console.log("delete wholesalerKey")
                 }
@@ -717,17 +725,17 @@ docReady(function () {
                             "op": "replace",
                             "path": "/startDate",
                             "value": $("#startDate-Exclusive-Edit").val() + "T00:00:01.00Z"
-                            },
-                            {
+                        },
+                        {
                             "op": "replace",
                             "path": "/endDate",
                             "value": "infinity"
-                            },
-                            {
+                        },
+                        {
                             "op": "replace",
                             "path": "/wholesalerKey",
                             "value": $("#WholesalerSelector-Exclusive-Edit").val()
-                            }]
+                        }]
                 }
 
                 else {
@@ -736,22 +744,22 @@ docReady(function () {
                             "op": "replace",
                             "path": "/startDate",
                             "value": $("#startDate-Exclusive-Edit").val() + "T00:00:01.00Z"
-                            },
-                            {
+                        },
+                        {
                             "op": "replace",
                             "path": "/endDate",
                             "value": $("#endDate-Exclusive-Edit").val() + "T00:00:01.00Z",
-                            },
-                            {
+                        },
+                        {
                             "op": "replace",
                             "path": "/wholesalerKey",
                             "value": $("#WholesalerSelector-Exclusive-Edit").val()
-                            }]
+                        }]
                 }
 
                 console.log(postData);
 
-                if ($("#WholesalerSelector-Exclusive-Edit").val() === "null"){
+                if ($("#WholesalerSelector-Exclusive-Edit").val() === "null") {
                     delete postData[0].wholesalerKey
                     console.log("delete wholesalerKey")
                 }
@@ -806,30 +814,30 @@ docReady(function () {
     function refreshTable() {
 
         $.ajaxSetup({
-          headers: {
-            Authorization: orgToken,
-          },
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
+            headers: {
+                Authorization: orgToken,
+            },
+            beforeSend: function () {
+                $("#waitingdots").show();
+            },
+            complete: function () {
+                $("#waitingdots").hide();
+            },
         });
-        
-      
+
+
 
         $.get(
-          InvokeURL + "exclusive-products",
-          function (res) {
+            InvokeURL + "exclusive-products",
+            function (res) {
 
-            var tabela = $('#table_id').DataTable();
-            tabela.clear().rows.add(res.items).draw();
-          }
+                var tabela = $('#table_id').DataTable();
+                tabela.clear().rows.add(res.items).draw();
+            }
         );
-      }
-      
-      
+    }
+
+
 
 
     makeWebflowFormAjaxSingleEdit($(formIdEditSingleExclusive));
