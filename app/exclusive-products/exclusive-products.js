@@ -371,10 +371,10 @@ docReady(function () {
                 render: function (data) {
                     if (
                         data !== null &&
-                        data.hasOwnProperty("username") &&
-                        data.username !== null
+                        data.hasOwnProperty("by") &&
+                        data.by !== null
                     ) {
-                        return data.username
+                        return data.by
                     } else {
                         return "-";
                     }
@@ -385,12 +385,12 @@ docReady(function () {
                 data: "lastModified",
                 render: function (data) {
                     if (data !== null &&
-                        data.hasOwnProperty("date") &&
-                        data.date !== null) {
+                        data.hasOwnProperty("at") &&
+                        data.at !== null) {
                         var lastModificationDate = "";
                         var offset = new Date().getTimezoneOffset();
                         var localeTime = new Date(
-                            Date.parse(data.date) - offset * 60 * 1000
+                            Date.parse(data.at) - offset * 60 * 1000
                         ).toISOString();
                         var creationDate = localeTime.split("T");
                         var creationTime = creationDate[1].split("Z");
