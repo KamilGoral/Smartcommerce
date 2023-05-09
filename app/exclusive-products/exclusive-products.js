@@ -498,10 +498,10 @@ docReady(function () {
                     $('#EditExclusivePopup').css('display', 'flex');
                     $("#GTINInputEdit").prop("disabled", true);
                     $("#GTINInputEdit").val(data.gtin);
-                    $("#CreatorInputEdit").prop("disabled", true);
-                    $("#CreatorInputEdit").val(data.created.by);
-                    $("#CreatedInputEdit").prop("disabled", true);
-                    $("#CreatedInputEdit").val(data.created.at);
+                    $("#Creator").prop("disabled", true);
+                    $("#Creator").val(data.created.by);
+                    $("#Created").prop("disabled", true);
+                    $("#Created").val(data.created.at);
                     $("#exclusiveProductId").val(data.uuid);
                     
                     $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
