@@ -81,7 +81,6 @@ docReady(function () {
 
     request.open("GET", endpoint.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Accept", "application/json");
     request.onload = function () {
       var data = JSON.parse(this.response);
 
@@ -107,11 +106,9 @@ docReady(function () {
           return humanTime;
         }
         wholesalerKey.textContent = data.wholesalerKey;
-        createdBy.textContent = data.created.by
+        createdBy.textContent = data.created.by;
         createDate.textContent = ToHumanTime(data.created.at);
-        lastModificationDate.textContent = ToHumanTime(
-          data.modified.at
-        );
+        lastModificationDate.textContent = ToHumanTime(data.modified.at);
         startDate.textContent = ToHumanTime(data.startDate);
         $("#startDate").datepicker("setDate", new Date(data.startDate));
         endDate.textContent = ToHumanTime(data.endDate);
