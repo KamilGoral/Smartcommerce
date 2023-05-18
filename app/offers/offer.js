@@ -687,9 +687,9 @@ docReady(function () {
         (data.start + data.length) / data.length;
       let searchBox = data.search.value;
       if (/^\d+$/.test(searchBox)) {
-        QStr = QStr + "&gtin=" + searchBox;
+        QStr = QStr + "&gtin=" + encodeURIComponent(searchBox);
       } else if (searchBox) {
-        QStr = QStr + "&name=like:" + searchBox;
+        QStr = QStr + "&name=like:" + encodeURIComponent(searchBox);
       } else {
       }
       var rotIndi = $("#rotationIndicator")
