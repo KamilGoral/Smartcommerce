@@ -294,11 +294,10 @@ docReady(function () {
               render: function (data) {
                 if (data === "agra") {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
-                } else if (data === "mirex"){
+                } else if (data === "mirex") {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" style="visibility: hidden;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
-
                 }
-                else{
+                else {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
                 }
               },
@@ -736,7 +735,7 @@ docReady(function () {
                   lowestPrice = data.asks.length ?
                     Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
                     null;
-                    console.log("this row")
+                  console.log("this row")
                 } else {
                   currentPrice = data.netPrice;
                   lowestPrice = data.asks.length ?
@@ -834,12 +833,12 @@ docReady(function () {
                   Math.min(...data.asks.map((a) => a.netPrice).filter((price) => price !== null)) :
                   null;
               }
-              
+
               if (currentPrice > lowestPrice) {
                 $("td", row).css("background-color", "#FFFAE6");
-                }
+              }
 
-              } else {}
+            } else { }
           },
           initComplete: function (settings, json) {
             LoadTippy()
