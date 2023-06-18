@@ -1037,7 +1037,7 @@ docReady(function () {
     var dataToDisplay = $(this)
     const popupContainer = document.getElementById('ReleatedProducts');
     const popupContent = document.getElementById('popupContent');
-    popupContent.innerHTML = dataToDisplay.data('content');
+    popupContent.textContent = dataToDisplay.data('content');
     popupContainer.style.display = 'flex';
   });
   $("#table_id tbody").on("click", "td.details-control2", function () {
