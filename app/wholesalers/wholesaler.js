@@ -40,11 +40,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -75,11 +75,11 @@ docReady(function () {
 
     let url2 = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -143,7 +143,7 @@ docReady(function () {
 
         firstMessage;
         onlineOfferSupportFlow();
-      } else {
+      } else if (request2.status >= 400) {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         $("#logistic-minimum-container").removeClass("hide");
@@ -156,6 +156,8 @@ docReady(function () {
           .end()
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
+      } else {
+        console.log("bug")
       }
     };
     request2.send();
@@ -210,11 +212,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/profiles"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -269,11 +271,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/status-history?sort=createDate:asc&perPage=30"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -458,11 +460,11 @@ docReady(function () {
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               let url = new URL(
                 InvokeURL +
-                  "shops/" +
-                  shopKey +
-                  "/wholesalers/" +
-                  wholesalerKey +
-                  "/online-offer/profiles"
+                "shops/" +
+                shopKey +
+                "/wholesalers/" +
+                wholesalerKey +
+                "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
