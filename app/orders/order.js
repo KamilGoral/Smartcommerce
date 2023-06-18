@@ -1131,12 +1131,13 @@ docReady(function () {
     // Change amount of product
     var table = $("#spl_table").DataTable();
 
-    var newValue = $(this).val();
+    let newValue = $(this).val();
     console.log(newValue);
 
     if (newValue = "") {
       newValue = 0
     }
+    console.log(newValue)
 
     var initialValue = $(this).data("initialValue");
 
@@ -1152,6 +1153,7 @@ docReady(function () {
           path: "/" + data.gtin + "/quantity",
           value: parseInt(newValue),
         };
+        console.log(product)
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
