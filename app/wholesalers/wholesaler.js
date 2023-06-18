@@ -142,6 +142,8 @@ docReady(function () {
 
         firstMessage;
         onlineOfferSupportFlow();
+      } else if (request2.status >= 404){
+        $("#delete-wholesalers-container").hide();
       } else {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
