@@ -586,6 +586,7 @@ docReady(function () {
         item.originated +
         "</td>";
       var typeOfPromotion = "";
+      var showRelated =""
       if (item.promotion != null) {
         tableRowHtml +=
           "<td>" +
@@ -609,6 +610,11 @@ docReady(function () {
         if (item.promotion.type === "not cumulative quantity") {
           typeOfPromotion = "Okresowa";
         }
+        if (item.promotion.relatedGtins.length > 0) {
+          showRelated = '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' + item.promotion.relatedGtins + '" alt="">'
+        } else {
+          showRelated = "-";
+        }
 
         tableRowHtml +=
           "<td>" +
@@ -624,7 +630,7 @@ docReady(function () {
           item.promotion.package +
           "</td>" +
           "<td>" +
-          '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' + item.promotion.relatedGtins + '" alt="">' +
+          showRelated +
           "</td>" +
           "</tr>";
       } else {
