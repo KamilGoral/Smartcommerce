@@ -89,7 +89,7 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
+      if (request.status >= 200 && request.status < 400 && toParse.length > 0) {
         const shopContainer = document.getElementById("integrationcontainer");
         toParse.forEach((shop) => {
           const style = document.getElementById("integrationbox");
