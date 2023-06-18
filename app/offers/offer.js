@@ -621,7 +621,7 @@ docReady(function () {
           item.promotion.package +
           "</td>" +
           "<td>";
-          item.promotion.relatedGtins +
+          item.promotion.relatedGtins.join(", ") +
           "</td>" +
           "</tr>";
       } else {
