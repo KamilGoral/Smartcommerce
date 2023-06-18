@@ -129,7 +129,7 @@ docReady(function () {
 
     $.ajax({
       type: "PATCH",
-      url: InvokeURL + "/integrations/pc-market",
+      url: InvokeURL + "integrations/pc-market",
       cors: true,
       beforeSend: function () {
         $("#waitingdots").show();
