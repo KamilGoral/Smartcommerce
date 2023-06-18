@@ -27,6 +27,7 @@ docReady(function () {
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
   var formIdEdit = "#wf-form-CredentialsFormEdit";
+  var formIdNewWh = "#wf-form-Create-wholesaler";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-LogisticMinimumForm";
   const Iehurt = document.getElementById("Iehurt");
@@ -875,6 +876,6 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
-  makeWebflowFormAjaxNewWh($("wf-form-Create-wholesaler"));
+  makeWebflowFormAjaxNewWh($(formIdNewWh));
   $("#waitingdots").hide();
 });
