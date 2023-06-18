@@ -1142,10 +1142,16 @@ docReady(function () {
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
         console.log(newValue);
+
+        // Sprawdź, czy wartość jest pusta lub nieprawidłowa
+        let quantity = parseInt(newValue);
+        if (isNaN(quantity)) {
+          quantity = 0; // Jeśli tak, zmień wartość na 0
+        }
         var product = {
           op: "replace",
           path: "/" + data.gtin + "/quantity",
-          value: parseInt(newValue),
+          value: quantity,
         };
         console.log(product)
         addObject(changesPayload, product);
