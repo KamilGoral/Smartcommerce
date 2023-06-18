@@ -518,10 +518,11 @@ docReady(function () {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
 
     if (wholesalersData && wholesalersData.length > 0) {
+      let selectHTML = "";
       if (isDisabled = true) {
-        let selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
-      } else{
-        let selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
+        selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
+      } else {
+        selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
@@ -708,10 +709,10 @@ docReady(function () {
             data: null,
             render: function (data) {
               if (data.gtin.indexOf('?') >= 0) {
-                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, true ));
+                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, true));
               }
               else {
-                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, false ));
+                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, false));
               }
             },
           },
