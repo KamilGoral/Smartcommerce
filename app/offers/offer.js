@@ -1035,7 +1035,10 @@ docReady(function () {
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
     var dataToDisplay = $(this)
-    window.alert(dataToDisplay.data('content'))
+    const popupContainer = document.getElementById('ReleatedProducts');
+    const popupContent = document.getElementById('popupContent');
+    popupContent.innerHTML = dataToDisplay.data('content');
+    popupContainer.style.display = 'flex';
   });
   $("#table_id tbody").on("click", "td.details-control2", function () {
     var tr = $(this).closest("tr");
@@ -1045,7 +1048,7 @@ docReady(function () {
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
-  
+
 
   function LoadTippy() {
     $.getScript(
