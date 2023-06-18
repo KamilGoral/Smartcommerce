@@ -1144,7 +1144,9 @@ docReady(function () {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
-        newValue ??= 0;
+        if (newValue = "") {
+          newValue = 0
+        }
         console.log(newValue);
         var product = {
           op: "replace",
