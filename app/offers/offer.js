@@ -1037,8 +1037,9 @@ docReady(function () {
     var dataToDisplay = $(this)
     const popupContainer = document.getElementById('ReleatedProducts');
     const popupContent = document.getElementById('popupContent');
-    var dataArray = JSON.parse(dataToDisplay.data('content'));
-    var output = "<p>" + dataArray.join("<br>") + "</p>";
+    var input = dataToDisplay.data('content');
+    var values = input.split(",");
+    var output = "<p>" + values.join("<br>") + "</p";
     popupContent.textContent = output;
     popupContainer.style.display = 'flex';
   });
