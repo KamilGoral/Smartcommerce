@@ -87,6 +87,7 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
+        $("#delete-wholesalers-container").show();
         $("#logistic-minimum-container").removeClass("hide");
         $("#delete-wholesalers-container").removeClass("hide");
         const statusmessagebox = document.getElementById("statusmessagebox");
@@ -142,8 +143,6 @@ docReady(function () {
 
         firstMessage;
         onlineOfferSupportFlow();
-      } else if (request2.status >= 404){
-        $("#delete-wholesalers-container").hide();
       } else {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
