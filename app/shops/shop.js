@@ -1209,9 +1209,11 @@ docReady(function () {
               msg = "Not connect.\n Verify Network.";
             } else if (jqXHR.status === 403) {
               msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+            } else if (jqXHR.status === 429 ) {
+              msg = "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
+            }else if (exception === "parsererror") {
               msg = "Requested JSON parse failed.";
             } else if (exception === "timeout") {
               msg = "Time out error.";
