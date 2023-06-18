@@ -112,7 +112,7 @@ docReady(function () {
     request.send();
   }
 
-  function updateStatus(changeOfStatus, wholesalerKey) {
+  function updateStatus(changeOfStatus) {
     console.log("starting Updating function");
     // var form = $("#wf-form-WholesalerChangeStatusForm ");
     // var container = form.parent();
@@ -211,6 +211,22 @@ docReady(function () {
       },
     });
   }
+
+  $("#integrationStatus").on(
+    "change",
+    "input.editor-active",
+    function () {
+      var myValue = $(this);
+      console.log(myValue);
+      if (this.checked) {
+        console.log("Nieaktywny był");
+        updateStatus(true);
+      } else {
+        console.log("Aktywny był");
+        updateStatus(false);
+      }
+    }
+  );
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
