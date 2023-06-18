@@ -82,7 +82,7 @@ docReady(function () {
   }
 
   function getShops() {
-    let url = new URL(InvokeURL + "shops");
+    let url = new URL(InvokeURL + "integrations/pc-market/shops");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
