@@ -639,6 +639,8 @@ docReady(function () {
           "</td>" +
           "<td>" +
           "</td>" +
+          "<td>" +
+          "</td>" +
           "</tr>";
       }
       toDisplayHtml += tableRowHtml;
@@ -1039,6 +1041,7 @@ docReady(function () {
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
+  LoadTippy();
 
   function LoadTippy() {
     $.getScript(
@@ -1116,7 +1119,6 @@ docReady(function () {
       } else {
         $("#positivestatus").css("display", "flex");
       }
-      LoadTippy();
     };
     request.send();
   }
