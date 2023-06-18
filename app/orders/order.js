@@ -1141,14 +1141,11 @@ docReady(function () {
     // Check if the value has changed
     if (newValue !== initialValue) {
 
-      // ta linia kodu musi być
-      if (newValue === null) {
-        newValue = 0;
-      }
-
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
+        newValue ??= 0;
+        console.log(newValue);
         var product = {
           op: "replace",
           path: "/" + data.gtin + "/quantity",
