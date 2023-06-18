@@ -581,7 +581,7 @@ docReady(function () {
         "</td>" +
         "<td>" +
         typeOfSource +
-        "</td>"+
+        "</td>" +
         "<td>" +
         item.originated +
         "</td>";
@@ -623,8 +623,8 @@ docReady(function () {
           "<td>" +
           item.promotion.package +
           "</td>" +
-          "<td>"+
-          item.promotion.relatedGtins +
+          "<td>" +
+          '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" loading="lazy" data-tippy-content="' + item.promotion.relatedGtins + '" alt="" class="tippy">' +
           "</td>" +
           "</tr>";
       } else {
@@ -847,7 +847,7 @@ docReady(function () {
         width: "20px",
         data: null,
         defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg' alt='details'></img>",
       },
       {
         orderable: true,
@@ -1105,8 +1105,8 @@ docReady(function () {
       if (
         request.status >= 200 &&
         request.status < 400 &&
-        data.status === "incomplete" || 
-        data.status === "batching" || 
+        data.status === "incomplete" ||
+        data.status === "batching" ||
         data.status === "forced"
       ) {
         $("#warningstatus").css("display", "flex");
