@@ -520,7 +520,7 @@ docReady(function () {
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
       if (isDisabled = true) {
-        selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
+        selectHTML = '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
       }
