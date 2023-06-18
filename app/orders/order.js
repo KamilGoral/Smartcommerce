@@ -1132,14 +1132,18 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
 
     var newValue = $(this).val();
+    console.log(newValue);
 
-    if (newValue === null) {
-      newValue = 0;
-    }
     var initialValue = $(this).data("initialValue");
 
     // Check if the value has changed
     if (newValue !== initialValue) {
+      
+      // ta linia kodu musi być
+      if (newValue === null) {
+        newValue = 0;
+      }
+
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
