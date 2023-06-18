@@ -562,7 +562,9 @@ docReady(function () {
       if (item.source === "konsola-kupca") {
         typeOfSource = "Pc-Market";
       }
-
+      if (item.originated === null) {
+        originatedCode = "-";
+      }
       var tableRowHtml =
         "<tr>" +
         "<td>" +
@@ -579,9 +581,9 @@ docReady(function () {
         "</td>" +
         "<td>" +
         typeOfSource +
-        "</td>";
+        "</td>"+
         "<td>" +
-        item.originated +
+        originatedCode +
         "</td>";
       var typeOfPromotion = "";
       if (item.promotion != null) {
@@ -618,12 +620,14 @@ docReady(function () {
           "<td>" +
           item.promotion.package +
           "</td>" +
-          "</tr>";
+          "<td>";
           item.promotion.relatedGtins +
           "</td>" +
           "</tr>";
       } else {
         tableRowHtml +=
+          "<td>" +
+          "</td>" +
           "<td>" +
           "</td>" +
           "<td>" +
