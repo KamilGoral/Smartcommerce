@@ -763,6 +763,75 @@ docReady(function () {
     });
   };
 
+  makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $(".w-form-done", container);
+        var failBlock = $(".w-form-fail", container);
+        var action =
+          "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3";
+        var data = {
+          whname: $("#WholesalerName").val(),
+          taxId: "random",
+          platformUrl: $("#platformUrl").val(),
+          organizationName: "random",
+          form: "new-Wholesaler",
+        };
+
+        $.ajax({
+          type: "POST",
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.hide();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   $("#UsernameEdit").change(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
@@ -806,5 +875,6 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
+  makeWebflowFormAjaxNewWh($(formIdNewWh));
   $("#waitingdots").hide();
 });
