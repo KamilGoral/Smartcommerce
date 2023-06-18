@@ -563,7 +563,7 @@ docReady(function () {
         typeOfSource = "Pc-Market";
       }
       if (item.originated === null) {
-        originatedCode = "-";
+        item.originated = "-";
       }
       var tableRowHtml =
         "<tr>" +
@@ -583,7 +583,7 @@ docReady(function () {
         typeOfSource +
         "</td>"+
         "<td>" +
-        originatedCode +
+        item.originated +
         "</td>";
       var typeOfPromotion = "";
       if (item.promotion != null) {
