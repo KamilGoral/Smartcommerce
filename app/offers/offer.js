@@ -1035,7 +1035,7 @@ docReady(function () {
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
     var dataToDisplay = $(this)
-    console.log(dataToDisplay)
+    alert(dataToDisplay.data('content'))
   });
   $("#table_id tbody").on("click", "td.details-control2", function () {
     var tr = $(this).closest("tr");
