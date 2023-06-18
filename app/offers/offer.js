@@ -1039,8 +1039,8 @@ docReady(function () {
     const popupContent = document.getElementById('popupContent');
     var input = dataToDisplay.data('content');
     var values = input.split(",");
-    var output = "<p>" + values.join("<br>") + "</p";
-    popupContent.textContent = output;
+    var output = "<p>" + values.join("<br>") + "</p>";
+    popupContent.innerHTML = output;
     popupContainer.style.display = 'flex';
   });
   $("#table_id tbody").on("click", "td.details-control2", function () {
