@@ -618,10 +618,13 @@ docReady(function () {
           item.promotion.threshold +
           "</td>" +
           "<td>" +
+          item.promotion.maxQuantity +
+          "</td>" +
+          "<td>" +
           item.promotion.package +
           "</td>" +
           "<td>"+
-          item.promotion.relatedGtins.join(", ") +
+          item.promotion.relatedGtins +
           "</td>" +
           "</tr>";
       } else {
