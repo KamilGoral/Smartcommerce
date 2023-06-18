@@ -516,10 +516,9 @@ docReady(function () {
 
   function generateWholesalerSelect(selectedWholesalerKey, jsonData, isDisabled) {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
-
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
-      if (isDisabled = true) {
+      if (isDisabled == 1 ) {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
@@ -709,10 +708,10 @@ docReady(function () {
             data: null,
             render: function (data) {
               if (data.gtin.indexOf('?') >= 0) {
-                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, true));
+                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, 1));
               }
               else {
-                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, false));
+                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, 0));
               }
             },
           },
