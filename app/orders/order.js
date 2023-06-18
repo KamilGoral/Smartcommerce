@@ -1132,7 +1132,6 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
 
     let newValue = $(this).val();
-    console.log(newValue);
     var initialValue = $(this).data("initialValue");
 
     // Check if the value has changed
@@ -1141,7 +1140,6 @@ docReady(function () {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
-        console.log(newValue);
 
         // Sprawdź, czy wartość jest pusta lub nieprawidłowa
         let quantity = parseInt(newValue);
@@ -1153,7 +1151,6 @@ docReady(function () {
           path: "/" + data.gtin + "/quantity",
           value: quantity,
         };
-        console.log(product)
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
