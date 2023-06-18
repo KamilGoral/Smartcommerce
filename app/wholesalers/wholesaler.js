@@ -767,6 +767,7 @@ docReady(function () {
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+      console.log("Tutaj");
       form.on("submit", function (event) {
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
