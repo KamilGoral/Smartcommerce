@@ -1045,7 +1045,7 @@ docReady(function () {
     const popupContent = document.getElementById('popupContent');
     var input = dataToDisplay.data('content');
     var values = input.split(",");
-    var output = "<p>" + values.join("<br>") + "</p>";
+    var output = "<td>" + values.join("<br>") + "</td>";
     popupContent.innerHTML = output;
     popupContainer.style.display = 'flex';
   });
