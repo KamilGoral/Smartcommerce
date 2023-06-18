@@ -620,7 +620,7 @@ docReady(function () {
           "<td>" +
           item.promotion.package +
           "</td>" +
-          "<td>";
+          "<td>"+
           item.promotion.relatedGtins.join(", ") +
           "</td>" +
           "</tr>";
