@@ -1133,12 +1133,6 @@ docReady(function () {
 
     let newValue = $(this).val();
     console.log(newValue);
-
-    if (newValue = "") {
-      newValue = 0
-    }
-    console.log(newValue)
-
     var initialValue = $(this).data("initialValue");
 
     // Check if the value has changed
