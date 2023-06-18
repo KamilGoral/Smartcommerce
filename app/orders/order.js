@@ -1132,7 +1132,8 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
 
     var newValue = $(this).val();
-    if (newValue == null) {
+
+    if (newValue === null) {
       newValue = 0;
     }
     var initialValue = $(this).data("initialValue");
