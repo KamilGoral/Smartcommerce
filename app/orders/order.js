@@ -518,7 +518,7 @@ docReady(function () {
     const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
-      if (isDisabled == 1 ) {
+      if (isDisabled == 1) {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
@@ -665,16 +665,18 @@ docReady(function () {
             render: function (data) {
               if (data.gtin.indexOf('?') >= 0) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" onblur="if(this.value==""){this.value="0"}" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" onblur="if(this.value==\'\'){this.value=\'0\'}" value="' +
                   data.quantity +
-                  '" disabled></td>'
+                  '" disabled>'
+
                 );
               }
               else {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" onblur="if(this.value==""){this.value="0"}" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" onblur="if(this.value==\'\'){this.value=\'0\'}" value="' +
                   data.quantity +
-                  '"></td>'
+                  '" >'
+
                 );
               }
             },
