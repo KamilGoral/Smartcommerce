@@ -147,7 +147,6 @@ docReady(function () {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         $("#logistic-minimum-container").removeClass("hide");
-        $("#delete-wholesalers-container").removeClass("hide");
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
