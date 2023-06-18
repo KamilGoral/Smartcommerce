@@ -665,14 +665,14 @@ docReady(function () {
             render: function (data) {
               if (data.gtin.indexOf('?') >= 0) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" onblur="if(this.value==""){this.value="0"}" value="' +
                   data.quantity +
                   '" disabled></td>'
                 );
               }
               else {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" onblur="if(this.value==""){this.value="0"}" value="' +
                   data.quantity +
                   '"></td>'
                 );
@@ -1138,7 +1138,7 @@ docReady(function () {
 
     // Check if the value has changed
     if (newValue !== initialValue) {
-      
+
       // ta linia kodu musi być
       if (newValue === null) {
         newValue = 0;
