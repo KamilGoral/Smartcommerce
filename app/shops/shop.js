@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -287,11 +287,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          rowData.orderId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/orders/order?orderId=" +
+        rowData.orderId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -514,11 +514,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -785,20 +785,20 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -957,12 +957,12 @@ docReady(function () {
             },
           ],
           //delete this rowCallback after support for Iglomen Sellitem
-          "rowCallback": function( row, data ) {
-            if ( data.wholesalerKey == "iglomen-czerwionka") {
+          "rowCallback": function (row, data) {
+            if (data.wholesalerKey == "iglomen-czerwionka") {
               console.log("iglomen")
-              $('td:eq(6)', row).html( '<spann class="noneexisting">Brak</spann>' );
+              $('td:eq(6)', row).html('<spann class="noneexisting">Brak</spann>');
             }
-          } 
+          }
         });
 
         $("#table_wholesalers").on("click", "tr", function () {
@@ -1204,25 +1204,29 @@ docReady(function () {
             console.log(jqXHR);
             console.log(exception);
             var msg = "";
+
             var MessageText = document.getElementById("WarningMessageMain");
             if (jqXHR.status === 0) {
               msg = "Not connect.\n Verify Network.";
             } else if (jqXHR.status === 403) {
               msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-            } else if (jqXHR.status === 429 ) {
+            } else if (jqXHR.status === 429) {
               msg = "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
-            }else if (exception === "parsererror") {
+            } else if (exception === "parsererror") {
               msg = "Requested JSON parse failed.";
             } else if (exception === "timeout") {
               msg = "Time out error.";
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
             }
-            MessageText.textContent = msg;
+            var elements = document.getElementsByClassName("warningmessagetext");
+              for (var i = 0; i < elements.length; i++) {
+                elements[i].textContent = msg;
+              }
             $("#WarningMessageContainer").fadeOut(3000);
             form.show();
             doneBlock.hide();
@@ -1250,9 +1254,9 @@ docReady(function () {
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
-      if (xhr.status === 201 ) {
+      if (xhr.status === 201) {
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
@@ -1261,15 +1265,15 @@ docReady(function () {
           op: "add",
           path: "/name",
           value: $("#OrderName").val(),
-        }, ];
+        },];
         $.ajax({
           type: method,
           url: action,
           cors: true,
-          beforeSend: function() {
+          beforeSend: function () {
             $("#waitingdots").show();
           },
-          complete: function() {
+          complete: function () {
             $("#waitingdots").hide();
           },
           contentType: "application/json",
@@ -1280,11 +1284,11 @@ docReady(function () {
             "Content-Type": "application/json",
             Authorization: orgToken,
           },
-          success: function(resultData) {
+          success: function (resultData) {
             document.getElementById(
               "wf-form-doneCreate-Order"
             ).style.display = "block";
-            window.setTimeout(function() {
+            window.setTimeout(function () {
               window.location.replace(
                 "https://" +
                 DomainName +
@@ -1295,37 +1299,37 @@ docReady(function () {
               );
             }, 100);
           },
-          error: function(jqXHR, exception) {
+          error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
           },
         });
       }
       else {
-          jsonResponse = JSON.parse(xhr.responseText);
-          console.log(xhr);
-          var msg = "";
-          if (xhr.status === 0) {
-            msg = "Not connect.\n Verify Network."; 
-          } else if (xhr.status === 400) {
-            msg = jsonResponse.message;
-          } else if (xhr.status === 403) {
-            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-          } else if (xhr.status === 500) {
-            msg = "Internal Server Error [500].";
-          } else {
-            msg = jsonResponse.message;
-          }
-          $(".warningmessagetext").text(msg);
-          $("#wf-form-failCreate-Order").show();
-          $("#orderfile").val('');
-          $("#wf-form-failCreate-Order").fadeOut(9000);
+        jsonResponse = JSON.parse(xhr.responseText);
+        console.log(xhr);
+        var msg = "";
+        if (xhr.status === 0) {
+          msg = "Not connect.\n Verify Network.";
+        } else if (xhr.status === 400) {
+          msg = jsonResponse.message;
+        } else if (xhr.status === 403) {
+          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+        } else if (xhr.status === 500) {
+          msg = "Internal Server Error [500].";
+        } else {
+          msg = jsonResponse.message;
+        }
+        $(".warningmessagetext").text(msg);
+        $("#wf-form-failCreate-Order").show();
+        $("#orderfile").val('');
+        $("#wf-form-failCreate-Order").fadeOut(9000);
       }
     };
     xhr.send(formData);
   }
 
-  
+
 
   UploadButton.addEventListener("click", (event) => {
     FileUpload();
