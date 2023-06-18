@@ -1211,7 +1211,7 @@ docReady(function () {
             } else if (jqXHR.status === 403) {
               msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
             } else if (jqXHR.status === 429) {
-              msg = "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu.";
+              msg = "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
