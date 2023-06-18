@@ -580,6 +580,9 @@ docReady(function () {
         "<td>" +
         typeOfSource +
         "</td>";
+        "<td>" +
+        item.originated +
+        "</td>";
       var typeOfPromotion = "";
       if (item.promotion != null) {
         tableRowHtml +=
@@ -616,6 +619,9 @@ docReady(function () {
           item.promotion.package +
           "</td>" +
           "</tr>";
+          item.promotion.relatedGtins +
+          "</td>" +
+          "</tr>";
       } else {
         tableRowHtml +=
           "<td>" +
@@ -632,7 +638,7 @@ docReady(function () {
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Opakowanie</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
