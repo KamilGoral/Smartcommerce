@@ -88,6 +88,7 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
         $("#delete-wholesalers-container").removeClass("hide");
+        $("#login-credentials-container").removeClass("hide");
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
         if (data2.lastDownload !== null) {
@@ -144,7 +145,6 @@ docReady(function () {
       } else if (request2.status >= 400) {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
-        $("#logistic-minimum-container").removeClass("hide");
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
@@ -187,8 +187,9 @@ docReady(function () {
 
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
-          $("#login-credentials-container").show();
+          $("#login-credentials-container").removeClass("hide")
         } else {
+          $("#proposeIntegration").removeClass("hide")
           $("#loginButton").hide();
         }
         //
