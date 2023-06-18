@@ -87,7 +87,6 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
-        $("#delete-wholesalers-container").show();
         $("#logistic-minimum-container").removeClass("hide");
         $("#delete-wholesalers-container").removeClass("hide");
         const statusmessagebox = document.getElementById("statusmessagebox");
