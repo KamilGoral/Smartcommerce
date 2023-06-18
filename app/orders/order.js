@@ -665,14 +665,14 @@ docReady(function () {
             render: function (data) {
               if (data.gtin.indexOf('?') >= 0) {
                 return (
-                  '<input type="number" style="max-width: 80px" value="' +
+                  '<input type="number" style="max-width: 80px" value=" onkeypress="return event.charCode >= 48" min="0" ' +
                   data.quantity +
                   '" disabled></td>'
                 );
               }
               else {
                 return (
-                  '<input type="number" style="max-width: 80px" value="' +
+                  '<input type="number" style="max-width: 80px" value=" onkeypress="return event.charCode >= 48" min="0" ' +
                   data.quantity +
                   '"></td>'
                 );
