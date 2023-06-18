@@ -1143,7 +1143,7 @@ docReady(function () {
 
         // Sprawdź, czy wartość jest pusta lub nieprawidłowa
         let quantity = parseInt(newValue);
-        if (isNaN(quantity)) {
+        if (isNaN(quantity) || quantity < 0 ) {
           quantity = 0; // Jeśli tak, zmień wartość na 0
         }
         var product = {
