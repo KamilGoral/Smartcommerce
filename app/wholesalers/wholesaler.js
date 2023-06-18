@@ -875,6 +875,6 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
-  makeWebflowFormAjaxNewWh($(formIdNewWh));
+  makeWebflowFormAjaxNewWh($("wf-form-Create-wholesaler"));
   $("#waitingdots").hide();
 });
