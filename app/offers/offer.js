@@ -624,7 +624,7 @@ docReady(function () {
           item.promotion.package +
           "</td>" +
           "<td>" +
-          '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" loading="lazy" data-tippy-content="' + item.promotion.relatedGtins + '" alt="" class="tippy">' +
+          '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' + item.promotion.relatedGtins + '" alt="">' +
           "</td>" +
           "</tr>";
       } else {
@@ -849,7 +849,7 @@ docReady(function () {
         width: "20px",
         data: null,
         defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg' alt='details'></img>",
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
       },
       {
         orderable: true,
@@ -1032,6 +1032,10 @@ docReady(function () {
       row.child(format(row.data())).show();
       tr.addClass("shown");
     }
+  });
+  $("#table_id tbody").on("click", "showdata", function () {
+    var dataToDisplay = $(this)
+    console.log(dataToDisplay)
   });
   $("#table_id tbody").on("click", "td.details-control2", function () {
     var tr = $(this).closest("tr");
