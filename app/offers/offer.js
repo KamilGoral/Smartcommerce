@@ -1033,7 +1033,7 @@ docReady(function () {
       tr.addClass("shown");
     }
   });
-  $("#table_id tbody").on("click", "showdata", function () {
+  $("#table_id tbody").on("click", "img.showdata", function () {
     var dataToDisplay = $(this)
     console.log(dataToDisplay)
   });
