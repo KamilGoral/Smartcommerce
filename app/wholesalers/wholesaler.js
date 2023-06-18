@@ -775,7 +775,7 @@ docReady(function () {
         var action =
           "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3";
         var data = {
-          whname: $("#WholesalerName").val(),
+          whname: $("#WholesalerName").text(),
           taxId: "random",
           platformUrl: $("#platformUrl").val(),
           organizationName: "random",
