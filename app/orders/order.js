@@ -666,7 +666,7 @@ docReady(function () {
                   '" disabled></td>'
                 );
               }
-              if (data === null) {
+              else {
                 return (
                   '<input type="number" style="max-width: 80px" value="' +
                   data.quantity +
