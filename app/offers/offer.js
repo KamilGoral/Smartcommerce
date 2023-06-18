@@ -1041,7 +1041,7 @@ docReady(function () {
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
-  LoadTippy();
+  
 
   function LoadTippy() {
     $.getScript(
@@ -1133,6 +1133,7 @@ docReady(function () {
     $("#table_id")
       .on("init.dt", function () {
         console.log("Table initialisation complete: " + new Date().getTime());
+        LoadTippy();
         var x = 0;
         var intervalID = setInterval(function () {
           // For some reason we have to fire this function multiple times in order to work...
