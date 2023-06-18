@@ -621,7 +621,7 @@ docReady(function () {
         var sort = "" + whichColumns + direction;
 
         $.get(
-          InvokeURL + "/price-lists?shopKey=" + shopKey,
+          InvokeURL + "price-lists?shopKey=" + shopKey,
           {
             sort: sort,
             perPage: data.length,
