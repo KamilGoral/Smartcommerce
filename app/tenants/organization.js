@@ -526,10 +526,15 @@ docReady(function () {
               "href",
               "https://" + DomainName + "/app/integrations/contracts"
             );
-          } else {
+          } else if (integration.integrationKey === "merchant-console") {
             row.setAttribute(
               "href",
               "https://" + DomainName + "/app/integrations/merchant-console"
+            );
+          } else if (integration.integrationKey === "pc-market"){
+            row.setAttribute(
+              "href",
+              "https://" + DomainName + "/app/integrations/pc-market"
             );
           }
 
