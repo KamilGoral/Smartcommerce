@@ -657,13 +657,22 @@ docReady(function () {
           },
           {
             orderable: false,
-            data: "quantity",
+            data: null,
             render: function (data) {
-              return (
-                '<input type="number" style="max-width: 80px" value="' +
-                data +
-                '"></td>'
-              );
+              if (data.gtin.indexOf('?') >= 0) {
+                return (
+                  '<input type="number" style="max-width: 80px" value="' +
+                  data.quantity +
+                  '" disabled></td>'
+                );
+              }
+              if (data === null) {
+                return (
+                  '<input type="number" style="max-width: 80px" value="' +
+                  data.quantity +
+                  '"></td>'
+                );
+              }
             },
           },
           {
