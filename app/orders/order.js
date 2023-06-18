@@ -754,7 +754,6 @@ docReady(function () {
                   lowestPrice = data.asks.length ?
                     Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
                     null;
-                  console.log("this row")
                 } else {
                   currentPrice = data.netPrice;
                   lowestPrice = data.asks.length ?
@@ -845,7 +844,6 @@ docReady(function () {
                 lowestPrice = data.asks.length ?
                   Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
                   null;
-                console.log("this row")
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length ?
@@ -1136,6 +1134,10 @@ docReady(function () {
     var newValue = $(this).val();
     console.log(newValue);
 
+    if (newValue = "") {
+      newValue = 0
+    }
+
     var initialValue = $(this).data("initialValue");
 
     // Check if the value has changed
@@ -1144,9 +1146,6 @@ docReady(function () {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
-        if (newValue = "") {
-          newValue = 0
-        }
         console.log(newValue);
         var product = {
           op: "replace",
