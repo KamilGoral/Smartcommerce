@@ -25,7 +25,7 @@ docReady(function () {
   var integrationKeyId = "pc-market";
   var smartToken = getCookie("sprytnycookie");
   document.getElementById("waitingdots").style.display = "flex";
-  document.getElementById("Sample-Integration").style.display = "none";
+  document.getElementById("integrationcontainer").style.display = "none";
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var OrganizationName = sessionStorage.getItem("OrganizationName");
   const IntegrationBread = document.getElementById("IntegrationBread");
@@ -252,6 +252,7 @@ docReady(function () {
   getIntegrations();
   getShops();
   $("#waitingdots").hide();
+  document.getElementById("integrationcontainer").style.display = "block";
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
 });
