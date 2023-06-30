@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   function getIntegrations() {
@@ -53,29 +53,14 @@ docReady(function () {
         const integrationLogo = document.getElementById("whLogo");
         integrationLogo.src = "data:image/png;base64," + data.image;
         const integrationStatus = document.getElementById("integrationStatus");
-
-        // if (data.enabled === true) {
-        //   integrationStatus.textContent = "Aktywny";
-        //   integrationStatus.style.color = "green";
-        //   integrationButton.value = "Zmień dane logowania";
-        //   getShops();
-        //   integrationBlock.style.display = "flex";
-        // } else {
-        //   integrationStatus.textContent = "Nieaktywny";
-        // }
-        // const integrationLogin = document.getElementById("Username");
-        // integrationLogin.value = data.credentials.username;
-        // const integrationHost = document.getElementById("Host");
-        // integrationHost.value = data.credentials.host;
-        // const integrationPort = document.getElementById("Port");
-        // integrationPort.value = data.credentials.port;
-        // const integrationEngine = document.getElementById("engine");
-        // integrationEngine.value = data.credentials.engine;
-        // const integrationDbName = document.getElementById("dbname");
-        // integrationDbName.value = data.credentials.dbname;
-        if (request.status === 401) {
-          console.log("Unauthorized");
+        if (data.enabled) {
+          return integrationStatus.innerHTML = '<label class="switchCss"><input type="checkbox" checked class="editor-active" "><span class="slider round"></span></label>';
+        } else {
+          return integrationStatus.innerHTML = '<label class="switchCss"><input type="checkbox" class="editor-active" "><span class="slider round"></span></label>';
         }
+      }
+      if (request.status === 401) {
+        console.log("Unauthorized");
       }
     };
     request.send();
@@ -342,11 +327,11 @@ docReady(function () {
             window.setTimeout(function () {
               (document.location = "href"),
                 "https://" +
-                  DomainName +
-                  "/app/tenants/organization?name=" +
-                  OrganizationName +
-                  "&clientId=" +
-                  ClientID;
+                DomainName +
+                "/app/tenants/organization?name=" +
+                OrganizationName +
+                "&clientId=" +
+                ClientID;
             }, 5000);
           },
           error: function (e) {
