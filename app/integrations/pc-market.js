@@ -255,15 +255,15 @@ docReady(function () {
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
         var inputdata = form.serializeArray();
-        var shopKey = inputdata[0].value
+        var shopKey = $('#shopKeyIntegrate').attr('shopkey');
 
         var data = {
-          username: inputdata[1].value,
-          password: inputdata[2].value,
-          host: inputdata[3].value,
-          port: parseInt(inputdata[4].value),
-          engine: inputdata[5].value,
-          dbname: inputdata[6].value,
+          username: inputdata[0].value,
+          password: inputdata[1].value,
+          host: inputdata[2].value,
+          port: parseInt(inputdata[3].value),
+          engine: inputdata[4].value,
+          dbname: inputdata[5].value,
         };
         console.log(data)
         console.log(shopKey)
