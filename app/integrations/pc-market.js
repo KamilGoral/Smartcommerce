@@ -112,7 +112,7 @@ docReady(function () {
           const style = document.getElementById("sampleRowShops");
           const row = style.cloneNode(true);
           row.setAttribute("id", "");
-          row.style.display = "block";
+          row.style.display = "grid";
           const shopName = row.getElementsByTagName("H4")[0];
           shopName.textContent = shop.name;
           const shopKey = row.getElementsByTagName("H6")[0];
