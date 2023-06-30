@@ -66,7 +66,7 @@ docReady(function () {
     request.send();
   }
 
-  function getShops() {
+  function getShopsIntegration() {
     let url = new URL(InvokeURL + "integrations/pc-market/shops");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -83,6 +83,49 @@ docReady(function () {
           row.style.display = "flex";
           const shopName = row.getElementsByTagName("H6")[1];
           shopName.textContent = shop.name;
+          shopContainer.appendChild(row);
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+      if (request.status >= 200 && request.status < 400 && data.total == 0) {
+        const emptystateshops = document.getElementById("emptystateshops");
+        emptystateshops.style.display = "flex";
+      }
+    };
+    request.send();
+  }
+
+  function getShops() {
+    let url = new URL(InvokeURL + "shops");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400) {
+        const shopContainer = document.getElementById("Shops-Container");
+        toParse.forEach((shop) => {
+          const style = document.getElementById("sampleRowShops");
+          const row = style.cloneNode(true);
+          row.setAttribute("id", "");
+          row.style.display = "block";
+          const shopName = row.getElementsByTagName("H4")[0];
+          shopName.textContent = shop.name;
+          const shopKey = row.getElementsByTagName("H6")[0];
+          shopKey.textContent = shop.shopKey;
+          const shopStatus = row.getElementsByTagName("H6")[1];
+          shopStatus.textContent = "Aktywny";
+          // row.setAttribute(
+          //   "href",
+          //   "https://" +
+          //     DomainName +
+          //     "/app/shops/shop" +
+          //     "?shopKey=" +
+          //     shop.shopKey
+          // );
           shopContainer.appendChild(row);
         });
         if (request.status == 401) {
