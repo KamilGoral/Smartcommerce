@@ -126,14 +126,14 @@ docReady(function () {
           if (shop.merchantConsoleShopId === null) {
             //pass
           } else {
+            shopKeyButton.classList.add('redirecttomerchant');
             shopKeyButton.setAttribute(
               "href",
               "https://" +
                 DomainName +
                 "/app/integrations/merchant-console"
             )
-          } 
-
+          }
           shopContainer.appendChild(row);
         });
         LoadButtons();
