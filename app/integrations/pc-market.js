@@ -130,8 +130,8 @@ docReady(function () {
             shopKeyButton.setAttribute(
               "href",
               "https://" +
-                DomainName +
-                "/app/integrations/merchant-console"
+              DomainName +
+              "/app/integrations/merchant-console"
             )
           }
           shopContainer.appendChild(row);
@@ -263,23 +263,23 @@ docReady(function () {
         var shopKey = $('#shopKeyIntegrate').attr('shopkey');
 
         var data = {
-            "shopKey": shopKey,
-            "credentials": {
-              "username": inputdata[0].value,
-              "password": inputdata[1].value,
-              "host": inputdata[2].value,
-              "port": parseInt(inputdata[3].value),
-              "engine": inputdata[4].value,
-              "dbname": inputdata[5].value,
-            }
+          "shopKey": shopKey,
+          "credentials": {
+            "username": inputdata[0].value,
+            "password": inputdata[1].value,
+            "host": inputdata[2].value,
+            "port": parseInt(inputdata[3].value),
+            "engine": inputdata[4].value,
+            "dbname": inputdata[5].value,
           }
+        }
 
         console.log(data)
         console.log(shopKey)
 
         $.ajax({
           type: "POST",
-          url: InvokeURL + "integrations/pc-market/shops" ,
+          url: InvokeURL + "integrations/pc-market/shops",
           cors: true,
           beforeSend: function () {
             $("#waitingdots").show();
@@ -424,12 +424,15 @@ docReady(function () {
 
   function LoadButtons() {
     $('.buttonmain.edit.w-button').click(function () {
-      $('.modal-wrapper.edit-shop').css('display', 'grid');
-      var shopKey = $(this).attr('shopkey');
-      $('#shopKeyIntegrate').attr('shopKey', shopKey);
-      console.log($('#shopKeyIntegrate'));
+      if ($(this).hasClass('redirecttomerchant')) {
+        //pass
+      } else {
+        $('.modal-wrapper.edit-shop').css('display', 'grid');
+        var shopKey = $(this).attr('shopkey');
+        $('#shopKeyIntegrate').attr('shopKey', shopKey);
+        console.log($('#shopKeyIntegrate'));
+      }
     });
   }
-
 
 });
