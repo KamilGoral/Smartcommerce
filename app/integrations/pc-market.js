@@ -142,9 +142,9 @@ docReady(function () {
           result = successCallback(resultData);
           if (!result) {
             // show error (fail) block
-            doneBlock.hide();
-            failBlock.show();
-            console.log(e);
+            // doneBlock.hide();
+            // failBlock.show();
+            // console.log(e);
             return;
           }
         }
