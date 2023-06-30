@@ -76,19 +76,20 @@ docReady(function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        const shopContainer = document.getElementById("integrationcontainer");
-        toParse.forEach((shop) => {
-          const style = document.getElementById("integrationbox");
-          const row = style.cloneNode(true);
-          row.setAttribute("shopKey", shop.shopKey);
-          row.style.display = "flex";
-          const shopName = row.getElementsByTagName("H6")[1];
-          shopName.textContent = shop.name;
-          shopContainer.appendChild(row);
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
+        console.log(toParse)
+        // const shopContainer = document.getElementById("integrationcontainer");
+        // toParse.forEach((shop) => {
+        //   const style = document.getElementById("integrationbox");
+        //   const row = style.cloneNode(true);
+        //   row.setAttribute("shopKey", shop.shopKey);
+        //   row.style.display = "flex";
+        //   const shopName = row.getElementsByTagName("H6")[1];
+        //   shopName.textContent = shop.name;
+        //   shopContainer.appendChild(row);
+        // });
+        // if (request.status == 401) {
+        //   console.log("Unauthorized");
+        // }
       }
       if (request.status >= 200 && request.status < 400 && data.total == 0) {
         const emptystateshops = document.getElementById("emptystateshops");
@@ -115,20 +116,24 @@ docReady(function () {
           const row = style.cloneNode(true);
           row.setAttribute("id", shop.shopKey);
           row.style.display = "grid";
-          const shopName = row.getElementsByTagName("H4")[0];
+          const shopName = row.getElementsByTagName("H3")[0];
           shopName.textContent = shop.name;
           const shopKey = row.getElementsByTagName("H6")[0];
           shopKey.textContent = shop.shopKey;
           const shopKeyButton = row.getElementsByTagName("a")[0];
           shopKeyButton.setAttribute("shopkey", shop.shopKey);
-          // row.setAttribute(
-          //   "href",
-          //   "https://" +
-          //     DomainName +
-          //     "/app/shops/shop" +
-          //     "?shopKey=" +
-          //     shop.shopKey
-          // );
+
+          if (shop.merchantConsoleShopId === null) {
+            //pass
+          } else {
+            shopKeyButton.setAttribute(
+              "href",
+              "https://" +
+                DomainName +
+                "/app/integrations/merchant-console"
+            )
+          } 
+
           shopContainer.appendChild(row);
         });
         LoadButtons();
