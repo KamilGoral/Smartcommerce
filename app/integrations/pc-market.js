@@ -391,7 +391,7 @@ docReady(function () {
 
   $("#waitingdots").hide();
   document.getElementById("integrationcontainer").style.display = "block";
-  makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
+  makeWebflowFormAjaxCreate($("#wf-form-IntegrationsForm"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
 
   $("#integrationStatus").on(
@@ -413,10 +413,7 @@ docReady(function () {
   function LoadButtons() {
     $('.buttonmain.edit.w-button').click(function () {
       $('.modal-wrapper.edit-shop').css('display', 'grid');
-      var clickedButton = $(this);
-      console.log(clickedButton);
-      var shopKey = clickedButton.data('shopkey');
-      console.log(shopKey);
+      var shopKey = $(this).attr('shopkey');
       $('#shopKeyIntegrate').attr('shopKey', shopKey);
       console.log($('#shopKeyIntegrate'));
     });
