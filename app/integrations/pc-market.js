@@ -117,6 +117,8 @@ docReady(function () {
           shopName.textContent = shop.name;
           const shopKey = row.getElementsByTagName("H6")[0];
           shopKey.textContent = shop.shopKey;
+          const shopKeyButton = row.getElementsByTagName("a")[0];
+          shopKeyButton.value = shop.shopKey;
           const shopStatus = row.getElementsByTagName("H6")[1];
           shopStatus.textContent = "Aktywny";
           // row.setAttribute(
@@ -406,4 +408,11 @@ docReady(function () {
   document.getElementById("integrationcontainer").style.display = "block";
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
+
+  $(document).ready(function() {
+    $('.buttonmain.edit.w-button').click(function() {
+      $('.modal-wrapper.edit-shop').css('display', 'grid');
+    });
+  });
+
 });
