@@ -54,6 +54,7 @@ docReady(function () {
         integrationLogo.src = "data:image/png;base64," + data.image;
         const integrationStatus = document.getElementById("integrationStatus");
         if (data.enabled) {
+          getShops();
           return integrationStatus.innerHTML = '<label class="switchCss"><input type="checkbox" checked class="editor-active" "><span class="slider round"></span></label>';
         } else {
           return integrationStatus.innerHTML = '<label class="switchCss"><input type="checkbox" class="editor-active" "><span class="slider round"></span></label>';
@@ -397,7 +398,7 @@ docReady(function () {
   };
 
   getIntegrations();
-  getShops();
+
   $("#waitingdots").hide();
   document.getElementById("integrationcontainer").style.display = "block";
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
