@@ -268,19 +268,22 @@ docReady(function () {
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
         var inputdata = form.serializeArray();
+        var shopKey = inputdata[0].value
 
         var data = {
-          username: inputdata[0].value,
-          password: inputdata[1].value,
-          host: inputdata[2].value,
-          port: parseInt(inputdata[3].value),
-          engine: inputdata[4].value,
-          dbname: inputdata[5].value,
+          username: inputdata[1].value,
+          password: inputdata[2].value,
+          host: inputdata[3].value,
+          port: parseInt(inputdata[4].value),
+          engine: inputdata[5].value,
+          dbname: inputdata[6].value,
         };
+        console.log(data)
+        console.log(shopKey)
 
         $.ajax({
-          type: "PUT",
-          url: InvokeURL + "integrations/merchant-console",
+          type: "PATCH",
+          url: InvokeURL + "integrations/pc-market/shops/" + shopKey,
           cors: true,
           beforeSend: function () {
             $("#waitingdots").show();
@@ -337,7 +340,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#IntegrationDeleteSuccess", container);
         var failBlock = $("#IntegrationDeleteFail", container);
-        var action = InvokeURL + "integrations/" + integrationKeyId;
+        var action = InvokeURL + "integrations/pc-market/shops/" + "shopKey";
         var method = "DELETE";
 
         $.ajax({
