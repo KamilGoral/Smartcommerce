@@ -98,6 +98,8 @@ docReady(function () {
     request.send();
   }
 
+  getShopsIntegration()
+
   function getShops() {
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
@@ -111,7 +113,7 @@ docReady(function () {
         toParse.forEach((shop) => {
           const style = document.getElementById("sampleRowShops");
           const row = style.cloneNode(true);
-          row.setAttribute("id", "");
+          row.setAttribute("id", shop.shopKey);
           row.style.display = "grid";
           const shopName = row.getElementsByTagName("H4")[0];
           shopName.textContent = shop.name;
@@ -119,8 +121,6 @@ docReady(function () {
           shopKey.textContent = shop.shopKey;
           const shopKeyButton = row.getElementsByTagName("a")[0];
           shopKeyButton.setAttribute("shopkey", shop.shopKey);
-          const shopStatus = row.getElementsByTagName("H6")[1];
-          shopStatus.textContent = "Aktywny";
           // row.setAttribute(
           //   "href",
           //   "https://" +
@@ -331,7 +331,8 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#IntegrationDeleteSuccess", container);
         var failBlock = $("#IntegrationDeleteFail", container);
-        var action = InvokeURL + "integrations/pc-market/shops/" + "shopKey";
+        var shopKey = $('#shopKeyIntegrate').attr('shopkey');
+        var action = InvokeURL + "integrations/pc-market/shops/" + shopKey;
         var method = "DELETE";
 
         $.ajax({
@@ -390,6 +391,8 @@ docReady(function () {
       });
     });
   };
+
+  //
 
   getIntegrations();
 
