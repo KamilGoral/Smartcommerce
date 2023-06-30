@@ -535,6 +535,18 @@ docReady(function () {
         console.log($('#shopKeyIntegrate'));
       }
     });
+    $('.buttonmain.edit.w-button').click(function () {
+      if ($(this).hasClass('redirecttomerchant')) {
+        //pass
+      } else {
+        // Funckja dla nowych danych gdzie nie ma integracji
+        // Get funkcja, ktora wypelni dane
+        $('.modal-wrapper.edit-shop').css('display', 'grid');
+        var shopKey = $(this).attr('shopkey');
+        $('#shopKeyIntegrate').attr('shopKey', shopKey);
+        console.log($('#shopKeyIntegrate'));
+      }
+    });
   }
 
 });
