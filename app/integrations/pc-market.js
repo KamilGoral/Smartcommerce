@@ -527,10 +527,13 @@ docReady(function () {
     $('.buttonmain.edit.w-button').click(function () {
       if ($(this).hasClass('redirecttomerchant')) {
         //pass
-      } else {
-        // Funckja dla nowych danych gdzie nie ma integracji
-        // Get funkcja, ktora wypelni dane
+      } else if ($(this).hasClass('iscredentialseditable')) {
         $('.modal-wrapper.edit-shop').css('display', 'grid');
+        var shopKey = $(this).attr('shopkey');
+        $('#shopKeyIntegrateEdit').attr('shopKey', shopKey);
+        console.log($('#shopKeyIntegrateEdit'));
+      } else {
+        $('.modal-wrapper.create-connection').css('display', 'grid');
         var shopKey = $(this).attr('shopkey');
         $('#shopKeyIntegrate').attr('shopKey', shopKey);
         console.log($('#shopKeyIntegrate'));
