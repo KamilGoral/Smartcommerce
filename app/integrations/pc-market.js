@@ -246,22 +246,6 @@ docReady(function () {
     });
   }
 
-  $("#integrationStatus").on(
-    "change",
-    "input.editor-active",
-    function () {
-      var myValue = $(this);
-      console.log(myValue);
-      if (this.checked) {
-        console.log("Nieaktywny był");
-        updateStatus(true);
-      } else {
-        console.log("Aktywny był");
-        updateStatus(false);
-      }
-    }
-  );
-
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -409,16 +393,30 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
 
-  $(document).ready(function() {
-    $('.buttonmain.edit.w-button').click(function() {
-      $('.modal-wrapper.edit-shop').css('display', 'grid');
-      var clickedButton = $(this);
-      console.log(clickedButton);
-      var shopKey = clickedButton.data('shopkey');
-      console.log(shopKey);
-      $('#shopKeyIntegrate').attr('shopKey', shopKey);
-      console.log($('#shopKeyIntegrate'));
-    });
+  $("#integrationStatus").on(
+    "change",
+    "input.editor-active",
+    function () {
+      var myValue = $(this);
+      console.log(myValue);
+      if (this.checked) {
+        console.log("Nieaktywny był");
+        updateStatus(true);
+      } else {
+        console.log("Aktywny był");
+        updateStatus(false);
+      }
+    }
+  );
+
+  $('.buttonmain.edit.w-button').click(function () {
+    $('.modal-wrapper.edit-shop').css('display', 'grid');
+    var clickedButton = $(this);
+    console.log(clickedButton);
+    var shopKey = clickedButton.data('shopkey');
+    console.log(shopKey);
+    $('#shopKeyIntegrate').attr('shopKey', shopKey);
+    console.log($('#shopKeyIntegrate'));
   });
 
 
