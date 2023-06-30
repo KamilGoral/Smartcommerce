@@ -78,16 +78,13 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
         console.log(toParse)
         for (var i = 0; i < toParse.length; i++) {
-          var divElements = document.getElementsByTagName("div");
-          for (var j = 0; j < divElements.length; j++) {
-            var div = divElements[j];
-            if (div.textContent.trim() === toParse[i]) {
-              var anchorElement = div.querySelector("a");
-              if (anchorElement) {
-                anchorElement.classList.add("iscredentialseditable");
-                anchorElement.textContent = "Edytuj";
-                break; // Exit the loop after finding the first element
-              }
+          var divId = toParse[i];
+          var parentDiv = document.getElementById(divId);
+          if (parentDiv) {
+            var anchorElement = parentDiv.querySelector("div.createandsearch > a");
+            if (anchorElement) {
+              anchorElement.classList.add("iscredentialseditable");
+              anchorElement.textContent = "Edytuj";
             }
           }
         }
@@ -303,7 +300,7 @@ docReady(function () {
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
               if (!result) {
-                form.show();
+                form.hide();
                 doneBlock.hide();
                 failBlock.show();
                 console.log(e);
