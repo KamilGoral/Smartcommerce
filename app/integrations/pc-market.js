@@ -99,8 +99,8 @@ docReady(function () {
 
   function updateStatus(changeOfStatus) {
     console.log("starting Updating function");
-    var doneBlock = $("#integrationfail", container);
-    var failBlock = $("#integrationsuccess", container);
+    var doneBlock = $("#integrationfail");
+    var failBlock = $("#integrationsuccess");
 
     var data = [
       {
