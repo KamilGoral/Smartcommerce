@@ -99,10 +99,8 @@ docReady(function () {
 
   function updateStatus(changeOfStatus) {
     console.log("starting Updating function");
-    // var form = $("#wf-form-WholesalerChangeStatusForm ");
-    // var container = form.parent();
-    // var doneBlock = $(".w-form-done", container);
-    // var failBlock = $(".w-form-fail", container);
+    var doneBlock = $("#integrationfail", container);
+    var failBlock = $("#integrationsuccess", container);
 
     var data = [
       {
@@ -144,24 +142,24 @@ docReady(function () {
           result = successCallback(resultData);
           if (!result) {
             // show error (fail) block
-            // doneBlock.hide();
-            // failBlock.show();
+            doneBlock.hide();
+            failBlock.show();
             console.log(e);
             return;
           }
         }
-        // show success (done) block
-        // doneBlock.show();
-        // setTimeout(function () {
-        //   doneBlock.hide();
-        // }, 2000);
-        // failBlock.hide();
+        //show success (done) block
+        doneBlock.show();
+        setTimeout(function () {
+          doneBlock.hide();
+        }, 2000);
+        failBlock.hide();
       },
       error: function (jqXHR, exception) {
         console.log("błąd");
         console.log(jqXHR);
         console.log(exception);
-        //$('#customSwitchText').attr('disabled', 'disabled');
+        $('#customSwitchText').attr('disabled', 'disabled');
         var msg = "";
         if (jqXHR.status === 0) {
           msg = "Nie masz połączenia z internetem.";
@@ -185,13 +183,13 @@ docReady(function () {
           msg = "" + jqXHR.responseText;
         }
 
-        // $(".warningmessagetext").text(msg);
-        // form.show();
-        // doneBlock.hide();
-        // failBlock.show();
-        // setTimeout(function () {
-        //   failBlock.hide();
-        // }, 2000);
+        $(".warningmessagetext").text(msg);
+        form.show();
+        doneBlock.hide();
+        failBlock.show();
+        setTimeout(function () {
+          failBlock.hide();
+        }, 2000);
         return;
       },
     });
