@@ -156,6 +156,9 @@ docReady(function () {
           doneBlock.hide();
         }, 2000);
         failBlock.hide();
+        window.setTimeout(function () {
+          location.reload();
+        }, 1000);
       },
       error: function (jqXHR, exception) {
         console.log("błąd");
