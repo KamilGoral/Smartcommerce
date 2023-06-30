@@ -136,7 +136,7 @@ docReady(function () {
           }
           shopContainer.appendChild(row);
         });
-        getShopsIntegration()
+        getShopsIntegration();
         LoadButtons();
         if (request.status == 401) {
           console.log("Unauthorized");
