@@ -77,19 +77,19 @@ docReady(function () {
       var toParse = data.items;
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
         console.log(toParse)
-        // const shopContainer = document.getElementById("integrationcontainer");
-        // toParse.forEach((shop) => {
-        //   const style = document.getElementById("integrationbox");
-        //   const row = style.cloneNode(true);
-        //   row.setAttribute("shopKey", shop.shopKey);
-        //   row.style.display = "flex";
-        //   const shopName = row.getElementsByTagName("H6")[1];
-        //   shopName.textContent = shop.name;
-        //   shopContainer.appendChild(row);
-        // });
-        // if (request.status == 401) {
-        //   console.log("Unauthorized");
-        // }
+        for (var i = 0; i < toParse.length; i++) {
+          var divElements = document.getElementsByTagName("div");
+          for (var j = 0; j < divElements.length; j++) {
+            var div = divElements[j];
+            if (div.textContent.trim() === x[i]) {
+              var anchorElement = div.querySelector("a");
+              if (anchorElement) {
+                anchorElement.classList.add("iscredentialseditable");
+                break; // Exit the loop after finding the first element
+              }
+            }
+          }
+        }
       }
       if (request.status >= 200 && request.status < 400 && data.total == 0) {
         const emptystateshops = document.getElementById("emptystateshops");
@@ -99,7 +99,7 @@ docReady(function () {
     request.send();
   }
 
-  getShopsIntegration()
+
 
   function getShops() {
     let url = new URL(InvokeURL + "shops");
@@ -137,6 +137,7 @@ docReady(function () {
           }
           shopContainer.appendChild(row);
         });
+        getShopsIntegration()
         LoadButtons();
         if (request.status == 401) {
           console.log("Unauthorized");
@@ -399,103 +400,103 @@ docReady(function () {
   };
 
   //
-    //Dodać funkcję patchującą dane
+  //Dodać funkcję patchującą dane
 
-    makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
-      forms.each(function () {
-        var form = $(this);
-        form.on("submit", function (event) {
-          var shopKey = $('#shopKeyIntegrateEdit').attr('shopkey');
-          var inputdata = form.serializeArray();
-          var doneBlock = $("#w-form-done2", container);
-          var failBlock = $("#w-form-fail2", container);
-          var postData =
-            [{
-              "op": "replace",
-              "path": "/credentials/username",
-              "value": inputdata[0].value
-            },
-            {
-              "op": "replace",
-              "path": "/credentials/password",
-              "value": inputdata[1].value
-            },
-            {
-              "op": "replace",
-              "path": "/credentials/host",
-              "value": inputdata[2].value
-            },
-            {
-              "op": "replace",
-              "path": "/credentials/port",
-              "value": parseInt(inputdata[3].value)
-            },
-            {
-              "op": "replace",
-              "path": "/credentials/engine",
-              "value": inputdata[4].value
-            },
-            {
-              "op": "replace",
-              "path": "/credentials/dbname",
-              "value": inputdata[5].value
-            }]
-  
-  
-          $.ajax({
-            type: "PATCH",
-            url: InvokeURL + "integrations/pc-market/" + shopKey,
-            cors: true,
-            beforeSend: function () {
-              $("#waitingdots").show();
-            },
-            complete: function () {
-              $("#waitingdots").hide();
-            },
-            contentType: "application/json",
-            dataType: "json",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: orgToken,
-            },
-            data: JSON.stringify(postData),
-            success: function (resultData) {
-              if (typeof successCallback === "function") {
-                result = successCallback(resultData);
-                if (!result) {
-                  form.show();
-                  doneBlock.hide();
-                  failBlock.show();
-                  console.log(e);
-                  return;
-                }
+  makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var shopKey = $('#shopKeyIntegrateEdit').attr('shopkey');
+        var inputdata = form.serializeArray();
+        var doneBlock = $("#w-form-done2", container);
+        var failBlock = $("#w-form-fail2", container);
+        var postData =
+          [{
+            "op": "replace",
+            "path": "/credentials/username",
+            "value": inputdata[0].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/password",
+            "value": inputdata[1].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/host",
+            "value": inputdata[2].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/port",
+            "value": parseInt(inputdata[3].value)
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/engine",
+            "value": inputdata[4].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/dbname",
+            "value": inputdata[5].value
+          }]
+
+
+        $.ajax({
+          type: "PATCH",
+          url: InvokeURL + "integrations/pc-market/" + shopKey,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(postData),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
               }
-              form.hide();
-              doneBlock.show();
-              failBlock.hide();
-              window.setTimeout(function () {
-                location.reload();
-              }, 1000);
-            },
-            error: function (e) {
-              if (typeof errorCallback === "function") {
-                errorCallback(e);
-              }
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              console.log(e);
-            },
-          });
-  
-  
-          event.preventDefault();
-          return false;
+            }
+            form.hide();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
         });
+
+
+        event.preventDefault();
+        return false;
       });
-    };
-    //
+    });
+  };
+  //
 
   getIntegrations();
 
@@ -540,5 +541,4 @@ docReady(function () {
       }
     });
   }
-
 });
