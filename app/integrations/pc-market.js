@@ -85,6 +85,7 @@ docReady(function () {
               var anchorElement = div.querySelector("a");
               if (anchorElement) {
                 anchorElement.classList.add("iscredentialseditable");
+                anchorElement.textContent = "Edytuj";
                 break; // Exit the loop after finding the first element
               }
             }
@@ -122,6 +123,7 @@ docReady(function () {
           shopKey.textContent = shop.shopKey;
           const shopKeyButton = row.getElementsByTagName("a")[0];
           shopKeyButton.setAttribute("shopkey", shop.shopKey);
+          shopKeyButton.textContent = "Dodaj";
 
           if (shop.merchantConsoleShopId === null) {
             //pass
