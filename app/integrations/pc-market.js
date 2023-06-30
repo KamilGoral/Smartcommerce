@@ -81,7 +81,7 @@ docReady(function () {
           var divElements = document.getElementsByTagName("div");
           for (var j = 0; j < divElements.length; j++) {
             var div = divElements[j];
-            if (div.textContent.trim() === x[i]) {
+            if (div.textContent.trim() === toParse[i]) {
               var anchorElement = div.querySelector("a");
               if (anchorElement) {
                 anchorElement.classList.add("iscredentialseditable");
