@@ -131,6 +131,7 @@ docReady(function () {
           // );
           shopContainer.appendChild(row);
         });
+        LoadButtons();
         if (request.status == 401) {
           console.log("Unauthorized");
         }
@@ -409,15 +410,17 @@ docReady(function () {
     }
   );
 
-  $('.buttonmain.edit.w-button').click(function () {
-    $('.modal-wrapper.edit-shop').css('display', 'grid');
-    var clickedButton = $(this);
-    console.log(clickedButton);
-    var shopKey = clickedButton.data('shopkey');
-    console.log(shopKey);
-    $('#shopKeyIntegrate').attr('shopKey', shopKey);
-    console.log($('#shopKeyIntegrate'));
-  });
+  function LoadButtons() {
+    $('.buttonmain.edit.w-button').click(function () {
+      $('.modal-wrapper.edit-shop').css('display', 'grid');
+      var clickedButton = $(this);
+      console.log(clickedButton);
+      var shopKey = clickedButton.data('shopkey');
+      console.log(shopKey);
+      $('#shopKeyIntegrate').attr('shopKey', shopKey);
+      console.log($('#shopKeyIntegrate'));
+    });
+  }
 
 
 });
