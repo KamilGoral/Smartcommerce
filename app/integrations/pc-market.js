@@ -97,8 +97,6 @@ docReady(function () {
     request.send();
   }
 
-
-
   function getShops() {
     let url = new URL(InvokeURL + "shops");
     let request = new XMLHttpRequest();
@@ -398,9 +396,6 @@ docReady(function () {
     });
   };
 
-  //
-  //Dodać funkcję patchującą dane
-
   makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -495,8 +490,8 @@ docReady(function () {
       });
     });
   };
-  //
 
+  $("#waitingdots").show();
   getIntegrations();
 
   $("#waitingdots").hide();
