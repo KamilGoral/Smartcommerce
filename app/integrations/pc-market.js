@@ -118,7 +118,7 @@ docReady(function () {
           const shopKey = row.getElementsByTagName("H6")[0];
           shopKey.textContent = shop.shopKey;
           const shopKeyButton = row.getElementsByTagName("a")[0];
-          shopKeyButton.value = shop.shopKey;
+          shopKeyButton.setAttribute("shopkey", shop.shopKey);
           const shopStatus = row.getElementsByTagName("H6")[1];
           shopStatus.textContent = "Aktywny";
           // row.setAttribute(
@@ -411,8 +411,12 @@ docReady(function () {
 
   $(document).ready(function() {
     $('.buttonmain.edit.w-button').click(function() {
-      $('.modal-wrapper.edit-shop').css('display', 'grid');
+      var clickedButton = $(this);
+      var shopKey = clickedButton.data('shopkey');
+      console.log(shopKey)
+      $('#shopKeyIntegrate').attr('shopKey', shopKey);
     });
   });
+  
 
 });
