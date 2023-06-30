@@ -407,8 +407,8 @@ docReady(function () {
       form.on("submit", function (event) {
         var shopKey = $('#shopKeyIntegrateEdit').attr('shopkey');
         var inputdata = form.serializeArray();
-        var doneBlock = $("#w-form-done2", container);
-        var failBlock = $("#w-form-fail2", container);
+        var doneBlock = $("#w-form-done2");
+        var failBlock = $("#w-form-fail2");
         var postData =
           [{
             "op": "replace",
