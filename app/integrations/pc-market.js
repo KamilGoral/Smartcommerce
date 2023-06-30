@@ -113,7 +113,7 @@ docReady(function () {
     ];
 
     $.ajax({
-      type: "PATCH",
+      type: "PUT",
       url: InvokeURL + "integrations/pc-market",
       cors: true,
       beforeSend: function () {
