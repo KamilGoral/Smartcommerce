@@ -411,12 +411,15 @@ docReady(function () {
 
   $(document).ready(function() {
     $('.buttonmain.edit.w-button').click(function() {
+      $('.modal-wrapper.edit-shop').css('display', 'grid');
       var clickedButton = $(this);
+      console.log(clickedButton);
       var shopKey = clickedButton.data('shopkey');
-      console.log(shopKey)
+      console.log(shopKey);
       $('#shopKeyIntegrate').attr('shopKey', shopKey);
+      console.log($('#shopKeyIntegrate'));
     });
   });
-  
+
 
 });
