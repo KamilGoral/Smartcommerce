@@ -127,6 +127,7 @@ docReady(function () {
             //pass
           } else {
             shopKeyButton.classList.add('redirecttomerchant');
+            shopKeyButton.textContent = 'Edytuj w Konsoli Kupca';
             shopKeyButton.setAttribute(
               "href",
               "https://" +
@@ -336,7 +337,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#IntegrationDeleteSuccess", container);
         var failBlock = $("#IntegrationDeleteFail", container);
-        var shopKey = $('#shopKeyIntegrate').attr('shopkey');
+        var shopKey = $('#shopKeyIntegrateEdit').attr('shopkey');
         var action = InvokeURL + "integrations/pc-market/shops/" + shopKey;
         var method = "DELETE";
 
@@ -405,6 +406,105 @@ docReady(function () {
   document.getElementById("integrationcontainer").style.display = "block";
   makeWebflowFormAjaxCreate($("#wf-form-IntegrationsForm"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
+  makeWebflowFormAjaxSingleEdit($("#wf-form-IntegrationsFormEdit"));
+
+  //Dodać funkcję patchującą dane
+
+  makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var shopKey = $('#shopKeyIntegrateEdit').attr('shopkey');
+        var inputdata = form.serializeArray();
+        var doneBlock = $("#w-form-done2", container);
+        var failBlock = $("#w-form-fail2", container);
+        var postData =
+          [{
+            "op": "replace",
+            "path": "/credentials/username",
+            "value": inputdata[0].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/password",
+            "value": inputdata[1].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/host",
+            "value": inputdata[2].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/port",
+            "value": parseInt(inputdata[3].value)
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/engine",
+            "value": inputdata[4].value
+          },
+          {
+            "op": "replace",
+            "path": "/credentials/dbname",
+            "value": inputdata[5].value
+          }]
+
+
+        $.ajax({
+          type: "PATCH",
+          url: InvokeURL + "integrations/pc-market/" + shopKey,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(postData),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.hide();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+
+
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+  //
 
   $("#integrationStatus").on(
     "change",
@@ -427,6 +527,8 @@ docReady(function () {
       if ($(this).hasClass('redirecttomerchant')) {
         //pass
       } else {
+        // Funckja dla nowych danych gdzie nie ma integracji
+        // Get funkcja, ktora wypelni dane
         $('.modal-wrapper.edit-shop').css('display', 'grid');
         var shopKey = $(this).attr('shopkey');
         $('#shopKeyIntegrate').attr('shopKey', shopKey);
