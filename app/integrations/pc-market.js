@@ -99,8 +99,8 @@ docReady(function () {
 
   function updateStatus(changeOfStatus) {
     console.log("starting Updating function");
-    var doneBlock = $("#integrationfail");
-    var failBlock = $("#integrationsuccess");
+    var doneBlock = $("#integrationsuccess");
+    var failBlock = $("#integrationfail");
 
     var data = [
       {
@@ -133,8 +133,10 @@ docReady(function () {
 
         if (resultData.enabled == true) {
           console.log("Aktywny");
+          $('#integrationStatus .editor-active').prop('checked', true);
         } else {
           console.log("Nieaktywny");
+          $('#integrationStatus .editor-active').prop('checked', false);
         }
 
         if (typeof successCallback === "function") {
