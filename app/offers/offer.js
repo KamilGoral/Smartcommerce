@@ -1180,7 +1180,7 @@ docReady(function () {
           "organization": organization,
           "organizationId": organizationId,
           "data": {
-            "gtin": parseInt(inputdata[1].value),
+            "gtin": inputdata[1].value,
             "old-name": oldname.textContent,
             "new-name": inputdata[0].value,
             "brand": inputdata[2].value,
