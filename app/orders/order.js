@@ -1209,6 +1209,7 @@ docReady(function () {
   });
 
   $("#spl_table").on("click", "td.details-control3", function () {
+    var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData);
