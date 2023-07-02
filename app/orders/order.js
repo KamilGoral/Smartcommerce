@@ -857,6 +857,14 @@ docReady(function () {
               }
             },
           },
+          {
+            orderable: false,
+            class: "details-control3",
+            width: "20px",
+            data: null,
+            defaultContent:
+              "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
+          }
           ],
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
@@ -1200,6 +1208,19 @@ docReady(function () {
     popupContainer.style.display = 'flex';
   });
 
+  $("#spl_table").on("click", "td.details-control3", function () {
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    console.log(rowData);
+    var GTINEdit = document.getElementById("gtin");
+    GTINEdit.value = rowData.gtin
+    GTINEdit.disabled = true;
+    var NameInput = document.getElementById("new-name");
+    NameInput.value = rowData.name
+    NameInput.textContent = rowData.name
+    $("#ProposeChangeInGtinModal").css("display", "flex");
+  });
+
   $("#spl_table").on("focusout", "select", function () {
     // Get the right table
     // Change wholesaler of product
@@ -1291,4 +1312,98 @@ docReady(function () {
 
   getOffers();
   getWholesalersSh();
+
+  makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var doneBlock = $("#Edit-Success");
+        var failBlock = $("#Edit-Fail");
+        var organization = sessionStorage.getItem("OrganizationName");
+        var organizationId = sessionStorage.getItem("OrganizationclientId");
+        var oldname = document.getElementById("new-name");
+  
+        var data = {
+          "organization": organization,
+          "organizationId": organizationId,
+          "data": {
+            "gtin": $("#gtin").val(),
+            "old-name": oldname.textContent,
+            "new-name": $("#new-name").val(),
+            "brand": $("#brand").val(),
+            "measurement": $("#measurement").val(),
+            "quantity": $("#quantity").val()
+          }
+        }
+  
+  
+        $.ajax({
+          type: "POST",
+          url: "https://hook.eu1.make.com/ndsdd602ot8kbt2dpydw37coj015fy75",
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData); 
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log("tutaj");
+                window.setTimeout(function () {
+                  $("#ProposeChangeInGtinModal").css("display", "none");
+                  $("#Edit-Success").css("display", "none");
+                }, 2000);
+                form.trigger("reset");
+                return;
+              }
+            }
+            console.log("tutaj2");
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            form.trigger("reset");
+            window.setTimeout(function () {
+              $("#ProposeChangeInGtinModal").css("display", "none");
+              $("#Edit-Success").css("display", "none");
+            }, 2000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            console.log("tutaj3");
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+            form.trigger("reset");
+            window.setTimeout(function () {
+              $("#ProposeChangeInGtinModal").css("display", "none");
+              $("#Edit-Fail").css("display", "none");
+            }, 2000);
+          },
+        });
+        console.log("tutaj4");
+        event.preventDefault();
+        form.trigger("reset");
+        return false;
+      });
+    });
+  };
+  
+  makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 });
