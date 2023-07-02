@@ -1179,12 +1179,12 @@ docReady(function () {
           "organization": organization,
           "organizationId": organizationId,
           "data": {
-            "gtin": inputdata[0].value,
+            "gtin": inputdata[1].value,
             "old-name": oldname.textContent,
-            "new-name": inputdata[1].value,
+            "new-name": inputdata[0].value,
             "brand": inputdata[2].value,
-            "measurement": inputdata[3].value,
-            "quantity": inputdata[4].value,
+            "measurement": inputdata[2].value,
+            "quantity": inputdata[3].value,
           }
         }
   
