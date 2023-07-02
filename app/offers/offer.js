@@ -855,7 +855,7 @@ docReady(function () {
         width: "20px",
         data: null,
         defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0ff7d0cf476b49e17fb54_graph-line.svg' alt='details'></img>",
       },
       {
         orderable: false,
