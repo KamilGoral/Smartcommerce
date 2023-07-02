@@ -1169,12 +1169,9 @@ docReady(function () {
       form.on("submit", function (event) {
         var doneBlock = $("#Edit-Success");
         var failBlock = $("#Edit-Fail");
-        var inputdata = form.serializeArray();
-        console.log(inputdata);
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("new-name");
-        console.log(oldname.textContent)
   
         var data = {
           "organization": organization,
@@ -1185,11 +1182,10 @@ docReady(function () {
             "new-name": $("#new-name").val(),
             "brand": $("#brand").val(),
             "measurement": $("#measurement").val(),
-            "quantity": $("#measurement").val()
+            "quantity": $("#quantity").val()
           }
         }
   
-        console.log(data)
   
         $.ajax({
           type: "POST",
