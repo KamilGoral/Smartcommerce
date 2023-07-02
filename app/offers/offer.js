@@ -586,7 +586,7 @@ docReady(function () {
         item.originated +
         "</td>";
       var typeOfPromotion = "";
-      var showRelated =""
+      var showRelated = ""
       if (item.promotion != null) {
         tableRowHtml +=
           "<td>" +
@@ -1074,6 +1074,7 @@ docReady(function () {
     GTINEdit.disabled = true;
     var NameInput = document.getElementById("NameInput");
     NameInput.value = rowData.name
+    NameInput.textContent = rowData.name
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
@@ -1161,6 +1162,87 @@ docReady(function () {
   getOfferStatus();
   getWholesalersSh();
 
+
+  makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var doneBlock = $("#Edit-Success");
+        var failBlock = $("#Edit-Fail");
+        var inputdata = form.serializeArray();
+        var organization = sessionStorage.getItem("OrganizationName");
+        var organizationId = sessionStorage.getItem("OrganizationclientId");
+        var oldname = document.getElementById("NameInput");
+  
+        var data = {
+          "organization": organization,
+          "organizationId": organizationId,
+          "data": {
+            "gtin": inputdata[0].value,
+            "old-name": oldname.textContent,
+            "new-name": inputdata[1].value,
+            "brand": inputdata[2].value,
+            "measurement": inputdata[3].value,
+            "quantity": inputdata[4].value,
+          }
+        }
+  
+        console.log(data)
+  
+        $.ajax({
+          type: "POST",
+          url: "https://hook.eu1.make.com/ndsdd602ot8kbt2dpydw37coj015fy75",
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              $("#ProposeChangeInGtinModal").css("display", "none");
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+  
+  makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
@@ -1183,3 +1265,4 @@ docReady(function () {
       .dataTable();
   });
 });
+
