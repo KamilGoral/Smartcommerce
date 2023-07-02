@@ -1180,12 +1180,12 @@ docReady(function () {
           "organization": organization,
           "organizationId": organizationId,
           "data": {
-            "gtin": inputdata[1].value,
+            "gtin": $("#gtin").val(),
             "old-name": oldname.textContent,
-            "new-name": inputdata[0].value,
-            "brand": inputdata[2].value,
-            "measurement": inputdata[2].value,
-            "quantity": inputdata[3].value,
+            "new-name": $("#new-name").val(),
+            "brand": $("#brand").val(),
+            "measurement": $("#measurement").val(),
+            "quantity": $("#measurement").val()
           }
         }
   
@@ -1245,6 +1245,10 @@ docReady(function () {
             failBlock.show();
             console.log(e);
             form.trigger("reset");
+            window.setTimeout(function () {
+              $("#ProposeChangeInGtinModal").css("display", "none");
+              $("#Edit-Fail").css("display", "none");
+            }, 2000);
           },
         });
         console.log("tutaj4");
