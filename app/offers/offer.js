@@ -1069,10 +1069,10 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData);
-    var GTINEdit = document.getElementById("GTINEdit");
+    var GTINEdit = document.getElementById("gtin");
     GTINEdit.value = rowData.gtin
     GTINEdit.disabled = true;
-    var NameInput = document.getElementById("NameInput");
+    var NameInput = document.getElementById("new-name");
     NameInput.value = rowData.name
     NameInput.textContent = rowData.name
     $("#ProposeChangeInGtinModal").css("display", "flex");
