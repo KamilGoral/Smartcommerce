@@ -1069,6 +1069,11 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData);
+    var GTINEdit = document.getElementById("GTINEdit");
+    GTINEdit.textContent = rowData.gtin
+    GTINEdit.disabled = true;
+    var NameInput = document.getElementById("NameInput");
+    NameInput.textContent = rowData.name
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
