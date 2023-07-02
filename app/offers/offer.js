@@ -850,6 +850,14 @@ docReady(function () {
         defaultContent: "",
       },
       {
+        orderable: false,
+        class: "details-control2",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg' alt='details'></img>",
+      },
+      {
         orderable: true,
         data: "name",
       },
@@ -1002,14 +1010,6 @@ docReady(function () {
             return '<p class="noneexisting">' + "-" + "</p>";
           }
         },
-      },
-      {
-        orderable: false,
-        class: "details-control2",
-        width: "20px",
-        data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0ff7d0cf476b49e17fb54_graph-line.svg' alt='details'></img>",
       },
       {
         orderable: false,
