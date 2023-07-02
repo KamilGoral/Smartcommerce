@@ -863,6 +863,14 @@ docReady(function () {
       },
       {
         orderable: false,
+        class: "details-control3",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
+      },
+      {
+        orderable: false,
         data: "gtin",
       },
       {
