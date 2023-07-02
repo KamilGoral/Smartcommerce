@@ -1173,7 +1173,8 @@ docReady(function () {
         console.log(inputdata);
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
-        var oldname = document.getElementById("NameInput");
+        var oldname = document.getElementById("new-name");
+        console.log(oldname.textContent)
   
         var data = {
           "organization": organization,
