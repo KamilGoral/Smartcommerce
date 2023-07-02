@@ -855,7 +855,7 @@ docReady(function () {
         width: "20px",
         data: null,
         defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg' alt='details'></img>",
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
       },
       {
         orderable: true,
@@ -1064,6 +1064,12 @@ docReady(function () {
     $("#ProductCard").css("display", "flex");
     getProductDetails(rowData);
     getProductHistory(rowData);
+  });
+  $("#table_id tbody").on("click", "td.details-control3", function () {
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    console.log(rowData);
+    $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
 
