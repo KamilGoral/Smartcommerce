@@ -1170,6 +1170,7 @@ docReady(function () {
         var doneBlock = $("#Edit-Success");
         var failBlock = $("#Edit-Fail");
         var inputdata = form.serializeArray();
+        console.log(inputdata);
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("NameInput");
@@ -1209,18 +1210,24 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             if (typeof successCallback === "function") {
-              result = successCallback(resultData);
+              result = successCallback(resultData); 
               if (!result) {
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
-                console.log(e);
+                console.log("tutaj");
+                window.setTimeout(function () {
+                  $("#ProposeChangeInGtinModal").css("display", "none");
+                }, 1000);
+                form.reset();
                 return;
               }
             }
+            console.log("tutaj2");
             form.show();
             doneBlock.show();
             failBlock.hide();
+            form.reset();
             window.setTimeout(function () {
               $("#ProposeChangeInGtinModal").css("display", "none");
             }, 1000);
@@ -1229,13 +1236,17 @@ docReady(function () {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
+            console.log("tutaj3");
             form.show();
             doneBlock.hide();
             failBlock.show();
             console.log(e);
+            form.reset();
           },
         });
+        console.log("tutaj4");
         event.preventDefault();
+        form.reset();
         return false;
       });
     });
