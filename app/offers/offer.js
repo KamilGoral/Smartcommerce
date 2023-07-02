@@ -1220,7 +1220,7 @@ docReady(function () {
                 window.setTimeout(function () {
                   $("#ProposeChangeInGtinModal").css("display", "none");
                 }, 1000);
-                form.reset();
+                form.trigger("reset");
                 return;
               }
             }
@@ -1228,7 +1228,7 @@ docReady(function () {
             form.show();
             doneBlock.show();
             failBlock.hide();
-            form.reset();
+            form.trigger("reset");
             window.setTimeout(function () {
               $("#ProposeChangeInGtinModal").css("display", "none");
             }, 1000);
@@ -1242,12 +1242,12 @@ docReady(function () {
             doneBlock.hide();
             failBlock.show();
             console.log(e);
-            form.reset();
+            form.trigger("reset");
           },
         });
         console.log("tutaj4");
         event.preventDefault();
-        form.reset();
+        form.trigger("reset");
         return false;
       });
     });
