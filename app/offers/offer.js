@@ -1219,7 +1219,8 @@ docReady(function () {
                 console.log("tutaj");
                 window.setTimeout(function () {
                   $("#ProposeChangeInGtinModal").css("display", "none");
-                }, 1000);
+                  $("#Edit-Success").css("display", "none");
+                }, 2000);
                 form.trigger("reset");
                 return;
               }
@@ -1231,7 +1232,8 @@ docReady(function () {
             form.trigger("reset");
             window.setTimeout(function () {
               $("#ProposeChangeInGtinModal").css("display", "none");
-            }, 1000);
+              $("#Edit-Success").css("display", "none");
+            }, 2000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
