@@ -365,7 +365,7 @@ docReady(function () {
                         }
 
                     }
-                    if (typeof data.endDate === 'undefined') {
+                    if (typeof data.endDate === 'infinity') {
                         return '<spann class="positive">' + "Nigdy" + "</spann>";
                     }
                 },
