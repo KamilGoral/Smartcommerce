@@ -443,9 +443,6 @@ docReady(function () {
       if (item.originated === null) {
         item.originated = "-";
       }
-      if (item.derived === null) {
-        item.derived = "-";
-      }
       var tableRowHtml =
         "<tr>" +
         "<td>" +
@@ -465,9 +462,6 @@ docReady(function () {
         "</td>" +
         "<td>" +
         item.originated +
-        "</td>" +
-        "<td>" +
-        item.derived +
         "</td>";
       var typeOfPromotion = "";
       var showRelated =""
@@ -537,7 +531,7 @@ docReady(function () {
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Kod gł.</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
@@ -675,6 +669,18 @@ docReady(function () {
           {
             orderable: true,
             data: "gtin",
+          },
+          {
+            orderable: true,
+            data: "derived",
+            render: function (data) {
+              if (data !== null) {
+                return "" + data.value;
+              }
+              if (data === null) {
+                return "-";
+              }
+            },
           },
           {
             orderable: false,
