@@ -346,7 +346,7 @@ docReady(function () {
                 data: null,
                 render: function (data) {
                     if (data.endDate !== null &&
-                        typeof data.endDate !== 'undefined') {
+                        typeof data.endDate !== 'undefined' && data.endDate !== 'infinity') {
                         var endDate = "";
                         var nowDate = new Date().toISOString();
                         var offset = new Date().getTimezoneOffset();
@@ -365,7 +365,7 @@ docReady(function () {
                         }
 
                     }
-                    if (typeof data.endDate === 'infinity') {
+                    if (data.endDate === 'infinity') {
                         return '<spann class="positive">' + "Nigdy" + "</spann>";
                     }
                 },
