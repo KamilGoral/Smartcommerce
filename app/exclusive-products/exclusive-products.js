@@ -168,7 +168,8 @@ docReady(function () {
                 (data.start + data.length) / data.length;
             let searchBox = data.search.value;
             if (/^\d+$/.test(searchBox)) {
-                QStr = QStr + "&gtin=" + searchBox;
+                /// this need to be changed to gtin
+                QStr = QStr + "&ean=" + searchBox;
             } else if (searchBox) {
                 QStr = QStr + "&name=like:" + searchBox;
             } else {
@@ -287,7 +288,7 @@ docReady(function () {
                 data: "created.by",
             },
             {
-                orderable: true,
+                orderable: false,
                 data: "gtin",
             },
             {
