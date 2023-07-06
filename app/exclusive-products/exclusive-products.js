@@ -216,28 +216,23 @@ docReady(function () {
                 whichColumns = data.order[0]["column"];
                 direction = data.order[0]["dir"];
             }
+            console.log(whichColumns)
 
             switch (whichColumns) {
-                case 1:
+                case 3:
                     whichColumns = "gtin:";
                     break;
-                case 2:
+                case 4:
                     whichColumns = "name:";
                     break;
-                case 3:
+                case 5:
                     whichColumns = "wholesalerKey:";
                     break;
-                case 5:
+                case 7:
                     whichColumns = "startDate:";
                     break;
-                case 6:
+                case 8:
                     whichColumns = "endDate:";
-                    break;
-                case 7:
-                    whichColumns = "standardPrice:";
-                    break;
-                case 11:
-                    whichColumns = "rotationIndicator:";
                     break;
                 default:
                     whichColumns = "null";
