@@ -1247,16 +1247,38 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData);
-    var payloadDelete = { "op": "remove", "path": "/" + rowData.gtin }
 
-    addObject(changesPayload, payloadDelete);
-    // Emulate changes for user
-    $("#waitingdots").show(1).delay(150).hide(1);
-    table
-      .row($(this).parents('tr'))
-      .remove()
-      .draw();
-    checkChangesPayload();
+    function isValidBarcode(value) {
+      // We only allow correct length barcodes
+      if (!value.match(/^(\d{8}|\d{12,14})$/)) {
+        return false;
+      }
+
+      const paddedValue = value.padStart(14, '0');
+
+      let result = 0;
+      for (let i = 0; i < paddedValue.length - 1; i += 1) {
+        result += parseInt(paddedValue.charAt(i), 10) * ((i % 2 === 0) ? 3 : 1);
+      }
+
+      return ((10 - (result % 10)) % 10) === parseInt(paddedValue.charAt(13), 10);
+    }
+
+    if (isValidBarcode(rowData.gtin)) {
+      var payloadDelete = { "op": "remove", "path": "/" + rowData.gtin }
+      addObject(changesPayload, payloadDelete);
+      console.log("payloadDelete")
+      // Emulate changes for user
+      $("#waitingdots").show(1).delay(150).hide(1);
+      table
+        .row($(this).parents('tr'))
+        .remove()
+        .draw();
+      checkChangesPayload();
+    }
+
+
+
   });
 
   $("#spl_table").on("focusout", "select", function () {
