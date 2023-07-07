@@ -871,6 +871,14 @@ docReady(function () {
           },
           {
             orderable: false,
+            class: "details-control4",
+            width: "20px",
+            data: null,
+            defaultContent:
+              "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+          },
+          {
+            orderable: false,
             class: "details-control3",
             width: "20px",
             data: null,
@@ -1232,6 +1240,19 @@ docReady(function () {
     NameInput.value = rowData.name
     NameInput.textContent = rowData.name
     $("#ProposeChangeInGtinModal").css("display", "flex");
+  });
+
+  $("#spl_table").on("click", "td.details-control4", function () {
+    var table = $("#spl_table").DataTable();
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    console.log(rowData);
+    var payloadDelete = { "op": "remove", "path": rowData.gtin }
+
+    addObject(changesPayload, payloadDelete);
+    // Emulate changes for user
+    $("#waitingdots").show(1).delay(150).hide(1);
+    checkChangesPayload();
   });
 
   $("#spl_table").on("focusout", "select", function () {
