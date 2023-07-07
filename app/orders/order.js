@@ -464,7 +464,7 @@ docReady(function () {
         item.originated +
         "</td>";
       var typeOfPromotion = "";
-      var showRelated =""
+      var showRelated = ""
       if (item.promotion != null) {
         tableRowHtml +=
           "<td>" +
@@ -1194,7 +1194,7 @@ docReady(function () {
 
         // Sprawdź, czy wartość jest pusta lub nieprawidłowa
         let quantity = parseInt(newValue);
-        if (isNaN(quantity) || quantity < 0 ) {
+        if (isNaN(quantity) || quantity < 0) {
           quantity = 0; // Jeśli tak, zmień wartość na 0
         }
         var product = {
@@ -1247,11 +1247,15 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData);
-    var payloadDelete = { "op": "remove", "path": rowData.gtin }
+    var payloadDelete = { "op": "remove", "path": "/" + rowData.gtin }
 
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
+    table
+      .row($(this).parents('tr'))
+      .remove()
+      .draw();
     checkChangesPayload();
   });
 
@@ -1356,7 +1360,7 @@ docReady(function () {
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("new-name");
-  
+
         var data = {
           "organization": organization,
           "organizationId": organizationId,
@@ -1369,8 +1373,8 @@ docReady(function () {
             "quantity": $("#quantity").val()
           }
         }
-  
-  
+
+
         $.ajax({
           type: "POST",
           url: "https://hook.eu1.make.com/ndsdd602ot8kbt2dpydw37coj015fy75",
@@ -1391,7 +1395,7 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             if (typeof successCallback === "function") {
-              result = successCallback(resultData); 
+              result = successCallback(resultData);
               if (!result) {
                 form.show();
                 doneBlock.hide();
@@ -1438,6 +1442,6 @@ docReady(function () {
       });
     });
   };
-  
+
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 });
