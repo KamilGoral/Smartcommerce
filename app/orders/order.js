@@ -1071,6 +1071,22 @@ docReady(function () {
     $('.blur-overlay').remove();
   }
 
+  function isValidBarcode(value) {
+    // We only allow correct length barcodes
+    if (!value.match(/^(\d{8}|\d{12,14})$/)) {
+      return false;
+    }
+
+    const paddedValue = value.padStart(14, '0');
+
+    let result = 0;
+    for (let i = 0; i < paddedValue.length - 1; i += 1) {
+      result += parseInt(paddedValue.charAt(i), 10) * ((i % 2 === 0) ? 3 : 1);
+    }
+
+    return ((10 - (result % 10)) % 10) === parseInt(paddedValue.charAt(13), 10);
+  }
+
 
 
   $("#zipcontainer").on("click", "img", function () {
@@ -1232,42 +1248,26 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    console.log(rowData);
-    var GTINEdit = document.getElementById("gtin");
-    GTINEdit.value = rowData.gtin
-    GTINEdit.disabled = true;
-    var NameInput = document.getElementById("new-name");
-    NameInput.value = rowData.name
-    NameInput.textContent = rowData.name
-    $("#ProposeChangeInGtinModal").css("display", "flex");
+
+    if (isValidBarcode(rowData.gtin)) {
+      var GTINEdit = document.getElementById("gtin");
+      GTINEdit.value = rowData.gtin
+      GTINEdit.disabled = true;
+      var NameInput = document.getElementById("new-name");
+      NameInput.value = rowData.name
+      NameInput.textContent = rowData.name
+      $("#ProposeChangeInGtinModal").css("display", "flex");
+    }
   });
 
   $("#spl_table").on("click", "td.details-control4", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    console.log(rowData);
-
-    function isValidBarcode(value) {
-      // We only allow correct length barcodes
-      if (!value.match(/^(\d{8}|\d{12,14})$/)) {
-        return false;
-      }
-
-      const paddedValue = value.padStart(14, '0');
-
-      let result = 0;
-      for (let i = 0; i < paddedValue.length - 1; i += 1) {
-        result += parseInt(paddedValue.charAt(i), 10) * ((i % 2 === 0) ? 3 : 1);
-      }
-
-      return ((10 - (result % 10)) % 10) === parseInt(paddedValue.charAt(13), 10);
-    }
 
     if (isValidBarcode(rowData.gtin)) {
       var payloadDelete = { "op": "remove", "path": "/" + rowData.gtin }
       addObject(changesPayload, payloadDelete);
-      console.log("payloadDelete")
       // Emulate changes for user
       $("#waitingdots").show(1).delay(150).hide(1);
       table
