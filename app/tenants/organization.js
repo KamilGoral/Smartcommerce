@@ -190,7 +190,7 @@ docReady(function () {
   }
 
   function getShops() {
-    let url = new URL(InvokeURL + "shops");
+    let url = new URL(InvokeURL + "shops?perPage=20");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -531,7 +531,7 @@ docReady(function () {
               "href",
               "https://" + DomainName + "/app/integrations/merchant-console"
             );
-          } else if (integration.integrationKey === "pc-market"){
+          } else if (integration.integrationKey === "pc-market") {
             row.setAttribute(
               "href",
               "https://" + DomainName + "/app/integrations/pc-market"
@@ -976,7 +976,7 @@ docReady(function () {
           }
         },
       },
- 
+
       {
         orderable: true,
         data: "created.at",
@@ -1090,17 +1090,14 @@ docReady(function () {
             return "-";
           }
         },
-      }
+      },
     ],
   });
 
   $("#table_pricelists_list").on("click", "tr", function () {
     var rowData = table.row(this).data();
     window.location.replace(
-      "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
     );
   });
 
