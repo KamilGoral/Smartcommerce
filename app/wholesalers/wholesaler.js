@@ -68,11 +68,11 @@ docReady(function () {
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
 
-    if (wholesalerKey == "mirex" || wholesalerKey == "phup-gniezno" || wholesalerKey == "smakosz" ) {
+    if (wholesalerKey == "mirex" || wholesalerKey == "phup-gniezno" || wholesalerKey == "smakosz" || wholesalerKey == "abe-dystrybucja") {
       $("#CompanyDivEdit").show();
     } else {
       $("#CompanyDivEdit").hide();
-    }
+    }//kochamy sie
 
     let url2 = new URL(
       InvokeURL +
