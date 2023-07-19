@@ -68,7 +68,7 @@ docReady(function () {
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
 
-    if (wholesalerKey == "mirex") {
+    if (wholesalerKey == "mirex" || wholesalerKey == "phup-gniezno" || wholesalerKey == "smakosz" ) {
       $("#CompanyDivEdit").show();
     } else {
       $("#CompanyDivEdit").hide();
@@ -360,7 +360,7 @@ docReady(function () {
         var method = "PATCH";
 
         if ($("#CompanyEdit").val()) {
-          //mirex case
+          //mirex, smakosz, gniezno case
           var data = [
             {
               op: "add",
