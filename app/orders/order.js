@@ -593,17 +593,8 @@ docReady(function () {
   
     // Stwórz kod HTML, w którym wynik jest wyświetlony
     const kodHTML = `
-      <html>
-        <head>
-          <title>Wynik</title>
-        </head>
-        <body>
-          <p>Wynik:</p>
-          <pre>${polaczonyWynik}</pre>
-        </body>
-      </html>
+          <p>${polaczonyWynik}</p>
     `;
-  
     return kodHTML;
   }
     function GetSplittedProducts() {
