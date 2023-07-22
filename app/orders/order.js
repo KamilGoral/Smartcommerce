@@ -583,7 +583,30 @@ docReady(function () {
     }
   }
 
-  function GetSplittedProducts() {
+  function generujKodHTML(derived) {
+    if (!Array.isArray(derived)) {
+      return derived; // Jeśli "derived" nie jest listą, zwróć wartość
+    }
+  
+    // Połącz elementy listy za pomocą przecinka i znaku nowej linii
+    const polaczonyWynik = derived.join(",\n");
+  
+    // Stwórz kod HTML, w którym wynik jest wyświetlony
+    const kodHTML = `
+      <html>
+        <head>
+          <title>Wynik</title>
+        </head>
+        <body>
+          <p>Wynik:</p>
+          <pre>${polaczonyWynik}</pre>
+        </body>
+      </html>
+    `;
+  
+    return kodHTML;
+  }
+    function GetSplittedProducts() {
 
     $("#spl_table_wrapper").show();
     $.ajax({
@@ -675,13 +698,15 @@ docReady(function () {
             data: "derived",
             render: function (data) {
               if (data !== null) {
-                return "" + data.value;
+                // Przetwórz dane przy użyciu funkcji generującej kod HTML
+                const kodHTML = generujKodHTML(data);
+                return kodHTML;
               }
               if (data === null) {
                 return "-";
               }
             },
-          },
+          },          
           {
             orderable: false,
             data: "inStock",
