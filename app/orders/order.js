@@ -591,11 +591,8 @@ docReady(function () {
     // Połącz elementy listy za pomocą przecinka i znaku nowej linii
     const polaczonyWynik = derived.join(",\n");
   
-    // Stwórz kod HTML, w którym wynik jest wyświetlony
-    const kodHTML = `
-          <p>${polaczonyWynik}</p>
-    `;
-    return kodHTML;
+    return polaczonyWynik; // Zwróć wynik jako ciąg znaków
+    
   }
     function GetSplittedProducts() {
 
