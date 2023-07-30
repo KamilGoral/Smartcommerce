@@ -230,7 +230,8 @@ docReady(function () {
             if (a1.indexOf(a2[i]) === -1) {
               data.push({
                 op: "add",
-                path: "/shopKeys/" + a2[i]
+                path: "/shopKeys/-",
+                value: a2[i],
               });
             }
           }
