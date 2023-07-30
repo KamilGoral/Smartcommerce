@@ -396,7 +396,7 @@ docReady(function () {
         if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
           var errorMsg = "Błąd: Lista shopKeys jest pusta.";
           console.log(errorMsg);
-          var elements = document.getElementsByClassName("warningmessage");
+          var elements = document.getElementsByClassName("warningmessagetext");
           for (var i = 0; i < elements.length; i++) {
             elements[i].textContent = errorMsg;
           }
@@ -440,7 +440,7 @@ docReady(function () {
             console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements = document.getElementsByClassName("warningmessage");
+            var elements = document.getElementsByClassName("warningmessagetext");
             for (var i = 0; i < elements.length; i++) {
               elements[i].textContent = msg;
             }
