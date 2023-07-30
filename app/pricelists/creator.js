@@ -391,10 +391,9 @@ docReady(function () {
           endDate: $("#endDate").val() + "T23:59:59.00Z",
           shopKeys: $("#shopKeys").val(),
         };
-  
-        // Sprawdzamy, czy shopKeys nie jest pustą listą
+
         if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
-          var errorMsg = "Błąd: Lista shopKeys jest pusta.";
+          var errorMsg = "Błąd: Lista Sklepów jest pusta.";
           console.log(errorMsg);
           var elements = document.getElementsByClassName("warningmessagetext");
           for (var i = 0; i < elements.length; i++) {
