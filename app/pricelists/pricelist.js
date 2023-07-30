@@ -222,8 +222,7 @@ docReady(function () {
             if (a2.indexOf(a1[i]) === -1) {
               data.push({
                 op: "remove",
-                path: "/shopKeys/-",
-                value: a1[i],
+                path: "/shopKeys/" + a1[i]
               });
             }
           }
@@ -231,8 +230,7 @@ docReady(function () {
             if (a1.indexOf(a2[i]) === -1) {
               data.push({
                 op: "add",
-                path: "/shopKeys/-",
-                value: a2[i],
+                path: "/shopKeys/" + a2[i]
               });
             }
           }
