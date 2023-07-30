@@ -395,7 +395,7 @@ docReady(function () {
         // Sprawdzamy, czy shopKeys nie jest pustą listą
         if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
           var errorMsg = "Błąd: Lista shopKeys jest pusta.";
-          console.error(errorMsg);
+          console.log(errorMsg);
           var elements = document.getElementsByClassName("warningmessage");
           for (var i = 0; i < elements.length; i++) {
             elements[i].textContent = errorMsg;
