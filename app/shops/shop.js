@@ -938,10 +938,12 @@ docReady(function () {
               width: "72px",
               render: function (data) {
                 if (data !== null) {
-                  if (data.enabled) {
+                  if (data.enabled == true && data.active == true ) {
                     return '<spann class="positive">Tak</spann>';
-                  } else {
+                  } else if (data.enabled == false && data.active == false ){
                     return '<spann class="medium">Dodaj</spann>';
+                  } else if (data.enabled == false && data.active == true ){
+                    return '<spann class="medium">Przywróć</spann>';
                   }
                 } else {
                   return '<spann class="noneexisting">Brak</spann>';

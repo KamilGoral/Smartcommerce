@@ -560,7 +560,10 @@ docReady(function () {
         typeOfSource = "E-hurt";
       }
       if (item.source === "konsola-kupca") {
-        typeOfSource = "Pc-Market";
+        typeOfSource = "PC-Market";
+      }
+      if (item.source === "PC-Market") {
+        typeOfSource = "PC-Market";
       }
       if (item.originated === null) {
         item.originated = "-";
