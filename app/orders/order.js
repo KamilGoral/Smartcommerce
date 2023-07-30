@@ -440,6 +440,9 @@ docReady(function () {
       if (item.source === "konsola-kupca") {
         typeOfSource = "Pc-Market";
       }
+      if (item.source === "PC-Market") {
+        typeOfSource = "PC-Market";
+      }
       if (item.originated === null) {
         item.originated = "-";
       }

@@ -376,28 +376,38 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#Create-Pricelist-Success", container);
-        var failBlock = $("#Create-Pricelist-Fail", container);
         var action = InvokeURL + "price-lists";
         var method = "POST";
         var table = $("#validproducts").DataTable();
         var productsFromTable = table.rows().data().toArray();
-
+  
         var productsToAdd = {
           products: productsFromTable,
         };
-
+  
         var dataRequest = {
           wholesalerKey: $("#WholesalerSelector").val(),
           startDate: $("#startDate").val() + "T00:00:01.00Z",
           endDate: $("#endDate").val() + "T23:59:59.00Z",
           shopKeys: $("#shopKeys").val(),
         };
-
+  
+        // Sprawdzamy, czy shopKeys nie jest pustą listą
+        if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
+          var errorMsg = "Błąd: Lista shopKeys jest pusta.";
+          console.error(errorMsg);
+          var elements = document.getElementsByClassName("warningmessage");
+          for (var i = 0; i < elements.length; i++) {
+            elements[i].textContent = errorMsg;
+          }
+          $("#Create-Pricelist-Fail").show();
+          $("#Create-Pricelist-Fail").fadeOut(5000);
+          return;
+        }
+  
         let postData = Object.assign(dataRequest, productsToAdd);
         //
-
+  
         $.ajax({
           type: method,
           url: action,
@@ -422,7 +432,7 @@ docReady(function () {
             $("#Create-Pricelist-Success").fadeOut(4000);
             window.setTimeout(function () {
               location.reload();
-          }, 3000);
+            }, 3000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -436,7 +446,7 @@ docReady(function () {
             }
             form.show();
             $("#Create-Pricelist-Fail").show();
-            $("#Create-Pricelist-Fail").fadeOut(5000);  
+            $("#Create-Pricelist-Fail").fadeOut(5000);
             return;
           },
         });
@@ -445,6 +455,7 @@ docReady(function () {
       });
     });
   };
+  
   makeWebflowFormAjax($(formIdCreatePricing));
   getShops();
   getWholesalersSh();
