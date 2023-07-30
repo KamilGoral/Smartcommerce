@@ -492,8 +492,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
+        var doneBlock = $(".w-form-done2", container);
+        var failBlock = $(".w-form-fail2", container);
         var inputdata = form.serializeArray();
 
         var data = {
@@ -541,14 +541,20 @@ docReady(function () {
               location.reload();
             }, 1000);
           },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(jqXHR);
+            console.log(exception);
+            var msg =
+              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+            var elements = document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
             }
             form.show();
-            doneBlock.hide();
             failBlock.show();
-            console.log(e);
+            failBlock.fadeOut(5000);
+            return;
           },
         });
         event.preventDefault();
@@ -608,14 +614,20 @@ docReady(function () {
                   ClientID;
             }, 5000);
           },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(jqXHR);
+            console.log(exception);
+            var msg =
+              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+            var elements = document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
             }
             form.show();
-            doneBlock.hide();
             failBlock.show();
-            console.log(e);
+            failBlock.fadeOut(5000);
+            return;
           },
         });
         event.preventDefault();
