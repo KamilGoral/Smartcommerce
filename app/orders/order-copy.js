@@ -148,226 +148,223 @@ docReady(function () {
       var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
 
     }
-
-    $.ajax({
-      type: method,
-      url: action,
-      cors: true,
-      beforeSend: function () {
-        $("#waitingdots").show();
-        setTimeout(function () {
-        }, 2000);
-
-        $("#waitingdots").hide();
-      },
-      complete: function () {
-        $("#waitingdots").hide();
-      },
-      contentType: "application/json",
-      dataType: "json",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: orgToken,
-      },
-      processData: false,
-      success: function (resultData) {
-        if (typeof successCallback === "function") {
-          result = successCallback(resultData);
-          if (!result) {
-            return;
+    setTimeout(function () {
+      $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+        },
+        processData: false,
+        success: function (resultData) {
+          if (typeof successCallback === "function") {
+            result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
           }
-        }
-        $("#table-content").show();
-        var data = resultData;
-        const totalValue = document.getElementById("totalValue");
-        totalValue.textContent = data.netValues.total + " zł";
-        const maxValue = document.getElementById("maxValue");
-        maxValue.textContent = data.netValues.max + " zł";
-        const avgValue = document.getElementById("avgValue");
-        avgValue.textContent = data.netValues.avg + " zł";
-        const savings = document.getElementById("savings");
-        var numb = data.netValues.avg - data.netValues.total;
-        savings.textContent = numb.toFixed(2) + " zł";
-        var toParse = data.items;
-        toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
-        $("#details").show();
-        $(".target-tab-link").triggerHandler("click");
-        $("#splitedwhcontainer").show();
-        var table = $("#table_splited_wh").DataTable({
-          pagingType: "full_numbers",
-          pageLength: 10,
-          destroy: true,
-          order: [[3, "desc"]],
-          dom: '<"top">rt<"bottom"lip>',
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          data: data.items,
-          search: {
-            return: true,
-          },
-          columns: [
-            {
-              orderable: false,
-              data: null,
-              defaultContent:
-                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
-            },
-            {
-              orderable: true,
-              data: "wholesalerName",
-              render: function (data) {
-                if (data === "unassigned") {
-                  return "Nieprzydzielone";
-                } else {
-                  return data;
-                }
+          $("#table-content").show();
+          var data = resultData;
+          const totalValue = document.getElementById("totalValue");
+          totalValue.textContent = data.netValues.total + " zł";
+          const maxValue = document.getElementById("maxValue");
+          maxValue.textContent = data.netValues.max + " zł";
+          const avgValue = document.getElementById("avgValue");
+          avgValue.textContent = data.netValues.avg + " zł";
+          const savings = document.getElementById("savings");
+          var numb = data.netValues.avg - data.netValues.total;
+          savings.textContent = numb.toFixed(2) + " zł";
+          var toParse = data.items;
+          toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+          $("#details").show();
+          $(".target-tab-link").triggerHandler("click");
+          $("#splitedwhcontainer").show();
+          var table = $("#table_splited_wh").DataTable({
+            pagingType: "full_numbers",
+            pageLength: 10,
+            destroy: true,
+            order: [[3, "desc"]],
+            dom: '<"top">rt<"bottom"lip>',
+            language: {
+              emptyTable: "Brak danych do wyświetlenia",
+              info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+              infoEmpty: "Brak danych",
+              infoFiltered: "(z _MAX_ rezultatów)",
+              lengthMenu: "Pokaż _MENU_ rekordów",
+              loadingRecords: "<div class='spinner'</div>",
+              processing: "<div class='spinner'</div>",
+              search: "Szukaj:",
+              zeroRecords: "Brak pasujących rezultatów",
+              paginate: {
+                first: "<<",
+                last: ">>",
+                next: " >",
+                previous: "< ",
+              },
+              aria: {
+                sortAscending: ": Sortowanie rosnące",
+                sortDescending: ": Sortowanie malejące",
               },
             },
-            {
-              orderable: true,
-              data: null,
-              render: function (data) {
-                if (data.logisticMinimum === null) {
-                  return "-";
-                } else {
-                  var toGo = (data.logisticMinimum - data.value).toFixed(2);
-                  if (toGo > 0) {
-                    return data.logisticMinimum + " (" + toGo + ")";
+            data: data.items,
+            search: {
+              return: true,
+            },
+            columns: [
+              {
+                orderable: false,
+                data: null,
+                defaultContent:
+                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
+              },
+              {
+                orderable: true,
+                data: "wholesalerName",
+                render: function (data) {
+                  if (data === "unassigned") {
+                    return "Nieprzydzielone";
+                  } else {
+                    return data;
                   }
-                  return data.logisticMinimum;
+                },
+              },
+              {
+                orderable: true,
+                data: null,
+                render: function (data) {
+                  if (data.logisticMinimum === null) {
+                    return "-";
+                  } else {
+                    var toGo = (data.logisticMinimum - data.value).toFixed(2);
+                    if (toGo > 0) {
+                      return data.logisticMinimum + " (" + toGo + ")";
+                    }
+                    return data.logisticMinimum;
+                  }
+                },
+              },
+              {
+                orderable: true,
+                data: "netValue",
+              },
+              {
+                orderable: true,
+                data: "products",
+                render: function (data) {
+                  if (data.bestMatch === null) {
+                    return "-";
+                  } else {
+                    return data.bestMatch;
+                  }
                 }
               },
-            },
-            {
-              orderable: true,
-              data: "netValue",
-            },
-            {
-              orderable: true,
-              data: "products",
-              render: function (data) {
-                if (data.bestMatch === null) {
-                  return "-";
-                } else {
-                  return data.bestMatch;
-                }
-              }
-            },
-            {
-              orderable: true,
-              data: "products",
-              render: function (data) {
-                if (data.exclusive === null) {
-                  return "-";
-                } else {
-                  return data.exclusive;
-                }
-              }
-            },
-            {
-              orderable: true,
-              data: "products",
-              render: function (data) {
-                if (data.exclusive === null) {
-                  return "-";
-                } else {
-                  return data.order;
-                }
-              }
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              render: function (data) {
-                if (data === "agra") {
-                  return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
-                } else if (data === "mirex") {
-                  return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
-                }
-                else {
-                  return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
+              {
+                orderable: true,
+                data: "products",
+                render: function (data) {
+                  if (data.exclusive === null) {
+                    return "-";
+                  } else {
+                    return data.exclusive;
+                  }
                 }
               },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              render: function (data) {
-                if (data === "unassigned") {
-                  return "";
+              {
+                orderable: true,
+                data: "products",
+                render: function (data) {
+                  if (data.exclusive === null) {
+                    return "-";
+                  } else {
+                    return data.order;
+                  }
                 }
-                return (
-                  '<input type="checkbox" class="theClass" id="' +
-                  data +
-                  '" value="' +
-                  data +
-                  '" /><label class="mylabel" for="' +
-                  data +
-                  '"></label>'
-                );
               },
-            },
-          ],
-          rowCallback: function (row, data) {
-            if (data.logisticMinimum > data.value) {
-              $("td", row).css("background-color", "#FFFAE6");
-            }
-          },
-          initComplete: function (settings, json) {
-
-            var totalEclusiveProducts = 0;
-            var totalOrderedProducts = 0;
-            var table = $('#table_splited_wh').DataTable();
-
-            table.rows().every(function () {
-              var rowData = this.data();
-              var productQuantity = parseInt(rowData["products"]["exclusive"]);
-              var productQuantity2 = parseInt(rowData["products"]["order"]);
-              totalEclusiveProducts += productQuantity;
-              totalOrderedProducts += productQuantity2;
-            });
-
-            if (totalEclusiveProducts === 0) {
-              // Hide Office column
-              table.column(5).visible(false); // Produkty na wyłączność
-            }
-            if (totalOrderedProducts === 0) {
-              // Hide Office column
-              table.column(6).visible(false); // Produkty na wyłączność
-            }
-
-            var textBox = $("#table_splited_wh filter label input");
-            textBox.unbind();
-            textBox.bind("keyup input", function (e) {
-              if (e.keyCode == 13) {
-                api.search(this.value).draw();
+              {
+                orderable: false,
+                data: "wholesalerKey",
+                render: function (data) {
+                  if (data === "agra") {
+                    return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
+                  } else if (data === "mirex") {
+                    return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
+                  }
+                  else {
+                    return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
+                  }
+                },
+              },
+              {
+                orderable: false,
+                data: "wholesalerKey",
+                render: function (data) {
+                  if (data === "unassigned") {
+                    return "";
+                  }
+                  return (
+                    '<input type="checkbox" class="theClass" id="' +
+                    data +
+                    '" value="' +
+                    data +
+                    '" /><label class="mylabel" for="' +
+                    data +
+                    '"></label>'
+                  );
+                },
+              },
+            ],
+            rowCallback: function (row, data) {
+              if (data.logisticMinimum > data.value) {
+                $("td", row).css("background-color", "#FFFAE6");
               }
-            });
-          },
-        });
-        return false;
-      },
-    });
+            },
+            initComplete: function (settings, json) {
+  
+              var totalEclusiveProducts = 0;
+              var totalOrderedProducts = 0;
+              var table = $('#table_splited_wh').DataTable();
+  
+              table.rows().every(function () {
+                var rowData = this.data();
+                var productQuantity = parseInt(rowData["products"]["exclusive"]);
+                var productQuantity2 = parseInt(rowData["products"]["order"]);
+                totalEclusiveProducts += productQuantity;
+                totalOrderedProducts += productQuantity2;
+              });
+  
+              if (totalEclusiveProducts === 0) {
+                // Hide Office column
+                table.column(5).visible(false); // Produkty na wyłączność
+              }
+              if (totalOrderedProducts === 0) {
+                // Hide Office column
+                table.column(6).visible(false); // Produkty na wyłączność
+              }
+  
+              var textBox = $("#table_splited_wh filter label input");
+              textBox.unbind();
+              textBox.bind("keyup input", function (e) {
+                if (e.keyCode == 13) {
+                  api.search(this.value).draw();
+                }
+              });
+            },
+          });
+          return false;
+        },
+      });
+    }, 2000);
   }
 
   function getOffers() {
