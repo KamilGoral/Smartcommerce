@@ -143,11 +143,12 @@ docReady(function () {
 
     var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aa424ff3992f4d24c9_getsplit_updated.txt"
 
-    if (exludedWholesalers !== null) {
+    if (UrlParameters !== "offerId=latest") {
 
     var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
 
     }
+
     $.ajax({
       type: method,
       url: action,
