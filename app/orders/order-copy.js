@@ -149,15 +149,16 @@ docReady(function () {
 
     }
     setTimeout(function () {
+      $("#waitingdots").show();
       $.ajax({
         type: method,
         url: action,
         cors: true,
         beforeSend: function () {
-          $("#waitingdots").show();
+          // $("#waitingdots").show();
         },
         complete: function () {
-          $("#waitingdots").hide();
+          // $("#waitingdots").hide();
         },
         contentType: "application/json",
         dataType: "json",
@@ -365,6 +366,7 @@ docReady(function () {
         },
       });
     }, 2000);
+    $("#waitingdots").hide();
   }
 
   function getOffers() {
