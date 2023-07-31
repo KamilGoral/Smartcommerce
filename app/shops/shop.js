@@ -919,6 +919,7 @@ docReady(function () {
             {
               orderable: true,
               data: "connections.wms",
+              visible: false,
               width: "72px",
               render: function (data) {
                 if (data !== null) {
@@ -943,7 +944,7 @@ docReady(function () {
                   } else if (data.enabled == false && data.active == false ){
                     return '<spann class="medium">Dodaj</spann>';
                   } else if (data.enabled == false && data.active == true ){
-                    return '<spann class="medium">Przywróć</spann>';
+                    return '<spann class="improve">Przywróć</spann>';
                   }
                 } else {
                   return '<spann class="noneexisting">Brak</spann>';
