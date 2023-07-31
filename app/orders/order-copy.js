@@ -147,12 +147,6 @@ docReady(function () {
 
       var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
 
-      setTimeout(function () {
-        $("#waitingdots").show();
-      }, 2000);
-
-      $("#waitingdots").hide();
-
     }
 
     $.ajax({
@@ -161,6 +155,10 @@ docReady(function () {
       cors: true,
       beforeSend: function () {
         $("#waitingdots").show();
+        setTimeout(function () {
+        }, 2000);
+
+        $("#waitingdots").hide();
       },
       complete: function () {
         $("#waitingdots").hide();
