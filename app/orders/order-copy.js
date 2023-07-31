@@ -148,17 +148,16 @@ docReady(function () {
       var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
 
     }
-    $("#waitingdots").show();
     setTimeout(function () {
       $.ajax({
         type: method,
         url: action,
         cors: true,
         beforeSend: function () {
-          // $("#waitingdots").show();
+          $("#waitingdots").show();
         },
         complete: function () {
-          // $("#waitingdots").hide();
+          $("#waitingdots").hide();
         },
         contentType: "application/json",
         dataType: "json",
@@ -367,7 +366,6 @@ docReady(function () {
       });
     }
     ,2000);
-    $("#waitingdots").hide();
   }
 
   function getOffers() {
