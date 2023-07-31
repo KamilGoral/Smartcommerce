@@ -145,7 +145,13 @@ docReady(function () {
 
     if (UrlParameters !== "offerId=latest") {
 
-    var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
+      var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
+
+      setTimeout(function () {
+        $("#waitingdots").show();
+      }, 2000);
+
+      $("#waitingdots").hide();
 
     }
 
@@ -593,14 +599,14 @@ docReady(function () {
     if (!Array.isArray(derived)) {
       return derived; // Jeśli "derived" nie jest listą, zwróć wartość
     }
-  
+
     // Połącz elementy listy za pomocą przecinka i znaku nowej linii
     const polaczonyWynik = derived.join(",\n");
-  
+
     return polaczonyWynik; // Zwróć wynik jako ciąg znaków
-    
+
   }
-    function GetSplittedProducts() {
+  function GetSplittedProducts() {
 
     $("#spl_table_wrapper").show();
     $.ajax({
@@ -695,7 +701,7 @@ docReady(function () {
                 return "-";
               }
             },
-          },          
+          },
           {
             orderable: false,
             data: "inStock",
