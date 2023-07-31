@@ -148,8 +148,8 @@ docReady(function () {
       var action = "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754aad62d7bae62416c5d_getsplitexcluded_updated.txt"
 
     }
+    $("#waitingdots").show();
     setTimeout(function () {
-      $("#waitingdots").show();
       $.ajax({
         type: method,
         url: action,
@@ -365,7 +365,8 @@ docReady(function () {
           return false;
         },
       });
-    }, 2000);
+    }
+    ,2000);
     $("#waitingdots").hide();
   }
 
