@@ -358,7 +358,7 @@ docReady(function () {
 
   function getOffers() {
     let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/offers?sort=createDate:desc"
+      "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754ab409259bc499faef9_getoffers_updated.txt"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -391,7 +391,7 @@ docReady(function () {
   }
 
   function getWholesalersSh() {
-    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
+    let url = new URL("https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754abf63c85ab7617dd3f_getwholesalers_updated.txt");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -595,12 +595,7 @@ docReady(function () {
     $("#spl_table_wrapper").show();
     $.ajax({
       type: "GET",
-      url: InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?perPage=10000",
+      url: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64c754ab569656c515eeae36_getdetails_updated.txt",
       cors: true,
       contentType: "application/json",
       dataType: "json",
