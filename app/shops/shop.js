@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -287,11 +287,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/orders/order?orderId=" +
-        rowData.orderId +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/orders/order?orderId=" +
+          rowData.orderId +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
@@ -514,11 +514,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -785,20 +785,20 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -939,11 +939,11 @@ docReady(function () {
               width: "72px",
               render: function (data) {
                 if (data !== null) {
-                  if (data.enabled == true && data.active == true ) {
+                  if (data.enabled == true && data.active == true) {
                     return '<spann class="positive">Tak</spann>';
-                  } else if (data.enabled == false && data.active == false ){
+                  } else if (data.enabled == false && data.active == false) {
                     return '<spann class="medium">Dodaj</spann>';
-                  } else if (data.enabled == false && data.active == true ){
+                  } else if (data.enabled == true && data.active == false) {
                     return '<spann class="improve">Przywróć</spann>';
                   }
                 } else {
@@ -1214,7 +1214,8 @@ docReady(function () {
             } else if (jqXHR.status === 403) {
               msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
             } else if (jqXHR.status === 429) {
-              msg = "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
+              msg =
+                "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
@@ -1224,12 +1225,14 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+              var msg =
+                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
             }
-            var elements = document.getElementsByClassName("warningmessagetext");
-              for (var i = 0; i < elements.length; i++) {
-                elements[i].textContent = msg;
-              }
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
+            }
             $("#WarningMessageContainer").fadeOut(3000);
             form.show();
             doneBlock.hide();
@@ -1264,11 +1267,13 @@ docReady(function () {
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
         var method = "PATCH";
-        var data = [{
-          op: "add",
-          path: "/name",
-          value: $("#OrderName").val(),
-        },];
+        var data = [
+          {
+            op: "add",
+            path: "/name",
+            value: $("#OrderName").val(),
+          },
+        ];
         $.ajax({
           type: method,
           url: action,
@@ -1288,17 +1293,16 @@ docReady(function () {
             Authorization: orgToken,
           },
           success: function (resultData) {
-            document.getElementById(
-              "wf-form-doneCreate-Order"
-            ).style.display = "block";
+            document.getElementById("wf-form-doneCreate-Order").style.display =
+              "block";
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },
@@ -1307,8 +1311,7 @@ docReady(function () {
             console.log(exception);
           },
         });
-      }
-      else {
+      } else {
         jsonResponse = JSON.parse(xhr.responseText);
         console.log(xhr);
         var msg = "";
@@ -1325,14 +1328,12 @@ docReady(function () {
         }
         $(".warningmessagetext").text(msg);
         $("#wf-form-failCreate-Order").show();
-        $("#orderfile").val('');
+        $("#orderfile").val("");
         $("#wf-form-failCreate-Order").fadeOut(9000);
       }
     };
     xhr.send(formData);
   }
-
-
 
   UploadButton.addEventListener("click", (event) => {
     FileUpload();
