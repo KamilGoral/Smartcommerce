@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -52,26 +52,24 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   async function CreateOrder() {
-
-    const tableId = '#spl_table';
+    const tableId = "#spl_table";
 
     if ($.fn.dataTable.isDataTable(tableId)) {
       // Usuń wszystkie rekordy z tabeli podzielonych produktów
-      const tableToClear = $('#spl_table').DataTable();
+      const tableToClear = $("#spl_table").DataTable();
       tableToClear.clear().draw();
       $("#spl_table_wrapper").hide();
 
       // Wymaż wartwę blur
       removeBlurOverlay();
-
     } else {
       // Tabela nie została zainicjalizowana jako DataTable
     }
@@ -108,18 +106,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -264,7 +262,7 @@ docReady(function () {
                 } else {
                   return data.bestMatch;
                 }
-              }
+              },
             },
             {
               orderable: true,
@@ -275,7 +273,7 @@ docReady(function () {
                 } else {
                   return data.exclusive;
                 }
-              }
+              },
             },
             {
               orderable: true,
@@ -286,7 +284,7 @@ docReady(function () {
                 } else {
                   return data.order;
                 }
-              }
+              },
             },
             {
               orderable: false,
@@ -296,8 +294,7 @@ docReady(function () {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
                 } else if (data === "mirex") {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
-                }
-                else {
+                } else {
                   return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"></div>';
                 }
               },
@@ -327,10 +324,9 @@ docReady(function () {
             }
           },
           initComplete: function (settings, json) {
-
             var totalEclusiveProducts = 0;
             var totalOrderedProducts = 0;
-            var table = $('#table_splited_wh').DataTable();
+            var table = $("#table_splited_wh").DataTable();
 
             table.rows().every(function () {
               var rowData = this.data();
@@ -412,7 +408,7 @@ docReady(function () {
       if (request.status == 401) {
         console.log("Unauthorized");
       }
-    }
+    };
     request.send();
   }
 
@@ -467,7 +463,7 @@ docReady(function () {
         item.originated +
         "</td>";
       var typeOfPromotion = "";
-      var showRelated = ""
+      var showRelated = "";
       if (item.promotion != null) {
         tableRowHtml +=
           "<td>" +
@@ -492,7 +488,10 @@ docReady(function () {
           typeOfPromotion = "Okresowa";
         }
         if (item.promotion.relatedGtins.length > 0) {
-          showRelated = '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' + item.promotion.relatedGtins + '" alt="">'
+          showRelated =
+            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
+            item.promotion.relatedGtins +
+            '" alt="">';
         } else {
           showRelated = "-";
         }
@@ -540,12 +539,19 @@ docReady(function () {
     );
   }
 
-  function generateWholesalerSelect(selectedWholesalerKey, jsonData, isDisabled) {
-    const wholesalersData = JSON.parse(sessionStorage.getItem("wholesalersData"));
+  function generateWholesalerSelect(
+    selectedWholesalerKey,
+    jsonData,
+    isDisabled
+  ) {
+    const wholesalersData = JSON.parse(
+      sessionStorage.getItem("wholesalersData")
+    );
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
       if (isDisabled == 1) {
-        selectHTML = '<select style="width: 120px;" class="wholesalerSelect" disabled>';
+        selectHTML =
+          '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
       }
@@ -556,16 +562,25 @@ docReady(function () {
 
         // Usuwanie powtarzających się pozycji dostawców z jsonData
         jsonData = jsonData.filter((item, index, self) => {
-          return index === self.findIndex((t) => (
-            t.wholesalerKey === item.wholesalerKey
-          ));
+          return (
+            index ===
+            self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
+          );
         });
 
         // Dodawanie dostawców z JSON na górze listy wyboru
         jsonData.forEach((item) => {
-          const wholesaler = wholesalersData.find(wholesaler => wholesaler.wholesalerKey === item.wholesalerKey);
-          const wholesalerName = wholesaler ? wholesaler.name : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''}>${wholesalerName}</option>`;
+          const wholesaler = wholesalersData.find(
+            (wholesaler) => wholesaler.wholesalerKey === item.wholesalerKey
+          );
+          const wholesalerName = wholesaler
+            ? wholesaler.name
+            : item.wholesalerKey;
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
@@ -574,12 +589,22 @@ docReady(function () {
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
       wholesalersData.forEach((wholesaler) => {
-        if (!jsonData || !jsonData.some(item => item.wholesalerKey === wholesaler.wholesalerKey)) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey ? ' selected style="font-weight: bold"' : ''} style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+        if (
+          !jsonData ||
+          !jsonData.some(
+            (item) => item.wholesalerKey === wholesaler.wholesalerKey
+          )
+        ) {
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
-      selectHTML += "<option value='remove' style='font-weight: bold'>Anuluj wybór</option></select>";
+      selectHTML +=
+        "<option value='remove' style='font-weight: bold'>Anuluj wybór</option></select>";
       return selectHTML;
     } else {
       return "Brak dostawców do wyboru.";
@@ -590,19 +615,18 @@ docReady(function () {
     if (!Array.isArray(derived)) {
       return derived; // Jeśli "derived" nie jest listą, zwróć wartość
     }
-  
+
     // Połącz elementy listy za pomocą przecinka i znaku nowej linii
     const polaczonyWynik = derived.join(",\n");
-  
-    return polaczonyWynik; // Zwróć wynik jako ciąg znaków
-    
-  }
-    function GetSplittedProducts() {
 
+    return polaczonyWynik; // Zwróć wynik jako ciąg znaków
+  }
+  function GetSplittedProducts() {
     $("#spl_table_wrapper").show();
     $.ajax({
       type: "GET",
-      url: InvokeURL +
+      url:
+        InvokeURL +
         "shops/" +
         shopKey +
         "/orders/" +
@@ -632,9 +656,7 @@ docReady(function () {
         var products = resultProducts;
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
-          order: [
-            [10, "desc"]
-          ], // This is column that contain values "Obniz Cene"
+          order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"f>rt<"bottom"lip>',
@@ -666,266 +688,289 @@ docReady(function () {
           search: {
             return: true,
           },
-          columns: [{
-            data: null,
-            defaultContent: '',
-            createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
-              if (rowData.asks && rowData.asks.length > 0) {
-                $(cell).addClass('details-control');
-              }
+          columns: [
+            {
+              data: null,
+              defaultContent: "",
+              createdCell: function (
+                cell,
+                cellData,
+                rowData,
+                rowIndex,
+                colIndex
+              ) {
+                if (rowData.asks && rowData.asks.length > 0) {
+                  $(cell).addClass("details-control");
+                }
+              },
+              orderable: false,
             },
-            orderable: false
-          },
-          {
-            orderable: true,
-            data: "name",
-          },
-          {
-            orderable: true,
-            data: "gtin",
-          },
-          {
-            orderable: true,
-            data: "derived",
-            render: function (data) {
-              if (data !== null) {
-                // Przetwórz dane przy użyciu funkcji generującej kod HTML
-                const kodHTML = generujKodHTML(data);
-                return kodHTML;
-              }
-              if (data === null) {
-                return "-";
-              }
+            {
+              orderable: true,
+              data: "name",
             },
-          },          
-          {
-            orderable: false,
-            data: "inStock",
-            render: function (data) {
-              if (data !== null) {
-                return "" + data.value;
-              }
-              if (data === null) {
-                return "0";
-              }
+            {
+              orderable: true,
+              data: "gtin",
             },
-          },
-          {
-            orderable: false,
-            data: null,
-            render: function (data) {
-              if (data.gtin.indexOf('?') >= 0) {
-                return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
-                  data.quantity +
-                  '" disabled>'
-
-                );
-              }
-              else {
-                return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
-                  data.quantity +
-                  '" >'
-
-                );
-              }
+            {
+              orderable: true,
+              data: "derived.gtin",
+              render: function (data) {
+                if (data !== null) {
+                  // Przetwórz dane przy użyciu funkcji generującej kod HTML
+                  const kodHTML = generujKodHTML(data);
+                  return kodHTML;
+                }
+                if (data === null) {
+                  return "-";
+                }
+              },
             },
-          },
-          {
-            orderable: false,
-            data: "standardPrice",
-            render: function (data) {
-              if (data !== null) {
-                return "" + data.value.toFixed(2);
-              }
-              if (data === null) {
-                return "0";
-              }
+            {
+              orderable: false,
+              data: "inStock",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.value;
+                }
+                if (data === null) {
+                  return "0";
+                }
+              },
             },
-          },
-          {
-            orderable: true,
-            data: "netPrice",
-            render: function (data) {
-              if (data !== null) {
-                return "" + data.toFixed(2);
-              }
-              if (data === null) {
-                return "0";
-              }
-            },
-          },
-          {
-            orderable: true,
-            data: null,
-            render: function (data) {
-              if (data.gtin.indexOf('?') >= 0) {
-                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, 1));
-              }
-              else {
-                return ('<p style="font-size: 0;display: none">' + data.wholesalerKey + '</p>' + generateWholesalerSelect(data.wholesalerKey, data.asks, 0));
-              }
-            },
-          },
-          {
-            orderable: true,
-            data: "assignmentSource",
-            render: function (data) {
-              if (data !== null) {
-                if (data === "bestMatch") {
+            {
+              orderable: false,
+              data: null,
+              render: function (data) {
+                if (data.gtin.indexOf("?") >= 0) {
                   return (
-                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>'
-                  );
-                } else if (data === "exclusive") {
-                  return (
-                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>'
+                    '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
+                    data.quantity +
+                    '" disabled>'
                   );
                 } else {
                   return (
-                    '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">3</p></div>'
+                    '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
+                    data.quantity +
+                    '" >'
                   );
                 }
-              } else {
-                return '<p class="neutral">-</p>';
-              }
+              },
             },
-          },
-          {
-            orderable: true,
-            data: null,
-            width: "72px",
-            // class: "details-invisible",
-            render: function (data) {
-              if (data.hasOwnProperty("asks") && data.asks !== null) {
-                let currentPrice = 0
-                let lowestPrice = 0
-                if (data.netNetPrice !== null) {
-                  currentPrice = data.netNetPrice;
-                  lowestPrice = data.asks.length ?
-                    Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
-                    null;
-                } else {
-                  currentPrice = data.netPrice;
-                  lowestPrice = data.asks.length ?
-                    Math.min(...data.asks.map((a) => a.netPrice).filter((price) => price !== null)) :
-                    null;
+            {
+              orderable: false,
+              data: "standardPrice",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.value.toFixed(2);
                 }
-
-                if (currentPrice > lowestPrice) {
-                  var diffPercent = (
-                    ((currentPrice - lowestPrice) / currentPrice) *
-                    100
-                  ).toFixed(2);
+                if (data === null) {
+                  return "0";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "netPrice",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.toFixed(2);
+                }
+                if (data === null) {
+                  return "0";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: null,
+              render: function (data) {
+                if (data.gtin.indexOf("?") >= 0) {
                   return (
-                    "<td>" +
-                    diffPercent +
-                    '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
-                    "</td>"
+                    '<p style="font-size: 0;display: none">' +
+                    data.wholesalerKey +
+                    "</p>" +
+                    generateWholesalerSelect(data.wholesalerKey, data.asks, 1)
                   );
+                } else {
+                  return (
+                    '<p style="font-size: 0;display: none">' +
+                    data.wholesalerKey +
+                    "</p>" +
+                    generateWholesalerSelect(data.wholesalerKey, data.asks, 0)
+                  );
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "assignmentSource",
+              render: function (data) {
+                if (data !== null) {
+                  if (data === "bestMatch") {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>';
+                  } else if (data === "exclusive") {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>';
+                  } else {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">3</p></div>';
+                  }
+                } else {
+                  return '<p class="neutral">-</p>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: null,
+              width: "72px",
+              // class: "details-invisible",
+              render: function (data) {
+                if (data.hasOwnProperty("asks") && data.asks !== null) {
+                  let currentPrice = 0;
+                  let lowestPrice = 0;
+                  if (data.netNetPrice !== null) {
+                    currentPrice = data.netNetPrice;
+                    lowestPrice = data.asks.length
+                      ? Math.min(
+                          ...data.asks
+                            .map((a) => a.netNetPrice)
+                            .filter((price) => price !== null)
+                        )
+                      : null;
+                  } else {
+                    currentPrice = data.netPrice;
+                    lowestPrice = data.asks.length
+                      ? Math.min(
+                          ...data.asks
+                            .map((a) => a.netPrice)
+                            .filter((price) => price !== null)
+                        )
+                      : null;
+                  }
+
+                  if (currentPrice > lowestPrice) {
+                    var diffPercent = (
+                      ((currentPrice - lowestPrice) / currentPrice) *
+                      100
+                    ).toFixed(2);
+                    return (
+                      "<td>" +
+                      diffPercent +
+                      '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
+                      "</td>"
+                    );
+                  } else {
+                    return (
+                      '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                      "</td>"
+                    );
+                  }
                 } else {
                   return (
                     '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
                     "</td>"
                   );
                 }
-              } else {
-                return (
-                  '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                  "</td>"
-                );
-              }
+              },
             },
-          },
-          {
-            orderable: true,
-            data: "standardPrice",
-            render: function (data) {
-              if (
-                data !== null &&
-                data.hasOwnProperty("wholesalerPremium") &&
-                data.wholesalerPremium !== null
-              ) {
-                if (data.wholesalerPremium >= 0) {
-                  return (
-                    '<p class="positive">' + data.wholesalerPremium + "</p>"
-                  );
+            {
+              orderable: true,
+              data: "standardPrice",
+              render: function (data) {
+                if (
+                  data !== null &&
+                  data.hasOwnProperty("wholesalerPremium") &&
+                  data.wholesalerPremium !== null
+                ) {
+                  if (data.wholesalerPremium >= 0) {
+                    return (
+                      '<p class="positive">' + data.wholesalerPremium + "</p>"
+                    );
+                  } else {
+                    return (
+                      '<p class="negative">' + data.wholesalerPremium + "</p>"
+                    );
+                  }
                 } else {
-                  return (
-                    '<p class="negative">' + data.wholesalerPremium + "</p>"
-                  );
+                  return '<p class="positive">0</p>';
                 }
-              } else {
-                return '<p class="positive">0</p>';
-              }
+              },
             },
-          },
-          {
-            orderable: false,
-            data: "rotationIndicator",
-            defaultContent: "brak",
-            render: function (data) {
-              if (data == "AX") {
-                return '<p class="super">' + data + "</p>";
-              }
-              if (data == "AY" || data == "BX") {
-                return '<p class="positive">' + data + "</p>";
-              }
-              if (data == "AZ" || data == "CX" || data == "BY") {
-                return '<p class="medium">' + data + "</p>";
-              }
-              if (data == "BZ" || data == "CY") {
-                return '<p class="negative">' + data + "</p>";
-              }
-              if (data == "CZ") {
-                return '<p class="bad">' + data + "</p>";
-              }
-              if (data == null) {
-                return '<p class="noneexisting">' + "-" + "</p>";
-              }
+            {
+              orderable: false,
+              data: "rotationIndicator",
+              defaultContent: "brak",
+              render: function (data) {
+                if (data == "AX") {
+                  return '<p class="super">' + data + "</p>";
+                }
+                if (data == "AY" || data == "BX") {
+                  return '<p class="positive">' + data + "</p>";
+                }
+                if (data == "AZ" || data == "CX" || data == "BY") {
+                  return '<p class="medium">' + data + "</p>";
+                }
+                if (data == "BZ" || data == "CY") {
+                  return '<p class="negative">' + data + "</p>";
+                }
+                if (data == "CZ") {
+                  return '<p class="bad">' + data + "</p>";
+                }
+                if (data == null) {
+                  return '<p class="noneexisting">' + "-" + "</p>";
+                }
+              },
             },
-          },
-          {
-            orderable: false,
-            class: "details-control4",
-            width: "20px",
-            data: null,
-            defaultContent:
-              "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-          },
-          {
-            orderable: false,
-            class: "details-control3",
-            width: "20px",
-            data: null,
-            defaultContent:
-              "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
-          }
+            {
+              orderable: false,
+              class: "details-control4",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+            },
+            {
+              orderable: false,
+              class: "details-control3",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
+            },
           ],
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
-              let currentPrice = 0
-              let lowestPrice = 0
+              let currentPrice = 0;
+              let lowestPrice = 0;
               if (data.netNetPrice !== null) {
                 currentPrice = data.netNetPrice;
-                lowestPrice = data.asks.length ?
-                  Math.min(...data.asks.map((a) => a.netNetPrice).filter((price) => price !== null)) :
-                  null;
+                lowestPrice = data.asks.length
+                  ? Math.min(
+                      ...data.asks
+                        .map((a) => a.netNetPrice)
+                        .filter((price) => price !== null)
+                    )
+                  : null;
               } else {
                 currentPrice = data.netPrice;
-                lowestPrice = data.asks.length ?
-                  Math.min(...data.asks.map((a) => a.netPrice).filter((price) => price !== null)) :
-                  null;
+                lowestPrice = data.asks.length
+                  ? Math.min(
+                      ...data.asks
+                        .map((a) => a.netPrice)
+                        .filter((price) => price !== null)
+                    )
+                  : null;
               }
 
               if (currentPrice > lowestPrice) {
                 $("td", row).css("background-color", "#FFFAE6");
               }
-
-            } else { }
+            } else {
+            }
           },
           initComplete: function (settings, json) {
-            LoadTippy()
+            LoadTippy();
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
@@ -954,10 +999,9 @@ docReady(function () {
 
   function makeChangesToOrder() {
     return new Promise((resolve, reject) => {
-
       if (changesPayload.length > 0) {
-
-        var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
+        var action =
+          InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products";
         var method = "PATCH";
         $.ajax({
           type: method,
@@ -992,56 +1036,56 @@ docReady(function () {
     });
   }
 
-  $("#spl_table").on(
-    "click",
-    "td.details-control",
-    function () {
-      //Get the righ table
-      var table = $("#spl_table").DataTable();
-      var tr = $(this).closest("tr");
-      var row = table.row(tr);
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass("shown");
-      } else {
-        row.child(format(row.data())).show();
-        tr.addClass("shown");
-      }
+  $("#spl_table").on("click", "td.details-control", function () {
+    //Get the righ table
+    var table = $("#spl_table").DataTable();
+    var tr = $(this).closest("tr");
+    var row = table.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
     }
-  );
+  });
 
   function addBlurOverlay(targetDivId, messageText) {
     // Upewnij się, że nakładka nie została już dodana
-    if (!$('#' + targetDivId).prev().hasClass('blur-overlay')) {
-      const targetDiv = $('#' + targetDivId);
+    if (
+      !$("#" + targetDivId)
+        .prev()
+        .hasClass("blur-overlay")
+    ) {
+      const targetDiv = $("#" + targetDivId);
       const overlayDiv = $('<div class="blur-overlay"></div>');
-      const messageDiv = $('<div></div>');
+      const messageDiv = $("<div></div>");
 
       // Dodaj tekst do messageDiv
       messageDiv.text(messageText);
 
       // Ustaw inline CSS dla messageDiv
       messageDiv.css({
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        textAlign: 'center',
-        color: 'black', // Ustaw kolor tekstu
-        fontSize: '16px', // Ustaw rozmiar czcionki
-        fontWeight: 'bold' // Ustaw pogrubienie czcionki
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        textAlign: "center",
+        color: "black", // Ustaw kolor tekstu
+        fontSize: "16px", // Ustaw rozmiar czcionki
+        fontWeight: "bold", // Ustaw pogrubienie czcionki
       });
 
       overlayDiv.css({
-        position: 'absolute',
+        position: "absolute",
         width: targetDiv.outerWidth(),
         height: targetDiv.outerHeight(),
         top: targetDiv.position().top,
         left: targetDiv.position().left,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        backdropFilter: 'blur(0.5px)',
-        pointerEvents: 'none',
-        zIndex: 10
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backdropFilter: "blur(0.5px)",
+        pointerEvents: "none",
+        zIndex: 10,
       });
 
       // Dodaj messageDiv do overlayDiv
@@ -1053,8 +1097,8 @@ docReady(function () {
   }
 
   function updateOverlaySize(targetDivId) {
-    const targetDiv = $('#' + targetDivId);
-    const overlayDiv = targetDiv.prev('.blur-overlay');
+    const targetDiv = $("#" + targetDivId);
+    const overlayDiv = targetDiv.prev(".blur-overlay");
 
     // Sprawdź, czy nakładka istnieje, zanim zaktualizujesz jej rozmiar
     if (overlayDiv.length) {
@@ -1062,20 +1106,23 @@ docReady(function () {
         width: targetDiv.outerWidth(),
         height: targetDiv.outerHeight(),
         top: targetDiv.position().top,
-        left: targetDiv.position().left
+        left: targetDiv.position().left,
       });
     }
   }
 
-  $(window).on('resize', function () {
-    updateOverlaySize('table-content');
+  $(window).on("resize", function () {
+    updateOverlaySize("table-content");
   });
 
   function checkChangesPayload() {
     if (changesPayload.length > 0) {
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
-      if (!$('.blur-overlay').length) {
-        addBlurOverlay('table-content', 'Dokonałeś zmian w produktach, podziel zamówienie ponownie.');
+      if (!$(".blur-overlay").length) {
+        addBlurOverlay(
+          "table-content",
+          "Dokonałeś zmian w produktach, podziel zamówienie ponownie."
+        );
       }
     } else {
       // Usuń nakładkę, jeśli liczba rekordów wynosi 0
@@ -1084,7 +1131,7 @@ docReady(function () {
   }
 
   function removeBlurOverlay() {
-    $('.blur-overlay').remove();
+    $(".blur-overlay").remove();
   }
 
   function isValidBarcode(value) {
@@ -1093,28 +1140,26 @@ docReady(function () {
       return false;
     }
 
-    const paddedValue = value.padStart(14, '0');
+    const paddedValue = value.padStart(14, "0");
 
     let result = 0;
     for (let i = 0; i < paddedValue.length - 1; i += 1) {
-      result += parseInt(paddedValue.charAt(i), 10) * ((i % 2 === 0) ? 3 : 1);
+      result += parseInt(paddedValue.charAt(i), 10) * (i % 2 === 0 ? 3 : 1);
     }
 
-    return ((10 - (result % 10)) % 10) === parseInt(paddedValue.charAt(13), 10);
+    return (10 - (result % 10)) % 10 === parseInt(paddedValue.charAt(13), 10);
   }
-
-
 
   $("#zipcontainer").on("click", "img", function () {
     var fileformat = $(this).attr("fileformat");
     const downloadLink = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers?filesFormat=" +
-      fileformat
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers?filesFormat=" +
+        fileformat
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -1152,12 +1197,12 @@ docReady(function () {
     var wholesalerKey = data.wholesalerKey;
     const downloadLink = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers/" +
-      wholesalerKey
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers/" +
+        wholesalerKey
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -1191,11 +1236,12 @@ docReady(function () {
       });
   });
 
-
   var changesPayload = [];
 
   function addObject(changesPayload, newObj) {
-    const existingObj = changesPayload.find(item => item.path === newObj.path);
+    const existingObj = changesPayload.find(
+      (item) => item.path === newObj.path
+    );
 
     if (existingObj) {
       existingObj.value = newObj.value;
@@ -1219,21 +1265,27 @@ docReady(function () {
 
     // Check if the value has changed
     if (newValue !== initialValue) {
-
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
-
-        // Sprawdź, czy wartość jest pusta lub nieprawidłowa
         let quantity = parseInt(newValue);
         if (isNaN(quantity) || quantity < 0) {
           quantity = 0; // Jeśli tak, zmień wartość na 0
         }
-        var product = {
-          op: "replace",
-          path: "/" + data.gtin + "/quantity",
-          value: quantity,
-        };
+
+        if (data.derived !== null) {
+          var product = {
+            op: "replace",
+            path: "/" + data.derived.gtin + "/quantity",
+            value: data.derived.set * quantity,
+          };
+        } else {
+          var product = {
+            op: "replace",
+            path: "/" + data.gtin + "/quantity",
+            value: quantity,
+          };
+        }
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
@@ -1250,14 +1302,14 @@ docReady(function () {
   });
 
   $("#spl_table").on("click", "img.showdata", function () {
-    var dataToDisplay = $(this)
-    const popupContainer = document.getElementById('ReleatedProducts');
-    const popupContent = document.getElementById('popupContent');
-    var input = dataToDisplay.data('content');
+    var dataToDisplay = $(this);
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
+    var input = dataToDisplay.data("content");
     var values = input.split(",");
     var output = "<td>" + values.join("<br>") + "</td>";
     popupContent.innerHTML = output;
-    popupContainer.style.display = 'flex';
+    popupContainer.style.display = "flex";
   });
 
   $("#spl_table").on("click", "td.details-control3", function () {
@@ -1267,11 +1319,11 @@ docReady(function () {
 
     if (isValidBarcode(rowData.gtin)) {
       var GTINEdit = document.getElementById("gtin");
-      GTINEdit.value = rowData.gtin
+      GTINEdit.value = rowData.gtin;
       GTINEdit.disabled = true;
       var NameInput = document.getElementById("new-name");
-      NameInput.value = rowData.name
-      NameInput.textContent = rowData.name
+      NameInput.value = rowData.name;
+      NameInput.textContent = rowData.name;
       $("#ProposeChangeInGtinModal").css("display", "flex");
     }
   });
@@ -1282,19 +1334,13 @@ docReady(function () {
     var rowData = table.row(tr).data();
 
     if (isValidBarcode(rowData.gtin)) {
-      var payloadDelete = { "op": "remove", "path": "/" + rowData.gtin }
+      var payloadDelete = { op: "remove", path: "/" + rowData.gtin };
       addObject(changesPayload, payloadDelete);
       // Emulate changes for user
       $("#waitingdots").show(1).delay(150).hide(1);
-      table
-        .row($(this).parents('tr'))
-        .remove()
-        .draw();
+      table.row($(this).parents("tr")).remove().draw();
       checkChangesPayload();
     }
-
-
-
   });
 
   $("#spl_table").on("focusout", "select", function () {
@@ -1314,18 +1360,17 @@ docReady(function () {
         var product = {
           op: "remove",
           path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-        }
+        };
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
-      }
-      else if (data.gtin !== null && newValue) {
+      } else if (data.gtin !== null && newValue) {
         var product = {
           op: "replace",
           path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
           value: newValue,
-        }
+        };
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
@@ -1335,7 +1380,6 @@ docReady(function () {
       }
     }
   });
-
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
@@ -1400,18 +1444,17 @@ docReady(function () {
         var oldname = document.getElementById("new-name");
 
         var data = {
-          "organization": organization,
-          "organizationId": organizationId,
-          "data": {
-            "gtin": $("#gtin").val(),
+          organization: organization,
+          organizationId: organizationId,
+          data: {
+            gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
             "new-name": $("#new-name").val(),
-            "brand": $("#brand").val(),
-            "measurement": $("#measurement").val(),
-            "quantity": $("#quantity").val()
-          }
-        }
-
+            brand: $("#brand").val(),
+            measurement: $("#measurement").val(),
+            quantity: $("#quantity").val(),
+          },
+        };
 
         $.ajax({
           type: "POST",
