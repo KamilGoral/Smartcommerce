@@ -945,6 +945,8 @@ docReady(function () {
                     return '<spann class="medium">Dodaj</spann>';
                   } else if (data.enabled == true && data.active == false) {
                     return '<spann class="improve">Przywróć</spann>';
+                  } else if (data.enabled == false && data.active == true) {
+                    return '<spann class="medium">Dodaj</spann>';
                   }
                 } else {
                   return '<spann class="noneexisting">Brak</spann>';
