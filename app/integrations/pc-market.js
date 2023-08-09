@@ -234,7 +234,6 @@ docReady(function () {
         }
 
         $(".warningmessagetext").text(msg);
-        form.show();
         doneBlock.hide();
         failBlock.show();
         setTimeout(function () {
