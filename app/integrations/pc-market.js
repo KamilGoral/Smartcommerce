@@ -158,17 +158,17 @@ docReady(function () {
 
     if (changeOfStatus === true) {
       requestMethod = "PUT";
+      var data = [
+        {
+          op: "add",
+          path: "/enabled",
+          value: changeOfStatus,
+        },
+      ];
     } else {
       requestMethod = "DELETE";
+      var data = null;
     }
-
-    var data = [
-      {
-        op: "add",
-        path: "/enabled",
-        value: changeOfStatus,
-      },
-    ];
 
     $.ajax({
       type: requestMethod,
