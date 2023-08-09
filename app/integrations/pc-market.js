@@ -156,8 +156,6 @@ docReady(function () {
     var failBlock = $("#integrationfail");
     var requestMethod = "";
 
-    
-
     var ajaxConfig = {
       type: requestMethod,
       url: InvokeURL + "integrations/pc-market",
@@ -244,24 +242,24 @@ docReady(function () {
         }, 2000);
         return;
       },
-    }
+    };
 
     if (changeOfStatus === true) {
       ajaxConfig.type = "PUT";
       var data = [
-          {
-              op: "add",
-              path: "/enabled",
-              value: changeOfStatus,
-          },
+        {
+          op: "add",
+          path: "/enabled",
+          value: changeOfStatus,
+        },
       ];
       ajaxConfig.data = JSON.stringify(data);
-  } else {
-    ajaxConfig.type = "DELETE";
+    } else {
+      ajaxConfig.type = "DELETE";
+    }
+
+    $.ajax(ajaxConfig);
   }
-  
-  $.ajax(ajaxConfig);
-  
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
