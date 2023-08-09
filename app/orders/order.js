@@ -1356,21 +1356,28 @@ docReady(function () {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
 
-      if (data.gtin !== null && newValue === "remove") {
+      if (data.derived !== null) {
+        var trueGtin = data.derived.gtin;
+      } else {
+        var trueGtin = data.gtin;
+      }
+
+      if (trueGtin !== null && newValue === "remove") {
         var product = {
           op: "remove",
-          path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
+          path: "/" + trueGtin + "/rigidAssignment/wholesalerKey",
         };
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
-      } else if (data.gtin !== null && newValue) {
+      } else if (trueGtin !== null && newValue) {
         var product = {
           op: "replace",
-          path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
+          path: "/" + trueGtin + "/rigidAssignment/wholesalerKey",
           value: newValue,
         };
+
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
