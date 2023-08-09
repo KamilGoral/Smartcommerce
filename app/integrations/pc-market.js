@@ -156,21 +156,9 @@ docReady(function () {
     var failBlock = $("#integrationfail");
     var requestMethod = "";
 
-    if (changeOfStatus === true) {
-      requestMethod = "PUT";
-      var data = [
-        {
-          op: "add",
-          path: "/enabled",
-          value: changeOfStatus,
-        },
-      ];
-    } else {
-      requestMethod = "DELETE";
-      var data = null;
-    }
+    
 
-    $.ajax({
+    var ajaxConfig = {
       type: requestMethod,
       url: InvokeURL + "integrations/pc-market",
       cors: true,
@@ -187,7 +175,6 @@ docReady(function () {
         "Content-Type": "application/json",
         Authorization: orgToken,
       },
-      data: JSON.stringify(data),
       success: function (resultData) {
         console.log(resultData);
 
@@ -257,8 +244,24 @@ docReady(function () {
         }, 2000);
         return;
       },
-    });
+    }
+
+    if (changeOfStatus === true) {
+      ajaxConfig.type = "PUT";
+      var data = [
+          {
+              op: "add",
+              path: "/enabled",
+              value: changeOfStatus,
+          },
+      ];
+      ajaxConfig.data = JSON.stringify(data);
+  } else {
+    ajaxConfig.type = "DELETE";
   }
+  
+  $.ajax(ajaxConfig);
+  
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
