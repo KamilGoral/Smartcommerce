@@ -154,10 +154,8 @@ docReady(function () {
     console.log("starting Updating function");
     var doneBlock = $("#integrationsuccess");
     var failBlock = $("#integrationfail");
-    var requestMethod = "";
 
     var ajaxConfig = {
-      type: requestMethod,
       url: InvokeURL + "integrations/pc-market",
       cors: true,
       beforeSend: function () {
