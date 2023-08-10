@@ -715,11 +715,11 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "derived.gtin",
+              data: "derived",
               render: function (data) {
                 if (data !== null) {
                   // Przetwórz dane przy użyciu funkcji generującej kod HTML
-                  const kodHTML = generujKodHTML(data);
+                  const kodHTML = generujKodHTML(data.gtin);
                   return kodHTML;
                 }
                 if (data === null) {
