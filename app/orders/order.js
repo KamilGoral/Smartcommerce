@@ -1306,7 +1306,13 @@ docReady(function () {
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
     var input = dataToDisplay.data("content");
+
     var values = input.split(",");
+
+    if (!input) {
+      console.error("Brak danych do wyświetlenia.");
+      return;
+    }
     var output = "<td>" + values.join("<br>") + "</td>";
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
