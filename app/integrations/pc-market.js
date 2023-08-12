@@ -80,7 +80,7 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
         console.log(toParse);
         for (var i = 0; i < toParse.length; i++) {
-          var divId = toParse[i];
+          var divId = toParse[i].shopKey;
           var parentDiv = document.getElementById(divId);
           if (parentDiv) {
             var anchorElement = parentDiv.querySelector(
@@ -263,7 +263,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
         var doneBlock = $("#w-form-done4");
         var failBlock = $("#w-form-fail4");
         var inputdata = form.serializeArray();
@@ -323,8 +322,33 @@ docReady(function () {
           error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Nieznany błąd. Sprawdź, czy adres IP SmartMerchant jest umieszczony na białej liście w opcjach VPN Twojej bazy danych, zweryfikuj poprawność ustawień VPN oraz zweryfikuj szczegóły połączenia integracji.";
+            } else if (jqXHR.status == 400) {
+              msg = "Nie znaleziono strony";
+            } else if (jqXHR.status == 404) {
+              msg = "Nie znaleziono strony";
+            } else if (jqXHR.status == 403) {
+              msg = "Nie masz uprawnień do tej czynności";
+            } else if (jqXHR.status == 409) {
+              msg =
+                "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
+            } else if (jqXHR.status == 500) {
+              msg =
+                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+            } else if (exception === "parsererror") {
+              msg = "Nie udało się odczytać danych";
+            } else if (exception === "timeout") {
+              msg = "Przekroczony czas oczekiwania";
+            } else if (exception === "abort") {
+              msg = "Twoje żądanie zostało zaniechane";
+            } else {
+              msg =
+                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+            }
+
             var elements =
               document.getElementsByClassName("warningmessagetext");
             for (var i = 0; i < elements.length; i++) {
@@ -332,7 +356,7 @@ docReady(function () {
             }
             form.show();
             failBlock.show();
-            failBlock.fadeOut(5000);
+            failBlock.fadeOut(10000);
             return;
           },
         });
