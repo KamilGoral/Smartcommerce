@@ -312,7 +312,6 @@ docReady(function () {
                 return;
               }
             }
-            form.hide();
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
@@ -412,10 +411,7 @@ docReady(function () {
               (document.location = "href"),
                 "https://" +
                 DomainName +
-                "/app/tenants/organization?name=" +
-                OrganizationName +
-                "&clientId=" +
-                ClientID;
+                "/app/integrations/pc-market"
             }, 5000);
           },
           error: function (jqXHR, exception) {
