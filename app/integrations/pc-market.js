@@ -169,8 +169,7 @@ docReady(function () {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: orgToken,
-        "Access-Control-Allow-Methods": "OPTIONS, DELETE",
+        Authorization: orgToken
       },
       success: function (resultData) {
         console.log(resultData);
