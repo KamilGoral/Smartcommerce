@@ -264,8 +264,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $(".w-form-done4", container);
-        var failBlock = $(".w-form-fail4", container);
+        var doneBlock = $("#w-form-done4");
+        var failBlock = $("#w-form-fail4");
         var inputdata = form.serializeArray();
         var shopKey = $("#shopKeyIntegrate").attr("shopkey");
 
@@ -321,7 +321,6 @@ docReady(function () {
             }, 1000);
           },
           error: function (jqXHR, exception) {
-            console.log(jqXHR);
             console.log(jqXHR);
             console.log(exception);
             var msg =
