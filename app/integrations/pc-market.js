@@ -136,8 +136,10 @@ docReady(function () {
           }
           shopContainer.appendChild(row);
         });
+        $("#waitingdots").show();
         getShopsIntegration();
         LoadButtons();
+        $("#waitingdots").hide();
         if (request.status == 401) {
           console.log("Unauthorized");
         }
