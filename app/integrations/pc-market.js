@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   function getIntegrations() {
@@ -174,16 +174,14 @@ docReady(function () {
       success: function (resultData) {
         console.log(resultData);
 
-        if (resultData.enabled == true) {
+        if (typeof resultData !== 'undefined' && resultData.enabled == true) {
           console.log("Aktywny");
           $("#integrationStatus .editor-active").prop("checked", true);
-        } else if ( typeof resultData === 'undefined'){
-          console.log("Nieaktywny");
-          $("#integrationStatus .editor-active").prop("checked", false);
         } else {
           console.log("Nieaktywny");
           $("#integrationStatus .editor-active").prop("checked", false);
         }
+
 
         if (typeof successCallback === "function") {
           // call custom callback
@@ -390,11 +388,11 @@ docReady(function () {
             window.setTimeout(function () {
               (document.location = "href"),
                 "https://" +
-                  DomainName +
-                  "/app/tenants/organization?name=" +
-                  OrganizationName +
-                  "&clientId=" +
-                  ClientID;
+                DomainName +
+                "/app/tenants/organization?name=" +
+                OrganizationName +
+                "&clientId=" +
+                ClientID;
             }, 5000);
           },
           error: function (jqXHR, exception) {
