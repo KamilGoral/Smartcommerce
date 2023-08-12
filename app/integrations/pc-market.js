@@ -177,6 +177,9 @@ docReady(function () {
         if (resultData.enabled == true) {
           console.log("Aktywny");
           $("#integrationStatus .editor-active").prop("checked", true);
+        } else if ( typeof resultData === 'undefined'){
+          console.log("Nieaktywny");
+          $("#integrationStatus .editor-active").prop("checked", false);
         } else {
           console.log("Nieaktywny");
           $("#integrationStatus .editor-active").prop("checked", false);
