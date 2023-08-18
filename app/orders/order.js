@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -52,11 +52,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/orders/order?orderId=" +
-      OrderIdBread +
-      "&shopKey=" +
-      shopKey
+    DomainName +
+    "/app/orders/order?orderId=" +
+    OrderIdBread +
+    "&shopKey=" +
+    shopKey
   );
 
   async function CreateOrder() {
@@ -106,18 +106,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-          wholesaler +
-          '">' +
-          wholesaler +
-          '<input type="checkbox" class="theClass" id="' +
-          wholesaler +
-          '" value="' +
-          wholesaler +
-          '" name="' +
-          wholesaler +
-          '"><label class="mylabel" for="' +
-          wholesaler +
-          '"></label></div>'
+        wholesaler +
+        '">' +
+        wholesaler +
+        '<input type="checkbox" class="theClass" id="' +
+        wholesaler +
+        '" value="' +
+        wholesaler +
+        '" name="' +
+        wholesaler +
+        '"><label class="mylabel" for="' +
+        wholesaler +
+        '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -552,6 +552,10 @@ docReady(function () {
       if (isDisabled == 1) {
         selectHTML =
           '<select style="width: 120px;" class="wholesalerSelect" disabled>';
+      } else if (selectedWholesalerKey == "unassigned") {
+        selectHTML =
+          '<select style="width: 120px;" class="wholesalerSelect">';
+        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
       }
@@ -576,11 +580,10 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${
-            item.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          }>${wholesalerName}</option>`;
+            }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
@@ -595,11 +598,10 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
-            wholesaler.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -834,19 +836,19 @@ docReady(function () {
                     currentPrice = data.netNetPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                          ...data.asks
-                            .map((a) => a.netNetPrice)
-                            .filter((price) => price !== null)
-                        )
+                        ...data.asks
+                          .map((a) => a.netNetPrice)
+                          .filter((price) => price !== null)
+                      )
                       : null;
                   } else {
                     currentPrice = data.netPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                          ...data.asks
-                            .map((a) => a.netPrice)
-                            .filter((price) => price !== null)
-                        )
+                        ...data.asks
+                          .map((a) => a.netPrice)
+                          .filter((price) => price !== null)
+                      )
                       : null;
                   }
 
@@ -948,19 +950,19 @@ docReady(function () {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                      ...data.asks
-                        .map((a) => a.netNetPrice)
-                        .filter((price) => price !== null)
-                    )
+                    ...data.asks
+                      .map((a) => a.netNetPrice)
+                      .filter((price) => price !== null)
+                  )
                   : null;
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                      ...data.asks
-                        .map((a) => a.netPrice)
-                        .filter((price) => price !== null)
-                    )
+                    ...data.asks
+                      .map((a) => a.netPrice)
+                      .filter((price) => price !== null)
+                  )
                   : null;
               }
 
@@ -1155,12 +1157,12 @@ docReady(function () {
     var fileformat = $(this).attr("fileformat");
     const downloadLink = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+      "shops/" +
+      shopKey +
+      "/orders/" +
+      orderId +
+      "/wholesalers?filesFormat=" +
+      fileformat
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -1198,12 +1200,12 @@ docReady(function () {
     var wholesalerKey = data.wholesalerKey;
     const downloadLink = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+      "shops/" +
+      shopKey +
+      "/orders/" +
+      orderId +
+      "/wholesalers/" +
+      wholesalerKey
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
