@@ -557,7 +557,7 @@ docReady(function () {
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
-      if (jsonData !== null) {
+      if (jsonData !== null && jsonData.length > 0) {
         jsonData.sort((a, b) => a.netPrice - b.netPrice);
 
         // Usuwanie powtarzających się pozycji dostawców z jsonData
@@ -605,7 +605,7 @@ docReady(function () {
 
       selectHTML +=
         "<option value='remove' style='font-weight: bold'>Anuluj wybór</option></select>";
-      selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
+
       return selectHTML;
     } else {
       return "Brak dostawców do wyboru.";
