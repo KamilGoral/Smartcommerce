@@ -567,6 +567,8 @@ docReady(function () {
             self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
           );
         });
+        
+        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
 
         // Dodawanie dostawców z JSON na górze listy wyboru
         jsonData.forEach((item) => {
