@@ -777,21 +777,12 @@ docReady(function () {
               orderable: true,
               data: null,
               render: function (data) {
-                if (data.gtin.indexOf("?") >= 0) {
-                  return (
-                    '<p style="font-size: 0;display: none">' +
-                    data.wholesalerKey +
-                    "</p>" +
-                    generateWholesalerSelect(data.wholesalerKey, data.asks, 1)
-                  );
-                } else {
-                  return (
-                    '<p style="font-size: 0;display: none">' +
-                    data.wholesalerKey +
-                    "</p>" +
-                    generateWholesalerSelect(data.wholesalerKey, data.asks, 0)
-                  );
-                }
+                return (
+                  '<p style="font-size: 0;display: none">' +
+                  data.wholesalerKey +
+                  "</p>" +
+                  generateWholesalerSelect(data.wholesalerKey, data.asks, 0)
+                );
               },
             },
             {
@@ -1329,15 +1320,12 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-
-    if (isValidBarcode(rowData.gtin)) {
-      var payloadDelete = { op: "remove", path: "/" + rowData.gtin };
-      addObject(changesPayload, payloadDelete);
-      // Emulate changes for user
-      $("#waitingdots").show(1).delay(150).hide(1);
-      table.row($(this).parents("tr")).remove().draw();
-      checkChangesPayload();
-    }
+    var payloadDelete = { op: "remove", path: "/" + rowData.gtin };
+    addObject(changesPayload, payloadDelete);
+    // Emulate changes for user
+    $("#waitingdots").show(1).delay(150).hide(1);
+    table.row($(this).parents("tr")).remove().draw();
+    checkChangesPayload();
   });
 
   $("#spl_table").on("focusout", "select", function () {
