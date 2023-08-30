@@ -356,6 +356,22 @@ docReady(function () {
         });
         return false;
       },
+      error: function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 404) {
+          try {
+            var response = JSON.parse(jqXHR.responseText);
+            var regex = /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
+            if (regex.test(response.message)) {
+              window.location.href = "https://" +
+              DomainName +
+              "/app/shops/shop?shopKey=" +
+              shopKey; 
+            }
+          } catch (e) {
+            console.error("Error parsing response:", e);
+          }
+        }
+      },
     });
   }
 
@@ -581,8 +597,8 @@ docReady(function () {
             ? wholesaler.name
             : item.wholesalerKey;
           selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             }>${wholesalerName}</option>`;
         });
       } else {
@@ -599,8 +615,8 @@ docReady(function () {
           )
         ) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
@@ -746,7 +762,7 @@ docReady(function () {
               orderable: false,
               data: null,
               render: function (data) {
-                  return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' + data.quantity + '">';
+                return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' + data.quantity + '">';
               },
             },
             {
