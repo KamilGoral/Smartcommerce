@@ -746,19 +746,7 @@ docReady(function () {
               orderable: false,
               data: null,
               render: function (data) {
-                if (data.gtin.indexOf("?") >= 0) {
-                  return (
-                    '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
-                    data.quantity +
-                    '" disabled>'
-                  );
-                } else {
-                  return (
-                    '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
-                    data.quantity +
-                    '" >'
-                  );
-                }
+                  return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' + data.quantity + '">';
               },
             },
             {

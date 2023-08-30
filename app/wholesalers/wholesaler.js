@@ -68,7 +68,7 @@ docReady(function () {
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
 
-    if (wholesalerKey == "mirex" || wholesalerKey == "phup-gniezno" || wholesalerKey == "smakosz" || wholesalerKey == "abe-dystrybucja") {
+    if (wholesalerKey == "mirex" || wholesalerKey == "phup-gniezno" || wholesalerKey == "smakosz" || wholesalerKey == "abe-dystrybucja" || wholesalerKey == "etqa" || wholesalerKey == "biologistic") {
       $("#CompanyDivEdit").show();
     } else {
       $("#CompanyDivEdit").hide();
