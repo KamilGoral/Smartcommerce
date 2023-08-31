@@ -53,17 +53,17 @@ docReady(function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         document.getElementById("Sample-Integration").style.display = "grid";
-
-        const integrationDescription = document.getElementById(
-          "integrationDescription"
-        );
+  
+        const integrationDescription = document.getElementById("integrationDescription");
         integrationDescription.textContent = data.description;
+  
         const integrationLogo = document.getElementById("integrationLogo");
         integrationLogo.src = "data:image/png;base64," + data.image;
+  
         const integrationStatus = document.getElementById("integrationStatus");
         const integrationButton = document.getElementById("integrationButton");
         const integrationBlock = document.getElementById("enabledblock");
-
+  
         if (data.enabled === true) {
           integrationStatus.textContent = "Aktywny";
           integrationStatus.style.color = "green";
@@ -73,23 +73,33 @@ docReady(function () {
         } else {
           integrationStatus.textContent = "Nieaktywny";
         }
-        const integrationLogin = document.getElementById("Username");
-        integrationLogin.value = data.credentials.username;
-        const integrationHost = document.getElementById("Host");
-        integrationHost.value = data.credentials.host;
-        const integrationPort = document.getElementById("Port");
-        integrationPort.value = data.credentials.port;
-        const integrationEngine = document.getElementById("engine");
-        integrationEngine.value = data.credentials.engine;
-        const integrationDbName = document.getElementById("dbname");
-        integrationDbName.value = data.credentials.dbname;
-        if (request.status === 401) {
-          console.log("Unauthorized");
+  
+        if (data.credentials) {
+          const integrationLogin = document.getElementById("Username");
+          integrationLogin.value = data.credentials.username || '';
+  
+          const integrationHost = document.getElementById("Host");
+          integrationHost.value = data.credentials.host || '';
+  
+          const integrationPort = document.getElementById("Port");
+          integrationPort.value = data.credentials.port || '';
+  
+          const integrationEngine = document.getElementById("engine");
+          integrationEngine.value = data.credentials.engine || '';
+  
+          const integrationDbName = document.getElementById("dbname");
+          integrationDbName.value = data.credentials.dbname || '';
+        } else {
+          console.warn("Credentials data is missing or undefined.");
         }
+  
+      } else if (request.status === 401) {
+        console.log("Unauthorized");
       }
     };
     request.send();
   }
+  
 
   function getShops() {
     async function getIDS() {
