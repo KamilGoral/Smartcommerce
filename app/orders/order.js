@@ -1179,7 +1179,7 @@ docReady(function () {
     $("#waitingdots").show();
     var headersResponse = [];
     fetch(downloadLink, {
-      mode: "cors",
+      mode: "no-cors",
       headers: headers,
     })
       .then((res) => {
