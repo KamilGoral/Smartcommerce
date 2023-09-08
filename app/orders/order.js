@@ -1176,14 +1176,14 @@ docReady(function () {
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
-    let headers = new Headers();
+    let headersReq = new Headers();
     headers.append("Authorization", orgToken);
     headers.append("Accept", "application/zip");
     $("#waitingdots").show();
     var headersResponse = [];
     fetch(downloadLink, {
       mode: "no-cors",
-      headers: headers,
+      headers: headersReq,
     })
       .then((res) => {
         if (res && res.headers) {
