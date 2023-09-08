@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -52,11 +52,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   async function CreateOrder() {
@@ -106,18 +106,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -289,7 +289,7 @@ docReady(function () {
             {
               orderable: false,
               data: "wholesalerKey",
-              render: function(data) {
+              render: function (data) {
                 if (OrganizationName !== "Suzyw") {
                   if (data === "agra") {
                     return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
@@ -307,10 +307,9 @@ docReady(function () {
                     return '<div class="div-block-20"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
                   }
                 }
-            
               },
             },
-            
+
             {
               orderable: false,
               data: "wholesalerKey",
@@ -372,12 +371,11 @@ docReady(function () {
         if (jqXHR.status === 404) {
           try {
             var response = JSON.parse(jqXHR.responseText);
-            var regex = /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
+            var regex =
+              /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
             if (regex.test(response.message)) {
-              window.location.href = "https://" +
-              DomainName +
-              "/app/shops/shop?shopKey=" +
-              shopKey; 
+              window.location.href =
+                "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             }
           } catch (e) {
             console.error("Error parsing response:", e);
@@ -581,8 +579,7 @@ docReady(function () {
         selectHTML =
           '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else if (selectedWholesalerKey == "unassigned") {
-        selectHTML =
-          '<select style="width: 120px;" class="wholesalerSelect">';
+        selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
@@ -608,10 +605,11 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            }>${wholesalerName}</option>`;
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
@@ -626,10 +624,11 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -774,7 +773,11 @@ docReady(function () {
               orderable: false,
               data: null,
               render: function (data) {
-                return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' + data.quantity + '">';
+                return (
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
+                  data.quantity +
+                  '">'
+                );
               },
             },
             {
@@ -843,19 +846,19 @@ docReady(function () {
                     currentPrice = data.netNetPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                        ...data.asks
-                          .map((a) => a.netNetPrice)
-                          .filter((price) => price !== null)
-                      )
+                          ...data.asks
+                            .map((a) => a.netNetPrice)
+                            .filter((price) => price !== null)
+                        )
                       : null;
                   } else {
                     currentPrice = data.netPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                        ...data.asks
-                          .map((a) => a.netPrice)
-                          .filter((price) => price !== null)
-                      )
+                          ...data.asks
+                            .map((a) => a.netPrice)
+                            .filter((price) => price !== null)
+                        )
                       : null;
                   }
 
@@ -957,19 +960,19 @@ docReady(function () {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                    ...data.asks
-                      .map((a) => a.netNetPrice)
-                      .filter((price) => price !== null)
-                  )
+                      ...data.asks
+                        .map((a) => a.netNetPrice)
+                        .filter((price) => price !== null)
+                    )
                   : null;
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                    ...data.asks
-                      .map((a) => a.netPrice)
-                      .filter((price) => price !== null)
-                  )
+                      ...data.asks
+                        .map((a) => a.netPrice)
+                        .filter((price) => price !== null)
+                    )
                   : null;
               }
 
@@ -1164,12 +1167,12 @@ docReady(function () {
     var fileformat = $(this).attr("fileformat");
     const downloadLink = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers?filesFormat=" +
-      fileformat
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers?filesFormat=" +
+        fileformat
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
@@ -1183,17 +1186,29 @@ docReady(function () {
       headers: headers,
     })
       .then((res) => {
-        res.headers.forEach((e) => headersResponse.push(e));
+        if (res && res.headers) {
+          res.headers.forEach((e) => headersResponse.push(e));
+        }
         return res.blob();
       })
       .then((blobby) => {
         $("#waitingdots").hide();
-        var fileName = headersResponse[0].split("filename=")[1];
-        let objectUrl = window.URL.createObjectURL(blobby);
-        anchor.href = objectUrl;
-        anchor.download = fileName;
-        anchor.click();
-        window.URL.revokeObjectURL(objectUrl);
+        if (
+          headersResponse.length > 0 &&
+          headersResponse[0].includes("filename=")
+        ) {
+          var fileName = headersResponse[0].split("filename=")[1];
+          let objectUrl = window.URL.createObjectURL(blobby);
+          anchor.href = objectUrl;
+          anchor.download = fileName;
+          anchor.click();
+          window.URL.revokeObjectURL(objectUrl);
+        } else {
+          console.error("Filename not found in the response headers.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching the file:", error);
       });
   });
 
@@ -1207,12 +1222,12 @@ docReady(function () {
     var wholesalerKey = data.wholesalerKey;
     const downloadLink = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/wholesalers/" +
-      wholesalerKey
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers/" +
+        wholesalerKey
     );
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
