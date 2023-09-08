@@ -1163,56 +1163,6 @@ docReady(function () {
     return (10 - (result % 10)) % 10 === parseInt(paddedValue.charAt(13), 10);
   }
 
-  $("#zipcontainer").on("click", "img", function () {
-    var fileformat = $(this).attr("fileformat");
-    const downloadLink = new URL(
-      InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
-    );
-    let anchor = document.createElement("a");
-    document.body.appendChild(anchor);
-    let headersReq = new Headers();
-    headersReq.append("Authorization", orgToken);
-    headersReq.append("Accept", "application/zip");
-    $("#waitingdots").show();
-    var headersResponse = [];
-    fetch(downloadLink, {
-      mode: "no-cors",
-      headers: headersReq,
-    })
-      .then((res) => {
-        if (res && res.headers) {
-          res.headers.forEach((e) => headersResponse.push(e));
-        }
-        return res.blob();
-      })
-      .then((blobby) => {
-        $("#waitingdots").hide();
-        console.log(headersResponse);
-        if (
-          headersResponse.length > 0 &&
-          headersResponse[0].includes("filename=")
-        ) {
-          var fileName = headersResponse[0].split("filename=")[1];
-          let objectUrl = window.URL.createObjectURL(blobby);
-          anchor.href = objectUrl;
-          anchor.download = fileName;
-          anchor.click();
-          window.URL.revokeObjectURL(objectUrl);
-        } else {
-          console.error("Filename not found in the response headers.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching the file:", error);
-      });
-  });
-
   $("#table_splited_wh").on("click", "img", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
@@ -1222,57 +1172,103 @@ docReady(function () {
 
     if (!data || !data.wholesalerKey) {
       console.error("Data or wholesalerKey is undefined");
-      return; // Exit the function if data or wholesalerKey is not defined
+      var fileformat = $(this).attr("fileformat");
+      const downloadLink = new URL(
+        InvokeURL +
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers?filesFormat=" +
+          fileformat
+      );
+      let anchor = document.createElement("a");
+      document.body.appendChild(anchor);
+      let headersReq = new Headers();
+      headersReq.append("Authorization", orgToken);
+      headersReq.append("Accept", "application/zip");
+      $("#waitingdots").show();
+      var headersResponse = [];
+      fetch(downloadLink, {
+        mode: "no-cors",
+        headers: headersReq,
+      })
+        .then((res) => {
+          if (res && res.headers) {
+            res.headers.forEach((e) => headersResponse.push(e));
+          }
+          return res.blob();
+        })
+        .then((blobby) => {
+          $("#waitingdots").hide();
+          console.log(headersResponse);
+          if (
+            headersResponse.length > 0 &&
+            headersResponse[0].includes("filename=")
+          ) {
+            var fileName = headersResponse[0].split("filename=")[1];
+            let objectUrl = window.URL.createObjectURL(blobby);
+            anchor.href = objectUrl;
+            anchor.download = fileName;
+            anchor.click();
+            window.URL.revokeObjectURL(objectUrl);
+          } else {
+            console.error("Filename not found in the response headers.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching the file:", error);
+        });
+    } else {
+      var fileformat = $(this).attr("fileformat");
+      var wholesalerKey = data.wholesalerKey;
+      const downloadLink = new URL(
+        InvokeURL +
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey
+      );
+      let anchor = document.createElement("a");
+      document.body.appendChild(anchor);
+      let headers = new Headers();
+      headers.append("Authorization", orgToken);
+      headers.append("Accept", fileformat);
+      $("#waitingdots").show();
+      var headersResponse = [];
+
+      fetch(downloadLink, {
+        headers,
+      })
+        .then((res) => {
+          res.headers.forEach((e) => headersResponse.push(e));
+          return res.blob();
+        })
+        .then((blobby) => {
+          $("#waitingdots").hide();
+          let objectUrl = URL.createObjectURL(blobby);
+          return objectUrl;
+        })
+        .then((uril) => {
+          if (
+            headersResponse.length > 0 &&
+            headersResponse[0].includes("filename=")
+          ) {
+            var fileName = headersResponse[0].split("filename=")[1];
+            var link = document.createElement("a");
+            link.href = uril;
+            link.download = "" + fileName;
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            console.error("Filename not found in the response headers.");
+          }
+        });
     }
-
-    var fileformat = $(this).attr("fileformat");
-    var wholesalerKey = data.wholesalerKey;
-    const downloadLink = new URL(
-      InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
-    );
-    let anchor = document.createElement("a");
-    document.body.appendChild(anchor);
-    let headers = new Headers();
-    headers.append("Authorization", orgToken);
-    headers.append("Accept", fileformat);
-    $("#waitingdots").show();
-    var headersResponse = [];
-
-    fetch(downloadLink, {
-      headers,
-    })
-      .then((res) => {
-        res.headers.forEach((e) => headersResponse.push(e));
-        return res.blob();
-      })
-      .then((blobby) => {
-        $("#waitingdots").hide();
-        let objectUrl = URL.createObjectURL(blobby);
-        return objectUrl;
-      })
-      .then((uril) => {
-        if (
-          headersResponse.length > 0 &&
-          headersResponse[0].includes("filename=")
-        ) {
-          var fileName = headersResponse[0].split("filename=")[1];
-          var link = document.createElement("a");
-          link.href = uril;
-          link.download = "" + fileName;
-          link.target = "_blank";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          console.error("Filename not found in the response headers.");
-        }
-      });
   });
 
   var changesPayload = [];
