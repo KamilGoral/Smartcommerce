@@ -1214,11 +1214,17 @@ docReady(function () {
   });
 
   $("#table_splited_wh").on("click", "img", function () {
-    //Get the righ table
+    // Get the right table
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
     var data = table.row($(this).parents("tr")).data();
+
+    if (!data || !data.wholesalerKey) {
+      console.error("Data or wholesalerKey is undefined");
+      return; // Exit the function if data or wholesalerKey is not defined
+    }
+
     var fileformat = $(this).attr("fileformat");
     var wholesalerKey = data.wholesalerKey;
     const downloadLink = new URL(
@@ -1251,16 +1257,37 @@ docReady(function () {
         return objectUrl;
       })
       .then((uril) => {
-        var fileName = headersResponse[0].split("filename=")[1];
-        var link = document.createElement("a");
-        link.href = uril;
-        link.download = "" + fileName;
-        link.target = "_blank";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if (
+          headersResponse.length > 0 &&
+          headersResponse[0].includes("filename=")
+        ) {
+          var fileName = headersResponse[0].split("filename=")[1];
+          var link = document.createElement("a");
+          link.href = uril;
+          link.download = "" + fileName;
+          link.target = "_blank";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          console.error("Filename not found in the response headers.");
+        }
       });
   });
+
+  var changesPayload = [];
+
+  function addObject(changesPayload, newObj) {
+    const existingObj = changesPayload.find(
+      (item) => item.path === newObj.path
+    );
+
+    if (existingObj) {
+      existingObj.value = newObj.value;
+    } else {
+      changesPayload.push(newObj);
+    }
+  }
 
   var changesPayload = [];
 
