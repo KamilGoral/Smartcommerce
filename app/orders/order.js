@@ -1184,15 +1184,14 @@ docReady(function () {
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
-      let headersReq = new Headers();
-      headersReq.append("Authorization", orgToken);
-      headersReq.append("Accept", "application/zip");
-      console.log(headersReq);
       $("#waitingdots").show();
       var headersResponse = [];
       fetch(downloadLink, {
         mode: "no-cors",
-        headers: headersReq,
+        headers: {
+          Accept: "application/zip",
+          Authorization: orgToken,
+        },
       })
         .then((res) => {
           if (res && res.headers) {
