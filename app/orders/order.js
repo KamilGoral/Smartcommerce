@@ -1177,8 +1177,8 @@ docReady(function () {
     let anchor = document.createElement("a");
     document.body.appendChild(anchor);
     let headersReq = new Headers();
-    headers.append("Authorization", orgToken);
-    headers.append("Accept", "application/zip");
+    headersReq.append("Authorization", orgToken);
+    headersReq.append("Accept", "application/zip");
     $("#waitingdots").show();
     var headersResponse = [];
     fetch(downloadLink, {
