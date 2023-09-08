@@ -1193,6 +1193,7 @@ docReady(function () {
       })
       .then((blobby) => {
         $("#waitingdots").hide();
+        console.log(headersResponse);
         if (
           headersResponse.length > 0 &&
           headersResponse[0].includes("filename=")
