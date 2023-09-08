@@ -1182,7 +1182,7 @@ docReady(function () {
     $("#waitingdots").show();
     var headersResponse = [];
     fetch(downloadLink, {
-      mode: "no-cors",
+      mode: "cors",
       headers: headers,
     })
       .then((res) => {
