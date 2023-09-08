@@ -1187,6 +1187,7 @@ docReady(function () {
       let headersReq = new Headers();
       headersReq.append("Authorization", orgToken);
       headersReq.append("Accept", "application/zip");
+      console.log(headersReq);
       $("#waitingdots").show();
       var headersResponse = [];
       fetch(downloadLink, {
