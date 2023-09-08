@@ -1187,7 +1187,6 @@ docReady(function () {
       $("#waitingdots").show();
       var headersResponse = [];
       fetch(downloadLink, {
-        mode: "no-cors",
         headers: {
           Accept: "application/zip",
           Authorization: orgToken,
