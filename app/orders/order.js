@@ -410,8 +410,35 @@ docReady(function () {
           ).toISOString();
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
+          var statusText = "";
+
+          if (offer.status !== null) {
+            if (offer.status == "ready") {
+              statusText = "Gotowa";
+            }
+            if (offer.status == "error") {
+              statusText = "Problem";
+            }
+            if (offer.status == "in progress") {
+              statusText = "W trakcie";
+            }
+            if (offer.status == "incomplete") {
+              statusText = "Niekompletna";
+            }
+            if (offer.status == "batching") {
+              statusText = "W kolejce";
+            }
+            if (offer.status == "forced") {
+              statusText = "W kolejce";
+            }
+          }
+
           opt.textContent =
-            creationDate[0] + " " + creationTime[0].slice(0, -4);
+            creationDate[0] +
+            " " +
+            creationTime[0].slice(0, -4) +
+            " " +
+            statusText;
           OffersSelector.appendChild(opt);
         });
         if (request.status == 401) {
