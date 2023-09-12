@@ -387,7 +387,10 @@ docReady(function () {
 
   function getOffers() {
     let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/offers?sort=createDate:desc"
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
