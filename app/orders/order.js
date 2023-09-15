@@ -102,7 +102,7 @@ docReady(function () {
             failBlock.hide();
             window.setTimeout(function () {
               document.location =
-                "https://" + DomainName + "/app/shops/shopKey?name=" + shopKey;
+                "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             }, 3000);
           },
           error: function (e) {
