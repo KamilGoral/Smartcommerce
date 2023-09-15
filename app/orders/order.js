@@ -59,6 +59,68 @@ docReady(function () {
       shopKey
   );
 
+  makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#OrderDeleteSuccess", container);
+        var failBlock = $("#OrderDeleteFail", container);
+        var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId;
+        var method = "DELETE";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              document.location =
+                "https://" + DomainName + "/app/shops/shopKey?name=" + shopKey;
+            }, 3000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   async function CreateOrder() {
     const tableId = "#spl_table";
 
@@ -1613,4 +1675,5 @@ docReady(function () {
   };
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
 });
