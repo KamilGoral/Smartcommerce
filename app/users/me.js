@@ -26,7 +26,7 @@ docReady(function () {
   var formId = "#wf-form-Create-Organization-Form";
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
-  var useremail = document.getElementById("useremail").text;
+  var emailElement = document.getElementById("useremail");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
 
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
@@ -89,7 +89,36 @@ docReady(function () {
               msg = "Requested page not found. [404]";
             } else if (jqXHR.status == 403) {
               msg =
-              "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
+                "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
+
+              // Jeśli wystąpił błąd 403, przygotuj dane do wysłania
+              var emailElement = document.getElementById("useremail");
+              var requestData = [
+                {
+                  "org_nip": "",
+                  "phonenumber": "",
+                  "admin_email": emailElement ? emailElement.textContent : "",
+                  "Voivodeship": "tworzenie organizacji - brak uprawnien",
+                  "shop_no": "",
+                  "ehurt_no": ""
+                }
+              ];
+
+              // Wyślij żądanie POST
+              $.ajax({
+                type: "POST",
+                url: "https://hook.eu1.make.com/67j7dm1drdz5yi6fl71pw9tigwuoxihe",
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: "json",
+                success: function (response) {
+                  // Obsłuż odpowiedź z endpointu
+                  console.log("Wysłano dane na endpoint.");
+                },
+                error: function (error) {
+                  console.log("Błąd podczas wysyłania danych na endpoint.");
+                }
+              });
             } else if (jqXHR.status == 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
@@ -281,12 +310,12 @@ docReady(function () {
         }
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/tenants/organization" +
-            "?name=" +
-            OrganizationName +
-            "&clientId=" +
-            OrganizationclientId
+          DomainName +
+          "/app/tenants/organization" +
+          "?name=" +
+          OrganizationName +
+          "&clientId=" +
+          OrganizationclientId
         );
       },
       error: function (jqXHR, exception) {
