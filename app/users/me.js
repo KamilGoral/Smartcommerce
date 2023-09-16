@@ -89,7 +89,7 @@ docReady(function () {
               msg = "Requested page not found. [404]";
             } else if (jqXHR.status == 403) {
               msg =
-                "Użytkownik nie znajduje się na liście osób uprawnnionych do tworzenia organizacji.";
+              "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
             } else if (jqXHR.status == 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
@@ -102,8 +102,7 @@ docReady(function () {
               msg =
                 "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
             }
-            const message = document.getElementById("WarningMessage");
-            message.textContent = msg;
+            $(".warningmessagetext").text(msg);
             form.show();
             doneBlock.hide();
             failBlock.show();
