@@ -297,47 +297,42 @@ docReady(function () {
   }
 
   function format(d) {
-
     var toDisplayHtml = "";
 
     function myFunction(item) {
-      if (item.status == "ready") {
-        return '<spann class="positive">Gotowa</spann>';
-      }
-      if (item.status == "error") {
-        return '<spann class="negative">Problem</spann>';
-      }
-      if (item.status == "in progress") {
-        return '<spann class="medium">W trakcie</spann>';
-      }
-      if (item.status == "incomplete") {
-        return '<spann class="medium">Niekompletna</spann>';
-      }
-      if (item.status == "batching") {
-        return '<spann class="medium">W kolejce</spann>';
-      }
-      if (item.status == "forced") {
-        return '<spann class="medium">W kolejce</spann>';
-      }
+        if (item.status == "ready") {
+            return '<span class="positive">Gotowa</span>';
+        }
+        if (item.status == "error") {
+            return '<span class="negative">Problem</span>';
+        }
+        if (item.status == "in progress") {
+            return '<span class="medium">W trakcie</span>';
+        }
+        if (item.status == "incomplete") {
+            return '<span class="medium">Niekompletna</span>';
+        }
+        if (item.status == "batching") {
+            return '<span class="medium">W kolejce</span>';
+        }
+        if (item.status == "forced") {
+            return '<span class="medium">W kolejce</span>';
+        }
     }
-    var tableRowHtml =
-      "<tr><td></td>" +
-      "<td>" +
-      item.createDate +
-      "</td>" +
-      "<td>" +
-      item.status +
-      "</td>" +
-      "<td></td>"
 
-    toDisplayHtml += tableRowHtml;
-    d.forEach(myFunction);
-    return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
-      toDisplayHtml +
-      "</table>"
-    );
-  }
+    for (var i = 1; i < d.length; i++) {
+        toDisplayHtml += "<tr><td></td>" +
+            "<td>" + d[i].createDate + "</td>" +
+            "<td>" + myFunction(d[i]) + "</td>" +
+            "<td></td></tr>";
+    }
+
+    return "<table><tr><th></th><th>Data utworzenia</th><th>Status</th><th>Akcje</th></tr>" +
+        toDisplayHtml +
+        "</table>";
+}
+
+
 
   function getOffers() {
     var table = $("#table_offers").DataTable({
@@ -487,7 +482,7 @@ docReady(function () {
               src: 'https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg',
               alt: 'offer'
             });
-            $(cell).addClass("details-container2").append(imgElement);
+            $(cell).addClass("details-container2").css("justify-content", "center").append(imgElement);
           }
         },
         orderable: false,
@@ -1140,337 +1135,337 @@ docReady(function () {
       });
     });
   };
-makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
-  forms.each(function () {
-    var form = $(this);
-    form.on("submit", function (event) {
-      var container = form.parent();
-      var doneBlock = $("#form-doneEditShopInformation", container);
-      var failBlock = $("#form-failEditShopInformation", container);
-      var action = InvokeURL + "shops/" + shopKey;
-      var data = [
-        {
-          op: "add",
-          path: "/name",
-          value: $("#NewShopName").val(),
-        },
-        {
-          op: "add",
-          path: "/key",
-          value: $("#NewShopKey").val(),
-        },
-        {
-          op: "add",
-          path: "/address/country",
-          value: $("#NewShopCountry").val(),
-        },
-        {
-          op: "add",
-          path: "/address/line1",
-          value: $("#NewShopLine").val(),
-        },
-        {
-          op: "add",
-          path: "/address/town",
-          value: $("#NewShopTown").val(),
-        },
-        {
-          op: "add",
-          path: "/address/state",
-          value: $("#NewShopState").val(),
-        },
-        {
-          op: "add",
-          path: "/address/postcode",
-          value: $("#NewShopPostCode").val(),
-        },
-      ];
-      var method = "PATCH";
+  makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#form-doneEditShopInformation", container);
+        var failBlock = $("#form-failEditShopInformation", container);
+        var action = InvokeURL + "shops/" + shopKey;
+        var data = [
+          {
+            op: "add",
+            path: "/name",
+            value: $("#NewShopName").val(),
+          },
+          {
+            op: "add",
+            path: "/key",
+            value: $("#NewShopKey").val(),
+          },
+          {
+            op: "add",
+            path: "/address/country",
+            value: $("#NewShopCountry").val(),
+          },
+          {
+            op: "add",
+            path: "/address/line1",
+            value: $("#NewShopLine").val(),
+          },
+          {
+            op: "add",
+            path: "/address/town",
+            value: $("#NewShopTown").val(),
+          },
+          {
+            op: "add",
+            path: "/address/state",
+            value: $("#NewShopState").val(),
+          },
+          {
+            op: "add",
+            path: "/address/postcode",
+            value: $("#NewShopPostCode").val(),
+          },
+        ];
+        var method = "PATCH";
 
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        data: JSON.stringify(data),
-        success: function (resultData) {
-          if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              console.log(e);
-              return;
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
             }
-          }
-          form.show();
-          doneBlock.show();
-          doneBlock.fadeOut(3000);
-          failBlock.hide();
-          window.setTimeout(function () {
-            location.reload();
-          }, 3500);
-        },
-        error: function (e) {
-          if (typeof errorCallback === "function") {
-            errorCallback(e);
-          }
-          form.show();
-          doneBlock.hide();
-          failBlock.show();
-          console.log(e);
-        },
-      });
-      event.preventDefault();
-      return false;
-    });
-  });
-};
-
-makeWebflowFormAjaxRefreshOffer = function (
-  forms,
-  successCallback,
-  errorCallback
-) {
-  forms.each(function () {
-    var form = $(this);
-    form.on("submit", function (event) {
-      var container = form.parent();
-      var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
-      var failBlock = $("#wf-form-RefreshOfferFormfail", container);
-      var action = InvokeURL + "shops/" + shopKey + "/offers";
-      var method = "POST";
-      var data = "";
-
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        data: JSON.stringify(data),
-        success: function (resultData) {
-          if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              return;
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 3500);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
             }
-          }
-          form.show();
-          doneBlock.show();
-          doneBlock.fadeOut(3000);
-          failBlock.hide();
-          window.setTimeout(function () {
-            location.reload();
-          }, 3500);
-        },
-        error: function (jqXHR, exception) {
-          console.log(jqXHR);
-          console.log(exception);
-          var msg = "";
-
-          var MessageText = document.getElementById("WarningMessageMain");
-          if (jqXHR.status === 0) {
-            msg = "Not connect.\n Verify Network.";
-          } else if (jqXHR.status === 403) {
-            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-          } else if (jqXHR.status === 429) {
-            msg =
-              "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
-          } else if (jqXHR.status === 500) {
-            msg = "Internal Server Error [500].";
-          } else if (exception === "parsererror") {
-            msg = "Requested JSON parse failed.";
-          } else if (exception === "timeout") {
-            msg = "Time out error.";
-          } else if (exception === "abort") {
-            msg = "Ajax request aborted.";
-          } else {
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-          }
-          var elements =
-            document.getElementsByClassName("warningmessagetext");
-          for (var i = 0; i < elements.length; i++) {
-            elements[i].textContent = msg;
-          }
-          $("#WarningMessageContainer").fadeOut(3000);
-          form.show();
-          doneBlock.hide();
-          failBlock.show();
-        },
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
       });
-      event.preventDefault();
-      return false;
     });
-  });
-};
-
-function FileUpload() {
-  $("#waitingdots").show();
-  const xhr = new XMLHttpRequest();
-  var formData = new FormData();
-
-  var myUploadedFiles = document.getElementById("orderfile").files;
-  for (var i = 0; i < myUploadedFiles.length; i++) {
-    formData.append("file", myUploadedFiles[i]);
-  }
-  formData.append("name", $("#OrderName").val());
-  console.log(formData);
-  var action = InvokeURL + "shops/" + shopKey + "/orders";
-  xhr.open("POST", action);
-  xhr.setRequestHeader("Accept", "application/json");
-  xhr.setRequestHeader("Authorization", orgToken);
-  xhr.onreadystatechange = function () {
-    $("#waitingdots").hide();
-    if (xhr.status === 201) {
-      var response = JSON.parse(xhr.responseText);
-      var action =
-        InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-      var method = "PATCH";
-      var data = [
-        {
-          op: "add",
-          path: "/name",
-          value: $("#OrderName").val(),
-        },
-      ];
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        success: function (resultData) {
-          document.getElementById("wf-form-doneCreate-Order").style.display =
-            "block";
-          window.setTimeout(function () {
-            window.location.replace(
-              "https://" +
-              DomainName +
-              "/app/orders/order?orderId=" +
-              response.orderId +
-              "&shopKey=" +
-              shopKey
-            );
-          }, 100);
-        },
-        error: function (jqXHR, exception) {
-          console.log(jqXHR);
-          console.log(exception);
-        },
-      });
-    } else {
-      jsonResponse = JSON.parse(xhr.responseText);
-      console.log(xhr);
-      var msg = "";
-      if (xhr.status === 0) {
-        msg = "Not connect.\n Verify Network.";
-      } else if (xhr.status === 400) {
-        msg = jsonResponse.message;
-      } else if (xhr.status === 403) {
-        msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-      } else if (xhr.status === 500) {
-        msg = "Internal Server Error [500].";
-      } else {
-        msg = jsonResponse.message;
-      }
-      $(".warningmessagetext").text(msg);
-      $("#wf-form-failCreate-Order").show();
-      $("#orderfile").val("");
-      $("#wf-form-failCreate-Order").fadeOut(9000);
-    }
   };
-  xhr.send(formData);
-}
 
-UploadButton.addEventListener("click", (event) => {
-  FileUpload();
-});
+  makeWebflowFormAjaxRefreshOffer = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
+        var failBlock = $("#wf-form-RefreshOfferFormfail", container);
+        var action = InvokeURL + "shops/" + shopKey + "/offers";
+        var method = "POST";
+        var data = "";
 
-makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 3500);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
 
-getWholesalers();
-getShop();
-getOrders();
-getOffers();
-getPriceLists();
+            var MessageText = document.getElementById("WarningMessageMain");
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status === 403) {
+              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+            } else if (jqXHR.status === 429) {
+              msg =
+                "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
+            } else if (jqXHR.status === 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              var msg =
+                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+            }
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
+            }
+            $("#WarningMessageContainer").fadeOut(3000);
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
-$('div[role="tablist"]').click(function () {
-  setTimeout(function () {
-    console.log("Adjusting");
-    $.fn.dataTable
-      .tables({
-        visible: true,
-        api: true,
-      })
-      .columns.adjust();
-  }, 300);
-});
-$("#table_pricelists_list").on("show", function (e) {
-  $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-});
-$("#table_wholesalers").on("show", function (e) {
-  $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-});
-$("#table_orders").on("show", function (e) {
-  $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-});
-$("#table_offers").on("show", function (e) {
-  $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-});
-$("#table_offers").on("click", "td.details-control", function () {
-  //Get the righ table
-  var table = $("#spl_table").DataTable();
-  var tr = $(this).closest("tr");
-  var row = table.row(tr);
-  if (row.child.isShown()) {
-    row.child.hide();
-    tr.removeClass("shown");
-  } else {
-    row.child(format(row.data())).show();
-    tr.addClass("shown");
+  function FileUpload() {
+    $("#waitingdots").show();
+    const xhr = new XMLHttpRequest();
+    var formData = new FormData();
+
+    var myUploadedFiles = document.getElementById("orderfile").files;
+    for (var i = 0; i < myUploadedFiles.length; i++) {
+      formData.append("file", myUploadedFiles[i]);
+    }
+    formData.append("name", $("#OrderName").val());
+    console.log(formData);
+    var action = InvokeURL + "shops/" + shopKey + "/orders";
+    xhr.open("POST", action);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Authorization", orgToken);
+    xhr.onreadystatechange = function () {
+      $("#waitingdots").hide();
+      if (xhr.status === 201) {
+        var response = JSON.parse(xhr.responseText);
+        var action =
+          InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+        var method = "PATCH";
+        var data = [
+          {
+            op: "add",
+            path: "/name",
+            value: $("#OrderName").val(),
+          },
+        ];
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(data),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            document.getElementById("wf-form-doneCreate-Order").style.display =
+              "block";
+            window.setTimeout(function () {
+              window.location.replace(
+                "https://" +
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
+              );
+            }, 100);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+          },
+        });
+      } else {
+        jsonResponse = JSON.parse(xhr.responseText);
+        console.log(xhr);
+        var msg = "";
+        if (xhr.status === 0) {
+          msg = "Not connect.\n Verify Network.";
+        } else if (xhr.status === 400) {
+          msg = jsonResponse.message;
+        } else if (xhr.status === 403) {
+          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+        } else if (xhr.status === 500) {
+          msg = "Internal Server Error [500].";
+        } else {
+          msg = jsonResponse.message;
+        }
+        $(".warningmessagetext").text(msg);
+        $("#wf-form-failCreate-Order").show();
+        $("#orderfile").val("");
+        $("#wf-form-failCreate-Order").fadeOut(9000);
+      }
+    };
+    xhr.send(formData);
   }
-});
+
+  UploadButton.addEventListener("click", (event) => {
+    FileUpload();
+  });
+
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
+  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+
+  getWholesalers();
+  getShop();
+  getOrders();
+  getOffers();
+  getPriceLists();
+
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
+  });
+  $("#table_pricelists_list").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_wholesalers").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_orders").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_offers").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_offers").on("click", "td.details-control", function () {
+    //Get the righ table
+    var table = $("#spl_table").DataTable();
+    var tr = $(this).closest("tr");
+    var row = table.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
+    }
+  });
 });
