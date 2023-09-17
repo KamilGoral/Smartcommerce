@@ -376,15 +376,15 @@ docReady(function () {
               var groupedOffers = {};
               offers.items.forEach(function (offer) {
                 var createDate = offer.createDate.split('T')[0]; // Pobierz tylko datę
-                if (!groupedOffers[createDate]) {
-                  groupedOffers[createDate] = [];
+                if (!groupedOffers["items"][createDate]) {
+                  groupedOffers["items"][createDate] = [];
                 }
-                groupedOffers[createDate].push(offer);
+                groupedOffers["items"][createDate].push(offer);
               });
             
               // Sortowanie ofert w grupach według daty od najświeższej do najstarszej
               for (var date in groupedOffers) {
-                groupedOffers[date].sort(function (a, b) {
+                groupedOffers["items"][date].sort(function (a, b) {
                   return new Date(b.createDate) - new Date(a.createDate);
                 });
               }
