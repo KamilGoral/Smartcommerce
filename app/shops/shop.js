@@ -399,7 +399,7 @@ docReady(function () {
             // Tworzenie końcowej struktury
             const finalStructure = {
               "items": Object.keys(groupedData).map(date => ({
-                "createDate": date,
+                "createDate": createDate,
                 "offers": groupedData[date]
               }))
             };
