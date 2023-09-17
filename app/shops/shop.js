@@ -322,19 +322,26 @@ docReady(function () {
       }
     }
 
-    // Iteruj przez tablicę ofert
-    for (var i = 0; i < offers.length; i++) {
-      toDisplayHtml += '<table><tr>' + '<td class="details-container2" style="justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
-        "<td>" + offers[i].createDate + "</td>" +
-        "<td>" + myFunction(offers[i]) + "</td>" +
-        "<td><div class='action-container'><a href='#' status='" +
+// Pobierz szerokość kolumn w głównej tabeli
+const columnWidths = [];
+$('#table_offers th').each(function() {
+    columnWidths.push($(this).width() + 'px');
+});
+
+// Iteruj przez tablicę ofert
+for (var i = 0; i < offers.length; i++) {
+    toDisplayHtml += '<table style="table-layout: fixed; width: 100%;"><tr>' +
+        '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
+        "<td style='width:" + columnWidths[1] + ";'>" + offers[i].createDate + "</td>" +
+        "<td style='width:" + columnWidths[2] + ";'>" + myFunction(offers[i]) + "</td>" +
+        "<td style='width:" + columnWidths[3] + ";'><div class='action-container'><a href='#' status='" +
         offers[i].status +
         "' offerId='" +
         offers[i].offerId +
         "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr></table>"
-    }
+}
 
-    return toDisplayHtml
+return toDisplayHtml;
       
   }
 
