@@ -424,7 +424,7 @@ docReady(function () {
 
             res.items.forEach(item => {
               const createDate = item.createDate.substring(0, 10);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-              const timePart = createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+              const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
 
               if (!groupedData[createDate]) {
