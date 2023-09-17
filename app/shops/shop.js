@@ -298,7 +298,7 @@ docReady(function () {
 
   function format(d) {
     console.log(d);
-    var itemsToHtml = d.offers
+    var offers = d.offers; // Pobierz tablicę ofert z obiektu d
     var toDisplayHtml = "";
 
     function myFunction(item) {
@@ -322,10 +322,11 @@ docReady(function () {
       }
     }
 
-    for (var i = 0; i < d.itemsToHtml; i++) {
+    // Iteruj przez tablicę ofert
+    for (var i = 0; i < offers.length; i++) {
       toDisplayHtml += "<tr><td></td>" +
-        "<td>" + d[i].createDate + "</td>" +
-        "<td>" + myFunction(d[i]) + "</td>" +
+        "<td>" + offers[i].createDate + "</td>" +
+        "<td>" + myFunction(offers[i]) + "</td>" +
         "<td>siema</td></tr>";
     }
 
@@ -333,6 +334,7 @@ docReady(function () {
       toDisplayHtml +
       "</table>";
   }
+
 
 
 
