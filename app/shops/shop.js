@@ -428,11 +428,17 @@ docReady(function () {
       },
       columns: [
         {
-          orderable: false,
           data: null,
-          width: "36px",
-          defaultContent:
-            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+          defaultContent: "",
+          createdCell: function (
+            cell,
+            rowData,
+          ) {
+            if (rowData.offers && rowData.offers.length > 1) {
+              $(cell).addClass("details-control");
+            }
+          },
+          orderable: false,
         },
         {
           orderable: false,
