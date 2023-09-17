@@ -426,86 +426,87 @@ docReady(function () {
       search: {
         return: true,
       },
-      columns: [
-        {
-          data: null,
-          defaultContent: "",
-          createdCell: function (
-            cell,
-            rowData,
-          ) {
-            if (rowData.offers && rowData.offers.length > 1) {
-              $(cell).addClass("details-control");
-            }
-          },
-          orderable: false,
+      columns: [{
+        data: null,
+        width: "36px",
+        defaultContent: "",
+        createdCell: function (
+          cell,
+
+          rowData,
+        ) {
+          if (rowData.offers && rowData.offers.length > 1) {
+            $(cell).addClass("details-control");
+          } else { "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>" }
         },
-        {
-          orderable: false,
-          visible: false,
-          data: null,
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
+        orderable: false,
+      },
+      {
+        orderable: false,
+        visible: false,
+        data: null,
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
         },
-        {
-          orderable: true,
-          data: "createDate",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
+      },
+      {
+        orderable: true,
+        data: "createDate",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
         },
-        {
-          orderable: true,
-          data: null,
-          render: function (data) {
-            if (data !== null) {
-              if (data.offers[0].status == "ready") {
-                return '<spann class="positive">Gotowa</spann>';
-              }
-              if (data.offers[0].status == "error") {
-                return '<spann class="negative">Problem</spann>';
-              }
-              if (data.offers[0].status == "in progress") {
-                return '<spann class="medium">W trakcie</spann>';
-              }
-              if (data.offers[0].status == "incomplete") {
-                return '<spann class="medium">Niekompletna</spann>';
-              }
-              if (data.offers[0].status == "batching") {
-                return '<spann class="medium">W kolejce</spann>';
-              }
-              if (data.offers[0].status == "forced") {
-                return '<spann class="medium">W kolejce</spann>';
-              }
+      },
+      {
+        orderable: true,
+        data: null,
+        render: function (data) {
+          if (data !== null) {
+            if (data.offers[0].status == "ready") {
+              return '<spann class="positive">Gotowa</spann>';
             }
-            if (data === null) {
-              return "";
+            if (data.offers[0].status == "error") {
+              return '<spann class="negative">Problem</spann>';
             }
-          },
-        },
-        {
-          orderable: true,
-          data: null,
-          render: function (data) {
-            if (data !== null) {
+            if (data.offers[0].status == "in progress") {
+              return '<spann class="medium">W trakcie</spann>';
+            }
+            if (data.offers[0].status == "incomplete") {
+              return '<spann class="medium">Niekompletna</spann>';
+            }
+            if (data.offers[0].status == "batching") {
               return '<spann class="medium">W kolejce</spann>';
             }
-            if (data === null) {
-              return "";
+            if (data.offers[0].status == "forced") {
+              return '<spann class="medium">W kolejce</spann>';
             }
-          },
+          }
+          if (data === null) {
+            return "";
+          }
         },
+      },
+      {
+        orderable: true,
+        data: null,
+        render: function (data) {
+          if (data !== null) {
+            return '<spann class="medium">W kolejce</spann>';
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
       ],
       initComplete: function (settings, json) {
         var api = this.api();
