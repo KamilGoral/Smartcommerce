@@ -349,7 +349,7 @@ docReady(function () {
     }
 
     // Zamknij tabelę z ofertami
-    toDisplayHtml += '</table>';
+    toDisplayHtml += '<tr><td colspan="4"></td></tr></table>';
 
     return toDisplayHtml;
 }
