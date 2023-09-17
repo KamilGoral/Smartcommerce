@@ -376,8 +376,9 @@ docReady(function () {
             // Tworzenie słownika do grupowania ofert według daty
             const groupedData = {};
 
-            res.items.forEach(item => {
-              const createDate = item.createDate.substring(0, 10);  // Wyciągnij datę w formacie "YYYY-MM-DD"
+            response_data.items.forEach(item => {
+              const createDate = item.createDate.substring(0, 16);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+              const timePart = item.createDate.substring(17, 23);  // Wyciągnij część z sekundami i strefą czasową
 
               if (!groupedData[createDate]) {
                 groupedData[createDate] = [];
@@ -385,9 +386,15 @@ docReady(function () {
 
               groupedData[createDate].push({
                 "offerId": item.offerId,
-                "status": item.status
+                "status": item.status,
+                "createDate": createDate + timePart + "Z"  // Dodaj czas (minuty, sekundy i strefę czasową)
               });
             });
+
+            // Sortowanie ofert w każdym dniu od najświeższej do najstarszej
+            for (const date in groupedData) {
+              groupedData[date].sort((a, b) => (a.createDate > b.createDate) ? -1 : 1);
+            }
 
             // Tworzenie końcowej struktury
             const finalStructure = {
@@ -457,8 +464,25 @@ docReady(function () {
           data: null,
           render: function (data) {
             if (data !== null) {
+              if (data.offers[0].status == "ready") {
+                return '<spann class="positive">Gotowa</spann>';
+              }
+              if (data.offers[0].status == "error") {
+                return '<spann class="negative">Problem</spann>';
+              }
+              if (data.offers[0].status == "in progress") {
+                return '<spann class="medium">W trakcie</spann>';
+              }
+              if (data.offers[0].status == "incomplete") {
+                return '<spann class="medium">Niekompletna</spann>';
+              }
+              if (data.offers[0].status == "batching") {
                 return '<spann class="medium">W kolejce</spann>';
               }
+              if (data.offers[0].status == "forced") {
+                return '<spann class="medium">W kolejce</spann>';
+              }
+            }
             if (data === null) {
               return "";
             }
@@ -469,8 +493,8 @@ docReady(function () {
           data: null,
           render: function (data) {
             if (data !== null) {
-                return '<spann class="medium">W kolejce</spann>';
-              }
+              return '<spann class="medium">W kolejce</spann>';
+            }
             if (data === null) {
               return "";
             }
