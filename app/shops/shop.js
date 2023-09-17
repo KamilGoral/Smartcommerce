@@ -324,14 +324,14 @@ docReady(function () {
 
     // Iteruj przez tablicę ofert
     for (var i = 0; i < offers.length; i++) {
-      toDisplayHtml += '<tr>' + '<td class="details-container2" style="justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
+      toDisplayHtml += '<table><tr>' + '<td class="details-container2" style="justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
         "<td>" + offers[i].createDate + "</td>" +
         "<td>" + myFunction(offers[i]) + "</td>" +
         "<td><div class='action-container'><a href='#' status='" +
         offers[i].status +
         "' offerId='" +
         offers[i].offerId +
-        "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>"
+        "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr></table>"
     }
 
     return toDisplayHtml
