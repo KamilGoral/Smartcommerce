@@ -437,7 +437,10 @@ docReady(function () {
         ) {
           if (rowData.offers && rowData.offers.length > 1) {
             $(cell).addClass("details-control");
-          } else { return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>" }
+          } else { 
+            console.log("obrazek")
+            return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>" 
+          }
         },
         orderable: false,
       },
@@ -1408,5 +1411,18 @@ docReady(function () {
   });
   $("#table_offers").on("show", function (e) {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_offers").on("click", "td.details-control", function () {
+    //Get the righ table
+    var table = $("#spl_table").DataTable();
+    var tr = $(this).closest("tr");
+    var row = table.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
+    }
   });
 });
