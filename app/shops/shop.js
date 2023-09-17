@@ -377,7 +377,7 @@ docReady(function () {
             const groupedData = {};
 
             res.items.forEach(item => {
-              const createDate = item.createDate.substring(0, 16);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+              const createDate = item.createDate.substring(0, 10);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
               const timePart = item.createDate.substring(17, 23);  // Wyciągnij część z sekundami i strefą czasową
 
               if (!groupedData[createDate]) {
@@ -387,7 +387,7 @@ docReady(function () {
               groupedData[createDate].push({
                 "offerId": item.offerId,
                 "status": item.status,
-                "createDate": createDate + timePart + "Z"  // Dodaj czas (minuty, sekundy i strefę czasową)
+                "createDate": createDate + "T" + timePart + "Z"  // Dodaj czas (minuty, sekundy i strefę czasową)
               });
             });
 
@@ -399,7 +399,7 @@ docReady(function () {
             // Tworzenie końcowej struktury
             const finalStructure = {
               "items": Object.keys(groupedData).map(date => ({
-                "createDate": createDate,
+                "createDate": date,
                 "offers": groupedData[date]
               }))
             };
