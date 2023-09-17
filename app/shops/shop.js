@@ -1458,7 +1458,7 @@ docReady(function () {
   });
   $("#table_offers").on("click", "td.details-control", function () {
     //Get the righ table
-    var table = $("#spl_table").DataTable();
+    var table = $("#table_offers").DataTable();
     var tr = $(this).closest("tr");
     var row = table.row(tr);
     console.log(tr);
