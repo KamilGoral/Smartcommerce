@@ -298,6 +298,7 @@ docReady(function () {
 
   function format(d) {
     console.log(d);
+    var itemsToHtml = d.offers
     var toDisplayHtml = "";
 
     function myFunction(item) {
@@ -321,11 +322,11 @@ docReady(function () {
       }
     }
 
-    for (var i = 0; i < d.length; i++) {
+    for (var i = 0; i < d.itemsToHtml; i++) {
       toDisplayHtml += "<tr><td></td>" +
         "<td>" + d[i].createDate + "</td>" +
         "<td>" + myFunction(d[i]) + "</td>" +
-        "<td></td></tr>";
+        "<td>siema</td></tr>";
     }
 
     return "<table><tr><th></th><th>Data utworzenia</th><th>Status</th><th>Akcje</th></tr>" +
