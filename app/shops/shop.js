@@ -437,7 +437,7 @@ docReady(function () {
         ) {
           if (rowData.offers && rowData.offers.length > 1) {
             $(cell).addClass("details-control");
-          } else { "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>" }
+          } else { return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>" }
         },
         orderable: false,
       },
@@ -496,14 +496,17 @@ docReady(function () {
         },
       },
       {
-        orderable: true,
+        orderable: false,
         data: null,
-        render: function (data) {
-          if (data !== null) {
-            return '<spann class="medium">W kolejce</spann>';
-          }
-          if (data === null) {
-            return "";
+        render: function (data, type, row) {
+          if (type === "display") {
+            return (
+              '<div class="action-container"><a href="#" status="' +
+              row.offers[0]["status"] +
+              '" offerId="' +
+              row.offers[0]["offerId"] +
+              '" class="buttonoutline editme w-button">Przejdź</a></div>'
+            );
           }
         },
       },
