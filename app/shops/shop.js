@@ -406,7 +406,7 @@ docReady(function () {
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
-              data: res.items,
+              data: finalStructure.items,
             });
           }
         );
@@ -430,7 +430,7 @@ docReady(function () {
         {
           orderable: false,
           visible: false,
-          data: "offerId",
+          data: null,
           render: function (data) {
             if (data !== null) {
               return data;
@@ -445,16 +445,7 @@ docReady(function () {
           data: "createDate",
           render: function (data) {
             if (data !== null) {
-              var createDate = "";
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              createDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-              return createDate;
+              return data;
             }
             if (data === null) {
               return "";
@@ -463,45 +454,25 @@ docReady(function () {
         },
         {
           orderable: true,
-          data: "status",
+          data: null,
           render: function (data) {
             if (data !== null) {
-              if (data == "ready") {
-                return '<spann class="positive">Gotowa</spann>';
-              }
-              if (data == "error") {
-                return '<spann class="negative">Problem</spann>';
-              }
-              if (data == "in progress") {
-                return '<spann class="medium">W trakcie</spann>';
-              }
-              if (data == "incomplete") {
-                return '<spann class="medium">Niekompletna</spann>';
-              }
-              if (data == "batching") {
                 return '<spann class="medium">W kolejce</spann>';
               }
-              if (data == "forced") {
-                return '<spann class="medium">W kolejce</spann>';
-              }
-            }
             if (data === null) {
               return "";
             }
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: null,
-          render: function (data, type, row) {
-            if (type === "display") {
-              return (
-                '<div class="action-container"><a href="#" status="' +
-                row["status"] +
-                '" offerId="' +
-                row["offerId"] +
-                '" class="buttonoutline editme w-button">Przejdź</a></div>'
-              );
+          render: function (data) {
+            if (data !== null) {
+                return '<spann class="medium">W kolejce</spann>';
+              }
+            if (data === null) {
+              return "";
             }
           },
         },
