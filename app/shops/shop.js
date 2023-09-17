@@ -371,12 +371,36 @@ docReady(function () {
             page: (data.start + data.length) / data.length,
           },
           function (res) {
+
+            function groupOffersByDate(offers) {
+              var groupedOffers = {};
+              offers.items.forEach(function (offer) {
+                var createDate = offer.createDate.split('T')[0]; // Pobierz tylko datę
+                if (!groupedOffers[createDate]) {
+                  groupedOffers[createDate] = [];
+                }
+                groupedOffers[createDate].push(offer);
+              });
+            
+              // Sortowanie ofert w grupach według daty od najświeższej do najstarszej
+              for (var date in groupedOffers) {
+                groupedOffers[date].sort(function (a, b) {
+                  return new Date(b.createDate) - new Date(a.createDate);
+                });
+              }
+            
+              return groupedOffers;
+            }
+            
+            // Grupowanie ofert z danych
+            var groupedOffers = groupOffersByDate(res);
+            
             // map your server's response to the DataTables format and pass it to
             // DataTables' callback
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
-              data: res.items,
+              data: groupedOffers.items,
             });
           }
         );
