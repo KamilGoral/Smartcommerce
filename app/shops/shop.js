@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -287,11 +287,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          rowData.orderId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/orders/order?orderId=" +
+        rowData.orderId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -372,30 +372,35 @@ docReady(function () {
           },
           function (res) {
 
-            function groupOffersByDate(offers) {
-              var groupedOffers = {};
-              offers.items.forEach(function (offer) {
-                var createDate = offer.createDate.split('T')[0]; // Pobierz tylko datę
-                if (!groupedOffers["items"][createDate]) {
-                  groupedOffers["items"][createDate] = [];
-                }
-                groupedOffers["items"][createDate].push(offer);
-              });
-            
-              // Sortowanie ofert w grupach według daty od najświeższej do najstarszej
-              for (var date in groupedOffers) {
-                groupedOffers["items"][date].sort(function (a, b) {
-                  return new Date(b.createDate) - new Date(a.createDate);
-                });
+
+            // Tworzenie słownika do grupowania ofert według daty
+            const groupedData = {};
+
+            res.items.forEach(item => {
+              const createDate = item.createDate.substring(0, 10);  // Wyciągnij datę w formacie "YYYY-MM-DD"
+
+              if (!groupedData[createDate]) {
+                groupedData[createDate] = [];
               }
-            
-              return groupedOffers;
-            }
-            
-            // Grupowanie ofert z danych
-            var groupedOffers = groupOffersByDate(res);
-            console.log(groupedOffers);
-            
+
+              groupedData[createDate].push({
+                "offerId": item.offerId,
+                "status": item.status
+              });
+            });
+
+            // Tworzenie końcowej struktury
+            const finalStructure = {
+              "items": Object.keys(groupedData).map(date => ({
+                "createDate": date,
+                "offers": groupedData[date]
+              }))
+            };
+
+            // Wyświetlenie wyniku
+            console.log(JSON.stringify(finalStructure, null, 4));
+
+
             // map your server's response to the DataTables format and pass it to
             // DataTables' callback
             callback({
@@ -539,11 +544,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -810,20 +815,20 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1325,11 +1330,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
