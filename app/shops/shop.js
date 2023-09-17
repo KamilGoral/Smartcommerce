@@ -297,40 +297,41 @@ docReady(function () {
   }
 
   function format(d) {
+    console.log(d);
     var toDisplayHtml = "";
 
     function myFunction(item) {
-        if (item.status == "ready") {
-            return '<span class="positive">Gotowa</span>';
-        }
-        if (item.status == "error") {
-            return '<span class="negative">Problem</span>';
-        }
-        if (item.status == "in progress") {
-            return '<span class="medium">W trakcie</span>';
-        }
-        if (item.status == "incomplete") {
-            return '<span class="medium">Niekompletna</span>';
-        }
-        if (item.status == "batching") {
-            return '<span class="medium">W kolejce</span>';
-        }
-        if (item.status == "forced") {
-            return '<span class="medium">W kolejce</span>';
-        }
+      if (item.status == "ready") {
+        return '<span class="positive">Gotowa</span>';
+      }
+      if (item.status == "error") {
+        return '<span class="negative">Problem</span>';
+      }
+      if (item.status == "in progress") {
+        return '<span class="medium">W trakcie</span>';
+      }
+      if (item.status == "incomplete") {
+        return '<span class="medium">Niekompletna</span>';
+      }
+      if (item.status == "batching") {
+        return '<span class="medium">W kolejce</span>';
+      }
+      if (item.status == "forced") {
+        return '<span class="medium">W kolejce</span>';
+      }
     }
 
     for (var i = 1; i < d.length; i++) {
-        toDisplayHtml += "<tr><td></td>" +
-            "<td>" + d[i].createDate + "</td>" +
-            "<td>" + myFunction(d[i]) + "</td>" +
-            "<td></td></tr>";
+      toDisplayHtml += "<tr><td></td>" +
+        "<td>" + d[i].createDate + "</td>" +
+        "<td>" + myFunction(d[i]) + "</td>" +
+        "<td></td></tr>";
     }
 
     return "<table><tr><th></th><th>Data utworzenia</th><th>Status</th><th>Akcje</th></tr>" +
-        toDisplayHtml +
-        "</table>";
-}
+      toDisplayHtml +
+      "</table>";
+  }
 
 
 
@@ -1460,11 +1461,17 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var row = table.row(tr);
+    console.log(tr);
+    console.log(row);
+    console.log(row.data);
     if (row.child.isShown()) {
       row.child.hide();
       tr.removeClass("shown");
     } else {
       row.child(format(row.data())).show();
+      console.log(tr);
+      console.log(row);
+      console.log(row.data);
       tr.addClass("shown");
     }
   });
