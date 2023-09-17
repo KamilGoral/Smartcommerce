@@ -427,7 +427,7 @@ docReady(function () {
               groupedData[createDate].push({
                 "offerId": item.offerId,
                 "status": item.status,
-                "createDate": createDate + "T" + timePart + "Z"  // Dodaj czas (minuty, sekundy i strefę czasową)
+                "createDate": createDate + "T" + timePart  // Dodaj czas (minuty, sekundy i strefę czasową)
               });
             });
 
