@@ -330,9 +330,8 @@ docReady(function () {
         "<td>siema</td></tr>";
     }
 
-    return "<table><tr><th></th><th></th><th></th><th></th></tr>" +
-      toDisplayHtml +
-      "</table>";
+    return toDisplayHtml
+      
   }
 
 
