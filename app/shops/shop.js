@@ -1461,17 +1461,11 @@ docReady(function () {
     var table = $("#table_offers").DataTable();
     var tr = $(this).closest("tr");
     var row = table.row(tr);
-    console.log(tr);
-    console.log(row);
-    console.log(row.data);
     if (row.child.isShown()) {
       row.child.hide();
       tr.removeClass("shown");
     } else {
       row.child(format(row.data())).show();
-      console.log(tr);
-      console.log(row);
-      console.log(row.data);
       tr.addClass("shown");
     }
   });
