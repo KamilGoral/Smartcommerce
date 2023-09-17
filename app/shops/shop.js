@@ -297,53 +297,63 @@ docReady(function () {
   }
 
   function format(d) {
-    console.log(d);
     var offers = d.offers; // Pobierz tablicę ofert z obiektu d
     var toDisplayHtml = "";
 
     function myFunction(item) {
-      if (item.status == "ready") {
-        return '<span class="positive">Gotowa</span>';
-      }
-      if (item.status == "error") {
-        return '<span class="negative">Problem</span>';
-      }
-      if (item.status == "in progress") {
-        return '<span class="medium">W trakcie</span>';
-      }
-      if (item.status == "incomplete") {
-        return '<span class="medium">Niekompletna</span>';
-      }
-      if (item.status == "batching") {
-        return '<span class="medium">W kolejce</span>';
-      }
-      if (item.status == "forced") {
-        return '<span class="medium">W kolejce</span>';
-      }
+        if (item.status == "ready") {
+            return '<span class="positive">Gotowa</span>';
+        }
+        if (item.status == "error") {
+            return '<span class="negative">Problem</span>';
+        }
+        if (item.status == "in progress") {
+            return '<span class="medium">W trakcie</span>';
+        }
+        if (item.status == "incomplete") {
+            return '<span class="medium">Niekompletna</span>';
+        }
+        if (item.status == "batching") {
+            return '<span class="medium">W kolejce</span>';
+        }
+        if (item.status == "forced") {
+            return '<span class="medium">W kolejce</span>';
+        }
     }
 
-// Pobierz szerokość kolumn w głównej tabeli
-const columnWidths = [];
-$('#table_offers th').each(function() {
-    columnWidths.push($(this).width() + 'px');
-});
+    // Pobierz szerokość kolumn w głównej tabeli
+    const columnWidths = [];
+    $('#table_offers th').each(function() {
+        columnWidths.push($(this).width() + 'px');
+    });
 
-// Iteruj przez tablicę ofert
-for (var i = 0; i < offers.length; i++) {
-    toDisplayHtml += '<table style="table-layout: fixed; width: 100%;"><tr>' +
-        '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
-        "<td style='width:" + columnWidths[1] + ";'>" + offers[i].createDate + "</td>" +
-        "<td style='width:" + columnWidths[2] + ";'>" + myFunction(offers[i]) + "</td>" +
-        "<td style='width:" + columnWidths[3] + ";'><div class='action-container'><a href='#' status='" +
-        offers[i].status +
-        "' offerId='" +
-        offers[i].offerId +
-        "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr></table>"
+    // Nagłówki dla tabeli z ofertami
+    toDisplayHtml += '<table style="table-layout: fixed; width: 100%;"><tr>';
+    toDisplayHtml += '<th style="width:' + columnWidths[0] + ';"></th>';
+    toDisplayHtml += '<th style="width:' + columnWidths[1] + ';">Data utworzenia</th>';
+    toDisplayHtml += '<th style="width:' + columnWidths[2] + ';">Status</th>';
+    toDisplayHtml += '<th style="width:' + columnWidths[3] + ';">Akcje</th>';
+    toDisplayHtml += '</tr>';
+
+    // Iteruj przez tablicę ofert
+    for (var i = 0; i < offers.length; i++) {
+        toDisplayHtml += '<tr>' +
+            '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
+            "<td style='width:" + columnWidths[1] + ";'>" + offers[i].createDate + "</td>" +
+            "<td style='width:" + columnWidths[2] + ";'>" + myFunction(offers[i]) + "</td>" +
+            "<td style='width:" + columnWidths[3] + ";'><div class='action-container'><a href='#' status='" +
+            offers[i].status +
+            "' offerId='" +
+            offers[i].offerId +
+            "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>";
+    }
+
+    // Zamknij tabelę z ofertami
+    toDisplayHtml += '</table>';
+
+    return toDisplayHtml;
 }
 
-return toDisplayHtml;
-      
-  }
 
 
 
