@@ -324,13 +324,13 @@ docReady(function () {
 
     // Iteruj przez tablicę ofert
     for (var i = 0; i < offers.length; i++) {
-      toDisplayHtml += "<tr><td></td>" +
+      toDisplayHtml += '<tr>' + '<td class="details-container2" style="justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
         "<td>" + offers[i].createDate + "</td>" +
         "<td>" + myFunction(offers[i]) + "</td>" +
         "<td>siema</td></tr>";
     }
 
-    return "<table><tr><th></th><th>Data utworzenia</th><th>Status</th><th>Akcje</th></tr>" +
+    return "<table><tr><th></th><th></th><th></th><th></th></tr>" +
       toDisplayHtml +
       "</table>";
   }
