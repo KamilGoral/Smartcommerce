@@ -327,7 +327,11 @@ docReady(function () {
       toDisplayHtml += '<tr>' + '<td class="details-container2" style="justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
         "<td>" + offers[i].createDate + "</td>" +
         "<td>" + myFunction(offers[i]) + "</td>" +
-        "<td>siema</td></tr>";
+        "<td><div class='action-container'><a href='#' status='" +
+        offers[i].status +
+        "' offerId='" +
+        offers[i].offerId +
+        "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>"
     }
 
     return toDisplayHtml
@@ -420,7 +424,8 @@ docReady(function () {
 
             res.items.forEach(item => {
               const createDate = item.createDate.substring(0, 10);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-              const timePart = item.createDate.substring(17, 23);  // Wyciągnij część z sekundami i strefą czasową
+              const timePart = createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+
 
               if (!groupedData[createDate]) {
                 groupedData[createDate] = [];
@@ -429,7 +434,7 @@ docReady(function () {
               groupedData[createDate].push({
                 "offerId": item.offerId,
                 "status": item.status,
-                "createDate": createDate + "T" + timePart  // Dodaj czas (minuty, sekundy i strefę czasową)
+                "createDate": createDate + " " + timePart  // Dodaj czas (minuty, sekundy i strefę czasową)
               });
             });
 
