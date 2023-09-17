@@ -437,10 +437,13 @@ docReady(function () {
         ) {
           if (rowData.offers && rowData.offers.length > 1) {
             $(cell).addClass("details-control");
-          } else { 
-            console.log("obrazek")
-            return "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>" 
-          }
+          } else {
+            // Tworzenie elementu <img>
+            const imgElement = $('<img>', {
+              src: 'https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg',
+              alt: 'offer'
+            });
+            $(cell).addClass("details-container2").append(imgElement);}
         },
         orderable: false,
       },
