@@ -321,7 +321,7 @@ docReady(function () {
       }
     }
 
-    for (var i = 1; i < d.length; i++) {
+    for (var i = 0; i < d.length; i++) {
       toDisplayHtml += "<tr><td></td>" +
         "<td>" + d[i].createDate + "</td>" +
         "<td>" + myFunction(d[i]) + "</td>" +
