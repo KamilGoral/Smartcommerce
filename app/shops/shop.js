@@ -376,7 +376,7 @@ docReady(function () {
             // Tworzenie słownika do grupowania ofert według daty
             const groupedData = {};
 
-            response_data.items.forEach(item => {
+            res.items.forEach(item => {
               const createDate = item.createDate.substring(0, 16);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
               const timePart = item.createDate.substring(17, 23);  // Wyciągnij część z sekundami i strefą czasową
 
