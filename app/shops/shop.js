@@ -398,7 +398,7 @@ docReady(function () {
             };
 
             // Wyświetlenie wyniku
-            console.log(JSON.stringify(finalStructure, null, 4));
+            console.log(finalStructure);
 
 
             // map your server's response to the DataTables format and pass it to
