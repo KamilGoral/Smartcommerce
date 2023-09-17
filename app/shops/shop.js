@@ -394,13 +394,14 @@ docReady(function () {
             
             // Grupowanie ofert z danych
             var groupedOffers = groupOffersByDate(res);
+            console.log(groupedOffers);
             
             // map your server's response to the DataTables format and pass it to
             // DataTables' callback
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
-              data: groupedOffers.items,
+              data: res.items,
             });
           }
         );
