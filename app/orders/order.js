@@ -1003,7 +1003,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "rotationIndicator",
               defaultContent: "brak",
               render: function (data) {
