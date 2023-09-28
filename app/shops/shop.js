@@ -1483,7 +1483,7 @@ docReady(function () {
     var rowData = table.row(tr).data();
 
     // Extract pricelistid from the rowData or wherever it's available
-    var pricelistid = rowData.pricelistid; // Adjust this based on your data structure
+    var pricelistid = rowData.uuid; // Adjust this based on your data structure
 
     // Ensure pricelistid is available
     if (!pricelistid) {
