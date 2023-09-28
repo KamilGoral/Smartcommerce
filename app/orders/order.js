@@ -1442,18 +1442,23 @@ docReady(function () {
   });
 
   $("#spl_table").on("click", "img.showdata", function () {
-    var dataToDisplay = $(this);
+    const dataToDisplay = $(this);
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
-    var input = dataToDisplay.data("content");
-
-    var values = input.split(",");
+    const input = dataToDisplay.data("content");
 
     if (!input) {
       console.error("Brak danych do wyświetlenia.");
       return;
     }
-    var output = "<td>" + values.join("<br>") + "</td>";
+
+    let output;
+    if (Array.isArray(input)) {
+      output = "<td>" + input.join("<br>") + "</td>";
+    } else {
+      output = "<td>" + input + "</td>";
+    }
+
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
   });

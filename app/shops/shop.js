@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -287,11 +287,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/orders/order?orderId=" +
-        rowData.orderId +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/orders/order?orderId=" +
+          rowData.orderId +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
@@ -301,62 +301,72 @@ docReady(function () {
     var toDisplayHtml = "";
 
     function myFunction(item) {
-        if (item.status == "ready") {
-            return '<span class="positive">Gotowa</span>';
-        }
-        if (item.status == "error") {
-            return '<span class="negative">Problem</span>';
-        }
-        if (item.status == "in progress") {
-            return '<span class="medium">W trakcie</span>';
-        }
-        if (item.status == "incomplete") {
-            return '<span class="medium">Niekompletna</span>';
-        }
-        if (item.status == "batching") {
-            return '<span class="medium">W kolejce</span>';
-        }
-        if (item.status == "forced") {
-            return '<span class="medium">W kolejce</span>';
-        }
+      if (item.status == "ready") {
+        return '<span class="positive">Gotowa</span>';
+      }
+      if (item.status == "error") {
+        return '<span class="negative">Problem</span>';
+      }
+      if (item.status == "in progress") {
+        return '<span class="medium">W trakcie</span>';
+      }
+      if (item.status == "incomplete") {
+        return '<span class="medium">Niekompletna</span>';
+      }
+      if (item.status == "batching") {
+        return '<span class="medium">W kolejce</span>';
+      }
+      if (item.status == "forced") {
+        return '<span class="medium">W kolejce</span>';
+      }
     }
 
     // Pobierz szerokość kolumn w głównej tabeli
     const columnWidths = [];
-    $('#table_offers th').each(function() {
-        columnWidths.push($(this).width() + 'px');
+    $("#table_offers th").each(function () {
+      columnWidths.push($(this).width() + "px");
     });
 
     // Nagłówki dla tabeli z ofertami
     toDisplayHtml += '<table style="table-layout: fixed; width: 100%;"><tr>';
     toDisplayHtml += '<th style="width:' + columnWidths[0] + ';"></th>';
-    toDisplayHtml += '<th style="width:' + columnWidths[1] + ';">Data utworzenia</th>';
+    toDisplayHtml +=
+      '<th style="width:' + columnWidths[1] + ';">Data utworzenia</th>';
     toDisplayHtml += '<th style="width:' + columnWidths[2] + ';">Status</th>';
     toDisplayHtml += '<th style="width:' + columnWidths[3] + ';">Akcje</th>';
-    toDisplayHtml += '</tr>';
+    toDisplayHtml += "</tr>";
 
     // Iteruj przez tablicę ofert
     for (var i = 0; i < offers.length; i++) {
-        toDisplayHtml += '<tr>' +
-            '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
-            "<td style='width:" + columnWidths[1] + ";'>" + offers[i].createDate + "</td>" +
-            "<td style='width:" + columnWidths[2] + ";'>" + myFunction(offers[i]) + "</td>" +
-            "<td style='width:" + columnWidths[3] + ";'><div class='action-container'><a href='#' status='" +
-            offers[i].status +
-            "' offerId='" +
-            offers[i].offerId +
-            "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>";
+      toDisplayHtml +=
+        "<tr>" +
+        '<td class="details-container2" style="width:' +
+        columnWidths[0] +
+        '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
+        "<td style='width:" +
+        columnWidths[1] +
+        ";'>" +
+        offers[i].createDate +
+        "</td>" +
+        "<td style='width:" +
+        columnWidths[2] +
+        ";'>" +
+        myFunction(offers[i]) +
+        "</td>" +
+        "<td style='width:" +
+        columnWidths[3] +
+        ";'><div class='action-container'><a href='#' status='" +
+        offers[i].status +
+        "' offerId='" +
+        offers[i].offerId +
+        "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>";
     }
 
     // Zamknij tabelę z ofertami
     toDisplayHtml += '<tr><td colspan="4"></td></tr></table>';
 
     return toDisplayHtml;
-}
-
-
-
-
+  }
 
   function getOffers() {
     var table = $("#table_offers").DataTable({
@@ -434,43 +444,41 @@ docReady(function () {
             page: (data.start + data.length) / data.length,
           },
           function (res) {
-
-
             // Tworzenie słownika do grupowania ofert według daty
             const groupedData = {};
 
-            res.items.forEach(item => {
-              const createDate = item.createDate.substring(0, 10);  // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+            res.items.forEach((item) => {
+              const createDate = item.createDate.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
               const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
-
 
               if (!groupedData[createDate]) {
                 groupedData[createDate] = [];
               }
 
               groupedData[createDate].push({
-                "offerId": item.offerId,
-                "status": item.status,
-                "createDate": createDate + " " + timePart  // Dodaj czas (minuty, sekundy i strefę czasową)
+                offerId: item.offerId,
+                status: item.status,
+                createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
               });
             });
 
             // Sortowanie ofert w każdym dniu od najświeższej do najstarszej
             for (const date in groupedData) {
-              groupedData[date].sort((a, b) => (a.createDate > b.createDate) ? -1 : 1);
+              groupedData[date].sort((a, b) =>
+                a.createDate > b.createDate ? -1 : 1
+              );
             }
 
             // Tworzenie końcowej struktury
             const finalStructure = {
-              "items": Object.keys(groupedData).map(date => ({
-                "createDate": date,
-                "offers": groupedData[date]
-              }))
+              items: Object.keys(groupedData).map((date) => ({
+                createDate: date,
+                offers: groupedData[date],
+              })),
             };
 
             // Wyświetlenie wyniku
             console.log(finalStructure);
-
 
             // map your server's response to the DataTables format and pass it to
             // DataTables' callback
@@ -490,97 +498,101 @@ docReady(function () {
       search: {
         return: true,
       },
-      columns: [{
-        data: null,
-        width: "36px",
-        defaultContent: "",
-        createdCell: function (
-          cell,
+      columns: [
+        {
+          data: null,
+          width: "36px",
+          defaultContent: "",
+          createdCell: function (
+            cell,
 
-          rowData,
-        ) {
-          if (rowData.offers && rowData.offers.length > 1) {
-            $(cell).addClass("details-control");
-          } else {
-            // Tworzenie elementu <img>
-            const imgElement = $('<img>', {
-              src: 'https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg',
-              alt: 'offer'
-            });
-            $(cell).addClass("details-container2").css("justify-content", "center").append(imgElement);
-          }
+            rowData
+          ) {
+            if (rowData.offers && rowData.offers.length > 1) {
+              $(cell).addClass("details-control");
+            } else {
+              // Tworzenie elementu <img>
+              const imgElement = $("<img>", {
+                src: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg",
+                alt: "offer",
+              });
+              $(cell)
+                .addClass("details-container2")
+                .css("justify-content", "center")
+                .append(imgElement);
+            }
+          },
+          orderable: false,
         },
-        orderable: false,
-      },
-      {
-        orderable: false,
-        visible: false,
-        data: null,
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
+        {
+          orderable: false,
+          visible: false,
+          data: null,
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            }
+            if (data === null) {
+              return "";
+            }
+          },
         },
-      },
-      {
-        orderable: true,
-        data: "createDate",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
+        {
+          orderable: true,
+          data: "createDate",
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            }
+            if (data === null) {
+              return "";
+            }
+          },
         },
-      },
-      {
-        orderable: true,
-        data: null,
-        render: function (data) {
-          if (data !== null) {
-            if (data.offers[0].status == "ready") {
-              return '<spann class="positive">Gotowa</spann>';
+        {
+          orderable: true,
+          data: null,
+          render: function (data) {
+            if (data !== null) {
+              if (data.offers[0].status == "ready") {
+                return '<spann class="positive">Gotowa</spann>';
+              }
+              if (data.offers[0].status == "error") {
+                return '<spann class="negative">Problem</spann>';
+              }
+              if (data.offers[0].status == "in progress") {
+                return '<spann class="medium">W trakcie</spann>';
+              }
+              if (data.offers[0].status == "incomplete") {
+                return '<spann class="medium">Niekompletna</spann>';
+              }
+              if (data.offers[0].status == "batching") {
+                return '<spann class="medium">W kolejce</spann>';
+              }
+              if (data.offers[0].status == "forced") {
+                return '<spann class="medium">W kolejce</spann>';
+              }
             }
-            if (data.offers[0].status == "error") {
-              return '<spann class="negative">Problem</spann>';
+            if (data === null) {
+              return "";
             }
-            if (data.offers[0].status == "in progress") {
-              return '<spann class="medium">W trakcie</spann>';
-            }
-            if (data.offers[0].status == "incomplete") {
-              return '<spann class="medium">Niekompletna</spann>';
-            }
-            if (data.offers[0].status == "batching") {
-              return '<spann class="medium">W kolejce</spann>';
-            }
-            if (data.offers[0].status == "forced") {
-              return '<spann class="medium">W kolejce</spann>';
-            }
-          }
-          if (data === null) {
-            return "";
-          }
+          },
         },
-      },
-      {
-        orderable: false,
-        data: null,
-        render: function (data, type, row) {
-          if (type === "display") {
-            return (
-              '<div class="action-container"><a href="#" status="' +
-              row.offers[0]["status"] +
-              '" offerId="' +
-              row.offers[0]["offerId"] +
-              '" class="buttonoutline editme w-button">Przejdź</a></div>'
-            );
-          }
+        {
+          orderable: false,
+          data: null,
+          render: function (data, type, row) {
+            if (type === "display") {
+              return (
+                '<div class="action-container"><a href="#" status="' +
+                row.offers[0]["status"] +
+                '" offerId="' +
+                row.offers[0]["offerId"] +
+                '" class="buttonoutline editme w-button">Przejdź</a></div>'
+              );
+            }
+          },
         },
-      },
       ],
       initComplete: function (settings, json) {
         var api = this.api();
@@ -620,11 +632,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -839,7 +851,7 @@ docReady(function () {
               var creationTime = creationDate[1].split("Z");
               endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
 
-              if (data > nowDate) {
+              if (data >= nowDate) {
                 return '<spann class="positive">' + endDate + "</spann>";
               } else {
                 return '<spann class="medium">' + endDate + "</spann>";
@@ -884,6 +896,14 @@ docReady(function () {
             }
           },
         },
+        {
+          orderable: false,
+          class: "details-control4",
+          width: "20px",
+          data: null,
+          defaultContent:
+            "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+        },
       ],
     });
 
@@ -891,20 +911,20 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1406,11 +1426,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },
@@ -1456,6 +1476,48 @@ docReady(function () {
   getOrders();
   getOffers();
   getPriceLists();
+
+  $("#table_pricelists_list").on("click", "td.details-control4", function () {
+    var table = $("#spl_table").DataTable();
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+
+    // Extract pricelistid from the rowData or wherever it's available
+    var pricelistid = rowData.pricelistid; // Adjust this based on your data structure
+
+    // Ensure pricelistid is available
+    if (!pricelistid) {
+      console.error("Missing pricelistid.");
+      return;
+    }
+
+    const endpoint =
+      "https://" + DomainName + "/app/price-lists/" + pricelistid;
+
+    fetch(endpoint, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + orgToken, // Assuming orgToken is your authorization token
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json(); // If you expect a response in JSON format
+      })
+      .then((data) => {
+        console.log("DELETE request successful:", data);
+        // Emulate changes for user after successful deletion
+        $("#waitingdots").show(1).delay(150).hide(1);
+        table.row($(this).parents("tr")).remove().draw();
+      })
+      .catch((error) => {
+        console.error("Error during DELETE request:", error);
+      });
+  });
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
