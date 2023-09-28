@@ -1478,7 +1478,7 @@ docReady(function () {
   getPriceLists();
 
   $("#table_pricelists_list").on("click", "td.details-control4", function () {
-    var table = $("#spl_table").DataTable();
+    var table = $("#table_pricelists_list").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData);
