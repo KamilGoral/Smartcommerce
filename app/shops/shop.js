@@ -1481,6 +1481,7 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
+    console.log(rowData);
 
     // Extract pricelistid from the rowData or wherever it's available
     var pricelistid = rowData.uuid; // Adjust this based on your data structure
