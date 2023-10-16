@@ -222,7 +222,7 @@ docReady(function () {
             if (a2.indexOf(a1[i]) === -1) {
               data.push({
                 op: "remove",
-                path: "/shopKeys/" + a1[i]
+                path: "/shopKeys/" + a1[i],
               });
             }
           }

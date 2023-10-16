@@ -1003,7 +1003,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "rotationIndicator",
               defaultContent: "brak",
               render: function (data) {
@@ -1442,18 +1442,23 @@ docReady(function () {
   });
 
   $("#spl_table").on("click", "img.showdata", function () {
-    var dataToDisplay = $(this);
+    const dataToDisplay = $(this);
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
-    var input = dataToDisplay.data("content");
-
-    var values = input.split(",");
+    const input = dataToDisplay.data("content");
 
     if (!input) {
       console.error("Brak danych do wyświetlenia.");
       return;
     }
-    var output = "<td>" + values.join("<br>") + "</td>";
+
+    let output;
+    if (Array.isArray(input)) {
+      output = "<td>" + input.join("<br>") + "</td>";
+    } else {
+      output = "<td>" + input + "</td>";
+    }
+
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
   });
@@ -1478,7 +1483,13 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    var payloadDelete = { op: "remove", path: "/" + rowData.gtin };
+
+    if (rowData.derived !== null) {
+      var trueGtin2 = rowData.derived.gtin;
+    } else {
+      var trueGtin2 = rowData.gtin;
+    }
+    var payloadDelete = { op: "remove", path: "/" + trueGtin2 };
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
