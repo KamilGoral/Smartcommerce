@@ -1093,6 +1093,14 @@ docReady(function () {
           }
         },
       },
+      {
+        orderable: false,
+        class: "details-control4",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+      },
     ],
   });
 
@@ -1101,6 +1109,13 @@ docReady(function () {
     window.location.replace(
       "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
     );
+  });
+
+  $("#table_pricelists_list").on("click", "td.details-control4", function () {
+    var table = $("#table_pricelists_list").DataTable();
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    console.log(rowData)
   });
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
