@@ -2716,7 +2716,7 @@ docReady(function () {
 
     $(document).ready(function() {
       // Pobierz dane z ciasteczka
-      const productsData = getProductsDataFromCookie();
+      const productsData = getProductsDataFromCookie(orderId);
     
       // Sprawdź czy mamy dane
       if (productsData) {
