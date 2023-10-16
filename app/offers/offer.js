@@ -846,11 +846,22 @@ docReady(function () {
     },
     columns: [
       {
-        orderable: false,
-        class: "details-control",
         data: null,
-        width: "20px",
+        orderable: false,
         defaultContent: "",
+        width: "20px",
+        createdCell: function (
+          cell,
+          cellData,
+          rowData,
+          rowIndex,
+          colIndex
+        ) {
+          if (rowData.asks && rowData.asks.length > 0) {
+            $(cell).addClass("details-control");
+          }
+        },
+        orderable: false,
       },
       {
         orderable: false,
