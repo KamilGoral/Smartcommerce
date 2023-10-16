@@ -2537,6 +2537,15 @@ docReady(function () {
         data: "gtin",
       },
       {
+        orderable: false,
+        data: null,
+        render: function (data) {
+          return (
+            '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="">'
+          );
+        },
+      },
+      {
         orderable: true,
         data: "inStock",
         render: function (data) {
