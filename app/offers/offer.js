@@ -939,7 +939,7 @@ docReady(function () {
         orderable: false,
         data: "asks",
         render: function (data) {
-          if (data !== null && data.netPrice !== null) {
+          if (data !== null && data.length > 0 && data.netPrice !== null) {
             var mysorteddata = data.sort(
               (a, b) => (a.netPrice > b.netPrice && 1) || -1
             );
