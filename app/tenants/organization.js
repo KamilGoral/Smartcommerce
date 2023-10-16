@@ -1018,27 +1018,25 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var endDate = "";
-            var nowDate = new Date().toISOString();
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(
-              Date.parse(data) - offset * 60 * 1000
-            ).toISOString();
-            var creationDate = localeTime.split("T");
-            var creationTime = creationDate[1].split("Z");
-            endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
-            console.log(data);
-            console.log(nowDate);
-
-            if (data >= nowDate) {
-              return '<spann class="positive">' + endDate + "</spann>";
+            var nowDate = new Date();
+            var offset = nowDate.getTimezoneOffset();
+            
+            // Konwertuj data na obiekt Date
+            var dataDate = new Date(Date.parse(data) - offset * 60 * 1000);
+            
+            // Porównaj tylko część godzinową
+            if (dataDate.getUTCHours() > nowDate.getUTCHours() ||
+                (dataDate.getUTCHours() === nowDate.getUTCHours() &&
+                 dataDate.getUTCMinutes() > nowDate.getUTCMinutes())) {
+              return '<span class="positive">' + dataDate.toISOString().split('T')[1] + '</span>';
             } else {
-              return '<spann class="medium">' + endDate + "</spann>";
+              return '<span class="medium">' + dataDate.toISOString().split('T')[1] + '</span>';
             }
           }
           if (data === null) {
             return "";
           }
-        },
+        }
       },
       {
         orderable: false,
