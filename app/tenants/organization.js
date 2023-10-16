@@ -1096,13 +1096,8 @@ docReady(function () {
       {
         orderable: false,
         data: null,
-        render: function (data, type, row) {
-          if (type === "display") {
-            return (
-              '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>'
-            );
-          }
-        },
+        defaultContent:
+        '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
       },
       {
         orderable: false,
