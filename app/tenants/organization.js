@@ -1129,7 +1129,7 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData)
-    var endpoint = "https://" + DomainName + "/app/pricelists/" + rowData.uuid;
+    var endpoint = "https://" + InvokeURL + "pricelists/" + rowData.uuid;
     $.ajax({
       type: "DELETE",
       url: endpoint,
