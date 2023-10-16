@@ -2796,16 +2796,13 @@ docReady(function () {
       console.log(newValue)
       var initialValue = parseInt($(this).data("initialValue"));
       console.log(initialValue);
-      console.log(typeof initialValue);
-      console.log(initialValue.length)
-
       // Check if the value has changed
       if (newValue !== initialValue) {
         $(this).attr("value", newValue);
         var data = table.row($(this).parents("tr")).data();
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
-          if (initialValue.length = 0) {
+          if (typeof initialValue === 'undefined') {
             var product = {
               op: "add",
               path: "/" + data.gtin,
