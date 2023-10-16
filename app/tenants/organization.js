@@ -1095,6 +1095,17 @@ docReady(function () {
       },
       {
         orderable: false,
+        data: null,
+        render: function (data, type, row) {
+          if (type === "display") {
+            return (
+              '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>'
+            );
+          }
+        },
+      },
+      {
+        orderable: false,
         class: "details-control4",
         width: "20px",
         data: null,
@@ -1104,7 +1115,8 @@ docReady(function () {
     ],
   });
 
-  $("#table_pricelists_list").on("click", "tr", function () {
+  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function () {
+    event.preventDefault();
     var rowData = table.row(this).data();
     window.location.replace(
       "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
