@@ -1036,7 +1036,7 @@ docReady(function () {
             dataDate.setUTCHours(0, 0, 0, 0);
             nowDate.setUTCHours(0, 0, 0, 0);
 
-            if (dataDate > nowDate) {
+            if (dataDate >= nowDate) {
               return '<span class="positive">' + formatDate(dataDate) + '</span>';
             } else {
               return '<span class="medium">' + formatDate(dataDate) + '</span>';
