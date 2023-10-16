@@ -2717,6 +2717,7 @@ docReady(function () {
     $(document).ready(function() {
       // Pobierz dane z ciasteczka
       const productsData = getProductsDataFromCookie(orderId);
+      console.log(productsData);
     
       // Sprawdź czy mamy dane
       if (productsData) {
@@ -2725,6 +2726,7 @@ docReady(function () {
         // Iteruj przez wiersze tabeli i ustaw wartości w 4. kolumnie
         table.rows().every(function() {
           const rowData = this.data();
+          console.log(rowData)
           const gtin = rowData[3]; // Załóżmy, że 4. kolumna zawiera GTIN
     
           // Sprawdź czy dla danego GTIN mamy zapisane dane
@@ -2733,6 +2735,7 @@ docReady(function () {
           if (productData) {
             // Nadpisz wartość w polu typu input w 4. kolumnie
             const inputField = $(this.node()).find('input'); // Zakładamy, że to pole input w 4. kolumnie
+            console.log(inputField)
             inputField.val(productData.quantity);
           }
         });
