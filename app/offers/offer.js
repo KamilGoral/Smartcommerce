@@ -29,9 +29,8 @@ docReady(function () {
   var counter = 0;
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var offerId = new URL(location.href).searchParams.get("offerId");
-  var OfferDate = new Date(parseInt(offerId) * 1000).toISOString();
-  var OfferDateHuman = OfferDate.split("T");
-  var OfferDateHumanTime = OfferDateHuman[1].split("Z");
+  var offerDate = new Date(parseInt(offerId) * 1000).toLocaleString('pl-PL'); // Utworzenie obiektu Date na podstawie timestampu
+
 
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
