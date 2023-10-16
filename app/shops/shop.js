@@ -339,8 +339,20 @@ docReady(function () {
     // Iteruj przez tablicę ofert
     for (var i = 0; i < offers.length; i++) {
       var utcDate = new Date(offers[i].createDate);
-      var localDate = utcDate.toLocaleString();  // Konwersja do lokalnego czasu
-    
+
+      // Formatuj rok, miesiąc i dzień
+      var year = utcDate.getUTCFullYear();
+      var month = ('0' + (utcDate.getUTCMonth() + 1)).slice(-2);
+      var day = ('0' + utcDate.getUTCDate()).slice(-2);
+
+      // Formatuj godzinę, minutę i sekundę
+      var hours = ('0' + utcDate.getUTCHours()).slice(-2);
+      var minutes = ('0' + utcDate.getUTCMinutes()).slice(-2);
+      var seconds = ('0' + utcDate.getUTCSeconds()).slice(-2);
+
+      var formattedDate = year + '-' + month + '-' + day + ', ' + hours + ':' + minutes + ':' + seconds;
+
+
       toDisplayHtml +=
         "<tr>" +
         '<td class="details-container2" style="width:' +
@@ -349,7 +361,7 @@ docReady(function () {
         "<td style='width:" +
         columnWidths[1] +
         ";'>" +
-        localDate +
+        formattedDate +
         "</td>" +
         "<td style='width:" +
         columnWidths[2] +
@@ -553,7 +565,7 @@ docReady(function () {
               var creationDate = localeTime.split("T");
               var creationTime = creationDate[1].split("Z");
               startDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
-  
+
               return startDate;
             }
             if (data === null) {
