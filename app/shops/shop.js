@@ -849,11 +849,7 @@ docReady(function () {
             var formattedDate = utcDate.toLocaleString('pl-PL', {
               year: 'numeric',
               month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false
+              day: '2-digit'
             });
             return formattedDate;
           }
@@ -888,35 +884,12 @@ docReady(function () {
           }
         }
       },
-      
       {
         orderable: false,
         data: "created.by",
         render: function (data) {
           if (data !== null) {
             return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.at",
-        render: function (data) {
-          if (data !== null) {
-            var lastModificationDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(
-              Date.parse(data) - offset * 60 * 1000
-            ).toISOString();
-            var creationDate = localeTime.split("T");
-            var creationTime = creationDate[1].split("Z");
-            lastModificationDate =
-              creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-            return lastModificationDate;
           }
           if (data === null) {
             return "";
@@ -944,6 +917,18 @@ docReady(function () {
             return "";
           }
         }
+      },
+      {
+        orderable: false,
+        data: "modified.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
       },
       {
         orderable: false,
