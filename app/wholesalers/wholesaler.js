@@ -88,7 +88,6 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
-        $("#delete-wholesalers-container").removeClass("hide");
         $("#login-credentials-container").removeClass("hide");
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
@@ -330,6 +329,55 @@ docReady(function () {
     };
     request.send();
   }
+
+  function getWholesalerButtons(wholesalerKey) {
+    let url = new URL(
+      InvokeURL +
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+    );
+  
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+  
+    request.onload = function () {
+      if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(request.responseText);
+
+        var foundWholesaler = data.items.find(function (item) {
+          return item.wholesalerKey === wholesalerKey;
+        });
+  
+        if (foundWholesaler && foundWholesaler.connections && foundWholesaler.connections.onlineOffer) {
+          var onlineOfferData = foundWholesaler.connections.onlineOffer;
+          if (onlineOfferData.enabled && onlineOfferData.active) {
+            console.log('Online Offer: Tak');
+            $("#delete-wholesalers-container").removeClass("hide");
+          } else if (!onlineOfferData.enabled && !onlineOfferData.active) {
+            console.log('Online Offer: Dodaj');
+          } else if (onlineOfferData.enabled && !onlineOfferData.active) {
+            console.log('Online Offer: Przywróć');
+            $("#delete-wholesalers-container").removeClass("hide");
+          } else if (!onlineOfferData.enabled && onlineOfferData.active) {
+            console.log('Online Offer: Dodaj');
+          }
+        } else {
+          console.log('Online Offer: Brak');
+        }
+      } else {
+        console.error("Błąd zapytania do API. Status: " + request.status);
+      }
+    };
+  
+    request.onerror = function () {
+      console.error("Wystąpił błąd połączenia.");
+    };
+    request.send();
+  }
+
+  
 
   function LogoutNonUser() {
     if (
@@ -863,6 +911,10 @@ docReady(function () {
 
   //onlineOfferSupport//
 
+    
+  // Wywołanie funkcji z przykładowym wholesalerKey
+  getWholesalerButtons(wholesalerKey);
+
   getWholesaler();
   function onlineOfferSupportFlow() {
     getProfile();
@@ -873,7 +925,6 @@ docReady(function () {
   //oniline Support not supported flow //
 
   LogoutNonUser();
-
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));

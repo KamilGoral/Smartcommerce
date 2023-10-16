@@ -465,8 +465,6 @@ docReady(function () {
           "change",
           "input.editor-active",
           function () {
-            var myValue = $(this);
-            console.log(myValue);
             if (this.checked) {
               console.log(this.getAttribute("wholesalerkey"));
               console.log("Nieaktywny był");
