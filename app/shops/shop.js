@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -287,11 +287,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          rowData.orderId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/orders/order?orderId=" +
+        rowData.orderId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -632,11 +632,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -716,21 +716,21 @@ docReady(function () {
         var direction = "desc";
 
         if (data.order.length == 0) {
-          whichColumns = 0;
+          whichColumns = 2;
         } else {
           whichColumns = data.order[0]["column"];
           direction = data.order[0]["dir"];
         }
 
         switch (whichColumns) {
-          case 0:
-            whichColumns = "created.at:";
-            break;
           case 2:
             whichColumns = "created.at:";
             break;
           case 3:
-            whichColumns = "created.at:";
+            whichColumns = "startDate:";
+            break;
+          case 4:
+            whichColumns = "endDate:";
             break;
           default:
             whichColumns = "created.at:";
@@ -746,8 +746,6 @@ docReady(function () {
             page: (data.start + data.length) / data.length,
           },
           function (res) {
-            // map your server's response to the DataTables format and pass it to
-            // DataTables' callback
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
@@ -767,7 +765,7 @@ docReady(function () {
           data: null,
           width: "36px",
           defaultContent:
-            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
         },
         {
           orderable: false,
@@ -794,6 +792,7 @@ docReady(function () {
             }
           },
         },
+
         {
           orderable: true,
           data: "created.at",
@@ -816,7 +815,7 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "startDate",
           render: function (data) {
             if (data !== null) {
@@ -837,30 +836,39 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "endDate",
           render: function (data) {
             if (data !== null) {
-              var endDate = "";
-              var nowDate = new Date().toISOString();
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
 
-              if (data >= nowDate) {
-                return '<spann class="positive">' + endDate + "</spann>";
+              // Funkcja do formatowania daty do postaci 'YYYY-MM-DD'
+              function formatDate(date) {
+                var year = date.getUTCFullYear();
+                var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+                var day = ('0' + date.getUTCDate()).slice(-2);
+                return year + '-' + month + '-' + day;
+              }
+              var endDate = "";
+              var nowDate = new Date();
+              var offset = nowDate.getTimezoneOffset();
+
+              // Konwertuj data na obiekt Date
+              var dataDate = new Date(Date.parse(data) - offset * 60 * 1000);
+
+              // Porównaj tylko dni
+              dataDate.setUTCHours(0, 0, 0, 0);
+              nowDate.setUTCHours(0, 0, 0, 0);
+
+              if (dataDate >= nowDate) {
+                return '<span class="positive">' + formatDate(dataDate) + '</span>';
               } else {
-                return '<spann class="medium">' + endDate + "</spann>";
+                return '<span class="medium">' + formatDate(dataDate) + '</span>';
               }
             }
             if (data === null) {
               return "";
             }
-          },
+          }
         },
         {
           orderable: false,
@@ -898,6 +906,24 @@ docReady(function () {
         },
         {
           orderable: false,
+          data: "modified.by",
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            }
+            if (data === null) {
+              return "-";
+            }
+          },
+        },
+        {
+          orderable: false,
+          data: null,
+          defaultContent:
+            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+        },
+        {
+          orderable: false,
           class: "details-control4",
           width: "20px",
           data: null,
@@ -907,24 +933,25 @@ docReady(function () {
       ],
     });
 
-    $("#table_pricelists_list").on("click", "tr", function () {
-      var rowData = table.row(this).data();
+    $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
+      event.preventDefault();
+      var table = $("#table_pricelists_list").DataTable();
+      var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
-        "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid +
-          "&shopKey=" +
-          shopKey
+        "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
       );
     });
+
+
+
+
   }
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1426,11 +1453,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
@@ -1477,47 +1504,52 @@ docReady(function () {
   getOffers();
   getPriceLists();
 
+  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
+    event.preventDefault();
+    var table = $("#table_pricelists_list").DataTable();
+    var rowData = table.row($(this).closest("tr")).data();
+    window.location.replace(
+      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
+    );
+  });
+
   $("#table_pricelists_list").on("click", "td.details-control4", function () {
     var table = $("#table_pricelists_list").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    console.log(rowData);
 
-    // Extract pricelistid from the rowData or wherever it's available
-    var pricelistid = rowData.uuid; // Adjust this based on your data structure
+    if (rowData && rowData.uuid) {
+      // Wyświetl potwierdzenie usuwania
+      var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
 
-    // Ensure pricelistid is available
-    if (!pricelistid) {
-      console.error("Missing pricelistid.");
-      return;
+      if (confirmDelete) {
+        var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
+
+        $.ajax({
+          type: "DELETE",
+          url: endpoint,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          headers: {
+            Authorization: orgToken
+          },
+          success: function () {
+            console.log("Rekord został pomyślnie usunięty.");
+            $("#waitingdots").show(1).delay(150).hide(1);
+            table.row($(this).parents("tr")).remove().draw();
+          },
+          error: function (xhr, status, error) {
+            console.error("Błąd usuwania rekordu:", error);
+          }
+        });
+      }
+    } else {
+      console.error("Brak UUID w danych rekordu.");
     }
-
-    const endpoint =
-      "https://" + DomainName + "/app/price-lists/" + pricelistid;
-
-    fetch(endpoint, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + orgToken, // Assuming orgToken is your authorization token
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json(); // If you expect a response in JSON format
-      })
-      .then((data) => {
-        console.log("DELETE request successful:", data);
-        // Emulate changes for user after successful deletion
-        $("#waitingdots").show(1).delay(150).hide(1);
-        table.row($(this).parents("tr")).remove().draw();
-      })
-      .catch((error) => {
-        console.error("Error during DELETE request:", error);
-      });
   });
 
   $('div[role="tablist"]').click(function () {

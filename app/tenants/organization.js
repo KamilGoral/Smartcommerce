@@ -1126,7 +1126,7 @@ docReady(function () {
   
     if (rowData && rowData.uuid) {
       // Wyświetl potwierdzenie usuwania
-      var confirmDelete = confirm("Czy na pewno chcesz usunąć ten rekord?");
+      var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
       
       if (confirmDelete) {
         var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
