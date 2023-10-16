@@ -1129,6 +1129,31 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     console.log(rowData)
+    var endpoint = "https://" + DomainName + "/app/pricelists/" + rowData.uuid;
+    $.ajax({
+      type: "DELETE",
+      url: endpoint,
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      headers: {
+        Authorization: orgToken
+      },
+      success: function () {
+        console.log("Rekord został pomyślnie usunięty.");
+        $("#waitingdots").show(1).delay(150).hide(1);
+        table.row($(this).parents("tr")).remove().draw();    
+      },
+      error: function (xhr, status, error) {
+        console.error("Błąd usuwania rekordu:", error);
+
+      }
+    });
+
+    
   });
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
