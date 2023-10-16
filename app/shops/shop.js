@@ -338,6 +338,9 @@ docReady(function () {
 
     // Iteruj przez tablicę ofert
     for (var i = 0; i < offers.length; i++) {
+      var utcDate = new Date(offers[i].createDate);
+      var localDate = utcDate.toLocaleString();  // Konwersja do lokalnego czasu
+    
       toDisplayHtml +=
         "<tr>" +
         '<td class="details-container2" style="width:' +
@@ -346,7 +349,7 @@ docReady(function () {
         "<td style='width:" +
         columnWidths[1] +
         ";'>" +
-        offers[i].createDate +
+        localDate +
         "</td>" +
         "<td style='width:" +
         columnWidths[2] +
