@@ -2720,34 +2720,18 @@ docReady(function () {
     });
 
     function updateTableInputsFromCookie(orderId) {
-      // Pobierz dane z ciasteczka
       const productsData = getProductsDataFromCookie(orderId);
-      console.log('Products data:', productsData);
 
-      // Sprawdź czy mamy dane
       if (productsData) {
         const table = $('#table_id').DataTable();
 
-        // Znajdź indeks kolumny "gtin" i "inStock"
-        const gtinColumnIndex = table.column('gtin:name').index();
-        const inStockColumnIndex = table.column('inStock:name').index();
-
-        // Iteruj przez dane w tabeli
         table.rows().every(function () {
           const rowData = this.data();
-          console.log('Row data:', rowData);
           const gtin = rowData.gtin
-          console.log('GTIN:', gtin);
-
-          // Sprawdź czy dla danego GTIN mamy zapisane dane
           const productData = productsData.find(item => item.gtin === gtin);
-          console.log('Product data:', productData);
 
           if (productData) {
-            // Nadpisz wartość w odpowiedniej kolumnie
-            console.log(productData.quantity)
             const inputField = $(this.node()).find('input[type="number"]');
-            console.log('Input field:', inputField);
             inputField.val(productData.quantity);
           }
         });
@@ -2926,7 +2910,7 @@ docReady(function () {
 
     // Funkcja do pobrania informacji z endpointu i zapisania w ciasteczku
     function fetchDataFromEndpoint() {
-      let url = new URL(InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products");
+      let url = new URL(InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products?perPage=10000");
       let request = new XMLHttpRequest();
       request.open("GET", url, true);
       request.setRequestHeader("Authorization", orgToken);
