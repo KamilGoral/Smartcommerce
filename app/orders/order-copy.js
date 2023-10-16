@@ -2723,29 +2723,34 @@ docReady(function () {
       // Pobierz dane z ciasteczka
       const productsData = getProductsDataFromCookie(orderId);
       console.log(productsData);
-
+    
       // Sprawdź czy mamy dane
       if (productsData) {
         const table = $('#table_id').DataTable();
-
-        // Iteruj przez wiersze tabeli i ustaw wartości w 4. kolumnie
+    
+        // Znajdź indeks kolumny "gtin" i "inStock"
+        const gtinColumnIndex = table.column('gtin:name').index();
+        const inStockColumnIndex = table.column('inStock:name').index();
+    
+        // Iteruj przez dane w tabeli
         table.rows().every(function () {
           const rowData = this.data();
-          console.log(rowData);
-          const gtin = rowData[3]; // Załóżmy, że 4. kolumna zawiera GTIN
-
+          const gtin = rowData[gtinColumnIndex]; // Pobierz GTIN z danych DataTables
+    
           // Sprawdź czy dla danego GTIN mamy zapisane dane
           const productData = productsData.find(item => item.gtin === gtin);
-
+    
           if (productData) {
-            // Nadpisz wartość w polu typu input w 4. kolumnie
-            const inputField = $(this.node()).find('input'); // Zakładamy, że to pole input w 4. kolumnie
-            console.log(inputField);
-            inputField.val(productData.quantity);
+            // Nadpisz wartość w odpowiedniej kolumnie
+            rowData[inStockColumnIndex-1] = productData.quantity;
           }
         });
+    
+        // Odśwież tabelę, aby uwzględnić zaktualizowane dane
+        table.draw();
       }
     }
+    
 
     $("#table_id tbody").on("click", "td.details-control", function () {
       var tr = $(this).closest("tr");
