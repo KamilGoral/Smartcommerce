@@ -1553,8 +1553,7 @@ docReady(function () {
   for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", (event) => {
       CreateOrder();
-      const detailsLink = document.querySelector('a[href="#details"]');
-      detailsLink.click();
+      $('#details').tab('show');
     });
   }
 
