@@ -260,10 +260,10 @@ docReady(function () {
                 second: '2-digit',
                 hour12: false
               });
-        
+
               return formattedDate;
             }
-        
+
             if (data === null) {
               return "";
             }
@@ -823,71 +823,64 @@ docReady(function () {
         data: "created.at",
         render: function (data) {
           if (data !== null) {
-            var createDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(
-              Date.parse(data) - offset * 60 * 1000
-            ).toISOString();
-            var creationDate = localeTime.split("T");
-            var creationTime = creationDate[1].split("Z");
-            createDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-            return createDate;
+            var utcDate = new Date(Date.parse(data));
+            var formattedDate = utcDate.toLocaleString('pl-PL', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            });
+            return formattedDate;
           }
           if (data === null) {
             return "";
           }
-        },
+        }
       },
       {
         orderable: true,
         data: "startDate",
         render: function (data) {
           if (data !== null) {
-            var startDate = "";
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(
-              Date.parse(data) - offset * 60 * 1000
-            ).toISOString();
-            var creationDate = localeTime.split("T");
-            var creationTime = creationDate[1].split("Z");
-            startDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
-
-            return startDate;
+            var utcDate = new Date(Date.parse(data));
+            var formattedDate = utcDate.toLocaleString('pl-PL', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            });
+            return formattedDate;
           }
           if (data === null) {
             return "";
           }
-        },
+        }
       },
       {
         orderable: true,
         data: "endDate",
         render: function (data) {
           if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            var formattedDate = utcDate.toLocaleString('pl-PL', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            });
 
-            // Funkcja do formatowania daty do postaci 'YYYY-MM-DD'
-            function formatDate(date) {
-              var year = date.getUTCFullYear();
-              var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-              var day = ('0' + date.getUTCDate()).slice(-2);
-              return year + '-' + month + '-' + day;
-            }
-            var endDate = "";
             var nowDate = new Date();
-            var offset = nowDate.getTimezoneOffset();
+            nowDate.setHours(0, 0, 0, 0);
 
-            // Konwertuj data na obiekt Date
-            var dataDate = new Date(Date.parse(data) - offset * 60 * 1000);
-
-            // Porównaj tylko dni
-            dataDate.setUTCHours(0, 0, 0, 0);
-            nowDate.setUTCHours(0, 0, 0, 0);
-
-            if (dataDate >= nowDate) {
-              return '<span class="positive">' + formatDate(dataDate) + '</span>';
+            if (utcDate >= nowDate) {
+              return '<span class="positive">' + formattedDate + '</span>';
             } else {
-              return '<span class="medium">' + formatDate(dataDate) + '</span>';
+              return '<span class="medium">' + formattedDate + '</span>';
             }
           }
           if (data === null) {
@@ -895,6 +888,7 @@ docReady(function () {
           }
         }
       },
+      
       {
         orderable: false,
         data: "created.by",
@@ -931,15 +925,25 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: "modified.by",
+        data: "modified.at",
         render: function (data) {
           if (data !== null) {
-            return data;
+            var utcDate = new Date(Date.parse(data));
+            var formattedDate = utcDate.toLocaleString('pl-PL', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            });
+            return formattedDate;
           }
           if (data === null) {
-            return "-";
+            return "";
           }
-        },
+        }
       },
       {
         orderable: false,
