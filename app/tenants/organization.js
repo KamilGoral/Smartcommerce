@@ -43,11 +43,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey) {
@@ -211,10 +211,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-              DomainName +
-              "/app/shops/shop" +
-              "?shopKey=" +
-              shop.shopKey
+            DomainName +
+            "/app/shops/shop" +
+            "?shopKey=" +
+            shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -1017,20 +1017,29 @@ docReady(function () {
         data: "endDate",
         render: function (data) {
           if (data !== null) {
+
+            // Funkcja do formatowania daty do postaci 'YYYY-MM-DD'
+            function formatDate(date) {
+              var year = date.getUTCFullYear();
+              var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+              var day = ('0' + date.getUTCDate()).slice(-2);
+              return year + '-' + month + '-' + day;
+            }
             var endDate = "";
             var nowDate = new Date();
             var offset = nowDate.getTimezoneOffset();
-            
+
             // Konwertuj data na obiekt Date
             var dataDate = new Date(Date.parse(data) - offset * 60 * 1000);
-            
-            // Porównaj tylko część godzinową
-            if (dataDate.getUTCHours() > nowDate.getUTCHours() ||
-                (dataDate.getUTCHours() === nowDate.getUTCHours() &&
-                 dataDate.getUTCMinutes() > nowDate.getUTCMinutes())) {
-              return '<span class="positive">' + dataDate.toISOString().split('T')[1] + '</span>';
+
+            // Porównaj tylko dni
+            dataDate.setUTCHours(0, 0, 0, 0);
+            nowDate.setUTCHours(0, 0, 0, 0);
+
+            if (dataDate > nowDate) {
+              return '<span class="positive">' + formatDate(dataDate) + '</span>';
             } else {
-              return '<span class="medium">' + dataDate.toISOString().split('T')[1] + '</span>';
+              return '<span class="medium">' + formatDate(dataDate) + '</span>';
             }
           }
           if (data === null) {
