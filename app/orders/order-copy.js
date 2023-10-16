@@ -2722,7 +2722,7 @@ docReady(function () {
     function updateTableInputsFromCookie(orderId) {
       // Pobierz dane z ciasteczka
       const productsData = getProductsDataFromCookie(orderId);
-      console.log(productsData);
+      console.log('Products data:', productsData);
     
       // Sprawdź czy mamy dane
       if (productsData) {
@@ -2735,20 +2735,22 @@ docReady(function () {
         // Iteruj przez dane w tabeli
         table.rows().every(function () {
           const rowData = this.data();
-          console.log(rowData.gtin)
+          console.log('Row data:', rowData);
           const gtin = rowData[gtinColumnIndex]; // Pobierz GTIN z danych DataTables
+          console.log('GTIN:', gtin);
     
           // Sprawdź czy dla danego GTIN mamy zapisane dane
           const productData = productsData.find(item => item.gtin === gtin);
+          console.log('Product data:', productData);
     
           if (productData) {
             // Nadpisz wartość w odpowiedniej kolumnie
-            rowData[inStockColumnIndex-1] = productData.quantity;
+            console.log(productData.quantity)
           }
         });
-    
       }
     }
+    
     
 
     $("#table_id tbody").on("click", "td.details-control", function () {
