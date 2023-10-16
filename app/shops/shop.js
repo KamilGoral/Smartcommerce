@@ -250,21 +250,24 @@ docReady(function () {
           data: "createDate",
           render: function (data) {
             if (data !== null) {
-              var createDate = "";
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              createDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-              return createDate;
+              var utcDate = new Date(Date.parse(data));
+              var formattedDate = utcDate.toLocaleString('pl-PL', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+              });
+        
+              return formattedDate;
             }
+        
             if (data === null) {
               return "";
             }
-          },
+          }
         },
       ],
       initComplete: function (settings, json) {
