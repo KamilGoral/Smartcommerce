@@ -670,282 +670,332 @@ docReady(function () {
       }
     });
   }
-  function getPriceLists() {
-    var table = $("#table_pricelists_list").DataTable({
-      pagingType: "full_numbers",
-      order: [],
-      dom: '<"top">rt<"bottom"lip>',
-      scrollY: "60vh",
-      scrollCollapse: true,
-      pageLength: 10,
-      language: {
-        emptyTable: "Brak danych do wyświetlenia",
-        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-        infoEmpty: "Brak danych",
-        infoFiltered: "(z _MAX_ rezultatów)",
-        lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'</div>",
-        processing: "<div class='spinner'</div>",
-        search: "Szukaj:",
-        zeroRecords: "Brak pasujących rezultatów",
-        paginate: {
-          first: "<<",
-          last: ">>",
-          next: " >",
-          previous: "< ",
+
+  var table = $("#table_pricelists_list").DataTable({
+    pagingType: "full_numbers",
+    order: [],
+    dom: '<"top">rt<"bottom"lip>',
+    scrollY: "60vh",
+    scrollCollapse: true,
+    pageLength: 10,
+    language: {
+      emptyTable: "Brak danych do wyświetlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+      infoEmpty: "Brak danych",
+      infoFiltered: "(z _MAX_ rezultatów)",
+      lengthMenu: "Pokaż _MENU_ rekordów",
+      loadingRecords: "<div class='spinner'</div>",
+      processing: "<div class='spinner'</div>",
+      search: "Szukaj:",
+      zeroRecords: "Brak pasujących rezultatów",
+      paginate: {
+        first: "<<",
+        last: ">>",
+        next: " >",
+        previous: "< ",
+      },
+      aria: {
+        sortAscending: ": Sortowanie rosnące",
+        sortDescending: ": Sortowanie malejące",
+      },
+    },
+    ajax: function (data, callback, settings) {
+      $.ajaxSetup({
+        headers: {
+          Authorization: orgToken,
         },
-        aria: {
-          sortAscending: ": Sortowanie rosnące",
-          sortDescending: ": Sortowanie malejące",
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+      });
+
+      var whichColumns = "";
+      var direction = "desc";
+
+      if (data.order.length == 0) {
+        whichColumns = 2;
+      } else {
+        whichColumns = data.order[0]["column"];
+        direction = data.order[0]["dir"];
+      }
+
+      switch (whichColumns) {
+        case 2:
+          whichColumns = "created.at:";
+          break;
+        case 3:
+          whichColumns = "startDate:";
+          break;
+        case 4:
+          whichColumns = "endDate:";
+          break;
+        default:
+          whichColumns = "created.at:";
+      }
+
+      var sort = "" + whichColumns + direction;
+
+      $.get(
+        InvokeURL + "price-lists?shopKey=" + shopKey,
+        {
+          sort: sort,
+          perPage: data.length,
+          page: (data.start + data.length) / data.length,
+        },
+        function (res) {
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        }
+      );
+    },
+    processing: true,
+    serverSide: true,
+    search: {
+      return: true,
+    },
+    columns: [
+      {
+        orderable: false,
+        data: null,
+        width: "36px",
+        defaultContent:
+          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+      },
+      {
+        orderable: false,
+        visible: false,
+        data: "uuid",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
         },
       },
-      ajax: function (data, callback, settings) {
-        $.ajaxSetup({
-          headers: {
-            Authorization: orgToken,
-          },
+      {
+        orderable: false,
+        data: "wholesalerKey",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+
+      {
+        orderable: true,
+        data: "created.at",
+        render: function (data) {
+          if (data !== null) {
+            var createDate = "";
+            var offset = new Date().getTimezoneOffset();
+            var localeTime = new Date(
+              Date.parse(data) - offset * 60 * 1000
+            ).toISOString();
+            var creationDate = localeTime.split("T");
+            var creationTime = creationDate[1].split("Z");
+            createDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
+
+            return createDate;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "startDate",
+        render: function (data) {
+          if (data !== null) {
+            var startDate = "";
+            var offset = new Date().getTimezoneOffset();
+            var localeTime = new Date(
+              Date.parse(data) - offset * 60 * 1000
+            ).toISOString();
+            var creationDate = localeTime.split("T");
+            var creationTime = creationDate[1].split("Z");
+            startDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
+
+            return startDate;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "endDate",
+        render: function (data) {
+          if (data !== null) {
+
+            // Funkcja do formatowania daty do postaci 'YYYY-MM-DD'
+            function formatDate(date) {
+              var year = date.getUTCFullYear();
+              var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+              var day = ('0' + date.getUTCDate()).slice(-2);
+              return year + '-' + month + '-' + day;
+            }
+            var endDate = "";
+            var nowDate = new Date();
+            var offset = nowDate.getTimezoneOffset();
+
+            // Konwertuj data na obiekt Date
+            var dataDate = new Date(Date.parse(data) - offset * 60 * 1000);
+
+            // Porównaj tylko dni
+            dataDate.setUTCHours(0, 0, 0, 0);
+            nowDate.setUTCHours(0, 0, 0, 0);
+
+            if (dataDate >= nowDate) {
+              return '<span class="positive">' + formatDate(dataDate) + '</span>';
+            } else {
+              return '<span class="medium">' + formatDate(dataDate) + '</span>';
+            }
+          }
+          if (data === null) {
+            return "";
+          }
+        }
+      },
+      {
+        orderable: false,
+        data: "created.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "modified.at",
+        render: function (data) {
+          if (data !== null) {
+            var lastModificationDate = "";
+            var offset = new Date().getTimezoneOffset();
+            var localeTime = new Date(
+              Date.parse(data) - offset * 60 * 1000
+            ).toISOString();
+            var creationDate = localeTime.split("T");
+            var creationTime = creationDate[1].split("Z");
+            lastModificationDate =
+              creationDate[0] + " " + creationTime[0].slice(0, -4);
+
+            return lastModificationDate;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "modified.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: null,
+        defaultContent:
+          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+      },
+      {
+        orderable: false,
+        class: "details-control4",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+      },
+    ],
+  });
+
+  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
+    event.preventDefault();
+    var table = $("#table_pricelists_list").DataTable();
+    var rowData = table.row($(this).closest("tr")).data();
+    window.location.replace(
+      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
+    );
+  });
+
+
+  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
+    event.preventDefault();
+    var table = $("#table_pricelists_list").DataTable();
+    var rowData = table.row($(this).closest("tr")).data();
+    window.location.replace(
+      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
+    );
+  });
+
+  $("#table_pricelists_list").on("click", "td.details-control4", function () {
+    var table = $("#table_pricelists_list").DataTable();
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+
+    if (rowData && rowData.uuid) {
+      // Wyświetl potwierdzenie usuwania
+      var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
+
+      if (confirmDelete) {
+        var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
+
+        $.ajax({
+          type: "DELETE",
+          url: endpoint,
           beforeSend: function () {
             $("#waitingdots").show();
           },
           complete: function () {
             $("#waitingdots").hide();
           },
+          headers: {
+            Authorization: orgToken
+          },
+          success: function () {
+            console.log("Rekord został pomyślnie usunięty.");
+            $("#waitingdots").show(1).delay(150).hide(1);
+            table.row($(this).parents("tr")).remove().draw();
+          },
+          error: function (xhr, status, error) {
+            console.error("Błąd usuwania rekordu:", error);
+          }
         });
+      }
+    } else {
+      console.error("Brak UUID w danych rekordu.");
+    }
+  });
 
-        var whichColumns = "";
-        var direction = "desc";
-
-        if (data.order.length == 0) {
-          whichColumns = 2;
-        } else {
-          whichColumns = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-        }
-
-        switch (whichColumns) {
-          case 2:
-            whichColumns = "created.at:";
-            break;
-          case 3:
-            whichColumns = "startDate:";
-            break;
-          case 4:
-            whichColumns = "endDate:";
-            break;
-          default:
-            whichColumns = "created.at:";
-        }
-
-        var sort = "" + whichColumns + direction;
-
-        $.get(
-          InvokeURL + "price-lists?shopKey=" + shopKey,
-          {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
-          },
-          function (res) {
-            callback({
-              recordsTotal: res.total,
-              recordsFiltered: res.total,
-              data: res.items,
-            });
-          }
-        );
-      },
-      processing: true,
-      serverSide: true,
-      search: {
-        return: true,
-      },
-      columns: [
-        {
-          orderable: false,
-          data: null,
-          width: "36px",
-          defaultContent:
-            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-        },
-        {
-          orderable: false,
-          visible: false,
-          data: "uuid",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "wholesalerKey",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
-        },
-
-        {
-          orderable: true,
-          data: "created.at",
-          render: function (data) {
-            if (data !== null) {
-              var createDate = "";
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              createDate = creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-              return createDate;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "startDate",
-          render: function (data) {
-            if (data !== null) {
-              var startDate = "";
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              startDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
-
-              return startDate;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "endDate",
-          render: function (data) {
-            if (data !== null) {
-
-              // Funkcja do formatowania daty do postaci 'YYYY-MM-DD'
-              function formatDate(date) {
-                var year = date.getUTCFullYear();
-                var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-                var day = ('0' + date.getUTCDate()).slice(-2);
-                return year + '-' + month + '-' + day;
-              }
-              var endDate = "";
-              var nowDate = new Date();
-              var offset = nowDate.getTimezoneOffset();
-
-              // Konwertuj data na obiekt Date
-              var dataDate = new Date(Date.parse(data) - offset * 60 * 1000);
-
-              // Porównaj tylko dni
-              dataDate.setUTCHours(0, 0, 0, 0);
-              nowDate.setUTCHours(0, 0, 0, 0);
-
-              if (dataDate >= nowDate) {
-                return '<span class="positive">' + formatDate(dataDate) + '</span>';
-              } else {
-                return '<span class="medium">' + formatDate(dataDate) + '</span>';
-              }
-            }
-            if (data === null) {
-              return "";
-            }
-          }
-        },
-        {
-          orderable: false,
-          data: "created.by",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "modified.at",
-          render: function (data) {
-            if (data !== null) {
-              var lastModificationDate = "";
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              lastModificationDate =
-                creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-              return lastModificationDate;
-            }
-            if (data === null) {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "modified.by",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "-";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: null,
-          defaultContent:
-            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-        },
-        {
-          orderable: false,
-          class: "details-control4",
-          width: "20px",
-          data: null,
-          defaultContent:
-            "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-        },
-      ],
-    });
-
-    $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
-      event.preventDefault();
-      var table = $("#table_pricelists_list").DataTable();
-      var rowData = table.row($(this).closest("tr")).data();
-      window.location.replace(
-        "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
-      );
-    });
+  $("#table_pricelists_list").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
 
 
-
-
-  }
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
@@ -1502,55 +1552,7 @@ docReady(function () {
   getShop();
   getOrders();
   getOffers();
-  getPriceLists();
 
-  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
-    event.preventDefault();
-    var table = $("#table_pricelists_list").DataTable();
-    var rowData = table.row($(this).closest("tr")).data();
-    window.location.replace(
-      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
-    );
-  });
-
-  $("#table_pricelists_list").on("click", "td.details-control4", function () {
-    var table = $("#table_pricelists_list").DataTable();
-    var tr = $(this).closest("tr");
-    var rowData = table.row(tr).data();
-
-    if (rowData && rowData.uuid) {
-      // Wyświetl potwierdzenie usuwania
-      var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
-
-      if (confirmDelete) {
-        var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
-
-        $.ajax({
-          type: "DELETE",
-          url: endpoint,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          headers: {
-            Authorization: orgToken
-          },
-          success: function () {
-            console.log("Rekord został pomyślnie usunięty.");
-            $("#waitingdots").show(1).delay(150).hide(1);
-            table.row($(this).parents("tr")).remove().draw();
-          },
-          error: function (xhr, status, error) {
-            console.error("Błąd usuwania rekordu:", error);
-          }
-        });
-      }
-    } else {
-      console.error("Brak UUID w danych rekordu.");
-    }
-  });
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
@@ -1563,9 +1565,7 @@ docReady(function () {
         .columns.adjust();
     }, 300);
   });
-  $("#table_pricelists_list").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  });
+
   $("#table_wholesalers").on("show", function (e) {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
   });
