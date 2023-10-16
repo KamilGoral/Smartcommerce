@@ -2723,35 +2723,38 @@ docReady(function () {
       // Pobierz dane z ciasteczka
       const productsData = getProductsDataFromCookie(orderId);
       console.log('Products data:', productsData);
-    
+
       // Sprawdź czy mamy dane
       if (productsData) {
         const table = $('#table_id').DataTable();
-    
+
         // Znajdź indeks kolumny "gtin" i "inStock"
         const gtinColumnIndex = table.column('gtin:name').index();
         const inStockColumnIndex = table.column('inStock:name').index();
-    
+
         // Iteruj przez dane w tabeli
         table.rows().every(function () {
           const rowData = this.data();
           console.log('Row data:', rowData);
           const gtin = rowData.gtin
           console.log('GTIN:', gtin);
-    
+
           // Sprawdź czy dla danego GTIN mamy zapisane dane
           const productData = productsData.find(item => item.gtin === gtin);
           console.log('Product data:', productData);
-    
+
           if (productData) {
             // Nadpisz wartość w odpowiedniej kolumnie
             console.log(productData.quantity)
+            const inputField = $(this.node()).find('input[type="number"]');
+            console.log('Input field:', inputField);
+            inputField.val(productData.quantity);
           }
         });
       }
     }
-    
-    
+
+
 
     $("#table_id tbody").on("click", "td.details-control", function () {
       var tr = $(this).closest("tr");
