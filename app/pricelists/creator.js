@@ -42,6 +42,21 @@ docReady(function () {
   NewpriceListIdBread.setAttribute("href", "" + window.location.href);
   var formIdCreatePricing = "#wf-form-NewPricingList";
 
+  const translations = {
+    "User is not an administrator of this tenant": "Użytkownik nie jest administatorem tej organizacji",
+    "Error message 2": "Komunikat błędu 2",
+    // Dodaj więcej tłumaczeń, jeśli są potrzebne
+  };
+
+  function translateErrorMessage(message) {
+    // Sprawdź, czy istnieje tłumaczenie dla danego komunikatu
+    if (translations[message]) {
+      return translations[message];
+    } else {
+      return message; // Zwróć oryginalny komunikat, jeśli nie ma tłumaczenia
+    }
+  }
+
   function getWholesalersSh() {
     let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
     let request = new XMLHttpRequest();
@@ -438,7 +453,7 @@ docReady(function () {
             console.log(jqXHR);
             console.log(exception);
             var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+              "Błąd.\n" + translateErrorMessage(JSON.parse(jqXHR.responseText).message);
             var elements = document.getElementsByClassName("warningmessagetext");
             for (var i = 0; i < elements.length; i++) {
               elements[i].textContent = msg;
