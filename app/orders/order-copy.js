@@ -2792,20 +2792,20 @@ docReady(function () {
       // Get the right table
       // Change amount of product
       var table = $("#table_id").DataTable();
-
       let newValue = $(this).val();
       console.log(newValue)
-      var initialValue = $(this).data("initialValue");
-      console.log(initialValue)
+      var initialValue = parseInt($(this).data("initialValue"));
+      console.log(initialValue);
+      console.log(typeof initialValue);
+      console.log(initialValue.length)
 
       // Check if the value has changed
       if (newValue !== initialValue) {
         $(this).attr("value", newValue);
         var data = table.row($(this).parents("tr")).data();
-        console.log(data);
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
-          if (isNaN(initialValue)) {
+          if (initialValue.length = 0) {
             var product = {
               op: "add",
               path: "/" + data.gtin,
