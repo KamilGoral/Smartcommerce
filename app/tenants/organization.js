@@ -1115,9 +1115,10 @@ docReady(function () {
     ],
   });
 
-  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function () {
+  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
     event.preventDefault();
-    var rowData = table.row(this).data();
+    var table = $("#table_pricelists_list").DataTable();
+    var rowData = table.row($(this).closest("tr")).data();
     window.location.replace(
       "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
     );
