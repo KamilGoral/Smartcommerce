@@ -340,18 +340,15 @@ docReady(function () {
     for (var i = 0; i < offers.length; i++) {
       var utcDate = new Date(offers[i].createDate);
 
-      // Formatuj rok, miesiąc i dzień
-      var year = utcDate.getUTCFullYear();
-      var month = ('0' + (utcDate.getUTCMonth() + 1)).slice(-2);
-      var day = ('0' + utcDate.getUTCDate()).slice(-2);
-
-      // Formatuj godzinę, minutę i sekundę
-      var hours = ('0' + utcDate.getUTCHours()).slice(-2);
-      var minutes = ('0' + utcDate.getUTCMinutes()).slice(-2);
-      var seconds = ('0' + utcDate.getUTCSeconds()).slice(-2);
-
-      var formattedDate = year + '-' + month + '-' + day + ', ' + hours + ':' + minutes + ':' + seconds;
-
+      // Formatuj datę do 'RRRR-MM-DD, HH:MM:SS'
+      var formattedDate = utcDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
 
       toDisplayHtml +=
         "<tr>" +
