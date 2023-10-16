@@ -2711,30 +2711,34 @@ docReady(function () {
           }
         });
         $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
-        const productsData = getProductsDataFromCookie();
-
-        // Sprawdź czy mamy dane
-        if (productsData) {
-          const table = $('#table_id').DataTable();
-
-          // Iteruj przez wiersze tabeli i ustaw wartości w 4. kolumnie
-          table.rows().every(function () {
-            const rowData = this.data();
-            const gtin = rowData[3]; // Załóżmy, że 4. kolumna zawiera GTIN
-
-            // Sprawdź czy dla danego GTIN mamy zapisane dane
-            const productData = productsData.find(item => item.gtin === gtin);
-
-            if (productData) {
-              // Nadpisz wartość w polu typu input w 4. kolumnie
-              const inputField = $(this.node()).find('input'); // Zakładamy, że to pole input w 4. kolumnie
-              inputField.val(productData.quantity);
-            }
-          });
-        }
-
       },
     });
+
+    $(document).ready(function() {
+      // Pobierz dane z ciasteczka
+      const productsData = getProductsDataFromCookie();
+    
+      // Sprawdź czy mamy dane
+      if (productsData) {
+        const table = $('#table_id').DataTable();
+    
+        // Iteruj przez wiersze tabeli i ustaw wartości w 4. kolumnie
+        table.rows().every(function() {
+          const rowData = this.data();
+          const gtin = rowData[3]; // Załóżmy, że 4. kolumna zawiera GTIN
+    
+          // Sprawdź czy dla danego GTIN mamy zapisane dane
+          const productData = productsData.find(item => item.gtin === gtin);
+    
+          if (productData) {
+            // Nadpisz wartość w polu typu input w 4. kolumnie
+            const inputField = $(this.node()).find('input'); // Zakładamy, że to pole input w 4. kolumnie
+            inputField.val(productData.quantity);
+          }
+        });
+      }
+    });
+
 
     $("#table_id tbody").on("click", "td.details-control", function () {
       var tr = $(this).closest("tr");
