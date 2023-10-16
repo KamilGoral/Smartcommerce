@@ -921,15 +921,7 @@ docReady(function () {
         data: null,
         defaultContent:
           '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
-      {
-        orderable: false,
-        class: "details-control4",
-        width: "20px",
-        data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-      },
+      }
     ],
   });
 
@@ -942,44 +934,6 @@ docReady(function () {
     );
   });
 
-  $("#table_pricelists_list").on("click", "td.details-control4", function () {
-    var table = $("#table_pricelists_list").DataTable();
-    var tr = $(this).closest("tr");
-    var rowData = table.row(tr).data();
-
-    if (rowData && rowData.uuid) {
-      // Wyświetl potwierdzenie usuwania
-      var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
-
-      if (confirmDelete) {
-        var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
-
-        $.ajax({
-          type: "DELETE",
-          url: endpoint,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          headers: {
-            Authorization: orgToken
-          },
-          success: function () {
-            console.log("Rekord został pomyślnie usunięty.");
-            $("#waitingdots").show(1).delay(150).hide(1);
-            table.row($(this).parents("tr")).remove().draw();
-          },
-          error: function (xhr, status, error) {
-            console.error("Błąd usuwania rekordu:", error);
-          }
-        });
-      }
-    } else {
-      console.error("Brak UUID w danych rekordu.");
-    }
-  });
 
   function getWholesalers() {
     let url = new URL(
