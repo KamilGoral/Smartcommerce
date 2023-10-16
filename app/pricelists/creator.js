@@ -460,7 +460,6 @@ docReady(function () {
             }
             form.show();
             $("#Create-Pricelist-Fail").show();
-            $("#Create-Pricelist-Fail").fadeOut(5000);
             return;
           },
         });
