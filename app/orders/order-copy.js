@@ -2781,23 +2781,23 @@ docReady(function () {
       NameInput.textContent = rowData.name
       $("#ProposeChangeInGtinModal").css("display", "flex");
     });
-    
 
-    $("#table_id").on("focusin", "input", function() {
+
+    $("#table_id").on("focusin", "input", function () {
       // Store the current value when the input element is focused
       $(this).data("initialValue", $(this).val());
     });
-    
-    $("#table_id").on("focusout", "input", function() {
+
+    $("#table_id").on("focusout", "input", function () {
       // Get the right table
       // Change amount of product
       var table = $("#table_id").DataTable();
-    
+
       let newValue = $(this).val();
       console.log(newValue)
       var initialValue = $(this).data("initialValue");
       console.log(initialValue)
-    
+
       // Check if the value has changed
       if (newValue !== initialValue) {
         $(this).attr("value", newValue);
@@ -2806,15 +2806,20 @@ docReady(function () {
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
           if (isNaN(initialValue)) {
-            quantity = 0; // Jeśli tak, zmień wartość na 0
-          } else {
             var product = {
               op: "add",
               path: "/" + data.gtin,
-              value: {
-                "quantity": quantity
-              }
+              // value: {
+              //   "quantity": quantity
+              // }
             };
+          } else {
+            var product = {
+              op: "replace",
+              path: "/" + data.gtin + "/quantity",
+              value: quantity
+            };
+
           }
           addObject(changesPayload, product);
           // Emulate changes for user
@@ -2825,7 +2830,7 @@ docReady(function () {
         }
       }
     });
-    
+
 
 
     function LoadTippy() {
