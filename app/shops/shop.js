@@ -542,7 +542,16 @@ docReady(function () {
           data: "createDate",
           render: function (data) {
             if (data !== null) {
-              return data;
+              var startDate = "";
+              var offset = new Date().getTimezoneOffset();
+              var localeTime = new Date(
+                Date.parse(data) - offset * 60 * 1000
+              ).toISOString();
+              var creationDate = localeTime.split("T");
+              var creationTime = creationDate[1].split("Z");
+              startDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
+  
+              return startDate;
             }
             if (data === null) {
               return "";
@@ -550,7 +559,7 @@ docReady(function () {
           },
         },
         {
-          orderable: true,
+          orderable: false,
           data: null,
           render: function (data) {
             if (data !== null) {
