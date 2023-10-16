@@ -2746,8 +2746,6 @@ docReady(function () {
           }
         });
     
-        // Odśwież tabelę, aby uwzględnić zaktualizowane dane
-        table.draw();
       }
     }
     
