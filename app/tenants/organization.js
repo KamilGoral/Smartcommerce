@@ -1026,6 +1026,8 @@ docReady(function () {
             var creationDate = localeTime.split("T");
             var creationTime = creationDate[1].split("Z");
             endDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
+            console.log(data);
+            console.log(nowDate);
 
             if (data >= nowDate) {
               return '<spann class="positive">' + endDate + "</spann>";
