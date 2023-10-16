@@ -341,13 +341,14 @@ docReady(function () {
       var utcDate = new Date(offers[i].createDate);
 
       // Formatuj datę do 'RRRR-MM-DD, HH:MM:SS'
-      var formattedDate = utcDate.toLocaleString('en-US', {
+      var formattedDate = utcDate.toLocaleString('pl-PL', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        second: '2-digit',
+        hour12: false
       });
 
       toDisplayHtml +=
