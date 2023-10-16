@@ -3070,8 +3070,22 @@ docReady(function () {
         .dataTable();
     });
   });
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
+  });
 
-
-
-
+  $("#table_id").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#spl_table").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
 });
