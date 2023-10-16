@@ -2781,34 +2781,38 @@ docReady(function () {
       NameInput.textContent = rowData.name
       $("#ProposeChangeInGtinModal").css("display", "flex");
     });
-    $("#table_id").on("focusin", "input", function () {
+    
+
+    $("#table_id").on("focusin", "input", function() {
       // Store the current value when the input element is focused
       $(this).data("initialValue", $(this).val());
     });
-
-    $("#table_id").on("focusout", "input", function () {
+    
+    $("#table_id").on("focusout", "input", function() {
       // Get the right table
       // Change amount of product
-      var table = $("#table_id").DataTable();
-
+      var table = $("table_id").DataTable();
+    
       let newValue = $(this).val();
       var initialValue = $(this).data("initialValue");
-
+    
       // Check if the value has changed
       if (newValue !== initialValue) {
         $(this).attr("value", newValue);
         var data = table.row($(this).parents("tr")).data();
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
-          if (isNaN(quantity) || quantity < 0) {
+          if (isNaN(initialValue)) {
             quantity = 0; // Jeśli tak, zmień wartość na 0
+          } else {
+            var product = {
+              op: "add",
+              path: "/" + data.gtin,
+              value: {
+                "quantity": quantity
+              }
+            };
           }
-          var product = {
-            op: "add",
-            path: "/" + data.gtin + "/quantity",
-            value: quantity,
-          };
-
           addObject(changesPayload, product);
           // Emulate changes for user
           $("#waitingdots").show(1).delay(150).hide(1);
@@ -2818,6 +2822,7 @@ docReady(function () {
         }
       }
     });
+    
 
 
     function LoadTippy() {
