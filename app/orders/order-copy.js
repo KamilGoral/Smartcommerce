@@ -2736,7 +2736,7 @@ docReady(function () {
         table.rows().every(function () {
           const rowData = this.data();
           console.log('Row data:', rowData);
-          const gtin = rowData[gtinColumnIndex]; // Pobierz GTIN z danych DataTables
+          const gtin = rowData.gtin
           console.log('GTIN:', gtin);
     
           // Sprawdź czy dla danego GTIN mamy zapisane dane
