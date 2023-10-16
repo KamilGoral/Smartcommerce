@@ -2802,7 +2802,7 @@ docReady(function () {
         var data = table.row($(this).parents("tr")).data();
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
-          if (typeof initialValue === 'undefined') {
+          if (isNaN(initialValue)) {
             var product = {
               op: "add",
               path: "/" + data.gtin,
