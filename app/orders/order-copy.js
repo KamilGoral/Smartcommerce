@@ -698,8 +698,8 @@ docReady(function () {
             ? wholesaler.name
             : item.wholesalerKey;
           selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             }>${wholesalerName}</option>`;
         });
       } else {
@@ -716,8 +716,8 @@ docReady(function () {
           )
         ) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
@@ -2711,6 +2711,28 @@ docReady(function () {
           }
         });
         $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+        const productsData = getProductsDataFromCookie();
+
+        // Sprawdź czy mamy dane
+        if (productsData) {
+          const table = $('#table_id').DataTable();
+
+          // Iteruj przez wiersze tabeli i ustaw wartości w 4. kolumnie
+          table.rows().every(function () {
+            const rowData = this.data();
+            const gtin = rowData[3]; // Załóżmy, że 4. kolumna zawiera GTIN
+
+            // Sprawdź czy dla danego GTIN mamy zapisane dane
+            const productData = productsData.find(item => item.gtin === gtin);
+
+            if (productData) {
+              // Nadpisz wartość w polu typu input w 4. kolumnie
+              const inputField = $(this.node()).find('input'); // Zakładamy, że to pole input w 4. kolumnie
+              inputField.val(productData.quantity);
+            }
+          });
+        }
+
       },
     });
 
@@ -2877,11 +2899,11 @@ docReady(function () {
     function saveToCookie(productsData) {
       // Konwersja obiektu do JSON
       const jsonData = JSON.stringify(productsData);
-    
+
       // Zapisanie JSON do ciasteczka
-      document.cookie = "productsData=" + encodeURIComponent(jsonData) + "; path=/";
+      document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
     }
-    
+
     // Funkcja do pobrania informacji z endpointu i zapisania w ciasteczku
     function fetchDataFromEndpoint() {
       let url = new URL(InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products");
@@ -2891,7 +2913,7 @@ docReady(function () {
       request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
           const data = JSON.parse(request.responseText);
-          
+
           // Przygotuj dane do zapisu w ciasteczku (GTIN i ilość)
           const productsData = data.items.map(item => {
             return {
@@ -2899,7 +2921,7 @@ docReady(function () {
               quantity: item.quantity
             };
           });
-    
+
           // Wywołaj funkcję do zapisania w ciasteczku
           saveToCookie(productsData);
         } else {
@@ -2908,9 +2930,21 @@ docReady(function () {
       };
       request.send();
     }
-    
+
     fetchDataFromEndpoint();
-    
+
+    function getProductsDataFromCookie(orderId) {
+      const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith("" + orderId + '='));
+
+      if (cookieValue) {
+        const encodedData = decodeURIComponent(cookieValue.split('=')[1]);
+        return JSON.parse(encodedData);
+      }
+
+      return null;
+    }
 
     getOfferStatus();
     getWholesalersSh();
