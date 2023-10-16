@@ -942,16 +942,6 @@ docReady(function () {
     );
   });
 
-
-  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
-    event.preventDefault();
-    var table = $("#table_pricelists_list").DataTable();
-    var rowData = table.row($(this).closest("tr")).data();
-    window.location.replace(
-      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
-    );
-  });
-
   $("#table_pricelists_list").on("click", "td.details-control4", function () {
     var table = $("#table_pricelists_list").DataTable();
     var tr = $(this).closest("tr");
@@ -990,11 +980,6 @@ docReady(function () {
       console.error("Brak UUID w danych rekordu.");
     }
   });
-
-  $("#table_pricelists_list").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  });
-
 
   function getWholesalers() {
     let url = new URL(
@@ -1573,6 +1558,9 @@ docReady(function () {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
   });
   $("#table_offers").on("show", function (e) {
+    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  });
+  $("#table_pricelists_list").on("show", function (e) {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
   });
   $("#table_offers").on("click", "td.details-control", function () {
