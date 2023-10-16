@@ -326,16 +326,8 @@ docReady(function () {
                 data: "startDate",
                 render: function (data) {
                     if (data !== null) {
-                        var lastModificationDate = "";
-                        var offset = new Date().getTimezoneOffset();
-                        var localeTime = new Date(
-                            Date.parse(data) - offset * 60 * 1000
-                        ).toISOString();
-                        var creationDate = localeTime.split("T");
-                        var creationTime = creationDate[1].split("Z");
-                        lastModificationDate =
-                            creationDate[0];// + " " + creationTime[0].slice(0, -4);
-                        return lastModificationDate;
+                        var startDate = new Date(data);
+                        return startDate.toLocaleDateString("pl-PL");
                     }
                     if (data === null) {
                         return "";
@@ -347,30 +339,33 @@ docReady(function () {
                 data: null,
                 render: function (data) {
                     if (data.endDate !== null &&
-                        typeof data.endDate !== 'undefined' && data.endDate !== 'infinity') {
-                        var endDate = "";
-                        var nowDate = new Date().toISOString();
-                        var offset = new Date().getTimezoneOffset();
-                        var localeTime = new Date(
-                            Date.parse(data.endDate) - offset * 60 * 1000
-                        ).toISOString();
-                        var creationDate = localeTime.split("T");
-                        var creationTime = creationDate[1].split("Z");
-                        endDate =
-                            creationDate[0];// + " " + creationTime[0].slice(0, -4);
+                        typeof data.endDate !== 'undefined' &&
+                        data.endDate !== 'infinity') {
+                        var endDate = new Date(data.endDate);
+                        var nowDate = new Date();
+                        nowDate.setUTCHours(0, 0, 0, 0);
 
-                        if (data.endDate >= nowDate) {
-                            return '<spann class="positive">' + endDate + "</spann>";
+                        if (endDate >= nowDate) {
+                            return '<span class="positive">' + endDate.toLocaleDateString("pl-PL", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                            }) + '</span>';
                         } else {
-                            return '<spann class="medium">' + endDate + "</spann>";
+                            return '<span class="medium">' + endDate.toLocaleDateString("pl-PL", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                            }) + '</span>';
                         }
-
                     }
+
                     if (data.endDate === 'infinity') {
-                        return '<spann class="positive">' + "Nigdy" + "</spann>";
+                        return '<span class="positive">Nigdy</span>';
                     }
                 },
             },
+
             {
                 orderable: false,
                 data: "modified",
@@ -390,19 +385,18 @@ docReady(function () {
                 orderable: false,
                 data: "modified",
                 render: function (data) {
-                    if (data !== null &&
-                        data.hasOwnProperty("at") &&
-                        data.at !== null) {
-                        var lastModificationDate = "";
-                        var offset = new Date().getTimezoneOffset();
-                        var localeTime = new Date(
-                            Date.parse(data.at) - offset * 60 * 1000
-                        ).toISOString();
-                        var creationDate = localeTime.split("T");
-                        var creationTime = creationDate[1].split("Z");
-                        lastModificationDate =
-                            creationDate[0] + " " + creationTime[0].slice(0, -4);
-                        return lastModificationDate;
+                    if (data !== null && data.hasOwnProperty("at") && data.at !== null) {
+                        var lastModificationDate = new Date(data.at);
+                        var formattedDate = lastModificationDate.toLocaleString("pl-PL", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                            hour12: false,
+                        });
+                        return formattedDate;
                     }
                     if (data === null) {
                         return "";

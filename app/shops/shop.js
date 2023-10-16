@@ -558,22 +558,16 @@ docReady(function () {
           data: "createDate",
           render: function (data) {
             if (data !== null) {
-              var startDate = "";
-              var offset = new Date().getTimezoneOffset();
-              var localeTime = new Date(
-                Date.parse(data) - offset * 60 * 1000
-              ).toISOString();
-              var creationDate = localeTime.split("T");
-              var creationTime = creationDate[1].split("Z");
-              startDate = creationDate[0]; //+ ' ' + creationTime[0].slice(0, -4);
-
+              const creationDate = new Date(data);
+              const startDate = creationDate.toLocaleDateString('pl-PL', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        
               return startDate;
             }
             if (data === null) {
               return "";
             }
           },
-        },
+        },               
         {
           orderable: false,
           data: null,

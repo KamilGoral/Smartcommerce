@@ -53,7 +53,7 @@ docReady(function () {
   );
 
   const OfferDateBread = document.getElementById("OfferDateBread");
-  OfferDateBread.textContent = OfferDateHuman[0] + " " + OfferDateHumanTime[0];
+  OfferDateBread.textContent = offerDate.toLocaleString("pl-PL");
   OfferDateBread.setAttribute(
     "href",
     "https://" +
@@ -1186,7 +1186,7 @@ docReady(function () {
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("new-name");
-  
+
         var data = {
           "organization": organization,
           "organizationId": organizationId,
@@ -1199,8 +1199,8 @@ docReady(function () {
             "quantity": $("#quantity").val()
           }
         }
-  
-  
+
+
         $.ajax({
           type: "POST",
           url: "https://hook.eu1.make.com/ndsdd602ot8kbt2dpydw37coj015fy75",
@@ -1221,7 +1221,7 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             if (typeof successCallback === "function") {
-              result = successCallback(resultData); 
+              result = successCallback(resultData);
               if (!result) {
                 form.show();
                 doneBlock.hide();
@@ -1268,7 +1268,7 @@ docReady(function () {
       });
     });
   };
-  
+
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
   $(document).ready(function ($) {
