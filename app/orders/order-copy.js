@@ -2698,7 +2698,12 @@ docReady(function () {
             "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
         }
       ],
+      drawCallback: function (settings) {
+        console.log('Tabela została odświeżona.');
+        updateTableInputsFromCookie(orderId);
+      },
       initComplete: function (settings, json) {
+
         var api = this.api();
         var textBox = $("#table_id_filter label input");
         $(".filterinput").on("change", function () {
@@ -2714,34 +2719,33 @@ docReady(function () {
       },
     });
 
-    $(document).ready(function() {
+    function updateTableInputsFromCookie(orderId) {
       // Pobierz dane z ciasteczka
       const productsData = getProductsDataFromCookie(orderId);
       console.log(productsData);
-    
+
       // Sprawdź czy mamy dane
       if (productsData) {
         const table = $('#table_id').DataTable();
-    
+
         // Iteruj przez wiersze tabeli i ustaw wartości w 4. kolumnie
-        table.rows().every(function() {
+        table.rows().every(function () {
           const rowData = this.data();
-          console.log(rowData)
+          console.log(rowData);
           const gtin = rowData[3]; // Załóżmy, że 4. kolumna zawiera GTIN
-    
+
           // Sprawdź czy dla danego GTIN mamy zapisane dane
           const productData = productsData.find(item => item.gtin === gtin);
-    
+
           if (productData) {
             // Nadpisz wartość w polu typu input w 4. kolumnie
             const inputField = $(this.node()).find('input'); // Zakładamy, że to pole input w 4. kolumnie
-            console.log(inputField)
+            console.log(inputField);
             inputField.val(productData.quantity);
           }
         });
       }
-    });
-
+    }
 
     $("#table_id tbody").on("click", "td.details-control", function () {
       var tr = $(this).closest("tr");
