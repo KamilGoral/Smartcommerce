@@ -1295,7 +1295,6 @@ docReady(function () {
         })
         .then((blobby) => {
           $("#waitingdots").hide();
-          console.log(headersResponse);
           if (
             headersResponse.length > 0 &&
             headersResponse[0].includes("filename=")
@@ -1649,7 +1648,6 @@ docReady(function () {
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
-                console.log("tutaj");
                 window.setTimeout(function () {
                   $("#ProposeChangeInGtinModal").css("display", "none");
                   $("#Edit-Success").css("display", "none");
@@ -1658,7 +1656,6 @@ docReady(function () {
                 return;
               }
             }
-            console.log("tutaj2");
             form.show();
             doneBlock.show();
             failBlock.hide();
@@ -1672,7 +1669,6 @@ docReady(function () {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
-            console.log("tutaj3");
             form.show();
             doneBlock.hide();
             failBlock.show();
@@ -1684,7 +1680,6 @@ docReady(function () {
             }, 2000);
           },
         });
-        console.log("tutaj4");
         event.preventDefault();
         form.trigger("reset");
         return false;
@@ -1697,7 +1692,6 @@ docReady(function () {
 
   //////////////////////////////////////////////////////////////////////
 
-  console.log("Script Loaded v3");
   function docReady(fn) {
     // see if DOM is already available
     if (
@@ -1789,7 +1783,6 @@ docReady(function () {
     }
 
     function getProductHistory(rowData) {
-      console.log(rowData);
       if (rowData.inStock === null) {
         rowData.inStock = {
           value: 0,
@@ -1858,14 +1851,12 @@ docReady(function () {
         var jsonek = JSON.parse(this.response);
         if (request.status >= 200 && request.status < 400) {
           function displayData(x) {
-            console.log(x);
             if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
               return x;
             }
             return "";
           }
           var dataToChart = arrayConvert(jsonek);
-          console.log(dataToChart);
           const pHistory = document.getElementById("pHistory");
           pHistory.textContent = dataToChart.date.length;
           const pHistorySpan = document.getElementById("pHistorySpan");
@@ -2190,8 +2181,6 @@ docReady(function () {
             chart.render();
             counter = counter + 1;
           } else {
-            console.log("tutaj");
-            console.log(options);
             ApexCharts.exec("productHistoryChart", "updateOptions", options);
           }
           if (request.status == 401) {
@@ -2326,8 +2315,6 @@ docReady(function () {
       );
     }
 
-    console.log("Table initialisation start: " + new Date().getTime());
-
     var table = $("#table_id").DataTable({
       pagingType: "full_numbers",
       order: [],
@@ -2451,7 +2438,6 @@ docReady(function () {
           whichColumns = data.order[0]["column"];
           direction = data.order[0]["dir"];
         }
-        console.log(data);
 
         switch (whichColumns) {
           case 2:
@@ -2708,7 +2694,6 @@ docReady(function () {
         }
       ],
       drawCallback: function (settings) {
-        console.log('Tabela została odświeżona.');
         updateTableInputsFromCookie(orderId);
       },
       initComplete: function (settings, json) {
@@ -2773,7 +2758,6 @@ docReady(function () {
     $("#table_id tbody").on("click", "td.details-control2", function () {
       var tr = $(this).closest("tr");
       var rowData = table.row(tr).data();
-      console.log(rowData);
       $("#ProductCard").css("display", "flex");
       getProductDetails(rowData);
       getProductHistory(rowData);
@@ -2781,7 +2765,6 @@ docReady(function () {
     $("#table_id tbody").on("click", "td.details-control3", function () {
       var tr = $(this).closest("tr");
       var rowData = table.row(tr).data();
-      console.log(rowData);
       var GTINEdit = document.getElementById("gtin");
       GTINEdit.value = rowData.gtin
       GTINEdit.disabled = true;
@@ -2802,7 +2785,6 @@ docReady(function () {
       // Change amount of product
       var table = $("#table_id").DataTable();
       let newValue = $(this).val();
-      console.log(newValue)
       var initialValue = parseInt($(this).data("initialValue"));
       console.log(initialValue);
       // Check if the value has changed
@@ -3022,7 +3004,6 @@ docReady(function () {
                   form.show();
                   doneBlock.hide();
                   failBlock.show();
-                  console.log("tutaj");
                   window.setTimeout(function () {
                     $("#ProposeChangeInGtinModal").css("display", "none");
                     $("#Edit-Success").css("display", "none");
@@ -3031,7 +3012,6 @@ docReady(function () {
                   return;
                 }
               }
-              console.log("tutaj2");
               form.show();
               doneBlock.show();
               failBlock.hide();
@@ -3045,7 +3025,6 @@ docReady(function () {
               if (typeof errorCallback === "function") {
                 errorCallback(e);
               }
-              console.log("tutaj3");
               form.show();
               doneBlock.hide();
               failBlock.show();
@@ -3057,7 +3036,6 @@ docReady(function () {
               }, 2000);
             },
           });
-          console.log("tutaj4");
           event.preventDefault();
           form.trigger("reset");
           return false;
@@ -3073,7 +3051,6 @@ docReady(function () {
       });
       $("#table_id")
         .on("init.dt", function () {
-          console.log("Table initialisation complete: " + new Date().getTime());
           LoadTippy();
           var x = 0;
           var intervalID = setInterval(function () {
