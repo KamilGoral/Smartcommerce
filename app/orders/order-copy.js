@@ -1239,7 +1239,7 @@ docReady(function () {
 
   function removeBlurOverlay() {
     $(".blur-overlay").remove();
-    $("#table-content").css("pointer-events","");
+    $("#table-content").css("pointer-events", "");
   }
 
   function isValidBarcode(value) {
@@ -1401,10 +1401,10 @@ docReady(function () {
     // Get the right table
     // Change amount of product
     var table = $("#spl_table").DataTable();
-  
+
     let newValue = $(this).val();
     var initialValue = $(this).data("initialValue");
-  
+
     // Check if the value has changed
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
@@ -1415,7 +1415,7 @@ docReady(function () {
         if (isNaN(quantity) || quantity < 0) {
           quantity = 0; // If so, change the value to 0
         }
-  
+
         if (data.derived !== null) {
           var product;
           if (quantity === null && data.derived !== null) {
@@ -1453,7 +1453,7 @@ docReady(function () {
       }
     }
   });
-  
+
 
   $("#spl_table").on("focusin", "select", function () {
     // Store the current value when the select element is focused
@@ -2813,9 +2813,14 @@ docReady(function () {
           if (isNaN(quantity)) {
             quantity = null; // If so, set quantity to null
           }
-    
+
           var product;
-          if (quantity !== null) {
+          if (isNaN(initialValue)) {
+            product = {
+              op: "add",
+              path: "/" + data.gtin,
+            };
+          } else if (quantity !== null) {
             product = {
               op: "replace",
               path: "/" + data.gtin + "/quantity",
@@ -2836,11 +2841,6 @@ docReady(function () {
         }
       }
     });
-    
-    
-    
-
-
 
     function LoadTippy() {
       $.getScript(
@@ -3093,12 +3093,12 @@ docReady(function () {
     setTimeout(function () {
       console.log("Adjusting");
       updateOverlaySize("table-content");
-  
+
       // Check if the overlay element exists
       const overlay = document.querySelector("#detailspane > div.blur-overlay");
       if (overlay) {
         const tabElement = document.querySelector("[data-w-tab='Details']");
-  
+
         function toggleOverlay() {
           if (tabElement && tabElement.classList.contains("w--current")) {
             overlay.style.transition = "opacity 0.3s"; // Transition for 200ms (0.2 seconds)
@@ -3108,10 +3108,10 @@ docReady(function () {
             overlay.style.opacity = 0; // Set opacity to 0
           }
         }
-  
+
         toggleOverlay();
       }
-  
+
       $.fn.dataTable
         .tables({
           visible: true,
@@ -3120,8 +3120,8 @@ docReady(function () {
         .columns.adjust();
     }, 300);
   });
-  
-  
+
+
 
   $("#table_id").on("show", function (e) {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
