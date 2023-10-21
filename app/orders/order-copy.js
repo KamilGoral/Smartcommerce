@@ -2808,40 +2808,24 @@ docReady(function () {
       if (newValue !== initialValue) {
         $(this).attr("value", newValue);
         var data = table.row($(this).parents("tr")).data();
-        console.log(data);
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
           if (isNaN(quantity)) {
             quantity = null; // If so, set quantity to null
           }
     
-          if (data.derived !== null) {
-            var product;
-            if (quantity === null && data.derived !== null) {
-              product = {
-                op: "remove",
-                path: "/" + data.derived.gtin,
-              };
-            } else {
-              product = {
-                op: "replace",
-                path: "/" + data.derived.gtin + "/quantity",
-                value: data.derived.set * quantity,
-              };
-            }
+          var product;
+          if (quantity !== null) {
+            product = {
+              op: "replace",
+              path: "/" + data.gtin + "/quantity",
+              value: quantity,
+            };
           } else {
-            if (quantity !== null) {
-              var product = {
-                op: "replace",
-                path: "/" + data.gtin + "/quantity",
-                value: quantity,
-              };
-            } else {
-              var product = {
-                op: "remove",
-                path: "/" + data.gtin,
-              };
-            }
+            product = {
+              op: "remove",
+              path: "/" + data.gtin,
+            };
           }
           addObject(changesPayload, product);
           // Emulate changes for the user
@@ -2852,6 +2836,7 @@ docReady(function () {
         }
       }
     });
+    
     
     
 
