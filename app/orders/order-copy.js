@@ -3087,6 +3087,7 @@ docReady(function () {
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjusting");
+      updateOverlaySize("table-content");
       $.fn.dataTable
         .tables({
           visible: true,
