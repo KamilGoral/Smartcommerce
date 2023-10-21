@@ -129,6 +129,19 @@ docReady(function () {
     document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
   }
 
+  function getProductsDataFromCookie(orderId) {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith("" + orderId + '='));
+
+    if (cookieValue) {
+      const encodedData = decodeURIComponent(cookieValue.split('=')[1]);
+      return JSON.parse(encodedData);
+    }
+
+    return null;
+  }
+
   function updateTableInputsFromCookie(orderId) {
     const productsData = getProductsDataFromCookie(orderId);
 
@@ -2975,18 +2988,7 @@ docReady(function () {
 
     fetchDataFromEndpoint();
 
-    function getProductsDataFromCookie(orderId) {
-      const cookieValue = document.cookie
-        .split('; ')
-        .find(row => row.startsWith("" + orderId + '='));
-
-      if (cookieValue) {
-        const encodedData = decodeURIComponent(cookieValue.split('=')[1]);
-        return JSON.parse(encodedData);
-      }
-
-      return null;
-    }
+    
 
     getOfferStatus();
     getWholesalersSh();
