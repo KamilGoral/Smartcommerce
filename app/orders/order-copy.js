@@ -121,6 +121,14 @@ docReady(function () {
     });
   };
 
+  function saveToCookie(productsData) {
+    // Konwersja obiektu do JSON
+    const jsonData = JSON.stringify(productsData);
+
+    // Zapisanie JSON do ciasteczka
+    document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
+  }
+
   async function CreateOrder() {
     const tableId = "#spl_table";
 
@@ -2935,13 +2943,6 @@ docReady(function () {
       request.send();
     }
 
-    function saveToCookie(productsData) {
-      // Konwersja obiektu do JSON
-      const jsonData = JSON.stringify(productsData);
-
-      // Zapisanie JSON do ciasteczka
-      document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
-    }
 
     // Funkcja do pobrania informacji z endpointu i zapisania w ciasteczku
     function fetchDataFromEndpoint() {
