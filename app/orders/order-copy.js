@@ -3098,9 +3098,11 @@ docReady(function () {
   
         function toggleOverlay() {
           if (tabElement && tabElement.classList.contains("w--current")) {
-            overlay.style.display = "block";
+            overlay.style.transition = "opacity 0.3s"; // Transition for 200ms (0.2 seconds)
+            overlay.style.opacity = 1; // Set opacity to 100%
           } else {
-            overlay.style.display = "none";
+            overlay.style.transition = "opacity 0.3s"; // Transition for 200ms (0.2 seconds)
+            overlay.style.opacity = 0; // Set opacity to 0
           }
         }
   
@@ -3115,6 +3117,7 @@ docReady(function () {
         .columns.adjust();
     }, 300);
   });
+  
   
 
   $("#table_id").on("show", function (e) {
