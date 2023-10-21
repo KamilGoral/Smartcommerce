@@ -1239,7 +1239,7 @@ docReady(function () {
 
   function removeBlurOverlay() {
     $(".blur-overlay").remove();
-    $("#table-content").removeProp("pointer-events");
+    $("#table-content").css("pointer-events","");
   }
 
   function isValidBarcode(value) {
