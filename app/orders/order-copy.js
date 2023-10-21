@@ -774,6 +774,21 @@ docReady(function () {
           }
         }
         var products = resultProducts;
+        console.log(products);
+        const data = JSON.parse(products);
+
+        // Przygotuj dane do zapisu w ciasteczku (GTIN i ilość)
+        const productsData = data.items.map(item => {
+          return {
+            gtin: item.gtin,
+            quantity: item.quantity
+          };
+        });
+
+        // Wywołaj funkcję do zapisania w ciasteczku
+        saveToCookie(productsData);
+        updateTableInputsFromCookie(orderId);
+
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
           order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
