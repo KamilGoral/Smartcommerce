@@ -129,6 +129,25 @@ docReady(function () {
     document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
   }
 
+  function updateTableInputsFromCookie(orderId) {
+    const productsData = getProductsDataFromCookie(orderId);
+
+    if (productsData) {
+      const table = $('#table_id').DataTable();
+
+      table.rows().every(function () {
+        const rowData = this.data();
+        const gtin = rowData.gtin
+        const productData = productsData.find(item => item.gtin === gtin);
+
+        if (productData) {
+          const inputField = $(this.node()).find('input[type="number"]');
+          inputField.val(productData.quantity);
+        }
+      });
+    }
+  }
+
   async function CreateOrder() {
     const tableId = "#spl_table";
 
@@ -2751,24 +2770,7 @@ docReady(function () {
       },
     });
 
-    function updateTableInputsFromCookie(orderId) {
-      const productsData = getProductsDataFromCookie(orderId);
 
-      if (productsData) {
-        const table = $('#table_id').DataTable();
-
-        table.rows().every(function () {
-          const rowData = this.data();
-          const gtin = rowData.gtin
-          const productData = productsData.find(item => item.gtin === gtin);
-
-          if (productData) {
-            const inputField = $(this.node()).find('input[type="number"]');
-            inputField.val(productData.quantity);
-          }
-        });
-      }
-    }
 
 
 
