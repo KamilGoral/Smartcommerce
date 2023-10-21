@@ -775,10 +775,8 @@ docReady(function () {
         }
         var products = resultProducts;
         console.log(products);
-        const data = JSON.parse(products);
-
         // Przygotuj dane do zapisu w ciasteczku (GTIN i ilość)
-        const productsData = data.items.map(item => {
+        const productsData = products.items.map(item => {
           return {
             gtin: item.gtin,
             quantity: item.quantity
