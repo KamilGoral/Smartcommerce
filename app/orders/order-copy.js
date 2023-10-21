@@ -1409,6 +1409,7 @@ docReady(function () {
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
+      console.log(data);
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity) || quantity < 0) {
@@ -2807,6 +2808,7 @@ docReady(function () {
       if (newValue !== initialValue) {
         $(this).attr("value", newValue);
         var data = table.row($(this).parents("tr")).data();
+        console.log(data);
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
           if (isNaN(quantity)) {
