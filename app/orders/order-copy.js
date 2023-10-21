@@ -1554,9 +1554,9 @@ docReady(function () {
     elements[i].addEventListener("click", (event) => {
       CreateOrder();
       var detailsLink = document.getElementById('details');
-        if (detailsLink) {
-            detailsLink.click();
-        }
+      if (detailsLink) {
+        detailsLink.click();
+      }
     });
   }
 
@@ -3084,10 +3084,25 @@ docReady(function () {
         .dataTable();
     });
   });
+
+
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjusting");
       updateOverlaySize("table-content");
+
+      const tabElement = document.querySelector("[data-w-tab='Details']");
+      const overlay = document.querySelector("#detailspane > div.blur-overlay");
+      
+      function toggleOverlay() {
+        if (tabElement && tabElement.classList.contains("w--current")) {
+          overlay.style.display = "block";
+        } else {
+          overlay.style.display = "none";
+        }
+      }
+
+      toggleOverlay();
       $.fn.dataTable
         .tables({
           visible: true,
