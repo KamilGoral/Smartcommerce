@@ -3090,19 +3090,23 @@ docReady(function () {
     setTimeout(function () {
       console.log("Adjusting");
       updateOverlaySize("table-content");
-
-      const tabElement = document.querySelector("[data-w-tab='Details']");
+  
+      // Check if the overlay element exists
       const overlay = document.querySelector("#detailspane > div.blur-overlay");
-      
-      function toggleOverlay() {
-        if (tabElement && tabElement.classList.contains("w--current")) {
-          overlay.style.display = "block";
-        } else {
-          overlay.style.display = "none";
+      if (overlay) {
+        const tabElement = document.querySelector("[data-w-tab='Details']");
+  
+        function toggleOverlay() {
+          if (tabElement && tabElement.classList.contains("w--current")) {
+            overlay.style.display = "block";
+          } else {
+            overlay.style.display = "none";
+          }
         }
+  
+        toggleOverlay();
       }
-
-      toggleOverlay();
+  
       $.fn.dataTable
         .tables({
           visible: true,
@@ -3111,6 +3115,7 @@ docReady(function () {
         .columns.adjust();
     }, 300);
   });
+  
 
   $("#table_id").on("show", function (e) {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
