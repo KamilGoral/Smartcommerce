@@ -1401,10 +1401,10 @@ docReady(function () {
     // Get the right table
     // Change amount of product
     var table = $("#spl_table").DataTable();
-
+  
     let newValue = $(this).val();
     var initialValue = $(this).data("initialValue");
-
+  
     // Check if the value has changed
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
@@ -1412,24 +1412,39 @@ docReady(function () {
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity) || quantity < 0) {
-          quantity = 0; // Jeśli tak, zmień wartość na 0
+          quantity = 0; // If so, change the value to 0
         }
-
+  
         if (data.derived !== null) {
-          var product = {
-            op: "replace",
-            path: "/" + data.derived.gtin + "/quantity",
-            value: data.derived.set * quantity,
-          };
+          var product;
+          if (quantity === null && data.derived !== null) {
+            product = {
+              op: "remove",
+              path: "/" + data.derived.gtin,
+            };
+          } else {
+            product = {
+              op: "replace",
+              path: "/" + data.derived.gtin + "/quantity",
+              value: data.derived.set * quantity,
+            };
+          }
         } else {
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/quantity",
-            value: quantity,
-          };
+          if (quantity !== null) {
+            var product = {
+              op: "replace",
+              path: "/" + data.gtin + "/quantity",
+              value: quantity,
+            };
+          } else {
+            var product = {
+              op: "remove",
+              path: "/" + data.gtin,
+            };
+          }
         }
         addObject(changesPayload, product);
-        // Emulate changes for user
+        // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
       } else {
@@ -1437,6 +1452,7 @@ docReady(function () {
       }
     }
   });
+  
 
   $("#spl_table").on("focusin", "select", function () {
     // Store the current value when the select element is focused
@@ -2793,24 +2809,40 @@ docReady(function () {
         var data = table.row($(this).parents("tr")).data();
         if (data.gtin !== null) {
           let quantity = parseInt(newValue);
-          if (isNaN(initialValue)) {
-            var product = {
-              op: "add",
-              path: "/" + data.gtin,
-              // value: {
-              //   "quantity": quantity
-              // }
-            };
+          if (isNaN(quantity)) {
+            quantity = null; // If so, set quantity to null
+          }
+    
+          if (data.derived !== null) {
+            var product;
+            if (quantity === null && data.derived !== null) {
+              product = {
+                op: "remove",
+                path: "/" + data.derived.gtin,
+              };
+            } else {
+              product = {
+                op: "replace",
+                path: "/" + data.derived.gtin + "/quantity",
+                value: data.derived.set * quantity,
+              };
+            }
           } else {
-            var product = {
-              op: "replace",
-              path: "/" + data.gtin + "/quantity",
-              value: quantity
-            };
-
+            if (quantity !== null) {
+              var product = {
+                op: "replace",
+                path: "/" + data.gtin + "/quantity",
+                value: quantity,
+              };
+            } else {
+              var product = {
+                op: "remove",
+                path: "/" + data.gtin,
+              };
+            }
           }
           addObject(changesPayload, product);
-          // Emulate changes for user
+          // Emulate changes for the user
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
         } else {
@@ -2818,6 +2850,8 @@ docReady(function () {
         }
       }
     });
+    
+    
 
 
 
