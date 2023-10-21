@@ -814,7 +814,6 @@ docReady(function () {
           }
         }
         var products = resultProducts;
-        console.log(products);
         // Przygotuj dane do zapisu w ciasteczku (GTIN i ilość)
         const productsData = products.items.map(item => {
           return {
@@ -2855,6 +2854,9 @@ docReady(function () {
             product = {
               op: "add",
               path: "/" + data.gtin,
+              value: {
+                "quantity": quantity
+              }
             };
           } else if (quantity !== null) {
             product = {
@@ -2988,7 +2990,7 @@ docReady(function () {
 
     fetchDataFromEndpoint();
 
-    
+
 
     getOfferStatus();
     getWholesalersSh();
