@@ -1180,7 +1180,7 @@ docReady(function () {
   function checkChangesPayload() {
     if (changesPayload.length > 0) {
       //
-      disableTabSwitching();
+      disableTabLinks();
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$(".blur-overlay").length) {
         addBlurOverlay(
@@ -2457,6 +2457,37 @@ docReady(function () {
     },
   });
 
+  function disableTabLinks() {
+    const tabsContainer = document.getElementById('tabscontainer');
+    const tabLinks = tabsContainer.querySelectorAll('a');
+  
+    // Wyświetl informacyjny alert
+    alert("Dokonano zmian w zamówieniu. Proszę podzielić zamówienie przed przejściem do innej zakładki.");
+  
+    tabLinks.forEach(tabLink => {
+      tabLink.style.pointerEvents = 'none';
+    });
+  }
+  
+  function enableTabLinks() {
+    const tabsContainer = document.getElementById('tabscontainer');
+    const tabLinks = tabsContainer.querySelectorAll('a');
+    tabLinks.forEach(tabLink => {
+      tabLink.style.pointerEvents = 'auto';
+    });
+  }
+  
+  
+  function enableTabLinks() {
+    const tabsContainer = document.getElementById('tabscontainer');
+    const tabLinks = tabsContainer.querySelectorAll('a');
+    tabLinks.forEach(tabLink => {
+      tabLink.style.pointerEvents = 'auto';
+    });
+  }
+  
+  
+
   $("#table_splited_wh").on("click", "img", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
@@ -2900,6 +2931,7 @@ docReady(function () {
   for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", (event) => {
       CreateOrder();
+      enableTabLinks()
       var detailsLink = document.getElementById('details');
       if (detailsLink) {
         detailsLink.click();
