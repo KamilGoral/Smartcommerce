@@ -1910,37 +1910,6 @@ docReady(function () {
     request.send();
   }
 
-  // Funkcja do sprawdzania, czy użytkownik jest na aktywnej zakładce
-function isUserOnActiveTab() {
-  const activeTabLink = document.querySelector('a[data-w-tab="Add"].w--current');
-  return !!activeTabLink;
-}
-
-function disableTabSwitching() {
-  const parentElement = document.getElementById('tabscontainer');
-
-  if (parentElement) {
-    const tabLinks = parentElement.querySelectorAll('a');
-
-    // Funkcja obsługująca kliknięcie w link
-    function handleLinkClick(event) {
-      if (isUserOnActiveTab() && changesPayload.length > 0) {
-        event.preventDefault(); // Zablokuj przełączanie zakładek
-        CreateOrder(); // Wykonaj funkcję CreateOrder
-        // Usuń nasłuchiwanie zdarzenia kliknięcia po wykonaniu CreateOrder
-        tabLinks.forEach(link => {
-          link.removeEventListener('click', handleLinkClick);
-        });
-      }
-    }
-
-    tabLinks.forEach(link => {
-      link.addEventListener('click', handleLinkClick);
-    });
-  }
-}
-
-
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -2848,7 +2817,7 @@ function disableTabSwitching() {
     if (newValue !== initialValue && parseInt(newValue) >= 0) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
-      
+
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity)) {
@@ -2876,7 +2845,7 @@ function disableTabSwitching() {
             path: "/" + data.gtin,
           };
         }
-        
+
         addObject(changesPayload, product);
         disableTabSwitching();
         // Emulate changes for the user
