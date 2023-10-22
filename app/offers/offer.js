@@ -1268,26 +1268,22 @@ docReady(function () {
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
+  $("table.dataTable").on("init.dt", function () {
+    $(this).DataTable().columns.adjust();
+  });
+  
+  $("table.dataTable").on('page.dt', function () {
+    $(this).DataTable().draw(false);
+  });
+  
+  $("table.dataTable").on("show", function () {
+    $(this).DataTable().columns.adjust();
+  });
+
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    $("#table_id")
-      .on("init.dt", function () {
-        console.log("Table initialisation complete: " + new Date().getTime());
-        LoadTippy();
-        var x = 0;
-        var intervalID = setInterval(function () {
-          // For some reason we have to fire this function multiple times in order to work...
-          $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
-          console.log("Adjusting");
-
-          if (++x === 1) {
-            window.clearInterval(intervalID);
-          }
-        }, 1000);
-      })
-      .dataTable();
   });
 });
 
