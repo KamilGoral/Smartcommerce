@@ -63,39 +63,39 @@ docReady(function () {
   );
 
 
-  function saveToCookie(productsData) {
+  function saveToSessionStorage(productsData) {
     // Konwersja obiektu do JSON
     const jsonData = JSON.stringify(productsData);
-
-    // Zapisanie JSON do ciasteczka
-    document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
+  
+    // Zapisanie JSON do sessionStorage
+    sessionStorage.setItem(orderId, jsonData);
+  
     console.log(productsData);
   }
+  
 
-  function getProductsDataFromCookie(orderId) {
-    const cookieValue = document.cookie
-      .split('; ')
-      .find(row => row.startsWith("" + orderId + '='));
-
-    if (cookieValue) {
-      const encodedData = decodeURIComponent(cookieValue.split('=')[1]);
-      return JSON.parse(encodedData);
+  function getProductsDataFromSessionStorage(orderId) {
+    const jsonData = sessionStorage.getItem(orderId);
+  
+    if (jsonData) {
+      return JSON.parse(jsonData);
     }
-
+  
     return null;
   }
+  
 
-  function updateTableInputsFromCookie(orderId) {
-    const productsData = getProductsDataFromCookie(orderId);
-
+  function updateTableInputsFromSessionStorage(orderId) {
+    const productsData = getProductsDataFromSessionStorage(orderId);
+  
     if (productsData) {
       const table = $('#table_id').DataTable();
-
+  
       table.rows().every(function () {
         const rowData = this.data();
-        const gtin = rowData.gtin
+        const gtin = rowData.gtin;
         const productData = productsData.find(item => item.gtin === gtin);
-
+  
         if (productData) {
           const inputField = $(this.node()).find('input[type="number"]');
           inputField.val(productData.quantity);
@@ -103,6 +103,7 @@ docReady(function () {
       });
     }
   }
+  
 
   async function CreateOrder() {
     const tableId = "#spl_table";
@@ -748,8 +749,8 @@ docReady(function () {
         });
 
         // Wywołaj funkcję do zapisania w ciasteczku
-        // saveToCookie(productsData);
-        // updateTableInputsFromCookie(orderId);
+        saveToSessionStorage(productsData);
+        updateTableInputsFromSessionStorage(orderId);
 
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
@@ -1914,7 +1915,7 @@ docReady(function () {
         });
 
         // Wywołaj funkcję do zapisania w ciasteczku
-        saveToCookie(productsData);
+        saveToSessionStorage(productsData);
       } else {
         console.error("Błąd podczas pobierania danych z endpointu.");
       }
@@ -2450,7 +2451,7 @@ docReady(function () {
       }
     ],
     drawCallback: function (settings) {
-      updateTableInputsFromCookie(orderId);
+      updateTableInputsFromSessionStorage(orderId);
     },
     initComplete: function (settings, json) {
 
