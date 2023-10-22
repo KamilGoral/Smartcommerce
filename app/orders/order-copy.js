@@ -773,7 +773,7 @@ docReady(function () {
               sortDescending: ": Sortowanie malejące",
             },
           },
-          data: products.items,
+          data: resultProducts.items,
           search: {
             return: true,
           },
