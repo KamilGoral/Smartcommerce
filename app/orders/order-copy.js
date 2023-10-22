@@ -1179,6 +1179,8 @@ docReady(function () {
 
   function checkChangesPayload() {
     if (changesPayload.length > 0) {
+      //
+      disableTabSwitching();
       // Dodaj nakładkę tylko wtedy, gdy nie istnieje
       if (!$(".blur-overlay").length) {
         addBlurOverlay(
@@ -1931,11 +1933,6 @@ function disableTabSwitching() {
     });
   }
 }
-
-// Wywołaj funkcję do blokowania przełączania zakładek
-disableTabSwitching();
-
-
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
