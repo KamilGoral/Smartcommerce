@@ -738,17 +738,8 @@ docReady(function () {
             return;
           }
         }
-        var products = resultProducts;
-        // Przygotuj dane do zapisu w ciasteczku (GTIN i ilość)
-        const productsData = products.items.map(item => {
-          return {
-            gtin: item.gtin,
-            quantity: item.quantity
-          };
-        });
-
         // Wywołaj funkcję do zapisania w ciasteczku
-        saveToSessionStorage(productsData);
+        saveToSessionStorage(resultProducts);
         updateTableInputsFromSessionStorage(orderId);
 
         $("#splitted-products").show();
