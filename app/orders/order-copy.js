@@ -86,6 +86,7 @@ docReady(function () {
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
+    console.log(productsData)
   
     if (productsData) {
       const table = $('#table_id').DataTable();
