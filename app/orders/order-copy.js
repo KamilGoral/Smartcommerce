@@ -1183,7 +1183,7 @@ docReady(function () {
       if (!$(".blur-overlay").length) {
         addBlurOverlay(
           "table-content",
-          "Dokonałeś zmian w produktach, podziel zamówienie ponownie."
+          "Wykryto zmiany w produktach, podziel zamówienie ponownie."
         );
       }
     } else {
@@ -2805,6 +2805,10 @@ docReady(function () {
   $("#table_id").on("focusout", "input", function () {
     // Get the right table
     // Change amount of product
+
+    // Wywołaj funkcję, aby zablokować #spl_table
+    addBlurOverlay("detailspane > div:nth-child(3)", "Wykryto zmiany w produktach, podziel zamówienie ponownie.");
+
     var table = $("#table_id").DataTable();
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
