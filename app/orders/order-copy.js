@@ -2460,14 +2460,18 @@ docReady(function () {
   function disableTabLinks() {
     const tabsContainer = document.getElementById('tabscontainer');
     const tabLinks = tabsContainer.querySelectorAll('a');
-  
-    // Wyświetl informacyjny alert
-    alert("Dokonano zmian w zamówieniu. Proszę podzielić zamówienie przed przejściem do innej zakładki.");
-  
-    tabLinks.forEach(tabLink => {
-      tabLink.style.pointerEvents = 'none';
+
+    tabsContainer.addEventListener('click', function() {
+        // Wyświetl informacyjny alert
+        alert("Dokonano zmian w zamówieniu. Proszę podzielić zamówienie przed przejściem do innej zakładki.");
+
+        // Zablokuj kliknięcia na wszystkich zakładkach
+        tabLinks.forEach(tabLink => {
+            tabLink.style.pointerEvents = 'none';
+        });
     });
-  }
+}
+
   
   function enableTabLinks() {
     const tabsContainer = document.getElementById('tabscontainer');
