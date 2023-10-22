@@ -66,36 +66,36 @@ docReady(function () {
   function saveToSessionStorage(productsData) {
     // Konwersja obiektu do JSON
     const jsonData = JSON.stringify(productsData);
-  
+
     // Zapisanie JSON do sessionStorage
     sessionStorage.setItem(orderId, jsonData);
-  
+
   }
-  
+
 
   function getProductsDataFromSessionStorage(orderId) {
     const jsonData = sessionStorage.getItem(orderId);
-  
+
     if (jsonData) {
       return JSON.parse(jsonData);
     }
-  
+
     return null;
   }
-  
+
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
     const productsDataItems = productsData.items;
-  
+
     if (productsDataItems) {
       const table = $('#table_id').DataTable();
-  
+
       table.rows().every(function () {
         const rowData = this.data();
         const gtin = rowData.gtin;
         const productData = productsDataItems.find(item => item.gtin === gtin);
-  
+
         if (productData) {
           const inputField = $(this.node()).find('input[type="number"]');
           inputField.val(productData.quantity);
@@ -106,8 +106,8 @@ docReady(function () {
       });
     }
   }
-  
-  
+
+
 
   async function CreateOrder() {
     const tableId = "#spl_table";
@@ -1908,6 +1908,35 @@ docReady(function () {
     request.send();
   }
 
+  // Funkcja do sprawdzania, czy użytkownik jest na aktywnej zakładce
+function isUserOnActiveTab() {
+  const activeTabLink = document.querySelector('a[data-w-tab="Add"].w--current');
+  return !!activeTabLink;
+}
+
+// Funkcja do blokowania przełączania zakładek
+function disableTabSwitching() {
+  const parentElement = document.getElementById('tabscontainer');
+  
+  if (parentElement) {
+    const tabLinks = parentElement.querySelectorAll('a');
+    
+    tabLinks.forEach(link => {
+      link.addEventListener('click', event => {
+        if (isUserOnActiveTab()) {
+          event.preventDefault(); // Zablokuj przełączanie zakładek
+          CreateOrder(); // Wykonaj funkcję CreateOrder
+        }
+      });
+    });
+  }
+}
+
+// Wywołaj funkcję do blokowania przełączania zakładek
+disableTabSwitching();
+
+
+
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -2684,20 +2713,20 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-  
+
     if (rowData.derived !== null) {
       var trueGtin2 = rowData.derived.gtin;
     } else {
       var trueGtin2 = rowData.gtin;
     }
-  
+
     var payloadDelete = { op: "remove", path: "/" + trueGtin2 };
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
     table.row($(this).parents("tr")).remove().draw();
     checkChangesPayload();
-  
+
     // Aktualizuj wartość input w tabeli $('#table_id') na null
     var tableId = $('#table_id').DataTable();
     tableId.rows().every(function () {
@@ -2806,16 +2835,13 @@ docReady(function () {
     // Get the right table
     // Change amount of product
 
-    // Wywołaj funkcję, aby zablokować #spl_table
-    addBlurOverlay("detailspane > div:nth-child(3)", "Wykryto zmiany w produktach, podziel zamówienie ponownie.");
-
     var table = $("#table_id").DataTable();
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
     console.log(initialValue);
     console.log(newValue);
     // Check if the value has changed
-    if (newValue !== initialValue && parseInt(newValue) >=0 ) {
+    if (newValue !== initialValue && parseInt(newValue) >= 0) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
@@ -2825,7 +2851,7 @@ docReady(function () {
         }
 
         var product;
-        if (isNaN(initialValue) && newValue!== initialValue) {
+        if (isNaN(initialValue) && newValue !== initialValue) {
           product = {
             op: "add",
             path: "/" + data.gtin,
