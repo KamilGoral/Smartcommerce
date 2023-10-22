@@ -1895,7 +1895,7 @@ docReady(function () {
     };
     request.send();
   }
-  // Funkcja do pobrania informacji z endpointu i zapisania w ciasteczku
+
   function fetchDataFromEndpoint() {
     let url = new URL(InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products?perPage=10000");
     let request = new XMLHttpRequest();
@@ -2688,18 +2688,29 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-
+  
     if (rowData.derived !== null) {
       var trueGtin2 = rowData.derived.gtin;
     } else {
       var trueGtin2 = rowData.gtin;
     }
+  
     var payloadDelete = { op: "remove", path: "/" + trueGtin2 };
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
     table.row($(this).parents("tr")).remove().draw();
     checkChangesPayload();
+  
+    // Aktualizuj wartość input w tabeli $('#table_id') na null
+    var tableId = $('#table_id').DataTable();
+    tableId.rows().every(function () {
+      var rowDataId = this.data();
+      if (rowDataId.gtin === trueGtin2) {
+        var inputField = $(this.node()).find('input[type="number"]');
+        inputField.val(null);
+      }
+    });
   });
 
   $("#spl_table").on("focusout", "select", function () {
