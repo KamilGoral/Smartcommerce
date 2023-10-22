@@ -2805,6 +2805,7 @@ docReady(function () {
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
     console.log(initialValue);
+    console.log(newValue);
     // Check if the value has changed
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
