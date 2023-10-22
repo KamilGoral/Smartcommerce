@@ -1237,21 +1237,15 @@ docReady(function () {
   makeWebflowFormAjaxCreate($(formIdCreate));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
 
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      console.log("Adjusting");
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-    }, 300);
+  $("table.dataTable").on("init.dt", function () {
+    $(this).DataTable().columns.adjust();
   });
-  $("#table_wholesalers_list").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  
+  $("table.dataTable").on('page.dt', function () {
+    $(this).DataTable().draw(false);
   });
-  $("#table_pricelists_list").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  
+  $("table.dataTable").on("show", function () {
+    $(this).DataTable().columns.adjust();
   });
 });
