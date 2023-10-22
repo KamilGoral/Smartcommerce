@@ -2457,20 +2457,35 @@ docReady(function () {
     },
   });
 
+  function handleTabContainerClick() {
+    // Wyświetl informacyjny alert
+    alert("Dokonano zmian w zamówieniu. Proszę podzielić zamówienie przed przejściem do innej zakładki.");
+  }
+
   function disableTabLinks() {
     const tabsContainer = document.getElementById('tabscontainer');
     const tabLinks = tabsContainer.querySelectorAll('a');
     // Zablokuj kliknięcia na wszystkich zakładkach
     tabLinks.forEach(tabLink => {
       tabLink.style.pointerEvents = 'none';
-  });
-    tabsContainer.addEventListener('click', function() {
-        // Wyświetl informacyjny alert
-        alert("Dokonano zmian w zamówieniu. Proszę podzielić zamówienie przed przejściem do innej zakładki."); 
     });
-}
 
-  
+    tabsContainer.addEventListener('click', handleTabContainerClick);
+
+  }
+
+
+  function enableTabLinks() {
+    const tabsContainer = document.getElementById('tabscontainer');
+    const tabLinks = tabsContainer.querySelectorAll('a');
+
+    tabLinks.forEach(tabLink => {
+      tabLink.style.pointerEvents = 'auto';
+    });
+    tabsContainer.removeEventListener('click', handleTabContainerClick);
+  }
+
+
   function enableTabLinks() {
     const tabsContainer = document.getElementById('tabscontainer');
     const tabLinks = tabsContainer.querySelectorAll('a');
@@ -2478,17 +2493,8 @@ docReady(function () {
       tabLink.style.pointerEvents = 'auto';
     });
   }
-  
-  
-  function enableTabLinks() {
-    const tabsContainer = document.getElementById('tabscontainer');
-    const tabLinks = tabsContainer.querySelectorAll('a');
-    tabLinks.forEach(tabLink => {
-      tabLink.style.pointerEvents = 'auto';
-    });
-  }
-  
-  
+
+
 
   $("#table_splited_wh").on("click", "img", function () {
     // Get the right table
