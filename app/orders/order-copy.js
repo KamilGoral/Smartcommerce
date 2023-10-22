@@ -1916,23 +1916,30 @@ function isUserOnActiveTab() {
   return !!activeTabLink;
 }
 
-// Funkcja do blokowania przełączania zakładek
 function disableTabSwitching() {
   const parentElement = document.getElementById('tabscontainer');
-  
+
   if (parentElement) {
     const tabLinks = parentElement.querySelectorAll('a');
-    
+
+    // Funkcja obsługująca kliknięcie w link
+    function handleLinkClick(event) {
+      if (isUserOnActiveTab() && changesPayload.length > 0) {
+        event.preventDefault(); // Zablokuj przełączanie zakładek
+        CreateOrder(); // Wykonaj funkcję CreateOrder
+        // Usuń nasłuchiwanie zdarzenia kliknięcia po wykonaniu CreateOrder
+        tabLinks.forEach(link => {
+          link.removeEventListener('click', handleLinkClick);
+        });
+      }
+    }
+
     tabLinks.forEach(link => {
-      link.addEventListener('click', event => {
-        if (isUserOnActiveTab()) {
-          event.preventDefault(); // Zablokuj przełączanie zakładek
-          CreateOrder(); // Wykonaj funkcję CreateOrder
-        }
-      });
+      link.addEventListener('click', handleLinkClick);
     });
   }
 }
+
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
