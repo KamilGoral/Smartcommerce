@@ -2459,7 +2459,7 @@ docReady(function () {
 
   function handleTabContainerClick() {
     // Wyświetl informacyjny alert
-    alert("Dokonano zmian w zamówieniu. Proszę podzielić zamówienie przed przejściem do innej zakładki.");
+    $("#AlertDiv").show();
   }
 
   function disableTabLinks() {
