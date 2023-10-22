@@ -2816,7 +2816,7 @@ docReady(function () {
         }
 
         var product;
-        if (isNaN(initialValue)) {
+        if (isNaN(initialValue) && newValue!== initialValue) {
           product = {
             op: "add",
             path: "/" + data.gtin,
