@@ -2807,7 +2807,7 @@ docReady(function () {
     console.log(initialValue);
     console.log(newValue);
     // Check if the value has changed
-    if (newValue !== initialValue) {
+    if (newValue !== initialValue && parseInt(newValue) >=0 ) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
       if (data.gtin !== null) {
