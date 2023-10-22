@@ -86,19 +86,19 @@ docReady(function () {
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
-    console.log(productsData)
+    const productsDataItems =productsData.items
   
-    if (productsData) {
+    if (productsDataItems) {
       const table = $('#table_id').DataTable();
   
       table.rows().every(function () {
         const rowData = this.data();
         const gtin = rowData.gtin;
-        const productData = productsData.find(item => item.gtin === gtin);
+        const productData = productsDataItems.find(item => item.gtin === gtin);
   
-        if (productData) {
+        if (productsDataItems) {
           const inputField = $(this.node()).find('input[type="number"]');
-          inputField.val(productData.quantity);
+          inputField.val(productsDataItems.quantity);
         }
       });
     }
