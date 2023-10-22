@@ -112,14 +112,14 @@ docReady(function () {
   async function CreateOrder() {
     const tableId = "#spl_table";
 
+    // Wymaż wartwę blur
+    removeBlurOverlay();
+
     if ($.fn.dataTable.isDataTable(tableId)) {
       // Usuń wszystkie rekordy z tabeli podzielonych produktów
       const tableToClear = $("#spl_table").DataTable();
       tableToClear.clear().draw();
       $("#spl_table_wrapper").hide();
-
-      // Wymaż wartwę blur
-      removeBlurOverlay();
     } else {
       // Tabela nie została zainicjalizowana jako DataTable
     }
