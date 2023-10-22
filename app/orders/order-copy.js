@@ -70,7 +70,6 @@ docReady(function () {
     // Zapisanie JSON do sessionStorage
     sessionStorage.setItem(orderId, jsonData);
   
-    console.log(productsData);
   }
   
 
@@ -1904,17 +1903,7 @@ docReady(function () {
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
-        const data = JSON.parse(request.responseText);
-
-        // Przygotuj dane do zapisu w ciasteczku (GTIN i ilość)
-        const productsData = data.items.map(item => {
-          return {
-            gtin: item.gtin,
-            quantity: item.quantity
-          };
-        });
-
-        // Wywołaj funkcję do zapisania w ciasteczku
+        const productsData = JSON.parse(request.responseText);
         saveToSessionStorage(productsData);
       } else {
         console.error("Błąd podczas pobierania danych z endpointu.");
