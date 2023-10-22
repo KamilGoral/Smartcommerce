@@ -2459,7 +2459,7 @@ docReady(function () {
 
   function handleTabContainerClick() {
     // Wyświetl informacyjny alert
-    $("#AlertDiv").show();
+    $("#AlertDiv").css("display", "flex");
   }
 
   function disableTabLinks() {
