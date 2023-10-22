@@ -86,8 +86,7 @@ docReady(function () {
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
-    const productsDataItems = productsData.items
-    console.log(productsDataItems)
+    const productsDataItems = productsData.items;
   
     if (productsDataItems) {
       const table = $('#table_id').DataTable();
@@ -99,11 +98,15 @@ docReady(function () {
   
         if (productData) {
           const inputField = $(this.node()).find('input[type="number"]');
-          inputField.val(productsDataItems.quantity);
+          inputField.val(productData.quantity);
+        } else {
+          const inputField = $(this.node()).find('input[type="number"]');
+          inputField.val(null); // Jeśli nie znaleziono produktu w sessionStorage, ustaw wartość na null
         }
       });
     }
   }
+  
   
 
   async function CreateOrder() {
