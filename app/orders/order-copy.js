@@ -69,6 +69,7 @@ docReady(function () {
 
     // Zapisanie JSON do ciasteczka
     document.cookie = "" + orderId + "=" + encodeURIComponent(jsonData) + "; path=/";
+    console.log(productsData);
   }
 
   function getProductsDataFromCookie(orderId) {
@@ -747,8 +748,8 @@ docReady(function () {
         });
 
         // Wywołaj funkcję do zapisania w ciasteczku
-        saveToCookie(productsData);
-        updateTableInputsFromCookie(orderId);
+        // saveToCookie(productsData);
+        // updateTableInputsFromCookie(orderId);
 
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
@@ -2924,7 +2925,6 @@ docReady(function () {
   getWholesalersSh();
   fetchDataFromEndpoint();
   getOfferStatus();
-  getWholesalersSh();
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
