@@ -2912,15 +2912,19 @@ docReady(function () {
     }, 300);
   });
 
-  $("#table_id").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  $("table.dataTable").on("init.dt", function () {
+    $(this).DataTable().columns.adjust();
   });
-  $("#spl_table").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+  
+  $("table.dataTable").on('page.dt', function () {
+    $(this).DataTable().draw(false);
   });
-  $('#table_id').on('page.dt', function () {
-    $('#table_id').draw(false);
+  
+  $("table.dataTable").on("show", function () {
+    $(this).DataTable().columns.adjust();
   });
+
+
 
   var elements = document.getElementsByClassName("splitbutton");
   for (var i = 0; i < elements.length; i++) {
