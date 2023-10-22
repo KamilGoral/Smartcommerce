@@ -86,7 +86,8 @@ docReady(function () {
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
-    const productsDataItems =productsData.items
+    const productsDataItems = productsData.items
+    console.log(productsDataItems)
   
     if (productsDataItems) {
       const table = $('#table_id').DataTable();
@@ -96,7 +97,7 @@ docReady(function () {
         const gtin = rowData.gtin;
         const productData = productsDataItems.find(item => item.gtin === gtin);
   
-        if (productsDataItems) {
+        if (productData) {
           const inputField = $(this.node()).find('input[type="number"]');
           inputField.val(productsDataItems.quantity);
         }
