@@ -2918,6 +2918,9 @@ docReady(function () {
   $("#spl_table").on("show", function (e) {
     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
   });
+  $('#table_id').on('page.dt', function () {
+    $('#table_id').draw(false);
+  });
 
   var elements = document.getElementsByClassName("splitbutton");
   for (var i = 0; i < elements.length; i++) {
