@@ -2871,7 +2871,6 @@ docReady(function () {
         }
 
         addObject(changesPayload, product);
-        disableTabSwitching();
         // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
