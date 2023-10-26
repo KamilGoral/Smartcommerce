@@ -1236,17 +1236,21 @@ docReady(function () {
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
-
-  $("table.dataTable").on("init.dt", function () {
-    $(this).DataTable().columns.adjust();
-  });
   
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
   
-  $(document).on('shown.bs.tab', '.in-page-menu-link', function () {   
-      $("table.dataTable").DataTable().columns.adjust();
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
   });
-  
+
 });
