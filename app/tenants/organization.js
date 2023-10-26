@@ -289,8 +289,11 @@ docReady(function () {
       });
 
       if (orgName.text == "Firma" ) {
+        console.log("tutaj")
         const filteredItems = data.items.filter(item => {
+          console.log(filteredItems);
           return orgName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
+          
       });
       
       toParse = {
