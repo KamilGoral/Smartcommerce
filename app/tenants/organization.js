@@ -288,6 +288,16 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
+      if (orgName == "Firma" ) {
+        const filteredItems = data.items.filter(item => {
+          return orgName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
+      });
+      
+      toParse = {
+          items: filteredItems
+      };
+      }
+
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
           data: toParse,
