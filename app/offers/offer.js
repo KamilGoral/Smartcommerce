@@ -1038,9 +1038,6 @@ docReady(function () {
         }
       });
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
-      $("table.dataTable").on("show", function () {
-        $(this).DataTable().columns.adjust();
-      });
     },
   });
 
@@ -1136,6 +1133,7 @@ docReady(function () {
           console.log("Unauthorized");
         }
       }
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     };
     request.send();
   }
@@ -1267,17 +1265,13 @@ docReady(function () {
 
   $("table.dataTable").on("init.dt", function () {
     LoadTippy();
-    $(this).DataTable().columns.adjust();
+    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
   });
   
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
   
-  $("table.dataTable").on("show", function () {
-    $(this).DataTable().columns.adjust();
-  });
-
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
