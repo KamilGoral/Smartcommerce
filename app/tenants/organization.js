@@ -293,10 +293,8 @@ docReady(function () {
           return organizationName === "Lakoc" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "central-warehouse");
 
         });
-        console.log(filteredItems);
         toParse = filteredItems
       }
-
 
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({

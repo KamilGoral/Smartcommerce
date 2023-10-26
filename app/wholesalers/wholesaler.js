@@ -207,6 +207,26 @@ docReady(function () {
     request.send();
   }
 
+  // Funkcja do dostosowania szerokości selecta do najszerszej opcji
+  function adjustSelectWidth() {
+    const select = document.getElementById("Wholesaler-profile-Selector");
+    const options = select.getElementsByTagName("option");
+    let maxWidth = 0;
+
+    // Znajdź najszerszą opcję
+    for (let i = 0; i < options.length; i++) {
+      const option = options[i];
+      const optionWidth = option.scrollWidth;
+      if (optionWidth > maxWidth) {
+        maxWidth = optionWidth;
+      }
+    }
+
+    // Ustaw szerokość selecta na podstawie najszerszej opcji
+    select.style.width = maxWidth + "px";
+  }
+
+
   function getProfile() {
     let url = new URL(
       InvokeURL +
@@ -264,6 +284,9 @@ docReady(function () {
       .end()
       .append("<option value=null>Wybierz profil</option>")
       .val("null");
+
+    // Wywołaj funkcję
+    adjustSelectWidth();
   }
 
   function getWholesalerHistory() {
@@ -337,11 +360,11 @@ docReady(function () {
       shopKey +
       "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
-  
+
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-  
+
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(request.responseText);
@@ -349,7 +372,7 @@ docReady(function () {
         var foundWholesaler = data.items.find(function (item) {
           return item.wholesalerKey === wholesalerKey;
         });
-  
+
         if (foundWholesaler && foundWholesaler.connections && foundWholesaler.connections.onlineOffer) {
           var onlineOfferData = foundWholesaler.connections.onlineOffer;
           if (onlineOfferData.enabled && onlineOfferData.active) {
@@ -370,14 +393,14 @@ docReady(function () {
         console.error("Błąd zapytania do API. Status: " + request.status);
       }
     };
-  
+
     request.onerror = function () {
       console.error("Wystąpił błąd połączenia.");
     };
     request.send();
   }
 
-  
+
 
   function LogoutNonUser() {
     if (
@@ -911,7 +934,7 @@ docReady(function () {
 
   //onlineOfferSupport//
 
-    
+
   // Wywołanie funkcji z przykładowym wholesalerKey
   getWholesalerButtons(wholesalerKey);
 
