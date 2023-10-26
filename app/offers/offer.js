@@ -1161,6 +1161,7 @@ docReady(function () {
       } else {
         $("#positivestatus").css("display", "flex");
       }
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     };
     request.send();
   }
