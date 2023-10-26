@@ -1038,6 +1038,9 @@ docReady(function () {
         }
       });
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+      $("table.dataTable").on("show", function () {
+        $(this).DataTable().columns.adjust();
+      });
     },
   });
 
@@ -1109,102 +1112,63 @@ docReady(function () {
   }
 
   function getWholesalersSh() {
-    return new Promise(function (resolve, reject) {
-      let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
-      let request = new XMLHttpRequest();
-      request.open("GET", url, true);
-      request.setRequestHeader("Authorization", orgToken);
-
-      request.onload = function () {
-        if (request.status >= 200 && request.status < 400) {
-          var data = JSON.parse(this.response);
-          var toParse = data.items;
-          console.log(Object.keys(toParse).length);
-
-          const wholesalerContainer = document.getElementById("wholesalerKeyIndicator");
-          toParse.forEach((wholesaler) => {
-            if (wholesaler.enabled) {
-              var opt = document.createElement("option");
-              opt.value = wholesaler.wholesalerKey;
-              opt.innerHTML = wholesaler.wholesalerKey;
-              wholesalerContainer.appendChild(opt);
-            }
-          });
-
-          resolve(toParse);
-        } else if (request.status == 401) {
+    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400) {
+        console.log(Object.keys(toParse).length);
+        const wholesalerContainer = document.getElementById(
+          "wholesalerKeyIndicator"
+        );
+        toParse.forEach((wholesaler) => {
+          if (wholesaler.enabled) {
+            var opt = document.createElement("option");
+            opt.value = wholesaler.wholesalerKey;
+            opt.innerHTML = wholesaler.wholesalerKey;
+            wholesalerContainer.appendChild(opt);
+          }
+        });
+        if (request.status == 401) {
           console.log("Unauthorized");
-          reject("Unauthorized");
-        } else {
-          reject("Request error");
         }
-      };
-
-      request.send();
-    });
+      }
+    };
+    request.send();
   }
 
   function getOfferStatus() {
-    return new Promise(function (resolve, reject) {
-      let url = new URL(
-        InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
-      );
-      let request = new XMLHttpRequest();
-      request.open("GET", url, true);
-      request.setRequestHeader("Authorization", orgToken);
-
-      request.onload = function () {
-        var data = JSON.parse(this.response);
-        if (request.status >= 200 && request.status < 400) {
-          if (data.status === "incomplete" || data.status === "batching" || data.status === "forced") {
-            $("#warningstatus").css("display", "flex");
-            $("#warningstatus").attr("data-tippy-content", data.messages);
-          } else {
-            $("#positivestatus").css("display", "flex");
-          }
-          resolve(data);
-        } else if (request.status == 401) {
-          console.log("Unauthorized");
-          reject("Unauthorized");
-        } else {
-          reject("Request error");
-        }
-      };
-
-      request.send();
-    });
+    let url = new URL(
+      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
+    );
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      if (
+        request.status >= 200 &&
+        request.status < 400 &&
+        data.status === "incomplete" ||
+        data.status === "batching" ||
+        data.status === "forced"
+      ) {
+        $("#warningstatus").css("display", "flex");
+        $("#warningstatus").attr("data-tippy-content", data.messages);
+      } else if (request.status == 401) {
+        console.log("Unauthorized");
+      } else {
+        $("#positivestatus").css("display", "flex");
+      }
+    };
+    request.send();
   }
 
-
-  // Function that returns a Promise for getOfferStatus()
-  function getOfferStatusPromise() {
-    return new Promise(function (resolve, reject) {
-      getOfferStatus(function (data) {
-        // Executes getOfferStatus() and resolves the Promise with the result
-        resolve(data);
-      });
-    });
-  }
-
-  // Function that returns a Promise for getWholesalersSh()
-  function getWholesalersShPromise() {
-    return new Promise(function (resolve, reject) {
-      getWholesalersSh(function (data) {
-        // Executes getWholesalersSh() and resolves the Promise with the result
-        resolve(data);
-      });
-    });
-  }
-
-  // We call both Promises sequentially and then execute columns.adjust()
-  getOfferStatusPromise()
-    .then(function () {
-      return getWholesalersShPromise();
-    })
-    .then(function () {
-      // After both Promises are completed, we execute columns.adjust()
-      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-    });
+  getOfferStatus();
+  getWholesalersSh();
 
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
@@ -1303,12 +1267,14 @@ docReady(function () {
 
   $("table.dataTable").on("init.dt", function () {
     LoadTippy();
-    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    $(this).DataTable().columns.adjust();
   });
-
+  
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
+  
+
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
