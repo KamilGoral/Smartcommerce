@@ -1245,7 +1245,8 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
   
-  $("table.dataTable").on("show", function () {
-    $(this).DataTable().columns.adjust();
+  $(document).on('shown.bs.tab', '.in-page-menu-link', function () {   
+      $("table.dataTable").DataTable().columns.adjust();
   });
+  
 });
