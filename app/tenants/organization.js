@@ -284,7 +284,6 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
-      console.log(toParse);
       toParse.sort(function (a, b) {
         return b.enabled - a.enabled;
       });
@@ -296,12 +295,9 @@ docReady(function () {
 
         });
         console.log(filteredItems);
-
-        toParse = {
-          filteredItems
-        };
+        toParse = filteredItems
       }
-      console.log(toParse);
+
 
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
