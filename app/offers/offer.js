@@ -1038,6 +1038,9 @@ docReady(function () {
         }
       });
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+      $("table.dataTable").on("show", function () {
+        $(this).DataTable().columns.adjust();
+      });
     },
   });
 
