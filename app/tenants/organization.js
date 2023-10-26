@@ -288,7 +288,7 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (orgName == "Firma" ) {
+      if (orgName.text == "Firma" ) {
         const filteredItems = data.items.filter(item => {
           return orgName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
       });
