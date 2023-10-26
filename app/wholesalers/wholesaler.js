@@ -211,7 +211,7 @@ docReady(function () {
   function adjustSelectWidth() {
     const select = document.getElementById("Wholesaler-profile-Selector");
     const options = select.getElementsByTagName("option");
-    let maxWidth = 0;
+    let maxWidth = 411;
 
     // Znajdź najszerszą opcję
     for (let i = 0; i < options.length; i++) {
@@ -219,11 +219,9 @@ docReady(function () {
       const optionWidth = option.scrollWidth;
       if (optionWidth > maxWidth) {
         maxWidth = optionWidth;
+        select.style.width = maxWidth + "px";
       }
     }
-
-    // Ustaw szerokość selecta na podstawie najszerszej opcji
-    select.style.width = maxWidth + "px";
   }
 
 
