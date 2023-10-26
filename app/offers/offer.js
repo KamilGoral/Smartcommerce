@@ -1280,6 +1280,11 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
+    setTimeout(function() {
+      // Your code to adjust DataTable columns
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+      console.log("Adjusting");
+    }, 1000);
   });
 });
 
