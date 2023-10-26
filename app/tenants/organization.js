@@ -291,7 +291,7 @@ docReady(function () {
       if (organizationName == "Firma") {
         console.log("tutaj")
         const filteredItems = data.items.filter(item => {
-          return organizationName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
+          return organizationName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "central-warehouse");
 
         });
         console.log(filteredItems);
