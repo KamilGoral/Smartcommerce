@@ -2920,10 +2920,17 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
   
-  $("table.dataTable").on("show", function () {
-    $(this).DataTable().columns.adjust();
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
   });
-
 
 
   var elements = document.getElementsByClassName("splitbutton");

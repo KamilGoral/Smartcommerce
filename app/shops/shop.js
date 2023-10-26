@@ -1513,18 +1513,7 @@ docReady(function () {
     }, 300);
   });
 
-  $("#table_wholesalers").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  });
-  $("#table_orders").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  });
-  $("#table_offers").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  });
-  $("#table_pricelists_list").on("show", function (e) {
-    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-  });
+  
   $("#table_offers").on("click", "td.details-control", function () {
     //Get the righ table
     var table = $("#table_offers").DataTable();
