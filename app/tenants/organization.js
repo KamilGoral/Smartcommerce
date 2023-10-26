@@ -289,17 +289,17 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (organizationName == "Firma" ) {
+      if (organizationName == "Firma") {
         console.log("tutaj")
         const filteredItems = data.items.filter(item => {
           return organizationName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
-          
-      });
-      console.log(filteredItems);
-      
-      toParse = {
-          items: filteredItems
-      };
+
+        });
+        console.log(filteredItems);
+
+        toParse = {
+          filteredItems
+        };
       }
       console.log(toParse);
 
@@ -1002,7 +1002,7 @@ docReady(function () {
             return "";
           }
         }
-      },{
+      }, {
         orderable: true,
         data: "startDate",
         render: function (data) {
@@ -1023,7 +1023,7 @@ docReady(function () {
             var utcDate = new Date(Date.parse(data));
             var nowDate = new Date();
             nowDate.setUTCHours(0, 0, 0, 0);
-      
+
             if (utcDate >= nowDate) {
               return '<span class="positive">' + utcDate.toLocaleDateString('pl-PL') + '</span>';
             } else {
@@ -1067,7 +1067,7 @@ docReady(function () {
             return "";
           }
         }
-      },      
+      },
       {
         orderable: false,
         data: "modified.by",
@@ -1084,7 +1084,7 @@ docReady(function () {
         orderable: false,
         data: null,
         defaultContent:
-        '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
       },
       {
         orderable: false,
@@ -1110,14 +1110,14 @@ docReady(function () {
     var table = $("#table_pricelists_list").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-  
+
     if (rowData && rowData.uuid) {
       // Wyświetl potwierdzenie usuwania
       var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
-      
+
       if (confirmDelete) {
         var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
-        
+
         $.ajax({
           type: "DELETE",
           url: endpoint,
@@ -1133,7 +1133,7 @@ docReady(function () {
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
             $("#waitingdots").show(1).delay(150).hide(1);
-            table.row($(this).parents("tr")).remove().draw();    
+            table.row($(this).parents("tr")).remove().draw();
           },
           error: function (xhr, status, error) {
             console.error("Błąd usuwania rekordu:", error);
@@ -1144,7 +1144,7 @@ docReady(function () {
       console.error("Brak UUID w danych rekordu.");
     }
   });
-  
+
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1251,11 +1251,11 @@ docReady(function () {
   makeWebflowFormAjaxInvite($(formIdInvite));
   makeWebflowFormAjaxCreate($(formIdCreate));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
-  
+
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
-  
+
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjusting");
