@@ -288,13 +288,13 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (orgName.text == "Firma" ) {
+      if (organizationName == "Firma" ) {
         console.log("tutaj")
         const filteredItems = data.items.filter(item => {
-          console.log(filteredItems);
-          return orgName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
+          return organizationName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "eurocash");
           
       });
+      console.log(filteredItems);
       
       toParse = {
           items: filteredItems
