@@ -288,10 +288,9 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (organizationName == "Firma") {
-        console.log("tutaj")
+      if (organizationName == "Lakoc") {
         const filteredItems = data.items.filter(item => {
-          return organizationName === "Firma" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "central-warehouse");
+          return organizationName === "Lakoc" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "central-warehouse");
 
         });
         console.log(filteredItems);
