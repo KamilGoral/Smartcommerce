@@ -1281,6 +1281,7 @@ docReady(function () {
   });
 
   $(document).ready(function ($) {
+    LoadTippy();
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
