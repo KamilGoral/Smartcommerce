@@ -61,12 +61,6 @@ docReady(function () {
     offerId
   );
 
-  $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-    var elem = document.getElementById("DataTablesModule");
-    elem.remove();
-    document.getElementById("EmptyOfferState").style.display = "flex";
-  };
-
   function getProductDetails(rowData) {
     let url = new URL(
       InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
