@@ -1263,6 +1263,7 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
   $("table.dataTable").on("init.dt", function () {
+    LoadTippy();
     $(this).DataTable().columns.adjust();
   });
   
@@ -1275,7 +1276,6 @@ docReady(function () {
   });
 
   $(document).ready(function ($) {
-    LoadTippy()
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
