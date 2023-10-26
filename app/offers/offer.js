@@ -1271,20 +1271,19 @@ docReady(function () {
   $("table.dataTable").on("init.dt", function () {
     $(this).DataTable().columns.adjust();
   });
-
+  
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
-
+  
   $("table.dataTable").on("show", function () {
-    console.log("adjusting")
     $(this).DataTable().columns.adjust();
   });
-  LoadTippy();
 
-  $("table.dataTable").DataTable({
-    dom: '<"pull-left"f><"pull-right"l>tip',
+  $(document).ready(function ($) {
+    $("tableSelector").DataTable({
+      dom: '<"pull-left"f><"pull-right"l>tip',
+    });
   });
-
 });
 
