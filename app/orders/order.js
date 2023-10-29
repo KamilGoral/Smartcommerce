@@ -2131,9 +2131,9 @@ docReady(function () {
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
 
-      // $(document).on("click", 'input[type="checkbox"]', function () {
-      //   $('input[type="checkbox"]').not(this).prop("checked", false);
-      // });
+      $('#best, #exclusive').on("click", function () {
+        $('#best, #exclusive').not(this).prop("checked", false);
+      });
 
       if (whKeyIndiStr) {
         QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
