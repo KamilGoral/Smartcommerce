@@ -226,19 +226,35 @@ docReady(function () {
         $("#table-content").show();
         var data = resultData;
 
-        const setElementContent = (elementId, content) => {
+        const setElementContent = (elementId, content, percentage) => {
           const element = document.getElementById(elementId);
-          element.textContent = content != null ? content + " zł" : "-";
+          if (content != null) {
+            const formattedContent = content.toFixed(2) + " zł" + (percentage ? ` (${percentage.toFixed(2)}%)` : '');
+            element.textContent = formattedContent;
+          } else {
+            element.textContent = "-";
+          }
         };
+        
+        // Dla savings
+        const savingsValue = data.netValues.avg - data.netValues.total;
+        const savingsPercentage = (savingsValue / data.netValues.avg * 100);
+        setElementContent("savings", savingsValue, savingsPercentage);
+        
+        // Dla savingsNet
+        const savingsNetValue = data.netNetValues?.avg - data.netNetValues?.total;
+        const savingsNetPercentage = savingsNetValue ? (savingsNetValue / data.netNetValues.avg * 100) : null;
+        setElementContent("savingsNet", savingsNetValue, savingsNetPercentage);
+        
         
         setElementContent("totalValue", data.netValues.total);
         setElementContent("maxValue", data.netValues.max);
         setElementContent("avgValue", data.netValues.avg);
-        setElementContent("savings", (data.netValues.avg - data.netValues.total).toFixed(2));
+
         setElementContent("totalNetValue", data.netNetValues?.total);
         setElementContent("maxNetValue", data.netNetValues?.max);
         setElementContent("avgNetValue", data.netNetValues?.avg);
-        setElementContent("savingsNet", (data.netNetValues?.avg - data.netNetValues?.total)?.toFixed(2));
+
 
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
