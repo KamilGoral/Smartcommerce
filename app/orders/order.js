@@ -257,13 +257,16 @@ docReady(function () {
 
         // Check and remove class if the role is "admin"
         const userRole = getCookie("sprytnyUserRole");
+
         if (userRole === "admin") {
-          const element = document.querySelector(".admin");
-          if (element) {
-            element.classList.remove("admin");
+          const elements = document.querySelectorAll(".admin");
+
+          if (elements.length > 0) {
+            elements.forEach(element => {
+              element.remove();
+            });
           }
         }
-
 
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
