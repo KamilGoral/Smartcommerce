@@ -240,32 +240,21 @@ docReady(function () {
         const savingsValue = data.netValues.avg - data.netValues.total;
         const savingsPercentage = (savingsValue / data.netValues.avg * 100);
         setElementContent("savings", savingsValue, savingsPercentage);
-
-        // Dla savingsNet
-        const savingsNetValue = data.netNetValues?.avg - data.netNetValues?.total;
-        const savingsNetPercentage = savingsNetValue ? (savingsNetValue / data.netNetValues.avg * 100) : null;
-        setElementContent("savingsNet", savingsNetValue, savingsNetPercentage);
-
-
         setElementContent("totalValue", data.netValues.total);
         setElementContent("maxValue", data.netValues.max);
         setElementContent("avgValue", data.netValues.avg);
-
-        setElementContent("totalNetValue", data.netNetValues?.total);
-        setElementContent("maxNetValue", data.netNetValues?.max);
-        setElementContent("avgNetValue", data.netNetValues?.avg);
 
         // Check and remove class if the role is "admin"
         const userRole = getCookie("sprytnyUserRole");
 
         if (userRole === "admin") {
-          const elements = document.querySelectorAll(".admin");
-
-          if (elements.length > 0) {
-            elements.forEach(element => {
-              element.remove();
-            });
-          }
+          // Dla savingsNet
+          const savingsNetValue = data.netNetValues?.avg - data.netNetValues?.total;
+          const savingsNetPercentage = savingsNetValue ? (savingsNetValue / data.netNetValues.avg * 100) : null;
+          setElementContent("savingsNet", savingsNetValue, savingsNetPercentage);
+          setElementContent("totalNetValue", data.netNetValues?.total);
+          setElementContent("maxNetValue", data.netNetValues?.max);
+          setElementContent("avgNetValue", data.netNetValues?.avg);
         }
 
         var toParse = data.items;
