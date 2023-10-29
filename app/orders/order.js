@@ -2131,9 +2131,9 @@ docReady(function () {
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
 
-      $(document).on("click", 'input[type="checkbox"]', function () {
-        $('input[type="checkbox"]').not(this).prop("checked", false);
-      });
+      // $(document).on("click", 'input[type="checkbox"]', function () {
+      //   $('input[type="checkbox"]').not(this).prop("checked", false);
+      // });
 
       if (whKeyIndiStr) {
         QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
@@ -2976,10 +2976,12 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
 
+
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
+    
     $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
     });
