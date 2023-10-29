@@ -410,10 +410,7 @@ docReady(function () {
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
-              (document.location = "href"),
-                "https://" +
-                DomainName +
-                "/app/integrations/pc-market"
+              document.location = "https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID;
             }, 5000);
           },
           error: function (jqXHR, exception) {

@@ -225,15 +225,21 @@ docReady(function () {
         }
         $("#table-content").show();
         var data = resultData;
-        const totalValue = document.getElementById("totalValue");
-        totalValue.textContent = data.netValues.total + " zł";
-        const maxValue = document.getElementById("maxValue");
-        maxValue.textContent = data.netValues.max + " zł";
-        const avgValue = document.getElementById("avgValue");
-        avgValue.textContent = data.netValues.avg + " zł";
-        const savings = document.getElementById("savings");
-        var numb = data.netValues.avg - data.netValues.total;
-        savings.textContent = numb.toFixed(2) + " zł";
+
+        const setElementContent = (elementId, content) => {
+          const element = document.getElementById(elementId);
+          element.textContent = content != null ? content + " zł" : "-";
+        };
+        
+        setElementContent("totalValue", data.netValues.total);
+        setElementContent("maxValue", data.netValues.max);
+        setElementContent("avgValue", data.netValues.avg);
+        setElementContent("savings", (data.netValues.avg - data.netValues.total).toFixed(2));
+        setElementContent("totalNetValue", data.netNetValues?.total);
+        setElementContent("maxNetValue", data.netNetValues?.max);
+        setElementContent("avgNetValue", data.netNetValues?.avg);
+        setElementContent("savingsNet", (data.netNetValues?.avg - data.netNetValues?.total)?.toFixed(2));
+
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
         $("#details").show();
