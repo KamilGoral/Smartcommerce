@@ -92,14 +92,14 @@ docReady(function () {
       return;
     }
     const productsDataItems = productsData.items;
-  
+
     const table = $('#table_id').DataTable();
-  
+
     table.rows().every(function () {
       const rowData = this.data();
       const gtin = rowData.gtin;
       const productData = productsDataItems.find(item => item.gtin === gtin);
-  
+
       if (productData) {
         const inputField = $(this.node()).find('input[type="number"]');
         inputField.val(productData.quantity);
@@ -109,7 +109,7 @@ docReady(function () {
       }
     });
   }
-  
+
 
 
 
@@ -2886,6 +2886,7 @@ docReady(function () {
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
+      $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
       console.log("Adjusting");
       updateOverlaySize("table-content");
 
@@ -2919,11 +2920,11 @@ docReady(function () {
   $("table.dataTable").on("init.dt", function () {
     $(this).DataTable().columns.adjust();
   });
-  
+
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
-  
+
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjusting");
