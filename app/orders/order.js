@@ -249,6 +249,7 @@ docReady(function () {
 
         if (userRole === "admin") {
           // Dla savingsNet
+          document.getElementById("netNetValues").style.display = "flex";
           const savingsNetValue = data.netNetValues?.avg - data.netNetValues?.total;
           const savingsNetPercentage = savingsNetValue ? (savingsNetValue / data.netNetValues.avg * 100) : null;
           setElementContent("savingsNet", savingsNetValue, savingsNetPercentage);
