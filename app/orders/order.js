@@ -86,26 +86,30 @@ docReady(function () {
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
-    const productsDataItems = productsData.items;
-
-    if (productsDataItems) {
-      const table = $('#table_id').DataTable();
-
-      table.rows().every(function () {
-        const rowData = this.data();
-        const gtin = rowData.gtin;
-        const productData = productsDataItems.find(item => item.gtin === gtin);
-
-        if (productData) {
-          const inputField = $(this.node()).find('input[type="number"]');
-          inputField.val(productData.quantity);
-        } else {
-          const inputField = $(this.node()).find('input[type="number"]');
-          inputField.val(null); // Jeśli nie znaleziono produktu w sessionStorage, ustaw wartość na null
-        }
-      });
+    if (!productsData || !productsData.items) {
+      // Handle the case where productsData or items is null
+      console.error("No products data or items found.");
+      return;
     }
+    const productsDataItems = productsData.items;
+  
+    const table = $('#table_id').DataTable();
+  
+    table.rows().every(function () {
+      const rowData = this.data();
+      const gtin = rowData.gtin;
+      const productData = productsDataItems.find(item => item.gtin === gtin);
+  
+      if (productData) {
+        const inputField = $(this.node()).find('input[type="number"]');
+        inputField.val(productData.quantity);
+      } else {
+        const inputField = $(this.node()).find('input[type="number"]');
+        inputField.val(null); // Jeśli nie znaleziono produktu w sessionStorage, ustaw wartość na null
+      }
+    });
   }
+  
 
 
 
