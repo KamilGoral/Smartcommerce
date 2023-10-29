@@ -29,6 +29,13 @@ docReady(function () {
   var emailElement = document.getElementById("useremail");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
 
+  function setCookieAndSession(cName, cValue, expirationSec) {
+    let date = new Date();
+    date.setTime(date.getTime() + expirationSec * 1000);
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+  }
+
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -288,12 +295,6 @@ docReady(function () {
       },
       data: JSON.stringify(data),
       success: function (resultData) {
-        function setCookieAndSession(cName, cValue, expirationSec) {
-          let date = new Date();
-          date.setTime(date.getTime() + expirationSec * 1000);
-          const expires = "expires=" + date.toUTCString();
-          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
-        }
         setCookieAndSession(
           "sprytnyToken",
           "Bearer " + resultData.AccessToken,
