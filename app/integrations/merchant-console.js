@@ -161,7 +161,7 @@ docReady(function () {
       );
       const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
-      let url = new URL(InvokeURL + "shops?perPage=1000");
+      let url = new URL(InvokeURL + "shops?perPage=100");
       let request = new XMLHttpRequest();
       request.open("GET", url, true);
       request.setRequestHeader("Authorization", orgToken);
@@ -174,7 +174,7 @@ docReady(function () {
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
-          pageLength: 10,
+          pageLength: 100,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
