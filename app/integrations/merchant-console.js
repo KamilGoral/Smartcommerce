@@ -53,17 +53,19 @@ docReady(function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         document.getElementById("Sample-Integration").style.display = "grid";
-  
-        const integrationDescription = document.getElementById("integrationDescription");
+
+        const integrationDescription = document.getElementById(
+          "integrationDescription"
+        );
         integrationDescription.textContent = data.description;
-  
+
         const integrationLogo = document.getElementById("integrationLogo");
         integrationLogo.src = "data:image/png;base64," + data.image;
-  
+
         const integrationStatus = document.getElementById("integrationStatus");
         const integrationButton = document.getElementById("integrationButton");
         const integrationBlock = document.getElementById("enabledblock");
-  
+
         if (data.enabled === true) {
           integrationStatus.textContent = "Aktywny";
           integrationStatus.style.color = "green";
@@ -73,38 +75,38 @@ docReady(function () {
         } else {
           integrationStatus.textContent = "Nieaktywny";
         }
-  
+
         if (data.credentials) {
           const integrationLogin = document.getElementById("Username");
-          integrationLogin.value = data.credentials.username || '';
-  
+          integrationLogin.value = data.credentials.username || "";
+
           const integrationHost = document.getElementById("Host");
-          integrationHost.value = data.credentials.host || '';
-  
+          integrationHost.value = data.credentials.host || "";
+
           const integrationPort = document.getElementById("Port");
-          integrationPort.value = data.credentials.port || '';
-  
+          integrationPort.value = data.credentials.port || "";
+
           const integrationEngine = document.getElementById("engine");
-          integrationEngine.value = data.credentials.engine || '';
-  
+          integrationEngine.value = data.credentials.engine || "";
+
           const integrationDbName = document.getElementById("dbname");
-          integrationDbName.value = data.credentials.dbname || '';
+          integrationDbName.value = data.credentials.dbname || "";
         } else {
           console.warn("Credentials data is missing or undefined.");
         }
-  
       } else if (request.status === 401) {
         console.log("Unauthorized");
       }
     };
     request.send();
   }
-  
 
   function getShops() {
     async function getIDS() {
       let times = [{ id: "", shortName: "" }];
-      let url2 = new URL(InvokeURL + "integrations/merchant-console/shops");
+      let url2 = new URL(
+        InvokeURL + "integrations/merchant-console/shops?perPage=1000"
+      );
       let request2 = new XMLHttpRequest();
       request2.open("GET", url2, true);
       request2.setRequestHeader("Authorization", orgToken);
@@ -144,7 +146,9 @@ docReady(function () {
         d.shopKey +
         "</td>";
       return (
-        "<table style='display: flex;' ><tr><th></th><th></th></tr>" + toDisplayHtml + "</table>"
+        "<table style='display: flex;' ><tr><th></th><th></th></tr>" +
+        toDisplayHtml +
+        "</table>"
       );
     }
 
@@ -157,7 +161,7 @@ docReady(function () {
       );
       const selectHTML = `<select class="id100">${optionsHTML}</select>`;
 
-      let url = new URL(InvokeURL + "shops");
+      let url = new URL(InvokeURL + "shops?perPage=1000");
       let request = new XMLHttpRequest();
       request.open("GET", url, true);
       request.setRequestHeader("Authorization", orgToken);
@@ -557,7 +561,8 @@ docReady(function () {
             console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements = document.getElementsByClassName("warningmessagetext");
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
             for (var i = 0; i < elements.length; i++) {
               elements[i].textContent = msg;
             }
@@ -630,7 +635,8 @@ docReady(function () {
             console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements = document.getElementsByClassName("warningmessagetext");
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
             for (var i = 0; i < elements.length; i++) {
               elements[i].textContent = msg;
             }
