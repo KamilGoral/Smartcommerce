@@ -153,7 +153,6 @@ docReady(function () {
     }
 
     function createAll(sklepy) {
-      console.log(sklepy);
       const optionsHTML = sklepy.reduce(
         (html, value) =>
           html + `<option value=${value.id}>${value.shortName}</option>`,
@@ -237,13 +236,10 @@ docReady(function () {
             },
           ],
           rowCallback: function (row, data) {
-            console.log(row);
-            console.log(data);
             var pickMe = data.merchantConsoleShopId;
             if (data.merchantConsoleShopId === null) {
               pickMe = "";
             }
-            console.log();
             $("td:eq(2) select", row).val(data.merchantConsoleShopId);
             $("td:eq(2) select", row).change();
           },
@@ -255,24 +251,18 @@ docReady(function () {
           function () {
             var tr = $(this).closest("tr");
             var row = table.row(tr);
-            console.log(tr);
-            console.log(row);
-            console.log($(this));
 
             if (row.child.isShown()) {
               row.child.hide();
               tr.removeClass("shown");
-              console.log("chowam");
             } else {
               row.child(format(row.data())).show();
               tr.addClass("shown");
-              console.log("pokazuje");
             }
           }
         );
 
         $(".id100").on("focusin", function () {
-          console.log("Saving value " + parseInt($(this).val()));
           $(this).data("val", parseInt($(this).val()));
         });
 
@@ -280,8 +270,6 @@ docReady(function () {
           var shopKey = table.row($(this).closest("tr")).data().shopKey;
           var previousMCSId = $(this).data("val");
           var merchantConsoleShopId = parseInt($(this).val());
-          console.log("Prev value " + previousMCSId);
-          console.log("New value " + merchantConsoleShopId);
 
           var payload = [];
           var method = "PATCH";
@@ -323,8 +311,6 @@ docReady(function () {
               data: JSON.stringify([{ op: "remove", path: "/shopKey" }]),
               processData: false,
               success: function (resultData) {
-                console.log("success");
-                console.log(resultData);
                 $(".warningmessagetext").css("color", "#ffffff");
                 if (isNaN(merchantConsoleShopId)) {
                   $(".warningmessagetext").text(
@@ -350,9 +336,6 @@ docReady(function () {
                 }
               },
               error: function (jqXHR, exception) {
-                console.log("error");
-                console.log(jqXHR);
-                console.log(exception);
                 var msg = "";
                 if (jqXHR.status === 0) {
                   msg = "Nie masz połączenia z internetem.";
@@ -387,7 +370,6 @@ docReady(function () {
                 return;
               },
             });
-            console.log("Adding new one");
             var action =
               InvokeURL +
               "integrations/merchant-console/shops/" +
@@ -432,8 +414,6 @@ docReady(function () {
             data: JSON.stringify(payload),
             processData: false,
             success: function (resultData) {
-              console.log("success");
-              console.log(resultData);
               $(".warningmessagetext").css("color", "#ffffff");
               if (isNaN(merchantConsoleShopId)) {
                 $(".warningmessagetext").text(
@@ -456,9 +436,6 @@ docReady(function () {
               }
             },
             error: function (jqXHR, exception) {
-              console.log("error");
-              console.log(jqXHR);
-              console.log(exception);
               var msg = "";
               if (jqXHR.status === 0) {
                 msg = "Nie masz połączenia z internetem.";
@@ -556,9 +533,6 @@ docReady(function () {
             }, 1000);
           },
           error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(jqXHR);
-            console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
             var elements =
@@ -612,7 +586,6 @@ docReady(function () {
                 form.show();
                 doneBlock.hide();
                 failBlock.show();
-                console.log(e);
                 return;
               }
             }
@@ -630,9 +603,6 @@ docReady(function () {
             }, 5000);
           },
           error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(jqXHR);
-            console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
             var elements =
