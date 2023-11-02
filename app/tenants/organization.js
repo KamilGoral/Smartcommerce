@@ -43,11 +43,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey) {
@@ -211,10 +211,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-            DomainName +
-            "/app/shops/shop" +
-            "?shopKey=" +
-            shop.shopKey
+              DomainName +
+              "/app/shops/shop" +
+              "?shopKey=" +
+              shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -289,11 +289,14 @@ docReady(function () {
       });
 
       if (organizationName == "Lakoc") {
-        const filteredItems = data.items.filter(item => {
-          return organizationName === "Lakoc" && (item.wholesalerKey === "lakoc" || item.wholesalerKey === "central-warehouse");
-
+        const filteredItems = data.items.filter((item) => {
+          return (
+            organizationName === "Lakoc" &&
+            (item.wholesalerKey === "lakoc" ||
+              item.wholesalerKey === "central-warehouse")
+          );
         });
-        toParse = filteredItems
+        toParse = filteredItems;
       }
 
       if (request.status >= 200 && request.status < 400) {
@@ -630,9 +633,18 @@ docReady(function () {
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
         var action = InvokeURL + "users";
+        var emailInput = $("#InviteUserEmail");
+        var emailValue = emailInput.val();
+
+        // Check if the email domain is @gmail.com and convert it to lowercase
+        if (emailValue.indexOf("@gmail.com") !== -1) {
+          emailValue = emailValue.toLowerCase();
+        }
+
         var data = {
-          email: $("#InviteUserEmail").val(),
+          email: emailValue,
         };
+
         $.ajax({
           type: "POST",
           url: action,
@@ -665,14 +677,16 @@ docReady(function () {
 
             doneBlock.show();
             failBlock.hide();
-            $("#InviteUserEmail").val("");
+            emailInput.val("");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
             var msg = "";
+
+            // Handle different error cases
             if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
+              msg = "Not connect. Verify Network.";
             } else if (jqXHR.status === 403) {
               msg =
                 "Użytkownika nie ma na liście osób uprawnionych do dołączenia do organizacji. Proszę skontaktuj się z nami w celu dodania uprawnień. kontakt@smartcommerce.net";
@@ -687,6 +701,7 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
+
             const message = document.getElementById("WarningMessage");
             message.textContent = msg;
             form.show();
@@ -981,32 +996,33 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString('pl-PL', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false
+            return utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
             });
           }
           if (data === null) {
             return "";
           }
-        }
-      }, {
+        },
+      },
+      {
         orderable: true,
         data: "startDate",
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleDateString('pl-PL');
+            return utcDate.toLocaleDateString("pl-PL");
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: true,
@@ -1018,15 +1034,23 @@ docReady(function () {
             nowDate.setUTCHours(0, 0, 0, 0);
 
             if (utcDate >= nowDate) {
-              return '<span class="positive">' + utcDate.toLocaleDateString('pl-PL') + '</span>';
+              return (
+                '<span class="positive">' +
+                utcDate.toLocaleDateString("pl-PL") +
+                "</span>"
+              );
             } else {
-              return '<span class="medium">' + utcDate.toLocaleDateString('pl-PL') + '</span>';
+              return (
+                '<span class="medium">' +
+                utcDate.toLocaleDateString("pl-PL") +
+                "</span>"
+              );
             }
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: false,
@@ -1046,20 +1070,20 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString('pl-PL', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false
+            return utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
             });
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: false,
@@ -1090,14 +1114,21 @@ docReady(function () {
     ],
   });
 
-  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
-    event.preventDefault();
-    var table = $("#table_pricelists_list").DataTable();
-    var rowData = table.row($(this).closest("tr")).data();
-    window.location.replace(
-      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
-    );
-  });
+  $("#table_pricelists_list").on(
+    "click",
+    "a.buttonoutline.editme",
+    function (event) {
+      event.preventDefault();
+      var table = $("#table_pricelists_list").DataTable();
+      var rowData = table.row($(this).closest("tr")).data();
+      window.location.replace(
+        "https://" +
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
+      );
+    }
+  );
 
   $("#table_pricelists_list").on("click", "td.details-control4", function () {
     var table = $("#table_pricelists_list").DataTable();
@@ -1121,7 +1152,7 @@ docReady(function () {
             $("#waitingdots").hide();
           },
           headers: {
-            Authorization: orgToken
+            Authorization: orgToken,
           },
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
@@ -1130,14 +1161,13 @@ docReady(function () {
           },
           error: function (xhr, status, error) {
             console.error("Błąd usuwania rekordu:", error);
-          }
+          },
         });
       }
     } else {
       console.error("Brak UUID w danych rekordu.");
     }
   });
-
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1245,7 +1275,7 @@ docReady(function () {
   makeWebflowFormAjaxCreate($(formIdCreate));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
 
-  $("table.dataTable").on('page.dt', function () {
+  $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
 
@@ -1260,5 +1290,4 @@ docReady(function () {
         .columns.adjust();
     }, 300);
   });
-
 });

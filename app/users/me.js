@@ -102,13 +102,13 @@ docReady(function () {
               var emailElement = document.getElementById("useremail");
               var requestData = [
                 {
-                  "org_nip": "",
-                  "phonenumber": "",
-                  "admin_email": emailElement ? emailElement.textContent : "",
-                  "Voivodeship": "tworzenie organizacji - brak uprawnien",
-                  "shop_no": "",
-                  "ehurt_no": ""
-                }
+                  org_nip: "",
+                  phonenumber: "",
+                  admin_email: emailElement ? emailElement.textContent : "",
+                  Voivodeship: "tworzenie organizacji - brak uprawnien",
+                  shop_no: "",
+                  ehurt_no: "",
+                },
               ];
 
               // Wyślij żądanie POST
@@ -124,7 +124,7 @@ docReady(function () {
                 },
                 error: function (error) {
                   console.log("Błąd podczas wysyłania danych na endpoint.");
-                }
+                },
               });
             } else if (jqXHR.status == 500) {
               msg = "Internal Server Error [500].";
@@ -311,12 +311,12 @@ docReady(function () {
         }
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
+            DomainName +
+            "/app/tenants/organization" +
+            "?name=" +
+            OrganizationName +
+            "&clientId=" +
+            OrganizationclientId
         );
       },
       error: function (jqXHR, exception) {
@@ -483,11 +483,20 @@ docReady(function () {
           1440
         );
         setCookieAndSession("sprytnyUsername", UserInfo.Username, 1440);
-      }
-      if (request.status == 401) {
-        console.log("error");
+      } else if (request.status === 401) {
+        console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
+      } else {
+        console.log(
+          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
+            request.status
+        );
       }
     };
+
+    request.onerror = function () {
+      console.log("Wystąpił błąd podczas wysyłania żądania.");
+    };
+
     request.send(JSON.stringify(datatosend));
   }
 
