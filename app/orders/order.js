@@ -25,7 +25,7 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var counter = 0;
-  var offerId = "latest"
+  var offerId = "latest";
   var changesPayload = [];
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var orderId = new URL(location.href).searchParams.get("orderId");
@@ -36,11 +36,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -55,13 +55,12 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
-
 
   function saveToSessionStorage(productsData) {
     // Konwersja obiektu do JSON
@@ -69,9 +68,7 @@ docReady(function () {
 
     // Zapisanie JSON do sessionStorage
     sessionStorage.setItem(orderId, jsonData);
-
   }
-
 
   function getProductsDataFromSessionStorage(orderId) {
     const jsonData = sessionStorage.getItem(orderId);
@@ -83,7 +80,6 @@ docReady(function () {
     return null;
   }
 
-
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
     if (!productsData || !productsData.items) {
@@ -93,12 +89,12 @@ docReady(function () {
     }
     const productsDataItems = productsData.items;
 
-    const table = $('#table_id').DataTable();
+    const table = $("#table_id").DataTable();
 
     table.rows().every(function () {
       const rowData = this.data();
       const gtin = rowData.gtin;
-      const productData = productsDataItems.find(item => item.gtin === gtin);
+      const productData = productsDataItems.find((item) => item.gtin === gtin);
 
       if (productData) {
         const inputField = $(this.node()).find('input[type="number"]');
@@ -109,9 +105,6 @@ docReady(function () {
       }
     });
   }
-
-
-
 
   async function CreateOrder() {
     const tableId = "#spl_table";
@@ -160,18 +153,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -229,7 +222,10 @@ docReady(function () {
         const setElementContent = (elementId, content, percentage) => {
           const element = document.getElementById(elementId);
           if (content != null) {
-            const formattedContent = content.toFixed(2) + " zł" + (percentage ? ` (${percentage.toFixed(2)}%)` : '');
+            const formattedContent =
+              content.toFixed(2) +
+              " zł" +
+              (percentage ? ` (${percentage.toFixed(2)}%)` : "");
             element.textContent = formattedContent;
           } else {
             element.textContent = "-";
@@ -238,7 +234,7 @@ docReady(function () {
 
         // Dla savings
         const savingsValue = data.netValues.avg - data.netValues.total;
-        const savingsPercentage = (savingsValue / data.netValues.avg * 100);
+        const savingsPercentage = (savingsValue / data.netValues.avg) * 100;
         setElementContent("savings", savingsValue, savingsPercentage);
         setElementContent("totalValue", data.netValues.total);
         setElementContent("maxValue", data.netValues.max);
@@ -247,12 +243,22 @@ docReady(function () {
         // Check and remove class if the role is "admin"
         const userRole = getCookie("sprytnyUserRole");
 
-        if (userRole === "admin") {
+        if (
+          userRole === "admin" &&
+          data.netValues.total !== data.netNetValues.total
+        ) {
           // Dla savingsNet
           document.getElementById("netNetValues").style.display = "flex";
-          const savingsNetValue = data.netNetValues?.avg - data.netNetValues?.total;
-          const savingsNetPercentage = savingsNetValue ? (savingsNetValue / data.netNetValues.avg * 100) : null;
-          setElementContent("savingsNet", savingsNetValue, savingsNetPercentage);
+          const savingsNetValue =
+            data.netNetValues?.avg - data.netNetValues?.total;
+          const savingsNetPercentage = savingsNetValue
+            ? (savingsNetValue / data.netNetValues.avg) * 100
+            : null;
+          setElementContent(
+            "savingsNet",
+            savingsNetValue,
+            savingsNetPercentage
+          );
           setElementContent("totalNetValue", data.netNetValues?.total);
           setElementContent("maxNetValue", data.netNetValues?.max);
           setElementContent("avgNetValue", data.netNetValues?.avg);
@@ -466,9 +472,9 @@ docReady(function () {
   function getOffers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/offers?perPage=100&sort=createDate:desc"
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -694,10 +700,11 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            }>${wholesalerName}</option>`;
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
@@ -712,10 +719,11 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -937,19 +945,19 @@ docReady(function () {
                     currentPrice = data.netNetPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                        ...data.asks
-                          .map((a) => a.netNetPrice)
-                          .filter((price) => price !== null)
-                      )
+                          ...data.asks
+                            .map((a) => a.netNetPrice)
+                            .filter((price) => price !== null)
+                        )
                       : null;
                   } else {
                     currentPrice = data.netPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                        ...data.asks
-                          .map((a) => a.netPrice)
-                          .filter((price) => price !== null)
-                      )
+                          ...data.asks
+                            .map((a) => a.netPrice)
+                            .filter((price) => price !== null)
+                        )
                       : null;
                   }
 
@@ -1051,19 +1059,19 @@ docReady(function () {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                    ...data.asks
-                      .map((a) => a.netNetPrice)
-                      .filter((price) => price !== null)
-                  )
+                      ...data.asks
+                        .map((a) => a.netNetPrice)
+                        .filter((price) => price !== null)
+                    )
                   : null;
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                    ...data.asks
-                      .map((a) => a.netPrice)
-                      .filter((price) => price !== null)
-                  )
+                      ...data.asks
+                        .map((a) => a.netPrice)
+                        .filter((price) => price !== null)
+                    )
                   : null;
               }
 
@@ -1389,11 +1397,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1"
+        "shops/" +
+        shopKey +
+        "/products/" +
+        rowData.gtin +
+        "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1424,7 +1432,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1438,7 +1446,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1451,7 +1459,7 @@ docReady(function () {
           Math.round(
             (rowData.inStock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1464,7 +1472,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1793,7 +1801,7 @@ docReady(function () {
         item.originated +
         "</td>";
       var typeOfPromotion = "";
-      var showRelated = ""
+      var showRelated = "";
       if (item.promotion != null) {
         tableRowHtml +=
           "<td>" +
@@ -1818,7 +1826,10 @@ docReady(function () {
           typeOfPromotion = "Okresowa";
         }
         if (item.promotion.relatedGtins.length > 0) {
-          showRelated = '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' + item.promotion.relatedGtins + '" alt="">'
+          showRelated =
+            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
+            item.promotion.relatedGtins +
+            '" alt="">';
         } else {
           showRelated = "-";
         }
@@ -1905,9 +1916,9 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       if (
-        request.status >= 200 &&
-        request.status < 400 &&
-        data.status === "incomplete" ||
+        (request.status >= 200 &&
+          request.status < 400 &&
+          data.status === "incomplete") ||
         data.status === "batching" ||
         data.status === "forced"
       ) {
@@ -1923,7 +1934,14 @@ docReady(function () {
   }
 
   function fetchDataFromEndpoint() {
-    let url = new URL(InvokeURL + "shops/" + shopKey + "/orders/" + orderId + "/products?perPage=10000");
+    let url = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products?perPage=10000"
+    );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -2155,8 +2173,8 @@ docReady(function () {
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
 
-      $('#best, #exclusive').on("click", function () {
-        $('#best, #exclusive').not(this).prop("checked", false);
+      $("#best, #exclusive").on("click", function () {
+        $("#best, #exclusive").not(this).prop("checked", false);
       });
 
       if (whKeyIndiStr) {
@@ -2272,13 +2290,7 @@ docReady(function () {
         orderable: false,
         defaultContent: "",
         width: "20px",
-        createdCell: function (
-          cell,
-          cellData,
-          rowData,
-          rowIndex,
-          colIndex
-        ) {
+        createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
           if (rowData.asks && rowData.asks.length > 0) {
             $(cell).addClass("details-control");
           }
@@ -2305,9 +2317,7 @@ docReady(function () {
         orderable: false,
         data: null,
         render: function (data) {
-          return (
-            '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="">'
-          );
+          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="">';
         },
       },
       {
@@ -2463,13 +2473,12 @@ docReady(function () {
         data: null,
         defaultContent:
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
-      }
+      },
     ],
     drawCallback: function (settings) {
       updateTableInputsFromSessionStorage(orderId);
     },
     initComplete: function (settings, json) {
-
       var api = this.api();
       var textBox = $("#table_id_filter label input");
       $(".filterinput").on("change", function () {
@@ -2491,22 +2500,22 @@ docReady(function () {
   }
 
   function disableTabLinks() {
-    const tabsContainer = document.getElementById('tabscontainer');
-    const tabLinks = tabsContainer.querySelectorAll('a[data-w-tab]');
+    const tabsContainer = document.getElementById("tabscontainer");
+    const tabLinks = tabsContainer.querySelectorAll("a[data-w-tab]");
     // Zablokuj kliknięcia na wszystkich zakładkach
-    tabLinks.forEach(tabLink => {
-      tabLink.style.pointerEvents = 'none';
+    tabLinks.forEach((tabLink) => {
+      tabLink.style.pointerEvents = "none";
     });
-    tabsContainer.addEventListener('click', handleTabContainerClick);
+    tabsContainer.addEventListener("click", handleTabContainerClick);
   }
 
   function enableTabLinks() {
-    const tabsContainer = document.getElementById('tabscontainer');
-    const tabLinks = tabsContainer.querySelectorAll('a[data-w-tab]');
-    tabLinks.forEach(tabLink => {
-      tabLink.style.pointerEvents = 'auto';
+    const tabsContainer = document.getElementById("tabscontainer");
+    const tabLinks = tabsContainer.querySelectorAll("a[data-w-tab]");
+    tabLinks.forEach((tabLink) => {
+      tabLink.style.pointerEvents = "auto";
     });
-    tabsContainer.removeEventListener('click', handleTabContainerClick);
+    tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
 
   $("#table_splited_wh").on("click", "img", function () {
@@ -2521,12 +2530,12 @@ docReady(function () {
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers?filesFormat=" +
+          fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -2568,12 +2577,12 @@ docReady(function () {
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -2753,7 +2762,7 @@ docReady(function () {
     checkChangesPayload();
 
     // Aktualizuj wartość input w tabeli $('#table_id') na null
-    var tableId = $('#table_id').DataTable();
+    var tableId = $("#table_id").DataTable();
     tableId.rows().every(function () {
       var rowDataId = this.data();
       if (rowDataId.gtin === trueGtin2) {
@@ -2821,14 +2830,14 @@ docReady(function () {
   });
 
   $("#table_id tbody").on("click", "img.showdata", function () {
-    var dataToDisplay = $(this)
-    const popupContainer = document.getElementById('ReleatedProducts');
-    const popupContent = document.getElementById('popupContent');
-    var input = dataToDisplay.data('content');
+    var dataToDisplay = $(this);
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
+    var input = dataToDisplay.data("content");
     var values = input.split(",");
     var output = "<td>" + values.join("<br>") + "</td>";
     popupContent.innerHTML = output;
-    popupContainer.style.display = 'flex';
+    popupContainer.style.display = "flex";
   });
 
   $("#table_id tbody").on("click", "td.details-control2", function () {
@@ -2843,11 +2852,11 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     var GTINEdit = document.getElementById("gtin");
-    GTINEdit.value = rowData.gtin
+    GTINEdit.value = rowData.gtin;
     GTINEdit.disabled = true;
     var NameInput = document.getElementById("new-name");
-    NameInput.value = rowData.name
-    NameInput.textContent = rowData.name
+    NameInput.value = rowData.name;
+    NameInput.textContent = rowData.name;
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
@@ -2882,8 +2891,8 @@ docReady(function () {
             op: "add",
             path: "/" + data.gtin,
             value: {
-              "quantity": quantity
-            }
+              quantity: quantity,
+            },
           };
         } else if (quantity !== null) {
           product = {
@@ -2945,7 +2954,7 @@ docReady(function () {
     $(this).DataTable().columns.adjust();
   });
 
-  $("table.dataTable").on('page.dt', function () {
+  $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
 
@@ -2961,13 +2970,12 @@ docReady(function () {
     }, 300);
   });
 
-
   var elements = document.getElementsByClassName("splitbutton");
   for (var i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", (event) => {
       CreateOrder();
-      enableTabLinks()
-      var detailsLink = document.getElementById('details');
+      enableTabLinks();
+      var detailsLink = document.getElementById("details");
       if (detailsLink) {
         detailsLink.click();
       }
@@ -2999,7 +3007,6 @@ docReady(function () {
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
-
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
