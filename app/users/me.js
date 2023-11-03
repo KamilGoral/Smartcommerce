@@ -218,50 +218,45 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", smartToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
 
+    request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         const orgContainer = document.getElementById("Organization-Container");
+        const style = document.getElementById("samplerowInvitation");
+
+        var data = JSON.parse(this.response);
+        var toParse = data.items;
+
         toParse.forEach((invitation) => {
-          const style = document.getElementById("samplerowInvitation");
           const row = style.cloneNode(true);
           row.style.display = "flex";
-          const tenantName = row.getElementsByTagName("H6")[0];
+          const tenantName = row.querySelector("H6");
           tenantName.textContent = invitation.tenantName;
 
-          const rejectButton = row.getElementsByTagName("a")[1];
-          rejectButton.setAttribute(
-            "action",
-            InvokeURL + "users/me/invitations/" + invitation.id
-          );
-          rejectButton.setAttribute("decision", "reject");
-          rejectButton.onclick = function () {
-            console.log(rejectButton);
-            decisionInviation(rejectButton);
-          };
+          function setupButton(button, action) {
+            button.setAttribute(
+              "action",
+              InvokeURL + "users/me/invitations/" + invitation.id
+            );
+            button.setAttribute("decision", action);
+            button.onclick = function () {
+              decisionInviation(button);
+            };
+          }
 
-          const acceptButton = row.getElementsByTagName("a")[0];
-          acceptButton.setAttribute(
-            "action",
-            InvokeURL + "users/me/invitations/" + invitation.id
-          );
-          acceptButton.setAttribute("decision", "accept");
-          acceptButton.onclick = function () {
-            console.log(acceptButton);
-            decisionInviation(acceptButton);
-          };
+          setupButton(row.querySelector("a:nth-child(2)"), "reject");
+          setupButton(row.querySelector("a:nth-child(1)"));
+
           orgContainer.appendChild(row);
         });
-      }
-      if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        const emptystateorganization = document.getElementById(
-          "emptystateorganization"
-        );
-        emptystateorganization.style.display = "none";
-      }
-      if (request.status == 401) {
+
+        if (data.total > 0) {
+          const emptystateorganization = document.getElementById(
+            "emptystateorganization"
+          );
+          emptystateorganization.style.display = "none";
+        }
+      } else if (request.status == 401) {
         MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
       } else {
         console.log(
