@@ -492,9 +492,9 @@ docReady(function () {
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
             request.status +
             " " +
-            request.message
+            response.message
         );
-        MessageBox(request.message);
+        MessageBox(response.message);
       }
     };
 
