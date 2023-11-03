@@ -263,7 +263,19 @@ docReady(function () {
       }
       if (request.status == 401) {
         MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
+      } else {
+        console.log(
+          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
+            request.status +
+            " " +
+            data.message
+        );
+        MessageBox(data.message);
       }
+    };
+
+    request.onerror = function () {
+      console.log("Wystąpił błąd podczas wysyłania żądania.");
     };
     request.send();
   }
@@ -370,9 +382,20 @@ docReady(function () {
         );
         emptystateorganization.style.display = "none";
       } else {
-        MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
+        console.log(
+          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
+            request.status +
+            " " +
+            data.message
+        );
+        MessageBox(data.message);
       }
     };
+
+    request.onerror = function () {
+      console.log("Wystąpił błąd podczas wysyłania żądania.");
+    };
+
     request.send();
   }
 
