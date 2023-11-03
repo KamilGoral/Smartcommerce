@@ -151,9 +151,9 @@ docReady(function () {
     });
   };
 
-  function MessageBox() {
+  function MessageBox(text) {
     const messageBox = document.querySelector("#WarningMessageMain");
-    messageBox.innerText = "Twoja sesja wygasła. Zaloguj się ponownie";
+    messageBox.innerText = text;
     messageBox.setAttribute(
       "onclick",
       "location='https://sprytnykupiec.pl/login-page'"
@@ -207,7 +207,7 @@ docReady(function () {
       },
       error: function (jqXHR, exception) {
         if (jqXHR.status === 401) {
-          MessageBox();
+          MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
         }
       },
     });
@@ -262,7 +262,7 @@ docReady(function () {
         emptystateorganization.style.display = "none";
       }
       if (request.status == 401) {
-        MessageBox();
+        MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
       }
     };
     request.send();
@@ -360,15 +360,17 @@ docReady(function () {
             .getElementById(organization.clientId)
             .addEventListener("click", LoginIntoOrganization, false);
         });
-      }
-      if (request.status >= 200 && request.status < 400 && data.total > 0) {
+      } else if (
+        request.status >= 200 &&
+        request.status < 400 &&
+        data.total > 0
+      ) {
         const emptystateorganization = document.getElementById(
           "emptystateorganization"
         );
         emptystateorganization.style.display = "none";
-      }
-      if (request.status == 401) {
-        MessageBox();
+      } else {
+        MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
       }
     };
     request.send();
