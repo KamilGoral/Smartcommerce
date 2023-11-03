@@ -490,8 +490,11 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status
+            request.status +
+            " " +
+            request.message
         );
+        MessageBox(request.message);
       }
     };
 
