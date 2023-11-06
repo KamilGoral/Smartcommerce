@@ -43,7 +43,8 @@ docReady(function () {
   var formIdCreatePricing = "#wf-form-NewPricingList";
 
   const translations = {
-    "User is not an administrator of this tenant": "Użytkownik nie jest administatorem tej organizacji",
+    "User is not an administrator of this tenant":
+      "Użytkownik nie jest administatorem tej organizacji",
     "Error message 2": "Komunikat błędu 2",
     // Dodaj więcej tłumaczeń, jeśli są potrzebne
   };
@@ -180,7 +181,6 @@ docReady(function () {
       myInvalidProducts.products.length +
       ")";
     const validRows = document.getElementById("validRows");
-    
 
     var preDuplicates = myValidProducts.products;
 
@@ -198,11 +198,8 @@ docReady(function () {
     var old = new Set(filteredArray.map(({ gtin }) => gtin));
     var resultData = filteredArr.filter(({ gtin }) => !old.has(gtin));
 
-    
     validRows.textContent =
-      " 02. Podejrzyj zaimportowany cennik (" +
-      resultData.length +
-      ")";
+      " 02. Podejrzyj zaimportowany cennik (" + resultData.length + ")";
 
     $(document).ready(function () {
       var tables = $.fn.dataTable.fnTables(true);
@@ -349,7 +346,7 @@ docReady(function () {
   }
 
   function getShops() {
-    let url = new URL(InvokeURL + "shops");
+    let url = new URL(InvokeURL + "shops?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -395,11 +392,11 @@ docReady(function () {
         var method = "POST";
         var table = $("#validproducts").DataTable();
         var productsFromTable = table.rows().data().toArray();
-  
+
         var productsToAdd = {
           products: productsFromTable,
         };
-  
+
         var dataRequest = {
           wholesalerKey: $("#WholesalerSelector").val(),
           startDate: $("#startDate").val() + "T00:00:01.00Z",
@@ -418,10 +415,10 @@ docReady(function () {
           $("#Create-Pricelist-Fail").fadeOut(5000);
           return;
         }
-  
+
         let postData = Object.assign(dataRequest, productsToAdd);
         //
-  
+
         $.ajax({
           type: method,
           url: action,
@@ -453,8 +450,10 @@ docReady(function () {
             console.log(jqXHR);
             console.log(exception);
             var msg =
-              "Błąd.\n" + translateErrorMessage(JSON.parse(jqXHR.responseText).message);
-            var elements = document.getElementsByClassName("warningmessagetext");
+              "Błąd.\n" +
+              translateErrorMessage(JSON.parse(jqXHR.responseText).message);
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
             for (var i = 0; i < elements.length; i++) {
               elements[i].textContent = msg;
             }
@@ -468,7 +467,7 @@ docReady(function () {
       });
     });
   };
-  
+
   makeWebflowFormAjax($(formIdCreatePricing));
   getShops();
   getWholesalersSh();
