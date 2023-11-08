@@ -245,7 +245,7 @@ docReady(function () {
           }
 
           setupButton(row.querySelector("a:nth-child(2)"), "reject");
-          setupButton(row.querySelector("a:nth-child(1)"));
+          setupButton(row.querySelector("a:nth-child(1)"), "accept");
 
           orgContainer.appendChild(row);
         });
