@@ -255,6 +255,8 @@ docReady(function () {
             "emptystateorganization"
           );
           emptystateorganization.style.display = "none";
+        } else {
+          console.log("Brak zaproszeń");
         }
       } else if (request.status == 401) {
         MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
@@ -370,7 +372,7 @@ docReady(function () {
       } else if (
         request.status >= 200 &&
         request.status < 400 &&
-        data.total > 0
+        data.total == 0
       ) {
         const emptystateorganization = document.getElementById(
           "emptystateorganization"
