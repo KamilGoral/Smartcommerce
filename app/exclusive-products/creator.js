@@ -544,6 +544,7 @@ docReady(function () {
             if (jqXHR.status === 409) {
               var gtin = $("#GTINInput").val();
               getExclusiveProduct(gtin, displayProductInfo);
+            } else {
               var msg =
                 "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
               var elements =
