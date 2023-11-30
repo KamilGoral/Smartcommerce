@@ -541,23 +541,23 @@ docReady(function () {
             console.log(jqXHR);
             console.log(jqXHR);
             console.log(exception);
-            if (jqXHR.status === 409) {
-              var gtin = $("#GTINInput").val();
-              getExclusiveProduct(gtin, displayProductInfo);
-            } else {
-              var msg =
-                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-              var elements =
-                document.getElementsByClassName("warningmessagetext");
-              for (var i = 0; i < elements.length; i++) {
-                elements[i].textContent = msg;
-              }
-              form.show();
-              $("#Create-Pricelist-Fail").show();
-              $("#Create-Pricelist-Fail").fadeOut(7000);
-              return;
+            // if (jqXHR.status === 409) {
+            //   var gtin = $("#GTINInput").val();
+            //   getExclusiveProduct(gtin, displayProductInfo);
+            // } else {
+            var msg =
+              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
             }
+            form.show();
+            $("#Create-Pricelist-Fail").show();
+            $("#Create-Pricelist-Fail").fadeOut(7000);
+            return;
           },
+          //   },
         });
         event.preventDefault();
         return false;
