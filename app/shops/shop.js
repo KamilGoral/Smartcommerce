@@ -1493,7 +1493,7 @@ docReady(function () {
         $("#orderfile").val("");
         setTimeout(function () {
           $("#wf-form-failCreate-Order").fadeOut(2000);
-        }, 15000);
+        }, 10000);
       }
     };
     xhr.send(formData);

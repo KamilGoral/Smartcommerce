@@ -346,38 +346,39 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
-      if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        const orgContainer = document.getElementById("Organization-Container");
-        toParse.forEach((organization) => {
-          const style = document.getElementById("samplerow");
-          const row = style.cloneNode(true);
-          const h6 = row.getElementsByTagName("H6")[0];
-          h6.style.pointerEvents = "none";
-          row.setAttribute("OrganizationName", organization.name);
-          row.setAttribute("OrganizationclientId", organization.clientId);
-          row.setAttribute("id", organization.clientId);
-          row.style.display = "flex";
-          h6.textContent = organization.name;
-          var mycolour = StringToColour(organization.name);
-          var some_fancy_gradient =
-            "linear-gradient(180deg, " +
-            mycolour +
-            " 27%, rgb(255, 255, 255) 28%)";
-          row.style.background = "" + some_fancy_gradient + " no-repeat";
-          orgContainer.appendChild(row);
-          document
-            .getElementById(organization.clientId)
-            .addEventListener("click", LoginIntoOrganization, false);
-        });
-      } else if (
-        request.status >= 200 &&
-        request.status < 400 &&
-        data.total == 0
-      ) {
-        const emptystateorganization = document.getElementById(
-          "emptystateorganization"
-        );
-        emptystateorganization.style.display = "none";
+      if (request.status >= 200 && request.status < 400) {
+        if (data.total >= 4) {
+          $("img[id^='startingImage']").hide();
+        }
+        if (data.total > 0) {
+          const orgContainer = document.getElementById(
+            "Organization-Container"
+          );
+          toParse.forEach((organization) => {
+            const style = document.getElementById("samplerow");
+            const row = style.cloneNode(true);
+            const h6 = row.getElementsByTagName("H6")[0];
+            h6.style.pointerEvents = "none";
+            row.setAttribute("OrganizationName", organization.name);
+            row.setAttribute("OrganizationclientId", organization.clientId);
+            row.setAttribute("id", organization.clientId);
+            row.style.display = "flex";
+            h6.textContent = organization.name;
+            var mycolour = StringToColour(organization.name);
+            var some_fancy_gradient =
+              "linear-gradient(180deg, " +
+              mycolour +
+              " 27%, rgb(255, 255, 255) 28%)";
+            row.style.background = "" + some_fancy_gradient + " no-repeat";
+            orgContainer.appendChild(row);
+            document
+              .getElementById(organization.clientId)
+              .addEventListener("click", LoginIntoOrganization, false);
+          });
+        } else if (data.total == 0) {
+          document.getElementById("emptystateorganization").style.display =
+            "none";
+        }
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
