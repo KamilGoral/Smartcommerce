@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -251,14 +251,14 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               var utcDate = new Date(Date.parse(data));
-              var formattedDate = utcDate.toLocaleString('pl-PL', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+              var formattedDate = utcDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
               });
 
               return formattedDate;
@@ -267,7 +267,7 @@ docReady(function () {
             if (data === null) {
               return "";
             }
-          }
+          },
         },
       ],
       initComplete: function (settings, json) {
@@ -290,11 +290,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/orders/order?orderId=" +
-        rowData.orderId +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/orders/order?orderId=" +
+          rowData.orderId +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
@@ -344,14 +344,14 @@ docReady(function () {
       var utcDate = new Date(offers[i].createDate);
 
       // Formatuj datę do 'RRRR-MM-DD, HH:MM:SS'
-      var formattedDate = utcDate.toLocaleString('pl-PL', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+      var formattedDate = utcDate.toLocaleString("pl-PL", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
       });
 
       toDisplayHtml +=
@@ -559,15 +559,19 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               const creationDate = new Date(data);
-              const startDate = creationDate.toLocaleDateString('pl-PL', { year: 'numeric', month: '2-digit', day: '2-digit' });
-        
+              const startDate = creationDate.toLocaleDateString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              });
+
               return startDate;
             }
             if (data === null) {
               return "";
             }
           },
-        },               
+        },
         {
           orderable: false,
           data: null,
@@ -651,11 +655,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -818,21 +822,21 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            var formattedDate = utcDate.toLocaleString('pl-PL', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false
+            var formattedDate = utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
             });
             return formattedDate;
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: true,
@@ -840,17 +844,17 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            var formattedDate = utcDate.toLocaleString('pl-PL', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
+            var formattedDate = utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
             });
             return formattedDate;
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: true,
@@ -858,25 +862,25 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            var formattedDate = utcDate.toLocaleString('pl-PL', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
+            var formattedDate = utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
             });
 
             var nowDate = new Date();
             nowDate.setHours(0, 0, 0, 0);
 
             if (utcDate >= nowDate) {
-              return '<span class="positive">' + formattedDate + '</span>';
+              return '<span class="positive">' + formattedDate + "</span>";
             } else {
-              return '<span class="medium">' + formattedDate + '</span>';
+              return '<span class="medium">' + formattedDate + "</span>";
             }
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: false,
@@ -896,21 +900,21 @@ docReady(function () {
         render: function (data) {
           if (data !== null) {
             var utcDate = new Date(Date.parse(data));
-            var formattedDate = utcDate.toLocaleString('pl-PL', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false
+            var formattedDate = utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
             });
             return formattedDate;
           }
           if (data === null) {
             return "";
           }
-        }
+        },
       },
       {
         orderable: false,
@@ -929,26 +933,32 @@ docReady(function () {
         data: null,
         defaultContent:
           '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      }
+      },
     ],
   });
 
-  $("#table_pricelists_list").on("click", "a.buttonoutline.editme", function (event) {
-    event.preventDefault();
-    var table = $("#table_pricelists_list").DataTable();
-    var rowData = table.row($(this).closest("tr")).data();
-    window.location.replace(
-      "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + rowData.uuid
-    );
-  });
-
+  $("#table_pricelists_list").on(
+    "click",
+    "a.buttonoutline.editme",
+    function (event) {
+      event.preventDefault();
+      var table = $("#table_pricelists_list").DataTable();
+      var rowData = table.row($(this).closest("tr")).data();
+      window.location.replace(
+        "https://" +
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
+      );
+    }
+  );
 
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1450,11 +1460,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },
@@ -1481,7 +1491,7 @@ docReady(function () {
         $(".warningmessagetext").text(msg);
         $("#wf-form-failCreate-Order").show();
         $("#orderfile").val("");
-        $("#wf-form-failCreate-Order").fadeOut(9000);
+        $("#wf-form-failCreate-Order").fadeOut(20000);
       }
     };
     xhr.send(formData);
@@ -1500,7 +1510,6 @@ docReady(function () {
   getOrders();
   getOffers();
 
-
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjusting");
@@ -1513,7 +1522,6 @@ docReady(function () {
     }, 300);
   });
 
-  
   $("#table_offers").on("click", "td.details-control", function () {
     //Get the righ table
     var table = $("#table_offers").DataTable();
