@@ -1480,7 +1480,7 @@ docReady(function () {
         if (xhr.status === 0) {
           msg = "Not connect.\n Verify Network.";
         } else if (xhr.status === 400) {
-          msg = jsonResponse.message;
+          msg = "Nie udało się wgrać zamówienia: " + jsonResponse.message;
         } else if (xhr.status === 403) {
           msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
         } else if (xhr.status === 500) {
@@ -1491,7 +1491,9 @@ docReady(function () {
         $(".warningmessagetext").text(msg);
         $("#wf-form-failCreate-Order").show();
         $("#orderfile").val("");
-        $("#wf-form-failCreate-Order").fadeOut(20000);
+        setTimeout(function () {
+          $("#wf-form-failCreate-Order").fadeOut(2000);
+        }, 15000);
       }
     };
     xhr.send(formData);
