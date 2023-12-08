@@ -499,6 +499,11 @@ docReady(function () {
         // Utwórz kod HTML z wiadomościami
         const htmlMsg = messages.map(msg => `<p>${msg}</p>`).join('');
         console.log(htmlMsg);
+        var elements =
+          document.getElementsByClassName("warningmessagetext");
+        for (var i = 0; i < elements.length; i++) {
+          elements[i].textContent = msg;
+        }
       })
       .catch(error => {
         console.log(error.message);
