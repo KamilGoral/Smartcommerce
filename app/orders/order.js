@@ -36,11 +36,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -55,11 +55,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/orders/order?orderId=" +
-      OrderIdBread +
-      "&shopKey=" +
-      shopKey
+    DomainName +
+    "/app/orders/order?orderId=" +
+    OrderIdBread +
+    "&shopKey=" +
+    shopKey
   );
 
   function saveToSessionStorage(productsData) {
@@ -153,18 +153,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-          wholesaler +
-          '">' +
-          wholesaler +
-          '<input type="checkbox" class="theClass" id="' +
-          wholesaler +
-          '" value="' +
-          wholesaler +
-          '" name="' +
-          wholesaler +
-          '"><label class="mylabel" for="' +
-          wholesaler +
-          '"></label></div>'
+        wholesaler +
+        '">' +
+        wholesaler +
+        '<input type="checkbox" class="theClass" id="' +
+        wholesaler +
+        '" value="' +
+        wholesaler +
+        '" name="' +
+        wholesaler +
+        '"><label class="mylabel" for="' +
+        wholesaler +
+        '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -231,15 +231,6 @@ docReady(function () {
             element.textContent = "-";
           }
         };
-
-        // Dla savings
-        const savingsValue = data.netValues.avg - data.netValues.total;
-        const savingsPercentage = (savingsValue / data.netValues.avg) * 100;
-        setElementContent("savings", savingsValue, savingsPercentage);
-        setElementContent("totalValue", data.netValues.total);
-        setElementContent("maxValue", data.netValues.max);
-        setElementContent("avgValue", data.netValues.avg);
-
         // Check and remove class if the role is "admin"
         const userRole = getCookie("sprytnyUserRole");
 
@@ -263,6 +254,20 @@ docReady(function () {
           setElementContent("maxNetValue", data.netNetValues?.max);
           setElementContent("avgNetValue", data.netNetValues?.avg);
         }
+
+        // Dla savings
+        const savingsValue = data.netValues.avg - data.netValues.total;
+        const savingsPercentage = (savingsValue / data.netValues.avg) * 100;
+        setElementContent("totalValue", data.netValues.total);
+        setElementContent("maxValue", data.netValues.max);
+        setElementContent("avgValue", data.netValues.avg);
+
+        if (savingsValue >= 0) {
+          setElementContent("savings", savingsValue, savingsPercentage);
+        } else {
+          setElementContent("savings", "Z retro: " + savingsNetValue, savingsNetPercentage); //
+        }
+
 
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
@@ -472,9 +477,9 @@ docReady(function () {
   function getOffers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/offers?perPage=100&sort=createDate:desc"
+      "shops/" +
+      shopKey +
+      "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -700,11 +705,10 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${
-            item.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          }>${wholesalerName}</option>`;
+            }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
@@ -719,11 +723,10 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
-            wholesaler.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -945,19 +948,19 @@ docReady(function () {
                     currentPrice = data.netNetPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                          ...data.asks
-                            .map((a) => a.netNetPrice)
-                            .filter((price) => price !== null)
-                        )
+                        ...data.asks
+                          .map((a) => a.netNetPrice)
+                          .filter((price) => price !== null)
+                      )
                       : null;
                   } else {
                     currentPrice = data.netPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                          ...data.asks
-                            .map((a) => a.netPrice)
-                            .filter((price) => price !== null)
-                        )
+                        ...data.asks
+                          .map((a) => a.netPrice)
+                          .filter((price) => price !== null)
+                      )
                       : null;
                   }
 
@@ -1059,19 +1062,19 @@ docReady(function () {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                      ...data.asks
-                        .map((a) => a.netNetPrice)
-                        .filter((price) => price !== null)
-                    )
+                    ...data.asks
+                      .map((a) => a.netNetPrice)
+                      .filter((price) => price !== null)
+                  )
                   : null;
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                      ...data.asks
-                        .map((a) => a.netPrice)
-                        .filter((price) => price !== null)
-                    )
+                    ...data.asks
+                      .map((a) => a.netPrice)
+                      .filter((price) => price !== null)
+                  )
                   : null;
               }
 
@@ -1397,11 +1400,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/products/" +
-        rowData.gtin +
-        "/history?perPage=91&page=1"
+      "shops/" +
+      shopKey +
+      "/products/" +
+      rowData.gtin +
+      "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1432,7 +1435,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -1446,7 +1449,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -1459,7 +1462,7 @@ docReady(function () {
           Math.round(
             (rowData.inStock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1472,7 +1475,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -1936,11 +1939,11 @@ docReady(function () {
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/products?perPage=10000"
+      "shops/" +
+      shopKey +
+      "/orders/" +
+      orderId +
+      "/products?perPage=10000"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -2530,12 +2533,12 @@ docReady(function () {
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/wholesalers?filesFormat=" +
-          fileformat
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers?filesFormat=" +
+        fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -2577,12 +2580,12 @@ docReady(function () {
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/wholesalers/" +
-          wholesalerKey
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers/" +
+        wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
