@@ -1419,13 +1419,17 @@ docReady(function () {
     formData.append("name", $("#OrderName").val());
     console.log(formData);
     var action = InvokeURL + "shops/" + shopKey + "/orders";
+    // Add custom header if ignoreGTINs is true
+    if (ignoreGTINs) {
+      action += "?ignoreEmptyGtins=true"
+    }
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
 
     // Add custom header if ignoreGTINs is true
     if (ignoreGTINs) {
-      xhr.setRequestHeader("X-Ignore-Empty-GTINs", "true");
+      "?ignoreEmptyGtins=true"
     }
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
