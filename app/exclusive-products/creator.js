@@ -594,6 +594,8 @@ docReady(function () {
         // Utwórz wiadomość z elementami oddzielonymi znakiem nowej linii
         const plainTextMsg = messages.join('\n');
         console.log(plainTextMsg);
+        $("#messageText").html(plainTextMsg);
+        $("#existingblocks").show();
   
         callback(plainTextMsg);
       },
