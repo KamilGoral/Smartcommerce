@@ -1488,7 +1488,9 @@ docReady(function () {
           msg = "Nie udało się wgrać zamówienia: " + jsonResponse.message;
           // Show the modal and display the message
           $('#messageText').text(msg);
-          $('#wronggtinsmodal').show();
+          $('#orderuploadmodal').hide();
+          
+          $('#wronggtinsmodal').css('display', 'flex');
         } else if (xhr.status === 403) {
           msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
         } else if (xhr.status === 500) {
