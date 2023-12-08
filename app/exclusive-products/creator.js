@@ -558,7 +558,27 @@ docReady(function () {
       success: function (data) {
         // Filter items based on conditions
         console.log(data);
-        const messages = [];
+        const tableContainer = document.getElementById("existingblocks");
+        tableContainer.innerHTML = ''; // Clear existing content
+  
+        const table = document.createElement("table");
+        table.setAttribute("border", "1");
+  
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+  
+        // Add table headers
+        const headers = ["Dostawca", "Od", "Do"];
+        headers.forEach(headerText => {
+          const th = document.createElement("th");
+          th.textContent = headerText;
+          headerRow.appendChild(th);
+        });
+  
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+  
+        const tbody = document.createElement("tbody");
   
         data.items.forEach(item => {
           const itemStartDate = new Date(item.startDate);
@@ -574,23 +594,33 @@ docReady(function () {
             return `${day < 10 ? '0' : ''}${day}.${month < 10 ? '0' : ''}${month}.${year}`;
           };
   
-          // Sprawdź czy spełnione są warunki i dodaj sformatowane daty do wiadomości
-          if (
-            postDataStartDate < itemEndDate &&
-            postDataEndDate > itemStartDate
-          ) {
-            const msg = `${item.wholesalerName} Od: ${formatDate(itemStartDate)} Do: ${formatDate(itemEndDate)}`;
-            messages.push(msg);
+          // Sprawdź czy spełnione są warunki
+          if (postDataStartDate < itemEndDate && postDataEndDate > itemStartDate) {
+            const row = document.createElement("tr");
+  
+            const wholesalerCell = document.createElement("td");
+            wholesalerCell.textContent = item.wholesalerName;
+  
+            const startDateCell = document.createElement("td");
+            startDateCell.textContent = formatDate(itemStartDate);
+  
+            const endDateCell = document.createElement("td");
+            endDateCell.textContent = formatDate(itemEndDate);
+  
+            row.appendChild(wholesalerCell);
+            row.appendChild(startDateCell);
+            row.appendChild(endDateCell);
+  
+            tbody.appendChild(row);
           }
         });
   
-        // Utwórz wiadomość z elementami oddzielonymi znakiem nowej linii
-        const plainTextMsg = messages.join('<br>');
-        console.log(plainTextMsg);
-        $("#messageText").html(plainTextMsg);
-        $("#existingblocks").css("display", "flex");
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
   
-        callback(plainTextMsg);
+        tableContainer.style.display = "flex";
+  
+        callback();
       },
       error: function (jqXHR, exception) {
         console.log(jqXHR);
@@ -614,6 +644,7 @@ docReady(function () {
       },
     });
   }
+  
   
 
   
