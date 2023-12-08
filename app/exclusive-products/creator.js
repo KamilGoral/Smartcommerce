@@ -509,14 +509,7 @@ docReady(function () {
             console.log(exception);
             if (jqXHR.status === 409) {
               getExclusiveProduct(postData, function (msg) {
-                console.log(msg);
-                var elements = document.getElementsByClassName("warningmessagetext");
-                for (var i = 0; i < elements.length; i++) {
-                  elements[i].textContent = msg;
-                }
                 form.show();
-                $("#Create-Pricelist-Fail").show();
-                $("#Create-Pricelist-Fail").fadeOut(15000);
               });
             } else {
               var msg =
