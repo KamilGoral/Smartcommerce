@@ -414,7 +414,7 @@ docReady(function () {
           success: function (resultData) {
             console.log(resultData);
             $("#Create-Pricelist-Success").show();
-            $("#Create-Pricelist-Success").fadeOut(4000);
+            $("#Create-Pricelist-Success").fadeOut(10000);
             window.setTimeout(function () {
               location.reload();
             }, 3000);
@@ -432,7 +432,7 @@ docReady(function () {
             }
             form.show();
             $("#Create-Pricelist-Fail").show();
-            $("#Create-Pricelist-Fail").fadeOut(5000);
+            $("#Create-Pricelist-Fail").fadeOut(10000);
             return;
           },
         });
@@ -441,6 +441,7 @@ docReady(function () {
       });
     });
   };
+
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -500,7 +501,7 @@ docReady(function () {
             console.log(resultData);
             form.show();
             $("#Create-Exclusive-Success").show();
-            $("#Create-Exclusive-Success").fadeOut(4000);
+            $("#Create-Exclusive-Success").fadeOut(10000);
             $("#GTINInput").val("");
           },
           error: function (jqXHR, exception) {
@@ -515,7 +516,7 @@ docReady(function () {
                 }
                 form.show();
                 $("#Create-Pricelist-Fail").show();
-                $("#Create-Pricelist-Fail").fadeOut(7000);
+                $("#Create-Pricelist-Fail").fadeOut(15000);
               });
             } else {
               var msg =
@@ -526,7 +527,7 @@ docReady(function () {
               }
               form.show();
               $("#Create-Pricelist-Fail").show();
-              $("#Create-Pricelist-Fail").fadeOut(7000);
+              $("#Create-Pricelist-Fail").fadeOut(15000);
               return;
             }
           },
@@ -549,20 +550,19 @@ docReady(function () {
       postData[0].endDate = futureDate.toISOString();
     }
   
-    fetch(url, {
-      method: 'GET',
+    $.ajax({
+      type: 'GET',
+      url: url,
       headers: {
         'Authorization': orgToken,
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Problem');
-        }
-      })
-      .then(data => {
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function (data) {
         // Filter items based on conditions
         console.log(data);
         const messages = [];
@@ -596,15 +596,32 @@ docReady(function () {
         console.log(plainTextMsg);
   
         callback(plainTextMsg);
-      })
-      .catch(error => {
-        console.log(error.message);
-      });
+      },
+      error: function (jqXHR, exception) {
+        console.log(jqXHR);
+        console.log(exception);
+        if (jqXHR.status === 409) {
+          // Handle the 409 error here, e.g., by calling a callback function
+          callback("409 Error"); // You can customize this message as needed
+        } else {
+          var msg =
+            "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+          var elements =
+            document.getElementsByClassName("warningmessagetext");
+          for (var i = 0; i < elements.length; i++) {
+            elements[i].textContent = msg;
+          }
+          form.show();
+          $("#Create-Pricelist-Fail").show();
+          $("#Create-Pricelist-Fail").fadeOut(15000);
+          return;
+        }
+      },
+    });
   }
   
 
-
-
+  
   makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
   makeWebflowFormAjax($(formIdCreatePricing));
   getWholesalersSh();
