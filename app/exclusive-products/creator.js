@@ -558,7 +558,7 @@ docReady(function () {
       success: function (data) {
         // Filter items based on conditions
         console.log(data);
-        const tableContainer = document.getElementById("existingblocks");
+        const tableContainer = document.getElementById("messageText");
         tableContainer.innerHTML = ''; // Clear existing content
   
         const table = document.createElement("table");
@@ -618,7 +618,7 @@ docReady(function () {
         table.appendChild(tbody);
         tableContainer.appendChild(table);
   
-        tableContainer.style.display = "flex";
+        $("#existingblocks").css("display", "flex");
   
         callback();
       },
