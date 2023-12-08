@@ -470,20 +470,28 @@ docReady(function () {
     .then(data => {
       // Filter items based on conditions
       console.log(data);
-      const filteredItems = data.items.filter(item => {
+      const messages = [];
+  
+      data.items.forEach(item => {
         const itemStartDate = new Date(item.startDate);
         const itemEndDate = new Date(item.endDate);
         const postDataStartDate = new Date(postData[0].startDate);
         const postDataEndDate = new Date(postData[0].endDate);
   
         // Sprawdź czy spełnione są warunki
-        return (
+        if (
           postDataStartDate < itemEndDate &&
           postDataEndDate > itemStartDate
-        );
+        ) {
+          const msg = "Blokada towaru: " + item.wholesalerName + " Od: " + itemStartDate + " Do: " + itemEndDate;
+          messages.push(msg);
+        }
       });
   
-      console.log(filteredItems);
+      // Utwórz kod HTML z wiadomościami
+      const htmlMsg = messages.map(msg => `<p>${msg}</p>`).join('');
+      console.log(htmlMsg);
+      return htmlMsg
     })
     .catch(error => {
       console.log(error.message);
