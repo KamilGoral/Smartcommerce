@@ -477,7 +477,7 @@ docReady(function () {
           const itemEndDate = new Date(item.endDate);
           const postDataStartDate = new Date(postData[0].startDate);
           const postDataEndDate = new Date(postData[0].endDate);
-
+    
           // Formatuj daty do lokalnego formatu "dd.mm.yyyy"
           const formatDate = date => {
             const day = date.getDate();
@@ -485,7 +485,7 @@ docReady(function () {
             const year = date.getFullYear();
             return `${day < 10 ? '0' : ''}${day}.${month < 10 ? '0' : ''}${month}.${year}`;
           };
-
+    
           // Sprawdź czy spełnione są warunki i dodaj sformatowane daty do wiadomości
           if (
             postDataStartDate < itemEndDate &&
@@ -495,20 +495,15 @@ docReady(function () {
             messages.push(msg);
           }
         });
-
-        // Utwórz kod HTML z wiadomościami
-        const htmlMsg = messages.map(msg => `<p>${msg}</p>`).join('');
-        console.log(htmlMsg);
-        var elements =
-          document.getElementsByClassName("warningmessagetext");
-        for (var i = 0; i < elements.length; i++) {
-          elements[i].textContent = msg;
-        }
+    
+        // Utwórz wiadomość z elementami oddzielonymi znakiem nowej linii
+        const plainTextMsg = messages.join('\n');
+        console.log(plainTextMsg);
       })
       .catch(error => {
         console.log(error.message);
       });
-  }
+    }
 
 
 
