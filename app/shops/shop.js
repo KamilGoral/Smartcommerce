@@ -33,11 +33,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -290,11 +290,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          rowData.orderId +
-          "&shopKey=" +
-          shopKey
+        DomainName +
+        "/app/orders/order?orderId=" +
+        rowData.orderId +
+        "&shopKey=" +
+        shopKey
       );
     });
   }
@@ -655,11 +655,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -946,9 +946,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -956,9 +956,9 @@ docReady(function () {
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1407,7 +1407,7 @@ docReady(function () {
     });
   };
 
-  function FileUpload() {
+  function FileUpload(ignoreGTINs) {
     $("#waitingdots").show();
     const xhr = new XMLHttpRequest();
     var formData = new FormData();
@@ -1422,6 +1422,11 @@ docReady(function () {
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
+
+    // Add custom header if ignoreGTINs is true
+    if (ignoreGTINs) {
+      xhr.setRequestHeader("X-Ignore-Empty-GTINs", "true");
+    }
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
       if (xhr.status === 201) {
@@ -1460,11 +1465,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
@@ -1481,6 +1486,9 @@ docReady(function () {
           msg = "Not connect.\n Verify Network.";
         } else if (xhr.status === 400) {
           msg = "Nie udało się wgrać zamówienia: " + jsonResponse.message;
+          // Show the modal and display the message
+          $('#messageText').text(msg);
+          $('#wronggtinsmodal').show();
         } else if (xhr.status === 403) {
           msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
         } else if (xhr.status === 500) {
@@ -1500,7 +1508,12 @@ docReady(function () {
   }
 
   UploadButton.addEventListener("click", (event) => {
-    FileUpload();
+    FileUpload(false);
+  });
+
+  // Call with custom header
+  $('#skipButton').on('click', function () {
+    FileUpload(true);
   });
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
