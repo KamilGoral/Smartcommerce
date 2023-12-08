@@ -1441,6 +1441,7 @@ docReady(function () {
             value: $("#OrderName").val(),
           },
         ];
+
         $.ajax({
           type: method,
           url: action,
@@ -1485,22 +1486,23 @@ docReady(function () {
         if (xhr.status === 0) {
           msg = "Not connect.\n Verify Network.";
         } else if (xhr.status === 400) {
-          msg = "Nie udało się wgrać zamówienia: " + jsonResponse.message;
+          msg = jsonResponse.message;
           // Show the modal and display the message
           $('#messageText').text(msg);
           $('#orderuploadmodal').hide();
-          
           $('#wronggtinsmodal').css('display', 'flex');
+          // Do not clear the file input in case of 400 error
         } else if (xhr.status === 403) {
           msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
         } else if (xhr.status === 500) {
           msg = "Internal Server Error [500].";
+          $("#orderfile").val("");
         } else {
           msg = jsonResponse.message;
+          $("#orderfile").val("");
         }
         $(".warningmessagetext").text(msg);
         $("#wf-form-failCreate-Order").show();
-        $("#orderfile").val("");
         setTimeout(function () {
           $("#wf-form-failCreate-Order").fadeOut(2000);
         }, 10000);
