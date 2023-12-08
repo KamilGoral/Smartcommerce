@@ -442,7 +442,7 @@ docReady(function () {
     });
   };
 
-  function getExclusiveProduct(postData, callback) {
+  function getExclusiveProduct(postData) {
     const gtin = postData[0].gtin;
     const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
     
@@ -461,6 +461,8 @@ docReady(function () {
     })
     .then(data => {
       // Filter items based on conditions
+      console.log(data)
+      console.log(data)
       const now = new Date();
       const filteredItems = data.items.filter(item => {
         const startDate = new Date(item.startDate);
@@ -469,7 +471,6 @@ docReady(function () {
       });
       
       console.log(filteredItems);
-      callback(filteredItems); // Call the callback function with the filtered items
     })
     .catch(error => {
       console.log(error.message);
