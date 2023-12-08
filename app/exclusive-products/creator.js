@@ -448,7 +448,7 @@ docReady(function () {
       form.on("submit", function (event) {
         var action = InvokeURL + "exclusive-products";
         var method = "POST";
-  
+
         if ($("#NeverSingle").is(":checked")) {
           var postData = [
             {
@@ -476,9 +476,11 @@ docReady(function () {
           }
           console.log("delete wholesalerKey");
         }
-  
+
         console.log(postData);
-  
+        var existingBlocksDisplayed = false; // Flag to track if existing blocks are displayed
+
+
         $.ajax({
           type: method,
           url: action,
@@ -487,7 +489,9 @@ docReady(function () {
             $("#waitingdots").show();
           },
           complete: function () {
-            $("#waitingdots").hide();
+            if (existingBlocksDisplayed) {
+              $("#waitingdots").hide();
+            }
           },
           contentType: "application/json",
           dataType: "json",
@@ -508,7 +512,6 @@ docReady(function () {
             console.log(jqXHR);
             console.log(exception);
             if (jqXHR.status === 409) {
-              $("#waitingdots").show()
               getExclusiveProduct(postData, function (msg) {
                 form.show();
               });
@@ -522,6 +525,9 @@ docReady(function () {
               form.show();
               $("#Create-Pricelist-Fail").show();
               $("#Create-Pricelist-Fail").fadeOut(15000);
+
+              // Set the flag to indicate that existing blocks are displayed
+              existingBlocksDisplayed = true;
               return;
             }
           },
@@ -531,11 +537,11 @@ docReady(function () {
       });
     });
   };
-  
+
   function getExclusiveProduct(postData, callback) {
     const gtin = postData[0].gtin;
     const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
-  
+
     // Ustaw postData.endDate na datę za 100 lat, jeśli ma wartość "infinity"
     if (postData[0].endDate === 'infinity') {
       const now = new Date();
@@ -543,7 +549,7 @@ docReady(function () {
       futureDate.setFullYear(now.getFullYear() + 100);
       postData[0].endDate = futureDate.toISOString();
     }
-  
+
     $.ajax({
       type: 'GET',
       url: url,
@@ -561,13 +567,13 @@ docReady(function () {
         console.log(data);
         const tableContainer = document.getElementById("messageText");
         tableContainer.innerHTML = ''; // Clear existing content
-  
+
         const table = document.createElement("table");
         table.setAttribute("border", "1");
-  
+
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
-  
+
         // Add table headers
         const headers = ["Dostawca", "Od", "Do"];
         headers.forEach(headerText => {
@@ -575,18 +581,18 @@ docReady(function () {
           th.textContent = headerText;
           headerRow.appendChild(th);
         });
-  
+
         thead.appendChild(headerRow);
         table.appendChild(thead);
-  
+
         const tbody = document.createElement("tbody");
-  
+
         data.items.forEach(item => {
           const itemStartDate = new Date(item.startDate);
           const itemEndDate = new Date(item.endDate);
           const postDataStartDate = new Date(postData[0].startDate);
           const postDataEndDate = new Date(postData[0].endDate);
-  
+
           // Formatuj daty do lokalnego formatu "dd.mm.yyyy"
           const formatDate = date => {
             const day = date.getDate();
@@ -594,34 +600,34 @@ docReady(function () {
             const year = date.getFullYear();
             return `${day < 10 ? '0' : ''}${day}.${month < 10 ? '0' : ''}${month}.${year}`;
           };
-  
+
           // Sprawdź czy spełnione są warunki
           if (postDataStartDate < itemEndDate && postDataEndDate > itemStartDate) {
             const row = document.createElement("tr");
-  
+
             const wholesalerCell = document.createElement("td");
             wholesalerCell.textContent = item.wholesalerName;
-  
+
             const startDateCell = document.createElement("td");
             startDateCell.textContent = formatDate(itemStartDate);
-  
+
             const endDateCell = document.createElement("td");
             endDateCell.textContent = formatDate(itemEndDate);
-  
+
             row.appendChild(wholesalerCell);
             row.appendChild(startDateCell);
             row.appendChild(endDateCell);
-  
+
             tbody.appendChild(row);
           }
         });
-  
+
         table.appendChild(tbody);
         tableContainer.appendChild(table);
-        
+
         $("#singleexclusivemodal").css("display", "none");
         $("#existingblocks").css("display", "flex");
-  
+
         callback();
       },
       error: function (jqXHR, exception) {
@@ -646,10 +652,10 @@ docReady(function () {
       },
     });
   }
-  
-  
 
-  
+
+
+
   makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
   makeWebflowFormAjax($(formIdCreatePricing));
   getWholesalersSh();
