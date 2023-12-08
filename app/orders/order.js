@@ -231,29 +231,8 @@ docReady(function () {
             element.textContent = "-";
           }
         };
-        // Check and remove class if the role is "admin"
-        const userRole = getCookie("sprytnyUserRole");
 
-        if (
-          userRole === "admin" &&
-          data.netValues.total !== data.netNetValues.total
-        ) {
-          // Dla savingsNet
-          document.getElementById("netNetValues").style.display = "flex";
-          const savingsNetValue =
-            data.netNetValues?.avg - data.netNetValues?.total;
-          const savingsNetPercentage = savingsNetValue
-            ? (savingsNetValue / data.netNetValues.avg) * 100
-            : null;
-          setElementContent(
-            "savingsNet",
-            savingsNetValue,
-            savingsNetPercentage
-          );
-          setElementContent("totalNetValue", data.netNetValues?.total);
-          setElementContent("maxNetValue", data.netNetValues?.max);
-          setElementContent("avgNetValue", data.netNetValues?.avg);
-        }
+        const userRole = getCookie("sprytnyUserRole");
 
         // Dla savings
         const savingsValue = data.netValues.avg - data.netValues.total;
@@ -261,12 +240,36 @@ docReady(function () {
         setElementContent("totalValue", data.netValues.total);
         setElementContent("maxValue", data.netValues.max);
         setElementContent("avgValue", data.netValues.avg);
-
+        
+        // Dla savingsNet
+        const savingsNetValue =
+          data.netNetValues?.avg - data.netNetValues?.total;
+        const savingsNetPercentage = savingsNetValue
+          ? (savingsNetValue / data.netNetValues.avg) * 100
+          : null;
+        setElementContent(
+          "totalNetValue",
+          data.netNetValues?.total
+        );
+        setElementContent("maxNetValue", data.netNetValues?.max);
+        setElementContent("avgNetValue", data.netNetValues?.avg);
+        
+        // Ustal kolor tekstu
+        const textColor = savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24"; 
+        
         if (savingsValue >= 0) {
-          setElementContent("savings", savingsValue, savingsPercentage);
+          setElementContent("savings", savingsValue, savingsPercentage, textColor);
         } else {
-          setElementContent("savings", "Zamówienie nieoptymalne");
+          setElementContent("savings", "Zamówienie nieoptymalne", null, textColor);
         }
+        
+        if (savingsNetValue >= 0) {
+          setElementContent("savingsNet", "Zamówienie nieoptymalne", null, textColor);
+        } else if (userRole === "admin" && data.netValues.total !== data.netNetValues.total) {
+          document.getElementById("netNetValues").style.display = "flex";
+          setElementContent("savingsNet", savingsNetValue, savingsNetPercentage, textColor);
+        }
+        
 
 
         var toParse = data.items;
