@@ -445,7 +445,7 @@ docReady(function () {
   function getExclusiveProduct(postData) {
     const gtin = postData[0].gtin;
     const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
-  
+
     // Ustaw postData.endDate na datę za 100 lat, jeśli ma wartość "infinity"
     if (postData[0].endDate === 'infinity') {
       const now = new Date();
@@ -453,54 +453,61 @@ docReady(function () {
       futureDate.setFullYear(now.getFullYear() + 100);
       postData[0].endDate = futureDate.toISOString();
     }
-  
+
     fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': orgToken,
       }
     })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('Problem');
-      }
-    })
-    .then(data => {
-      // Filter items based on conditions
-      console.log(data);
-      const messages = [];
-  
-      data.items.forEach(item => {
-        const itemStartDate = new Date(item.startDate);
-        const itemEndDate = new Date(item.endDate);
-        const postDataStartDate = new Date(postData[0].startDate);
-        const postDataEndDate = new Date(postData[0].endDate);
-  
-        // Sprawdź czy spełnione są warunki
-        if (
-          postDataStartDate < itemEndDate &&
-          postDataEndDate > itemStartDate
-        ) {
-          const msg = "Blokada towaru: " + item.wholesalerName + " Od: " + itemStartDate + " Do: " + itemEndDate;
-          messages.push(msg);
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Problem');
         }
+      })
+      .then(data => {
+        // Filter items based on conditions
+        console.log(data);
+        const messages = [];
+
+        data.items.forEach(item => {
+          const itemStartDate = new Date(item.startDate);
+          const itemEndDate = new Date(item.endDate);
+          const postDataStartDate = new Date(postData[0].startDate);
+          const postDataEndDate = new Date(postData[0].endDate);
+
+          // Formatuj daty do lokalnego formatu "dd.mm.yyyy"
+          const formatDate = date => {
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+            return `${day < 10 ? '0' : ''}${day}.${month < 10 ? '0' : ''}${month}.${year}`;
+          };
+
+          // Sprawdź czy spełnione są warunki i dodaj sformatowane daty do wiadomości
+          if (
+            postDataStartDate < itemEndDate &&
+            postDataEndDate > itemStartDate
+          ) {
+            const msg = `Blokada towaru: ${item.wholesalerName} Od: ${formatDate(itemStartDate)} Do: ${formatDate(itemEndDate)}`;
+            messages.push(msg);
+          }
+        });
+
+        // Utwórz kod HTML z wiadomościami
+        const htmlMsg = messages.map(msg => `<p>${msg}</p>`).join('');
+        console.log(htmlMsg);
+      })
+      .catch(error => {
+        console.log(error.message);
       });
-  
-      // Utwórz kod HTML z wiadomościami
-      const htmlMsg = messages.map(msg => `<p>${msg}</p>`).join('');
-      console.log(htmlMsg);
-      return htmlMsg
-    })
-    .catch(error => {
-      console.log(error.message);
-    });
   }
-  
-  
-  
-  
+
+
+
+
 
   function displayProductInfo(data) {
     var message = `
@@ -585,20 +592,21 @@ docReady(function () {
             console.log(jqXHR);
             console.log(exception);
             if (jqXHR.status === 409) {
-              msg = getExclusiveProduct(postData, displayProductInfo);
+              msg = getExclusiveProduct(postData);
+              console.log(msg)
             } else {
               var msg =
                 "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-              var elements =
-                document.getElementsByClassName("warningmessagetext");
-              for (var i = 0; i < elements.length; i++) {
-                elements[i].textContent = msg;
-              }
-              form.show();
-              $("#Create-Pricelist-Fail").show();
-              $("#Create-Pricelist-Fail").fadeOut(7000);
-              return;
             }
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
+            }
+            form.show();
+            $("#Create-Pricelist-Fail").show();
+            $("#Create-Pricelist-Fail").fadeOut(7000);
+            return;
           },
         });
         event.preventDefault();
