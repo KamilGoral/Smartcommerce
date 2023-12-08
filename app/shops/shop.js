@@ -1421,7 +1421,7 @@ docReady(function () {
     var action = InvokeURL + "shops/" + shopKey + "/orders";
     // Add custom header if ignoreGTINs is true
     if (ignoreGTINs) {
-      action += "?ignoreEmptyGtins=true"
+      action += "?ignoreEmptyGtin=true"
     }
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
