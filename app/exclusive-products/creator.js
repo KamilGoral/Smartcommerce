@@ -446,6 +446,14 @@ docReady(function () {
     const gtin = postData[0].gtin;
     const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
   
+    // Ustaw postData.endDate na datę za 100 lat, jeśli ma wartość "infinity"
+    if (postData[0].endDate === 'infinity') {
+      const now = new Date();
+      const futureDate = new Date(now);
+      futureDate.setFullYear(now.getFullYear() + 100);
+      postData[0].endDate = futureDate.toISOString();
+    }
+  
     fetch(url, {
       method: 'GET',
       headers: {
@@ -462,15 +470,17 @@ docReady(function () {
     .then(data => {
       // Filter items based on conditions
       console.log(data);
-      const now = new Date();
       const filteredItems = data.items.filter(item => {
-        const startDate = new Date(item.startDate);
-        const endDate = item.endDate === 'infinity' ? new Date(Infinity) : new Date(item.endDate);
+        const itemStartDate = new Date(item.startDate);
+        const itemEndDate = new Date(item.endDate);
+        const postDataStartDate = new Date(postData[0].startDate);
+        const postDataEndDate = new Date(postData[0].endDate);
   
-        // Check for overlap with postData startDate and endDate
-        const overlap = now >= startDate && now <= endDate;
-  
-        return overlap;
+        // Sprawdź czy spełnione są warunki
+        return (
+          postDataStartDate < itemEndDate &&
+          postDataEndDate > itemStartDate
+        );
       });
   
       console.log(filteredItems);
@@ -479,6 +489,7 @@ docReady(function () {
       console.log(error.message);
     });
   }
+  
   
   
   
