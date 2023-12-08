@@ -445,7 +445,7 @@ docReady(function () {
   function getExclusiveProduct(postData) {
     const gtin = postData[0].gtin;
     const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
-    
+  
     fetch(url, {
       method: 'GET',
       headers: {
@@ -461,21 +461,27 @@ docReady(function () {
     })
     .then(data => {
       // Filter items based on conditions
-      console.log(data)
-      console.log(data)
+      console.log(data);
       const now = new Date();
       const filteredItems = data.items.filter(item => {
         const startDate = new Date(item.startDate);
-        const endDate = item.endDate === 'infinity' ? new Date(Infinity) : new Date(item.endDate);
-        return now >= startDate && now <= endDate;
+  
+        if (postData[0].endDate === 'infinity') {
+          // No filter for endDate when 'infinity' is specified in postData
+          return now >= startDate;
+        } else {
+          const endDate = new Date(postData[0].endDate);
+          return now >= startDate && now <= endDate;
+        }
       });
-      
+  
       console.log(filteredItems);
     })
     .catch(error => {
       console.log(error.message);
     });
   }
+  
   
 
   function displayProductInfo(data) {
