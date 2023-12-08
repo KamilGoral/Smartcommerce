@@ -579,16 +579,16 @@ docReady(function () {
             postDataStartDate < itemEndDate &&
             postDataEndDate > itemStartDate
           ) {
-            const msg = `Blokada towaru: ${item.wholesalerName} Od: ${formatDate(itemStartDate)} Do: ${formatDate(itemEndDate)}`;
+            const msg = `${item.wholesalerName} Od: ${formatDate(itemStartDate)} Do: ${formatDate(itemEndDate)}`;
             messages.push(msg);
           }
         });
   
         // Utwórz wiadomość z elementami oddzielonymi znakiem nowej linii
-        const plainTextMsg = messages.join('\n');
+        const plainTextMsg = messages.join('<br>');
         console.log(plainTextMsg);
         $("#messageText").html(plainTextMsg);
-        $("#existingblocks").show();
+        $("#existingblocks").css("display", "flex");
   
         callback(plainTextMsg);
       },
