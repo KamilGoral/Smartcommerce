@@ -265,7 +265,7 @@ docReady(function () {
         if (savingsValue >= 0) {
           setElementContent("savings", savingsValue, savingsPercentage);
         } else {
-          setElementContent("savings", "Z retro: " + savingsNetValue, savingsNetPercentage); //
+          setElementContent("savings", "Zamówienie nieoptymalne");
         }
 
 
