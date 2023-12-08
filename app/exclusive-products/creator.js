@@ -464,7 +464,8 @@ docReady(function () {
       console.log(data);
       const now = new Date();
       const filteredItems = data.items.filter(item => {
-        const startDate = new Date(item.startDate);
+        const startDate = new Date(postData[0].startDate)
+        console.log(startDate)
   
         if (postData[0].endDate === 'infinity') {
           // No filter for endDate when 'infinity' is specified in postData
@@ -564,7 +565,6 @@ docReady(function () {
             $("#GTINInput").val("");
           },
           error: function (jqXHR, exception) {
-            console.log(jqXHR);
             console.log(jqXHR);
             console.log(exception);
             if (jqXHR.status === 409) {
