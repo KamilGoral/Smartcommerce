@@ -442,22 +442,40 @@ docReady(function () {
     });
   };
 
-  function getExclusiveProduct(gtin, callback) {
-    let url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(this.response);
-        console.log(data)
-        callback(data); // Wywołanie funkcji zwrotnej z danymi
-      } else {
-        console.log("Problem");
+  function getExclusiveProduct(postData, callback) {
+    const gtin = postData[0].gtin;
+    const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
+    
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': orgToken,
       }
-    };
-    request.send();
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Problem');
+      }
+    })
+    .then(data => {
+      // Filter items based on conditions
+      const now = new Date();
+      const filteredItems = data.items.filter(item => {
+        const startDate = new Date(item.startDate);
+        const endDate = item.endDate === 'infinity' ? new Date(Infinity) : new Date(item.endDate);
+        return now >= startDate && now <= endDate;
+      });
+      
+      console.log(filteredItems);
+      callback(filteredItems); // Call the callback function with the filtered items
+    })
+    .catch(error => {
+      console.log(error.message);
+    });
   }
+  
 
   function displayProductInfo(data) {
     var message = `
@@ -544,7 +562,7 @@ docReady(function () {
             console.log(exception);
             if (jqXHR.status === 409) {
               var gtin = $("#GTINInput").val();
-              getExclusiveProduct(gtin, displayProductInfo);
+              getExclusiveProduct(postData, displayProductInfo);
             } else {
               var msg =
                 "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
