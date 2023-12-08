@@ -508,6 +508,7 @@ docReady(function () {
             console.log(jqXHR);
             console.log(exception);
             if (jqXHR.status === 409) {
+              $("#waitingdots").show()
               getExclusiveProduct(postData, function (msg) {
                 form.show();
               });
@@ -617,7 +618,8 @@ docReady(function () {
   
         table.appendChild(tbody);
         tableContainer.appendChild(table);
-  
+        
+        $("#singleexclusivemodal").css("display", "none");
         $("#existingblocks").css("display", "flex");
   
         callback();
