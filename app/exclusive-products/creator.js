@@ -464,16 +464,13 @@ docReady(function () {
       console.log(data);
       const now = new Date();
       const filteredItems = data.items.filter(item => {
-        const startDate = new Date(postData[0].startDate)
-        console.log(startDate)
+        const startDate = new Date(item.startDate);
+        const endDate = item.endDate === 'infinity' ? new Date(Infinity) : new Date(item.endDate);
   
-        if (postData[0].endDate === 'infinity') {
-          // No filter for endDate when 'infinity' is specified in postData
-          return now >= startDate;
-        } else {
-          const endDate = new Date(postData[0].endDate);
-          return now >= startDate && now <= endDate;
-        }
+        // Check for overlap with postData startDate and endDate
+        const overlap = now >= startDate && now <= endDate;
+  
+        return overlap;
       });
   
       console.log(filteredItems);
@@ -482,6 +479,7 @@ docReady(function () {
       console.log(error.message);
     });
   }
+  
   
   
 
