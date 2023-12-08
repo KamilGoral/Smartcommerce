@@ -31,11 +31,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ExclusiveWizardBread = document.getElementById("ExclusiveWizardBread");
@@ -443,13 +443,14 @@ docReady(function () {
   };
 
   function getExclusiveProduct(gtin, callback) {
-    let url = new URL(InvokeURL + "exclusive-products/" + gtin);
+    let url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
+        console.log(data)
         callback(data); // Wywołanie funkcji zwrotnej z danymi
       } else {
         console.log("Problem");
@@ -541,23 +542,23 @@ docReady(function () {
             console.log(jqXHR);
             console.log(jqXHR);
             console.log(exception);
-            // if (jqXHR.status === 409) {
-            //   var gtin = $("#GTINInput").val();
-            //   getExclusiveProduct(gtin, displayProductInfo);
-            // } else {
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
+            if (jqXHR.status === 409) {
+              var gtin = $("#GTINInput").val();
+              getExclusiveProduct(gtin, displayProductInfo);
+            } else {
+              var msg =
+                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+              var elements =
+                document.getElementsByClassName("warningmessagetext");
+              for (var i = 0; i < elements.length; i++) {
+                elements[i].textContent = msg;
+              }
+              form.show();
+              $("#Create-Pricelist-Fail").show();
+              $("#Create-Pricelist-Fail").fadeOut(7000);
+              return;
             }
-            form.show();
-            $("#Create-Pricelist-Fail").show();
-            $("#Create-Pricelist-Fail").fadeOut(7000);
-            return;
           },
-          //   },
         });
         event.preventDefault();
         return false;
