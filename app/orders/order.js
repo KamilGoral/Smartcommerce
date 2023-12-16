@@ -628,19 +628,19 @@ docReady(function () {
 
         tableRowHtml +=
           "<td>" +
-          typeOfPromotion +
+          (typeOfPromotion !== null ? typeOfPromotion : "") +
           "</td>" +
           "<td>" +
-          item.promotion.threshold +
+          (item.promotion.threshold !== null ? item.promotion.threshold : "") +
           "</td>" +
           "<td>" +
-          item.promotion.maxQuantity +
+          (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
           "</td>" +
           "<td>" +
-          item.promotion.package +
+          (item.promotion.package !== null ? item.promotion.package : "") +
           "</td>" +
           "<td>" +
-          showRelated +
+          (showRelated !== null ? showRelated : "") +
           "</td>" +
           "</tr>";
       } else {
@@ -1842,22 +1842,22 @@ docReady(function () {
         }
 
         tableRowHtml +=
-          "<td>" +
-          typeOfPromotion +
-          "</td>" +
-          "<td>" +
-          item.promotion.threshold +
-          "</td>" +
-          "<td>" +
-          item.promotion.maxQuantity +
-          "</td>" +
-          "<td>" +
-          item.promotion.package +
-          "</td>" +
-          "<td>" +
-          showRelated +
-          "</td>" +
-          "</tr>";
+        "<td>" +
+        (typeOfPromotion !== null ? typeOfPromotion : "") +
+        "</td>" +
+        "<td>" +
+        (item.promotion.threshold !== null ? item.promotion.threshold : "") +
+        "</td>" +
+        "<td>" +
+        (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
+        "</td>" +
+        "<td>" +
+        (item.promotion.package !== null ? item.promotion.package : "") +
+        "</td>" +
+        "<td>" +
+        (showRelated !== null ? showRelated : "") +
+        "</td>" +
+        "</tr>";
       } else {
         tableRowHtml +=
           "<td>" +
