@@ -1546,66 +1546,71 @@ docReady(function () {
             $('#orderuploadmodal').hide();
             $('#wronggtinsmodal').css('display', 'flex');
             // Do not clear the file input in case of 400 error
-          } else if (xhr.status === 403) {
-            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-          } else if (xhr.status === 500) {
-            msg = "Internal Server Error [500].";
-            $("#orderfile").val("");
           } else {
-            msg = jsonResponse.message;
-            $("#orderfile").val("");
+            // Handle cases where the product list is not found
+            console.error("Product list not found in the message.");
           }
-          $(".warningmessagetext").text(msg);
-          $("#wf-form-failCreate-Order").show();
-          setTimeout(function () {
-            $("#wf-form-failCreate-Order").fadeOut(2000);
-          }, 10000);
         }
-      };
-      xhr.send(formData);
-    }
-
-    UploadButton.addEventListener("click", (event) => {
-      FileUpload(false);
-    });
-
-    // Call with custom header
-    $('#skipButton').on('click', function () {
-      FileUpload(true);
-    });
-
-    makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-    makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-    makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
-
-    getWholesalers();
-    getShop();
-    getOrders();
-    getOffers();
-
-    $('div[role="tablist"]').click(function () {
-      setTimeout(function () {
-        console.log("Adjusting");
-        $.fn.dataTable
-          .tables({
-            visible: true,
-            api: true,
-          })
-          .columns.adjust();
-      }, 300);
-    });
-
-    $("#table_offers").on("click", "td.details-control", function () {
-      //Get the righ table
-      var table = $("#table_offers").DataTable();
-      var tr = $(this).closest("tr");
-      var row = table.row(tr);
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass("shown");
-      } else {
-        row.child(format(row.data())).show();
-        tr.addClass("shown");
+        else if (xhr.status === 403) {
+          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+        } else if (xhr.status === 500) {
+          msg = "Internal Server Error [500].";
+          $("#orderfile").val("");
+        } else {
+          msg = jsonResponse.message;
+          $("#orderfile").val("");
+        }
+        $(".warningmessagetext").text(msg);
+        $("#wf-form-failCreate-Order").show();
+        setTimeout(function () {
+          $("#wf-form-failCreate-Order").fadeOut(2000);
+        }, 10000);
       }
-    });
+    };
+    xhr.send(formData);
+  }
+
+  UploadButton.addEventListener("click", (event) => {
+    FileUpload(false);
   });
+
+  // Call with custom header
+  $('#skipButton').on('click', function () {
+    FileUpload(true);
+  });
+
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
+  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+
+  getWholesalers();
+  getShop();
+  getOrders();
+  getOffers();
+
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
+  });
+
+  $("#table_offers").on("click", "td.details-control", function () {
+    //Get the righ table
+    var table = $("#table_offers").DataTable();
+    var tr = $(this).closest("tr");
+    var row = table.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
+    }
+  });
+});
