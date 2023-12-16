@@ -1492,6 +1492,10 @@ docReady(function () {
         } else if (xhr.status === 400) {
           msg = jsonResponse.message;
 
+          // Extract the file name from the message
+          const fileNameMatch = msg.match(/Incorrect file \[(.*?)\]/);
+          const fileName = fileNameMatch ? fileNameMatch[1] : "Nieznany plik";
+
           // Use regular expression to find the product list string after "Missing GTIN code for products"
           const match = msg.match(/Missing GTIN code for products \[(.*?)\]/);
           if (match && match[1]) {
@@ -1509,13 +1513,20 @@ docReady(function () {
               return { product, price };
             });
 
-            // Function to create a table
-            function createTable(products) {
+            function createTable(products, fileName) {
               const table = document.createElement('table');
               table.style.border = '1px solid black';
               table.style.borderCollapse = 'collapse';
 
-              // Add table header
+              // Add additional header row for file name
+              const fileHeaderRow = document.createElement('tr');
+              const fileHeaderCell = document.createElement('th');
+              fileHeaderCell.setAttribute('colspan', '2');
+              fileHeaderCell.textContent = `Nazwa pliku: ${fileName}`;
+              fileHeaderRow.appendChild(fileHeaderCell);
+              table.appendChild(fileHeaderRow);
+
+              // Add table header for products
               const headerRow = document.createElement('tr');
               const headers = ['Produkt', 'Cena'];
               headers.forEach(headerText => {
@@ -1542,7 +1553,7 @@ docReady(function () {
             }
 
             // Clear existing content and append the new table to the element with ID 'messageText'
-            $('#messageText').empty().append(createTable(products));
+            $('#messageText').empty().append(createTable(products, fileName));
             $('#orderuploadmodal').hide();
             $('#wronggtinsmodal').css('display', 'flex');
             // Do not clear the file input in case of 400 error
