@@ -1522,7 +1522,7 @@ docReady(function () {
               const fileHeaderRow = document.createElement('tr');
               const fileHeaderCell = document.createElement('th');
               fileHeaderCell.setAttribute('colspan', '2');
-              fileHeaderCell.textContent = `Nazwa pliku: ${fileName}`;
+              fileHeaderCell.textContent = `${fileName}`;
               fileHeaderRow.appendChild(fileHeaderCell);
               table.appendChild(fileHeaderRow);
 
