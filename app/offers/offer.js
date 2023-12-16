@@ -82,19 +82,19 @@ docReady(function () {
 
         pName.textContent = data.name;
         pEan.textContent = data.gtin;
-        if (data.inStock === null) {
-          data.inStock = {
+        if (data.stock === null) {
+          data.stock = {
             value: 0,
             unit: "pieces",
           };
         }
-        pInStock.textContent = data.inStock.value;
+        pInStock.textContent = data.stock.value;
         pIndicator.textContent = rowData.rotationIndicator;
         pBestPrice.textContent = rowData.asks[0].netPrice;
-        if ((data.inStock.unit = "pieces")) {
+        if ((data.stock.unit = "pieces")) {
           pUnit.textContent = "szt";
         } else {
-          pUnit.textContent = data.inStock.unit;
+          pUnit.textContent = data.stock.unit;
         }
         if (data.standardPrice === null) {
           data.standardPrice = {
@@ -117,8 +117,8 @@ docReady(function () {
 
   function getProductHistory(rowData) {
     console.log(rowData);
-    if (rowData.inStock === null) {
-      rowData.inStock = {
+    if (rowData.stock === null) {
+      rowData.stock = {
         value: 0,
         unit: "pieces",
       };
@@ -132,7 +132,7 @@ docReady(function () {
         lowest: [],
         retailPrice: [],
         standardPrice: [],
-        inStock: [],
+        stock: [],
         volume: [],
       };
 
@@ -148,14 +148,14 @@ docReady(function () {
         return true;
       }
       for (let i = 0, l = json.items.length; i < l; i++) {
-        if (checkNested(json.items[i].inStock, "value")) {
+        if (checkNested(json.items[i].stock, "value")) {
           dataInArrays.date.push(json.items[i].date.split("T")[0]);
           dataInArrays.highest.push(json.items[i].asks.highest);
           dataInArrays.average.push(json.items[i].asks.average);
           dataInArrays.lowest.push(json.items[i].asks.lowest);
           dataInArrays.retailPrice.push(json.items[i].retailPrice);
           dataInArrays.standardPrice.push(json.items[i].standardPrice.value);
-          dataInArrays.inStock.push(json.items[i].inStock.value);
+          dataInArrays.stock.push(json.items[i].stock.value);
           dataInArrays.volume.push(json.items[i].volume);
         } else {
           dataInArrays.date.push(json.items[i].date.split("T")[0]);
@@ -164,7 +164,7 @@ docReady(function () {
           dataInArrays.lowest.push(json.items[i].asks.lowest);
           dataInArrays.retailPrice.push(json.items[i].retailPrice);
           dataInArrays.standardPrice.push(json.items[i].standardPrice);
-          dataInArrays.inStock.push(json.items[i].inStock);
+          dataInArrays.stock.push(json.items[i].stock);
           dataInArrays.volume.push(json.items[i].volume);
         }
       }
@@ -234,7 +234,7 @@ docReady(function () {
         const pStockDays = document.getElementById("pStockDays");
         pStockDays.textContent = displayData(
           Math.round(
-            (rowData.inStock.value /
+            (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
             7
           )
@@ -300,7 +300,7 @@ docReady(function () {
             {
               name: "Stan",
               type: "bar",
-              data: dataToChart.inStock.reverse(),
+              data: dataToChart.stock.reverse(),
             },
           ],
           chart: {
@@ -483,7 +483,7 @@ docReady(function () {
             {
               opposite: true,
               seriesName: "Stan",
-              max: Math.max.apply(Math, dataToChart.inStock) * 1.1,
+              max: Math.max.apply(Math, dataToChart.stock) * 1.1,
               min: Math.min.apply(Math, dataToChart.volume) * 0.9,
               forceNiceScale: true,
               title: {
@@ -493,7 +493,7 @@ docReady(function () {
             {
               opposite: true,
               seriesName: "Stan",
-              max: Math.max.apply(Math, dataToChart.inStock) * 1.1,
+              max: Math.max.apply(Math, dataToChart.stock) * 1.1,
               min: Math.min.apply(Math, dataToChart.volume) * 0.9,
               forceNiceScale: true,
               show: false,
@@ -763,10 +763,10 @@ docReady(function () {
         QStr = QStr + "&standardPremium=lt:" + PEmax;
       }
       if (cVal(iSmin)) {
-        QStr = QStr + "&inStock=gt:" + iSmin;
+        QStr = QStr + "&stock=gt:" + iSmin;
       }
       if (cVal(iSmax)) {
-        QStr = QStr + "&inStock=lt:" + iSmax;
+        QStr = QStr + "&stock=lt:" + iSmax;
       }
 
       var whichColumns = "";
@@ -785,7 +785,7 @@ docReady(function () {
           whichColumns = "name:";
           break;
         case 4:
-          whichColumns = "inStock:";
+          whichColumns = "stock:";
           break;
         case 5:
           whichColumns = "marketPremium:";
@@ -872,7 +872,7 @@ docReady(function () {
       },
       {
         orderable: true,
-        data: "inStock",
+        data: "stock",
         render: function (data) {
           if (data !== null) {
             return "" + data.value;
