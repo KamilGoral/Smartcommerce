@@ -29,6 +29,7 @@ docReady(function () {
   var OrganizationName = sessionStorage.getItem("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const UploadButton = document.getElementById("UploadButton");
+  const cancelButton = document.getElementById('cancelButton');
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
     "href",
@@ -1509,7 +1510,7 @@ docReady(function () {
               const table = document.createElement('table');
               table.style.border = '1px solid black';
               table.style.borderCollapse = 'collapse';
-        
+
               // Add additional header row for file name
               const fileHeaderRow = document.createElement('tr');
               const fileHeaderCell = document.createElement('th');
@@ -1517,7 +1518,7 @@ docReady(function () {
               fileHeaderCell.textContent = `${fileName}`;
               fileHeaderRow.appendChild(fileHeaderCell);
               table.appendChild(fileHeaderRow);
-        
+
               // Add table header for products
               const headerRow = document.createElement('tr');
               const header = document.createElement('th');
@@ -1525,7 +1526,7 @@ docReady(function () {
               header.style.border = '1px solid black';
               headerRow.appendChild(header);
               table.appendChild(headerRow);
-        
+
               // Add rows for each product
               products.forEach(product => {
                 const row = document.createElement('tr');
@@ -1535,7 +1536,7 @@ docReady(function () {
                 row.appendChild(cell);
                 table.appendChild(row);
               });
-        
+
               return table;
             }
 
@@ -1571,6 +1572,16 @@ docReady(function () {
   UploadButton.addEventListener("click", (event) => {
     FileUpload(false);
   });
+
+  cancelButton.addEventListener('click', () => {
+    const modal = document.getElementById('wronggtinsmodal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+
+
 
   // Call with custom header
   $('#skipButton').on('click', function () {
