@@ -1491,8 +1491,49 @@ docReady(function () {
           msg = "Not connect.\n Verify Network.";
         } else if (xhr.status === 400) {
           msg = jsonResponse.message;
-          // Show the modal and display the message
-          $('#messageText').text(msg);
+
+          // Process each product and price
+          const products = msg.map(item => {
+            const parts = item.split(' ');
+            const price = parts.pop().replace(',', '.');
+            const product = parts.join(' ');
+            return { product, price };
+          });
+
+          // Function to create a table
+          function createTable(products) {
+            const table = document.createElement('table');
+            table.style.border = '1px solid black';
+            table.style.borderCollapse = 'collapse';
+
+            // Add table header
+            const headerRow = document.createElement('tr');
+            const headers = ['Product', 'Price (PLN)'];
+            headers.forEach(headerText => {
+              const header = document.createElement('th');
+              header.textContent = headerText;
+              header.style.border = '1px solid black';
+              headerRow.appendChild(header);
+            });
+            table.appendChild(headerRow);
+
+            // Add rows for each product
+            products.forEach(product => {
+              const row = document.createElement('tr');
+              Object.values(product).forEach(text => {
+                const cell = document.createElement('td');
+                cell.textContent = text;
+                cell.style.border = '1px solid black';
+                row.appendChild(cell);
+              });
+              table.appendChild(row);
+            });
+
+            return table;
+          }
+
+          // Append the table to the element with ID 'messageText'
+          $('#messageText').append(createTable(products));
           $('#orderuploadmodal').hide();
           $('#wronggtinsmodal').css('display', 'flex');
           // Do not clear the file input in case of 400 error
