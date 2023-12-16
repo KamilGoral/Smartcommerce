@@ -611,22 +611,22 @@ docReady(function () {
         }
 
         tableRowHtml +=
-        "<td>" +
-        (typeOfPromotion !== null ? typeOfPromotion : "") +
-        "</td>" +
-        "<td>" +
-        (item.promotion.threshold !== null ? item.promotion.threshold : "") +
-        "</td>" +
-        "<td>" +
-        (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
-        "</td>" +
-        "<td>" +
-        (item.promotion.package !== null ? item.promotion.package : "") +
-        "</td>" +
-        "<td>" +
-        (showRelated !== null ? showRelated : "") +
-        "</td>" +
-        "</tr>";
+          "<td>" +
+          (typeOfPromotion !== null ? typeOfPromotion : "") +
+          "</td>" +
+          "<td>" +
+          (item.promotion.threshold !== null ? item.promotion.threshold : "") +
+          "</td>" +
+          "<td>" +
+          (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
+          "</td>" +
+          "<td>" +
+          (item.promotion.package !== null ? item.promotion.package : "") +
+          "</td>" +
+          "<td>" +
+          (showRelated !== null ? showRelated : "") +
+          "</td>" +
+          "</tr>";
       } else {
         tableRowHtml +=
           "<td>" +
@@ -796,6 +796,9 @@ docReady(function () {
         case 7:
           whichColumns = "standardPrice:";
           break;
+        case 9:
+          whichColumns = "bestNetPrice:";
+          break;
         case 11:
           whichColumns = "rotationIndicator:";
           break;
@@ -948,7 +951,7 @@ docReady(function () {
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "asks",
         render: function (data) {
           if (data !== null) {
@@ -1269,23 +1272,23 @@ docReady(function () {
     LoadTippy();
     $(this).DataTable().columns.adjust();
   });
-  
+
   $("table.dataTable").on('page.dt', function () {
     $(this).DataTable().draw(false);
   });
-  
+
 
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    setTimeout(function() {
+    setTimeout(function () {
       // Your code to adjust DataTable columns
       $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
       console.log("Adjusting");
     }, 2000);
-    setTimeout(function() {
+    setTimeout(function () {
       // Your code to adjust DataTable columns
       $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
       console.log("Adjusting");

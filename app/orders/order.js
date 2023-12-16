@@ -743,16 +743,6 @@ docReady(function () {
     }
   }
 
-  function generujKodHTML(derived) {
-    if (!Array.isArray(derived)) {
-      return derived; // Jeśli "derived" nie jest listą, zwróć wartość
-    }
-
-    // Połącz elementy listy za pomocą przecinka i znaku nowej linii
-    const polaczonyWynik = derived.join(",\n");
-
-    return polaczonyWynik; // Zwróć wynik jako ciąg znaków
-  }
 
   function GetSplittedProducts() {
     $("#spl_table_wrapper").show();
@@ -848,20 +838,6 @@ docReady(function () {
             {
               orderable: true,
               data: "gtin",
-            },
-            {
-              orderable: true,
-              data: "derived",
-              render: function (data) {
-                if (data !== null) {
-                  // Przetwórz dane przy użyciu funkcji generującej kod HTML
-                  const kodHTML = generujKodHTML(data.gtin);
-                  return kodHTML;
-                }
-                if (data === null) {
-                  return "-";
-                }
-              },
             },
             {
               orderable: false,
@@ -1842,22 +1818,22 @@ docReady(function () {
         }
 
         tableRowHtml +=
-        "<td>" +
-        (typeOfPromotion !== null ? typeOfPromotion : "") +
-        "</td>" +
-        "<td>" +
-        (item.promotion.threshold !== null ? item.promotion.threshold : "") +
-        "</td>" +
-        "<td>" +
-        (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
-        "</td>" +
-        "<td>" +
-        (item.promotion.package !== null ? item.promotion.package : "") +
-        "</td>" +
-        "<td>" +
-        (showRelated !== null ? showRelated : "") +
-        "</td>" +
-        "</tr>";
+          "<td>" +
+          (typeOfPromotion !== null ? typeOfPromotion : "") +
+          "</td>" +
+          "<td>" +
+          (item.promotion.threshold !== null ? item.promotion.threshold : "") +
+          "</td>" +
+          "<td>" +
+          (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
+          "</td>" +
+          "<td>" +
+          (item.promotion.package !== null ? item.promotion.package : "") +
+          "</td>" +
+          "<td>" +
+          (showRelated !== null ? showRelated : "") +
+          "</td>" +
+          "</tr>";
       } else {
         tableRowHtml +=
           "<td>" +
@@ -2667,22 +2643,6 @@ docReady(function () {
         let quantity = parseInt(newValue);
         if (isNaN(quantity) || quantity < 0) {
           quantity = 0; // If so, change the value to 0
-        }
-
-        if (data.derived !== null) {
-          var product;
-          if (quantity === null && data.derived !== null) {
-            product = {
-              op: "remove",
-              path: "/" + data.derived.gtin,
-            };
-          } else {
-            product = {
-              op: "replace",
-              path: "/" + data.derived.gtin + "/quantity",
-              value: data.derived.set * quantity,
-            };
-          }
         } else {
           if (quantity !== null) {
             var product = {
@@ -2755,13 +2715,7 @@ docReady(function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
 
-    if (rowData.derived !== null) {
-      var trueGtin2 = rowData.derived.gtin;
-    } else {
-      var trueGtin2 = rowData.gtin;
-    }
-
-    var payloadDelete = { op: "remove", path: "/" + trueGtin2 };
+    var payloadDelete = { op: "remove", path: "/" + rowData.gtin };
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
@@ -2772,7 +2726,7 @@ docReady(function () {
     var tableId = $("#table_id").DataTable();
     tableId.rows().every(function () {
       var rowDataId = this.data();
-      if (rowDataId.gtin === trueGtin2) {
+      if (rowDataId.gtin === rowData.gtin) {
         var inputField = $(this.node()).find('input[type="number"]');
         inputField.val(null);
       }
@@ -2792,25 +2746,19 @@ docReady(function () {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
 
-      if (data.derived !== null) {
-        var trueGtin = data.derived.gtin;
-      } else {
-        var trueGtin = data.gtin;
-      }
-
-      if (trueGtin !== null && newValue === "remove") {
+      if (data.gtin !== null && newValue === "remove") {
         var product = {
           op: "remove",
-          path: "/" + trueGtin + "/rigidAssignment/wholesalerKey",
+          path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
         };
         addObject(changesPayload, product);
         // Emulate changes for user
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
-      } else if (trueGtin !== null && newValue) {
+      } else if (data.gtin !== null && newValue) {
         var product = {
           op: "replace",
-          path: "/" + trueGtin + "/rigidAssignment/wholesalerKey",
+          path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
           value: newValue,
         };
 

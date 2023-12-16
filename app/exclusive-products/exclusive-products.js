@@ -169,7 +169,7 @@ docReady(function () {
             let searchBox = data.search.value;
             if (/^\d+$/.test(searchBox)) {
                 /// this need to be changed to gtin
-                QStr = QStr + "&ean=" + searchBox;
+                QStr = QStr + "&gtin=" + searchBox;
             } else if (searchBox) {
                 QStr = QStr + "&name=like:" + searchBox;
             } else {
