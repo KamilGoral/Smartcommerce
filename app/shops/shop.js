@@ -1541,8 +1541,8 @@ docReady(function () {
               return table;
             }
 
-            // Append the table to the element with ID 'messageText'
-            $('#messageText').append(createTable(products));
+            // Clear existing content and append the new table to the element with ID 'messageText'
+            $('#messageText').empty().append(createTable(products));
             $('#orderuploadmodal').hide();
             $('#wronggtinsmodal').css('display', 'flex');
             // Do not clear the file input in case of 400 error
