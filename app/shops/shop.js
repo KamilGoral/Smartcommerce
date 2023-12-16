@@ -1517,7 +1517,7 @@ docReady(function () {
 
               // Add table header
               const headerRow = document.createElement('tr');
-              const headers = ['Product', 'Price (PLN)'];
+              const headers = ['Produkt', 'Cena'];
               headers.forEach(headerText => {
                 const header = document.createElement('th');
                 header.textContent = headerText;
