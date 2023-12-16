@@ -1503,21 +1503,13 @@ docReady(function () {
             const productListString = match[1];
 
             // Split the string into an array of product-price pairs
-            const productPairs = productListString.split(', ');
-
-            // Process each product and price
-            const products = productPairs.map(item => {
-              const parts = item.split(' ');
-              const price = parts.pop().replace(',', '.');
-              const product = parts.join(' ');
-              return { product, price };
-            });
+            const products = productListString.split(', ');
 
             function createTable(products, fileName) {
               const table = document.createElement('table');
               table.style.border = '1px solid black';
               table.style.borderCollapse = 'collapse';
-
+        
               // Add additional header row for file name
               const fileHeaderRow = document.createElement('tr');
               const fileHeaderCell = document.createElement('th');
@@ -1525,30 +1517,25 @@ docReady(function () {
               fileHeaderCell.textContent = `${fileName}`;
               fileHeaderRow.appendChild(fileHeaderCell);
               table.appendChild(fileHeaderRow);
-
+        
               // Add table header for products
               const headerRow = document.createElement('tr');
-              const headers = ['Produkt', 'Cena'];
-              headers.forEach(headerText => {
-                const header = document.createElement('th');
-                header.textContent = headerText;
-                header.style.border = '1px solid black';
-                headerRow.appendChild(header);
-              });
+              const header = document.createElement('th');
+              header.textContent = 'Produkt';
+              header.style.border = '1px solid black';
+              headerRow.appendChild(header);
               table.appendChild(headerRow);
-
+        
               // Add rows for each product
               products.forEach(product => {
                 const row = document.createElement('tr');
-                Object.values(product).forEach(text => {
-                  const cell = document.createElement('td');
-                  cell.textContent = text;
-                  cell.style.border = '1px solid black';
-                  row.appendChild(cell);
-                });
+                const cell = document.createElement('td');
+                cell.textContent = product;
+                cell.style.border = '1px solid black';
+                row.appendChild(cell);
                 table.appendChild(row);
               });
-
+        
               return table;
             }
 
