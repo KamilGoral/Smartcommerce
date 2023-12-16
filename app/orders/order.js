@@ -240,7 +240,7 @@ docReady(function () {
         setElementContent("totalValue", data.netValues.total);
         setElementContent("maxValue", data.netValues.max);
         setElementContent("avgValue", data.netValues.avg);
-        
+
         // Dla savingsNet
         const savingsNetValue =
           data.netNetValues?.avg - data.netNetValues?.total;
@@ -253,23 +253,24 @@ docReady(function () {
         );
         setElementContent("maxNetValue", data.netNetValues?.max);
         setElementContent("avgNetValue", data.netNetValues?.avg);
-        
+
         // Ustal kolor tekstu
-        const textColor = savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24"; 
-        
-        if (savingsValue >= 0) {
+        const textColor = savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24";
+
+        // Jeśli savingsValue jest większe lub równe 0 lub savingsNetNetValue jest dodatnie, to zamówienie jest optymalne
+        if (savingsValue >= 0 || (savingsValue <= 0 && savingsNetNetValue > 0)) {
           setElementContent("savings", savingsValue, savingsPercentage, textColor);
         } else {
           setElementContent("savings", "Zamówienie nieoptymalne", null, textColor);
         }
-        
+
         if (savingsNetValue >= 0) {
           setElementContent("savingsNet", "Zamówienie nieoptymalne", null, textColor);
         } else if (userRole === "admin" && data.netValues.total !== data.netNetValues.total) {
           document.getElementById("netNetValues").style.display = "flex";
           setElementContent("savingsNet", savingsNetValue, savingsNetPercentage, textColor);
         }
-        
+
 
 
         var toParse = data.items;
@@ -709,8 +710,8 @@ docReady(function () {
             ? wholesaler.name
             : item.wholesalerKey;
           selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             }>${wholesalerName}</option>`;
         });
       } else {
@@ -727,8 +728,8 @@ docReady(function () {
           )
         ) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
