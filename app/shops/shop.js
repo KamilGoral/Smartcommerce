@@ -1492,117 +1492,120 @@ docReady(function () {
         } else if (xhr.status === 400) {
           msg = jsonResponse.message;
 
-          // Extract the product list string between the square brackets
-          const productListString = msg.match(/\[(.*?)\]/)[1];
+          // Use regular expression to find the product list string after "Missing GTIN code for products"
+          const match = msg.match(/Missing GTIN code for products \[(.*?)\]/);
+          if (match && match[1]) {
+            // Extract the product list string
+            const productListString = match[1];
 
-          // Split the string into an array of product-price pairs
-          const productPairs = productListString.split(', ');
+            // Split the string into an array of product-price pairs
+            const productPairs = productListString.split(', ');
 
-          // Process each product and price
-          const products = productPairs.map(item => {
-            const parts = item.split(' ');
-            const price = parts.pop().replace(',', '.');
-            const product = parts.join(' ');
-            return { product, price };
-          });
-
-          // Function to create a table
-          function createTable(products) {
-            const table = document.createElement('table');
-            table.style.border = '1px solid black';
-            table.style.borderCollapse = 'collapse';
-
-            // Add table header
-            const headerRow = document.createElement('tr');
-            const headers = ['Product', 'Price (PLN)'];
-            headers.forEach(headerText => {
-              const header = document.createElement('th');
-              header.textContent = headerText;
-              header.style.border = '1px solid black';
-              headerRow.appendChild(header);
+            // Process each product and price
+            const products = productPairs.map(item => {
+              const parts = item.split(' ');
+              const price = parts.pop().replace(',', '.');
+              const product = parts.join(' ');
+              return { product, price };
             });
-            table.appendChild(headerRow);
 
-            // Add rows for each product
-            products.forEach(product => {
-              const row = document.createElement('tr');
-              Object.values(product).forEach(text => {
-                const cell = document.createElement('td');
-                cell.textContent = text;
-                cell.style.border = '1px solid black';
-                row.appendChild(cell);
+            // Function to create a table
+            function createTable(products) {
+              const table = document.createElement('table');
+              table.style.border = '1px solid black';
+              table.style.borderCollapse = 'collapse';
+
+              // Add table header
+              const headerRow = document.createElement('tr');
+              const headers = ['Product', 'Price (PLN)'];
+              headers.forEach(headerText => {
+                const header = document.createElement('th');
+                header.textContent = headerText;
+                header.style.border = '1px solid black';
+                headerRow.appendChild(header);
               });
-              table.appendChild(row);
-            });
+              table.appendChild(headerRow);
 
-            return table;
+              // Add rows for each product
+              products.forEach(product => {
+                const row = document.createElement('tr');
+                Object.values(product).forEach(text => {
+                  const cell = document.createElement('td');
+                  cell.textContent = text;
+                  cell.style.border = '1px solid black';
+                  row.appendChild(cell);
+                });
+                table.appendChild(row);
+              });
+
+              return table;
+            }
+
+            // Append the table to the element with ID 'messageText'
+            $('#messageText').append(createTable(products));
+            $('#orderuploadmodal').hide();
+            $('#wronggtinsmodal').css('display', 'flex');
+            // Do not clear the file input in case of 400 error
+          } else if (xhr.status === 403) {
+            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+          } else if (xhr.status === 500) {
+            msg = "Internal Server Error [500].";
+            $("#orderfile").val("");
+          } else {
+            msg = jsonResponse.message;
+            $("#orderfile").val("");
           }
-
-          // Append the table to the element with ID 'messageText'
-          $('#messageText').append(createTable(products));
-          $('#orderuploadmodal').hide();
-          $('#wronggtinsmodal').css('display', 'flex');
-          // Do not clear the file input in case of 400 error
-        } else if (xhr.status === 403) {
-          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-        } else if (xhr.status === 500) {
-          msg = "Internal Server Error [500].";
-          $("#orderfile").val("");
-        } else {
-          msg = jsonResponse.message;
-          $("#orderfile").val("");
+          $(".warningmessagetext").text(msg);
+          $("#wf-form-failCreate-Order").show();
+          setTimeout(function () {
+            $("#wf-form-failCreate-Order").fadeOut(2000);
+          }, 10000);
         }
-        $(".warningmessagetext").text(msg);
-        $("#wf-form-failCreate-Order").show();
-        setTimeout(function () {
-          $("#wf-form-failCreate-Order").fadeOut(2000);
-        }, 10000);
-      }
-    };
-    xhr.send(formData);
-  }
-
-  UploadButton.addEventListener("click", (event) => {
-    FileUpload(false);
-  });
-
-  // Call with custom header
-  $('#skipButton').on('click', function () {
-    FileUpload(true);
-  });
-
-  makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
-
-  getWholesalers();
-  getShop();
-  getOrders();
-  getOffers();
-
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      console.log("Adjusting");
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-    }, 300);
-  });
-
-  $("#table_offers").on("click", "td.details-control", function () {
-    //Get the righ table
-    var table = $("#table_offers").DataTable();
-    var tr = $(this).closest("tr");
-    var row = table.row(tr);
-    if (row.child.isShown()) {
-      row.child.hide();
-      tr.removeClass("shown");
-    } else {
-      row.child(format(row.data())).show();
-      tr.addClass("shown");
+      };
+      xhr.send(formData);
     }
+
+    UploadButton.addEventListener("click", (event) => {
+      FileUpload(false);
+    });
+
+    // Call with custom header
+    $('#skipButton').on('click', function () {
+      FileUpload(true);
+    });
+
+    makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
+    makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+    makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+
+    getWholesalers();
+    getShop();
+    getOrders();
+    getOffers();
+
+    $('div[role="tablist"]').click(function () {
+      setTimeout(function () {
+        console.log("Adjusting");
+        $.fn.dataTable
+          .tables({
+            visible: true,
+            api: true,
+          })
+          .columns.adjust();
+      }, 300);
+    });
+
+    $("#table_offers").on("click", "td.details-control", function () {
+      //Get the righ table
+      var table = $("#table_offers").DataTable();
+      var tr = $(this).closest("tr");
+      var row = table.row(tr);
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass("shown");
+      } else {
+        row.child(format(row.data())).show();
+        tr.addClass("shown");
+      }
+    });
   });
-});
