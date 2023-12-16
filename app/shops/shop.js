@@ -1491,12 +1491,15 @@ docReady(function () {
           msg = "Not connect.\n Verify Network.";
         } else if (xhr.status === 400) {
           msg = jsonResponse.message;
-          
+
           // Extract the product list string between the square brackets
           const productListString = msg.match(/\[(.*?)\]/)[1];
 
+          // Split the string into an array of product-price pairs
+          const productPairs = productListString.split(', ');
+
           // Process each product and price
-          const products = productListString.map(item => {
+          const products = productPairs.map(item => {
             const parts = item.split(' ');
             const price = parts.pop().replace(',', '.');
             const product = parts.join(' ');
