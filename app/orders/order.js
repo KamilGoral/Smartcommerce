@@ -222,16 +222,16 @@ docReady(function () {
         const setElementContent = (elementId, content, percentage) => {
           const element = document.getElementById(elementId);
           if (content != null) {
-              const numericContent = Number(content);
-              const formattedContent =
-                  isNaN(numericContent) ? "-" : numericContent.toFixed(2) + " zł" +
-                  (typeof percentage === "number" ? ` (${percentage.toFixed(2)}%)` : "");
-              element.textContent = formattedContent;
+            const numericContent = Number(content);
+            const formattedContent =
+              isNaN(numericContent) ? "-" : numericContent.toFixed(2) + " zł" +
+                (typeof percentage === "number" ? ` (${percentage.toFixed(2)}%)` : "");
+            element.textContent = formattedContent;
           } else {
-              element.textContent = "-";
+            element.textContent = "-";
           }
-      };
-      
+        };
+
 
         const userRole = getCookie("sprytnyUserRole");
 
@@ -1890,7 +1890,7 @@ docReady(function () {
     request.send();
   }
 
-  function getOfferStatus() {
+  function getOfferStatus(offerId) {
     let url = new URL(
       InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
     );
@@ -2240,6 +2240,15 @@ docReady(function () {
       var sort = "&sort=" + whichColumns + direction;
       if (whichColumns != "null") {
         QStr = QStr + sort;
+      }
+
+      var e = document.getElementById("offerId");
+      var offerId = e.value;
+
+      if (offerId.length > 0) {
+        UrlParameters = "offerId=" + offerId;
+      } else {
+        UrlParameters = "offerId=latest";
       }
 
       $.ajaxSetup({
