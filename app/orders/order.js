@@ -1891,7 +1891,6 @@ docReady(function () {
   }
 
   function getOfferStatus() {
-
     var e = document.getElementById("offerId");
     var offerId = e.value;
 
@@ -1910,8 +1909,8 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
 
-      const offerDateElement = document.getElementById('offerDate');
-      const offerStatusElement = document.getElementById('offerStatus');
+      const offerDateElements = document.querySelectorAll('.offerDate');
+      const offerStatusElements = document.querySelectorAll('.offerStatus');
       let statusText = '';
 
       // Format the createDate nicely
@@ -1948,10 +1947,15 @@ docReady(function () {
         }
       }
 
-      // Update the elements
-      offerDateElement.textContent = "Data oferty: " + createDate;
-      offerStatusElement.textContent = "Status: " + statusText;
+      // Update all elements with class offerDate and offerStatus
+      offerDateElements.forEach(element => {
+        element.textContent = "Data oferty: " + createDate;
+      });
+      offerStatusElements.forEach(element => {
+        element.textContent = "Status: " + statusText;
+      });
 
+      // Additional logic for status handling
       if (
         (request.status >= 200 &&
           request.status < 400 &&
@@ -1968,7 +1972,8 @@ docReady(function () {
       }
     };
     request.send();
-  }
+}
+
 
   function fetchDataFromEndpoint() {
     let url = new URL(
