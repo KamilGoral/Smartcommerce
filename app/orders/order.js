@@ -1909,8 +1909,10 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
 
-      const offerDateElements = document.querySelectorAll('.offerDate');
-      const offerStatusElements = document.querySelectorAll('.offerStatus');
+      // Get all elements with the class 'offerdate' and 'offerStatus'
+      const offerDateElements = document.getElementsByClassName('offerdate');
+      const offerStatusElements = document.getElementsByClassName('offerStatus');
+
       let statusText = '';
 
       // Format the createDate nicely
