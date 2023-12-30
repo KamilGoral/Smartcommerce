@@ -393,7 +393,10 @@ docReady(function () {
 
   function refreshTable() {
     if ($('#table_offers').DataTable().data().any()) {
-      var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row => row.status === "in progress");
+      var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row =>
+        row.offers.some(offer => offer.status === "in progress")
+      );
+
       console.log("in_progress");
       console.log(hasInProgress);
 
@@ -657,24 +660,24 @@ docReady(function () {
       },
     });
 
-    refreshInterval = setInterval(function() {
+    refreshInterval = setInterval(function () {
       if (!isManualRefresh) {
-          refreshTable();
-          $('#refreshCounter').text("Next refresh in " + counter + " seconds");
+        refreshTable();
+        $('#refreshCounter').text("Next refresh in " + counter + " seconds");
       }
-  }, 1000); // 1 second interval to update the counter
+    }, 1000); // 1 second interval to update the counter
 
-  // Decrement counter every second
-  setInterval(function() {
+    // Decrement counter every second
+    setInterval(function () {
       if (counter > 0 && !isManualRefresh) counter--;
-  }, 1000);
+    }, 1000);
 
-  // Event handler for manual refresh
-  $('#manualRefreshButton').click(function() {
+    // Event handler for manual refresh
+    $('#manualRefreshButton').click(function () {
       isManualRefresh = true; // Set flag to indicate manual refresh
       refreshTable();
       $('#refreshCounter').text(""); // Clear the counter text
-  });
+    });
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
