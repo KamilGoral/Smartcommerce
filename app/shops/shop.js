@@ -531,12 +531,10 @@ docReady(function () {
               })),
             };
 
-            // Wyświetlenie wyniku
-            // Sprawdzenie obecności ofert "in progress" lub "batching" lub "forced"
-            var hasInProgressOrBatchingOrForced = finalStructure.some(row =>
+            // Sprawdzenie obecności ofert "in progress", "batching" lub "forced"
+            var hasInProgressOrBatchingOrForced = finalStructure.items.some(row =>
               row.offers.some(offer => offer.status === "in progress" || offer.status === "batching" || offer.status === "forced")
             );
-            console.log(hasInProgressOrBatchingOrForced)
 
             if (hasInProgressOrBatchingOrForced) {
               $('#refreshCounter').show(); // Pokaż licznik
