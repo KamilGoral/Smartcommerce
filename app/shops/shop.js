@@ -533,7 +533,8 @@ docReady(function () {
 
             // Wyświetlenie wyniku
             // Sprawdzenie obecności ofert "in progress" lub "batching"
-            var hasInProgressOrBatching = res.items.some(item =>
+            console.log(finalStructure);
+            var hasInProgressOrBatching = finalStructure.items.some(item =>
               item.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
             );
 
