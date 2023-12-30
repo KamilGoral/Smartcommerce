@@ -1914,6 +1914,7 @@ docReady(function () {
       // Get all elements with the class 'offerdate' and 'offerStatus'
       const offerDateElements = document.getElementsByClassName('offerdate');
       const offerStatusElements = document.getElementsByClassName('offerstatus');
+      const offerMessageElements = document.getElementsByClassName('offermessage');
 
       // Format the createDate nicely
       const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
@@ -1928,15 +1929,15 @@ docReady(function () {
       // Function to determine status text
       const getStatusText = (status) => {
         switch (status) {
-            case 'ready': return 'Gotowa';
-            case 'error': return 'Problem';
-            case 'in progress': return 'W trakcie';
-            case 'incomplete': return 'Niekompletna';
-            case 'batching': return 'W kolejce';
-            case 'forced': return 'W kolejce';
-            default: return 'Nieznany';
+          case 'ready': return 'Gotowa';
+          case 'error': return 'Problem';
+          case 'in progress': return 'W trakcie';
+          case 'incomplete': return 'Niekompletna';
+          case 'batching': return 'W kolejce';
+          case 'forced': return 'W kolejce';
+          default: return 'Nieznany';
         }
-    };
+      };
 
       // Update all elements with class 'offerdate' and 'offerStatus'
       Array.from(offerDateElements).forEach(element => {
@@ -1944,16 +1945,22 @@ docReady(function () {
       });
       Array.from(offerStatusElements).forEach(element => {
         element.textContent = "Status: " + getStatusText(data.status);
-        // Apply 'data-tippy-content' only if data.messages is present
-        if (data.messages) {
-          $(element).attr("data-tippy-content", data.messages);
-        }
       });
-
+      // Update offermessage elements
+      if (data.messages && data.messages.length > 0) {
+        let messageContent = Array.isArray(data.messages) ? data.messages.join(' ') : data.messages;
+        Array.from(offerMessageElements).forEach(element => {
+          element.style.display = 'block';
+          element.textContent = "Powód: " + messageContent;
+        });
+      } else {
+        Array.from(offerMessageElements).forEach(element => {
+          element.style.display = 'none';
+        });
+      }
     };
     request.send();
   }
-
 
   function fetchDataFromEndpoint() {
     let url = new URL(
