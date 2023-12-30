@@ -176,7 +176,7 @@ docReady(function () {
     } else {
       UrlParameters = "offerId=latest";
     }
-    
+
     getOfferStatus();
 
     if (exludedWholesalersAlready.length > 0) {
@@ -2288,6 +2288,8 @@ docReady(function () {
       } else {
         UrlParameters = "offerId=latest";
       }
+
+      getOfferStatus();
 
       $.ajaxSetup({
         headers: {
