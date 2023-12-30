@@ -391,12 +391,6 @@ docReady(function () {
   var counter = 30; // 30 seconds for each refresh
   var isManualRefresh = false; // Flag to check if refresh is manual
 
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-  refreshInterval = setInterval(yourFunction, 30000); // Adjust the time as needed
-
-
   function refreshTable() {
     var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row =>
       row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
