@@ -176,6 +176,8 @@ docReady(function () {
     } else {
       UrlParameters = "offerId=latest";
     }
+    
+    getOfferStatus();
 
     if (exludedWholesalersAlready.length > 0) {
       UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready;
@@ -3005,7 +3007,6 @@ docReady(function () {
   getOffers();
   getWholesalersSh();
   fetchDataFromEndpoint();
-  getOfferStatus();
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
