@@ -1911,7 +1911,7 @@ docReady(function () {
 
       // Get all elements with the class 'offerdate' and 'offerStatus'
       const offerDateElements = document.getElementsByClassName('offerdate');
-      const offerStatusElements = document.getElementsByClassName('offerStatus');
+      const offerStatusElements = document.getElementsByClassName('offerstatus');
 
       // Format the createDate nicely
       const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
@@ -1930,7 +1930,7 @@ docReady(function () {
             case 'error': return 'Problem';
             case 'in progress': return 'W trakcie';
             case 'incomplete': return 'Niekompletna';
-            case 'batching':
+            case 'batching': return 'W kolejce';
             case 'forced': return 'W kolejce';
             default: return 'Nieznany';
         }
