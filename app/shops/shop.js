@@ -390,7 +390,7 @@ docReady(function () {
 
   var refreshInterval;
   var counterInterval;
-  var counter = 30; // 30 seconds for each refresh
+  var counter = 60; // 60 seconds for each refresh
 
   function refreshTable() {
     var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row =>
@@ -401,7 +401,7 @@ docReady(function () {
     if (hasInProgressOrBatching) {
       console.log("Calling getOffers")
       getOffers(); // Call getOffers instead of reloading the table
-      counter = 30; // Reset counter
+      counter = 60; // Reset counter
     } else {
       console.log("Everything is working")
       clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
@@ -533,7 +533,6 @@ docReady(function () {
 
             // Wyświetlenie wyniku
             // Sprawdzenie obecności ofert "in progress" lub "batching"
-            console.log(finalStructure);
             var hasInProgressOrBatching = finalStructure.items.some(item =>
               item.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
             );
@@ -698,7 +697,7 @@ docReady(function () {
     }, 1000);
 
     // Reset counter
-    counter = 30;
+    counter = 60;
 
 
     $("#table_offers").on("click", "a", function () {
