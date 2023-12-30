@@ -489,11 +489,13 @@ docReady(function () {
             },
           },
         };
+        var chart;
         if (counter == 0) {
-          var chart = new ApexCharts(document.getElementById("chart"), options);
+          chart = new ApexCharts(document.getElementById("chart"), options);
           chart.render();
           counter = counter + 1;
         } else {
+          clearProductPopupData(chart);
           console.log("tutaj");
           console.log(options);
           ApexCharts.exec("productHistoryChart", "updateOptions", options);
@@ -1029,27 +1031,27 @@ docReady(function () {
     },
   });
 
-  function clearProductPopupData() {
-    if (typeof chart !== 'undefined' && chart !== null) {
-      // Option 1: Update the chart with empty data
-      chart.updateSeries([{
-        data: []
-      }]);
-
-      // Set the content of specified elements to "-"
-      $("#pEan").text("-");
-      $("#pHistory").text("-");
-      $("#pHistorySpan").text("-");
-      $("#pOfferDate").text("-");
-      $("#pRetailPrice").text("-");
-      $("#pStandardPrice").text("-");
-      $("#pBestPrice").text("-");
-      $("#pInStock").text("-");
-      $("#pStockDays").text("-");
-      $("#pSales7").text("-");
-      $("#pSales90").text("-");
-      $("#pIndicator").text("-");
+  function clearProductPopupData(chartInstance) {
+    if (chartInstance && typeof chartInstance.updateSeries === 'function') {
+      chartInstance.updateSeries([{ data: [] }]);
+      chartInstance.destroy();
+    } else {
+      console.warn('Chart instance is not valid or already destroyed');
     }
+
+    // Set the content of specified elements to "-"
+    $("#pEan").text("-");
+    $("#pHistory").text("-");
+    $("#pHistorySpan").text("-");
+    $("#pOfferDate").text("-");
+    $("#pRetailPrice").text("-");
+    $("#pStandardPrice").text("-");
+    $("#pBestPrice").text("-");
+    $("#pInStock").text("-");
+    $("#pStockDays").text("-");
+    $("#pSales7").text("-");
+    $("#pSales90").text("-");
+    $("#pIndicator").text("-");
   }
 
   $("#table_id tbody").on("click", "td.details-control", function () {
@@ -1078,7 +1080,6 @@ docReady(function () {
     var rowData = table.row(tr).data();
     console.log(rowData);
     $("#ProductCard").css("display", "flex");
-    clearProductPopupData();
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
