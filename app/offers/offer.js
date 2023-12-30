@@ -495,7 +495,6 @@ docReady(function () {
           chart.render();
           counter = counter + 1;
         } else {
-          clearProductPopupData(chart);
           console.log("tutaj");
           console.log(options);
           ApexCharts.exec("productHistoryChart", "updateOptions", options);
@@ -1031,14 +1030,7 @@ docReady(function () {
     },
   });
 
-  function clearProductPopupData(chartInstance) {
-    if (chartInstance && typeof chartInstance.updateSeries === 'function') {
-      chartInstance.updateSeries([{ data: [] }]);
-      chartInstance.destroy();
-    } else {
-      console.warn('Chart instance is not valid or already destroyed');
-    }
-
+  function clearProductPopupData() {
     // Set the content of specified elements to "-"
     $("#pEan").text("-");
     $("#pHistory").text("-");
@@ -1080,6 +1072,7 @@ docReady(function () {
     var rowData = table.row(tr).data();
     console.log(rowData);
     $("#ProductCard").css("display", "flex");
+    clearProductPopupData();
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
