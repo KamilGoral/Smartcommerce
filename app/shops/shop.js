@@ -391,27 +391,35 @@ docReady(function () {
   var counter = 30; // 30 seconds for each refresh
   var isManualRefresh = false; // Flag to check if refresh is manual
 
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+  refreshInterval = setInterval(yourFunction, 30000); // Adjust the time as needed
+
+
   function refreshTable() {
-    if ($('#table_offers').DataTable().data().any()) {
-      var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row => 
-        row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
-      );
+    var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row =>
+      row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
+    );
 
-      console.log(hasInProgressOrBatching);
+    console.log(hasInProgressOrBatching);
 
-      if (hasInProgressOrBatching) {
-        $('#table_offers').DataTable().ajax.reload(); // Reload the table data
-        console.log("reloading_data");
-        counter = 30; // Reset counter
-        isManualRefresh = false; // Reset manual refresh flag
-      } else {
-        clearInterval(refreshInterval); // Clear the interval if no 'in progress' status
-        $('#refreshCounter').text(""); // Clear the counter display
-      }
+    if (hasInProgressOrBatching) {
+      getOffers(); // Call getOffers instead of reloading the table
+      console.log("reinitializing table");
+      counter = 30; // Reset counter
+      isManualRefresh = false; // Reset manual refresh flag
+    } else {
+      clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
+      $('#refreshCounter').text(""); // Clear the counter display
     }
   }
 
   function getOffers() {
+    // Check if the DataTable instance exists and destroy it
+    if ($.fn.DataTable.isDataTable('#table_offers')) {
+      $('#table_offers').DataTable().clear().destroy();
+    }
     var table = $("#table_offers").DataTable({
       pagingType: "full_numbers",
       order: [],
