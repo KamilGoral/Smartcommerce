@@ -1949,6 +1949,12 @@ docReady(function () {
       // Update offermessage elements
       if (data.messages && data.messages.length > 0) {
         let messageContent = Array.isArray(data.messages) ? data.messages.join(' ') : data.messages;
+
+        // Translate specific error message
+        if (messageContent.includes("Internal server error -")) {
+          messageContent = messageContent.replace("Internal server error -", "Wewnętrzny błąd serwera -");
+        }
+
         Array.from(offerMessageElements).forEach(element => {
           element.style.display = 'block';
           element.textContent = "Powód: " + messageContent;
@@ -1958,6 +1964,7 @@ docReady(function () {
           element.style.display = 'none';
         });
       }
+
     };
     request.send();
   }
