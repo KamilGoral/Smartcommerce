@@ -661,12 +661,9 @@ docReady(function () {
       },
     });
 
-    refreshInterval = setInterval(function () {
-      if (!isManualRefresh) {
-        refreshTable();
-        $('#refreshCounter').text("Next refresh in " + counter + " seconds");
-      }
-    }, 1000); // 1 second interval to update the counter
+    if (counter === 0) {
+      refreshInterval = setInterval(refreshTable, 30000); // Adjust the time as needed
+    }
 
     // Decrement counter every second
     setInterval(function () {
