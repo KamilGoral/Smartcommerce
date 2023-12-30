@@ -135,10 +135,10 @@ docReady(function () {
         stock: [],
         volume: [],
       };
-
+    
       function checkNested(obj /*, level1, level2, ... levelN*/) {
         var args = Array.prototype.slice.call(arguments, 1);
-
+    
         for (var i = 0; i < args.length; i++) {
           if (!obj || !obj.hasOwnProperty(args[i])) {
             return false;
@@ -147,29 +147,21 @@ docReady(function () {
         }
         return true;
       }
+    
       for (let i = 0, l = json.items.length; i < l; i++) {
-        if (checkNested(json.items[i].stock, "value")) {
-          dataInArrays.date.push(json.items[i].date.split("T")[0]);
-          dataInArrays.highest.push(json.items[i].asks.highest);
-          dataInArrays.average.push(json.items[i].asks.average);
-          dataInArrays.lowest.push(json.items[i].asks.lowest);
-          dataInArrays.retailPrice.push(json.items[i].retailPrice);
-          dataInArrays.standardPrice.push(json.items[i].standardPrice.value);
-          dataInArrays.stock.push(json.items[i].stock.value);
-          dataInArrays.volume.push(json.items[i].volume);
-        } else {
-          dataInArrays.date.push(json.items[i].date.split("T")[0]);
-          dataInArrays.highest.push(json.items[i].asks.highest);
-          dataInArrays.average.push(json.items[i].asks.average);
-          dataInArrays.lowest.push(json.items[i].asks.lowest);
-          dataInArrays.retailPrice.push(json.items[i].retailPrice);
-          dataInArrays.standardPrice.push(json.items[i].standardPrice);
-          dataInArrays.stock.push(json.items[i].stock);
-          dataInArrays.volume.push(json.items[i].volume);
-        }
+        let item = json.items[i];
+        dataInArrays.date.push(item.date ? item.date.split("T")[0] : null);
+        dataInArrays.highest.push(item.asks && item.asks.highest ? item.asks.highest : null);
+        dataInArrays.average.push(item.asks && item.asks.average ? item.asks.average : null);
+        dataInArrays.lowest.push(item.asks && item.asks.lowest ? item.asks.lowest : null);
+        dataInArrays.retailPrice.push(item.retailPrice ? item.retailPrice : null);
+        dataInArrays.standardPrice.push(item.standardPrice && item.standardPrice.value ? item.standardPrice.value : null);
+        dataInArrays.stock.push(item.stock && item.stock.value ? item.stock.value : null);
+        dataInArrays.volume.push(item.volume ? item.volume : null);
       }
       return dataInArrays;
     }
+    
     let url = new URL(
       InvokeURL +
       "shops/" +
