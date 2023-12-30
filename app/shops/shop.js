@@ -390,32 +390,29 @@ docReady(function () {
   var refreshInterval;
   var counterInterval;
   var counter = 30; // 30 seconds for each refresh
-  var isManualRefresh = false; // Flag to check if refresh is manual
-  
+
   function refreshTable() {
-      var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row =>
-          row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
-      );
-  
-      if (hasInProgressOrBatching) {
-          getOffers(); // Call getOffers instead of reloading the table
-          counter = 30; // Reset counter
-          isManualRefresh = false; // Reset manual refresh flag
-      } else {
-          clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
-          clearInterval(counterInterval); // Clear the counter interval as well
-          $('#refreshCounter').text(""); // Clear the counter display
-      }
+    var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row =>
+      row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
+    );
+    console.log(hasInProgressOrBatching)
+
+    if (hasInProgressOrBatching) {
+      console.log("Calling getOffers")
+      getOffers(); // Call getOffers instead of reloading the table
+      counter = 30; // Reset counter
+    } else {
+      console.log("Everything is working")
+      clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
+      clearInterval(counterInterval); // Clear the counter interval as well
+      $('#refreshCounter').text(""); // Clear the counter display
+    }
   }
 
   function getOffers() {
-    // Clear existing intervals
-    if (refreshInterval) clearInterval(refreshInterval);
-    if (counterInterval) clearInterval(counterInterval);
-
     // Check if the DataTable instance exists and destroy it
     if ($.fn.DataTable.isDataTable('#table_offers')) {
-        $('#table_offers').DataTable().clear().destroy();
+      $('#table_offers').DataTable().clear().destroy();
     }
 
     // Initialize DataTable
@@ -667,22 +664,20 @@ docReady(function () {
     });
 
     // Set up refresh interval
-    refreshInterval = setInterval(refreshTable, 30000); // Refresh every 30 seconds
+    refreshInterval = setInterval(function () {
+      if (counter <= 0) {
+        refreshTable();
+      }
+    }, 1000); // Check every second
 
     // Decrement counter every second
     counterInterval = setInterval(function () {
-        if (counter > 0 && !isManualRefresh) {
-            counter--;
-            $('#refreshCounter').text("Next refresh in " + counter + " seconds");
-        }
+      if (counter > 0) {
+        counter--;
+        $('#refreshCounter').text("Next refresh in " + counter + " seconds");
+      }
     }, 1000);
 
-    // Manual refresh handler
-    $('#manualRefreshButton').off('click').on('click', function () {
-        isManualRefresh = true; // Set flag to indicate manual refresh
-        refreshTable();
-        $('#refreshCounter').text(""); // Clear the counter text
-    });
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
