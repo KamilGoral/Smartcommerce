@@ -136,18 +136,6 @@ docReady(function () {
         volume: [],
       };
     
-      function checkNested(obj /*, level1, level2, ... levelN*/) {
-        var args = Array.prototype.slice.call(arguments, 1);
-    
-        for (var i = 0; i < args.length; i++) {
-          if (!obj || !obj.hasOwnProperty(args[i])) {
-            return false;
-          }
-          obj = obj[args[i]];
-        }
-        return true;
-      }
-    
       for (let i = 0, l = json.items.length; i < l; i++) {
         let item = json.items[i];
         dataInArrays.date.push(item.date ? item.date.split("T")[0] : null);
