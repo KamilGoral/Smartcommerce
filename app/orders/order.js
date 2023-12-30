@@ -1949,18 +1949,17 @@ docReady(function () {
         }
       }
 
-      // Update all elements with class offerDate and offerStatus
-      offerDateElements.forEach(element => {
-        element.textContent = "Data oferty: " + createDate;
-      });
-      offerStatusElements.forEach(element => {
+      // Update all elements with class 'offerdate' and 'offerStatus'
+      Array.from(offerDateElements).forEach(element => {
+        element.innerHTML = "Data oferty: <br>" + createDate;
+    });
+    Array.from(offerStatusElements).forEach(element => {
         element.textContent = "Status: " + statusText;
-
         // Apply 'data-tippy-content' only if data.messages is present
         if (data.messages) {
-          $(element).attr("data-tippy-content", data.messages);
+            $(element).attr("data-tippy-content", data.messages);
         }
-      });
+    });
 
     };
     request.send();
