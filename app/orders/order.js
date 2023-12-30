@@ -1909,6 +1909,49 @@ docReady(function () {
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       var data = JSON.parse(this.response);
+
+      const offerDateElement = document.getElementById('offerDate');
+      const offerStatusElement = document.getElementById('offerStatus');
+      let statusText = '';
+
+      // Format the createDate nicely
+      const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+
+      // Determine the status text
+      if (data.status !== null) {
+        switch (data.status) {
+          case 'ready':
+            statusText = 'Gotowa';
+            break;
+          case 'error':
+            statusText = 'Problem';
+            break;
+          case 'in progress':
+            statusText = 'W trakcie';
+            break;
+          case 'incomplete':
+            statusText = 'Niekompletna';
+            break;
+          case 'batching':
+          case 'forced':
+            statusText = 'W kolejce';
+            break;
+          default:
+            statusText = 'Nieznany';
+        }
+      }
+
+      // Update the elements
+      offerDateElement.textContent = "Data oferty: " + createDate;
+      offerStatusElement.textContent = "Status: " + statusText;
+
       if (
         (request.status >= 200 &&
           request.status < 400 &&
