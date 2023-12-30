@@ -700,7 +700,7 @@ docReady(function () {
           counterText = "sekundy"; // 2-4 sekundy
         }
 
-        $('#refreshCounter').text("Następne odświeżenie przeglądu ofert za " + counter + " " + counterText);
+        $('#refreshCounter').text("Następne odświeżenie tabeli ofert za " + counter + " " + counterText);
       }
     }, 1000);
 
