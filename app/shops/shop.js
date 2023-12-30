@@ -394,9 +394,12 @@ docReady(function () {
   function refreshTable() {
     if ($('#table_offers').DataTable().data().any()) {
       var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row => row.status === "in progress");
+      console.log("in_progress");
+      console.log(hasInProgress);
 
       if (hasInProgress) {
         $('#table_offers').DataTable().ajax.reload(); // Reload the table data
+        console.log("reloading_data");
         counter = 30; // Reset counter
         isManualRefresh = false; // Reset manual refresh flag
       } else {
@@ -653,7 +656,7 @@ docReady(function () {
         });
       },
     });
-    
+
     refreshInterval = setInterval(function() {
       if (!isManualRefresh) {
           refreshTable();
