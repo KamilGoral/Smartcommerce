@@ -73,9 +73,6 @@ docReady(function () {
       beforeSend: function () {
         $("#waitingdots").show(); // Show the loading indicator
       },
-      complete: function () {
-        $("#waitingdots").hide(); // Hide the loading indicator
-      },
       success: function (data) {
         const pName = document.getElementById("pName");
         const pEan = document.getElementById("pEan");
@@ -104,6 +101,9 @@ docReady(function () {
 
         pIndicator.textContent = rowData.rotationIndicator;
         pBestPrice.textContent = rowData.asks[0].netPrice;
+
+        // Hide the waiting dots after the chart has been dealt with
+        $("#waitingdots").hide();
       },
       error: function (xhr, status, error) {
         if (xhr.status == 401) {
@@ -111,6 +111,8 @@ docReady(function () {
         } else {
           console.error("An error occurred: " + status + ", " + error);
         }
+        // Hide the waiting dots after the chart has been dealt with
+        $("#waitingdots").hide();
       }
     });
   }
@@ -160,9 +162,6 @@ docReady(function () {
       },
       beforeSend: function () {
         $("#waitingdots").show();
-      },
-      complete: function () {
-        $("#waitingdots").hide();
       },
       success: function (jsonek) {
         function displayData(x) {
@@ -499,6 +498,8 @@ docReady(function () {
           console.log(options);
           ApexCharts.exec("productHistoryChart", "updateOptions", options);
         }
+        // Hide the waiting dots after the chart has been dealt with
+        $("#waitingdots").hide();
       },
       error: function (xhr, status, error) {
         if (xhr.status == 401) {
@@ -506,6 +507,8 @@ docReady(function () {
         } else {
           console.error("An error occurred: " + status + ", " + error);
         }
+        // Hide the waiting dots after the chart has been dealt with
+        $("#waitingdots").hide();
       }
     });
   }
