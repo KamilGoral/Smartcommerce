@@ -272,6 +272,17 @@ docReady(function () {
         },
       ],
       initComplete: function (settings, json) {
+
+        var hasInProgressOrBatching = json.data.some(row =>
+          row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
+        );
+
+        if (hasInProgressOrBatching) {
+          $('#refreshCounter').show(); // Pokaż licznik
+          setupIntervals(); // Ustaw interwały
+        } else {
+          $('#refreshCounter').hide(); // Ukryj licznik
+        }
         var api = this.api();
         var textBox = $("#table_offers_filter label input");
         textBox.unbind();
@@ -405,11 +416,17 @@ docReady(function () {
       console.log("Everything is working")
       clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
       clearInterval(counterInterval); // Clear the counter interval as well
+      $('#refreshCounter').hide(); // Ukryj licznik
       $('#refreshCounter').text(""); // Clear the counter display
     }
   }
 
   function getOffers() {
+
+    // Clear existing intervals
+    if (refreshInterval) clearInterval(refreshInterval);
+    if (counterInterval) clearInterval(counterInterval);
+
     // Check if the DataTable instance exists and destroy it
     if ($.fn.DataTable.isDataTable('#table_offers')) {
       $('#table_offers').DataTable().clear().destroy();
@@ -674,9 +691,12 @@ docReady(function () {
     counterInterval = setInterval(function () {
       if (counter > 0) {
         counter--;
-        $('#refreshCounter').text("Next refresh in " + counter + " seconds");
+        $('#refreshCounter').text("Następne odświeżenie tabeli ofert za " + counter + " sekund");
       }
     }, 1000);
+
+    // Reset counter
+    counter = 30;
 
 
     $("#table_offers").on("click", "a", function () {
