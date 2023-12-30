@@ -1073,8 +1073,8 @@ docReady(function () {
     console.log(rowData);
     $("#ProductCard").css("display", "flex");
     clearProductPopupData();
-    getProductDetails(rowData);
     getProductHistory(rowData);
+    getProductDetails(rowData);
   });
   $("#table_id tbody").on("click", "td.details-control3", function () {
     var tr = $(this).closest("tr");
