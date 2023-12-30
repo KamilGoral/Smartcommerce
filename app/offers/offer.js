@@ -165,6 +165,12 @@ docReady(function () {
         $("#waitingdots").hide();
       },
       success: function (jsonek) {
+        function displayData(x) {
+          if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
+            return x;
+          }
+          return "";
+        }
         var dataToChart = arrayConvert(jsonek);
         const pHistory = document.getElementById("pHistory");
         pHistory.textContent = dataToChart.date.length;
