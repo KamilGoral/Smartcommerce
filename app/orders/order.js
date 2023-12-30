@@ -1913,8 +1913,6 @@ docReady(function () {
       const offerDateElements = document.getElementsByClassName('offerdate');
       const offerStatusElements = document.getElementsByClassName('offerStatus');
 
-      let statusText = '';
-
       // Format the createDate nicely
       const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
         year: "numeric",
@@ -1925,41 +1923,30 @@ docReady(function () {
         second: '2-digit',
       });
 
-      // Determine the status text
-      if (data.status !== null) {
-        switch (data.status) {
-          case 'ready':
-            statusText = 'Gotowa';
-            break;
-          case 'error':
-            statusText = 'Problem';
-            break;
-          case 'in progress':
-            statusText = 'W trakcie';
-            break;
-          case 'incomplete':
-            statusText = 'Niekompletna';
-            break;
-          case 'batching':
-          case 'forced':
-            statusText = 'W kolejce';
-            break;
-          default:
-            statusText = 'Nieznany';
+      // Function to determine status text
+      const getStatusText = (status) => {
+        switch (status) {
+            case 'ready': return 'Gotowa';
+            case 'error': return 'Problem';
+            case 'in progress': return 'W trakcie';
+            case 'incomplete': return 'Niekompletna';
+            case 'batching':
+            case 'forced': return 'W kolejce';
+            default: return 'Nieznany';
         }
-      }
+    };
 
       // Update all elements with class 'offerdate' and 'offerStatus'
       Array.from(offerDateElements).forEach(element => {
-        element.innerHTML = "Data oferty: <br>" + createDate;
-    });
-    Array.from(offerStatusElements).forEach(element => {
-        element.textContent = "Status: " + statusText;
+        element.innerHTML = "Data oferty: " + createDate;
+      });
+      Array.from(offerStatusElements).forEach(element => {
+        element.textContent = "Status: " + getStatusText(data.status);
         // Apply 'data-tippy-content' only if data.messages is present
         if (data.messages) {
-            $(element).attr("data-tippy-content", data.messages);
+          $(element).attr("data-tippy-content", data.messages);
         }
-    });
+      });
 
     };
     request.send();
