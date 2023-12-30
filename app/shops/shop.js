@@ -273,16 +273,6 @@ docReady(function () {
       ],
       initComplete: function (settings, json) {
 
-        var hasInProgressOrBatching = json.data.some(row =>
-          row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
-        );
-
-        if (hasInProgressOrBatching) {
-          $('#refreshCounter').show(); // Pokaż licznik
-          setupIntervals(); // Ustaw interwały
-        } else {
-          $('#refreshCounter').hide(); // Ukryj licznik
-        }
         var api = this.api();
         var textBox = $("#table_offers_filter label input");
         textBox.unbind();
@@ -542,6 +532,16 @@ docReady(function () {
             };
 
             // Wyświetlenie wyniku
+            // Sprawdzenie obecności ofert "in progress" lub "batching"
+            var hasInProgressOrBatching = res.items.some(item =>
+              item.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
+            );
+
+            if (hasInProgressOrBatching) {
+              $('#refreshCounter').show(); // Pokaż licznik
+            } else {
+              $('#refreshCounter').hide(); // Ukryj licznik
+            }
 
             // map your server's response to the DataTables format and pass it to
             // DataTables' callback
@@ -665,6 +665,7 @@ docReady(function () {
         },
       ],
       initComplete: function (settings, json) {
+
         var api = this.api();
         var textBox = $("#table_offers_filter label input");
         textBox.unbind();
