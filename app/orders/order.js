@@ -1953,26 +1953,16 @@ docReady(function () {
       });
       offerStatusElements.forEach(element => {
         element.textContent = "Status: " + statusText;
+
+        // Apply 'data-tippy-content' only if data.messages is present
+        if (data.messages) {
+          $(element).attr("data-tippy-content", data.messages);
+        }
       });
 
-      // Additional logic for status handling
-      if (
-        (request.status >= 200 &&
-          request.status < 400 &&
-          data.status === "incomplete") ||
-        data.status === "batching" ||
-        data.status === "forced"
-      ) {
-        $("#warningstatus").css("display", "flex");
-        $("#warningstatus").attr("data-tippy-content", data.messages);
-      } else if (request.status == 401) {
-        console.log("Unauthorized");
-      } else {
-        $("#positivestatus").css("display", "flex");
-      }
     };
     request.send();
-}
+  }
 
 
   function fetchDataFromEndpoint() {
