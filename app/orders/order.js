@@ -222,15 +222,16 @@ docReady(function () {
         const setElementContent = (elementId, content, percentage) => {
           const element = document.getElementById(elementId);
           if (content != null) {
-            const formattedContent =
-              content.toFixed(2) +
-              " zł" +
-              (percentage ? ` (${percentage.toFixed(2)}%)` : "");
-            element.textContent = formattedContent;
+              const numericContent = Number(content);
+              const formattedContent =
+                  isNaN(numericContent) ? "-" : numericContent.toFixed(2) + " zł" +
+                  (typeof percentage === "number" ? ` (${percentage.toFixed(2)}%)` : "");
+              element.textContent = formattedContent;
           } else {
-            element.textContent = "-";
+              element.textContent = "-";
           }
-        };
+      };
+      
 
         const userRole = getCookie("sprytnyUserRole");
 
