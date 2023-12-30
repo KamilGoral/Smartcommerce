@@ -632,7 +632,17 @@ docReady(function () {
           }
         });
       },
-    });
+    })
+    // Setup interval
+  refreshInterval = setInterval(function() {
+    refreshTable();
+    $('#refreshCounter').text("Next refresh in " + counter + " seconds");
+  }, 1000); // 1 second interval to update the counter
+
+  // Decrement counter every second
+  setInterval(function() {
+    if (counter > 0) counter--;
+  }, 1000);;
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
@@ -694,6 +704,24 @@ docReady(function () {
       }
     });
   }
+
+  var refreshInterval;
+  var counter = 30; // 30 seconds for each refresh
+
+  function refreshTable() {
+    if ($('#table_offers').DataTable().data().any()) {
+      var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row => row.status === "in progress");
+
+      if (hasInProgress) {
+        $('#table_offers').DataTable().ajax.reload(); // Reload the table data
+        counter = 30; // Reset counter
+      } else {
+        clearInterval(refreshInterval); // Clear the interval if no 'in progress' status
+        $('#refreshCounter').text(""); // Clear the counter display
+      }
+    }
+  }
+
 
   var table = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
