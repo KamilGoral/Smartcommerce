@@ -62,15 +62,21 @@ docReady(function () {
   );
 
   function getProductDetails(rowData) {
-    let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
-    );
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
+    let url = new URL(InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin);
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      headers: {
+        Authorization: orgToken
+      },
+      beforeSend: function () {
+        $("#waitingdots").show(); // Show the loading indicator
+      },
+      complete: function () {
+        $("#waitingdots").hide(); // Hide the loading indicator
+      },
+      success: function (data) {
         const pName = document.getElementById("pName");
         const pEan = document.getElementById("pEan");
         const pInStock = document.getElementById("pInStock");
@@ -82,38 +88,33 @@ docReady(function () {
 
         pName.textContent = data.name;
         pEan.textContent = data.gtin;
-        if (data.stock === null) {
-          data.stock = {
-            value: 0,
-            unit: "pieces",
-          };
+
+        if (!data.stock) {
+          data.stock = { value: 0, unit: "pieces" };
         }
         pInStock.textContent = data.stock.value;
-        pIndicator.textContent = rowData.rotationIndicator;
-        pBestPrice.textContent = rowData.asks[0].netPrice;
-        if ((data.stock.unit = "pieces")) {
-          pUnit.textContent = "szt";
-        } else {
-          pUnit.textContent = data.stock.unit;
-        }
-        if (data.standardPrice === null) {
-          data.standardPrice = {
-            value: 0,
-            premium: 0,
-          };
+        pUnit.textContent = data.stock.unit === "pieces" ? "szt" : data.stock.unit;
+
+        if (!data.standardPrice) {
+          data.standardPrice = { value: 0, premium: 0 };
         }
         pStandardPrice.textContent = data.standardPrice.value;
-        if (data.retailPrice === null) {
-          data.retailPrice = 0;
-        }
-        pRetailPrice.textContent = data.retailPrice;
-        if (request.status == 401) {
+
+        pRetailPrice.textContent = data.retailPrice || 0;
+
+        pIndicator.textContent = rowData.rotationIndicator;
+        pBestPrice.textContent = rowData.asks[0].netPrice;
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status == 401) {
           console.log("Unauthorized");
+        } else {
+          console.error("An error occurred: " + status + ", " + error);
         }
       }
-    };
-    request.send();
+    });
   }
+
 
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
@@ -134,7 +135,7 @@ docReady(function () {
         stock: [],
         volume: [],
       };
-    
+
       for (let i = 0, l = json.items.length; i < l; i++) {
         let item = json.items[i];
         dataInArrays.date.push(item.date ? item.date.split("T")[0] : null);
@@ -148,33 +149,27 @@ docReady(function () {
       }
       return dataInArrays;
     }
-    
-    let url = new URL(
-      InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1"
-    );
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var jsonek = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
-        function displayData(x) {
-          if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
-            return x;
-          }
-          return "";
-        }
+
+    let url = InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin + "/history?perPage=91&page=1";
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      headers: {
+        Authorization: orgToken
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function (jsonek) {
         var dataToChart = arrayConvert(jsonek);
         const pHistory = document.getElementById("pHistory");
         pHistory.textContent = dataToChart.date.length;
         const pHistorySpan = document.getElementById("pHistorySpan");
-        pHistorySpan.textContent =
-          dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
+        pHistorySpan.textContent = dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
         const pOfferDate = document.getElementById("pOfferDate");
         pOfferDate.textContent = dataToChart.date[0];
         const pRetailPriceChange =
@@ -498,12 +493,15 @@ docReady(function () {
           console.log(options);
           ApexCharts.exec("productHistoryChart", "updateOptions", options);
         }
-        if (request.status == 401) {
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status == 401) {
           console.log("Unauthorized");
+        } else {
+          console.error("An error occurred: " + status + ", " + error);
         }
       }
-    };
-    request.send();
+    });
   }
 
   function format(d) {
