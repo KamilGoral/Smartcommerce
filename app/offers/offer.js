@@ -1029,6 +1029,29 @@ docReady(function () {
     },
   });
 
+  function clearProductPopupData() {
+    if (typeof chart !== 'undefined' && chart !== null) {
+      // Option 1: Update the chart with empty data
+      chart.updateSeries([{
+        data: []
+      }]);
+
+      // Set the content of specified elements to "-"
+      $("#pEan").text("-");
+      $("#pHistory").text("-");
+      $("#pHistorySpan").text("-");
+      $("#pOfferDate").text("-");
+      $("#pRetailPrice").text("-");
+      $("#pStandardPrice").text("-");
+      $("#pBestPrice").text("-");
+      $("#pInStock").text("-");
+      $("#pStockDays").text("-");
+      $("#pSales7").text("-");
+      $("#pSales90").text("-");
+      $("#pIndicator").text("-");
+    }
+  }
+
   $("#table_id tbody").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
     var row = table.row(tr);
@@ -1055,6 +1078,7 @@ docReady(function () {
     var rowData = table.row(tr).data();
     console.log(rowData);
     $("#ProductCard").css("display", "flex");
+    clearProductPopupData();
     getProductDetails(rowData);
     getProductHistory(rowData);
   });
