@@ -393,14 +393,13 @@ docReady(function () {
 
   function refreshTable() {
     if ($('#table_offers').DataTable().data().any()) {
-      var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row =>
-        row.offers.some(offer => offer.status === "in progress")
+      var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row => 
+        row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
       );
 
-      console.log("in_progress");
-      console.log(hasInProgress);
+      console.log(hasInProgressOrBatching);
 
-      if (hasInProgress) {
+      if (hasInProgressOrBatching) {
         $('#table_offers').DataTable().ajax.reload(); // Reload the table data
         console.log("reloading_data");
         counter = 30; // Reset counter
