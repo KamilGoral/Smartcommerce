@@ -385,6 +385,27 @@ docReady(function () {
     return toDisplayHtml;
   }
 
+
+
+  var refreshInterval;
+  var counter = 30; // 30 seconds for each refresh
+  var isManualRefresh = false; // Flag to check if refresh is manual
+
+  function refreshTable() {
+    if ($('#table_offers').DataTable().data().any()) {
+      var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row => row.status === "in progress");
+
+      if (hasInProgress) {
+        $('#table_offers').DataTable().ajax.reload(); // Reload the table data
+        counter = 30; // Reset counter
+        isManualRefresh = false; // Reset manual refresh flag
+      } else {
+        clearInterval(refreshInterval); // Clear the interval if no 'in progress' status
+        $('#refreshCounter').text(""); // Clear the counter display
+      }
+    }
+  }
+
   function getOffers() {
     var table = $("#table_offers").DataTable({
       pagingType: "full_numbers",
@@ -495,7 +516,6 @@ docReady(function () {
             };
 
             // Wyświetlenie wyniku
-            console.log(finalStructure);
 
             // map your server's response to the DataTables format and pass it to
             // DataTables' callback
@@ -632,17 +652,26 @@ docReady(function () {
           }
         });
       },
-    })
-    // Setup interval
-  refreshInterval = setInterval(function() {
-    refreshTable();
-    $('#refreshCounter').text("Next refresh in " + counter + " seconds");
+    });
+    
+    refreshInterval = setInterval(function() {
+      if (!isManualRefresh) {
+          refreshTable();
+          $('#refreshCounter').text("Next refresh in " + counter + " seconds");
+      }
   }, 1000); // 1 second interval to update the counter
 
   // Decrement counter every second
   setInterval(function() {
-    if (counter > 0) counter--;
-  }, 1000);;
+      if (counter > 0 && !isManualRefresh) counter--;
+  }, 1000);
+
+  // Event handler for manual refresh
+  $('#manualRefreshButton').click(function() {
+      isManualRefresh = true; // Set flag to indicate manual refresh
+      refreshTable();
+      $('#refreshCounter').text(""); // Clear the counter text
+  });
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
@@ -703,23 +732,6 @@ docReady(function () {
         });
       }
     });
-  }
-
-  var refreshInterval;
-  var counter = 30; // 30 seconds for each refresh
-
-  function refreshTable() {
-    if ($('#table_offers').DataTable().data().any()) {
-      var hasInProgress = $('#table_offers').DataTable().data().toArray().some(row => row.status === "in progress");
-
-      if (hasInProgress) {
-        $('#table_offers').DataTable().ajax.reload(); // Reload the table data
-        counter = 30; // Reset counter
-      } else {
-        clearInterval(refreshInterval); // Clear the interval if no 'in progress' status
-        $('#refreshCounter').text(""); // Clear the counter display
-      }
-    }
   }
 
 
