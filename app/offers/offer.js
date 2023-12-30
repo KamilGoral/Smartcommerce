@@ -116,7 +116,6 @@ docReady(function () {
   }
 
   function getProductHistory(rowData) {
-    console.log(rowData);
     if (rowData.stock === null) {
       rowData.stock = {
         value: 0,
@@ -165,14 +164,12 @@ docReady(function () {
       var jsonek = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         function displayData(x) {
-          console.log(x);
           if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
             return x;
           }
           return "";
         }
         var dataToChart = arrayConvert(jsonek);
-        console.log(dataToChart);
         const pHistory = document.getElementById("pHistory");
         pHistory.textContent = dataToChart.date.length;
         const pHistorySpan = document.getElementById("pHistorySpan");
@@ -633,7 +630,6 @@ docReady(function () {
     );
   }
 
-  console.log("Table initialisation start: " + new Date().getTime());
 
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
@@ -758,7 +754,6 @@ docReady(function () {
         whichColumns = data.order[0]["column"];
         direction = data.order[0]["dir"];
       }
-      console.log(data);
 
       switch (whichColumns) {
         case 2:
@@ -1103,7 +1098,6 @@ docReady(function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
       if (request.status >= 200 && request.status < 400) {
-        console.log(Object.keys(toParse).length);
         const wholesalerContainer = document.getElementById(
           "wholesalerKeyIndicator"
         );
