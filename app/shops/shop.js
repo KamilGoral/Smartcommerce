@@ -393,12 +393,12 @@ docReady(function () {
   var counter = 60; // 60 seconds for each refresh
 
   function refreshTable() {
-    var hasInProgressOrBatching = $('#table_offers').DataTable().data().toArray().some(row =>
-      row.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
+    var hasInProgressOrBatchingOrForced = $('#table_offers').DataTable().data().toArray().some(row =>
+      row.offers.some(offer => offer.status === "in progress" || offer.status === "batching" || offer.status === "forced")
     );
-    console.log(hasInProgressOrBatching)
+    console.log(hasInProgressOrBatchingOrForced)
 
-    if (hasInProgressOrBatching) {
+    if (hasInProgressOrBatchingOrForced) {
       console.log("Calling getOffers")
       getOffers(); // Call getOffers instead of reloading the table
       counter = 60; // Reset counter
@@ -533,11 +533,11 @@ docReady(function () {
 
             // Wyświetlenie wyniku
             // Sprawdzenie obecności ofert "in progress" lub "batching"
-            var hasInProgressOrBatching = finalStructure.items.some(item =>
-              item.offers.some(offer => offer.status === "in progress" || offer.status === "batching")
+            var hasInProgressOrBatchingOrForced = $('#table_offers').DataTable().data().toArray().some(row =>
+              row.offers.some(offer => offer.status === "in progress" || offer.status === "batching" || offer.status === "forced")
             );
 
-            if (hasInProgressOrBatching) {
+            if (hasInProgressOrBatchingOrForced) {
               $('#refreshCounter').show(); // Pokaż licznik
             } else {
               $('#refreshCounter').hide(); // Ukryj licznik
@@ -692,9 +692,19 @@ docReady(function () {
     counterInterval = setInterval(function () {
       if (counter > 0) {
         counter--;
-        $('#refreshCounter').text("Następne odświeżenie tabeli ofert za " + counter + " sekund");
+
+        // Zmiana tekstu w zależności od wartości licznika
+        var counterText = "sekund"; // Domyślnie dla 5 i więcej
+        if (counter === 1) {
+          counterText = "sekundę"; // 1 sekunda
+        } else if (counter > 1 && counter <= 4) {
+          counterText = "sekundy"; // 2-4 sekundy
+        }
+
+        $('#refreshCounter').text("Następne odświeżenie tabeli ofert za " + counter + " " + counterText);
       }
     }, 1000);
+
 
     // Reset counter
     counter = 60;
