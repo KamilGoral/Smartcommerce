@@ -121,15 +121,6 @@ docReady(function () {
   }
 
   function getOfferStatus() {
-    var e = document.getElementById("offerId");
-    var offerId = e.value;
-
-    if (offerId.length > 0) {
-      UrlParameters = "offerId=" + offerId;
-    } else {
-      UrlParameters = "offerId=latest";
-    }
-
     let url = new URL(
       InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
     );
