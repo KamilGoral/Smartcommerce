@@ -503,9 +503,9 @@ docReady(function () {
         setCookieAndSession(
           "sprytnyUser",
           UserInfo.UserAttributes[4].Value,
-          1440
+          72000
         );
-        setCookieAndSession("sprytnyUsername", UserInfo.Username, 1440);
+        setCookieAndSession("sprytnyUsername", UserInfo.Username, 72000);
       } else if (request.status === 401) {
         console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
       } else {
