@@ -179,7 +179,7 @@ docReady(function () {
           const expires = "expires=" + date.toUTCString();
           document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
         }
-        setCookieAndSession("sprytnyUserRole", data.role, 1440);
+        setCookieAndSession("sprytnyUserRole", data.role, 72000);
       } else {
         console.log("error");
       }

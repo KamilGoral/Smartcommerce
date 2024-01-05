@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -50,25 +50,27 @@ docReady(function () {
   );
 
   const OfferIDBread = document.getElementById("OfferDateBread");
-  OfferIDBread.textContent = offerId
+  OfferIDBread.textContent = offerId;
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/offers/offer?shopKey=" +
-    shopKey +
-    "&offerId=" +
-    offerId
+      DomainName +
+      "/app/offers/offer?shopKey=" +
+      shopKey +
+      "&offerId=" +
+      offerId
   );
 
   function getProductDetails(rowData) {
-    let url = new URL(InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin);
+    let url = new URL(
+      InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
+    );
 
     $.ajax({
       url: url,
-      type: 'GET',
+      type: "GET",
       headers: {
-        Authorization: orgToken
+        Authorization: orgToken,
       },
       beforeSend: function () {
         $("#waitingdots").show(); // Show the loading indicator
@@ -90,7 +92,8 @@ docReady(function () {
           data.stock = { value: 0, unit: "pieces" };
         }
         pInStock.textContent = data.stock.value;
-        pUnit.textContent = data.stock.unit === "pieces" ? "szt" : data.stock.unit;
+        pUnit.textContent =
+          data.stock.unit === "pieces" ? "szt" : data.stock.unit;
 
         if (!data.standardPrice) {
           data.standardPrice = { value: 0, premium: 0 };
@@ -113,10 +116,99 @@ docReady(function () {
         }
         // Hide the waiting dots after the chart has been dealt with
         $("#waitingdots").hide();
-      }
+      },
     });
   }
 
+  function getOfferStatus() {
+    var e = document.getElementById("offerId");
+    var offerId = e.value;
+
+    if (offerId.length > 0) {
+      UrlParameters = "offerId=" + offerId;
+    } else {
+      UrlParameters = "offerId=latest";
+    }
+
+    let url = new URL(
+      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
+    );
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+
+      // Get all elements with the class 'offerdate' and 'offerStatus'
+      const offerDateElements = document.getElementsByClassName("offerdate");
+      const offerStatusElements =
+        document.getElementsByClassName("offerstatus");
+      const offerMessageElements =
+        document.getElementsByClassName("offermessage");
+
+      // Format the createDate nicely
+      const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      // Function to determine status text
+      const getStatusText = (status) => {
+        switch (status) {
+          case "ready":
+            return "Gotowa";
+          case "error":
+            return "Problem";
+          case "in progress":
+            return "W trakcie";
+          case "incomplete":
+            return "Niekompletna";
+          case "batching":
+            return "W kolejce";
+          case "forced":
+            return "W kolejce";
+          default:
+            return "Nieznany";
+        }
+      };
+
+      // Update all elements with class 'offerdate' and 'offerStatus'
+      Array.from(offerDateElements).forEach((element) => {
+        element.innerHTML = "Data oferty: " + createDate;
+      });
+      Array.from(offerStatusElements).forEach((element) => {
+        element.textContent = "Status: " + getStatusText(data.status);
+      });
+      // Update offermessage elements
+      if (data.messages && data.messages.length > 0) {
+        let messageContent = Array.isArray(data.messages)
+          ? data.messages.join(" ")
+          : data.messages;
+
+        // Translate specific error message
+        if (messageContent.includes("Internal server error -")) {
+          messageContent = messageContent.replace(
+            "Internal server error -",
+            "Wewnętrzny błąd serwera -"
+          );
+        }
+
+        Array.from(offerMessageElements).forEach((element) => {
+          element.style.display = "block";
+          element.textContent = "Powód: " + messageContent;
+        });
+      } else {
+        Array.from(offerMessageElements).forEach((element) => {
+          element.style.display = "none";
+        });
+      }
+    };
+    request.send();
+  }
 
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
@@ -141,24 +233,44 @@ docReady(function () {
       for (let i = 0, l = json.items.length; i < l; i++) {
         let item = json.items[i];
         dataInArrays.date.push(item.date ? item.date.split("T")[0] : null);
-        dataInArrays.highest.push(item.asks && item.asks.highest ? item.asks.highest : null);
-        dataInArrays.average.push(item.asks && item.asks.average ? item.asks.average : null);
-        dataInArrays.lowest.push(item.asks && item.asks.lowest ? item.asks.lowest : null);
-        dataInArrays.retailPrice.push(item.retailPrice ? item.retailPrice : null);
-        dataInArrays.standardPrice.push(item.standardPrice && item.standardPrice.value ? item.standardPrice.value : null);
-        dataInArrays.stock.push(item.stock && item.stock.value ? item.stock.value : null);
+        dataInArrays.highest.push(
+          item.asks && item.asks.highest ? item.asks.highest : null
+        );
+        dataInArrays.average.push(
+          item.asks && item.asks.average ? item.asks.average : null
+        );
+        dataInArrays.lowest.push(
+          item.asks && item.asks.lowest ? item.asks.lowest : null
+        );
+        dataInArrays.retailPrice.push(
+          item.retailPrice ? item.retailPrice : null
+        );
+        dataInArrays.standardPrice.push(
+          item.standardPrice && item.standardPrice.value
+            ? item.standardPrice.value
+            : null
+        );
+        dataInArrays.stock.push(
+          item.stock && item.stock.value ? item.stock.value : null
+        );
         dataInArrays.volume.push(item.volume ? item.volume : null);
       }
       return dataInArrays;
     }
 
-    let url = InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin + "/history?perPage=91&page=1";
+    let url =
+      InvokeURL +
+      "shops/" +
+      shopKey +
+      "/products/" +
+      rowData.gtin +
+      "/history?perPage=91&page=1";
 
     $.ajax({
       url: url,
-      type: 'GET',
+      type: "GET",
       headers: {
-        Authorization: orgToken
+        Authorization: orgToken,
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -174,7 +286,8 @@ docReady(function () {
         const pHistory = document.getElementById("pHistory");
         pHistory.textContent = dataToChart.date.length;
         const pHistorySpan = document.getElementById("pHistorySpan");
-        pHistorySpan.textContent = dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
+        pHistorySpan.textContent =
+          dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
         const pOfferDate = document.getElementById("pOfferDate");
         pOfferDate.textContent = dataToChart.date[0];
         const pRetailPriceChange =
@@ -186,7 +299,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -200,7 +313,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -213,7 +326,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -226,7 +339,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -510,7 +623,7 @@ docReady(function () {
         }
         // Hide the waiting dots after the chart has been dealt with
         $("#waitingdots").hide();
-      }
+      },
     });
   }
 
@@ -565,7 +678,7 @@ docReady(function () {
         item.originated +
         "</td>";
       var typeOfPromotion = "";
-      var showRelated = ""
+      var showRelated = "";
       if (item.promotion != null) {
         tableRowHtml +=
           "<td>" +
@@ -590,7 +703,10 @@ docReady(function () {
           typeOfPromotion = "Okresowa";
         }
         if (item.promotion.relatedGtins.length > 0) {
-          showRelated = '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' + item.promotion.relatedGtins + '" alt="">'
+          showRelated =
+            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
+            item.promotion.relatedGtins +
+            '" alt="">';
         } else {
           showRelated = "-";
         }
@@ -603,7 +719,9 @@ docReady(function () {
           (item.promotion.threshold !== null ? item.promotion.threshold : "") +
           "</td>" +
           "<td>" +
-          (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
+          (item.promotion.maxQuantity !== null
+            ? item.promotion.maxQuantity
+            : "") +
           "</td>" +
           "<td>" +
           (item.promotion.package !== null ? item.promotion.package : "") +
@@ -637,7 +755,6 @@ docReady(function () {
       "</table>"
     );
   }
-
 
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
@@ -827,13 +944,7 @@ docReady(function () {
         orderable: false,
         defaultContent: "",
         width: "20px",
-        createdCell: function (
-          cell,
-          cellData,
-          rowData,
-          rowIndex,
-          colIndex
-        ) {
+        createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
           if (rowData.asks && rowData.asks.length > 0) {
             $(cell).addClass("details-control");
           }
@@ -1009,7 +1120,7 @@ docReady(function () {
         data: null,
         defaultContent:
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
-      }
+      },
     ],
     initComplete: function (settings, json) {
       var api = this.api();
@@ -1058,14 +1169,14 @@ docReady(function () {
     }
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
-    var dataToDisplay = $(this)
-    const popupContainer = document.getElementById('ReleatedProducts');
-    const popupContent = document.getElementById('popupContent');
-    var input = dataToDisplay.data('content');
+    var dataToDisplay = $(this);
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
+    var input = dataToDisplay.data("content");
     var values = input.split(",");
     var output = "<td>" + values.join("<br>") + "</td>";
     popupContent.innerHTML = output;
-    popupContainer.style.display = 'flex';
+    popupContainer.style.display = "flex";
   });
   $("#table_id tbody").on("click", "td.details-control2", function () {
     var tr = $(this).closest("tr");
@@ -1081,14 +1192,13 @@ docReady(function () {
     var rowData = table.row(tr).data();
     console.log(rowData);
     var GTINEdit = document.getElementById("gtin");
-    GTINEdit.value = rowData.gtin
+    GTINEdit.value = rowData.gtin;
     GTINEdit.disabled = true;
     var NameInput = document.getElementById("new-name");
-    NameInput.value = rowData.name
-    NameInput.textContent = rowData.name
+    NameInput.value = rowData.name;
+    NameInput.textContent = rowData.name;
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
-
 
   function LoadTippy() {
     $.getScript(
@@ -1142,36 +1252,8 @@ docReady(function () {
     request.send();
   }
 
-  function getOfferStatus() {
-    let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
-    );
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      if (
-        request.status >= 200 &&
-        request.status < 400 &&
-        data.status === "incomplete" ||
-        data.status === "batching" ||
-        data.status === "forced"
-      ) {
-        $("#warningstatus").css("display", "flex");
-        $("#warningstatus").attr("data-tippy-content", data.messages);
-      } else if (request.status == 401) {
-        console.log("Unauthorized");
-      } else {
-        $("#positivestatus").css("display", "flex");
-      }
-    };
-    request.send();
-  }
-
   getOfferStatus();
   getWholesalersSh();
-
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1184,18 +1266,17 @@ docReady(function () {
         var oldname = document.getElementById("new-name");
 
         var data = {
-          "organization": organization,
-          "organizationId": organizationId,
-          "data": {
-            "gtin": $("#gtin").val(),
+          organization: organization,
+          organizationId: organizationId,
+          data: {
+            gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
             "new-name": $("#new-name").val(),
-            "brand": $("#brand").val(),
-            "measurement": $("#measurement").val(),
-            "quantity": $("#quantity").val()
-          }
-        }
-
+            brand: $("#brand").val(),
+            measurement: $("#measurement").val(),
+            quantity: $("#quantity").val(),
+          },
+        };
 
         $.ajax({
           type: "POST",
@@ -1272,11 +1353,9 @@ docReady(function () {
     $(this).DataTable().columns.adjust();
   });
 
-  $("table.dataTable").on('page.dt', function () {
+  $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
-
-
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
@@ -1294,4 +1373,3 @@ docReady(function () {
     }, 4000);
   });
 });
-
