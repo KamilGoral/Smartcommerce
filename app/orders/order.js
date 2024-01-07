@@ -1028,24 +1028,72 @@ docReady(function () {
               data: "rotationIndicator",
               defaultContent: "brak",
               render: function (data) {
-                if (data == "AX") {
-                  return '<p class="super">' + data + "</p>";
+                var tippyContent;
+                var baseClass = "tippy";
+
+                switch (data) {
+                  case "AX":
+                    tippyContent =
+                      ' class="super ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa A (80% marży) i X (stała sprzedaż)" alt=""';
+                    break;
+                  case "AY":
+                    tippyContent =
+                      ' class="positive ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa A (80% marży) i Y (zmienna sprzedaż)" alt=""';
+                    break;
+                  case "BX":
+                    tippyContent =
+                      ' class="positive ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa B (15% marży) i X (stała sprzedaż)" alt=""';
+                    break;
+                  case "AZ":
+                    tippyContent =
+                      ' class="medium ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa A (80% marży) i Z (nieregularna sprzedaż)" alt=""';
+                    break;
+                  case "CX":
+                    tippyContent =
+                      ' class="medium ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa C (5% marży) i X (stała sprzedaż)" alt=""';
+                    break;
+                  case "BY":
+                    tippyContent =
+                      ' class="medium ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa B (15% marży) i Y (zmienna sprzedaż)" alt=""';
+                    break;
+                  case "BZ":
+                    tippyContent =
+                      ' class="negative ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa B (15% marży) i Z (nieregularna sprzedaż)" alt=""';
+                    break;
+                  case "CY":
+                    tippyContent =
+                      ' class="negative ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa C (5% marży) i Y (zmienna sprzedaż)" alt=""';
+                    break;
+                  case "CZ":
+                    tippyContent =
+                      ' class="bad ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa C (5% marży) i Z (nieregularna sprzedaż)" alt=""';
+                    break;
+                  default:
+                    tippyContent =
+                      ' class="noneexisting ' +
+                      baseClass +
+                      '" data-tippy-content="Niewystarczająca historia" alt=""';
                 }
-                if (data == "AY" || data == "BX") {
-                  return '<p class="positive">' + data + "</p>";
-                }
-                if (data == "AZ" || data == "CX" || data == "BY") {
-                  return '<p class="medium">' + data + "</p>";
-                }
-                if (data == "BZ" || data == "CY") {
-                  return '<p class="negative">' + data + "</p>";
-                }
-                if (data == "CZ") {
-                  return '<p class="bad">' + data + "</p>";
-                }
-                if (data == null) {
-                  return '<p class="noneexisting">' + "-" + "</p>";
-                }
+
+                return "<p" + tippyContent + ">" + (data || "-") + "</p>";
               },
             },
             {
