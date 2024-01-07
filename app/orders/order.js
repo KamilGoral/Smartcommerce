@@ -746,8 +746,8 @@ docReady(function () {
           }>${wholesalerName}</option>`;
         });
       } else {
-        // Dodawanie nieprzydzielone górze listy wyboru
-        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
+        // Dodawanie nieprzydzielone górze listy wyboru ( tymczasowo on hold)
+        //selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
