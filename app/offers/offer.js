@@ -1146,7 +1146,7 @@ docReady(function () {
               tippyContent =
                 ' class="noneexisting ' +
                 baseClass +
-                '" data-tippy-content="Brak danych" alt=""';
+                '" data-tippy-content="Niewystarczająca historia" alt=""';
           }
 
           return "<p" + tippyContent + ">" + (data || "-") + "</p>";

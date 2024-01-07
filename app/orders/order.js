@@ -36,11 +36,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -55,11 +55,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   function saveToSessionStorage(productsData) {
@@ -153,18 +153,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -225,15 +225,18 @@ docReady(function () {
           const element = document.getElementById(elementId);
           if (content != null) {
             const numericContent = Number(content);
-            const formattedContent =
-              isNaN(numericContent) ? "-" : numericContent.toFixed(2) + " zł" +
-                (typeof percentage === "number" ? ` (${percentage.toFixed(2)}%)` : "");
+            const formattedContent = isNaN(numericContent)
+              ? "-"
+              : numericContent.toFixed(2) +
+                " zł" +
+                (typeof percentage === "number"
+                  ? ` (${percentage.toFixed(2)}%)`
+                  : "");
             element.textContent = formattedContent;
           } else {
             element.textContent = "-";
           }
         };
-
 
         const userRole = getCookie("sprytnyUserRole");
 
@@ -250,31 +253,53 @@ docReady(function () {
         const savingsNetPercentage = savingsNetValue
           ? (savingsNetValue / data.netNetValues.avg) * 100
           : null;
-        setElementContent(
-          "totalNetValue",
-          data.netNetValues?.total
-        );
+        setElementContent("totalNetValue", data.netNetValues?.total);
         setElementContent("maxNetValue", data.netNetValues?.max);
         setElementContent("avgNetValue", data.netNetValues?.avg);
 
         // Ustal kolor tekstu
-        const textColor = savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24";
+        const textColor =
+          savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24";
 
         // Jeśli savingsValue jest większe lub równe 0 lub savingsNetNetValue jest dodatnie, to zamówienie jest optymalne
-        if (savingsValue >= 0 || (savingsValue <= 0 && savingsNetNetValue > 0)) {
-          setElementContent("savings", savingsValue, savingsPercentage, textColor);
+        if (
+          savingsValue >= 0 ||
+          (savingsValue <= 0 && savingsNetNetValue > 0)
+        ) {
+          setElementContent(
+            "savings",
+            savingsValue,
+            savingsPercentage,
+            textColor
+          );
         } else {
-          setElementContent("savings", "Zamówienie nieoptymalne", null, textColor);
+          setElementContent(
+            "savings",
+            "Zamówienie nieoptymalne",
+            null,
+            textColor
+          );
         }
 
         if (savingsNetValue >= 0) {
-          setElementContent("savingsNet", "Zamówienie nieoptymalne", null, textColor);
-        } else if (userRole === "admin" && data.netValues.total !== data.netNetValues.total) {
+          setElementContent(
+            "savingsNet",
+            "Zamówienie nieoptymalne",
+            null,
+            textColor
+          );
+        } else if (
+          userRole === "admin" &&
+          data.netValues.total !== data.netNetValues.total
+        ) {
           document.getElementById("netNetValues").style.display = "flex";
-          setElementContent("savingsNet", savingsNetValue, savingsNetPercentage, textColor);
+          setElementContent(
+            "savingsNet",
+            savingsNetValue,
+            savingsNetPercentage,
+            textColor
+          );
         }
-
-
 
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
@@ -484,9 +509,9 @@ docReady(function () {
   function getOffers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/offers?perPage=100&sort=createDate:desc"
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -637,7 +662,9 @@ docReady(function () {
           (item.promotion.threshold !== null ? item.promotion.threshold : "") +
           "</td>" +
           "<td>" +
-          (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
+          (item.promotion.maxQuantity !== null
+            ? item.promotion.maxQuantity
+            : "") +
           "</td>" +
           "<td>" +
           (item.promotion.package !== null ? item.promotion.package : "") +
@@ -712,10 +739,11 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            }>${wholesalerName}</option>`;
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru
@@ -730,10 +758,11 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -745,7 +774,6 @@ docReady(function () {
       return "Brak dostawców do wyboru.";
     }
   }
-
 
   function GetSplittedProducts() {
     $("#spl_table_wrapper").show();
@@ -931,19 +959,19 @@ docReady(function () {
                     currentPrice = data.netNetPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                        ...data.asks
-                          .map((a) => a.netNetPrice)
-                          .filter((price) => price !== null)
-                      )
+                          ...data.asks
+                            .map((a) => a.netNetPrice)
+                            .filter((price) => price !== null)
+                        )
                       : null;
                   } else {
                     currentPrice = data.netPrice;
                     lowestPrice = data.asks.length
                       ? Math.min(
-                        ...data.asks
-                          .map((a) => a.netPrice)
-                          .filter((price) => price !== null)
-                      )
+                          ...data.asks
+                            .map((a) => a.netPrice)
+                            .filter((price) => price !== null)
+                        )
                       : null;
                   }
 
@@ -1045,19 +1073,19 @@ docReady(function () {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                    ...data.asks
-                      .map((a) => a.netNetPrice)
-                      .filter((price) => price !== null)
-                  )
+                      ...data.asks
+                        .map((a) => a.netNetPrice)
+                        .filter((price) => price !== null)
+                    )
                   : null;
               } else {
                 currentPrice = data.netPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
-                    ...data.asks
-                      .map((a) => a.netPrice)
-                      .filter((price) => price !== null)
-                  )
+                      ...data.asks
+                        .map((a) => a.netPrice)
+                        .filter((price) => price !== null)
+                    )
                   : null;
               }
 
@@ -1383,11 +1411,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1"
+        "shops/" +
+        shopKey +
+        "/products/" +
+        rowData.gtin +
+        "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1418,7 +1446,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1432,7 +1460,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1445,7 +1473,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1458,7 +1486,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1828,7 +1856,9 @@ docReady(function () {
           (item.promotion.threshold !== null ? item.promotion.threshold : "") +
           "</td>" +
           "<td>" +
-          (item.promotion.maxQuantity !== null ? item.promotion.maxQuantity : "") +
+          (item.promotion.maxQuantity !== null
+            ? item.promotion.maxQuantity
+            : "") +
           "</td>" +
           "<td>" +
           (item.promotion.package !== null ? item.promotion.package : "") +
@@ -1912,59 +1942,72 @@ docReady(function () {
       var data = JSON.parse(this.response);
 
       // Get all elements with the class 'offerdate' and 'offerStatus'
-      const offerDateElements = document.getElementsByClassName('offerdate');
-      const offerStatusElements = document.getElementsByClassName('offerstatus');
-      const offerMessageElements = document.getElementsByClassName('offermessage');
+      const offerDateElements = document.getElementsByClassName("offerdate");
+      const offerStatusElements =
+        document.getElementsByClassName("offerstatus");
+      const offerMessageElements =
+        document.getElementsByClassName("offermessage");
 
       // Format the createDate nicely
       const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
       });
 
       // Function to determine status text
       const getStatusText = (status) => {
         switch (status) {
-          case 'ready': return 'Gotowa';
-          case 'error': return 'Problem';
-          case 'in progress': return 'W trakcie';
-          case 'incomplete': return 'Niekompletna';
-          case 'batching': return 'W kolejce';
-          case 'forced': return 'W kolejce';
-          default: return 'Nieznany';
+          case "ready":
+            return "Gotowa";
+          case "error":
+            return "Problem";
+          case "in progress":
+            return "W trakcie";
+          case "incomplete":
+            return "Niekompletna";
+          case "batching":
+            return "W kolejce";
+          case "forced":
+            return "W kolejce";
+          default:
+            return "Nieznany";
         }
       };
 
       // Update all elements with class 'offerdate' and 'offerStatus'
-      Array.from(offerDateElements).forEach(element => {
+      Array.from(offerDateElements).forEach((element) => {
         element.innerHTML = "Data oferty: " + createDate;
       });
-      Array.from(offerStatusElements).forEach(element => {
+      Array.from(offerStatusElements).forEach((element) => {
         element.textContent = "Status: " + getStatusText(data.status);
       });
       // Update offermessage elements
       if (data.messages && data.messages.length > 0) {
-        let messageContent = Array.isArray(data.messages) ? data.messages.join(' ') : data.messages;
+        let messageContent = Array.isArray(data.messages)
+          ? data.messages.join(" ")
+          : data.messages;
 
         // Translate specific error message
         if (messageContent.includes("Internal server error -")) {
-          messageContent = messageContent.replace("Internal server error -", "Wewnętrzny błąd serwera -");
+          messageContent = messageContent.replace(
+            "Internal server error -",
+            "Wewnętrzny błąd serwera -"
+          );
         }
 
-        Array.from(offerMessageElements).forEach(element => {
-          element.style.display = 'block';
+        Array.from(offerMessageElements).forEach((element) => {
+          element.style.display = "block";
           element.textContent = "Powód: " + messageContent;
         });
       } else {
-        Array.from(offerMessageElements).forEach(element => {
-          element.style.display = 'none';
+        Array.from(offerMessageElements).forEach((element) => {
+          element.style.display = "none";
         });
       }
-
     };
     request.send();
   }
@@ -1972,11 +2015,11 @@ docReady(function () {
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/products?perPage=10000"
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products?perPage=10000"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -2494,24 +2537,72 @@ docReady(function () {
         data: "rotationIndicator",
         defaultContent: "brak",
         render: function (data) {
-          if (data == "AX") {
-            return '<p class="super">' + data + "</p>";
+          var tippyContent;
+          var baseClass = "tippy";
+
+          switch (data) {
+            case "AX":
+              tippyContent =
+                ' class="super ' +
+                baseClass +
+                '" data-tippy-content="Grupa A (80% marży) i X (stała sprzedaż)" alt=""';
+              break;
+            case "AY":
+              tippyContent =
+                ' class="positive ' +
+                baseClass +
+                '" data-tippy-content="Grupa A (80% marży) i Y (zmienna sprzedaż)" alt=""';
+              break;
+            case "BX":
+              tippyContent =
+                ' class="positive ' +
+                baseClass +
+                '" data-tippy-content="Grupa B (15% marży) i X (stała sprzedaż)" alt=""';
+              break;
+            case "AZ":
+              tippyContent =
+                ' class="medium ' +
+                baseClass +
+                '" data-tippy-content="Grupa A (80% marży) i Z (nieregularna sprzedaż)" alt=""';
+              break;
+            case "CX":
+              tippyContent =
+                ' class="medium ' +
+                baseClass +
+                '" data-tippy-content="Grupa C (5% marży) i X (stała sprzedaż)" alt=""';
+              break;
+            case "BY":
+              tippyContent =
+                ' class="medium ' +
+                baseClass +
+                '" data-tippy-content="Grupa B (15% marży) i Y (zmienna sprzedaż)" alt=""';
+              break;
+            case "BZ":
+              tippyContent =
+                ' class="negative ' +
+                baseClass +
+                '" data-tippy-content="Grupa B (15% marży) i Z (nieregularna sprzedaż)" alt=""';
+              break;
+            case "CY":
+              tippyContent =
+                ' class="negative ' +
+                baseClass +
+                '" data-tippy-content="Grupa C (5% marży) i Y (zmienna sprzedaż)" alt=""';
+              break;
+            case "CZ":
+              tippyContent =
+                ' class="bad ' +
+                baseClass +
+                '" data-tippy-content="Grupa C (5% marży) i Z (nieregularna sprzedaż)" alt=""';
+              break;
+            default:
+              tippyContent =
+                ' class="noneexisting ' +
+                baseClass +
+                '" data-tippy-content="Niewystarczająca historia" alt=""';
           }
-          if (data == "AY" || data == "BX") {
-            return '<p class="positive">' + data + "</p>";
-          }
-          if (data == "AZ" || data == "CX" || data == "BY") {
-            return '<p class="medium">' + data + "</p>";
-          }
-          if (data == "BZ" || data == "CY") {
-            return '<p class="negative">' + data + "</p>";
-          }
-          if (data == "CZ") {
-            return '<p class="bad">' + data + "</p>";
-          }
-          if (data == null) {
-            return '<p class="noneexisting">' + "-" + "</p>";
-          }
+
+          return "<p" + tippyContent + ">" + (data || "-") + "</p>";
         },
       },
       {
@@ -2578,12 +2669,12 @@ docReady(function () {
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers?filesFormat=" +
+          fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -2625,12 +2716,12 @@ docReady(function () {
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
