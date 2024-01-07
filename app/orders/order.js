@@ -943,7 +943,7 @@ docReady(function () {
               data: "assignmentSource",
               render: function (data) {
                 if (data !== null) {
-                  if (data === "bestMatch") {
+                  if (data === "best match") {
                     return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>';
                   } else if (data === "exclusive") {
                     return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>';
