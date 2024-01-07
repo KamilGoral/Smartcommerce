@@ -933,7 +933,7 @@ docReady(function () {
                     data.wholesalerKey,
                     data.asks,
                     0,
-                    item.assignmentSource
+                    data.assignmentSource
                   )
                 );
               },
