@@ -702,7 +702,8 @@ docReady(function () {
   function generateWholesalerSelect(
     selectedWholesalerKey,
     jsonData,
-    isDisabled
+    isDisabled,
+    assignmentSource // Additional parameter for assignment source
   ) {
     const wholesalersData = JSON.parse(
       sessionStorage.getItem("wholesalersData")
@@ -766,8 +767,11 @@ docReady(function () {
         }
       });
 
-      selectHTML +=
-        "<option value='remove' style='font-weight: bold'>Anuluj wybór</option></select>";
+      // Conditionally adding "Usuń przypisanie" option
+      if (assignmentSource !== "best match") {
+        selectHTML +=
+          "<option value='remove' style='font-weight: bold'>Usuń przypisanie</option>";
+      }
 
       return selectHTML;
     } else {
@@ -925,7 +929,12 @@ docReady(function () {
                   '<p style="font-size: 0;display: none">' +
                   data.wholesalerKey +
                   "</p>" +
-                  generateWholesalerSelect(data.wholesalerKey, data.asks, 0)
+                  generateWholesalerSelect(
+                    data.wholesalerKey,
+                    data.asks,
+                    0,
+                    item.assignmentSource
+                  )
                 );
               },
             },
