@@ -633,16 +633,13 @@ docReady(function () {
         item.netNetPrice = "-";
       }
       var typeOfSource = "";
-      if (item.source === "price-list") {
+      if (item.source === "price list") {
         typeOfSource = "Cennik";
       }
-      if (item.source === "online-offer") {
+      if (item.source === "online offer") {
         typeOfSource = "E-hurt";
       }
-      if (item.source === "konsola-kupca") {
-        typeOfSource = "PC-Market";
-      }
-      if (item.source === "PC-Market") {
+      if (item.source === "wms") {
         typeOfSource = "PC-Market";
       }
       if (item.originated === null) {
