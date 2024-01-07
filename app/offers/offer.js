@@ -1084,69 +1084,69 @@ docReady(function () {
         data: "rotationIndicator",
         defaultContent: "brak",
         render: function (data) {
-          var tippyContent,
-            baseClass = "tippy ";
+          var tippyContent;
+          var baseClass = "tippy";
 
           switch (data) {
             case "AX":
               tippyContent =
-                ' data-tippy-content="Grupa A (80% marży) i X (stały popyt)" alt="" class="' +
+                ' class="super ' +
                 baseClass +
-                'super"';
+                '" data-tippy-content="Grupa A (80% marży) i X (stała sprzedaż)" alt=""';
               break;
             case "AY":
               tippyContent =
-                ' data-tippy-content="Grupa A (80% marży) i Y (zmienne zapotrzebowanie)" alt="" class="' +
+                ' class="positive ' +
                 baseClass +
-                'positive"';
+                '" data-tippy-content="Grupa A (80% marży) i Y (zmienna sprzedaż)" alt=""';
               break;
             case "BX":
               tippyContent =
-                ' data-tippy-content="Grupa B (15% marży) i X (stały popyt)" alt="" class="' +
+                ' class="positive ' +
                 baseClass +
-                'positive"';
+                '" data-tippy-content="Grupa B (15% marży) i X (stała sprzedaż)" alt=""';
               break;
             case "AZ":
               tippyContent =
-                ' data-tippy-content="Grupa A (80% marży) i Z (nieregularny popyt)" alt="" class="' +
+                ' class="medium ' +
                 baseClass +
-                'medium"';
+                '" data-tippy-content="Grupa A (80% marży) i Z (nieregularna sprzedaż)" alt=""';
               break;
             case "CX":
               tippyContent =
-                ' data-tippy-content="Grupa C (5% marży) i X (stały popyt)" alt="" class="' +
+                ' class="medium ' +
                 baseClass +
-                'medium"';
+                '" data-tippy-content="Grupa C (5% marży) i X (stała sprzedaż)" alt=""';
               break;
             case "BY":
               tippyContent =
-                ' data-tippy-content="Grupa B (15% marży) i Y (zmienne zapotrzebowanie)" alt="" class="' +
+                ' class="medium ' +
                 baseClass +
-                'medium"';
+                '" data-tippy-content="Grupa B (15% marży) i Y (zmienna sprzedaż)" alt=""';
               break;
             case "BZ":
               tippyContent =
-                ' data-tippy-content="Grupa B (15% marży) i Z (nieregularny popyt)" alt="" class="' +
+                ' class="negative ' +
                 baseClass +
-                'negative"';
+                '" data-tippy-content="Grupa B (15% marży) i Z (nieregularna sprzedaż)" alt=""';
               break;
             case "CY":
               tippyContent =
-                ' data-tippy-content="Grupa C (5% marży) i Y (zmienne zapotrzebowanie)" alt="" class="' +
+                ' class="negative ' +
                 baseClass +
-                'negative"';
+                '" data-tippy-content="Grupa C (5% marży) i Y (zmienna sprzedaż)" alt=""';
               break;
             case "CZ":
               tippyContent =
-                ' data-tippy-content="Grupa C (5% marży) i Z (nieregularny popyt)" alt="" class="' +
+                ' class="bad ' +
                 baseClass +
-                'bad"';
+                '" data-tippy-content="Grupa C (5% marży) i Z (nieregularna sprzedaż)" alt=""';
               break;
             default:
               tippyContent =
-                ' data-tippy-content="Brak danych" alt="" class="' +
+                ' class="noneexisting ' +
                 baseClass +
-                'noneexisting"';
+                '" data-tippy-content="Brak danych" alt=""';
           }
 
           return "<p" + tippyContent + ">" + (data || "-") + "</p>";
