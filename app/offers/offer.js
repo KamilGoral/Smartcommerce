@@ -742,7 +742,7 @@ docReady(function () {
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
@@ -1389,8 +1389,11 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
   $("table.dataTable").on("init.dt", function () {
-    LoadTippy();
     $(this).DataTable().columns.adjust();
+    setTimeout(function () {
+      LoadTippy();
+      console.log("Tippy Loaded");
+    }, 2000);
   });
 
   $("table.dataTable").on("page.dt", function () {
