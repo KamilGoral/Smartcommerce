@@ -680,13 +680,13 @@ docReady(function () {
           typeOfPromotion = "Sztywny pakiet";
         }
         if (item.promotion.type === "worth") {
-          typeOfPromotion = "Łączna wartosc";
+          typeOfPromotion = "Łączna wartość";
         }
         if (item.promotion.type === "quantity") {
-          typeOfPromotion = "Łączna ilosc";
+          typeOfPromotion = "Łączna ilość";
         }
         if (item.promotion.type === "package mix") {
-          typeOfPromotion = "Mix opakowan";
+          typeOfPromotion = "Mix opakowań";
         }
         if (item.promotion.type === "quantity bundle") {
           typeOfPromotion = "Pakietowa";
@@ -742,7 +742,7 @@ docReady(function () {
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Stan.mag</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
