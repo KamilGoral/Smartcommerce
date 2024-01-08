@@ -645,6 +645,10 @@ docReady(function () {
       if (item.originated === null) {
         item.originated = "-";
       }
+      if (item.stock === null) {
+        item.stock = "-";
+      }
+
       var tableRowHtml =
         "<tr>" +
         "<td>" +
@@ -665,13 +669,11 @@ docReady(function () {
         "<td>" +
         item.originated +
         "</td>";
+      "<td>" + item.stock + "</td>";
+
       var typeOfPromotion = "";
       var showRelated = "";
       if (item.promotion != null) {
-        tableRowHtml +=
-          "<td>" +
-          '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg">' +
-          "</td>";
         if (item.promotion.type === "rigid bundle") {
           typeOfPromotion = "Sztywny pakiet";
         }
@@ -738,7 +740,7 @@ docReady(function () {
     }
     arr.forEach(myFunction);
     return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Promocja</th><th>Typ</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
+      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Dostępność</th><th>Typ</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
       toDisplayHtml +
       "</table>"
     );
