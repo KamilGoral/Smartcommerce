@@ -696,7 +696,7 @@ docReady(function () {
         }
         if (item.promotion.relatedGtins.length > 0) {
           showRelated =
-            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
+            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="tippy" data-tippy-content="' +
             item.promotion.relatedGtins +
             '" alt="">';
         } else {
