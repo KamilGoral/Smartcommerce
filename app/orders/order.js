@@ -2998,14 +2998,21 @@ docReady(function () {
       tr.addClass("shown");
     }
   });
-
   $("#table_id tbody").on("click", "img.showdata", function () {
     var dataToDisplay = $(this);
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
-    var input = dataToDisplay.data("content");
+    var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
-    var output = "<td>" + values.join("<br>") + "</td>";
+
+    var output = "<td>";
+
+    for (var i = 0; i < values.length; i++) {
+      output += "<p>" + values[i] + "</p>";
+    }
+
+    output += "</td>";
+
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
   });

@@ -1214,10 +1214,19 @@ docReady(function () {
     const popupContent = document.getElementById("popupContent");
     var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
-    var output = "<td>" + values.join("<br>") + "</td>";
+
+    var output = "<td>";
+
+    for (var i = 0; i < values.length; i++) {
+      output += "<p>" + values[i] + "</p>";
+    }
+
+    output += "</td>";
+
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
   });
+
   $("#table_id tbody").on("click", "td.details-control2", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
