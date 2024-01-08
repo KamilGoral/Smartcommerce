@@ -680,7 +680,7 @@ docReady(function () {
           typeOfPromotion = "Sztywny pakiet";
         }
         if (item.promotion.type === "worth") {
-          typeOfPromotion = "Laczna wartosc";
+          typeOfPromotion = "Łączna wartosc";
         }
         if (item.promotion.type === "quantity") {
           typeOfPromotion = "Laczna ilosc";
