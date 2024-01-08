@@ -1212,7 +1212,7 @@ docReady(function () {
     var dataToDisplay = $(this);
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
-    var input = dataToDisplay.data("content");
+    var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
     var output = "<td>" + values.join("<br>") + "</td>";
     popupContent.innerHTML = output;
