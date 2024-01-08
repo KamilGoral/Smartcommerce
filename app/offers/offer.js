@@ -696,7 +696,7 @@ docReady(function () {
         }
         if (item.promotion.relatedGtins.length > 0) {
           showRelated =
-            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="tippy" data-tippy-content="' +
+            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
             item.promotion.relatedGtins +
             '" alt="">';
         } else {
@@ -1389,11 +1389,8 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
   $("table.dataTable").on("init.dt", function () {
+    LoadTippy();
     $(this).DataTable().columns.adjust();
-    setTimeout(function () {
-      LoadTippy();
-      console.log("Tippy Loaded");
-    }, 2000);
   });
 
   $("table.dataTable").on("page.dt", function () {
