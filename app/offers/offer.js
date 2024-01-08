@@ -683,7 +683,7 @@ docReady(function () {
           typeOfPromotion = "Łączna wartosc";
         }
         if (item.promotion.type === "quantity") {
-          typeOfPromotion = "Laczna ilosc";
+          typeOfPromotion = "Łączna ilosc";
         }
         if (item.promotion.type === "package mix") {
           typeOfPromotion = "Mix opakowan";
