@@ -668,8 +668,10 @@ docReady(function () {
         "</td>" +
         "<td>" +
         item.originated +
+        "</td>" +
+        "<td>" +
+        item.stock +
         "</td>";
-      "<td>" + item.stock + "</td>";
 
       var typeOfPromotion = "";
       var showRelated = "";
@@ -722,8 +724,6 @@ docReady(function () {
           "</tr>";
       } else {
         tableRowHtml +=
-          "<td>" +
-          "</td>" +
           "<td>" +
           "</td>" +
           "<td>" +
