@@ -657,38 +657,35 @@ docReady(function () {
 
         tableRowHtml +=
           "<td>" +
-          (typeOfPromotion !== null ? typeOfPromotion : "") +
+          (typeOfPromotion !== null ? typeOfPromotion : "-") +
           "</td>" +
           "<td>" +
-          (item.promotion.threshold !== null ? item.promotion.threshold : "") +
+          (item.promotion.threshold !== null ? item.promotion.threshold : "-") +
           "</td>" +
           "<td>" +
           (item.promotion.maxQuantity !== null
             ? item.promotion.maxQuantity
-            : "") +
+            : "-") +
           "</td>" +
           "<td>" +
-          (item.promotion.package !== null ? item.promotion.package : "") +
+          (item.promotion.package !== null ? item.promotion.package : "-") +
           "</td>" +
           "<td>" +
-          (showRelated !== null ? showRelated : "") +
+          (showRelated !== null ? showRelated : "-") +
           "</td>" +
           "</tr>";
       } else {
         tableRowHtml +=
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "</tr>";
+          "<td>-" +
+          "</td>";
       }
       toDisplayHtml += tableRowHtml;
     }
@@ -1909,38 +1906,35 @@ docReady(function () {
 
         tableRowHtml +=
           "<td>" +
-          (typeOfPromotion !== null ? typeOfPromotion : "") +
+          (typeOfPromotion !== null ? typeOfPromotion : "-") +
           "</td>" +
           "<td>" +
-          (item.promotion.threshold !== null ? item.promotion.threshold : "") +
+          (item.promotion.threshold !== null ? item.promotion.threshold : "-") +
           "</td>" +
           "<td>" +
           (item.promotion.maxQuantity !== null
             ? item.promotion.maxQuantity
-            : "") +
+            : "-") +
           "</td>" +
           "<td>" +
-          (item.promotion.package !== null ? item.promotion.package : "") +
+          (item.promotion.package !== null ? item.promotion.package : "-") +
           "</td>" +
           "<td>" +
-          (showRelated !== null ? showRelated : "") +
+          (showRelated !== null ? showRelated : "-") +
           "</td>" +
           "</tr>";
       } else {
         tableRowHtml +=
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
+          "<td>-" +
           "</td>" +
-          "<td>" +
-          "</td>" +
-          "<td>" +
-          "</td>" +
-          "</tr>";
+          "<td>-" +
+          "</td>";
       }
       toDisplayHtml += tableRowHtml;
     }
