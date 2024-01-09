@@ -713,7 +713,7 @@ docReady(function () {
           "<td>" +
           (item.promotion.maxQuantity !== null
             ? item.promotion.maxQuantity
-            : "") +
+            : "-") +
           "</td>" +
           "<td>" +
           (item.promotion.package !== null ? item.promotion.package : "-") +
@@ -729,12 +729,11 @@ docReady(function () {
           "<td>-" +
           "</td>" +
           "<td>-" +
-          "</td>-" +
-          "<td>" +
-          "</td>-" +
-          "<td>" +
-          "</td>-" +
-          "<td>";
+          "</td>" +
+          "<td>-" +
+          "</td>" +
+          "<td>-" +
+          "</td>";
       }
       toDisplayHtml += tableRowHtml;
     }
