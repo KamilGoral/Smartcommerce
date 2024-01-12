@@ -815,7 +815,7 @@ docReady(function () {
 
         $("#splitted-products").show();
         var table = $("#spl_table").DataTable({
-          order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
+          order: [[9, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"f>rt<"bottom"lip>',
