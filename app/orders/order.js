@@ -1005,7 +1005,6 @@ docReady(function () {
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
                     ).toFixed(2);
-                    console.log(diffPercent);
                     return (
                       "<td>" +
                       diffPercent +
