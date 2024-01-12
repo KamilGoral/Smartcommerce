@@ -971,6 +971,8 @@ docReady(function () {
                             .filter((price) => price !== null)
                         )
                       : null;
+                    console.log(currentPrice);
+                    console.log(lowestPrice);
                   } else {
                     currentPrice = data.netPrice;
                     lowestPrice = data.asks.length
@@ -980,6 +982,8 @@ docReady(function () {
                             .filter((price) => price !== null)
                         )
                       : null;
+                    console.log(currentPrice);
+                    console.log(lowestPrice);
                   }
 
                   if (currentPrice > lowestPrice) {
@@ -987,6 +991,7 @@ docReady(function () {
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
                     ).toFixed(2);
+                    console.log(diffPercent);
                     return (
                       "<td>" +
                       diffPercent +
