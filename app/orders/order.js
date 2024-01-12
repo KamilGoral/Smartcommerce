@@ -960,32 +960,37 @@ docReady(function () {
               // class: "details-invisible",
               render: function (data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
-                  let currentPrice =
-                    data.netNetPrice !== null
-                      ? data.netNetPrice
-                      : data.netPrice;
-
-                  // Creating an array of prices from the asks array
-                  let prices = data.asks
-                    .map((a) =>
-                      data.netNetPrice !== null ? a.netNetPrice : a.netPrice
-                    )
-                    .filter((price) => price !== null);
-
-                  // Set lowestPrice to Infinity initially
-                  let lowestPrice = Infinity;
-
-                  // If there are valid prices in the prices array, find the lowest
-                  if (prices.length > 0) {
-                    lowestPrice = Math.min(...prices);
+                  let currentPrice = 0;
+                  let lowestPrice = 0;
+                  if (
+                    data.netNetPrice !== null &&
+                    data.netNetPrice !== data.netPrice
+                  ) {
+                    currentPrice = data.netNetPrice;
+                    lowestPrice = data.asks.length
+                      ? Math.min(
+                          ...data.asks
+                            .map((a) => a.netNetPrice)
+                            .filter((price) => price !== null)
+                        )
+                      : null;
+                  } else {
+                    currentPrice = data.netPrice;
+                    lowestPrice = data.asks.length
+                      ? Math.min(
+                          ...data.asks
+                            .map((a) => a.netPrice)
+                            .filter((price) => price !== null)
+                        )
+                      : null;
                   }
 
-                  // Check if lowestPrice is a finite number
-                  if (isFinite(lowestPrice) && currentPrice > lowestPrice) {
+                  if (currentPrice > lowestPrice) {
                     var diffPercent = (
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
                     ).toFixed(2);
+                    console.log(diffPercent);
                     return (
                       "<td>" +
                       diffPercent +
