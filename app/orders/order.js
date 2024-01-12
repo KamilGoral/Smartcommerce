@@ -960,32 +960,47 @@ docReady(function () {
               // class: "details-invisible",
               render: function (data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
-                  let currentPrice = 0;
-                  let lowestPrice = 0;
-                  if (
-                    data.netNetPrice !== null &&
-                    data.netNetPrice !== data.netPrice
-                  ) {
-                    currentPrice = data.netNetPrice;
-                    lowestPrice = data.asks.length
-                      ? Math.min(
-                          ...data.asks
-                            .map((a) => a.netNetPrice)
-                            .filter((price) => price !== null)
-                        )
-                      : null;
-                  } else {
-                    currentPrice = data.netPrice;
-                    lowestPrice = data.asks.length
-                      ? Math.min(
-                          ...data.asks
-                            .map((a) => a.netPrice)
-                            .filter((price) => price !== null)
-                        )
-                      : null;
+                  let currentPrice =
+                    data.netNetPrice !== null
+                      ? data.netNetPrice
+                      : data.netPrice;
+
+                  // Znajdowanie najniższych wartości dla netPrice i netNetPrice, pomijając null dla netNetPrice
+                  let lowestNetPrice = Infinity;
+                  let lowestNetNetPrice = Infinity;
+
+                  data.asks.forEach((ask) => {
+                    if (ask.netPrice !== null) {
+                      lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                    }
+                    if (ask.netNetPrice !== null) {
+                      lowestNetNetPrice = Math.min(
+                        lowestNetNetPrice,
+                        ask.netNetPrice
+                      );
+                    }
+                  });
+
+                  // Pomijanie wartości null dla netNetPrice
+                  if (lowestNetNetPrice === Infinity) {
+                    lowestNetNetPrice = null;
                   }
 
-                  if (currentPrice > lowestPrice) {
+                  // Wybór najniższej wartości spośród najniższych asków
+                  let lowestPrice;
+                  if (
+                    lowestNetPrice !== Infinity &&
+                    lowestNetNetPrice !== null
+                  ) {
+                    lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
+                  } else {
+                    // Używamy tylko netPrice, jeśli netNetPrice jest null
+                    lowestPrice =
+                      lowestNetPrice !== Infinity ? lowestNetPrice : null;
+                  }
+
+                  // Sprawdzanie, czy najniższa cena jest skończona i różna od null
+                  if (lowestPrice !== null && currentPrice > lowestPrice) {
                     var diffPercent = (
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
