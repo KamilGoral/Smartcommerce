@@ -960,11 +960,20 @@ docReady(function () {
               // class: "details-invisible",
               render: function (data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
-                  let currentPrice =
-                    data.netNetPrice !== null
-                      ? data.netNetPrice
-                      : data.netPrice;
+                  // Wybór niższej wartości, ale nie null
+                  if (data.netNetPrice !== null && data.netPrice !== null) {
+                    currentPrice = Math.min(data.netNetPrice, data.netPrice);
+                  } else {
+                    currentPrice =
+                      data.netNetPrice !== null
+                        ? data.netNetPrice
+                        : data.netPrice;
+                  }
 
+                  // Jeśli obie wartości są null, przerywamy dalsze działanie
+                  if (currentPrice === null) {
+                    return "<td>N/A</td>";
+                  }
                   // Znajdowanie najniższych wartości dla netPrice i netNetPrice, pomijając null dla netNetPrice
                   let lowestNetPrice = Infinity;
                   let lowestNetNetPrice = Infinity;
