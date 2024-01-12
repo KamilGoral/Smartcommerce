@@ -1128,7 +1128,10 @@ docReady(function () {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice = 0;
               let lowestPrice = 0;
-              if (data.netNetPrice !== null) {
+              if (
+                data.netNetPrice !== null &&
+                data.netNetPrice !== data.netPrice
+              ) {
                 currentPrice = data.netNetPrice;
                 lowestPrice = data.asks.length
                   ? Math.min(
