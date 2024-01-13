@@ -869,6 +869,10 @@ docReady(function () {
               data: "name",
             },
             {
+              orderable: false,
+              data: "countryDistributorName",
+            },
+            {
               orderable: true,
               data: "gtin",
             },
@@ -2197,6 +2201,7 @@ docReady(function () {
             gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
             "new-name": $("#new-name").val(),
+            countryDistributorName: $("#countryDistributorName").val(),
             brand: $("#brand").val(),
             measurement: $("#measurement").val(),
             quantity: $("#quantity").val(),
@@ -2482,6 +2487,10 @@ docReady(function () {
       {
         orderable: true,
         data: "name",
+      },
+      {
+        orderable: false,
+        data: "countryDistributorName",
       },
       {
         orderable: false,

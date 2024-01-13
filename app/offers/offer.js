@@ -953,7 +953,7 @@ docReady(function () {
         data: "name",
       },
       {
-        orderable: true,
+        orderable: false,
         data: "countryDistributorName",
       },
       {
