@@ -814,6 +814,12 @@ docReady(function () {
         updateTableInputsFromSessionStorage(orderId);
 
         $("#splitted-products").show();
+
+        $("#spl_table thead tr")
+          .clone(true)
+          .addClass("filters")
+          .appendTo("#spl_table thead");
+
         var table = $("#spl_table").DataTable({
           order: [[9, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
