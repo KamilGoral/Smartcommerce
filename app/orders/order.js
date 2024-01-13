@@ -3223,6 +3223,7 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
+    $(".dataTables_filter input").attr("maxLength", 60);
 
     $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();

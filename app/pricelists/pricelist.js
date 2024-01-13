@@ -382,4 +382,20 @@ docReady(function () {
   makeWebflowFormAjaxDeletePriceList($(formIdDeletePriceList));
   makeWebflowFormAjaxEditPriceList($(formIdEditPriceList));
   getPriceList();
+  $(document).ready(function ($) {
+    $("tableSelector").DataTable({
+      dom: '<"pull-left"f><"pull-right"l>tip',
+    });
+    $(".dataTables_filter input").attr("maxLength", 60);
+    setTimeout(function () {
+      // Your code to adjust DataTable columns
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+      console.log("Adjusting");
+    }, 2000);
+    setTimeout(function () {
+      // Your code to adjust DataTable columns
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+      console.log("Adjusting");
+    }, 4000);
+  });
 });

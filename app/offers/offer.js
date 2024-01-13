@@ -1413,6 +1413,7 @@ docReady(function () {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
+    $(".dataTables_filter input").attr("maxLength", 60);
     setTimeout(function () {
       // Your code to adjust DataTable columns
       $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
