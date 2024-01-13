@@ -1400,10 +1400,15 @@ docReady(function () {
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
-  $("table.dataTable").on("init.dt", function () {
-    LoadTippy();
-    $(this).DataTable().columns.adjust();
-  });
+  $("table.dataTable")
+    .on("init.dt", function () {
+      $(this).DataTable().columns.adjust();
+      LoadTippy();
+    })
+    .on("xhr.dt", function () {
+      $(this).DataTable().columns.adjust();
+      LoadTippy();
+    });
 
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
