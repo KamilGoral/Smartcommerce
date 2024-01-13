@@ -877,7 +877,7 @@ docReady(function () {
               data: "name",
             },
             {
-              orderable: false,
+              orderable: true,
               data: "countryDistributorName",
               defaultContent: "-",
             },
@@ -886,7 +886,7 @@ docReady(function () {
               data: "gtin",
             },
             {
-              orderable: false,
+              orderable: true,
               data: "stock",
               render: function (data) {
                 if (data !== null) {
@@ -909,7 +909,7 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               data: "standardPrice",
               render: function (data) {
                 if (data !== null) {
@@ -1205,48 +1205,53 @@ docReady(function () {
               .columns()
               .eq(0)
               .each(function (colIdx) {
-                // Set the header cell to contain the input element
-                var cell = $(".filters th").eq(
-                  $(api.column(colIdx).header()).index()
-                );
-                var title = $(cell).text();
-                $(cell).html(
-                  '<input type="text" placeholder="Szukaj ' + title + '" />'
-                );
+                // Check if the column is orderable
+                var column = api.column(colIdx);
+                var isOrderable = column.orderable();
 
-                // On every keypress in this input
-                $(
-                  "input",
-                  $(".filters th").eq($(api.column(colIdx).header()).index())
-                )
-                  .off("keyup change")
-                  .on("change", function (e) {
-                    // Get the search value
-                    $(this).attr("title", $(this).val());
-                    var regexr = "({search})"; // Use regex for the search if needed
-                    var cursorPosition = this.selectionStart;
-                    // Search the column for that value
-                    api
-                      .column(colIdx)
-                      .search(
-                        this.value != ""
-                          ? regexr.replace(
-                              "{search}",
-                              "(((" + this.value + ")))"
-                            )
-                          : "",
-                        this.value != "",
-                        this.value == ""
-                      )
-                      .draw();
-                  })
-                  .on("keyup", function (e) {
-                    e.stopPropagation();
-                    $(this).trigger("change");
-                    $(this)
-                      .focus()[0]
-                      .setSelectionRange(cursorPosition, cursorPosition);
-                  });
+                if (isOrderable) {
+                  // Only proceed if the column is orderable
+                  // Set the header cell to contain the input element
+                  var cell = $(".filters th").eq($(column.header()).index());
+                  var title = $(cell).text();
+                  $(cell).html(
+                    '<input type="text" placeholder="Szukaj ' + title + '" />'
+                  );
+
+                  // On every keypress in this input
+                  $("input", $(".filters th").eq($(column.header()).index()))
+                    .off("keyup change")
+                    .on("change", function (e) {
+                      // Get the search value
+                      $(this).attr("title", $(this).val());
+                      var regexr = "({search})"; // Use regex for the search if needed
+                      var cursorPosition = this.selectionStart;
+                      // Search the column for that value
+                      column
+                        .search(
+                          this.value != ""
+                            ? regexr.replace(
+                                "{search}",
+                                "(((" + this.value + ")))"
+                              )
+                            : "",
+                          this.value != "",
+                          this.value == ""
+                        )
+                        .draw();
+                    })
+                    .on("keyup", function (e) {
+                      e.stopPropagation();
+                      $(this).trigger("change");
+                      $(this)
+                        .focus()[0]
+                        .setSelectionRange(cursorPosition, cursorPosition);
+                    });
+                } else {
+                  // If the column is not orderable, clear the cell
+                  var cell = $(".filters th").eq($(column.header()).index());
+                  $(cell).html("");
+                }
               });
 
             var textBox = $("#spl_table_filter label input");
