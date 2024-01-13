@@ -1196,7 +1196,7 @@ docReady(function () {
             );
             //
             // Create a filter row as a jQuery object
-            var $filterRow = $('<tr class="filters"></tr>');
+            var $filterRow = $('<tr class="filtersData"></tr>');
 
             // Loop through the columns
             api.columns().every(function () {
@@ -1211,7 +1211,9 @@ docReady(function () {
               // Check if the column is orderable
               if (column.settings()[0].aoColumns[column.index()].bSortable) {
                 // Accessing the property directly
-                $filterCell.html('<input type="text"/>');
+                $filterCell.html(
+                  '<input type="text" style="max-width: 58px;"/>'
+                );
 
                 // Event handlers for the input
                 $("input", $filterCell).on("keyup change", function () {
