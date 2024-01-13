@@ -953,6 +953,10 @@ docReady(function () {
         data: "name",
       },
       {
+        orderable: true,
+        data: "countryDistributorName",
+      },
+      {
         orderable: false,
         data: "gtin",
       },
