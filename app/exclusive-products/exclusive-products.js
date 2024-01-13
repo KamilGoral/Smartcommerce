@@ -505,6 +505,7 @@ docReady(function () {
       {
         orderable: false,
         data: "countryDistributorName",
+        defaultContent: "-",
       },
       {
         orderable: true,

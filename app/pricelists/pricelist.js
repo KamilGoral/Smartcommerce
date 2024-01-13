@@ -178,7 +178,9 @@ docReady(function () {
                 data: "name",
               },
               {
+                orderable: false,
                 data: "countryDistributorName",
+                defaultContent: "-",
               },
               {
                 data: "price",

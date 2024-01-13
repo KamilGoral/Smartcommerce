@@ -871,6 +871,7 @@ docReady(function () {
             {
               orderable: false,
               data: "countryDistributorName",
+              defaultContent: "-",
             },
             {
               orderable: true,
@@ -2491,6 +2492,7 @@ docReady(function () {
       {
         orderable: false,
         data: "countryDistributorName",
+        defaultContent: "-",
       },
       {
         orderable: false,
