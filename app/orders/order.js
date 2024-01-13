@@ -1186,7 +1186,6 @@ docReady(function () {
             }
           },
           initComplete: function (settings, json) {
-            LoadTippy();
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
@@ -3225,12 +3224,21 @@ docReady(function () {
     });
     $(".dataTables_filter input").attr("maxLength", 60);
 
+    $("table.dataTable")
+      .on("init.dt", function () {
+        $(this).DataTable().columns.adjust();
+        LoadTippy();
+      })
+      .on("xhr.dt", function () {
+        $(this).DataTable().columns.adjust();
+        LoadTippy();
+      });
+
     $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
     });
     $("#table_id")
       .on("init.dt", function () {
-        LoadTippy();
         var x = 0;
         var intervalID = setInterval(function () {
           // For some reason we have to fire this function multiple times in order to work...
