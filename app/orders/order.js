@@ -1190,49 +1190,87 @@ docReady(function () {
           },
           initComplete: function (settings, json) {
             var api = this.api();
-            $("#lowerprice").removeClass("details-invisible");
-            $("#spl_table").wrap(
-              "<div style='overflow:auto; width:100%;position:relative;'></div>"
-            );
-            // // Work In Progress
-            // // Create a filter row as a jQuery object
-            // var $filterRow = $('<tr class="filtersData"></tr>');
+            // Create the select/dropdown filters
+            api.columns().every(function (colIdx) {
+              var column = this;
+              var header = $(column.header());
 
-            // // Loop through the columns
-            // api.columns().every(function () {
-            //   var column = this;
-
-            //   // Create a new TH element for the filter
-            //   var $filterCell = $("<th>");
-
-            //   // Append the filter cell to the filter row
-            //   $filterRow.append($filterCell);
-
-            //   // Check if the column is orderable
-            //   if (column.settings()[0].aoColumns[column.index()].bSortable) {
-            //     // Accessing the property directly
-            //     $filterCell.html(
-            //       '<input type="text" style="max-width: 58px;"/>'
-            //     );
-
-            //     // Event handlers for the input
-            //     $("input", $filterCell).on("keyup change", function () {
-            //       // Perform the search
-            //       if (column.search() !== this.value) {
-            //         column.search(this.value).draw();
-            //       }
-            //     });
-            //   } else {
-            //     // If the column is not orderable, you can either leave the cell empty or add a placeholder
-            //     $filterCell.html(" ");
-            //   }
-            // });
-
-            // Append the filter row to the table head
-            // $(api.table().header()).append($filterRow);
-            // Adjust collumns width
+              switch (header.text()) {
+                // For 'Dystrybutor' and 'Dostawca', we create a select dropdown
+                case "Dystrybutor":
+                case "Dostawca":
+                  var select = $('<select><option value=""></option></select>')
+                    .appendTo($(column.header()).empty())
+                    .on("change", function () {
+                      var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                      column
+                        .search(val ? "^" + val + "$" : "", true, false)
+                        .draw();
+                    });
+                  column
+                    .data()
+                    .unique()
+                    .sort()
+                    .each(function (d, j) {
+                      select.append(
+                        '<option value="' + d + '">' + d + "</option>"
+                      );
+                    });
+                  break;
+                // For 'Nazwa' and 'Kod', we add a text input for searching
+                case "Nazwa":
+                case "Kod":
+                  $(
+                    '<input type="text" style="max-width: 58px;" placeholder="Szukaj ' +
+                      header.text() +
+                      '" />'
+                  )
+                    .appendTo(header.empty())
+                    .on("keyup change", function () {
+                      if (column.search() !== this.value) {
+                        column.search(this.value).draw();
+                      }
+                    });
+                  break;
+                // For 'Klasa', we create a select dropdown as well
+                case "Klasa":
+                  var select = $('<select><option value=""></option></select>')
+                    .appendTo($(column.header()).empty())
+                    .on("change", function () {
+                      var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                      column
+                        .search(val ? "^" + val + "$" : "", true, false)
+                        .draw();
+                    });
+                  column
+                    .data()
+                    .unique()
+                    .sort()
+                    .each(function (d, j) {
+                      select.append(
+                        '<option value="' + d + '">' + d + "</option>"
+                      );
+                    });
+                  break;
+                // For columns that are sortable only, we do not need to add a filter input
+                case "Stan":
+                case "Ilość":
+                case "Cena Ew.":
+                case "Twoja Cena":
+                case "Wybór":
+                case "Obniż Cenę":
+                case "PE%":
+                  break;
+                // Default case for any other headers
+                default:
+                  header.empty();
+                  break;
+              }
+            });
+            // Adjust columns size
             api.columns.adjust().draw();
 
+            // Rebind the global filter textbox to only search when the enter key is pressed
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
             textBox.bind("keyup input", function (e) {
