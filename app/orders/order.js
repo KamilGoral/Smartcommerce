@@ -1211,11 +1211,7 @@ docReady(function () {
               // Check if the column is orderable
               if (column.settings()[0].aoColumns[column.index()].bSortable) {
                 // Accessing the property directly
-                // If the column is orderable, add an input field
-                var title = $(column.header()).text();
-                $filterCell.html(
-                  '<input type="text" placeholder="Szukaj ' + title + '" />'
-                );
+                $filterCell.html('<input type="text"/>');
 
                 // Event handlers for the input
                 $("input", $filterCell).on("keyup change", function () {
