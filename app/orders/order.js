@@ -1228,7 +1228,8 @@ docReady(function () {
 
             // Append the filter row to the table head
             $(api.table().header()).append($filterRow);
-            //
+            // Adjust collumns width
+            table.columns.adjust().draw();
 
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
