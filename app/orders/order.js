@@ -1229,7 +1229,7 @@ docReady(function () {
             // });
 
             // Append the filter row to the table head
-            $(api.table().header()).append($filterRow);
+            // $(api.table().header()).append($filterRow);
             // Adjust collumns width
             api.columns.adjust().draw();
 
