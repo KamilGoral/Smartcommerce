@@ -1194,7 +1194,7 @@ docReady(function () {
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
-            // //
+            // // Work In Progress
             // // Create a filter row as a jQuery object
             // var $filterRow = $('<tr class="filtersData"></tr>');
 
