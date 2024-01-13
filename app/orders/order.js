@@ -822,6 +822,8 @@ docReady(function () {
           scrollY: "60vh",
           scrollCollapse: true,
           pageLength: 25,
+          orderCellsTop: true,
+          fixedHeader: true,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -1191,6 +1193,56 @@ docReady(function () {
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
+            //
+            // For each column
+            api
+              .columns()
+              .eq(0)
+              .each(function (colIdx) {
+                // Set the header cell to contain the input element
+                var cell = $(".filters th").eq(
+                  $(api.column(colIdx).header()).index()
+                );
+                var title = $(cell).text();
+                $(cell).html(
+                  '<input type="text" placeholder="Szukaj ' + title + '" />'
+                );
+
+                // On every keypress in this input
+                $(
+                  "input",
+                  $(".filters th").eq($(api.column(colIdx).header()).index())
+                )
+                  .off("keyup change")
+                  .on("change", function (e) {
+                    // Get the search value
+                    $(this).attr("title", $(this).val());
+                    var regexr = "({search})"; // Use regex for the search if needed
+                    var cursorPosition = this.selectionStart;
+                    // Search the column for that value
+                    api
+                      .column(colIdx)
+                      .search(
+                        this.value != ""
+                          ? regexr.replace(
+                              "{search}",
+                              "(((" + this.value + ")))"
+                            )
+                          : "",
+                        this.value != "",
+                        this.value == ""
+                      )
+                      .draw();
+                  })
+                  .on("keyup", function (e) {
+                    e.stopPropagation();
+                    $(this).trigger("change");
+                    $(this)
+                      .focus()[0]
+                      .setSelectionRange(cursorPosition, cursorPosition);
+                  });
+              });
+
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
             textBox.bind("keyup input", function (e) {
@@ -2887,7 +2939,6 @@ docReady(function () {
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
-      console.log(data);
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity) || quantity < 0) {
