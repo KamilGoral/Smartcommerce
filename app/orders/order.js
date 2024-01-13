@@ -815,11 +815,6 @@ docReady(function () {
 
         $("#splitted-products").show();
 
-        $("#spl_table thead tr")
-          .clone(true)
-          .addClass("filters")
-          .appendTo("#spl_table thead");
-
         var table = $("#spl_table").DataTable({
           order: [[9, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
@@ -1200,59 +1195,44 @@ docReady(function () {
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
             //
-            // For each column
-            api
-              .columns()
-              .eq(0)
-              .each(function (colIdx) {
-                // Check if the column is orderable
-                var column = api.column(colIdx);
-                var isOrderable = column.orderable();
+            // Create a filter row as a jQuery object
+            var $filterRow = $('<tr class="filters"></tr>');
 
-                if (isOrderable) {
-                  // Only proceed if the column is orderable
-                  // Set the header cell to contain the input element
-                  var cell = $(".filters th").eq($(column.header()).index());
-                  var title = $(cell).text();
-                  $(cell).html(
-                    '<input type="text" placeholder="Szukaj ' + title + '" />'
-                  );
+            // Loop through the columns
+            api.columns().every(function () {
+              var column = this;
 
-                  // On every keypress in this input
-                  $("input", $(".filters th").eq($(column.header()).index()))
-                    .off("keyup change")
-                    .on("change", function (e) {
-                      // Get the search value
-                      $(this).attr("title", $(this).val());
-                      var regexr = "({search})"; // Use regex for the search if needed
-                      var cursorPosition = this.selectionStart;
-                      // Search the column for that value
-                      column
-                        .search(
-                          this.value != ""
-                            ? regexr.replace(
-                                "{search}",
-                                "(((" + this.value + ")))"
-                              )
-                            : "",
-                          this.value != "",
-                          this.value == ""
-                        )
-                        .draw();
-                    })
-                    .on("keyup", function (e) {
-                      e.stopPropagation();
-                      $(this).trigger("change");
-                      $(this)
-                        .focus()[0]
-                        .setSelectionRange(cursorPosition, cursorPosition);
-                    });
-                } else {
-                  // If the column is not orderable, clear the cell
-                  var cell = $(".filters th").eq($(column.header()).index());
-                  $(cell).html("");
-                }
-              });
+              // Create a new TH element for the filter
+              var $filterCell = $("<th>");
+
+              // Append the filter cell to the filter row
+              $filterRow.append($filterCell);
+
+              // Check if the column is orderable
+              if (column.settings()[0].aoColumns[column.index()].bSortable) {
+                // Accessing the property directly
+                // If the column is orderable, add an input field
+                var title = $(column.header()).text();
+                $filterCell.html(
+                  '<input type="text" placeholder="Szukaj ' + title + '" />'
+                );
+
+                // Event handlers for the input
+                $("input", $filterCell).on("keyup change", function () {
+                  // Perform the search
+                  if (column.search() !== this.value) {
+                    column.search(this.value).draw();
+                  }
+                });
+              } else {
+                // If the column is not orderable, you can either leave the cell empty or add a placeholder
+                $filterCell.html(" ");
+              }
+            });
+
+            // Append the filter row to the table head
+            $(api.table().header()).append($filterRow);
+            //
 
             var textBox = $("#spl_table_filter label input");
             textBox.unbind();
