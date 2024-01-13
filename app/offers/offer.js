@@ -1322,6 +1322,7 @@ docReady(function () {
             gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
             "new-name": $("#new-name").val(),
+            countryDistributorName: $("#countryDistributorName").val(),
             brand: $("#brand").val(),
             measurement: $("#measurement").val(),
             quantity: $("#quantity").val(),
