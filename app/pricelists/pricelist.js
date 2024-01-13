@@ -178,6 +178,9 @@ docReady(function () {
                 data: "name",
               },
               {
+                data: "countryDistributorName",
+              },
+              {
                 data: "price",
               },
             ],
