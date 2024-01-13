@@ -1194,39 +1194,39 @@ docReady(function () {
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
-            //
-            // Create a filter row as a jQuery object
-            var $filterRow = $('<tr class="filtersData"></tr>');
+            // //
+            // // Create a filter row as a jQuery object
+            // var $filterRow = $('<tr class="filtersData"></tr>');
 
-            // Loop through the columns
-            api.columns().every(function () {
-              var column = this;
+            // // Loop through the columns
+            // api.columns().every(function () {
+            //   var column = this;
 
-              // Create a new TH element for the filter
-              var $filterCell = $("<th>");
+            //   // Create a new TH element for the filter
+            //   var $filterCell = $("<th>");
 
-              // Append the filter cell to the filter row
-              $filterRow.append($filterCell);
+            //   // Append the filter cell to the filter row
+            //   $filterRow.append($filterCell);
 
-              // Check if the column is orderable
-              if (column.settings()[0].aoColumns[column.index()].bSortable) {
-                // Accessing the property directly
-                $filterCell.html(
-                  '<input type="text" style="max-width: 58px;"/>'
-                );
+            //   // Check if the column is orderable
+            //   if (column.settings()[0].aoColumns[column.index()].bSortable) {
+            //     // Accessing the property directly
+            //     $filterCell.html(
+            //       '<input type="text" style="max-width: 58px;"/>'
+            //     );
 
-                // Event handlers for the input
-                $("input", $filterCell).on("keyup change", function () {
-                  // Perform the search
-                  if (column.search() !== this.value) {
-                    column.search(this.value).draw();
-                  }
-                });
-              } else {
-                // If the column is not orderable, you can either leave the cell empty or add a placeholder
-                $filterCell.html(" ");
-              }
-            });
+            //     // Event handlers for the input
+            //     $("input", $filterCell).on("keyup change", function () {
+            //       // Perform the search
+            //       if (column.search() !== this.value) {
+            //         column.search(this.value).draw();
+            //       }
+            //     });
+            //   } else {
+            //     // If the column is not orderable, you can either leave the cell empty or add a placeholder
+            //     $filterCell.html(" ");
+            //   }
+            // });
 
             // Append the filter row to the table head
             $(api.table().header()).append($filterRow);
