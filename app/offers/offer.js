@@ -873,7 +873,7 @@ docReady(function () {
         case 2:
           whichColumns = "name:";
           break;
-        case 4:
+        case 5:
           whichColumns = "stock:";
           break;
         case 6:
