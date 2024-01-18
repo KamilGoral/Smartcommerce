@@ -876,19 +876,19 @@ docReady(function () {
         case 4:
           whichColumns = "stock:";
           break;
-        case 5:
+        case 6:
           whichColumns = "marketPremium:";
           break;
-        case 6:
+        case 7:
           whichColumns = "standardPremium:";
           break;
-        case 7:
+        case 8:
           whichColumns = "standardPrice:";
           break;
-        case 9:
+        case 10:
           whichColumns = "bestNetPrice:";
           break;
-        case 11:
+        case 12:
           whichColumns = "rotationIndicator:";
           break;
         default:
