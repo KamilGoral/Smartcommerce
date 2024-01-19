@@ -31,11 +31,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ExclusiveWizardBread = document.getElementById("ExclusiveWizardBread");
@@ -480,7 +480,6 @@ docReady(function () {
         console.log(postData);
         var existingBlocksDisplayed = false; // Flag to track if existing blocks are displayed
 
-
         $.ajax({
           type: method,
           url: action,
@@ -507,6 +506,7 @@ docReady(function () {
             $("#Create-Exclusive-Success").show();
             $("#Create-Exclusive-Success").fadeOut(10000);
             $("#GTINInput").val("");
+            $("#waitingdots").hide();
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -518,7 +518,8 @@ docReady(function () {
             } else {
               var msg =
                 "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-              var elements = document.getElementsByClassName("warningmessagetext");
+              var elements =
+                document.getElementsByClassName("warningmessagetext");
               for (var i = 0; i < elements.length; i++) {
                 elements[i].textContent = msg;
               }
@@ -540,10 +541,12 @@ docReady(function () {
 
   function getExclusiveProduct(postData, callback) {
     const gtin = postData[0].gtin;
-    const url = new URL(InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000");
+    const url = new URL(
+      InvokeURL + "exclusive-products?gtin=" + gtin + "&perPage=1000"
+    );
 
     // Ustaw postData.endDate na datę za 100 lat, jeśli ma wartość "infinity"
-    if (postData[0].endDate === 'infinity') {
+    if (postData[0].endDate === "infinity") {
       const now = new Date();
       const futureDate = new Date(now);
       futureDate.setFullYear(now.getFullYear() + 100);
@@ -551,10 +554,10 @@ docReady(function () {
     }
 
     $.ajax({
-      type: 'GET',
+      type: "GET",
       url: url,
       headers: {
-        'Authorization': orgToken,
+        Authorization: orgToken,
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -566,7 +569,7 @@ docReady(function () {
         // Filter items based on conditions
         console.log(data);
         const tableContainer = document.getElementById("messageText");
-        tableContainer.innerHTML = ''; // Clear existing content
+        tableContainer.innerHTML = ""; // Clear existing content
 
         const table = document.createElement("table");
         table.setAttribute("border", "1");
@@ -576,7 +579,7 @@ docReady(function () {
 
         // Add table headers
         const headers = ["Dostawca", "Od", "Do"];
-        headers.forEach(headerText => {
+        headers.forEach((headerText) => {
           const th = document.createElement("th");
           th.textContent = headerText;
           headerRow.appendChild(th);
@@ -587,22 +590,27 @@ docReady(function () {
 
         const tbody = document.createElement("tbody");
 
-        data.items.forEach(item => {
+        data.items.forEach((item) => {
           const itemStartDate = new Date(item.startDate);
           const itemEndDate = new Date(item.endDate);
           const postDataStartDate = new Date(postData[0].startDate);
           const postDataEndDate = new Date(postData[0].endDate);
 
           // Formatuj daty do lokalnego formatu "dd.mm.yyyy"
-          const formatDate = date => {
+          const formatDate = (date) => {
             const day = date.getDate();
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-            return `${day < 10 ? '0' : ''}${day}.${month < 10 ? '0' : ''}${month}.${year}`;
+            return `${day < 10 ? "0" : ""}${day}.${
+              month < 10 ? "0" : ""
+            }${month}.${year}`;
           };
 
           // Sprawdź czy spełnione są warunki
-          if (postDataStartDate < itemEndDate && postDataEndDate > itemStartDate) {
+          if (
+            postDataStartDate < itemEndDate &&
+            postDataEndDate > itemStartDate
+          ) {
             const row = document.createElement("tr");
 
             const wholesalerCell = document.createElement("td");
@@ -639,8 +647,7 @@ docReady(function () {
         } else {
           var msg =
             "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-          var elements =
-            document.getElementsByClassName("warningmessagetext");
+          var elements = document.getElementsByClassName("warningmessagetext");
           for (var i = 0; i < elements.length; i++) {
             elements[i].textContent = msg;
           }
@@ -652,9 +659,6 @@ docReady(function () {
       },
     });
   }
-
-
-
 
   makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
   makeWebflowFormAjax($(formIdCreatePricing));
