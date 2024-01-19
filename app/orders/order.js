@@ -1158,37 +1158,63 @@ docReady(function () {
           ],
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
-              let currentPrice = 0;
-              let lowestPrice = 0;
-              if (
-                data.netNetPrice !== null &&
-                data.netNetPrice !== data.netPrice
-              ) {
-                currentPrice = data.netNetPrice;
-                lowestPrice = data.asks.length
-                  ? Math.min(
-                      ...data.asks
-                        .map((a) => a.netNetPrice)
-                        .filter((price) => price !== null)
-                    )
-                  : null;
+              // Choose the lower value, but not null
+              let currentPrice;
+              if (data.netNetPrice !== null && data.netPrice !== null) {
+                currentPrice = Math.min(data.netNetPrice, data.netPrice);
               } else {
-                currentPrice = data.netPrice;
-                lowestPrice = data.asks.length
-                  ? Math.min(
-                      ...data.asks
-                        .map((a) => a.netPrice)
-                        .filter((price) => price !== null)
-                    )
-                  : null;
+                currentPrice =
+                  data.netNetPrice !== null ? data.netNetPrice : data.netPrice;
               }
 
-              if (currentPrice > lowestPrice) {
+              // If both values are null, do not change the row
+              if (currentPrice === null) {
+                return;
+              }
+
+              // Find the lowest values for netPrice and netNetPrice, excluding null for netNetPrice
+              let lowestNetPrice = Infinity;
+              let lowestNetNetPrice = Infinity;
+
+              data.asks.forEach((ask) => {
+                if (ask.netPrice !== null) {
+                  lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                }
+                if (ask.netNetPrice !== null) {
+                  lowestNetNetPrice = Math.min(
+                    lowestNetNetPrice,
+                    ask.netNetPrice
+                  );
+                }
+              });
+
+              // Ignore null for netNetPrice
+              if (lowestNetNetPrice === Infinity) {
+                lowestNetNetPrice = null;
+              }
+
+              // Choose the lowest value from the lowest asks
+              let lowestPrice;
+              if (lowestNetPrice !== Infinity && lowestNetNetPrice !== null) {
+                lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
+              } else {
+                // Use only netPrice if netNetPrice is null
+                lowestPrice =
+                  lowestNetPrice !== Infinity ? lowestNetPrice : null;
+              }
+
+              // Check if the lowest price is finite and not null, then change the row color
+              if (lowestPrice !== null && currentPrice > lowestPrice) {
+                var diffPercent = (
+                  ((currentPrice - lowestPrice) / currentPrice) *
+                  100
+                ).toFixed(2);
+                console.log(diffPercent); // You can remove this line if you don't need the console log
                 $("td", row).css("background-color", "#FFFAE6");
               }
-            } else {
             }
           },
+
           initComplete: function (settings, json) {
             var api = this.api();
             $("#lowerprice").removeClass("details-invisible");
