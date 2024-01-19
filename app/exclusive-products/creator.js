@@ -466,7 +466,7 @@ docReady(function () {
               name: "name1",
               wholesalerKey: $("#WholesalerSelector-Exclusive-2").val(),
               startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-              endDate: $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+              endDate: $("#endDate-Exclusive-2").val() + "T23:59:59.00Z",
             },
           ];
         }
