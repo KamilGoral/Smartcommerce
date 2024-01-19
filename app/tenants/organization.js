@@ -52,6 +52,7 @@ docReady(function () {
 
   function updateStatus(changeOfStatus, wholesalerKey) {
     console.log("starting Updating function");
+    wholesalerKey;
     var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
     var doneBlock = $(".w-form-done", container);

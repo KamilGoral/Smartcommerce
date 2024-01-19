@@ -1015,6 +1015,8 @@ docReady(function () {
                     lowestPrice =
                       lowestNetPrice !== Infinity ? lowestNetPrice : null;
                   }
+                  console.log(lowestPrice);
+                  console.log(currentPrice);
 
                   // Sprawdzanie, czy najniższa cena jest skończona i różna od null
                   if (lowestPrice !== null && currentPrice > lowestPrice) {
@@ -1022,6 +1024,7 @@ docReady(function () {
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
                     ).toFixed(2);
+                    console.log(diffPercent);
                     return (
                       "<td>" +
                       diffPercent +
