@@ -405,7 +405,8 @@ docReady(function () {
         .get();
       var startDatePickerStr = startDatePicker.toString();
       if (startDatePickerStr != "") {
-        QStr = QStr + "&startDate=gte:" + startDatePickerStr;
+        QStr =
+          QStr + "&startDate=gte:" + startDatePickerStr + "T00:00:00Z00:00";
       }
 
       var endDatePicker = $("#endDate")
@@ -415,7 +416,7 @@ docReady(function () {
         .get();
       var endDatePickerStr = endDatePicker.toString();
       if (endDatePickerStr != "") {
-        QStr = QStr + "&endDate=lte:" + endDatePickerStr;
+        QStr = QStr + "&endDate=lte:" + endDatePickerStr + "T00:00:00Z00:00";
       }
 
       var whichColumns = "";
