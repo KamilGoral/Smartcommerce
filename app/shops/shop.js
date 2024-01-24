@@ -29,16 +29,16 @@ docReady(function () {
   var OrganizationName = sessionStorage.getItem("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const UploadButton = document.getElementById("UploadButton");
-  const cancelButton = document.getElementById('cancelButton');
+  const cancelButton = document.getElementById("cancelButton");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -272,7 +272,6 @@ docReady(function () {
         },
       ],
       initComplete: function (settings, json) {
-
         var api = this.api();
         var textBox = $("#table_offers_filter label input");
         textBox.unbind();
@@ -292,11 +291,11 @@ docReady(function () {
       var rowData = table.row(this).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/orders/order?orderId=" +
-        rowData.orderId +
-        "&shopKey=" +
-        shopKey
+          DomainName +
+          "/app/orders/order?orderId=" +
+          rowData.orderId +
+          "&shopKey=" +
+          shopKey
       );
     });
   }
@@ -386,40 +385,46 @@ docReady(function () {
     return toDisplayHtml;
   }
 
-
-
   var refreshInterval;
   var counterInterval;
   var counter = 60; // 60 seconds for each refresh
 
   function refreshTable() {
-    var hasInProgressOrBatchingOrForced = $('#table_offers').DataTable().data().toArray().some(row =>
-      row.offers.some(offer => offer.status === "in progress" || offer.status === "batching" || offer.status === "forced")
-    );
-    console.log(hasInProgressOrBatchingOrForced)
+    var hasInProgressOrBatchingOrForced = $("#table_offers")
+      .DataTable()
+      .data()
+      .toArray()
+      .some((row) =>
+        row.offers.some(
+          (offer) =>
+            offer.status === "in progress" ||
+            offer.status === "batching" ||
+            offer.status === "forced"
+        )
+      );
+    console.log(hasInProgressOrBatchingOrForced);
 
     if (hasInProgressOrBatchingOrForced) {
-      console.log("Calling getOffers")
+      console.log("Calling getOffers");
       getOffers(); // Call getOffers instead of reloading the table
       counter = 60; // Reset counter
     } else {
-      console.log("Everything is working")
+      console.log("Everything is working");
       clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
       clearInterval(counterInterval); // Clear the counter interval as well
-      $('#refreshCounter').hide(); // Ukryj licznik
-      $('#refreshCounter').text(""); // Clear the counter display
+      $("#refreshCounter").hide(); // Ukryj licznik
+      $("#refreshCounter").text(""); // Clear the counter display
     }
   }
 
   function getOffers() {
-
     // Clear existing intervals
     if (refreshInterval) clearInterval(refreshInterval);
     if (counterInterval) clearInterval(counterInterval);
 
     // Check if the DataTable instance exists and destroy it
-    if ($.fn.DataTable.isDataTable('#table_offers')) {
-      $('#table_offers').DataTable().clear().destroy();
+    if ($.fn.DataTable.isDataTable("#table_offers")) {
+      $("#table_offers").DataTable().clear().destroy();
     }
 
     // Initialize DataTable
@@ -475,14 +480,11 @@ docReady(function () {
         }
 
         switch (whichColumns) {
-          case 0:
+          case 1:
             whichColumns = "createDate:";
             break;
           case 2:
             whichColumns = "status:";
-            break;
-          case 3:
-            whichColumns = "createDate:";
             break;
           default:
             whichColumns = "createDate:";
@@ -532,14 +534,20 @@ docReady(function () {
             };
 
             // Sprawdzenie obecności ofert "in progress", "batching" lub "forced"
-            var hasInProgressOrBatchingOrForced = finalStructure.items.some(row =>
-              row.offers.some(offer => offer.status === "in progress" || offer.status === "batching" || offer.status === "forced")
+            var hasInProgressOrBatchingOrForced = finalStructure.items.some(
+              (row) =>
+                row.offers.some(
+                  (offer) =>
+                    offer.status === "in progress" ||
+                    offer.status === "batching" ||
+                    offer.status === "forced"
+                )
             );
 
             if (hasInProgressOrBatchingOrForced) {
-              $('#refreshCounter').show(); // Pokaż licznik
+              $("#refreshCounter").show(); // Pokaż licznik
             } else {
-              $('#refreshCounter').hide(); // Ukryj licznik
+              $("#refreshCounter").hide(); // Ukryj licznik
             }
 
             // map your server's response to the DataTables format and pass it to
@@ -664,7 +672,6 @@ docReady(function () {
         },
       ],
       initComplete: function (settings, json) {
-
         var api = this.api();
         var textBox = $("#table_offers_filter label input");
         textBox.unbind();
@@ -700,14 +707,14 @@ docReady(function () {
           counterText = "sekundy"; // 2-4 sekundy
         }
 
-        $('#refreshCounter').text("Następne odświeżenie tabeli ofert za " + counter + " " + counterText);
+        $("#refreshCounter").text(
+          "Następne odświeżenie tabeli ofert za " + counter + " " + counterText
+        );
       }
     }, 1000);
 
-
     // Reset counter
     counter = 60;
-
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
@@ -731,11 +738,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -769,7 +776,6 @@ docReady(function () {
       }
     });
   }
-
 
   var table = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
@@ -1023,9 +1029,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1033,9 +1039,9 @@ docReady(function () {
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1498,7 +1504,7 @@ docReady(function () {
     var action = InvokeURL + "shops/" + shopKey + "/orders";
     // Add custom header if ignoreGTINs is true
     if (ignoreGTINs) {
-      action += "?ignoreEmptyGtin=true"
+      action += "?ignoreEmptyGtin=true";
     }
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
@@ -1506,7 +1512,7 @@ docReady(function () {
 
     // Add custom header if ignoreGTINs is true
     if (ignoreGTINs) {
-      "?ignoreEmptyGtins=true"
+      ("?ignoreEmptyGtins=true");
     }
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
@@ -1547,11 +1553,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },
@@ -1580,35 +1586,35 @@ docReady(function () {
             const productListString = match[1];
 
             // Split the string into an array of product-price pairs
-            const products = productListString.split(', ');
+            const products = productListString.split(", ");
 
             function createTable(products, fileName) {
-              const table = document.createElement('table');
-              table.style.border = '1px solid black';
-              table.style.borderCollapse = 'collapse';
+              const table = document.createElement("table");
+              table.style.border = "1px solid black";
+              table.style.borderCollapse = "collapse";
 
               // Add additional header row for file name
-              const fileHeaderRow = document.createElement('tr');
-              const fileHeaderCell = document.createElement('th');
-              fileHeaderCell.setAttribute('colspan', '2');
+              const fileHeaderRow = document.createElement("tr");
+              const fileHeaderCell = document.createElement("th");
+              fileHeaderCell.setAttribute("colspan", "2");
               fileHeaderCell.textContent = `${fileName}`;
               fileHeaderRow.appendChild(fileHeaderCell);
               table.appendChild(fileHeaderRow);
 
               // Add table header for products
-              const headerRow = document.createElement('tr');
-              const header = document.createElement('th');
-              header.textContent = 'Produkt';
-              header.style.border = '1px solid black';
+              const headerRow = document.createElement("tr");
+              const header = document.createElement("th");
+              header.textContent = "Produkt";
+              header.style.border = "1px solid black";
               headerRow.appendChild(header);
               table.appendChild(headerRow);
 
               // Add rows for each product
-              products.forEach(product => {
-                const row = document.createElement('tr');
-                const cell = document.createElement('td');
+              products.forEach((product) => {
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
                 cell.textContent = product;
-                cell.style.border = '1px solid black';
+                cell.style.border = "1px solid black";
                 row.appendChild(cell);
                 table.appendChild(row);
               });
@@ -1617,16 +1623,15 @@ docReady(function () {
             }
 
             // Clear existing content and append the new table to the element with ID 'messageText'
-            $('#messageText').empty().append(createTable(products, fileName));
-            $('#orderuploadmodal').hide();
-            $('#wronggtinsmodal').css('display', 'flex');
+            $("#messageText").empty().append(createTable(products, fileName));
+            $("#orderuploadmodal").hide();
+            $("#wronggtinsmodal").css("display", "flex");
             // Do not clear the file input in case of 400 error
           } else {
             // Handle cases where the product list is not found
             console.error("Product list not found in the message.");
           }
-        }
-        else if (xhr.status === 403) {
+        } else if (xhr.status === 403) {
           msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
         } else if (xhr.status === 500) {
           msg = "Internal Server Error [500].";
@@ -1649,18 +1654,15 @@ docReady(function () {
     FileUpload(false);
   });
 
-  cancelButton.addEventListener('click', () => {
-    const modal = document.getElementById('wronggtinsmodal');
+  cancelButton.addEventListener("click", () => {
+    const modal = document.getElementById("wronggtinsmodal");
     if (modal) {
-      modal.style.display = 'none';
+      modal.style.display = "none";
     }
   });
 
-
-
-
   // Call with custom header
-  $('#skipButton').on('click', function () {
+  $("#skipButton").on("click", function () {
     FileUpload(true);
   });
 

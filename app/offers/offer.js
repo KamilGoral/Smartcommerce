@@ -692,7 +692,7 @@ docReady(function () {
           typeOfPromotion = "Pakietowa";
         }
         if (item.promotion.type === "not cumulative quantity") {
-          typeOfPromotion = "Okresowa";
+          typeOfPromotion = "Mix ilość";
         }
         if (item.promotion.relatedGtins.length > 0) {
           showRelated =
