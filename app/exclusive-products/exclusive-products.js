@@ -573,7 +573,7 @@ docReady(function () {
               );
             } else {
               return (
-                '<span class="medium">' +
+                '<span class="noneexisting">' +
                 endDate.toLocaleDateString("pl-PL", {
                   year: "numeric",
                   month: "2-digit",
@@ -627,8 +627,22 @@ docReady(function () {
         orderable: false,
         data: null,
         width: "48px",
-        defaultContent:
-          "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>",
+        render: function (data) {
+          if (
+            data.endDate !== null &&
+            typeof data.endDate !== "undefined" &&
+            data.endDate !== "infinity"
+          )
+            var endDate = new Date(data.endDate);
+          var nowDate = new Date();
+          nowDate.setUTCHours(0, 0, 0, 0);
+
+          if (endDate <= nowDate) {
+            return;
+          } else {
+            return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+          }
+        },
       },
     ],
     initComplete: function (settings, json) {
