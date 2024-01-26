@@ -597,7 +597,7 @@ docReady(function () {
       },
 
       {
-        orderable: false,
+        orderable: true,
         data: "modified",
         render: function (data) {
           if (data !== null && data.hasOwnProperty("by") && data.by !== null) {
@@ -608,7 +608,7 @@ docReady(function () {
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "modified",
         render: function (data) {
           if (data !== null && data.hasOwnProperty("at") && data.at !== null) {
