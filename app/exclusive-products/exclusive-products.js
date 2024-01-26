@@ -430,19 +430,19 @@ docReady(function () {
       console.log(whichColumns);
 
       switch (whichColumns) {
-        case 3:
+        case 2:
           whichColumns = "gtin:";
           break;
         case 4:
           whichColumns = "name:";
           break;
-        case 5:
+        case 7:
           whichColumns = "wholesalerKey:";
           break;
-        case 7:
+        case 8:
           whichColumns = "startDate:";
           break;
-        case 8:
+        case 9:
           whichColumns = "endDate:";
           break;
         default:
@@ -495,7 +495,7 @@ docReady(function () {
         data: "created.by",
       },
       {
-        orderable: false,
+        orderable: true,
         data: "gtin",
       },
       {
