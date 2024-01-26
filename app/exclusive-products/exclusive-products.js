@@ -638,8 +638,11 @@ docReady(function () {
             data.endDate !== null &&
             typeof data.endDate !== "undefined" &&
             data.endDate !== "infinity"
-          )
+          ) {
             var endDate = new Date(data.endDate);
+          } else {
+            var endDate = "infinity";
+          }
           var nowDate = new Date();
           nowDate.setUTCHours(0, 0, 0, 0);
 
