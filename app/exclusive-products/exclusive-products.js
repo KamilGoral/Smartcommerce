@@ -430,7 +430,7 @@ docReady(function () {
       console.log(whichColumns);
 
       switch (whichColumns) {
-        case 2:
+        case 3:
           whichColumns = "gtin:";
           break;
         case 4:
@@ -444,6 +444,12 @@ docReady(function () {
           break;
         case 9:
           whichColumns = "endDate:";
+          break;
+        case 10:
+          whichColumns = "modified.by:";
+          break;
+        case 11:
+          whichColumns = "modified.at:";
           break;
         default:
           whichColumns = "null";
