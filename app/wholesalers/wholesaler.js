@@ -41,11 +41,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -68,19 +68,26 @@ docReady(function () {
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
 
-    if (wholesalerKey == "mirex" || wholesalerKey == "phup-gniezno" || wholesalerKey == "smakosz" || wholesalerKey == "abe-dystrybucja" || wholesalerKey == "etqa" || wholesalerKey == "biologistic") {
+    if (
+      wholesalerKey == "mirex" ||
+      wholesalerKey == "phup-gniezno" ||
+      wholesalerKey == "smakosz" ||
+      wholesalerKey == "abe-dystrybucja" ||
+      wholesalerKey == "etqa" ||
+      wholesalerKey == "biologistic"
+    ) {
       $("#CompanyDivEdit").show();
     } else {
       $("#CompanyDivEdit").hide();
-    }//kochamy sie
+    }
 
     let url2 = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -108,7 +115,8 @@ docReady(function () {
 
           if (firstData.status === "Succeeded") {
             firstStatus = "Suckes";
-            var LastStatusMessage = document.getElementById("LastStatusMessage");
+            var LastStatusMessage =
+              document.getElementById("LastStatusMessage");
 
             LastStatusMessage.textContent =
               "Status: " +
@@ -124,7 +132,8 @@ docReady(function () {
             if ((firstMessage = "Profile for wholesaler have to be set.")) {
               firstMessage = "Proszę wybrać profil dla dostawcy z listy";
             }
-            var LastStatusMessage = document.getElementById("LastStatusMessage");
+            var LastStatusMessage =
+              document.getElementById("LastStatusMessage");
             LastStatusMessage.textContent =
               "Status: " +
               firstStatus +
@@ -154,7 +163,7 @@ docReady(function () {
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
       } else {
-        console.log("bug")
+        console.log("bug");
       }
     };
     request2.send();
@@ -187,9 +196,9 @@ docReady(function () {
 
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
-          $("#login-credentials-container").removeClass("hide")
+          $("#login-credentials-container").removeClass("hide");
         } else {
-          $("#proposeIntegration").removeClass("hide")
+          $("#proposeIntegration").removeClass("hide");
           $("#loginButton").hide();
         }
         //
@@ -224,15 +233,14 @@ docReady(function () {
     }
   }
 
-
   function getProfile() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/profiles"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -290,11 +298,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/status-history?sort=createDate:asc&perPage=30"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -316,9 +324,7 @@ docReady(function () {
             Date.parse(item.createDate) - offset * 60 * 1000
           ).toISOString();
           var creationDate = localeTime.split("T");
-          var creationTime = creationDate[1].split("Z");
-          firstCreateDate =
-            creationDate[0] + " " + creationTime[0].slice(0, -4);
+          firstCreateDate = creationDate[0];
 
           if (item.status === "Failed") {
             row.classList.add("fail");
@@ -354,9 +360,9 @@ docReady(function () {
   function getWholesalerButtons(wholesalerKey) {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
 
     let request = new XMLHttpRequest();
@@ -371,21 +377,25 @@ docReady(function () {
           return item.wholesalerKey === wholesalerKey;
         });
 
-        if (foundWholesaler && foundWholesaler.connections && foundWholesaler.connections.onlineOffer) {
+        if (
+          foundWholesaler &&
+          foundWholesaler.connections &&
+          foundWholesaler.connections.onlineOffer
+        ) {
           var onlineOfferData = foundWholesaler.connections.onlineOffer;
           if (onlineOfferData.enabled && onlineOfferData.active) {
-            console.log('Online Offer: Tak');
+            console.log("Online Offer: Tak");
             $("#delete-wholesalers-container").removeClass("hide");
           } else if (!onlineOfferData.enabled && !onlineOfferData.active) {
-            console.log('Online Offer: Dodaj');
+            console.log("Online Offer: Dodaj");
           } else if (onlineOfferData.enabled && !onlineOfferData.active) {
-            console.log('Online Offer: Przywróć');
+            console.log("Online Offer: Przywróć");
             $("#delete-wholesalers-container").removeClass("hide");
           } else if (!onlineOfferData.enabled && onlineOfferData.active) {
-            console.log('Online Offer: Dodaj');
+            console.log("Online Offer: Dodaj");
           }
         } else {
-          console.log('Online Offer: Brak');
+          console.log("Online Offer: Brak");
         }
       } else {
         console.error("Błąd zapytania do API. Status: " + request.status);
@@ -397,8 +407,6 @@ docReady(function () {
     };
     request.send();
   }
-
-
 
   function LogoutNonUser() {
     if (
@@ -528,11 +536,11 @@ docReady(function () {
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               let url = new URL(
                 InvokeURL +
-                "shops/" +
-                shopKey +
-                "/wholesalers/" +
-                wholesalerKey +
-                "/online-offer/profiles"
+                  "shops/" +
+                  shopKey +
+                  "/wholesalers/" +
+                  wholesalerKey +
+                  "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -931,7 +939,6 @@ docReady(function () {
   }
 
   //onlineOfferSupport//
-
 
   // Wywołanie funkcji z przykładowym wholesalerKey
   getWholesalerButtons(wholesalerKey);

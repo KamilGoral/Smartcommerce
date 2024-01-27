@@ -489,6 +489,13 @@ docReady(function () {
         return false;
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 422) {
+          {
+            console.error(
+              "Unable to split requested order: no products to split."
+            );
+          }
+        }
         if (jqXHR.status === 404) {
           try {
             var response = JSON.parse(jqXHR.responseText);
