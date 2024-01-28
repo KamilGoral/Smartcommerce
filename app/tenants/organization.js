@@ -543,7 +543,11 @@ docReady(function () {
 
   function updateIntegrationStatus($element, statusText, color) {
     if (statusText === "Succeeded") {
-      statusText = "Sukces";
+      statusText = "Aktywny";
+      color = "green";
+    } else {
+      statusText = "Błąd";
+      color = "red";
     }
     $element.text(statusText).css("color", color || "");
     const tippyContent = ` class="tippy" data-tippy-content="Status: ${statusText}" alt=""`;
