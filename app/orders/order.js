@@ -3085,6 +3085,7 @@ docReady(function () {
           api: true,
         })
         .columns.adjust();
+      LoadTippy();
     }, 300);
   });
 
