@@ -2779,6 +2779,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
+      applyTippyTooltips();
     }
   });
 
@@ -2941,6 +2942,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
+      applyTippyTooltips();
     }
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
