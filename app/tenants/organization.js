@@ -530,7 +530,7 @@ docReady(function () {
 
     if (integration.enabled === true) {
       updateIntegrationStatus($integrationStatus, "Aktywny", "green");
-      checkIntegrationStatus(integration);
+      checkIntegrationStatus(integration, $integrationStatus);
     } else {
       updateIntegrationStatus($integrationStatus, "Oczekuję...", null);
     }
@@ -551,11 +551,9 @@ docReady(function () {
     );
   }
 
-  function checkIntegrationStatus(integration) {
+  function checkIntegrationStatus(integration, $integrationStatus) {
     $.ajax({
-      url: new URL(
-        InvokeURL + "integrations/" + integration.integrationKey + "/test"
-      ),
+      url: new URL(InvokeURL + "integrations/" + integration.name + "/test"),
       type: "GET",
       headers: { Authorization: orgToken },
       success: (response) =>
