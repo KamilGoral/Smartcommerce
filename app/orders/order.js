@@ -1398,6 +1398,7 @@ docReady(function () {
 
   function LoadTippy() {
     if (tippyLoaded) {
+      console.log("Tippy - loaded ");
       applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
       return;
     }
@@ -1411,6 +1412,7 @@ docReady(function () {
   }
 
   function applyTippyTooltips() {
+    console.log("Applying tooltips");
     tippy(".tippy:not([data-tippy-initialized])", {
       theme: "light",
       animation: "scale",
