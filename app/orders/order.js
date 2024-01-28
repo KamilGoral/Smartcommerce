@@ -1115,12 +1115,6 @@ docReady(function () {
                 "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
             },
           ],
-          columnDefs: [
-            {
-              targets: 8, // This targets the first column (wholesalerKey)
-              orderData: [8, 1], // When sorting by wholesalerKey, also sort by name
-            },
-          ],
 
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
