@@ -1400,27 +1400,24 @@ docReady(function () {
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
-  $("table.dataTable")
-    .on("init.dt", function () {
-      $(this).DataTable().columns.adjust();
-      LoadTippy();
-      // Apply tippy to elements containing specific text
-    document.querySelectorAll('*').forEach(function(el) {
+  function applyTippyToElements() {
+    // Apply Tippy to elements containing specific text
+    document.querySelectorAll("*").forEach(function (el) {
       if (el.textContent.includes("Łączna ilość")) {
-          el.classList.add("tippy");
-          el.setAttribute("data-tippy-content", "Cena obowiązuje po przekroczeniu ilości zamawianego towaru");
-      }
-    })
-    .on("xhr.dt", function () {
-      $(this).DataTable().columns.adjust();
-      LoadTippy();
-      // Apply tippy to elements containing specific text
-    document.querySelectorAll('*').forEach(function(el) {
-      if (el.textContent.includes("Łączna ilość")) {
-          el.classList.add("tippy");
-          el.setAttribute("data-tippy-content", "Cena obowiązuje po przekroczeniu ilości zamawianego towaru");
+        el.classList.add("tippy");
+        el.setAttribute(
+          "data-tippy-content",
+          "Cena obowiązuje po przekroczeniu ilości zamawianego towaru"
+        );
       }
     });
+  }
+
+  $("table.dataTable").on("init.dt xhr.dt", function () {
+    $(this).DataTable().columns.adjust();
+    LoadTippy();
+    applyTippyToElements();
+  });
 
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
