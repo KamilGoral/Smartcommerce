@@ -529,7 +529,7 @@ docReady(function () {
     const $integrationStatus = $row.find("h6").eq(3);
 
     if (integration.enabled === true) {
-      updateIntegrationStatus($integrationStatus, "Aktywny", "green");
+      updateIntegrationStatus($integrationStatus, "Succeeded", "green");
       checkIntegrationStatus(integration, $integrationStatus);
     } else {
       updateIntegrationStatus($integrationStatus, "Oczekuję...", null);
@@ -545,6 +545,9 @@ docReady(function () {
     if (statusText === "Succeeded") {
       statusText = "Aktywny";
       color = "green";
+    } else if (statusText === "Oczekuję...") {
+      statusText = "Oczekuję...";
+      color = "gray";
     } else {
       statusText = "Błąd";
       color = "red";
