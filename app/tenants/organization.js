@@ -542,6 +542,9 @@ docReady(function () {
   }
 
   function updateIntegrationStatus($element, statusText, color) {
+    if (statusText === "Succeeded") {
+      statusText = "Sukces";
+    }
     $element.text(statusText).css("color", color || "");
     const tippyContent = ` class="tippy" data-tippy-content="Status: ${statusText}" alt=""`;
     $element.attr("class", tippyContent.split(' class="')[1].split('"')[0]);
@@ -559,10 +562,7 @@ docReady(function () {
       type: "GET",
       headers: { Authorization: orgToken },
       success: (response) =>
-        updateIntegrationStatus(
-          $integrationStatus,
-          `Updated status: ${response.message}`
-        ),
+        updateIntegrationStatus($integrationStatus, `${response.status}`),
       error: () =>
         updateIntegrationStatus($integrationStatus, "Error fetching status"),
     });
