@@ -2951,9 +2951,7 @@ docReady(function () {
     const popupContent = document.getElementById("popupContent");
     var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
-
     var output = "<td>";
-
     for (var i = 0; i < values.length; i++) {
       output += "<p>" + values[i] + "</p>";
     }
@@ -3140,12 +3138,10 @@ docReady(function () {
     $("table.dataTable").on("init.dt xhr.dt", function () {
       $(this).DataTable().columns.adjust();
       LoadTippy();
-      applyTippyTooltips();
     });
 
     $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-      applyTippyTooltips();
     });
     $("#table_id")
       .on("init.dt", function () {
@@ -3154,7 +3150,6 @@ docReady(function () {
           // For some reason we have to fire this function multiple times in order to work...
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
           console.log("Adjusting");
-          applyTippyTooltips();
 
           if (++x === 1) {
             window.clearInterval(intervalID);
