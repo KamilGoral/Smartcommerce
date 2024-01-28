@@ -811,8 +811,8 @@ docReady(function () {
           },
           columnDefs: [
             {
-              targets: 7, // This targets the first column (wholesalerKey)
-              orderData: [7, 1], // When sorting by wholesalerKey, also sort by name
+              targets: 8, // This targets the first column (wholesalerKey)
+              orderData: [8, 1], // When sorting by wholesalerKey, also sort by name
             },
           ],
           columns: [
