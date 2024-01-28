@@ -1501,6 +1501,7 @@ docReady(function () {
 
       if (!allowedExtensions.includes(fileExtension)) {
         $("#wrongfilemodal").css("display", "flex");
+        $("#orderuploadmodal").css("display", "none");
         document.getElementById("orderfile").value = "";
         return; // Exit the function
       }
