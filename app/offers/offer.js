@@ -1404,10 +1404,22 @@ docReady(function () {
     .on("init.dt", function () {
       $(this).DataTable().columns.adjust();
       LoadTippy();
+      // Apply tippy to elements containing specific text
+    document.querySelectorAll('*').forEach(function(el) {
+      if (el.textContent.includes("Łączna ilość")) {
+          el.classList.add("tippy");
+          el.setAttribute("data-tippy-content", "Cena obowiązuje po przekroczeniu ilości zamawianego towaru");
+      }
     })
     .on("xhr.dt", function () {
       $(this).DataTable().columns.adjust();
       LoadTippy();
+      // Apply tippy to elements containing specific text
+    document.querySelectorAll('*').forEach(function(el) {
+      if (el.textContent.includes("Łączna ilość")) {
+          el.classList.add("tippy");
+          el.setAttribute("data-tippy-content", "Cena obowiązuje po przekroczeniu ilości zamawianego towaru");
+      }
     });
 
   $("table.dataTable").on("page.dt", function () {
