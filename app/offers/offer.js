@@ -629,24 +629,28 @@ docReady(function () {
     const promotionMap = {
       "rigid bundle": {
         name: "Sztywny pakiet",
-        description: "Description for rigid bundle",
+        description: "Pakiet ze stałymi progami promocyjnymi",
       },
-      worth: { name: "Łączna wartość", description: "Description for worth" },
+      worth: {
+        name: "Łączna wartość",
+        description: "Promocja od sumy wartości produktów",
+      },
       quantity: {
         name: "Łączna ilość",
-        description: "Description for quantity",
+        description: "Promocja od sumy ilości produktów",
       },
       "package mix": {
         name: "Mix opakowań",
-        description: "Description for package mix",
+        description: "Promocja od sumy ilości różnych opakowań",
       },
       "quantity bundle": {
         name: "Pakietowa",
-        description: "Description for quantity bundle",
+        description: "Promocja przy zakupie pakietu określonych ilości",
       },
       "not cumulative quantity": {
         name: "Mix ilość",
-        description: "Description for not cumulative quantity",
+        description:
+          "Przy określonej ilości, wszystkie produkty w promocji tanieją.",
       },
       // Add more as needed
     };
