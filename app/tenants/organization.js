@@ -553,7 +553,9 @@ docReady(function () {
 
   function checkIntegrationStatus(integration, $integrationStatus) {
     $.ajax({
-      url: new URL(InvokeURL + "integrations/" + integration.name + "/test"),
+      url: new URL(
+        InvokeURL + "integrations/" + integration.integrationKey + "/test"
+      ),
       type: "GET",
       headers: { Authorization: orgToken },
       success: (response) =>
