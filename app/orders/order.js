@@ -3072,10 +3072,6 @@ docReady(function () {
     }, 300);
   });
 
-  $("table.dataTable").on("init.dt", function () {
-    $(this).DataTable().columns.adjust();
-  });
-
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
@@ -3129,34 +3125,16 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
 
+  // DataTables initialization and event handling
+  $("table.dataTable").on("init.dt xhr.dt page.dt", function () {
+    $(this).DataTable().columns.adjust();
+    LoadTippy();
+  });
+
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
     $(".dataTables_filter input").attr("maxLength", 60);
-
-    $("table.dataTable").on("init.dt xhr.dt", function () {
-      $(this).DataTable().columns.adjust();
-      LoadTippy();
-    });
-
-    $("#table_splited").on("show", function (e) {
-      $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-    });
-    $("#table_id")
-      .on("init.dt", function () {
-        var x = 0;
-        var intervalID = setInterval(function () {
-          // For some reason we have to fire this function multiple times in order to work...
-          $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
-          console.log("Adjusting");
-          LoadTippy();
-
-          if (++x === 1) {
-            window.clearInterval(intervalID);
-          }
-        }, 1000);
-      })
-      .dataTable();
   });
 });
