@@ -99,7 +99,7 @@ docReady(function () {
       if (barcode == null || typeof barcode !== "number" || isNaN(barcode)) {
         return {
           valid: false,
-          reason: "GTIN is null, undefined, or not a number",
+          reason: "Nieprawidłowy zapis kodu",
         };
       }
       if (typeof barcode == "number") {
