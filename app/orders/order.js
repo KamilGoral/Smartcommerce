@@ -3138,10 +3138,12 @@ docReady(function () {
     $("table.dataTable").on("init.dt xhr.dt", function () {
       $(this).DataTable().columns.adjust();
       LoadTippy();
+      applyTippyTooltips();
     });
 
     $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+      applyTippyTooltips();
     });
     $("#table_id")
       .on("init.dt", function () {
@@ -3150,6 +3152,7 @@ docReady(function () {
           // For some reason we have to fire this function multiple times in order to work...
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
           console.log("Adjusting");
+          applyTippyTooltips();
 
           if (++x === 1) {
             window.clearInterval(intervalID);
