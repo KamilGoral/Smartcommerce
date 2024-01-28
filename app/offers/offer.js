@@ -1177,28 +1177,35 @@ docReady(function () {
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
+  var tippyLoaded = false;
+
   function LoadTippy() {
-    $.getScript(
-      "https://unpkg.com/popper.js@1",
-      function (data, textStatus, jqxhr) {
-        $.getScript(
-          "https://unpkg.com/tippy.js@4",
-          function (data, textStatus, jqxhr) {
-            tippy(".tippy", {
-              // Add the class tippy to your element
-              theme: "light", // Dark or Light
-              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
-              duration: 250, // Duration of the Animation
-              arrow: true, // Add arrow to the tooltip
-              allowHTML: true, // Add HTML content
-              arrowType: "round", // Sharp, round or empty for none
-              delay: [0, 50], // Trigger delay in & out
-              maxWidth: 240, // Optional, max width settings
-            });
-          }
-        );
-      }
-    );
+    if (tippyLoaded) {
+      return;
+    }
+
+    $.getScript("https://unpkg.com/popper.js@1", function () {
+      $.getScript("https://unpkg.com/tippy.js@4", function () {
+        tippyLoaded = true;
+        applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
+      });
+    });
+  }
+
+  function applyTippyTooltips() {
+    tippy(".tippy:not([data-tippy-initialized])", {
+      theme: "light",
+      animation: "scale",
+      duration: 250,
+      arrow: true,
+      allowHTML: true,
+      arrowType: "round",
+      delay: [0, 50],
+      maxWidth: 240,
+      onShow(instance) {
+        instance.reference.setAttribute("data-tippy-initialized", "true");
+      },
+    });
   }
 
   function getWholesalersSh() {
