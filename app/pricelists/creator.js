@@ -96,6 +96,12 @@ docReady(function () {
     };
 
     function validateGTIN(barcode) {
+      if (barcode == null || typeof barcode !== "number" || isNaN(barcode)) {
+        return {
+          valid: false,
+          reason: "GTIN is null, undefined, or not a number",
+        };
+      }
       if (typeof barcode == "number") {
         var x = barcode.toString().length;
         if (x >= 5 && x <= 13) {
@@ -139,6 +145,8 @@ docReady(function () {
           } else {
             return { valid: false, reason: "Nieprawidłowy kod" };
           }
+        } else {
+          return { valid: false, reason: "Nieprawidłowa długość kodu" };
         }
       } else {
         return { valid: false, reason: "Kod nie jest liczbą" };
