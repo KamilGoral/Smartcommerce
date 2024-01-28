@@ -620,129 +620,54 @@ docReady(function () {
 
   function format(d) {
     const arr = d.asks;
-    const lowest = arr.reduce((acc, loc) =>
-      acc.netPrice < loc.netPrice ? acc : loc
-    );
-    var toDisplayHtml = "";
+    const toDisplayHtml = arr
+      .map((item) => {
+        const sourceMap = {
+          "price list": "Cennik",
+          "online offer": "E-hurt",
+          wms: "PC-Market",
+        };
 
-    function myFunction(item) {
-      if (item.set === null) {
-        item.set = "-";
-      }
-      if (item.netNetPrice === null) {
-        item.netNetPrice = "-";
-      }
-      var typeOfSource = "";
-      if (item.source === "price list") {
-        typeOfSource = "Cennik";
-      }
-      if (item.source === "online offer") {
-        typeOfSource = "E-hurt";
-      }
-      if (item.source === "wms") {
-        typeOfSource = "PC-Market";
-      }
-      if (item.originated === null) {
-        item.originated = "-";
-      }
-      if (item.stock === null) {
-        item.stock = "-";
-      }
+        const promotionTypeMap = {
+          "rigid bundle": "Sztywny pakiet",
+          worth: "Łączna wartość",
+          quantity: "Łączna ilość",
+          "package mix": "Mix opakowań",
+          "quantity bundle": "Pakietowa",
+          "not cumulative quantity": "Mix ilość",
+        };
 
-      var tableRowHtml =
-        "<tr>" +
-        "<td>" +
-        item.wholesalerKey +
-        "</td>" +
-        "<td>" +
-        item.netPrice +
-        "</td>" +
-        "<td>" +
-        item.netNetPrice +
-        "</td>" +
-        "<td>" +
-        item.set +
-        "</td>" +
-        "<td>" +
-        typeOfSource +
-        "</td>" +
-        "<td>" +
-        item.originated +
-        "</td>" +
-        "<td>" +
-        item.stock +
-        "</td>";
+        const promotionType = item.promotion
+          ? promotionTypeMap[item.promotion.type] || "-"
+          : "-";
+        const showRelated =
+          item.promotion && item.promotion.relatedGtins.length > 0
+            ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
+            : "-";
 
-      var typeOfPromotion = "";
-      var showRelated = "";
-      if (item.promotion != null) {
-        if (item.promotion.type === "rigid bundle") {
-          typeOfPromotion = "Sztywny pakiet";
-        }
-        if (item.promotion.type === "worth") {
-          typeOfPromotion = "Łączna wartość";
-        }
-        if (item.promotion.type === "quantity") {
-          typeOfPromotion = "Łączna ilość";
-        }
-        if (item.promotion.type === "package mix") {
-          typeOfPromotion = "Mix opakowań";
-        }
-        if (item.promotion.type === "quantity bundle") {
-          typeOfPromotion = "Pakietowa";
-        }
-        if (item.promotion.type === "not cumulative quantity") {
-          typeOfPromotion = "Mix ilość";
-        }
-        if (item.promotion.relatedGtins.length > 0) {
-          showRelated =
-            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
-            item.promotion.relatedGtins +
-            '" alt="">';
-        } else {
-          showRelated = "-";
-        }
+        return `<tr>
+            <td>${item.wholesalerKey}</td>
+            <td>${item.netPrice}</td>
+            <td>${item.netNetPrice ?? "-"}</td>
+            <td>${item.set ?? "-"}</td>
+            <td>${sourceMap[item.source] || "-"}</td>
+            <td>${item.originated ?? "-"}</td>
+            <td>${item.stock ?? "-"}</td>
+            <td class="tippy" data-tippy-content="${promotionType}">${promotionType}</td>
+            <td>${item.promotion?.threshold ?? "-"}</td>
+            <td>${item.promotion?.maxQuantity ?? "-"}</td>
+            <td>${item.promotion?.package ?? "-"}</td>
+            <td>${showRelated}</td>
+        </tr>`;
+      })
+      .join("");
 
-        tableRowHtml +=
-          "<td>" +
-          (typeOfPromotion !== null ? typeOfPromotion : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.threshold !== null ? item.promotion.threshold : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.maxQuantity !== null
-            ? item.promotion.maxQuantity
-            : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.package !== null ? item.promotion.package : "-") +
-          "</td>" +
-          "<td>" +
-          (showRelated !== null ? showRelated : "-") +
-          "</td>" +
-          "</tr>";
-      } else {
-        tableRowHtml +=
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>";
-      }
-      toDisplayHtml += tableRowHtml;
-    }
-    arr.forEach(myFunction);
-    return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
-      toDisplayHtml +
-      "</table>"
-    );
+    return `
+        <table>
+            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>
+            ${toDisplayHtml}
+        </table>
+    `;
   }
 
   var table = $("#table_id").DataTable({
@@ -1400,23 +1325,9 @@ docReady(function () {
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
 
-  function applyTippyToElements() {
-    // Apply Tippy to elements containing specific text
-    document.querySelectorAll("*").forEach(function (el) {
-      if (el.textContent.includes("Łączna ilość")) {
-        el.classList.add("tippy");
-        el.setAttribute(
-          "data-tippy-content",
-          "Cena obowiązuje po przekroczeniu ilości zamawianego towaru"
-        );
-      }
-    });
-  }
-
   $("table.dataTable").on("init.dt xhr.dt", function () {
     $(this).DataTable().columns.adjust();
     LoadTippy();
-    applyTippyToElements();
   });
 
   $("table.dataTable").on("page.dt", function () {
