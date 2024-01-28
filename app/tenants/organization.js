@@ -538,7 +538,7 @@ docReady(function () {
     const href = getIntegrationHref(integration.integrationKey);
     $row.attr("href", href);
 
-    $("#integrationContainer").append($row);
+    $("#Integrations-Container").append($row);
   }
 
   function updateIntegrationStatus($element, statusText, color) {
