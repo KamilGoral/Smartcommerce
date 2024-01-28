@@ -496,59 +496,87 @@ docReady(function () {
     request.send();
   }
 
-  function getIntegrations() {
-    let url = new URL(InvokeURL + "integrations");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
-        const integrationContainer = document.getElementById(
-          "Integrations-Container"
-        );
-        toParse.forEach((integration) => {
-          const style = document.getElementById("Sample-Integration");
-          const row = style.cloneNode(true);
-          row.style.display = "flex";
-          const integrationName = row.getElementsByTagName("H6")[1];
-          integrationName.textContent = integration.name;
-          const integrationLogo = row.getElementsByTagName("img")[0];
-          integrationLogo.src = "data:image/png;base64," + integration.image;
-          const integrationStatus = row.getElementsByTagName("H6")[3];
-          if (integration.enabled === true) {
-            integrationStatus.textContent = "Aktywny";
-            integrationStatus.style.color = "green";
-          } else {
-            integrationStatus.textContent = "Oczekuję...";
-          }
+  async function getIntegrations() {
+    try {
+      const url = new URL(InvokeURL + "integrations");
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: orgToken },
+      });
 
-          if (integration.integrationKey === "retroactive") {
-            row.setAttribute(
-              "href",
-              "https://" + DomainName + "/app/integrations/contracts"
-            );
-          } else if (integration.integrationKey === "merchant-console") {
-            row.setAttribute(
-              "href",
-              "https://" + DomainName + "/app/integrations/merchant-console"
-            );
-          } else if (integration.integrationKey === "pc-market") {
-            row.setAttribute(
-              "href",
-              "https://" + DomainName + "/app/integrations/pc-market"
-            );
-          }
-
-          integrationContainer.appendChild(row);
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
-    request.send();
+
+      const data = await response.json();
+      const toParse = data.items;
+
+      toParse.forEach(processIntegration);
+    } catch (error) {
+      console.error("Error fetching integrations:", error);
+    }
+  }
+
+  function processIntegration(integration) {
+    const $row = $("#Sample-Integration").clone().css("display", "flex");
+
+    $row.find("h6").eq(1).text(integration.name);
+    $row
+      .find("img")
+      .eq(0)
+      .attr("src", `data:image/png;base64,${integration.image}`);
+
+    const $integrationStatus = $row.find("h6").eq(3);
+
+    if (integration.enabled === true) {
+      updateIntegrationStatus($integrationStatus, "Aktywny", "green");
+      checkIntegrationStatus(integration);
+    } else {
+      updateIntegrationStatus($integrationStatus, "Oczekuję...", null);
+    }
+
+    const href = getIntegrationHref(integration.integrationKey);
+    $row.attr("href", href);
+
+    $("#integrationContainer").append($row);
+  }
+
+  function updateIntegrationStatus($element, statusText, color) {
+    $element.text(statusText).css("color", color || "");
+    const tippyContent = ` class="tippy" data-tippy-content="Status: ${statusText}" alt=""`;
+    $element.attr("class", tippyContent.split(' class="')[1].split('"')[0]);
+    $element.attr(
+      "data-tippy-content",
+      tippyContent.split('data-tippy-content="')[1].split('"')[0]
+    );
+  }
+
+  function checkIntegrationStatus(integration) {
+    $.ajax({
+      url: new URL(InvokeURL + "integrations/" + integration.name + "/test"),
+      type: "GET",
+      headers: { Authorization: orgToken },
+      success: (response) =>
+        updateIntegrationStatus(
+          $integrationStatus,
+          `Updated status: ${response.message}`
+        ),
+      error: () =>
+        updateIntegrationStatus($integrationStatus, "Error fetching status"),
+    });
+  }
+
+  function getIntegrationHref(integrationKey) {
+    switch (integrationKey) {
+      case "retroactive":
+        return `https://${DomainName}/app/integrations/contracts`;
+      case "merchant-console":
+        return `https://${DomainName}/app/integrations/merchant-console`;
+      case "pc-market":
+        return `https://${DomainName}/app/integrations/pc-market`;
+      default:
+        return "#"; // Default href if needed
+    }
   }
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
