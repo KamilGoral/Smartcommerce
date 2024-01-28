@@ -1181,6 +1181,7 @@ docReady(function () {
 
   function LoadTippy() {
     if (tippyLoaded) {
+      applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
       return;
     }
 
