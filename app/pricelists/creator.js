@@ -110,7 +110,7 @@ docReady(function () {
           var lastDigit = Number(barcode.substring(barcode.length - 1));
           var checkSum = 0;
           if (isNaN(lastDigit)) {
-            return false;
+            return { valid: false, reason: "Nieprawidłowa liczba kontrolna" };
           } // not a valid upc/GTIN
 
           var arr = barcode
@@ -122,7 +122,7 @@ docReady(function () {
 
           for (var i = 0; i < arr.length; i++) {
             if (isNaN(arr[i])) {
-              return false;
+              return { valid: false, reason: "Brak kodu" };
             } // can't be a valid upc/GTIN we're checking for
 
             if (i % 2 == 0) {
@@ -141,7 +141,7 @@ docReady(function () {
           }
         }
       } else {
-        return false;
+        return { valid: false, reason: "Kod nie jest liczbą" };
       }
     }
 
