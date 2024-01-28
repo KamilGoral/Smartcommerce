@@ -784,6 +784,7 @@ docReady(function () {
           pageLength: 25,
           orderCellsTop: true,
           fixedHeader: true,
+          orderMulti: true,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
