@@ -3150,6 +3150,7 @@ docReady(function () {
           // For some reason we have to fire this function multiple times in order to work...
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
           console.log("Adjusting");
+          LoadTippy();
 
           if (++x === 1) {
             window.clearInterval(intervalID);
