@@ -720,7 +720,6 @@ docReady(function () {
     ],
     scrollY: "60vh",
     scrollCollapse: true,
-    orderMulti: true,
     pageLength: 25,
     language: {
       emptyTable: "Brak danych do wyswietlenia",
