@@ -2636,6 +2636,7 @@ docReady(function () {
           api.search(this.value).draw();
         }
       });
+      LoadTippy();
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
     },
   });
