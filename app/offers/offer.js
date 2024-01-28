@@ -672,7 +672,11 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            <td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.maxQuantity ?? "-"}</td>
             <td>${item.promotion?.package ?? "-"}</td>
