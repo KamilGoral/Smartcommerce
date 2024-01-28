@@ -503,6 +503,8 @@ docReady(function () {
     while (!userRole && attempts < 3) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       userRole = getCookie("sprytnyUserRole");
+      console.log(userRole);
+      console.log(attempts);
       attempts++;
     }
 
@@ -510,6 +512,7 @@ docReady(function () {
       console.log("Action not permitted for non-admin users.");
       return;
     }
+
     try {
       const url = new URL(InvokeURL + "integrations");
       const response = await fetch(url, {
