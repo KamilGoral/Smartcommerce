@@ -497,6 +497,19 @@ docReady(function () {
   }
 
   async function getIntegrations() {
+    let attempts = 0;
+    let userRole = getCookie("sprytnyUserRole");
+
+    while (!userRole && attempts < 3) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      userRole = getCookie("sprytnyUserRole");
+      attempts++;
+    }
+
+    if (userRole !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
     try {
       const url = new URL(InvokeURL + "integrations");
       const response = await fetch(url, {
