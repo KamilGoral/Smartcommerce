@@ -1398,7 +1398,6 @@ docReady(function () {
 
   function LoadTippy() {
     if (tippyLoaded) {
-      console.log("Tippy - loaded ");
       applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
       return;
     }
@@ -2636,7 +2635,6 @@ docReady(function () {
           api.search(this.value).draw();
         }
       });
-      LoadTippy();
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
     },
   });
@@ -3088,7 +3086,6 @@ docReady(function () {
           api: true,
         })
         .columns.adjust();
-      LoadTippy();
     }, 300);
   });
 
