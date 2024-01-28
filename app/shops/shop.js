@@ -1500,10 +1500,8 @@ docReady(function () {
       var fileExtension = fileName.split(".").pop().toLowerCase();
 
       if (!allowedExtensions.includes(fileExtension)) {
-        alert(
-          "Nieprawidłowy typ pliku zamówienia. Akceptowane rozszerzenia: *.txt, *.edi, *.csv, *.kuc"
-        );
-        document.getElementById("orderfile").value = ""; // Reset file input
+        $("#wrongfilemodal").css("display", "flex");
+        document.getElementById("orderfile").value = "";
         return; // Exit the function
       }
     }
