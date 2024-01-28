@@ -579,129 +579,81 @@ docReady(function () {
 
   function format(d) {
     const arr = d.asks;
-    const lowest = arr.reduce((acc, loc) =>
-      acc.netPrice < loc.netPrice ? acc : loc
-    );
-    var toDisplayHtml = "";
+    const sourceMap = {
+      "price list": "Cennik",
+      "online offer": "E-hurt",
+      wms: "PC-Market",
+    };
 
-    function myFunction(item) {
-      if (item.set === null) {
-        item.set = "-";
-      }
-      if (item.netNetPrice === null) {
-        item.netNetPrice = "-";
-      }
-      var typeOfSource = "";
-      if (item.source === "price list") {
-        typeOfSource = "Cennik";
-      }
-      if (item.source === "online offer") {
-        typeOfSource = "E-hurt";
-      }
-      if (item.source === "wms") {
-        typeOfSource = "PC-Market";
-      }
-      if (item.originated === null) {
-        item.originated = "-";
-      }
-      if (item.stock === null) {
-        item.stock = "-";
-      }
+    const promotionMap = {
+      "rigid bundle": {
+        name: "Sztywny pakiet",
+        description: "Pakiet ze stałymi progami promocyjnymi",
+      },
+      worth: {
+        name: "Łączna wartość",
+        description: "Promocja od sumy wartości produktów",
+      },
+      quantity: {
+        name: "Łączna ilość",
+        description: "Promocja od sumy ilości produktów",
+      },
+      "package mix": {
+        name: "Mix opakowań",
+        description: "Promocja od sumy ilości różnych opakowań",
+      },
+      "quantity bundle": {
+        name: "Pakietowa",
+        description: "Promocja przy zakupie pakietu określonych ilości",
+      },
+      "not cumulative quantity": {
+        name: "Mix ilość",
+        description:
+          "Przy określonej ilości, wszystkie produkty w promocji tanieją.",
+      },
+      // Add more as needed
+    };
 
-      var tableRowHtml =
-        "<tr>" +
-        "<td>" +
-        item.wholesalerKey +
-        "</td>" +
-        "<td>" +
-        item.netPrice +
-        "</td>" +
-        "<td>" +
-        item.netNetPrice +
-        "</td>" +
-        "<td>" +
-        item.set +
-        "</td>" +
-        "<td>" +
-        typeOfSource +
-        "</td>" +
-        "<td>" +
-        item.originated +
-        "</td>" +
-        "<td>" +
-        item.stock +
-        "</td>";
+    const toDisplayHtml = arr
+      .map((item) => {
+        const promotion = promotionMap[item.promotion?.type];
+        const promotionType = promotion ? promotion.name : "-";
+        const promotionDescription = promotion
+          ? promotion.description
+          : "No promotion";
 
-      var typeOfPromotion = "";
-      var showRelated = "";
-      if (item.promotion != null) {
-        if (item.promotion.type === "rigid bundle") {
-          typeOfPromotion = "Sztywny pakiet";
-        }
-        if (item.promotion.type === "worth") {
-          typeOfPromotion = "Łączna wartość";
-        }
-        if (item.promotion.type === "quantity") {
-          typeOfPromotion = "Łączna ilość";
-        }
-        if (item.promotion.type === "package mix") {
-          typeOfPromotion = "Mix opakowań";
-        }
-        if (item.promotion.type === "quantity bundle") {
-          typeOfPromotion = "Pakietowa";
-        }
-        if (item.promotion.type === "not cumulative quantity") {
-          typeOfPromotion = "Mix ilość";
-        }
-        if (item.promotion.relatedGtins.length > 0) {
-          showRelated =
-            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
-            item.promotion.relatedGtins +
-            '" alt="">';
-        } else {
-          showRelated = "-";
-        }
+        const showRelated =
+          item.promotion && item.promotion.relatedGtins.length > 0
+            ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
+            : "-";
 
-        tableRowHtml +=
-          "<td>" +
-          (typeOfPromotion !== null ? typeOfPromotion : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.threshold !== null ? item.promotion.threshold : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.maxQuantity !== null
-            ? item.promotion.maxQuantity
-            : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.package !== null ? item.promotion.package : "-") +
-          "</td>" +
-          "<td>" +
-          (showRelated !== null ? showRelated : "-") +
-          "</td>" +
-          "</tr>";
-      } else {
-        tableRowHtml +=
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>";
-      }
-      toDisplayHtml += tableRowHtml;
-    }
-    arr.forEach(myFunction);
-    return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
-      toDisplayHtml +
-      "</table>"
-    );
+        return `<tr>
+            <td>${item.wholesalerKey}</td>
+            <td>${item.netPrice}</td>
+            <td>${item.netNetPrice ?? "-"}</td>
+            <td>${item.set ?? "-"}</td>
+            <td>${sourceMap[item.source] || "-"}</td>
+            <td>${item.originated ?? "-"}</td>
+            <td>${item.stock ?? "-"}</td>
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
+            <td>${item.promotion?.threshold ?? "-"}</td>
+            <td>${item.promotion?.maxQuantity ?? "-"}</td>
+            <td>${item.promotion?.package ?? "-"}</td>
+            <td>${showRelated}</td>
+        </tr>`;
+      })
+      .join("");
+
+    return `
+        <table>
+            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>
+            ${toDisplayHtml}
+        </table>
+    `;
   }
 
   function generateWholesalerSelect(
@@ -1442,28 +1394,36 @@ docReady(function () {
     }
   }
 
+  var tippyLoaded = false;
+
   function LoadTippy() {
-    $.getScript(
-      "https://unpkg.com/popper.js@1",
-      function (data, textStatus, jqxhr) {
-        $.getScript(
-          "https://unpkg.com/tippy.js@4",
-          function (data, textStatus, jqxhr) {
-            tippy(".tippy", {
-              // Add the class tippy to your element
-              theme: "light", // Dark or Light
-              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
-              duration: 250, // Duration of the Animation
-              arrow: true, // Add arrow to the tooltip
-              allowHTML: true, // Add HTML content
-              arrowType: "round", // Sharp, round or empty for none
-              delay: [0, 50], // Trigger delay in & out
-              maxWidth: 240, // Optional, max width settings
-            });
-          }
-        );
-      }
-    );
+    if (tippyLoaded) {
+      applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
+      return;
+    }
+
+    $.getScript("https://unpkg.com/popper.js@1", function () {
+      $.getScript("https://unpkg.com/tippy.js@4", function () {
+        tippyLoaded = true;
+        applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
+      });
+    });
+  }
+
+  function applyTippyTooltips() {
+    tippy(".tippy:not([data-tippy-initialized])", {
+      theme: "light",
+      animation: "scale",
+      duration: 250,
+      arrow: true,
+      allowHTML: true,
+      arrowType: "round",
+      delay: [0, 50],
+      maxWidth: 240,
+      onShow(instance) {
+        instance.reference.setAttribute("data-tippy-initialized", "true");
+      },
+    });
   }
 
   function getProductDetails(rowData) {
@@ -1927,133 +1887,6 @@ docReady(function () {
       }
     };
     request.send();
-  }
-
-  function format(d) {
-    const arr = d.asks;
-    const lowest = arr.reduce((acc, loc) =>
-      acc.netPrice < loc.netPrice ? acc : loc
-    );
-    var toDisplayHtml = "";
-
-    function myFunction(item) {
-      if (item.set === null) {
-        item.set = "-";
-      }
-      if (item.netNetPrice === null) {
-        item.netNetPrice = "-";
-      }
-      var typeOfSource = "";
-      if (item.source === "price list") {
-        typeOfSource = "Cennik";
-      }
-      if (item.source === "online offer") {
-        typeOfSource = "E-hurt";
-      }
-      if (item.source === "wms") {
-        typeOfSource = "PC-Market";
-      }
-      if (item.originated === null) {
-        item.originated = "-";
-      }
-      if (item.stock === null) {
-        item.stock = "-";
-      }
-
-      var tableRowHtml =
-        "<tr>" +
-        "<td>" +
-        item.wholesalerKey +
-        "</td>" +
-        "<td>" +
-        item.netPrice +
-        "</td>" +
-        "<td>" +
-        item.netNetPrice +
-        "</td>" +
-        "<td>" +
-        item.set +
-        "</td>" +
-        "<td>" +
-        typeOfSource +
-        "</td>" +
-        "<td>" +
-        item.originated +
-        "</td>" +
-        "<td>" +
-        item.stock +
-        "</td>";
-
-      var typeOfPromotion = "";
-      var showRelated = "";
-      if (item.promotion != null) {
-        if (item.promotion.type === "rigid bundle") {
-          typeOfPromotion = "Sztywny pakiet";
-        }
-        if (item.promotion.type === "worth") {
-          typeOfPromotion = "Łączna wartość";
-        }
-        if (item.promotion.type === "quantity") {
-          typeOfPromotion = "Łączna ilość";
-        }
-        if (item.promotion.type === "package mix") {
-          typeOfPromotion = "Mix opakowań";
-        }
-        if (item.promotion.type === "quantity bundle") {
-          typeOfPromotion = "Pakietowa";
-        }
-        if (item.promotion.type === "not cumulative quantity") {
-          typeOfPromotion = "Okresowa";
-        }
-        if (item.promotion.relatedGtins.length > 0) {
-          showRelated =
-            '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="' +
-            item.promotion.relatedGtins +
-            '" alt="">';
-        } else {
-          showRelated = "-";
-        }
-
-        tableRowHtml +=
-          "<td>" +
-          (typeOfPromotion !== null ? typeOfPromotion : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.threshold !== null ? item.promotion.threshold : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.maxQuantity !== null
-            ? item.promotion.maxQuantity
-            : "-") +
-          "</td>" +
-          "<td>" +
-          (item.promotion.package !== null ? item.promotion.package : "-") +
-          "</td>" +
-          "<td>" +
-          (showRelated !== null ? showRelated : "-") +
-          "</td>" +
-          "</tr>";
-      } else {
-        tableRowHtml +=
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>" +
-          "<td>-" +
-          "</td>";
-      }
-      toDisplayHtml += tableRowHtml;
-    }
-    arr.forEach(myFunction);
-    return (
-      "<table><tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Zrodlo</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>" +
-      toDisplayHtml +
-      "</table>"
-    );
   }
 
   function getWholesalersSh() {
@@ -3302,15 +3135,10 @@ docReady(function () {
     });
     $(".dataTables_filter input").attr("maxLength", 60);
 
-    $("table.dataTable")
-      .on("init.dt", function () {
-        $(this).DataTable().columns.adjust();
-        LoadTippy();
-      })
-      .on("xhr.dt", function () {
-        $(this).DataTable().columns.adjust();
-        LoadTippy();
-      });
+    $("table.dataTable").on("init.dt xhr.dt", function () {
+      $(this).DataTable().columns.adjust();
+      LoadTippy();
+    });
 
     $("#table_splited").on("show", function (e) {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
