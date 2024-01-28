@@ -137,7 +137,7 @@ docReady(function () {
           if (checkSum == lastDigit) {
             return { valid: true, barcode: barcode, reason: "" };
           } else {
-            return { valid: false, reason: "Nieprawidłowy kod GTIN" };
+            return { valid: false, reason: "Nieprawidłowy kod" };
           }
         }
       } else {
@@ -165,7 +165,7 @@ docReady(function () {
           isNaN(element.price) ||
           element.price <= 0
         ) {
-          invalidReason = "Nieprawidłowa cena produktu"; // Or append to existing reason
+          invalidReason = "Nieprawidłowa cena";
         }
         myInvalidProducts.products.push({
           gtin: "" + element.gtin,
