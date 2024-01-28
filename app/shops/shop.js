@@ -1491,11 +1491,25 @@ docReady(function () {
   };
 
   function FileUpload(ignoreGTINs) {
-    $("#waitingdots").show();
-    const xhr = new XMLHttpRequest();
-    var formData = new FormData();
-
+    const allowedExtensions = ["txt", "edi", "csv", "kuc"];
     var myUploadedFiles = document.getElementById("orderfile").files;
+
+    if (myUploadedFiles.length > 0) {
+      var file = myUploadedFiles[0];
+      var fileName = file.name;
+      var fileExtension = fileName.split(".").pop().toLowerCase();
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        alert(
+          "Nieprawidłowy typ pliku zamówienia. Akceptowane rozszerzenia: *.txt, *.edi, *.csv, *.kuc"
+        );
+        document.getElementById("orderfile").value = ""; // Reset file input
+        return; // Exit the function
+      }
+    }
+
+    $("#waitingdots").show();
+    var formData = new FormData();
     for (var i = 0; i < myUploadedFiles.length; i++) {
       formData.append("file", myUploadedFiles[i]);
     }
