@@ -88,7 +88,6 @@ docReady(function () {
 
   function printPapaObject(papa) {
     var myproducts = papa.data;
-    console.log(papa.data);
     var myInvalidProducts = {
       products: [],
     };
@@ -136,9 +135,9 @@ docReady(function () {
 
           // true if they are equal
           if (checkSum == lastDigit) {
-            return barcode;
+            return { valid: true, barcode: barcode, reason: "" };
           } else {
-            return false;
+            return { valid: false, reason: "Nieprawidłowy kod GTIN" };
           }
         }
       } else {
@@ -147,22 +146,32 @@ docReady(function () {
     }
 
     function validateProduct(element) {
+      const gtinValidation = validateGTIN(element.gtin);
       if (
-        validateGTIN(element.gtin) &&
+        gtinValidation.valid &&
         typeof element.price == "number" &&
         !isNaN(element.price) &&
         element.price > 0
       ) {
         myValidProducts.products.push({
-          gtin: "" + validateGTIN(element.gtin),
+          gtin: "" + gtinValidation.barcode,
           name: element.name,
           price: element.price,
         });
       } else {
+        let invalidReason = gtinValidation.reason;
+        if (
+          typeof element.price !== "number" ||
+          isNaN(element.price) ||
+          element.price <= 0
+        ) {
+          invalidReason = "Nieprawidłowa cena produktu"; // Or append to existing reason
+        }
         myInvalidProducts.products.push({
           gtin: "" + element.gtin,
           name: element.name,
           price: element.price,
+          reason: invalidReason,
         });
       }
     }
@@ -291,6 +300,9 @@ docReady(function () {
           },
           {
             data: "price",
+          },
+          {
+            data: "reason",
           },
         ],
       });
