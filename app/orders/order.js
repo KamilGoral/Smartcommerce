@@ -310,6 +310,7 @@ docReady(function () {
           pagingType: "full_numbers",
           pageLength: 10,
           destroy: true,
+          orderMulti: true,
           order: [[3, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
@@ -2207,6 +2208,7 @@ docReady(function () {
     ],
     scrollY: "60vh",
     scrollCollapse: true,
+    orderMulti: true,
     pageLength: 25,
     language: {
       emptyTable: "Brak danych do wyswietlenia",
