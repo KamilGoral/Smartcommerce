@@ -620,26 +620,45 @@ docReady(function () {
 
   function format(d) {
     const arr = d.asks;
+    const sourceMap = {
+      "price list": "Cennik",
+      "online offer": "E-hurt",
+      wms: "PC-Market",
+    };
+
+    const promotionMap = {
+      "rigid bundle": {
+        name: "Sztywny pakiet",
+        description: "Description for rigid bundle",
+      },
+      worth: { name: "Łączna wartość", description: "Description for worth" },
+      quantity: {
+        name: "Łączna ilość",
+        description: "Description for quantity",
+      },
+      "package mix": {
+        name: "Mix opakowań",
+        description: "Description for package mix",
+      },
+      "quantity bundle": {
+        name: "Pakietowa",
+        description: "Description for quantity bundle",
+      },
+      "not cumulative quantity": {
+        name: "Mix ilość",
+        description: "Description for not cumulative quantity",
+      },
+      // Add more as needed
+    };
+
     const toDisplayHtml = arr
       .map((item) => {
-        const sourceMap = {
-          "price list": "Cennik",
-          "online offer": "E-hurt",
-          wms: "PC-Market",
-        };
+        const promotion = promotionMap[item.promotion?.type];
+        const promotionType = promotion ? promotion.name : "-";
+        const promotionDescription = promotion
+          ? promotion.description
+          : "No promotion";
 
-        const promotionTypeMap = {
-          "rigid bundle": "Sztywny pakiet",
-          worth: "Łączna wartość",
-          quantity: "Łączna ilość",
-          "package mix": "Mix opakowań",
-          "quantity bundle": "Pakietowa",
-          "not cumulative quantity": "Mix ilość",
-        };
-
-        const promotionType = item.promotion
-          ? promotionTypeMap[item.promotion.type] || "-"
-          : "-";
         const showRelated =
           item.promotion && item.promotion.relatedGtins.length > 0
             ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
@@ -653,7 +672,7 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            <td class="tippy" data-tippy-content="${promotionType}">${promotionType}</td>
+            <td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.maxQuantity ?? "-"}</td>
             <td>${item.promotion?.package ?? "-"}</td>
