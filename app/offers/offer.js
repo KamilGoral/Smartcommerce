@@ -1133,6 +1133,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
+      LoadTippy();
     }
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
