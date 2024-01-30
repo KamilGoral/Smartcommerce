@@ -561,7 +561,7 @@ docReady(function () {
             typeof data.endDate !== "undefined" &&
             data.endDate !== "infinity"
           ) {
-            myendDate = data.endDate.toLocaleDateString("pl-PL", {
+            myendDate = new Date(data.endDate).toLocaleDateString("pl-PL", {
               year: "numeric",
               month: "2-digit",
               day: "2-digit",
