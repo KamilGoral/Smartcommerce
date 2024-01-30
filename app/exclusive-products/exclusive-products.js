@@ -760,11 +760,7 @@ docReady(function () {
               $("#endDate-Exclusive-Edit").css("opacity", "0.6");
             } else {
               console.log("infinity");
-              $("#NeverSingleEdit").prop("checked", true);
-              $("#endDate-Exclusive-Edit").datepicker(
-                "setDate",
-                new Date(Date.now())
-              );
+              //$("#NeverSingleEdit").prop("checked", true);
             }
           }
 
