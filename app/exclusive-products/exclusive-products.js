@@ -561,8 +561,7 @@ docReady(function () {
             typeof data.endDate !== "undefined" &&
             data.endDate !== "infinity"
           ) {
-            var endDate = new Date(data.endDate);
-            if (endDate >= nowDate) {
+            if (data.endDate >= nowDate) {
               return (
                 '<span class="positive">' +
                 endDate.toLocaleDateString("pl-PL", {
