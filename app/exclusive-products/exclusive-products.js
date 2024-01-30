@@ -751,28 +751,32 @@ docReady(function () {
           $("#WholesalerSelector-Exclusive-Edit")
             .val(data.wholesalerKey)
             .change();
-          $("#startDate-Exclusive-Edit").datepicker(
-            "setDate",
-            new Date(Date.now())
-          );
 
           if (endDate <= nowDate) {
             $("#endDate-Exclusive-Edit").prop("disabled", true);
             $("#endDate-Exclusive-Edit").css("opacity", "0.6");
+            if (data.hasOwnProperty("endDate")) {
+              $("#endDate-Exclusive-Edit").datepicker(
+                "setDate",
+                new Date(Date.parse(data.endDate))
+              );
+            } else {
+              $("#NeverSingleEdit").prop("checked", true);
+              $("#startDate-Exclusive-Edit").datepicker(
+                "setDate",
+                new Date(Date.now())
+              );
+            }
           }
 
           if (startDate <= nowDate) {
             $("#startDate-Exclusive-Edit").prop("disabled", true);
             $("#startDate-Exclusive-Edit").css("opacity", "0.6");
-          }
-
-          if (data.hasOwnProperty("endDate")) {
-            $("#endDate-Exclusive-Edit").datepicker(
+            $("#startDate-Exclusive-Edit").datepicker(
               "setDate",
-              new Date(Date.parse(data.endDate))
+              new Date(Date.parse(data.startDate))
             );
           } else {
-            $("#NeverSingleEdit").prop("checked", true);
             $("#startDate-Exclusive-Edit").datepicker(
               "setDate",
               new Date(Date.now())
