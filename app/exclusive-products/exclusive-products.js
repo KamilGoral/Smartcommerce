@@ -754,7 +754,7 @@ docReady(function () {
           console.log(data.startDate);
           console.log(nowDate);
 
-          if (data.endDate <= nowDate) {
+          if (nowDate >= data.endDate) {
             $("#endDate-Exclusive-Edit").prop("disabled", true);
             $("#endDate-Exclusive-Edit").css("opacity", "0.6");
             if (data.hasOwnProperty("endDate")) {
@@ -763,15 +763,16 @@ docReady(function () {
                 new Date(Date.parse(data.endDate))
               );
             } else {
+              console.log("infinity");
               $("#NeverSingleEdit").prop("checked", true);
-              $("#startDate-Exclusive-Edit").datepicker(
+              $("#endDate-Exclusive-Edit").datepicker(
                 "setDate",
                 new Date(Date.now())
               );
             }
           }
 
-          if (data.startDate <= nowDate) {
+          if (nowDate >= data.startDate) {
             $("#startDate-Exclusive-Edit").prop("disabled", true);
             $("#startDate-Exclusive-Edit").css("opacity", "0.6");
             $("#startDate-Exclusive-Edit").datepicker(
