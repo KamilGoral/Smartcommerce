@@ -755,13 +755,13 @@ docReady(function () {
           console.log(nowDate);
 
           if (nowDate >= data.endDate) {
-            $("#endDate-Exclusive-Edit").prop("disabled", true);
-            $("#endDate-Exclusive-Edit").css("opacity", "0.6");
             if (data.hasOwnProperty("endDate")) {
               $("#endDate-Exclusive-Edit").datepicker(
                 "setDate",
                 new Date(Date.parse(data.endDate))
               );
+              $("#endDate-Exclusive-Edit").prop("disabled", true);
+              $("#endDate-Exclusive-Edit").css("opacity", "0.6");
             } else {
               console.log("infinity");
               $("#NeverSingleEdit").prop("checked", true);
@@ -773,12 +773,12 @@ docReady(function () {
           }
 
           if (nowDate >= data.startDate) {
-            $("#startDate-Exclusive-Edit").prop("disabled", true);
             $("#startDate-Exclusive-Edit").css("opacity", "0.6");
             $("#startDate-Exclusive-Edit").datepicker(
               "setDate",
               new Date(Date.parse(data.startDate))
             );
+            $("#startDate-Exclusive-Edit").prop("disabled", true);
           } else {
             $("#startDate-Exclusive-Edit").datepicker(
               "setDate",
