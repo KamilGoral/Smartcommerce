@@ -736,14 +736,14 @@ docReady(function () {
             .val(data.wholesalerKey)
             .change();
 
-          if (nowDate >= data.endDate && nowDate >= startDate) {
+          if (nowDate > data.endDate && nowDate >= startDate) {
             $("#WholesalerSelector-Exclusive-Edit")
               .prop("disabled", true)
               .css("opacity", "0.6")
               .val(CreatedTime);
           }
 
-          if (nowDate >= data.endDate || data.endDate == "infinity") {
+          if (nowDate > data.endDate || data.endDate == "infinity") {
             if (data.endDate != "infinity") {
               $("#endDate-Exclusive-Edit").datepicker(
                 "setDate",
@@ -755,6 +755,14 @@ docReady(function () {
               console.log("infinity");
               //$("#NeverSingleEdit").prop("checked", true);
             }
+          }
+
+          if (nowDate <= data.endDate) {
+            $("#endDate-Exclusive-Edit").datepicker(
+              "setDate",
+              new Date(Date.parse(data.endDate))
+            );
+          } else {
           }
 
           if (nowDate >= data.startDate) {
