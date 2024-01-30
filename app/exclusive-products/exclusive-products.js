@@ -726,6 +726,15 @@ docReady(function () {
         }
         if (action === "edit") {
           $("#EditExclusivePopup").css("display", "flex");
+
+          var offset = new Date().getTimezoneOffset();
+          var localeTime = new Date(
+            Date.parse(data.created.at) - offset * 60 * 1000
+          ).toISOString();
+          var creationDate = localeTime.split("T");
+          var creationTime = creationDate[1].split("Z");
+          CreatedTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
+
           $("#GTINInputEdit")
             .prop("disabled", true)
             .css("opacity", "0.6")
@@ -738,14 +747,6 @@ docReady(function () {
             .prop("disabled", true)
             .css("opacity", "0.6")
             .val(CreatedTime);
-
-          var offset = new Date().getTimezoneOffset();
-          var localeTime = new Date(
-            Date.parse(data.created.at) - offset * 60 * 1000
-          ).toISOString();
-          var creationDate = localeTime.split("T");
-          var creationTime = creationDate[1].split("Z");
-          CreatedTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
 
           $("#exclusiveProductId").val(data.uuid);
           $("#WholesalerSelector-Exclusive-Edit")
