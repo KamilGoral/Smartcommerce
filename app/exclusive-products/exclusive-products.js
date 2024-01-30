@@ -136,7 +136,6 @@ docReady(function () {
       "Gru",
     ],
     defaultDate: 1,
-    minDate: new Date(),
   });
 
   $("#startDate-Exclusive-Edit")
@@ -184,7 +183,6 @@ docReady(function () {
         "Gru",
       ],
       defaultDate: 1,
-      minDate: new Date(),
     })
     .datepicker("setDate", new Date(Date.now()));
 
@@ -232,7 +230,6 @@ docReady(function () {
       "Gru",
     ],
     defaultDate: 1,
-    minDate: new Date(),
   });
 
   $("#startDate-Exclusive-2")
@@ -280,7 +277,6 @@ docReady(function () {
         "Gru",
       ],
       defaultDate: 1,
-      minDate: new Date(),
     })
     .datepicker("setDate", new Date(Date.now()));
 
@@ -329,7 +325,6 @@ docReady(function () {
         "Gru",
       ],
       defaultDate: 1,
-      minDate: new Date(),
     })
     .datepicker("setDate", new Date(Date.now()));
 
