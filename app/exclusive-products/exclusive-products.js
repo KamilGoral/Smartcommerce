@@ -629,19 +629,11 @@ docReady(function () {
         data: null,
         width: "48px",
         render: function (data) {
-          if (
-            data.endDate !== null &&
-            typeof data.endDate !== "undefined" &&
-            data.endDate !== "infinity"
-          ) {
-            var endDate = new Date(data.endDate);
-          } else {
-            var endDate = "infinity";
-          }
-          if (nowDate >= endDate && nowDate >= startDate) {
+          if (nowDate >= data.endDate && nowDate >= data.startDate) {
             return "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+          } else {
+            return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
           }
-          return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
         },
       },
     ],
