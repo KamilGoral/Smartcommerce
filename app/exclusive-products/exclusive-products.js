@@ -42,8 +42,9 @@ docReady(function () {
   ExclusiveWizardBread.setAttribute("href", "" + window.location.href);
   var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
   var formIdEditSingleExclusive = "#wf-form-SingleExclusiveForm-Edit-2";
-  var nowDate = new Date();
-  nowDate.setUTCHours(0, 0, 0, 0);
+  var nowDateFull = new Date();
+  nowDateFull.setUTCHours(0, 0, 0, 0);
+  var nowDate = nowDateFull.toISOString().split(".")[0] + "Z";
 
   $("#startDate").datepicker({
     dateFormat: "yy-mm-dd",
@@ -566,9 +567,6 @@ docReady(function () {
             data.endDate !== "infinity"
           ) {
             var endDate = new Date(data.endDate);
-            var nowDate = new Date();
-            nowDate.setUTCHours(0, 0, 0, 0);
-
             if (endDate >= nowDate) {
               return (
                 '<span class="positive">' +
