@@ -752,7 +752,11 @@ docReady(function () {
             .val(data.wholesalerKey)
             .change();
 
-          if (endDate <= nowDate) {
+          console.log(data.endDate);
+          console.log(data.startDate);
+          console.log(nowDate);
+
+          if (data.endDate <= nowDate) {
             $("#endDate-Exclusive-Edit").prop("disabled", true);
             $("#endDate-Exclusive-Edit").css("opacity", "0.6");
             if (data.hasOwnProperty("endDate")) {
@@ -769,7 +773,7 @@ docReady(function () {
             }
           }
 
-          if (startDate <= nowDate) {
+          if (data.startDate <= nowDate) {
             $("#startDate-Exclusive-Edit").prop("disabled", true);
             $("#startDate-Exclusive-Edit").css("opacity", "0.6");
             $("#startDate-Exclusive-Edit").datepicker(
