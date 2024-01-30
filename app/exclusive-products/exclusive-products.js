@@ -561,26 +561,15 @@ docReady(function () {
             typeof data.endDate !== "undefined" &&
             data.endDate !== "infinity"
           ) {
+            myendDate = data.endDate.toLocaleDateString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            });
             if (data.endDate >= nowDate) {
-              return (
-                '<span class="positive">' +
-                endDate.toLocaleDateString("pl-PL", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                }) +
-                "</span>"
-              );
+              return '<span class="positive">' + myendDate + "</span>";
             } else {
-              return (
-                '<span class="noneexisting">' +
-                endDate.toLocaleDateString("pl-PL", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                }) +
-                "</span>"
-              );
+              return '<span class="noneexisting">' + myendDate + "</span>";
             }
           }
 
