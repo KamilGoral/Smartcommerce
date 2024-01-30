@@ -99,7 +99,7 @@ docReady(function () {
       if (barcode == null || typeof barcode !== "number" || isNaN(barcode)) {
         return {
           valid: false,
-          reason: "Nieprawidłowy zapis kodu",
+          reason: "Niepoprawny kod EAN",
         };
       }
       if (typeof barcode == "number") {
@@ -116,7 +116,10 @@ docReady(function () {
           var lastDigit = Number(barcode.substring(barcode.length - 1));
           var checkSum = 0;
           if (isNaN(lastDigit)) {
-            return { valid: false, reason: "Nieprawidłowa liczba kontrolna" };
+            return {
+              valid: false,
+              reason: "Nieprawidłowa liczba kontrolna kodu EAN",
+            };
           } // not a valid upc/GTIN
 
           var arr = barcode
@@ -128,7 +131,7 @@ docReady(function () {
 
           for (var i = 0; i < arr.length; i++) {
             if (isNaN(arr[i])) {
-              return { valid: false, reason: "Brak kodu" };
+              return { valid: false, reason: "Brak kodu EAN" };
             } // can't be a valid upc/GTIN we're checking for
 
             if (i % 2 == 0) {
@@ -143,13 +146,13 @@ docReady(function () {
           if (checkSum == lastDigit) {
             return { valid: true, barcode: barcode, reason: "" };
           } else {
-            return { valid: false, reason: "Nieprawidłowy kod" };
+            return { valid: false, reason: "Nieprawidłowy kod EAN" };
           }
         } else {
-          return { valid: false, reason: "Nieprawidłowa długość kodu" };
+          return { valid: false, reason: "Nieprawidłowa długość kodu EAN" };
         }
       } else {
-        return { valid: false, reason: "Kod nie jest liczbą" };
+        return { valid: false, reason: "Kod EAN nie jest liczbą" };
       }
     }
 
@@ -173,7 +176,7 @@ docReady(function () {
           isNaN(element.price) ||
           element.price <= 0
         ) {
-          invalidReason = "Nieprawidłowa cena";
+          invalidReason = "Nieprawidłowa cena produktu";
         }
         myInvalidProducts.products.push({
           gtin: "" + element.gtin,
