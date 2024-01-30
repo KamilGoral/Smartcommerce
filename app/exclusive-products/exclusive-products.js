@@ -42,6 +42,8 @@ docReady(function () {
   ExclusiveWizardBread.setAttribute("href", "" + window.location.href);
   var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
   var formIdEditSingleExclusive = "#wf-form-SingleExclusiveForm-Edit-2";
+  var nowDate = new Date();
+  nowDate.setUTCHours(0, 0, 0, 0);
 
   $("#startDate").datepicker({
     dateFormat: "yy-mm-dd",
@@ -643,14 +645,7 @@ docReady(function () {
           } else {
             var endDate = "infinity";
           }
-          var nowDate = new Date();
-          nowDate.setUTCHours(0, 0, 0, 0);
-
-          if (endDate >= nowDate || endDate == "infinity") {
-            return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
-          } else {
-            return "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img><img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='disabled' alt='disabled'></img>";
-          }
+          return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
         },
       },
     ],
@@ -760,6 +755,16 @@ docReady(function () {
             "setDate",
             new Date(Date.now())
           );
+
+          if (endDate <= nowDate) {
+            $("#endDate-Exclusive-Edit").prop("disabled", true);
+            $("#endDate-Exclusive-Edit").css("opacity", "0.6");
+          }
+
+          if (startDate <= nowDate) {
+            $("#startDate-Exclusive-Edit").prop("disabled", true);
+            $("#startDate-Exclusive-Edit").css("opacity", "0.6");
+          }
 
           if (data.hasOwnProperty("endDate")) {
             $("#endDate-Exclusive-Edit").datepicker(
