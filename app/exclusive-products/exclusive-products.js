@@ -638,6 +638,9 @@ docReady(function () {
           } else {
             var endDate = "infinity";
           }
+          if (nowDate >= endDate && nowDate >= startDate) {
+            return "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+          }
           return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
         },
       },
@@ -752,6 +755,13 @@ docReady(function () {
           $("#WholesalerSelector-Exclusive-Edit")
             .val(data.wholesalerKey)
             .change();
+
+          if (nowDate >= data.endDate && nowDate >= startDate) {
+            $("#WholesalerSelector-Exclusive-Edit")
+              .prop("disabled", true)
+              .css("opacity", "0.6")
+              .val(CreatedTime);
+          }
 
           if (nowDate >= data.endDate || data.endDate == "infinity") {
             if (data.endDate != "infinity") {
