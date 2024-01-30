@@ -731,6 +731,7 @@ docReady(function () {
           $("#Creator").prop("disabled", true);
           $("#Creator").val(data.created.by);
           $("#Created").prop("disabled", true);
+          $("#Created").css("opacity", "0.6");
           var offset = new Date().getTimezoneOffset();
           var localeTime = new Date(
             Date.parse(data.created.at) - offset * 60 * 1000
@@ -749,8 +750,8 @@ docReady(function () {
           console.log(data.startDate);
           console.log(nowDate);
 
-          if (nowDate >= data.endDate) {
-            if (data.hasOwnProperty("endDate")) {
+          if (nowDate >= data.endDate || data.endDate == "infinity") {
+            if (data.endDate != "infinity") {
               $("#endDate-Exclusive-Edit").datepicker(
                 "setDate",
                 new Date(Date.parse(data.endDate))
