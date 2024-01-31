@@ -505,6 +505,7 @@ docReady(function () {
 
             res.items.forEach((item) => {
               // Format the createDate nicely
+
               const createDateItem = new Date(item.createDate).toLocaleString(
                 "pl-PL",
                 {
@@ -516,6 +517,9 @@ docReady(function () {
                   second: "2-digit",
                 }
               );
+
+              console.log(item.createDate);
+              console.log(createDateItem);
 
               const createDate = createDateItem.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
               const timePart = createDateItem.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
