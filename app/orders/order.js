@@ -890,6 +890,7 @@ docReady(function () {
             },
             {
               orderable: true,
+              orderData: [10, 1],
               data: null,
               render: function (data) {
                 return (
