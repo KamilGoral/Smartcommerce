@@ -1491,6 +1491,7 @@ docReady(function () {
   };
 
   function FileUpload(ignoreGTINs) {
+    var xhr = new XMLHttpRequest();
     const allowedExtensions = ["txt", "edi", "csv", "kuc"];
     var myUploadedFiles = document.getElementById("orderfile").files;
 
