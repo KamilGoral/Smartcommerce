@@ -1500,12 +1500,12 @@ docReady(function () {
       var fileName = file.name;
       var fileExtension = fileName.split(".").pop().toLowerCase();
 
-      if (!allowedExtensions.includes(fileExtension)) {
-        $("#wrongfilemodal").css("display", "flex");
-        $("#orderuploadmodal").css("display", "none");
-        document.getElementById("orderfile").value = "";
-        return; // Exit the function
-      }
+      // if (!allowedExtensions.includes(fileExtension)) {
+      //   $("#wrongfilemodal").css("display", "flex");
+      //   $("#orderuploadmodal").css("display", "none");
+      //   document.getElementById("orderfile").value = "";
+      //   return; // Exit the function
+      // }
     }
 
     $("#waitingdots").show();
