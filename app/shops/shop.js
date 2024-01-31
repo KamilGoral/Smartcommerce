@@ -342,7 +342,7 @@ docReady(function () {
 
     // Iteruj przez tablicę ofert
     for (var i = 0; i < offers.length; i++) {
-      var utcDate = new Date(offers[i].createDate);
+      var utcDate = new Date(offers[i].createDate.replace(" ", "T") + "Z");
 
       // Formatuj datę do 'RRRR-MM-DD, HH:MM:SS'
       var formattedDate = utcDate.toLocaleString("pl-PL", {
