@@ -354,6 +354,8 @@ docReady(function () {
         second: "2-digit",
         hour12: false,
       });
+      console.log(offers[i].createDate);
+      console.log(formattedDate);
 
       toDisplayHtml +=
         "<tr>" +
@@ -504,25 +506,8 @@ docReady(function () {
             const groupedData = {};
 
             res.items.forEach((item) => {
-              // Format the createDate nicely
-
-              const createDateItem = new Date(item.createDate).toLocaleString(
-                "pl-PL",
-                {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                }
-              );
-
-              console.log(item.createDate);
-              console.log(createDateItem);
-
-              const createDate = createDateItem.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-              const timePart = createDateItem.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+              const createDate = item.createDate.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+              const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
               if (!groupedData[createDate]) {
                 groupedData[createDate] = [];
