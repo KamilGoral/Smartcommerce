@@ -354,8 +354,6 @@ docReady(function () {
         second: "2-digit",
         hour12: false,
       });
-      console.log(offers[i].createDate);
-      console.log(formattedDate);
 
       toDisplayHtml +=
         "<tr>" +
