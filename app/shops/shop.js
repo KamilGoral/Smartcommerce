@@ -1492,7 +1492,7 @@ docReady(function () {
 
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
-    const allowedExtensions = ["txt", "edi", "csv", "kuc"];
+    const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
     var myUploadedFiles = document.getElementById("orderfile").files;
 
     if (myUploadedFiles.length > 0) {
