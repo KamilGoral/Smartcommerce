@@ -504,8 +504,21 @@ docReady(function () {
             const groupedData = {};
 
             res.items.forEach((item) => {
-              const createDate = item.createDate.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-              const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+              // Format the createDate nicely
+              const createDateItem = new Date(item.createDate).toLocaleString(
+                "pl-PL",
+                {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }
+              );
+
+              const createDate = createDateItem.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+              const timePart = createDateItem.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
               if (!groupedData[createDate]) {
                 groupedData[createDate] = [];
