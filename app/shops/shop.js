@@ -1519,7 +1519,7 @@ docReady(function () {
       ) {
         $("#wrongfilemodal").css("display", "flex");
         $("#wrongfilemessage").text(
-          "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc"
+          "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
         );
         $("#orderuploadmodal").css("display", "none");
         document.getElementById("orderfile").value = "";
