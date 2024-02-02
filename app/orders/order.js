@@ -858,7 +858,7 @@ docReady(function () {
               data: null,
               render: function (data) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 5 || this.value < 99999)" min="0" max="99999" value="' +
                   data.quantity +
                   '">'
                 );
@@ -2419,7 +2419,7 @@ docReady(function () {
         orderable: false,
         data: null,
         render: function (data) {
-          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48" min="0" value="">';
+          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 5 || this.value < 99999)" min="0" max="99999" value="">';
         },
       },
       {
