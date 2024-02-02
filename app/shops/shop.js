@@ -1499,23 +1499,31 @@ docReady(function () {
       var file = myUploadedFiles[0];
       var fileName = file.name;
       var fileExtension = fileName.split(".").pop().toLowerCase();
-      var isExtensionLess = fileName.split(".").length === 1; // Check if file has no extension - It is allowed
-      var isFileSizeValid = file.size <= 10485760; // Check if file size is less than or equal to 10 MB
+      var fileSize = file.size;
 
-      // Check for allowed extensions, permit extension-less files, and enforce size limit
-      if (!isFileSizeValid) {
+      // Check for file size exceeding 10 MB
+      if (fileSize > 10 * 1024 * 1024) {
         $("#wrongfilemodal").css("display", "flex");
+        $("#wrongfilemessage").text(
+          "Jeden z Twoich plików zamówienie jest zbyt duży. Plik jest większy niż 10 MB"
+        );
         $("#orderuploadmodal").css("display", "none");
-        alert("File size exceeds the maximum limit of 10MB.");
-        document.getElementById("orderfile").value = ""; // Reset file input
-        return; // Exit the function if file is too large
+        document.getElementById("orderfile").value = "";
+        return; // Exit the function
       }
 
-      if (!allowedExtensions.includes(fileExtension) && !isExtensionLess) {
+      // Allow files without extensions and check allowed extensions
+      if (
+        fileName.includes(".") &&
+        !allowedExtensions.includes(fileExtension)
+      ) {
         $("#wrongfilemodal").css("display", "flex");
+        $("#wrongfilemessage").text(
+          "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc"
+        );
         $("#orderuploadmodal").css("display", "none");
-        document.getElementById("orderfile").value = ""; // Reset file input
-        return; // Exit the function if file extension is not allowed and file is not extension-less
+        document.getElementById("orderfile").value = "";
+        return; // Exit the function
       }
     }
     $("#waitingdots").show();
