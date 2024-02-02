@@ -1499,15 +1499,25 @@ docReady(function () {
       var file = myUploadedFiles[0];
       var fileName = file.name;
       var fileExtension = fileName.split(".").pop().toLowerCase();
+      var isExtensionLess = fileName.split(".").length === 1; // Check if file has no extension - It is allowed
+      var isFileSizeValid = file.size <= 10485760; // Check if file size is less than or equal to 10 MB
 
-      // if (!allowedExtensions.includes(fileExtension)) {
-      //   $("#wrongfilemodal").css("display", "flex");
-      //   $("#orderuploadmodal").css("display", "none");
-      //   document.getElementById("orderfile").value = "";
-      //   return; // Exit the function
-      // }
+      // Check for allowed extensions, permit extension-less files, and enforce size limit
+      if (!isFileSizeValid) {
+        $("#wrongfilemodal").css("display", "flex");
+        $("#orderuploadmodal").css("display", "none");
+        alert("File size exceeds the maximum limit of 10MB.");
+        document.getElementById("orderfile").value = ""; // Reset file input
+        return; // Exit the function if file is too large
+      }
+
+      if (!allowedExtensions.includes(fileExtension) && !isExtensionLess) {
+        $("#wrongfilemodal").css("display", "flex");
+        $("#orderuploadmodal").css("display", "none");
+        document.getElementById("orderfile").value = ""; // Reset file input
+        return; // Exit the function if file extension is not allowed and file is not extension-less
+      }
     }
-
     $("#waitingdots").show();
     var formData = new FormData();
     for (var i = 0; i < myUploadedFiles.length; i++) {
