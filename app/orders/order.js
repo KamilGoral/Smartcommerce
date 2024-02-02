@@ -219,91 +219,77 @@ docReady(function () {
           }
         }
         $("#table-content").show();
+
         var data = resultData;
 
         const setElementContent = (elementId, content, percentage) => {
           const element = document.getElementById(elementId);
-          if (content != null) {
-            const numericContent = Number(content);
-            const formattedContent = isNaN(numericContent)
-              ? "-"
-              : numericContent.toFixed(2) +
-                " zł" +
-                (typeof percentage === "number"
-                  ? ` (${percentage.toFixed(2)}%)`
-                  : "");
-            element.textContent = formattedContent;
-          } else {
+          if (content === null) {
             element.textContent = "-";
+            return;
           }
+          const numericContent = Number(content);
+          const formattedContent = isNaN(numericContent)
+            ? "-"
+            : `${numericContent.toFixed(2)} zł${
+                percentage ? ` (${percentage.toFixed(2)}%)` : ""
+              }`;
+          element.textContent = formattedContent;
         };
 
         const userRole = getCookie("sprytnyUserRole");
 
-        // Dla savings
-        const savingsValue = data.netValues.avg - data.netValues.total;
-        const savingsPercentage = (savingsValue / data.netValues.avg) * 100;
-        setElementContent("totalValue", data.netValues.total);
-        setElementContent("maxValue", data.netValues.max);
-        setElementContent("avgValue", data.netValues.avg);
+        // Calculate savings and update elements
+        const calculateAndSetSavings = (values, prefix = "") => {
+          const savingsValue = values.avg - values.total;
+          const savingsPercentage = (savingsValue / values.avg) * 100;
+          setElementContent(`${prefix}totalValue`, values.total);
+          setElementContent(`${prefix}maxValue`, values.max);
+          setElementContent(`${prefix}avgValue`, values.avg);
+          return { savingsValue, savingsPercentage };
+        };
 
-        // Dla savingsNet
-        const savingsNetValue =
-          data.netNetValues?.avg - data.netNetValues?.total;
-        const savingsNetPercentage = savingsNetValue
-          ? (savingsNetValue / data.netNetValues.avg) * 100
-          : null;
-        setElementContent("totalNetValue", data.netNetValues?.total);
-        setElementContent("maxNetValue", data.netNetValues?.max);
-        setElementContent("avgNetValue", data.netNetValues?.avg);
+        const { savingsValue, savingsPercentage } = calculateAndSetSavings(
+          data.netValues
+        );
+        const {
+          savingsValue: savingsNetValue,
+          savingsPercentage: savingsNetPercentage,
+        } = calculateAndSetSavings(data.netNetValues, "net");
 
-        // Ustal kolor tekstu
+        // Determine text color
         const textColor =
           savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24";
 
-        // Jeśli savingsValue jest większe lub równe 0 lub savingsNetNetValue jest dodatnie, to zamówienie jest optymalne
-        if (
-          savingsValue >= 0 ||
-          (savingsValue <= 0 && savingsNetNetValue > 0)
-        ) {
-          setElementContent(
-            "savings",
-            savingsValue,
-            savingsPercentage,
-            textColor
-          );
+        // Set savings content based on condition
+        if (savingsValue >= 0) {
+          setElementContent("savings", savingsValue, savingsPercentage);
         } else {
-          setElementContent(
-            "savings",
-            "Zamówienie nieoptymalne",
-            null,
-            textColor
-          );
+          setElementContent("savings", "Zamówienie nieoptymalne");
         }
 
+        // Set savingsNet content based on condition
         if (savingsNetValue >= 0) {
-          setElementContent(
-            "savingsNet",
-            "Zamówienie nieoptymalne",
-            null,
-            textColor
-          );
+          setElementContent("savingsNet", "Zamówienie nieoptymalne");
         } else if (
           userRole === "admin" &&
           data.netValues.total !== data.netNetValues.total
         ) {
-          $("#netNetValues").show();
-          $("#maxNetValue").show();
-          $("#avgNetValue").show();
-          $("#totalNetValue").show();
-          $("#savingsNet").show();
+          $(
+            "#netNetValues, #maxNetValue, #avgNetValue, #totalNetValue, #savingsNet"
+          ).show();
           setElementContent(
             "savingsNet",
             savingsNetValue,
-            savingsNetPercentage,
-            textColor
+            savingsNetPercentage
           );
         }
+
+        // Adjust content color
+        ["savings", "savingsNet"].forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) element.style.color = textColor;
+        });
 
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
