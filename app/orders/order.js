@@ -858,7 +858,7 @@ docReady(function () {
               data: null,
               render: function (data) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 5 || this.value < 99999)" min="0" max="99999" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
                   data.quantity +
                   '">'
                 );
@@ -1172,7 +1172,6 @@ docReady(function () {
                   ((currentPrice - lowestPrice) / currentPrice) *
                   100
                 ).toFixed(2);
-                console.log(diffPercent); // You can remove this line if you don't need the console log
                 $("td", row).css("background-color", "#FFFAE6");
               }
             }
@@ -2419,7 +2418,7 @@ docReady(function () {
         orderable: false,
         data: null,
         render: function (data) {
-          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 5 || this.value < 99999)" min="0" max="99999" value="">';
+          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="">';
         },
       },
       {
