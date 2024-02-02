@@ -263,7 +263,7 @@ docReady(function () {
 
         // Determine text color
         const textColor =
-          savingsValue >= 0 || savingsNetValue >= 0 ? "#ff5630" : "#67ca24";
+          savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
 
         // Set savings content based on condition
         if (savingsValue >= 0) {
