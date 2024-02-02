@@ -292,7 +292,11 @@ docReady(function () {
           userRole === "admin" &&
           data.netValues.total !== data.netNetValues.total
         ) {
-          document.getElementById("netNetValues").style.display = "flex";
+          $("#netNetValues").show();
+          $("#maxNetValue").show();
+          $("#avgNetValue").show();
+          $("#totalNetValue").show();
+          $("#savingsNet").show();
           setElementContent(
             "savingsNet",
             savingsNetValue,
