@@ -224,6 +224,10 @@ docReady(function () {
 
         const setElementContent = (elementId, content, percentage) => {
           const element = document.getElementById(elementId);
+          if (element === null) {
+            console.error(`Element with ID '${elementId}' not found.`);
+            return; // Exit the function if the element is not found
+          }
           if (content === null) {
             element.textContent = "-";
             return;
