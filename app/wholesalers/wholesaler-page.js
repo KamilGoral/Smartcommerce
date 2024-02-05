@@ -108,13 +108,13 @@ docReady(function () {
         ftpUsername.textContent = data.credentials.username;
         ftpPassword.textContent = "*****";
         $("#Iftp").addClass("enabled");
-        $("#credentials").removeClass("hide");
+        $("#credentials").show();
         $("#informations").removeClass("hide");
         $("#deleteserver").show();
         $("#resetpassword").show();
       } else {
         console.log("error");
-        $("#createserver").removeClass("hide");
+        $("#createserver").show();
         $("#informations").removeClass("hide");
       }
     };
