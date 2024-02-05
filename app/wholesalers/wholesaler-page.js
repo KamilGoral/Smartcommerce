@@ -178,7 +178,8 @@ docReady(function () {
             ftpUsername.textContent = resultData.credentials.username;
             ftpPassword.textContent = "*****";
             $("#Iftp").addClass("enabled");
-            $("#credentials").removeClass("hide");
+            $("#credentials").show();
+            $("#createserver").hide();
 
             doneBlock.show();
             failBlock.hide();
