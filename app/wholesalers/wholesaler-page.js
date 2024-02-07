@@ -103,10 +103,8 @@ docReady(function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         const ftpUsername = document.getElementById("ftpUsername");
-        const ftpPassword = document.getElementById("ftpPassword");
 
         ftpUsername.textContent = data.credentials.username;
-        ftpPassword.textContent = "*****";
         $("#Iftp").addClass("enabled");
         $("#credentials").show();
         $("#informations").removeClass("hide");
@@ -174,9 +172,7 @@ docReady(function () {
               "Hasło: " + resultData.credentials.password + "<br />";
 
             const ftpUsername = document.getElementById("ftpUsername");
-            const ftpPassword = document.getElementById("ftpPassword");
             ftpUsername.textContent = resultData.credentials.username;
-            ftpPassword.textContent = "*****";
             $("#Iftp").addClass("enabled");
             $("#credentials").show();
             $("#createserver").hide();
@@ -266,9 +262,7 @@ docReady(function () {
             );
 
             const ftpUsername = document.getElementById("ftpUsername");
-            const ftpPassword = document.getElementById("ftpPassword");
             ftpUsername.textContent = resultData.credentials.username;
-            ftpPassword.textContent = "*****";
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
 
