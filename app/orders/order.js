@@ -257,8 +257,8 @@ docReady(function () {
           data.netValues
         );
         const {
-          savingsValue: savingsNetValue,
-          savingsPercentage: savingsNetPercentage,
+          savingsNetValue: savingsNetValue,
+          savingsNetPercentage: savingsNetPercentage,
         } = calculateAndSetSavings(data.netNetValues, "net");
 
         // Determine text color
@@ -280,7 +280,7 @@ docReady(function () {
           data.netValues.total !== data.netNetValues.total
         ) {
           $(
-            "#netNetValues, #maxNetValue, #avgNetValue, #totalNetValue, #savingsNet"
+            "#netNetValues, #netmaxValue, #netavgValue, #nettotalValue, #savingsNet"
           ).show();
           setElementContent(
             "savingsNet",
