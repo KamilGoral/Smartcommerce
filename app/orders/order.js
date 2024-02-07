@@ -261,6 +261,8 @@ docReady(function () {
           savingsNetPercentage: savingsNetPercentage,
         } = calculateAndSetSavings(data.netNetValues, "net");
 
+        console.log(savingsNetValue, savingsNetPercentage, data.netNetValues);
+
         // Determine text color
         const textColor =
           savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
@@ -978,7 +980,6 @@ docReady(function () {
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
                     ).toFixed(2);
-                    console.log(diffPercent);
                     return (
                       "<td>" +
                       diffPercent +
