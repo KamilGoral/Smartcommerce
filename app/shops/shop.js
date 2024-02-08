@@ -1515,20 +1515,20 @@ docReady(function () {
         return; // Exit the function
       }
 
-      // Allow files without extensions and check allowed extensions
-      if (
-        (fileName.includes(".") &&
-          !allowedExtensions.includes(fileExtension)) ||
-        (!fileName.includes(".") && fileExtension === "")
-      ) {
-        $("#wrongfilemodal").css("display", "flex");
-        $("#wrongfilemessage").text(
-          "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
-        );
-        $("#orderuploadmodal").css("display", "none");
-        document.getElementById("orderfile").value = "";
-        return; // Exit the function
-      }
+      // Allow files without extensions and check allowed extensions ( This is not working and file validation is backend only for now)
+      // if (
+      //   (fileName.includes(".") &&
+      //     !allowedExtensions.includes(fileExtension)) ||
+      //   (!fileName.includes(".") && fileExtension === "")
+      // ) {
+      //   $("#wrongfilemodal").css("display", "flex");
+      //   $("#wrongfilemessage").text(
+      //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
+      //   );
+      //   $("#orderuploadmodal").css("display", "none");
+      //   document.getElementById("orderfile").value = "";
+      //   return; // Exit the function
+      // }
     }
     $("#waitingdots").show();
     var formData = new FormData();
