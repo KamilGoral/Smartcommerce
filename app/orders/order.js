@@ -1955,7 +1955,7 @@ docReady(function () {
           second: "2-digit",
         });
       } else {
-        createDate = "W trakcie";
+        createDate = "W trakcie tworzenia";
       }
 
       // Function to determine status text
