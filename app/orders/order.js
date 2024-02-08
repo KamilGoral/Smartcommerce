@@ -1943,15 +1943,20 @@ docReady(function () {
       const offerMessageElements =
         document.getElementsByClassName("offermessage");
 
-      // Format the createDate nicely
-      const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+      let createDate;
+      // Function to determine date text
+      if (data.createDate) {
+        createDate = new Date(data.createDate).toLocaleString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      } else {
+        createDate = "W trakcie";
+      }
 
       // Function to determine status text
       const getStatusText = (status) => {
