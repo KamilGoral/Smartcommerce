@@ -854,7 +854,7 @@ docReady(function () {
               data: null,
               render: function (data) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="handleKeyPress(event, this)" min="0" max="999999" value="' +
+                  '<input type="number" style="max-width: 80px"  min="0" max="999999" value="' +
                   data.quantity +
                   '">'
                 );
@@ -2418,7 +2418,7 @@ docReady(function () {
         orderable: false,
         data: null,
         render: function (data) {
-          return '<input type="number" style="max-width: 80px" onkeypress="handleKeyPress(event, this)" min="0" max="999999" value="">';
+          return '<input type="number" style="max-width: 80px" min="0" max="999999" value="">';
         },
       },
       {
@@ -3145,31 +3145,25 @@ docReady(function () {
     // Set maxLength for DataTables search input
     $(".dataTables_filter input").attr("maxLength", 60);
 
-    // Attach keypress event listeners to all number inputs
-    $('input[type="number"]').each(function () {
-      $(this).on("keypress", function (event) {
-        handleKeyPress(event, this);
-      });
+    // Attach keypress event listeners to all number inputs using jQuery
+    $('input[type="number"]').on("keypress", function (event) {
+      handleKeyPress(event, this);
     });
   });
 
+  // Ensure handleKeyPress is defined in the global scope
   function handleKeyPress(event, element) {
-    // Check for the Enter key
     if (event.key === "Enter") {
-      event.preventDefault(); // Prevent the form from submitting or any other default action
+      event.preventDefault();
       moveToNextInput(element);
     }
   }
 
   function moveToNextInput(element) {
-    const inputs = Array.from($('input[type="number"]')); // Use jQuery to select the inputs and convert to an array
+    const inputs = $('input[type="number"]').toArray(); // Convert jQuery collection to an array
     const currentIndex = inputs.indexOf(element);
     if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
-      // Move focus to the next input element
-      inputs[currentIndex + 1].focus();
-    } else {
-      // Optionally, focus the first input again or do something else when the last input is reached
-      inputs[0].focus();
+      $(inputs[currentIndex + 1]).focus(); // Use jQuery to focus the next element
     }
   }
 });
