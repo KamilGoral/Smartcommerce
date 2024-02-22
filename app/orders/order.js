@@ -854,7 +854,7 @@ docReady(function () {
               data: null,
               render: function (data) {
                 return (
-                  '<input type="number" style="max-width: 80px"  min="0" max="999999" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
                   data.quantity +
                   '">'
                 );
@@ -2418,7 +2418,7 @@ docReady(function () {
         orderable: false,
         data: null,
         render: function (data) {
-          return '<input type="number" style="max-width: 80px" min="0" max="999999" value="">';
+          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="">';
         },
       },
       {
@@ -2885,7 +2885,7 @@ docReady(function () {
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
-    table.row($(this).parents("tr")).remove().draw(false);
+    table.row($(this).parents("tr")).remove().draw();
     checkChangesPayload();
 
     // Aktualizuj wartość input w tabeli $('#table_id') na null
@@ -3136,47 +3136,10 @@ docReady(function () {
     LoadTippy();
   });
 
-  $(document).ready(function () {
-    // Initialize DataTables on all tables if you haven't already done so elsewhere
-    $(".dataTable").DataTable({
-      // Your DataTables initialization options
+  $(document).ready(function ($) {
+    $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-
-    // Attach the behavior after each DataTable draw
-    $(".dataTable").on("draw.dt", function () {
-      attachEnterKeyBehaviorToInputs();
-    });
-
-    // Initial attachment of the behavior
-    attachEnterKeyBehaviorToInputs();
+    $(".dataTables_filter input").attr("maxLength", 60);
   });
-
-  function attachEnterKeyBehaviorToInputs() {
-    // Attach or re-attach keypress event listener to inputs within DataTables
-    $('.dataTable input[type="number"]')
-      .off("keypress")
-      .on("keypress", function (event) {
-        handleKeyPress(event, this);
-      });
-  }
-
-  function handleKeyPress(event, element) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      moveToNextInput(element);
-    }
-  }
-
-  function moveToNextInput(element) {
-    // Finds all current number inputs within the same DataTable as the element
-    const inputs = $(element)
-      .closest(".dataTable")
-      .find('input[type="number"]')
-      .toArray();
-    const currentIndex = inputs.indexOf(element);
-    if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
-      $(inputs[currentIndex + 1]).focus();
-    }
-  }
 });
