@@ -3137,21 +3137,23 @@ docReady(function () {
   });
 
   $(document).ready(function () {
-    // Initialize DataTables
-    $("tableSelector").DataTable({
+    // Initialize DataTables on all tables if you haven't already done so elsewhere
+    // This is just an example; your initialization might be different
+    $(".dataTable").DataTable({
+      // Your DataTables initialization options
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
 
-    // Set maxLength for DataTables search input
-    $(".dataTables_filter input").attr("maxLength", 60);
-
-    // Attach keypress event listeners to all number inputs using jQuery
-    $('input[type="number"]').on("keypress", function (event) {
-      handleKeyPress(event, this);
-    });
+    // Attach keypress event listener to the document, targeting inputs within DataTables
+    $(document).on(
+      "keypress",
+      '.dataTable input[type="number"]',
+      function (event) {
+        handleKeyPress(event, this);
+      }
+    );
   });
 
-  // Ensure handleKeyPress is defined in the global scope
   function handleKeyPress(event, element) {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -3160,10 +3162,14 @@ docReady(function () {
   }
 
   function moveToNextInput(element) {
-    const inputs = $('input[type="number"]').toArray(); // Convert jQuery collection to an array
+    // Finds all current number inputs within the same DataTable as the element
+    const inputs = $(element)
+      .closest(".dataTable")
+      .find('input[type="number"]')
+      .toArray();
     const currentIndex = inputs.indexOf(element);
     if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
-      $(inputs[currentIndex + 1]).focus(); // Use jQuery to focus the next element
+      $(inputs[currentIndex + 1]).focus();
     }
   }
 });
