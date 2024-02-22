@@ -3122,43 +3122,6 @@ docReady(function () {
     updateOverlaySize("table-content");
   });
 
-  function restrictInput(event, element) {
-    // Allow only numbers and restrict the value to be less than 999999
-    if (
-      !(event.charCode >= 48 && event.charCode <= 57) &&
-      event.charCode !== 13
-    ) {
-      return false;
-    }
-
-    // Check if the entered value is acceptable and move to next input on "Enter"
-    if (event.charCode === 13) {
-      console.log("Enter");
-      // 13 is the charCode for "Enter"
-      // Accept the input value if it's less than 999999
-      if (element.value.length < 6 || parseInt(element.value) < 999999) {
-        // Move focus to the next input element
-        moveToNextInput(element);
-        return false; // Prevent default action for "Enter" key
-      }
-    }
-
-    // Allow the input if the length is less than 6 characters or the value is less than 999999
-    return element.value.length < 6 || parseInt(element.value) < 999999;
-  }
-
-  function moveToNextInput(element) {
-    // Find all input elements
-    const inputs = Array.from(document.querySelectorAll("input[type=number]"));
-    const currentIndex = inputs.indexOf(element);
-    if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
-      // Move focus to the next input element
-      inputs[currentIndex + 1].focus();
-    }
-  }
-
-  // Attach the keypress event listener to all number inputs
-
   CreateOrder();
   getOffers();
   getWholesalersSh();
@@ -3189,4 +3152,24 @@ docReady(function () {
       });
     });
   });
+
+  function handleKeyPress(event, element) {
+    // Check for the Enter key
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent the form from submitting or any other default action
+      moveToNextInput(element);
+    }
+  }
+
+  function moveToNextInput(element) {
+    const inputs = Array.from($('input[type="number"]')); // Use jQuery to select the inputs and convert to an array
+    const currentIndex = inputs.indexOf(element);
+    if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
+      // Move focus to the next input element
+      inputs[currentIndex + 1].focus();
+    } else {
+      // Optionally, focus the first input again or do something else when the last input is reached
+      inputs[0].focus();
+    }
+  }
 });
