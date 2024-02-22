@@ -3138,21 +3138,28 @@ docReady(function () {
 
   $(document).ready(function () {
     // Initialize DataTables on all tables if you haven't already done so elsewhere
-    // This is just an example; your initialization might be different
     $(".dataTable").DataTable({
       // Your DataTables initialization options
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
 
-    // Attach keypress event listener to the document, targeting inputs within DataTables
-    $(document).on(
-      "keypress",
-      '.dataTable input[type="number"]',
-      function (event) {
-        handleKeyPress(event, this);
-      }
-    );
+    // Attach the behavior after each DataTable draw
+    $(".dataTable").on("draw.dt", function () {
+      attachEnterKeyBehaviorToInputs();
+    });
+
+    // Initial attachment of the behavior
+    attachEnterKeyBehaviorToInputs();
   });
+
+  function attachEnterKeyBehaviorToInputs() {
+    // Attach or re-attach keypress event listener to inputs within DataTables
+    $('.dataTable input[type="number"]')
+      .off("keypress")
+      .on("keypress", function (event) {
+        handleKeyPress(event, this);
+      });
+  }
 
   function handleKeyPress(event, element) {
     if (event.key === "Enter") {
