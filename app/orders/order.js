@@ -3133,6 +3133,7 @@ docReady(function () {
 
     // Check if the entered value is acceptable and move to next input on "Enter"
     if (event.charCode === 13) {
+      console.log("Enter");
       // 13 is the charCode for "Enter"
       // Accept the input value if it's less than 999999
       if (element.value.length < 6 || parseInt(element.value) < 999999) {
@@ -3157,11 +3158,6 @@ docReady(function () {
   }
 
   // Attach the keypress event listener to all number inputs
-  document.querySelectorAll("input[type=number]").forEach((input) => {
-    input.addEventListener("keypress", function (event) {
-      return restrictInput(event, this);
-    });
-  });
 
   CreateOrder();
   getOffers();
@@ -3177,10 +3173,20 @@ docReady(function () {
     LoadTippy();
   });
 
-  $(document).ready(function ($) {
+  $(document).ready(function () {
+    // Initialize DataTables
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
+
+    // Set maxLength for DataTables search input
     $(".dataTables_filter input").attr("maxLength", 60);
+
+    // Attach keypress event listeners to all number inputs
+    $('input[type="number"]').each(function () {
+      $(this).on("keypress", function (event) {
+        handleKeyPress(event, this);
+      });
+    });
   });
 });
