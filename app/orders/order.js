@@ -854,7 +854,7 @@ docReady(function () {
               data: null,
               render: function (data) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
+                  '<input type="number" style="max-width: 80px" onkeypress="handleKeyPress(event, this)" min="0" max="999999" value="' +
                   data.quantity +
                   '">'
                 );
