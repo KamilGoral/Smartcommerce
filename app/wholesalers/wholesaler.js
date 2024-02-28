@@ -74,7 +74,8 @@ docReady(function () {
       wholesalerKey == "smakosz" ||
       wholesalerKey == "abe-dystrybucja" ||
       wholesalerKey == "etqa" ||
-      wholesalerKey == "biologistic"
+      wholesalerKey == "biologistic" ||
+      wholesalerKey == "elleena"
     ) {
       $("#CompanyDivEdit").show();
     } else {
