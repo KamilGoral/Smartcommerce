@@ -636,32 +636,41 @@ docReady(function () {
             }
           },
           error: function (jqXHR, exception) {
-            console.log("error");
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            if (jqXHR.status === 0) {
-              msg = "Nie masz połączenia z internetem.";
-            } else if (jqXHR.status == 404) {
-              msg = "Nie znaleziono strony";
-            } else if (jqXHR.status == 403) {
-              msg = "Nie masz uprawnień do tej czynności";
-            } else if (jqXHR.status == 409) {
-              msg =
-                "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
-            } else if (jqXHR.status == 500) {
-              msg =
-                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
-            } else if (exception === "parsererror") {
-              msg = "Nie udało się odczytać danych";
-            } else if (exception === "timeout") {
-              msg = "Przekroczony czas oczekiwania";
-            } else if (exception === "abort") {
-              msg = "Twoje żądanie zostało zaniechane";
-            } else {
-              msg = "" + jqXHR.responseJSON.message;
+            console.log("error", jqXHR, exception);
+            let msg = "";
+            switch (jqXHR.status) {
+              case 0:
+                msg = "Nie masz połączenia z internetem.";
+                break;
+              case 404:
+                msg = "Nie znaleziono strony";
+                break;
+              case 403:
+                msg =
+                  jqXHR.responseJSON.message ==
+                  "User is not an administrator of this tenant"
+                    ? "Nie masz uprawnień do tej czynności"
+                    : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
+                break;
+              case 409:
+                msg =
+                  "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                break;
+              case 500:
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+                break;
+              default:
+                msg =
+                  exception === "parsererror"
+                    ? "Nie udało się odczytać danych"
+                    : exception === "timeout"
+                    ? "Przekroczony czas oczekiwania"
+                    : exception === "abort"
+                    ? "Twoje żądanie zostało zaniechane"
+                    : jqXHR.responseJSON.message;
+                break;
             }
-
             $(".warningmessagetext").css("color", "#3a4570");
             $(".warningmessagetext").text(msg);
             $(".error-message-fixed-main").css("background-color", "#ffc53d");
