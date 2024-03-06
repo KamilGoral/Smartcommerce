@@ -778,6 +778,37 @@ docReady(function () {
           orderCellsTop: true,
           fixedHeader: true,
           orderMulti: true,
+          buttons: [
+            {
+              extend: "copyHtml5",
+              text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+              titleAttr: "Copy",
+            },
+            {
+              extend: "excelHtml5",
+              text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+              titleAttr: "Excel",
+            },
+            {
+              extend: "pdfHtml5",
+              text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+              titleAttr: "PDF",
+            },
+            {
+              text: 'Rozwiń wszystkie',
+              titleAttr: "Expand",
+              attr: {
+                id: 'btn-show-all-children'
+              }
+            },
+            {
+              text: 'Zwiń wszystkie',
+              titleAttr: "Collapse",
+              attr: {
+                id: 'btn-hide-all-children'
+              }
+            }
+          ],
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -2200,20 +2231,6 @@ docReady(function () {
         extend: "pdfHtml5",
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
         titleAttr: "PDF",
-      },
-      {
-        text: 'Rozwiń wszystkie',
-        titleAttr: "Expand",
-        attr: {
-          id: 'btn-show-all-children'
-        }
-      },
-      {
-        text: 'Zwiń wszystkie',
-        titleAttr: "Collapse",
-        attr: {
-          id: 'btn-hide-all-children'
-        }
       }
     ],
     scrollY: "60vh",
