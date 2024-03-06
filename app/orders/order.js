@@ -795,10 +795,18 @@ docReady(function () {
               titleAttr: "PDF",
             },
             {
-              text: 'Rozwiń wszystkie',
-              titleAttr: "Expand",
-              attr: {
-                id: 'btn-show-all-children'
+              text: 'Rozwiń wszystkie', // "Expand all"
+              action: function (e, dt, node, config) {
+                // Loop over each row in the table
+                dt.rows().every(function () {
+                  var row = this;
+                  // Check if the row is already expanded
+                  if (!row.child.isShown()) {
+                    // If not, expand it
+                    row.child(format(row.data())).show();
+                    $(row.node()).addClass('shown');
+                  }
+                });
               }
             },
             {
@@ -2965,32 +2973,6 @@ docReady(function () {
         console.log("GTIN is null");
       }
     }
-  });
-
-  // Handle click on "Expand All" button
-  $('#btn-show-all-children').on('click', function () {
-    var table = $("#spl_table").DataTable()
-    table.rows().every(function () {
-      // If row has details collapsed
-      if (!this.child.isShown()) {
-        // Open this row
-        this.child(format(this.data())).show();
-        $(this.node()).addClass('shown');
-      }
-    });
-  });
-
-  // Handle click on "Collapse All" button
-  $('#btn-hide-all-children').on('click', function () {
-    var table = $("#spl_table").DataTable()
-    table.rows().every(function () {
-      // If row has details expanded
-      if (this.child.isShown()) {
-        // Collapse row details
-        this.child.hide();
-        $(this.node()).removeClass('shown');
-      }
-    });
   });
 
   $("#table_id tbody").on("click", "td.details-control", function () {
