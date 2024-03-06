@@ -486,26 +486,46 @@ docReady(function () {
       },
       error: function (jqXHR, textStatus, errorThrown) {
         if (jqXHR.status === 422) {
-          {
-            console.error(
-              "Unable to split requested order: no products to split."
-            );
-          }
+            var response = JSON.parse(jqXHR.responseText);
+            var translatedError = "";
+    
+            if (response.message === "Unable to split requested order: no products to split.") {
+                translatedError = "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
+            } else if (response.message.includes("Quantities of products exceed limit for GTINs")) {
+                // Extract GTINs from the message
+                var gtins = response.message.match(/\[([^\]]+)\]/)[1];
+                translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
+            } else if (response.message.includes("Exceptions occurred for GTINs")) {
+                // Extract GTINs from the message
+                var gtins = response.message.match(/\[([^\]]+)\]/)[1];
+                translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
+            } else if (response.message === "Total value for the order exceeded the available limit.") {
+                translatedError = "Całkowita wartość zamówienia przekroczyła dostępny limit.";
+            }
+    
+            if (translatedError) {
+                console.error(translatedError);
+    
+                // Display the warning message container with the translated error
+                $('#WarningMessageMain').text(translatedError); // Update the warning message
+                $('#WarningMessageContainer').show().delay(4000).fadeOut(2000); // Show for 4 seconds, then fade out over 2 seconds
+            }
         }
         if (jqXHR.status === 404) {
-          try {
-            var response = JSON.parse(jqXHR.responseText);
-            var regex =
-              /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
-            if (regex.test(response.message)) {
-              window.location.href =
-                "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
+            try {
+                var response = JSON.parse(jqXHR.responseText);
+                var regex = /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
+                if (regex.test(response.message)) {
+                    window.location.href = "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
+                }
+            } catch (e) {
+                console.error("Błąd podczas parsowania odpowiedzi:", e);
             }
-          } catch (e) {
-            console.error("Error parsing response:", e);
-          }
         }
-      },
+    },
+    
+    
+    
     });
   }
 
