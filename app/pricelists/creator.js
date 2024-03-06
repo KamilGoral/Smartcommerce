@@ -468,7 +468,7 @@ docReady(function () {
             // Redirect after a short delay to allow the success message to be shown
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 4000); // Adjust the timeout duration as needed
+            }, 1000); // Adjust the timeout duration as needed
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
