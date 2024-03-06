@@ -693,8 +693,8 @@ docReady(function () {
             ? wholesaler.name
             : item.wholesalerKey;
           selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             }>${wholesalerName}</option>`;
         });
       } else {
@@ -711,8 +711,8 @@ docReady(function () {
           )
         ) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
-              : ""
+            ? ' selected style="font-weight: bold"'
+            : ""
             } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
@@ -2203,15 +2203,17 @@ docReady(function () {
       },
       {
         text: 'Rozwiń wszystkie',
+        titleAttr: "Expand",
         attr: {
           id: 'btn-show-all-children'
-      }
+        }
       },
       {
         text: 'Zwiń wszystkie',
+        titleAttr: "Collapse",
         attr: {
           id: 'btn-hide-all-children'
-      }
+        }
       }
     ],
     scrollY: "60vh",
