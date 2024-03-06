@@ -771,7 +771,7 @@ docReady(function () {
           order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
           pagingType: "full_numbers",
           destroy: true,
-          dom: '<"top"f>rt<"bottom"lip>',
+          dom: '<"top"fB>rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
           pageLength: 25,
