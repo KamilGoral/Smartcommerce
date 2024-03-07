@@ -523,7 +523,7 @@ docReady(function () {
             }
 
             // Additional handling for split offer not found
-            var splitOfferRegex = /Offer for this shop does not exist/;
+            var splitOfferRegex = /Offer does not exist/;
             if (splitOfferRegex.test(response.message)) {
               $('#WarningMessageMain').text("Brak oferty dla sklepu. Za moment nastąpi przekierowanie");
               $('#WarningMessageContainer').show().delay(4000).fadeOut(2000);
