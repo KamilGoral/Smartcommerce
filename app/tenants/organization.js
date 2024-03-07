@@ -297,9 +297,9 @@ docReady(function () {
               data: "status",
               render: function (data) {
                 if (data === "active") {
-                  return "Aktywny";
+                  return '<spann class="positive">Aktywny</spann>'
                 } else {
-                  return "Oczekuję...";
+                  return '<spann class="medium">Oczekuję...</spann>'
                 }
               },
             },
