@@ -370,8 +370,7 @@ docReady(function () {
   });
 
   $('#table_users_list').on('click', '.details-control4', function() {
-    // Assuming the icon has a data attribute for the user ID
-    var userId = $(this).closest('tr').find('.details-control4').data('user-id');
+    var userId = $(this).data('user-id');
     if (!userId) {
       console.error("User ID not found");
       return;
