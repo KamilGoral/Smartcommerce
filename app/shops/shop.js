@@ -311,9 +311,9 @@ docReady(function () {
   }
 
   $('#table_orders').on('click', '.details-control4 img', function() {
-    // Navigate up to the parent row to get the order data
-    var orderData = $('#table_orders').DataTable().row($(this).parents('tr')).data();
+    var row = $(this).closest('tr'); // Capture the row to be deleted
     var table = $("#table_orders").DataTable();
+    var orderData = table.row(row).data();
 
     // Extract orderId from the orderData object
     var orderId = orderData.orderId;
@@ -337,8 +337,8 @@ docReady(function () {
         },
         success: function() {
             console.log("Order deleted successfully");
-            // Refresh the DataTable to reflect the deletion without reloading the page
-            table.row($(this).parents("tr")).remove().draw();
+            // Directly remove the row and redraw
+            table.row(row).remove().draw(false);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             console.error("Failed to delete order", textStatus, errorThrown);
@@ -346,6 +346,7 @@ docReady(function () {
         }
     });
 });
+
 
 
   function format(d) {
