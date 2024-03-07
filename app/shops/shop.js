@@ -335,8 +335,8 @@ docReady(function () {
         headers: {
             'Authorization': orgToken // Ensure you're using the correct authorization header
         },
-        success: function(response) {
-            console.log("Order deleted successfully", response);
+        success: function() {
+            console.log("Order deleted successfully");
             // Refresh the DataTable to reflect the deletion without reloading the page
             table.row($(this).parents("tr")).remove().draw();
         },
