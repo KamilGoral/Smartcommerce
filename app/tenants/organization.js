@@ -43,16 +43,15 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
-  function updateStatus(changeOfStatus, wholesalerKey) {
+  function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
     console.log("starting Updating function");
-    wholesalerKey;
     var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
     var doneBlock = $(".w-form-done", container);
@@ -139,6 +138,11 @@ docReady(function () {
           msg = "" + jqXHR.responseText;
         }
 
+        // Call the onErrorCallback if defined
+        if (typeof onErrorCallback === "function") {
+          onErrorCallback();
+        }
+
         $(".warningmessagetext").text(msg);
         form.show();
         doneBlock.hide();
@@ -212,10 +216,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-              DomainName +
-              "/app/shops/shop" +
-              "?shopKey=" +
-              shop.shopKey
+            DomainName +
+            "/app/shops/shop" +
+            "?shopKey=" +
+            shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -473,21 +477,27 @@ docReady(function () {
           ],
         });
 
-        $("#table_wholesalers_list").on(
-          "change",
-          "input.editor-active",
-          function () {
-            if (this.checked) {
-              console.log(this.getAttribute("wholesalerkey"));
-              console.log("Nieaktywny był");
-              updateStatus(true, this.getAttribute("wholesalerkey"));
-            } else {
-              console.log(this.getAttribute("wholesalerkey"));
-              console.log("Aktywny był");
-              updateStatus(false, this.getAttribute("wholesalerkey"));
-            }
+        $("#table_wholesalers_list").on("change", "input.editor-active", function () {
+          var checkbox = this; // Store reference to the checkbox
+          var isChecked = this.checked; // Store the current state
+
+          // Define what to do in case of error
+          var onErrorCallback = function () {
+            // Revert checkbox state
+            $(checkbox).prop('checked', !isChecked);
+          };
+
+          if (isChecked) {
+            console.log(checkbox.getAttribute("wholesalerkey"));
+            console.log("Nieaktywny był");
+            updateStatus(true, checkbox.getAttribute("wholesalerkey"), onErrorCallback);
+          } else {
+            console.log(checkbox.getAttribute("wholesalerkey"));
+            console.log("Aktywny był");
+            updateStatus(false, checkbox.getAttribute("wholesalerkey"), onErrorCallback);
           }
-        );
+        });
+
       }
       if (request.status == 401) {
         console.log("Unauthorized");
@@ -1177,9 +1187,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
