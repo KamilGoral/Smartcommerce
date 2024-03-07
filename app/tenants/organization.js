@@ -306,6 +306,7 @@ docReady(function () {
             {
               orderable: true,
               data: "role",
+              width: "127px",
               render: function (data, type, row) {
                 if (type === 'display') {
                   let selectAdminSelected = data === "admin" ? " selected" : "";
