@@ -242,36 +242,88 @@ docReady(function () {
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       var data = JSON.parse(this.response);
-      var toParse = data.items;
       if (request.status >= 200 && request.status < 400) {
-        const userContainer = document.getElementById("Users-Container");
-        toParse.forEach((user) => {
-          const style = document.getElementById("sampleRowUsers");
-          const row = style.cloneNode(true);
-          row.setAttribute("id", "");
-          row.style.display = "flex";
-          const userEmail = row.getElementsByTagName("H6")[1];
-          userEmail.textContent = user.email;
-
-          const userRole = row.getElementsByTagName("H6")[0];
-          if (user.role == "admin") {
-            userRole.textContent = "Admin";
-          } else {
-            userRole.textContent = "Użytkownik";
-          }
-
-          const userStatus = row.getElementsByTagName("H6")[3];
-          if (user.status == "active") {
-            userStatus.textContent = "Aktywny";
-            userStatus.style.color = "green";
-          } else {
-            userStatus.textContent = "Oczekuję...";
-          }
-          row.setAttribute(
-            "href",
-            "https://" + DomainName + "/app/users/user" + "?id=" + user.id
-          );
-          userContainer.appendChild(row);
+        var tableUsers = $("#table_users_list").DataTable({
+          pagingType: "full_numbers",
+          pageLength: 10,
+          destroy: true,
+          orderMulti: true,
+          order: [[3, "desc"]],
+          dom: '<"top">rt<"bottom"lip>',
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          data: data.items,
+          search: {
+            return: true,
+          },
+          columns: [
+            {
+              orderable: false,
+              data: null,
+              defaultContent:
+                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" loading="lazy" >',
+            },
+            {
+              orderable: false,
+              visible: false,
+              data: "id"
+            },
+            {
+              orderable: true,
+              data: "email",
+            },
+            {
+              orderable: true,
+              data: "status",
+              render: function (data) {
+                if (data === "active") {
+                  return "Aktywny";
+                } else {
+                  return "Oczekuję...";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "role",
+              render: function (data) {
+                if (data === null) {
+                  return "-";
+                } else if (data === "admin") {
+                  return "Administrator"
+                } else {
+                  return "Użytkownik"
+                }
+              },
+            },
+            {
+              orderable: false,
+              class: "details-control4",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+            }
+          ],
         });
         if (request.status == 401) {
           console.log("Unauthorized");
