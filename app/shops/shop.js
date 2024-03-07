@@ -310,6 +310,43 @@ docReady(function () {
 
   }
 
+  $('#table_orders').on('click', '.details-control4 img', function() {
+    // Navigate up to the parent row to get the order data
+    var orderData = $('#table_orders').DataTable().row($(this).parents('tr')).data();
+
+    // Extract orderId from the orderData object
+    var orderId = orderData.orderId;
+    if (!orderId) {
+        console.error("Order ID not found");
+        return;
+    }
+
+    // Confirm deletion
+    if (!confirm("Are you sure you want to delete this order?")) {
+        return;
+    }
+
+    // Proceed with the DELETE request
+    $.ajax({
+        url: InvokeURL + "shops/" + shopKey + "/orders/" + orderId, // Adjusted URL for order deletion
+        type: 'DELETE',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': orgToken // Ensure you're using the correct authorization header
+        },
+        success: function(response) {
+            console.log("Order deleted successfully", response);
+            // Refresh the DataTable to reflect the deletion without reloading the page
+            $('#table_orders').DataTable().row($(this).parents('tr')).remove().draw();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error("Failed to delete order", textStatus, errorThrown);
+            // Optionally, display an error message to the user
+        }
+    });
+});
+
+
   function format(d) {
     var offers = d.offers; // Pobierz tablicę ofert z obiektu d
     var toDisplayHtml = "";
