@@ -325,7 +325,7 @@ docReady(function () {
             {
               orderable: false,
               class: "details-control4",
-              width: "20px",
+              width: "36px",
               data: null,
               defaultContent:
                 "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
