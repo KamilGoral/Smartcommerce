@@ -393,7 +393,8 @@ docReady(function () {
       },
       success: function(response) {
         console.log("User deleted successfully", response);
-        $('#table_users_list').DataTable().row($(this).parents('tr')).remove().draw();
+        // Directly targeting the clicked icon's parent row for removal
+        $('#table_users_list').DataTable().row($(this).closest('tr')).remove().draw();
     },
     error: function(jqXHR, textStatus, errorThrown) {
       console.error("Failed to delete user", textStatus, errorThrown);
