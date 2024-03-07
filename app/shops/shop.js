@@ -273,6 +273,7 @@ docReady(function () {
         {
           orderable: false,
           data: null,
+          width: "136px",
           render: function (data, type, row) {
             if (type === "display") {
               return (
