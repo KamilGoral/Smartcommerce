@@ -368,6 +368,38 @@ docReady(function () {
       }
     });
   });
+
+  $('#table_users_list').on('click', '.details-control4', function() {
+    // Assuming the icon has a data attribute for the user ID
+    var userId = $(this).closest('tr').find('.details-control4').data('user-id');
+    if (!userId) {
+      console.error("User ID not found");
+      return;
+    }
+  
+    // Confirm deletion
+    if (!confirm("Are you sure you want to delete this user?")) {
+      return;
+    }
+  
+    // Proceed with the DELETE request
+    $.ajax({
+      url: InvokeURL + "users/" + userId, // Construct the request URL
+      type: 'DELETE',
+      contentType: 'application/json', // Set the content type to application/json
+      headers: {
+        'Authorization': orgToken // Ensure you include the authorization header
+      },
+      success: function(response) {
+        console.log("User deleted successfully", response);
+        $('#table_users_list').DataTable().row($(this).parents('tr')).remove().draw();
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.error("Failed to delete user", textStatus, errorThrown);
+    }
+  });
+});
+  
   
 
   function getWholesalers() {
