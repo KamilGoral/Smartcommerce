@@ -295,6 +295,7 @@ docReady(function () {
             {
               orderable: true,
               data: "status",
+              width: "127px",
               render: function (data) {
                 if (data === "active") {
                   return '<spann class="positive">Aktywny</spann>'
@@ -371,7 +372,7 @@ docReady(function () {
   });
 
   $('#table_users_list').on('click', '.details-control4', function() {
-    var userId = $(this).data('user-id');
+    var userId = $(this).closest('tr').find('.user-role-select').data('user-id');
     if (!userId) {
       console.error("User ID not found");
       return;
