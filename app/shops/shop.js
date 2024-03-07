@@ -312,7 +312,7 @@ docReady(function () {
 
   $('#table_orders').on('click', '.details-control4 img', function() {
     // Navigate up to the parent row to get the order data
-    var orderData = $('#table_orders').DataTable().row($(this).parents('tr')).data();
+    var table = $("#table_orders").DataTable();
 
     // Extract orderId from the orderData object
     var orderId = orderData.orderId;
@@ -337,7 +337,7 @@ docReady(function () {
         success: function(response) {
             console.log("Order deleted successfully", response);
             // Refresh the DataTable to reflect the deletion without reloading the page
-            $('#table_orders').DataTable().row($(this).parents('tr')).remove().draw();
+            table.row($(this).parents("tr")).remove().draw();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             console.error("Failed to delete order", textStatus, errorThrown);
