@@ -338,6 +338,38 @@ docReady(function () {
     request.send();
   }
 
+  $('#table_users_list').on('change', '.user-role-select', function() {
+    var userId = $(this).data('user-id'); 
+    var newRole = $(this).val(); 
+  
+    var data = JSON.stringify([
+      {
+        "op": "replace",
+        "path": "/role",
+        "value": newRole
+      }
+    ]);
+  
+    $.ajax({
+      url: InvokeURL + "users/" + userId,
+      type: 'PATCH',
+      contentType: 'application/json', 
+      headers: {
+        'Authorization': orgToken
+      },
+      data: data,
+      success: function(response) {
+        console.log("Role updated successfully", response);
+
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error("Failed to update role", textStatus, errorThrown);
+
+      }
+    });
+  });
+  
+
   function getWholesalers() {
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
