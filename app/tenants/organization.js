@@ -279,6 +279,7 @@ docReady(function () {
             {
               orderable: false,
               data: null,
+              width: "20px",
               defaultContent:
                 '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" loading="lazy" >',
             },
@@ -305,14 +306,18 @@ docReady(function () {
             {
               orderable: true,
               data: "role",
-              render: function (data) {
-                if (data === null) {
-                  return "-";
-                } else if (data === "admin") {
-                  return "Administrator"
-                } else {
-                  return "Użytkownik"
+              render: function (data, type, row) {
+                if (type === 'display') {
+                  let selectAdminSelected = data === "admin" ? " selected" : "";
+                  let selectUserSelected = data === "user" ? " selected" : "";
+                  return `
+                    <select class="user-role-select" data-user-id="${row.id}">
+                      <option value="admin"${selectAdminSelected}>Administrator</option>
+                      <option value="user"${selectUserSelected}>Użytkownik</option>
+                    </select>
+                  `;
                 }
+                return data;
               },
             },
             {
