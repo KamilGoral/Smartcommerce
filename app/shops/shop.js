@@ -785,7 +785,7 @@ docReady(function () {
     scrollCollapse: true,
     pageLength: 10,
     language: {
-      emptyTable: "Brak danych do wyświetlenia",
+      emptyTable: "<img src='https://experience.sap.com/fiori-design-web/wp-content/uploads/sites/5/2022/11/Empty-states-example-3-2.08.png' alt='No data'><br>No data available in table",
       info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
       infoEmpty: "Brak danych",
       infoFiltered: "(z _MAX_ rezultatów)",
