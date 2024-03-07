@@ -273,7 +273,7 @@ docReady(function () {
         {
           orderable: false,
           data: null,
-          width: "136px",
+          width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
               return (
@@ -668,6 +668,7 @@ docReady(function () {
         {
           orderable: false,
           data: null,
+          width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
               return (
@@ -1024,6 +1025,7 @@ docReady(function () {
       {
         orderable: false,
         data: null,
+        width: "72px",
         defaultContent:
           '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
       },
@@ -1209,7 +1211,7 @@ docReady(function () {
             {
               orderable: false,
               data: null,
-              width: "108px",
+              width: "72px",
               defaultContent:
                 '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
             },
