@@ -312,6 +312,7 @@ docReady(function () {
 
   $('#table_orders').on('click', '.details-control4 img', function() {
     // Navigate up to the parent row to get the order data
+    var orderData = $('#table_orders').DataTable().row($(this).parents('tr')).data();
     var table = $("#table_orders").DataTable();
 
     // Extract orderId from the orderData object
