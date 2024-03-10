@@ -241,8 +241,14 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
-      var data = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
+      let dataItems =
+        request.status >= 200 && request.status < 400
+          ? JSON.parse(this.response).items
+          : [];
+      if (
+        request.status == 403 ||
+        (request.status >= 200 && request.status < 400)
+      ) {
         var tableUsers = $("#table_users_list").DataTable({
           pagingType: "full_numbers",
           pageLength: 10,
@@ -271,7 +277,7 @@ docReady(function () {
               sortDescending: ": Sortowanie malejące",
             },
           },
-          data: data.items,
+          data: dataItems,
           search: {
             return: true,
           },
