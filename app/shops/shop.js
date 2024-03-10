@@ -261,7 +261,6 @@ docReady(function () {
                 second: "2-digit",
                 hour12: false,
               });
-
               return formattedDate;
             }
 
@@ -276,16 +275,12 @@ docReady(function () {
           width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
-              return (
-                '<div class="action-container"><a href="' +
-                "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                data.orderId +
-                "&shopKey=" +
-                shopKey +
-                '" class="buttonoutline editme w-button">Przejdź</a></div>'
-              );
+              var orderId = row.orderId ? row.orderId : "";
+              if (orderId) {
+                return `<div class="action-container"><a href="https://${DomainName}/app/orders/order?orderId=${orderId}&shopKey=${shopKey}" class="buttonoutline editme w-button">Przejdź</a></div>`;
+              } else {
+                return ""; // No action link if orderId is null or undefined
+              }
             }
           },
         },
