@@ -316,6 +316,12 @@ docReady(function () {
               width: "127px",
               render: function (data, type, row) {
                 if (type === "display") {
+                  // If role is null, display a disabled dropdown
+                  if (data === null) {
+                    return `<select class="user-role-select" disabled>
+                              <option>-</option>
+                            </select>`;
+                  }
                   let selectAdminSelected = data === "admin" ? " selected" : "";
                   let selectUserSelected = data === "user" ? " selected" : "";
                   return `
@@ -328,6 +334,7 @@ docReady(function () {
                 return data;
               },
             },
+
             {
               orderable: false,
               class: "details-control4",
