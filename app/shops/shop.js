@@ -263,7 +263,6 @@ docReady(function () {
           },
           defaultContent: "",
         },
-
         {
           orderable: false,
           class: "details-control4",
