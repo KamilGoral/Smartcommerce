@@ -214,43 +214,28 @@ docReady(function () {
           visible: false,
           data: "orderId",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data ? data : "";
           },
         },
         {
           orderable: false,
           data: "createdBy",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data ? data : "";
           },
         },
         {
           orderable: false,
           data: "name",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data ? data : "";
           },
         },
         {
           orderable: true,
           data: "createDate",
           render: function (data) {
-            if (data !== null) {
+            if (data) {
               var utcDate = new Date(Date.parse(data));
               var formattedDate = utcDate.toLocaleString("pl-PL", {
                 year: "numeric",
@@ -263,10 +248,7 @@ docReady(function () {
               });
               return formattedDate;
             }
-
-            if (data === null) {
-              return "";
-            }
+            return "";
           },
         },
         {
@@ -333,7 +315,7 @@ docReady(function () {
       success: function () {
         console.log("Order deleted successfully");
         // Directly remove the row and redraw
-        table.row(row).remove().draw(true);
+        table.row(row).remove().draw(false);
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Failed to delete order", textStatus, errorThrown);
