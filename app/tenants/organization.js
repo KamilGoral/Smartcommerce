@@ -334,7 +334,6 @@ docReady(function () {
                 return data;
               },
             },
-
             {
               orderable: false,
               class: "details-control4",
