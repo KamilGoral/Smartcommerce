@@ -338,7 +338,7 @@ docReady(function () {
       success: function () {
         console.log("Order deleted successfully");
         // Directly remove the row and redraw
-        table.row(row).remove();
+        table.row(row).remove().draw(true);
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Failed to delete order", textStatus, errorThrown);
