@@ -31,11 +31,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -464,9 +464,11 @@ docReady(function () {
             console.log(resultData);
             $("#Create-Pricelist-Success").show();
             $("#Create-Pricelist-Success").fadeOut(4000);
+            var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
+            // Redirect after a short delay to allow the success message to be shown
             window.setTimeout(function () {
-              location.reload();
-            }, 3000);
+              window.location.href = pricelistUrl;
+            }, 1000); // Adjust the timeout duration as needed
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);

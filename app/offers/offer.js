@@ -703,6 +703,32 @@ docReady(function () {
     dom: '<"top"fB>rt<"bottom"lip>',
     buttons: [
       {
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
+        titleAttr: "Rozwiń wszystkie",
+        action: function (e, dt, node, config) {
+          dt.rows().every(function () {
+            var row = this;
+            if (!row.child.isShown()) {
+              row.child(format(row.data())).show();
+              $(row.node()).addClass('shown');
+            }
+          });
+        }
+      },
+      {
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
+        titleAttr: "Zwiń wszystkie",
+        action: function (e, dt, node, config) {
+          dt.rows().every(function () {
+            var row = this;
+            if (row.child.isShown()) {
+              row.child.hide();
+              $(row.node()).removeClass('shown');
+            }
+          });
+        }
+      },
+      {
         extend: "copyHtml5",
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
         titleAttr: "Copy",
