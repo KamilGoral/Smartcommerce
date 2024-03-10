@@ -253,19 +253,17 @@ docReady(function () {
         },
         {
           orderable: false,
-          data: null,
+          data: "orderId",
           width: "72px",
           render: function (data, type, row) {
-            if (type === "display") {
-              var orderId = row.orderId ? row.orderId : "";
-              if (orderId) {
-                return `<div class="action-container"><a href="https://${DomainName}/app/orders/order?orderId=${orderId}&shopKey=${shopKey}" class="buttonoutline editme w-button">Przejdź</a></div>`;
-              } else {
-                return ""; // No action link if orderId is null or undefined
-              }
+            if (type === "display" && data) {
+              return `<div class="action-container"><a href="https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}" class="buttonoutline editme w-button">Przejdź</a></div>`;
             }
+            return "";
           },
+          defaultContent: "",
         },
+
         {
           orderable: false,
           class: "details-control4",
