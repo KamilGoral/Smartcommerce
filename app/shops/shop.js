@@ -293,33 +293,39 @@ docReady(function () {
   }
 
   $("#table_orders").on("click", ".details-control4 img", function () {
-    var row = $(this).closest("tr"); // Capture the row to be deleted
+    var row = $(this).closest("tr");
     var table = $("#table_orders").DataTable();
     var orderData = table.row(row).data();
-
-    // Extract orderId from the orderData object
     var orderId = orderData.orderId;
+
     if (!orderId) {
       console.error("Order ID not found");
       return;
     }
 
+    // Show waiting dots before the request
+    $("#waitingdots").show();
+
     // Proceed with the DELETE request
     $.ajax({
-      url: InvokeURL + "shops/" + shopKey + "/orders/" + orderId, // Adjusted URL for order deletion
+      url: InvokeURL + "shops/" + shopKey + "/orders/" + orderId,
       type: "DELETE",
       contentType: "application/json",
       headers: {
-        Authorization: orgToken, // Ensure you're using the correct authorization header
+        Authorization: orgToken,
       },
       success: function () {
         console.log("Order deleted successfully");
-        // Directly remove the row and redraw
-        table.row(row).remove().draw(false);
+        // Introduce a 100ms delay before redrawing the table
+        setTimeout(function () {
+          // Redraw the table without removing the row, server-side will reflect the deletion
+          table.ajax.reload(null, false); // false to keep the current paging
+          $("#waitingdots").hide(); // Hide waiting dots after completion
+        }, 100); // Ensure at least 100ms delay for backend processing
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Failed to delete order", textStatus, errorThrown);
-        // Optionally, display an error message to the user
+        $("#waitingdots").hide(); // Hide waiting dots even if error occurs
       },
     });
   });
