@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   function getIntegrations() {
@@ -171,19 +171,18 @@ docReady(function () {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: orgToken
+        Authorization: orgToken,
       },
       success: function (resultData) {
         console.log(resultData);
 
-        if (typeof resultData !== 'undefined' && resultData.enabled == true) {
+        if (typeof resultData !== "undefined" && resultData.enabled == true) {
           console.log("Aktywny");
           $("#integrationStatus .editor-active").prop("checked", true);
         } else {
           console.log("Nieaktywny");
           $("#integrationStatus .editor-active").prop("checked", false);
         }
-
 
         if (typeof successCallback === "function") {
           // call custom callback
@@ -275,10 +274,10 @@ docReady(function () {
           credentials: {
             username: inputdata[0].value,
             password: inputdata[1].value,
-            host: inputdata[2].value,
-            port: parseInt(inputdata[3].value),
+            host: inputdata[2].value.trim(),
+            port: parseInt(inputdata[3].value).trim(),
             engine: inputdata[4].value,
-            dbname: inputdata[5].value,
+            dbname: inputdata[5].value.trim(),
           },
         };
 
@@ -326,7 +325,8 @@ docReady(function () {
 
             var msg = "";
             if (jqXHR.status === 0) {
-              msg = "Nieznany błąd. Sprawdź, czy adres IP SmartMerchant jest umieszczony na białej liście w opcjach VPN Twojej bazy danych, zweryfikuj poprawność ustawień VPN oraz zweryfikuj szczegóły połączenia integracji.";
+              msg =
+                "Nieznany błąd. Sprawdź, czy adres IP SmartMerchant jest umieszczony na białej liście w opcjach VPN Twojej bazy danych, zweryfikuj poprawność ustawień VPN oraz zweryfikuj szczegóły połączenia integracji.";
             } else if (jqXHR.status == 400) {
               msg = "Nie znaleziono strony";
             } else if (jqXHR.status == 404) {
@@ -410,7 +410,13 @@ docReady(function () {
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
-              document.location = "https://" + DomainName + "/app/tenants/organization?name=" + OrganizationName + "&clientId=" + ClientID;
+              document.location =
+                "https://" +
+                DomainName +
+                "/app/tenants/organization?name=" +
+                OrganizationName +
+                "&clientId=" +
+                ClientID;
             }, 5000);
           },
           error: function (jqXHR, exception) {

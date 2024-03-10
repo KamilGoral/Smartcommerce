@@ -289,11 +289,11 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (organizationName == "Lakoc") {
+      if (organizationName == "Famix") {
         const filteredItems = data.items.filter((item) => {
           return (
-            organizationName === "Lakoc" &&
-            (item.wholesalerKey === "lakoc" ||
+            organizationName === "Famix" &&
+            (item.wholesalerKey === "famix" ||
               item.wholesalerKey === "central-warehouse")
           );
         });
