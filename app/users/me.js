@@ -366,10 +366,11 @@ docReady(function () {
           const template = document.getElementById("samplerow");
           const row = template.cloneNode(true);
           row.removeAttribute('id'); // Remove the samplerow id to avoid duplicate ids
+
           // Update organization specific attributes
-          row.querySelector("#tenantName").textContent = organization.name;
-          row.querySelector("#tenantTaxId").textContent = organization.clientId; // Assuming clientId is the tax ID for demonstration
-          row.querySelector("#tenantStatus").textContent = "Aktywny"; // Example status, adjust as necessary
+          row.querySelector("#tenantName").textContent = organization.name || 'None';
+          row.querySelector("#tenantTaxId").textContent = organization.clientId || 'None'; // Assuming clientId is the tax ID for demonstration
+          row.querySelector("#tenantStatus").textContent = "Aktywny" || 'None'; // Example status, adjust as necessary
   
           // Setting organization attributes for row
           row.setAttribute("OrganizationName", organization.name);
