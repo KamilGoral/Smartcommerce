@@ -263,9 +263,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            data.message
+          request.status +
+          " " +
+          data.message
         );
         MessageBox(data.message);
       }
@@ -320,12 +320,12 @@ docReady(function () {
         }
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/tenants/organization" +
-            "?name=" +
-            OrganizationName +
-            "&clientId=" +
-            OrganizationclientId
+          DomainName +
+          "/app/tenants/organization" +
+          "?name=" +
+          OrganizationName +
+          "&clientId=" +
+          OrganizationclientId
         );
       },
       error: function (jqXHR, exception) {
@@ -340,57 +340,63 @@ docReady(function () {
 
   function getOrganizations() {
     const url = `${InvokeURL}users/me/tenants`;
-  
+
     fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': smartToken
       }
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      const { items: toParse, total } = data;
-  
-      if (total >= 4) {
-        $("img[id^='startingImage']").hide();
-      }
-  
-      if (total > 0) {
-        const orgContainer = document.getElementById("Organization-Container");
-        toParse.forEach(organization => {
-          const template = document.getElementById("samplerow");
-          const row = template.cloneNode(true);
-          // Update organization specific attributes
-          row.querySelector("#tenantName").textContent = organization.name || 'None';
-          row.querySelector("#tenantTaxId").textContent = organization.clientId || 'None'; // Assuming clientId is the tax ID for demonstration
-          row.querySelector("#tenantStatus").textContent = "Aktywny" || 'None'; // Example status, adjust as necessary
-  
-          // Setting organization attributes for row
-          row.setAttribute("OrganizationName", organization.name);
-          row.setAttribute("OrganizationclientId", organization.clientId);
-          row.style.display = "flex";
-    
-          // Append row to the container
-          orgContainer.appendChild(row);
-  
-          // Adding click listener for each row
-          row.addEventListener("click", () => LoginIntoOrganization(organization.clientId), false);
-        });
-      } else if (total === 0) {
-        document.getElementById("emptystateorganization").style.display = "none";
-      }
-    })
-    .catch(error => {
-      console.error("Failed to fetch organizations:", error.message);
-      MessageBox(error.message);
-    });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const { items: toParse, total } = data;
+
+        if (total >= 4) {
+          $("img[id^='startingImage']").hide();
+        }
+
+        if (total > 0) {
+          const orgContainer = document.getElementById("Organization-Container");
+          toParse.forEach(organization => {
+            const template = document.getElementById("samplerow");
+            const row = template.cloneNode(true);
+            // Before updating textContent, log the elements to see if they are correctly selected
+            console.log('Row:', row);
+            console.log('Tenant Name Element:', row.querySelector("#tenantName"));
+            console.log('Tenant Tax ID Element:', row.querySelector("#tenantTaxId"));
+            console.log('Tenant Status Element:', row.querySelector("#tenantStatus"));
+
+            // Update organization specific attributes
+            row.querySelector("#tenantName").textContent = organization.name || 'None';
+            row.querySelector("#tenantTaxId").textContent = organization.taxId || 'None'; // Assuming clientId is the tax ID for demonstration
+            row.querySelector("#tenantStatus").textContent = "Aktywny" || 'None'; // Example status, adjust as necessary
+
+            // Setting organization attributes for row
+            row.setAttribute("OrganizationName", organization.name);
+            row.setAttribute("OrganizationclientId", organization.clientId);
+            row.style.display = "flex";
+
+            // Append row to the container
+            orgContainer.appendChild(row);
+
+            // Adding click listener for each row
+            row.addEventListener("click", () => LoginIntoOrganization(organization.clientId), false);
+          });
+        } else if (total === 0) {
+          document.getElementById("emptystateorganization").style.display = "none";
+        }
+      })
+      .catch(error => {
+        console.error("Failed to fetch organizations:", error.message);
+        MessageBox(error.message);
+      });
   }
-  
+
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -506,9 +512,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            UserInfo.message
+          request.status +
+          " " +
+          UserInfo.message
         );
         MessageBox(UserInfo.message);
       }
