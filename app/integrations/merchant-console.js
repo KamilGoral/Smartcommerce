@@ -490,10 +490,10 @@ docReady(function () {
         var data = {
           username: inputdata[0].value,
           password: inputdata[1].value,
-          host: inputdata[2].value,
-          port: parseInt(inputdata[3].value),
+          host: inputdata[2].value.trim(),
+          port: parseInt(inputdata[3].value.trim()),
           engine: inputdata[4].value,
-          dbname: inputdata[5].value,
+          dbname: inputdata[5].value.trim(),
         };
 
         $.ajax({

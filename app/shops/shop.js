@@ -34,11 +34,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -214,43 +214,28 @@ docReady(function () {
           visible: false,
           data: "orderId",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data ? data : "";
           },
         },
         {
           orderable: false,
           data: "createdBy",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data ? data : "";
           },
         },
         {
           orderable: false,
           data: "name",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data ? data : "";
           },
         },
         {
           orderable: true,
           data: "createDate",
           render: function (data) {
-            if (data !== null) {
+            if (data) {
               var utcDate = new Date(Date.parse(data));
               var formattedDate = utcDate.toLocaleString("pl-PL", {
                 year: "numeric",
@@ -261,26 +246,22 @@ docReady(function () {
                 second: "2-digit",
                 hour12: false,
               });
-
               return formattedDate;
             }
-
-            if (data === null) {
-              return "";
-            }
+            return "";
           },
         },
         {
           orderable: false,
-          data: null,
+          data: "orderId",
           width: "72px",
           render: function (data, type, row) {
-            if (type === "display") {
-              return (
-                '<div class="action-container"><a href="' + 'https://' + DomainName + '/app/orders/order?orderId=' + data.orderId + '&shopKey=' + shopKey + '" class="buttonoutline editme w-button">Przejdź</a></div>'
-              );
+            if (type === "display" && data) {
+              return `<div class="action-container"><a href="https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}" class="buttonoutline editme w-button">Przejdź</a></div>`;
             }
+            return "";
           },
+          defaultContent: "",
         },
         {
           orderable: false,
@@ -289,7 +270,7 @@ docReady(function () {
           data: null,
           defaultContent:
             "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-        }
+        },
       ],
       initComplete: function (settings, json) {
         var api = this.api();
@@ -306,48 +287,45 @@ docReady(function () {
         });
       },
     });
-
-
   }
 
-  $('#table_orders').on('click', '.details-control4 img', function() {
-    var row = $(this).closest('tr'); // Capture the row to be deleted
+  $("#table_orders").on("click", ".details-control4 img", function () {
+    var row = $(this).closest("tr");
     var table = $("#table_orders").DataTable();
     var orderData = table.row(row).data();
-
-    // Extract orderId from the orderData object
     var orderId = orderData.orderId;
+
     if (!orderId) {
-        console.error("Order ID not found");
-        return;
+      console.error("Order ID not found");
+      return;
     }
 
-    // Confirm deletion
-    if (!confirm("Are you sure you want to delete this order?")) {
-        return;
-    }
+    // Show waiting dots before the request
+    $("#waitingdots").show();
 
     // Proceed with the DELETE request
     $.ajax({
-        url: InvokeURL + "shops/" + shopKey + "/orders/" + orderId, // Adjusted URL for order deletion
-        type: 'DELETE',
-        contentType: 'application/json',
-        headers: {
-            'Authorization': orgToken // Ensure you're using the correct authorization header
-        },
-        success: function() {
-            console.log("Order deleted successfully");
-            // Directly remove the row and redraw
-            table.row(row).remove().draw(false);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error("Failed to delete order", textStatus, errorThrown);
-            // Optionally, display an error message to the user
-        }
+      url: InvokeURL + "shops/" + shopKey + "/orders/" + orderId,
+      type: "DELETE",
+      contentType: "application/json",
+      headers: {
+        Authorization: orgToken,
+      },
+      success: function () {
+        console.log("Order deleted successfully");
+        // Introduce a 100ms delay before redrawing the table
+        setTimeout(function () {
+          // Redraw the table without removing the row, server-side will reflect the deletion
+          table.ajax.reload(null, false); // false to keep the current paging
+          $("#waitingdots").hide(); // Hide waiting dots after completion
+        }, 100); // Ensure at least 100ms delay for backend processing
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Failed to delete order", textStatus, errorThrown);
+        $("#waitingdots").hide(); // Hide waiting dots even if error occurs
+      },
     });
-});
-
-
+  });
 
   function format(d) {
     var offers = d.offers; // Pobierz tablicę ofert z obiektu d
@@ -788,11 +766,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -835,7 +813,8 @@ docReady(function () {
     scrollCollapse: true,
     pageLength: 10,
     language: {
-      emptyTable: "<img src='https://experience.sap.com/fiori-design-web/wp-content/uploads/sites/5/2022/11/Empty-states-example-3-2.08.png' alt='No data'><br>No data available in table",
+      emptyTable:
+        "<img src='https://experience.sap.com/fiori-design-web/wp-content/uploads/sites/5/2022/11/Empty-states-example-3-2.08.png' alt='No data'><br>No data available in table",
       info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
       infoEmpty: "Brak danych",
       infoFiltered: "(z _MAX_ rezultatów)",
@@ -1080,9 +1059,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1090,9 +1069,9 @@ docReady(function () {
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1636,11 +1615,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },

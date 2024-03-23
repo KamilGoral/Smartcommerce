@@ -43,11 +43,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -216,10 +216,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-            DomainName +
-            "/app/shops/shop" +
-            "?shopKey=" +
-            shop.shopKey
+              DomainName +
+              "/app/shops/shop" +
+              "?shopKey=" +
+              shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -241,8 +241,14 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
-      var data = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
+      let dataItems =
+        request.status >= 200 && request.status < 400
+          ? JSON.parse(this.response).items
+          : [];
+      if (
+        request.status == 403 ||
+        (request.status >= 200 && request.status < 400)
+      ) {
         var tableUsers = $("#table_users_list").DataTable({
           pagingType: "full_numbers",
           pageLength: 10,
@@ -271,7 +277,7 @@ docReady(function () {
               sortDescending: ": Sortowanie malejące",
             },
           },
-          data: data.items,
+          data: dataItems,
           search: {
             return: true,
           },
@@ -286,7 +292,7 @@ docReady(function () {
             {
               orderable: false,
               visible: false,
-              data: "id"
+              data: "id",
             },
             {
               orderable: true,
@@ -298,9 +304,9 @@ docReady(function () {
               width: "127px",
               render: function (data) {
                 if (data === "active") {
-                  return '<spann class="positive">Aktywny</spann>'
+                  return '<spann class="positive">Aktywny</spann>';
                 } else {
-                  return '<spann class="medium">Oczekuję...</spann>'
+                  return '<spann class="medium">Oczekuję...</spann>';
                 }
               },
             },
@@ -309,7 +315,13 @@ docReady(function () {
               data: "role",
               width: "127px",
               render: function (data, type, row) {
-                if (type === 'display') {
+                if (type === "display") {
+                  // If role is null, display a disabled dropdown
+                  if (data === null) {
+                    return `<select class="user-role-select" disabled>
+                              <option>-</option>
+                            </select>`;
+                  }
                   let selectAdminSelected = data === "admin" ? " selected" : "";
                   let selectUserSelected = data === "user" ? " selected" : "";
                   return `
@@ -329,7 +341,7 @@ docReady(function () {
               data: null,
               defaultContent:
                 "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-            }
+            },
           ],
         });
         if (request.status == 401) {
@@ -340,69 +352,72 @@ docReady(function () {
     request.send();
   }
 
-  $('#table_users_list').on('change', '.user-role-select', function() {
-    var userId = $(this).data('user-id'); 
-    var newRole = $(this).val(); 
-  
+  $("#table_users_list").on("change", ".user-role-select", function () {
+    var userId = $(this).data("user-id");
+    var newRole = $(this).val();
+
     var data = JSON.stringify([
       {
-        "op": "replace",
-        "path": "/role",
-        "value": newRole
-      }
+        op: "replace",
+        path: "/role",
+        value: newRole,
+      },
     ]);
-  
+
     $.ajax({
       url: InvokeURL + "users/" + userId,
-      type: 'PATCH',
-      contentType: 'application/json', 
+      type: "PATCH",
+      contentType: "application/json",
       headers: {
-        'Authorization': orgToken
+        Authorization: orgToken,
       },
       data: data,
-      success: function(response) {
+      success: function (response) {
         console.log("Role updated successfully", response);
-
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error("Failed to update role", textStatus, errorThrown);
-
-      }
+      },
     });
   });
 
-  $('#table_users_list').on('click', '.details-control4', function() {
-    var userId = $(this).closest('tr').find('.user-role-select').data('user-id');
+  $("#table_users_list").on("click", ".details-control4", function () {
+    var userId = $(this)
+      .closest("tr")
+      .find(".user-role-select")
+      .data("user-id");
     if (!userId) {
       console.error("User ID not found");
       return;
     }
-  
+
     // Confirm deletion
     if (!confirm("Are you sure you want to delete this user?")) {
       return;
     }
-  
+
     // Proceed with the DELETE request
     $.ajax({
       url: InvokeURL + "users/" + userId, // Construct the request URL
-      type: 'DELETE',
-      contentType: 'application/json', // Set the content type to application/json
+      type: "DELETE",
+      contentType: "application/json", // Set the content type to application/json
       headers: {
-        'Authorization': orgToken // Ensure you include the authorization header
+        Authorization: orgToken, // Ensure you include the authorization header
       },
-      success: function(response) {
+      success: function (response) {
         console.log("User deleted successfully", response);
         // Directly targeting the clicked icon's parent row for removal
-        $('#table_users_list').DataTable().row($(this).closest('tr')).remove().draw();
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.error("Failed to delete user", textStatus, errorThrown);
-    }
+        $("#table_users_list")
+          .DataTable()
+          .row($(this).closest("tr"))
+          .remove()
+          .draw();
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Failed to delete user", textStatus, errorThrown);
+      },
+    });
   });
-});
-  
-  
 
   function getWholesalers() {
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
@@ -416,11 +431,11 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (organizationName == "Lakoc") {
+      if (organizationName == "Famix") {
         const filteredItems = data.items.filter((item) => {
           return (
-            organizationName === "Lakoc" &&
-            (item.wholesalerKey === "lakoc" ||
+            organizationName === "Famix" &&
+            (item.wholesalerKey === "famix-krakow" ||
               item.wholesalerKey === "central-warehouse")
           );
         });
@@ -600,27 +615,38 @@ docReady(function () {
           ],
         });
 
-        $("#table_wholesalers_list").on("change", "input.editor-active", function () {
-          var checkbox = this; // Store reference to the checkbox
-          var isChecked = this.checked; // Store the current state
+        $("#table_wholesalers_list").on(
+          "change",
+          "input.editor-active",
+          function () {
+            var checkbox = this; // Store reference to the checkbox
+            var isChecked = this.checked; // Store the current state
 
-          // Define what to do in case of error
-          var onErrorCallback = function () {
-            // Revert checkbox state
-            $(checkbox).prop('checked', !isChecked);
-          };
+            // Define what to do in case of error
+            var onErrorCallback = function () {
+              // Revert checkbox state
+              $(checkbox).prop("checked", !isChecked);
+            };
 
-          if (isChecked) {
-            console.log(checkbox.getAttribute("wholesalerkey"));
-            console.log("Nieaktywny był");
-            updateStatus(true, checkbox.getAttribute("wholesalerkey"), onErrorCallback);
-          } else {
-            console.log(checkbox.getAttribute("wholesalerkey"));
-            console.log("Aktywny był");
-            updateStatus(false, checkbox.getAttribute("wholesalerkey"), onErrorCallback);
+            if (isChecked) {
+              console.log(checkbox.getAttribute("wholesalerkey"));
+              console.log("Nieaktywny był");
+              updateStatus(
+                true,
+                checkbox.getAttribute("wholesalerkey"),
+                onErrorCallback
+              );
+            } else {
+              console.log(checkbox.getAttribute("wholesalerkey"));
+              console.log("Aktywny był");
+              updateStatus(
+                false,
+                checkbox.getAttribute("wholesalerkey"),
+                onErrorCallback
+              );
+            }
           }
-        });
-
+        );
       }
       if (request.status == 401) {
         console.log("Unauthorized");
@@ -1310,9 +1336,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
