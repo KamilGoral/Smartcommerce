@@ -338,64 +338,60 @@ docReady(function () {
     return false;
   }
 
-  function getOrganiations() {
-    let url = new URL(InvokeURL + "users/me/tenants");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", smartToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
-        if (data.total >= 4) {
-          $("img[id^='startingImage']").hide();
-        }
-        if (data.total > 0) {
-          const orgContainer = document.getElementById(
-            "Organization-Container"
-          );
-          toParse.forEach((organization) => {
-            const style = document.getElementById("samplerow");
-            const row = style.cloneNode(true);
-            const h6 = row.getElementsByTagName("H6")[0];
-            h6.style.pointerEvents = "none";
-            row.setAttribute("OrganizationName", organization.name);
-            row.setAttribute("OrganizationclientId", organization.clientId);
-            row.setAttribute("id", organization.clientId);
-            row.style.display = "flex";
-            h6.textContent = organization.name;
-            var mycolour = StringToColour(organization.name);
-            var some_fancy_gradient =
-              "linear-gradient(180deg, " +
-              mycolour +
-              " 27%, rgb(255, 255, 255) 28%)";
-            row.style.background = "" + some_fancy_gradient + " no-repeat";
-            orgContainer.appendChild(row);
-            document
-              .getElementById(organization.clientId)
-              .addEventListener("click", LoginIntoOrganization, false);
-          });
-        } else if (data.total == 0) {
-          document.getElementById("emptystateorganization").style.display =
-            "none";
-        }
-      } else {
-        console.log(
-          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            data.message
-        );
-        MessageBox(data.message);
+  function getOrganizations() {
+    const url = `${InvokeURL}users/me/tenants`;
+  
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': smartToken
       }
-    };
-
-    request.onerror = function () {
-      console.log("Wystąpił błąd podczas wysyłania żądania.");
-    };
-
-    request.send();
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const { items: toParse, total } = data;
+  
+      if (total >= 4) {
+        $("img[id^='startingImage']").hide();
+      }
+  
+      if (total > 0) {
+        const orgContainer = document.getElementById("Organization-Container");
+        toParse.forEach(organization => {
+          const template = document.getElementById("samplerow");
+          const row = template.cloneNode(true);
+          row.removeAttribute('id'); // Remove the samplerow id to avoid duplicate ids
+          // Update organization specific attributes
+          row.querySelector("#tenantName").textContent = organization.name;
+          row.querySelector("#tenantTaxId").textContent = organization.clientId; // Assuming clientId is the tax ID for demonstration
+          row.querySelector("#tenantStatus").textContent = "Aktywny"; // Example status, adjust as necessary
+  
+          // Setting organization attributes for row
+          row.setAttribute("OrganizationName", organization.name);
+          row.setAttribute("OrganizationclientId", organization.clientId);
+          row.style.display = "flex";
+    
+          // Append row to the container
+          orgContainer.appendChild(row);
+  
+          // Adding click listener for each row
+          row.addEventListener("click", () => LoginIntoOrganization(organization.clientId), false);
+        });
+      } else if (total === 0) {
+        document.getElementById("emptystateorganization").style.display = "none";
+      }
+    })
+    .catch(error => {
+      console.error("Failed to fetch organizations:", error.message);
+      MessageBox(error.message);
+    });
   }
+  
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -552,7 +548,7 @@ docReady(function () {
   makeWebflowFormAjaxCreate($(formIdChangePassword));
   makeWebflowFormAjax($(formId));
   getInvitations();
-  getOrganiations();
+  getOrganizations();
   getUser();
   LoadTippy();
 });
