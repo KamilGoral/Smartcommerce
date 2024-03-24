@@ -36,7 +36,6 @@ docReady(function () {
   var formIdNewWh = "#wf-form-Create-wholesaler";
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
-  orgName.textContent = organizationName;
   OrganizationNameHeader.textContent = organizationName;
   OrganizationBread0.textContent = organizationName;
   OrganizationBread0.setAttribute(
