@@ -279,9 +279,9 @@ docReady(function () {
   }
 
   function LoginIntoOrganization(evt) {
-    evt.preventDefault();
-    var OrganizationName = this.getAttribute("organizationname");
-    var OrganizationclientId = this.getAttribute("organizationclientid");
+    evt.preventDefault(); // This ensures the event is correctly passed and used
+    var OrganizationName = this.getAttribute("OrganizationName");
+    var OrganizationclientId = this.getAttribute("OrganizationclientId");
     var data = {
       smartToken: smartToken,
       OrganizationclientId: OrganizationclientId,
@@ -395,7 +395,7 @@ docReady(function () {
             orgContainer.appendChild(row);
 
             // Adding click listener for each row
-            row.addEventListener("click", () => LoginIntoOrganization(organization.clientId), false);
+            row.addEventListener("click", LoginIntoOrganization, false);
           });
         } else if (total === 0) {
           document.getElementById("emptystateorganization").style.display = "none";
