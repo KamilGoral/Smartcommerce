@@ -47,7 +47,7 @@ docReady(function () {
         var method = form.attr("method");
         var data = {
           name: $(formId + " #newOrgName").val(),
-          name: $(formId + " #taxID").val(),
+          taxId: $(formId + " #taxID").val(),
         };
         $.ajax({
           type: method,
@@ -247,7 +247,7 @@ docReady(function () {
         });
 
         if (data.total > 0) {
-          document.getElementById("emptystateorganization").style.display = "none";
+          // document.getElementById("emptystateorganization").style.display = "none";
         } else {
           console.log("Brak zaproszeń");
         }
