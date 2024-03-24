@@ -206,27 +206,27 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", smartToken);
-  
+
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         const orgContainer = document.getElementById("Organization-Container");
         const template = document.getElementById("sampleInvitation");
-  
+
         var data = JSON.parse(this.response);
         var toParse = data.items;
-  
+
         toParse.forEach((invitation) => {
           const row = template.cloneNode(true);
           row.style.display = "flex";
-  
+
           // Update the invitation details
           row.querySelector("#tenantName").textContent = invitation.tenantName || 'Project name';
           row.querySelector("#tenantTaxId").textContent = invitation.tenantTaxId || 'NIP';
-  
+
           // Setup buttons for accept and reject
           const acceptButton = row.querySelector("#acceptInvitation");
           const rejectButton = row.querySelector("#rejectInvitation");
-  
+
           function setupButton(button, action) {
             button.setAttribute("href", "#"); // Prevent default link behavior
             button.onclick = function (event) {
@@ -234,13 +234,15 @@ docReady(function () {
               decisionInvitation(invitation.id, action);
             };
           }
-  
-          setupButton(acceptButton, "accept");
-          setupButton(rejectButton, "reject");
-  
+
+          // Assuming "acceptInvitation" and "rejectInvitation" are classes or IDs unique to the accept and reject buttons
+          setupButton(row.querySelector("#acceptInvitation"), "accept");
+          setupButton(row.querySelector("#rejectInvitation"), "reject");
+
+
           orgContainer.appendChild(row);
         });
-  
+
         if (data.total > 0) {
           document.getElementById("emptystateorganization").style.display = "none";
         } else {
@@ -253,7 +255,7 @@ docReady(function () {
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
     };
-  
+
     request.onerror = function () {
       console.log("Wystąpił błąd podczas wysyłania żądania.");
     };
