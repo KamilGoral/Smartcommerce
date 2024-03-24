@@ -668,6 +668,15 @@ docReady(function () {
                 const dataType = element.getAttribute('tenantData');
 
                 switch (dataType) {
+                  case 'standard':
+                        element.textContent = toParse.name + "zł/miesięcznie za sklep" || 'N/A';
+                        break;
+                        case 'premium':
+                        element.textContent = toParse.name + "zł/miesięcznie za sklep" || 'N/A';
+                        break;
+                        case 'specialService':
+                        element.textContent = toParse.name || 'N/A';
+                        break;
                     case 'name':
                         element.textContent = toParse.name || 'N/A';
                         break;
