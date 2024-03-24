@@ -47,6 +47,7 @@ docReady(function () {
         var method = form.attr("method");
         var data = {
           name: $(formId + " #newOrgName").val(),
+          name: $(formId + " #taxID").val(),
         };
         $.ajax({
           type: method,
@@ -365,16 +366,23 @@ docReady(function () {
           toParse.forEach(organization => {
             const template = document.getElementById("samplerow");
             const row = template.cloneNode(true);
-            // Before updating textContent, log the elements to see if they are correctly selected
-            console.log('Row:', row);
-            console.log('Tenant Name Element:', row.querySelector("#tenantName"));
-            console.log('Tenant Tax ID Element:', row.querySelector("#tenantTaxId"));
-            console.log('Tenant Status Element:', row.querySelector("#tenantStatus"));
 
             // Update organization specific attributes
-            row.querySelector("#tenantName").textContent = organization.name || 'None';
-            row.querySelector("#tenantTaxId").textContent = organization.taxId || 'None'; // Assuming clientId is the tax ID for demonstration
-            row.querySelector("#tenantStatus").textContent = "Aktywny" || 'None'; // Example status, adjust as necessary
+            row.querySelector("#tenantName").textContent = organization.name || 'Brak';
+            row.querySelector("#tenantTaxId").textContent = organization.taxId || 'Brak'; // Assuming clientId is the tax ID for demonstration
+            row.querySelector("#tenantStatus").textContent = organization.status || 'Onboarding'; // Example status, adjust as necessary
+
+            // Setting the status color based on organization status
+            const statusColorMap = {
+              'onboarding': '#40a9ff',
+              'problem': '#ffd666',
+              'client': '#95de64',
+              'suspended': '#ff7875'
+            };
+            const statusColor = statusColorMap[organization.status.toLowerCase()] || '#40a9ff'; // Default to onboarding if not matched
+            row.querySelector("#statusWraper").style.backgroundColor  = statusColor;
+
+
 
             // Setting organization attributes for row
             row.setAttribute("OrganizationName", organization.name);
