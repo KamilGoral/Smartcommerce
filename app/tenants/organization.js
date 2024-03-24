@@ -198,40 +198,46 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
       if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(this.response);
+        var toParse = data.items;
         const shopContainer = document.getElementById("Shops-Container");
+
         toParse.forEach((shop) => {
           const style = document.getElementById("sampleRowShops");
           const row = style.cloneNode(true);
-          row.setAttribute("id", "");
           row.style.display = "flex";
-          const shopName = row.getElementsByTagName("H6")[1];
-          shopName.textContent = shop.name;
-          const shopKey = row.getElementsByTagName("H6")[0];
-          shopKey.textContent = shop.shopKey;
-          row.setAttribute(
-            "href",
-            "https://" +
-            DomainName +
-            "/app/shops/shop" +
-            "?shopKey=" +
-            shop.shopKey
-          );
+          row.removeAttribute("id");
+
+          const shopNameElement = row.querySelector("[shopdata='shopName']");
+          if (shopNameElement) shopNameElement.textContent = shop.name;
+
+          const shopKeyElement = row.querySelector("[shopdata='shopKey']");
+          if (shopKeyElement) shopKeyElement.textContent = shop.shopKey;
+
+          row.href = `https://${DomainName}/app/shops/shop?shopKey=${shop.shopKey}`;
+
           shopContainer.appendChild(row);
         });
-        if (request.status == 401) {
-          console.log("Unauthorized");
+
+        if (data.total === 0) {
+          // const emptystateshops = document.getElementById("emptystateshops");
+          // emptystateshops.style.display = "flex";
         }
-      }
-      if (request.status >= 200 && request.status < 400 && data.total == 0) {
-        const emptystateshops = document.getElementById("emptystateshops");
-        emptystateshops.style.display = "flex";
+      } else if (request.status == 401) {
+        console.log("Unauthorized");
+      } else {
+        console.error("Error loading shop info:", request.status);
       }
     };
+
+    request.onerror = function () {
+      console.error("Error loading shop info:", request.statusText);
+    };
+
     request.send();
   }
+
 
   function getUsers() {
     let url = new URL(InvokeURL + "users?perPage=30");
