@@ -34,7 +34,6 @@ docReady(function () {
   var formIdInvite = "#wf-form-Invite-User";
   var formIdCreate = "#wf-form-Create-Shop";
   var formIdNewWh = "#wf-form-Create-wholesaler";
-  const orgName = document.getElementById("orgName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
   orgName.textContent = organizationName;
