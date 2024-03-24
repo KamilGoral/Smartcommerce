@@ -681,7 +681,7 @@ docReady(function () {
               element.textContent = toParse.pricing.premium + "zł/miesięcznie za sklep" || 'N/A';
               break;
             case 'specialService':
-              element.textContent = toParse.pricing.specialService || 'N/A';
+              element.textContent = toParse.pricing.specialService.fee || 'N/A';
               break;
             case 'name':
               element.textContent = toParse.name || 'N/A';
@@ -1580,3 +1580,16 @@ docReady(function () {
     }, 300);
   });
 });
+
+
+//to do PATCH for and load this data to form
+//wf-form-editCompanyBilling-form
+// tenantNameEdit
+// tenantTaxIdEdit
+// tenantAdressEdit
+// tenantEmailEdit1
+// tenantEmailEditDescription1
+// tenantEmailEdit2
+// tenantEmailEditDescription2
+// tenantEmailEdit3
+// tenantEmailEditDescription4
