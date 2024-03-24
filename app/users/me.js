@@ -232,7 +232,6 @@ docReady(function () {
 
           // Update the invitation details
           row.querySelector("#tenantName").textContent = invitation.tenantName || 'Project name';
-          row.querySelector("#tenantTaxId").textContent = invitation.tenantTaxId || 'NIP';
 
           function setupButton(element, invitation, action) {
             // Store the invitation ID and action within the element's dataset for easier retrieval
@@ -376,7 +375,6 @@ docReady(function () {
             const statusInfo = statusMap[organization.status.toLowerCase()] || statusMap['onboarding']; // Default to onboarding if not matched
             // Update organization specific attributes
             row.querySelector("#tenantName").textContent = organization.name || 'Brak';
-            row.querySelector("#tenantTaxId").textContent = organization.taxId || 'Brak'; // Assuming clientId is the tax ID for demonstration
             // Apply color and text
             row.querySelector("#statusWraper").style.backgroundColor = statusInfo.color;
             row.querySelector("#tenantStatus").textContent = statusInfo.text;
