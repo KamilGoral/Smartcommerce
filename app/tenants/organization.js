@@ -669,13 +669,13 @@ docReady(function () {
 
                 switch (dataType) {
                   case 'standard':
-                        element.textContent = toParse.standard + "zł/miesięcznie za sklep" || 'N/A';
+                        element.textContent = toParse.pricing.standard + "zł/miesięcznie za sklep" || 'N/A';
                         break;
                         case 'premium':
-                        element.textContent = toParse.premium + "zł/miesięcznie za sklep" || 'N/A';
+                        element.textContent = toParse.pricing.premium + "zł/miesięcznie za sklep" || 'N/A';
                         break;
                         case 'specialService':
-                        element.textContent = toParse.specialService || 'N/A';
+                        element.textContent = toParse.pricing.specialService || 'N/A';
                         break;
                     case 'name':
                         element.textContent = toParse.name || 'N/A';
