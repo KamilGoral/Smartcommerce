@@ -353,9 +353,9 @@ docReady(function () {
 
             // Setting the status color based on organization status
             const statusMap = {
-              'onboarding': { color: '#40a9ff', text: 'W trakcie' }, // Example text, adjust as necessary
+              'onboarding': { color: '#fff1b8', text: 'Okres testowy' }, // Example text, adjust as necessary
               'problem': { color: '#ffd666', text: 'Problem' },
-              'client': { color: '#E3FCEF', text: 'Aktywny' },
+              'client': { color: '#d9f7be', text: 'Aktywny' },
               'suspended': { color: '#ff7875', text: 'Zawieszony' }
             };
 
