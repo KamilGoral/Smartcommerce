@@ -41,11 +41,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -214,10 +214,10 @@ docReady(function () {
           row.setAttribute(
             "href",
             "https://" +
-              DomainName +
-              "/app/shops/shop" +
-              "?shopKey=" +
-              shop.shopKey
+            DomainName +
+            "/app/shops/shop" +
+            "?shopKey=" +
+            shop.shopKey
           );
           shopContainer.appendChild(row);
         });
@@ -659,67 +659,69 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
-        if (request.status >= 200 && request.status < 400) {
-            var data = JSON.parse(this.response);
-            var toParse = data; // Assuming 'data' is the object shown in your example
+      if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(this.response);
+        var toParse = data; // Assuming 'data' is the object shown in your example
 
-            // Iterate over elements with the 'tenantData' attribute
-            document.querySelectorAll('[tenantData]').forEach(element => {
-                const dataType = element.getAttribute('tenantData');
+        // Iterate over elements with the 'tenantData' attribute
+        document.querySelectorAll('[tenantData]').forEach(element => {
+          const dataType = element.getAttribute('tenantData');
 
-                switch (dataType) {
-                  case 'standard':
-                        element.textContent = toParse.pricing.standard + "zł/miesięcznie za sklep" || 'N/A';
-                        break;
-                        case 'premium':
-                        element.textContent = toParse.pricing.premium + "zł/miesięcznie za sklep" || 'N/A';
-                        break;
-                        case 'specialService':
-                        element.textContent = toParse.pricing.specialService || 'N/A';
-                        break;
-                    case 'name':
-                        element.textContent = toParse.name || 'N/A';
-                        break;
-                    case 'taxId':
-                        element.textContent = toParse.taxId || 'N/A';
-                        break;
-                    case 'address':
-                        // Safely accessing nested properties
-                        element.textContent = (toParse.address && toParse.address.line1) ? toParse.address.line1 : 'N/A';
-                        break;
-                    case 'country':
-                        element.textContent = (toParse.address && toParse.address.country) ? toParse.address.country : 'N/A';
-                        break;
-                    case 'town':
-                        element.textContent = (toParse.address && toParse.address.town) ? toParse.address.town : 'N/A';
-                        break;
-                    case 'state':
-                        element.textContent = (toParse.address && toParse.address.state) ? toParse.address.state : 'N/A';
-                        break;
-                    case 'postcode':
-                        element.textContent = (toParse.address && toParse.address.postcode) ? toParse.address.postcode : 'N/A';
-                        break;
-                    case 'email':
-                        // Assuming you want to display all emails in one element, separated by commas
-                        const emails = toParse.emails && toParse.emails.map(e => e.email).join(", ");
-                        element.textContent = emails || 'N/A';
-                        break;
-                    // Add more cases as needed for other data types
-                }
-            });
-        } else {
-            console.error("Error loading tenant billing info:", request.status);
-        }
+          switch (dataType) {
+            case 'standard':
+              element.textContent = toParse.pricing.standard + "zł/miesięcznie za sklep" || 'N/A';
+              break;
+            case 'premium':
+              element.textContent = toParse.pricing.premium + "zł/miesięcznie za sklep" || 'N/A';
+              break;
+            case 'specialService':
+              element.textContent = toParse.pricing.specialService || 'N/A';
+              break;
+            case 'name':
+              element.textContent = toParse.name || 'N/A';
+              break;
+            case 'taxId':
+              element.textContent = toParse.taxId || 'N/A';
+              break;
+            case 'address':
+              // Safely accessing nested properties
+              element.textContent = (toParse.address && toParse.address.line1) ? toParse.address.line1 : 'N/A';
+              break;
+            case 'country':
+              element.textContent = (toParse.address && toParse.address.country) ? toParse.address.country : 'N/A';
+              break;
+            case 'town':
+              element.textContent = (toParse.address && toParse.address.town) ? toParse.address.town : 'N/A';
+              break;
+            case 'state':
+              element.textContent = (toParse.address && toParse.address.state) ? toParse.address.state : 'N/A';
+              break;
+            case 'postcode':
+              element.textContent = (toParse.address && toParse.address.postcode) ? toParse.address.postcode : 'N/A';
+              break;
+            case 'emails':
+              // Logowanie dla celów debugowania
+              console.log("Aktualizacja e-maili:", toParse.emails);
+              const emails = toParse.emails && toParse.emails.map(e => e.email).join(", ");
+              console.log("Przetworzone e-maile do wyświetlenia:", emails);
+              element.textContent = emails || 'N/A';
+              break;
+
+          }
+        });
+      } else {
+        console.error("Error loading tenant billing info:", request.status);
+      }
     };
 
     request.onerror = function () {
-        console.error("Error loading tenant billing info:", request.statusText);
+      console.error("Error loading tenant billing info:", request.statusText);
     };
 
     request.send();
-}
+  }
 
-  
+
 
 
   async function getIntegrations() {
@@ -1404,9 +1406,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
