@@ -653,6 +653,49 @@ docReady(function () {
     request.send();
   }
 
+  function GetTenantBilling() {
+    let url = new URL(InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing");
+    fetch(url, {
+      method: "GET",
+      headers: { Authorization: orgToken },
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      updateTenantInfo(data);
+    })
+    .catch(error => {
+      console.error("Error loading tenant billing info:", error);
+    });
+  }
+  
+  function updateTenantInfo(data) {
+    const tenantElements = document.querySelectorAll("[tenantData]");
+    tenantElements.forEach(element => {
+      const dataType = element.getAttribute("tenantData");
+      switch (dataType) {
+        case "name":
+          element.textContent = data.name;
+          break;
+        case "taxId":
+          element.textContent = data.taxId;
+          break;
+        case "address":
+          element.textContent = `${data.address.line1}, ${data.address.town}, ${data.address.state}, ${data.address.postcode}, ${data.address.country}`;
+          break;
+        case "emails":
+          element.textContent = data.emails.map(email => `${email.description}: ${email.email}`).join(", ");
+          break;
+        default:
+          console.log(`Unknown data type: ${dataType}`);
+      }
+    });
+  }
+
   async function getIntegrations() {
     let attempts = 0;
     let userRole = getCookie("sprytnyUserRole");
@@ -671,6 +714,7 @@ docReady(function () {
     }
 
     try {
+      GetTenantBilling();
       const url = new URL(InvokeURL + "integrations");
       const response = await fetch(url, {
         method: "GET",
