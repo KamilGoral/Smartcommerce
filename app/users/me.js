@@ -165,9 +165,12 @@ docReady(function () {
 
   function decisionInvitation(but) {
     console.log(but);
-    const actionUrl = but.getAttribute("action");
-    const decision = but.getAttribute("decision");
-    var isTrueSet = decision === "accept";
+    const invitationId = but.dataset.invitationId; // Retrieve the stored invitation ID
+    const action = but.dataset.action; // Retrieve the action
+    const isTrueSet = action === "accept";
+
+    const actionUrl = InvokeURL + "users/me/invitations/" + invitationId; // Construct the action URL based on the invitation ID
+
     var data = [
       {
         op: "replace",
@@ -223,21 +226,21 @@ docReady(function () {
           row.querySelector("#tenantName").textContent = invitation.tenantName || 'Project name';
           row.querySelector("#tenantTaxId").textContent = invitation.tenantTaxId || 'NIP';
 
-          // Setup buttons for accept and reject
-          const acceptButton = row.querySelector("#acceptInvitation");
-          const rejectButton = row.querySelector("#rejectInvitation");
+          function setupButton(element, invitation, action) {
+            // Store the invitation ID and action within the element's dataset for easier retrieval
+            element.dataset.invitationId = invitation.id;
+            element.dataset.action = action;
 
-          function setupButton(button, action) {
-            button.setAttribute("href", "#"); // Prevent default link behavior
-            button.onclick = function (event) {
+            element.onclick = function (event) {
               event.preventDefault(); // Prevent the link from navigating
-              decisionInvitation(invitation.id, action);
+              decisionInvitation(this); // Pass the element itself to decisionInvitation
             };
           }
 
-          // Assuming "acceptInvitation" and "rejectInvitation" are classes or IDs unique to the accept and reject buttons
-          setupButton(row.querySelector("#acceptInvitation"), "accept");
-          setupButton(row.querySelector("#rejectInvitation"), "reject");
+
+          setupButton(row.querySelector("#acceptInvitation"), invitation, "accept");
+          setupButton(row.querySelector("#rejectInvitation"), invitation, "reject");
+
 
 
           orgContainer.appendChild(row);
