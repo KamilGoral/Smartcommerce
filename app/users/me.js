@@ -219,64 +219,61 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", smartToken);
-
+  
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         const orgContainer = document.getElementById("Organization-Container");
-        const style = document.getElementById("samplerowInvitation");
-
+        const template = document.getElementById("sampleInvitation");
+  
         var data = JSON.parse(this.response);
         var toParse = data.items;
-
+  
         toParse.forEach((invitation) => {
-          const row = style.cloneNode(true);
+          const row = template.cloneNode(true);
           row.style.display = "flex";
-          const tenantName = row.querySelector("H6");
-          tenantName.textContent = invitation.tenantName;
-
+  
+          // Update the invitation details
+          row.querySelector("#tenantName").textContent = invitation.tenantName || 'Project name';
+          row.querySelector("#tenantTaxId").textContent = invitation.tenantTaxId || 'NIP';
+  
+          // Setup buttons for accept and reject
+          const acceptButton = row.querySelector("#acceptInvitation");
+          const rejectButton = row.querySelector("#rejectInvitation");
+  
           function setupButton(button, action) {
-            button.setAttribute(
-              "action",
-              InvokeURL + "users/me/invitations/" + invitation.id
-            );
-            button.setAttribute("decision", action);
-            button.onclick = function () {
-              decisionInviation(button);
+            button.setAttribute("href", "#"); // Prevent default link behavior
+            button.onclick = function (event) {
+              event.preventDefault(); // Prevent the link from navigating
+              decisionInvitation(invitation.id, action); // Assuming decisionInvitation is a function to handle the decision
             };
           }
-
-          setupButton(row.querySelector("a:nth-child(2)"), "reject");
-          setupButton(row.querySelector("a:nth-child(1)"), "accept");
-
+  
+          setupButton(acceptButton, "accept");
+          setupButton(rejectButton, "reject");
+  
           orgContainer.appendChild(row);
         });
-
+  
         if (data.total > 0) {
-          const emptystateorganization = document.getElementById(
-            "emptystateorganization"
-          );
-          emptystateorganization.style.display = "none";
+          document.getElementById("emptystateorganization").style.display = "none";
         } else {
           console.log("Brak zaproszeń");
         }
       } else if (request.status == 401) {
         MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
       } else {
-        console.log(
-          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status +
-          " " +
-          data.message
-        );
-        MessageBox(data.message);
+        console.log("Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " + request.status);
+        MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
     };
-
+  
     request.onerror = function () {
       console.log("Wystąpił błąd podczas wysyłania żądania.");
     };
     request.send();
   }
+  
+  
 
   function LoginIntoOrganization(evt) {
     evt.preventDefault(); // This ensures the event is correctly passed and used
