@@ -34,6 +34,7 @@ docReady(function () {
   var formIdInvite = "#wf-form-Invite-User";
   var formIdCreate = "#wf-form-Create-Shop";
   var formIdNewWh = "#wf-form-Create-wholesaler";
+  var formIdEditBilling = "#wf-form-editCompanyBilling-form";
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
   OrganizationNameHeader.textContent = organizationName;
@@ -1671,7 +1672,7 @@ docReady(function () {
   LoadTippy();
 
 
-  makeWebflowFormAjaxPatchTenantBilling($(wf-form-editCompanyBilling-form));
+  makeWebflowFormAjaxPatchTenantBilling($(formIdEditBilling));
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
