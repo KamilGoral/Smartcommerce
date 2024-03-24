@@ -1527,6 +1527,118 @@ docReady(function () {
     });
   };
 
+  // Function to patch tenant details via AJAX to a specified endpoint.
+  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var action = InvokeURL + "tenants/" + $("#organizationName").text();
+
+        var data = [
+          {
+            "op": "replace",
+            "path": "/name",
+            "value": $('#tenantNameEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/taxId",
+            "value": $('#tenantTaxIdEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/address/country",
+            "value": "Polska"
+          },
+          {
+            "op": "replace",
+            "path": "/address/line1",
+            "value": $('#tenantAdressEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/address/town",
+            "value": $('#tenantTownEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/address/state",
+            "value": $('#tenantTaxIdEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/address/postcode",
+            "value": $('#tenantPostcodeEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/emails/0/email",
+            "value": $('#tenantEmailEdit1').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/emails/0/description",
+            "value": $('#tenantEmailEditDescription1').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/emails/1/email",
+            "value": $('#tenantEmailEdit2').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/emails/1/description",
+            "value": $('#tenantEmailEditDescription2').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/emails/1/email",
+            "value": $('#tenantTaxIdEdit').val(),
+          },
+          {
+            "op": "replace",
+            "path": "/emails/1/description",
+            "value": $('#tenantEmailEditDescription3').val(),
+          }
+        ];
+
+        // AJAX call for PATCH request
+        $.ajax({
+          type: "PATCH",
+          url: action,
+          cors: true,
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": orgToken,
+          },
+          data: JSON.stringify(data), // Convert the JavaScript object to a JSON string
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          success: function (resultData) {
+            console.log('Update successful', resultData);
+            // Handle success (e.g., show success message, redirect, etc.)
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.error('Update failed', jqXHR, textStatus, errorThrown);
+            // Handle error (e.g., show error message)
+          },
+        });
+
+        return false; // Prevent the default form submission
+      });
+    });
+  }
+
+
   function LoadTippy() {
     $.getScript(
       "https://unpkg.com/popper.js@1",
@@ -1592,4 +1704,6 @@ docReady(function () {
 // tenantEmailEdit2
 // tenantEmailEditDescription2
 // tenantEmailEdit3
-// tenantEmailEditDescription4
+// tenantEmailEditDescription3
+// tenantPostcodeEdit
+// tenantStateEdit
