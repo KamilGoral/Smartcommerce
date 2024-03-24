@@ -92,9 +92,9 @@ docReady(function () {
             console.log(exception);
             var msg = "";
             if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
+                msg = "Brak połączenia. Sprawdź sieć.";
             } else if (jqXHR.status == 404) {
-              msg = "Requested page not found. [404]";
+                msg = "Nie znaleziono żądanej strony. [404]";
             } else if (jqXHR.status == 403) {
               msg =
                 "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
@@ -127,24 +127,32 @@ docReady(function () {
                   console.log("Błąd podczas wysyłania danych na endpoint.");
                 },
               });
+            } else if (jqXHR.status == 400) {
+                msg = "Błąd - Numer VAT musi być poprawnym numerem identyfikacji podatkowej VAT";
+            } else if (jqXHR.status == 409) {
+                msg = "Użytkownik osiągnął limit tworzenia nowych organizacji. Prosimy o kontakt kontakt@smartcommerce.net";
             } else if (jqXHR.status == 500) {
-              msg = "Internal Server Error [500].";
+                msg = "Błąd wewnętrzny serwera [500].";
             } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
+                msg = "Nieudana próba parsowania JSON.";
             } else if (exception === "timeout") {
-              msg = "Time out error.";
+                msg = "Przekroczono czas odpowiedzi.";
             } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
+                msg = "Żądanie AJAX zostało przerwane.";
             } else {
-              msg =
-                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+                try {
+                    var responseText = JSON.parse(jqXHR.responseText);
+                    msg = "Nieoczekiwany błąd.\n" + responseText.message;
+                } catch(e) {
+                    msg = "Nieoczekiwany błąd.\n" + jqXHR.responseText;
+                }
             }
             $(".warningmessagetext").text(msg);
             form.show();
             doneBlock.hide();
             failBlock.show();
             return;
-          },
+        },
         });
         event.preventDefault();
         return false;
