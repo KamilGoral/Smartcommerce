@@ -163,20 +163,7 @@ docReady(function () {
     $("#WarningMessageContainer").show();
   }
 
-  function StringToColour(str) {
-    var hash = 0;
-    for (var i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    var colour = "#";
-    for (var i = 0; i < 3; i++) {
-      var value = (hash >> (i * 8)) & 0xff;
-      colour += ("00" + value.toString(16)).substr(-2);
-    }
-    return colour;
-  }
-
-  function decisionInviation(but) {
+  function decisionInvitation(but) {
     console.log(but);
     const actionUrl = but.getAttribute("action");
     const decision = but.getAttribute("decision");
@@ -244,7 +231,7 @@ docReady(function () {
             button.setAttribute("href", "#"); // Prevent default link behavior
             button.onclick = function (event) {
               event.preventDefault(); // Prevent the link from navigating
-              decisionInvitation(invitation.id, action); // Assuming decisionInvitation is a function to handle the decision
+              decisionInvitation(invitation.id, action);
             };
           }
   
@@ -272,8 +259,6 @@ docReady(function () {
     };
     request.send();
   }
-  
-  
 
   function LoginIntoOrganization(evt) {
     evt.preventDefault(); // This ensures the event is correctly passed and used
@@ -395,7 +380,7 @@ docReady(function () {
             row.addEventListener("click", LoginIntoOrganization, false);
           });
         } else if (total === 0) {
-          document.getElementById("emptystateorganization").style.display = "none";
+          // document.getElementById("emptystateorganization").style.display = "none";
         }
       })
       .catch(error => {
