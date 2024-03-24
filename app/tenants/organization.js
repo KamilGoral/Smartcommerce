@@ -1670,6 +1670,8 @@ docReady(function () {
   getWholesalers();
   LoadTippy();
 
+
+  makeWebflowFormAjaxPatchTenantBilling($(wf-form-editCompanyBilling-form));
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
   makeWebflowFormAjaxInvite($(formIdInvite));
@@ -1693,17 +1695,3 @@ docReady(function () {
   });
 });
 
-
-//to do PATCH for and load this data to form
-//wf-form-editCompanyBilling-form
-// tenantNameEdit
-// tenantTaxIdEdit
-// tenantAdressEdit
-// tenantEmailEdit1
-// tenantEmailEditDescription1
-// tenantEmailEdit2
-// tenantEmailEditDescription2
-// tenantEmailEdit3
-// tenantEmailEditDescription3
-// tenantPostcodeEdit
-// tenantStateEdit
