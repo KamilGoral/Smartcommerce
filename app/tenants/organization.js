@@ -655,46 +655,63 @@ docReady(function () {
 
   function GetTenantBilling() {
     let url = new URL(InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing");
-    fetch(url, {
-      method: "GET",
-      headers: { Authorization: orgToken },
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      updateTenantInfo(data);
-    })
-    .catch(error => {
-      console.error("Error loading tenant billing info:", error);
-    });
-  }
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+            var data = JSON.parse(this.response);
+            var toParse = data; // Assuming 'data' is the object shown in your example
+
+            // Iterate over elements with the 'tenantData' attribute
+            document.querySelectorAll('[tenantData]').forEach(element => {
+                const dataType = element.getAttribute('tenantData');
+
+                switch (dataType) {
+                    case 'name':
+                        element.textContent = toParse.name || 'N/A';
+                        break;
+                    case 'taxId':
+                        element.textContent = toParse.taxId || 'N/A';
+                        break;
+                    case 'address':
+                        // Safely accessing nested properties
+                        element.textContent = (toParse.address && toParse.address.line1) ? toParse.address.line1 : 'N/A';
+                        break;
+                    case 'country':
+                        element.textContent = (toParse.address && toParse.address.country) ? toParse.address.country : 'N/A';
+                        break;
+                    case 'town':
+                        element.textContent = (toParse.address && toParse.address.town) ? toParse.address.town : 'N/A';
+                        break;
+                    case 'state':
+                        element.textContent = (toParse.address && toParse.address.state) ? toParse.address.state : 'N/A';
+                        break;
+                    case 'postcode':
+                        element.textContent = (toParse.address && toParse.address.postcode) ? toParse.address.postcode : 'N/A';
+                        break;
+                    case 'email':
+                        // Assuming you want to display all emails in one element, separated by commas
+                        const emails = toParse.emails && toParse.emails.map(e => e.email).join(", ");
+                        element.textContent = emails || 'N/A';
+                        break;
+                    // Add more cases as needed for other data types
+                }
+            });
+        } else {
+            console.error("Error loading tenant billing info:", request.status);
+        }
+    };
+
+    request.onerror = function () {
+        console.error("Error loading tenant billing info:", request.statusText);
+    };
+
+    request.send();
+}
+
   
-  function updateTenantInfo(data) {
-    const tenantElements = document.querySelectorAll("[tenantData]");
-    tenantElements.forEach(element => {
-      const dataType = element.getAttribute("tenantData");
-      switch (dataType) {
-        case "name":
-          element.textContent = data.name;
-          break;
-        case "taxId":
-          element.textContent = data.taxId;
-          break;
-        case "address":
-          element.textContent = `${data.address.line1}, ${data.address.town}, ${data.address.state}, ${data.address.postcode}, ${data.address.country}`;
-          break;
-        case "emails":
-          element.textContent = data.emails.map(email => `${email.description}: ${email.email}`).join(", ");
-          break;
-        default:
-          console.log(`Unknown data type: ${dataType}`);
-      }
-    });
-  }
+
 
   async function getIntegrations() {
     let attempts = 0;
