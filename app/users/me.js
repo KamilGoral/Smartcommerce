@@ -367,20 +367,25 @@ docReady(function () {
             const template = document.getElementById("samplerow");
             const row = template.cloneNode(true);
 
+
+
+            // Setting the status color based on organization status
+            const statusMap = {
+              'onboarding': { color: '#40a9ff', text: 'W trakcie' }, // Example text, adjust as necessary
+              'problem': { color: '#ffd666', text: 'Problem' },
+              'client': { color: '#95de64', text: 'Aktywny' },
+              'suspended': { color: '#ff7875', text: 'Zawieszony' }
+            };
+
+            // Use the status to get both the color and text
+            const statusInfo = statusMap[organization.status.toLowerCase()] || statusMap['onboarding']; // Default to onboarding if not matched
             // Update organization specific attributes
             row.querySelector("#tenantName").textContent = organization.name || 'Brak';
             row.querySelector("#tenantTaxId").textContent = organization.taxId || 'Brak'; // Assuming clientId is the tax ID for demonstration
-            row.querySelector("#tenantStatus").textContent = organization.status || 'Onboarding'; // Example status, adjust as necessary
-
-            // Setting the status color based on organization status
-            const statusColorMap = {
-              'onboarding': '#40a9ff',
-              'problem': '#ffd666',
-              'client': '#95de64',
-              'suspended': '#ff7875'
-            };
+            // Apply color and text
+            row.querySelector("#statusWraper").style.backgroundColor = statusInfo.color;
+            row.querySelector("#tenantStatus").textContent = statusInfo.text;
             const statusColor = statusColorMap[organization.status.toLowerCase()] || '#40a9ff'; // Default to onboarding if not matched
-            row.querySelector("#statusWraper").style.backgroundColor  = statusColor;
 
 
 
