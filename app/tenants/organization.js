@@ -688,10 +688,10 @@ docReady(function () {
               element.textContent = organizationName || 'N/A';
               break;
             case 'standard':
-              element.textContent = toParse.pricing.standard + "zł/miesięcznie za sklep" || 'N/A';
+              element.textContent = toParse.pricing.standard + "zł za sklep/miesięcznie" || 'N/A';
               break;
             case 'premium':
-              element.textContent = toParse.pricing.premium + "zł/miesięcznie za sklep" || 'N/A';
+              element.textContent = toParse.pricing.premium + "zł za sklep/miesięcznie" || 'N/A';
               break;
             case 'specialService':
               element.textContent = toParse.pricing.specialService.fee || 'N/A';
