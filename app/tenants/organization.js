@@ -674,7 +674,19 @@ docReady(function () {
         document.querySelectorAll('[tenantData]').forEach(element => {
           const dataType = element.getAttribute('tenantData');
 
+          if (toParse.pricing.specialService.fee !== null) {
+            // If fee is not null, show #specialServiceBox
+            document.getElementById('specialServiceBox').style.display = 'flex';
+          } else {
+            // If fee is null, hide #specialServiceBox
+            document.getElementById('specialServiceBox').style.display = 'none';
+          }
+          
+
           switch (dataType) {
+            case 'tenantName':
+              element.textContent = organizationName || 'N/A';
+              break;
             case 'standard':
               element.textContent = toParse.pricing.standard + "zł/miesięcznie za sklep" || 'N/A';
               break;
