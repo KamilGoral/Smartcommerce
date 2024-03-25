@@ -367,7 +367,7 @@ docReady(function () {
             const statusMap = {
               'onboarding': { color: '#fff1b8', text: 'Okres testowy' }, // Example text, adjust as necessary
               'problem': { color: '#ffd666', text: 'Problem' },
-              'client': { color: '#d9f7be', text: ' ' },
+              'client': { color: '#ffffff00', text: '' },
               'suspended': { color: '#ff7875', text: 'Zawieszony' }
             };
 
