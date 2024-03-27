@@ -674,7 +674,7 @@ docReady(function () {
         document.querySelectorAll('[tenantData]').forEach(element => {
           const dataType = element.getAttribute('tenantData');
 
-          if (toParse.pricing.specialService.fee !== null) {
+          if (toParse.pricing.specialService !== null) {
             // If fee is not null, show #specialServiceBox
             document.getElementById('specialServiceBox').style.display = 'flex';
           } else {

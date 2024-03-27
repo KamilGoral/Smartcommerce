@@ -35,11 +35,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   function getIntegrations() {
@@ -146,6 +146,16 @@ docReady(function () {
       }
       if (request.status >= 200 && request.status < 400 && data.total == 0) {
         const emptystateshops = document.getElementById("emptystateshops");
+        const newShopModal = document.getElementsById("newShopModal");
+        newShopModal.setAttribute(
+          "href",
+          "https://" +
+          DomainName +
+          "/app/tenants/organization?name=" +
+          OrganizationName +
+          "&clientId=" +
+          ClientID
+        );
         emptystateshops.style.display = "flex";
       }
     };

@@ -130,7 +130,7 @@ docReady(function () {
             } else if (jqXHR.status == 400) {
                 msg = "Błąd - Numer VAT musi być poprawnym numerem identyfikacji podatkowej VAT";
             } else if (jqXHR.status == 409) {
-                msg = "Użytkownik osiągnął limit tworzenia nowych organizacji. Prosimy o kontakt kontakt@smartcommerce.net";
+                msg = "Aktualnie trwa proces weryfikacji jednej z Twoich organizacji. Przed założeniem nowej, konieczne jest zakończenie tego procesu.";
             } else if (jqXHR.status == 500) {
                 msg = "Błąd wewnętrzny serwera [500].";
             } else if (exception === "parsererror") {
@@ -361,11 +361,8 @@ docReady(function () {
             const template = document.getElementById("samplerow");
             const row = template.cloneNode(true);
 
-
-
-            // Setting the status color based on organization status
             const statusMap = {
-              'onboarding': { color: '#fff1b8', text: 'Okres testowy' }, // Example text, adjust as necessary
+              'onboarding': { color: '#fff1b8', text: 'W trakcie weryfikacji' }, 
               'problem': { color: '#ffd666', text: 'Problem' },
               'client': { color: '#ffffff00', text: '' },
               'suspended': { color: '#ff7875', text: 'Zawieszony' }
