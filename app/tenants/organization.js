@@ -222,6 +222,9 @@ docReady(function () {
         });
 
         if (data.total === 0) {
+          tablecontentshops
+          const tablecontentshops = document.getElementById("tablecontentshops");
+          tablecontentshops.style.display = "none";
           const emptystateshops = document.getElementById("emptystateshops");
           emptystateshops.style.display = "flex";
         }
