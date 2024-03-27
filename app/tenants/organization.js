@@ -678,10 +678,10 @@ docReady(function () {
           const dataType = element.getAttribute('tenantData');
 
           if (toParse.pricing.specialService !== null) {
-            // If fee is not null, show #specialServiceBox
+            // If specialService is not null, show #specialServiceBox
             document.getElementById('specialServiceBox').style.display = 'flex';
           } else {
-            // If fee is null, hide #specialServiceBox
+            // If specialService is null, hide #specialServiceBox
             document.getElementById('specialServiceBox').style.display = 'none';
           }
           
