@@ -146,7 +146,7 @@ docReady(function () {
       }
       if (request.status >= 200 && request.status < 400 && data.total == 0) {
         const emptystateshops = document.getElementById("emptystateshops");
-        const newShopModal = document.getElementsById("newShopModal");
+        const newShopModal = document.getElementById("newShopModal");
         newShopModal.setAttribute(
           "href",
           "https://" +
