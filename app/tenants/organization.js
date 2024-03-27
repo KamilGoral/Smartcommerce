@@ -222,8 +222,8 @@ docReady(function () {
         });
 
         if (data.total === 0) {
-          // const emptystateshops = document.getElementById("emptystateshops");
-          // emptystateshops.style.display = "flex";
+          const emptystateshops = document.getElementById("emptystateshops");
+          emptystateshops.style.display = "flex";
         }
       } else if (request.status == 401) {
         console.log("Unauthorized");
