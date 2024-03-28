@@ -695,18 +695,18 @@ docReady(function () {
               break;
             case "standard":
               element.textContent =
-                toParse.pricing.standard + "zł za sklep/miesięcznie" || "N/A";
+                toParse.pricing.standard + " zł za sklep/miesięcznie" || "N/A";
               break;
             case "premium":
               element.textContent =
-                toParse.pricing.premium + "zł za sklep/miesięcznie" || "N/A";
+                toParse.pricing.premium + " zł za sklep/miesięcznie" || "N/A";
               break;
             case "specialService":
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
                   toParse.pricing.specialService.fee
-                  ? toParse.pricing.specialService.description + " - " + toParse.pricing.specialService.fee + "zł"
+                  ?  toParse.pricing.specialService.description + " - " +  toParse.pricing.specialService.fee + " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
