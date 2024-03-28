@@ -507,7 +507,9 @@ docReady(function () {
             $("#waitingdots").show();
           },
           complete: function () {
-            $("#waitingdots").hide();
+            window.setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 2000);
           },
           contentType: "application/json",
           dataType: "json",
