@@ -269,6 +269,9 @@ docReady(function () {
           }
         });
       },
+      drawCallback: function(settings) {
+        toggleEmptyState();
+      },
     });
 
     function toggleEmptyState() {
@@ -285,10 +288,6 @@ docReady(function () {
         $('#orderscontainer').show();
       }
     }
-  
-    // Initial check after the table is initialized
-    toggleEmptyState();
-
   }
 
   $("#table_orders").on("click", ".details-control4 img", function () {
@@ -1070,6 +1069,9 @@ docReady(function () {
           '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
       },
     ],
+    drawCallback: function(settings) {
+      toggleEmptyState();
+    },
   });
 
   function toggleEmptyState() {
@@ -1087,8 +1089,6 @@ docReady(function () {
     }
   }
 
-  // Initial check after the table is initialized
-  toggleEmptyState();
 
   $("#table_pricelists_list").on(
     "click",
@@ -1274,13 +1274,9 @@ docReady(function () {
                 '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
             },
           ],
-          //delete this rowCallback after support for Iglomen Sellitem
-          // "rowCallback": function (row, data) {
-          //  if (data.wholesalerKey == "iglomen-czerwionka") {
-          //    console.log("iglomen")
-          //  $('td:eq(6)', row).html('<spann class="noneexisting">Brak</spann>');
-          //  }
-          // }
+          drawCallback: function(settings) {
+            toggleEmptyState();
+          },
         });
 
         function toggleEmptyState() {
