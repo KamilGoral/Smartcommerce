@@ -612,6 +612,7 @@ docReady(function () {
                 .end()
                 .append("<option value=null>Wybierz profil</option>")
                 .val("null");
+
               $(".successmessagetext").text(
                 "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
               );
