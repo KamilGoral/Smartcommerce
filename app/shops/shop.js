@@ -1313,13 +1313,16 @@ docReady(function () {
         orderable: false,
         data: "wholesalerKey",
         width: "72px",
-        defaultContent: '<div class="action-container"><a href="' + "https://" +
-          DomainName +
-          "/app/wholesalers/wholesaler?shopKey=" +
-          shopKey +
-          "&wholesalerKey=" +
-          data + '" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
+        render: function (data, type, row, meta) {
+          // Using render function to dynamically generate the anchor tag
+          return '<div class="action-container"><a href="https://' +
+            DomainName +
+            '/app/wholesalers/wholesaler?shopKey=' +
+            shopKey +
+            '&wholesalerKey=' +
+            data + '" class="buttonoutline editme w-button">Przejdź</a></div>';
+        },
+      }
       ],
       drawCallback: function (settings) {
         toggleEmptyState();
