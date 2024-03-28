@@ -1311,7 +1311,7 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: wholesalerKey,
+        data: "wholesalerKey",
         width: "72px",
         defaultContent: '<div class="action-container"><a href="' + "https://" +
           DomainName +
