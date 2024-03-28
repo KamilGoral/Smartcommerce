@@ -274,6 +274,7 @@ docReady(function () {
     function toggleEmptyState() {
       // Check if the table has any entries
       var hasEntries = tableOrders.data().any();
+      console.log(hasEntries);
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
@@ -442,6 +443,8 @@ docReady(function () {
       clearInterval(counterInterval); // Clear the counter interval as well
       $("#refreshCounter").hide(); // Ukryj licznik
       $("#refreshCounter").text(""); // Clear the counter display
+      $("#emptystateoffers").hide();
+      $("#offerscontainer").show();
     }
   }
 
@@ -718,7 +721,6 @@ docReady(function () {
 
     function toggleEmptyState() {
       // Check if the table has any entries
-      console.log("here");
       var hasEntries = tableOffers.data().any();
       console.log(hasEntries);
       // If the table is empty, show the custom empty state div
@@ -1071,7 +1073,6 @@ docReady(function () {
 
   function toggleEmptyState() {
     // Check if the table has any entries
-    console.log("here");
     var hasEntries = tablePricelists.data().any();
     console.log(hasEntries);
     // If the table is empty, show the custom empty state div
@@ -1284,6 +1285,7 @@ docReady(function () {
         function toggleEmptyState() {
           // Check if the table has any entries
           var hasEntries = tableWholesalers.data().any();
+          console.log(hasEntries);
           // If the table is empty, show the custom empty state div
           // Otherwise, hide it
           if (!hasEntries) {
