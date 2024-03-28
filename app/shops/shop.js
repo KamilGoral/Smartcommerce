@@ -717,6 +717,9 @@ docReady(function () {
           }
         });
       },
+      drawCallback: function(settings) {
+        toggleEmptyState();
+      },
     });
 
     function toggleEmptyState() {
@@ -734,8 +737,6 @@ docReady(function () {
       }
     }
   
-    // Initial check after the table is initialized
-    toggleEmptyState();
 
     // Set up refresh interval
     refreshInterval = setInterval(function () {
