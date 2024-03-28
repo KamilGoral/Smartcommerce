@@ -1176,7 +1176,7 @@ docReady(function () {
 
         $.get(
           InvokeURL + "shops/" +
-          shopKey + "/wholesalers" + {
+          shopKey + "/wholesalers", {
             sort: sort,
             perPage: data.length,
             page: (data.start + data.length) / data.length,
