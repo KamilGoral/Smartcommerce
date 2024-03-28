@@ -1162,13 +1162,13 @@ docReady(function () {
           case 2:
             whichColumns = "wholesalerKey:";
             break;
-          case 6:
+          case 5:
             whichColumns = "connections.ftp.enabled:";
             break;
-          case 8:
+          case 6:
             whichColumns = "connections.onlineOffer.enabled:";
             break;
-          case 5:
+          case 4:
             whichColumns = "connections.retroactive.enabled:";
             break;
           default:
