@@ -805,7 +805,7 @@ docReady(function () {
     });
   }
 
-  var table = $("#table_pricelists_list").DataTable({
+  var tablePricelists = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
     order: [],
     dom: '<"top">rt<"bottom"lip>',
@@ -813,8 +813,7 @@ docReady(function () {
     scrollCollapse: true,
     pageLength: 10,
     language: {
-      emptyTable:
-        "<img src='https://experience.sap.com/fiori-design-web/wp-content/uploads/sites/5/2022/11/Empty-states-example-3-2.08.png' alt='No data'><br>No data available in table",
+      emptyTable: "Brfak danych",
       info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
       infoEmpty: "Brak danych",
       infoFiltered: "(z _MAX_ rezultatów)",
@@ -1052,7 +1051,7 @@ docReady(function () {
 
   function toggleEmptyState() {
     // Check if the table has any entries
-    var hasEntries = table.data().any();
+    var hasEntries = tablePricelists.data().any();
 
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
