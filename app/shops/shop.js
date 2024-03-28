@@ -83,7 +83,6 @@ docReady(function () {
 
         shName.textContent = data.name;
         shName2.textContent = data.name;
-        shCountry.textContent = data.address.country;
         shLine1.textContent = data.address.line1;
         shTown.textContent = data.address.town;
         shState.textContent = data.address.state;
