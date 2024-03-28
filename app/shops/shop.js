@@ -1165,7 +1165,7 @@ docReady(function () {
           case 5:
             whichColumns = "connections.ftp.enabled:";
             break;
-          case 6:
+          case 7:
             whichColumns = "connections.onlineOffer.enabled:";
             break;
           case 4:
