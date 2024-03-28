@@ -1160,16 +1160,16 @@ docReady(function () {
 
         switch (whichColumns) {
           case 2:
-            whichColumns = "created.at:";
+            whichColumns = "wholesalerKey:";
             break;
           case 3:
-            whichColumns = "startDate:";
+            whichColumns = "wholesalerKey:";
             break;
           case 4:
-            whichColumns = "endDate:";
+            whichColumns = "wholesalerKey:";
             break;
           default:
-            whichColumns = "created.at:";
+            whichColumns = "wholesalerKey:";
         }
 
         var sort = "" + whichColumns + direction;
