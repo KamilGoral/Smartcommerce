@@ -1293,9 +1293,6 @@ docReady(function () {
             $('#vendorscontainer').show();
           }
         }
-      
-        // Initial check after the table is initialized
-        toggleEmptyState();
 
         $("#table_wholesalers").on("click", "tr", function () {
           var rowData = table.row(this).data();
