@@ -1273,7 +1273,7 @@ docReady(function () {
         },
       },
       {
-        orderable: true,
+        orderable: false,
         data: "connections.wms",
         visible: false,
         width: "72px",
