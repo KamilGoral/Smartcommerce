@@ -1057,9 +1057,9 @@ docReady(function () {
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
-        $('#emptystateordersdiv').show();
+        $('#emptystatepricelistshop').show();
     } else {
-        $('#emptystateordersdiv').hide();
+        $('#emptystatepricelistshop').hide();
     }
 }
 
