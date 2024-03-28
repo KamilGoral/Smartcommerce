@@ -1141,7 +1141,7 @@ docReady(function () {
       });
 
       if (request.status >= 200 && request.status < 400) {
-        var table = $("#table_wholesalers").DataTable({
+        var tableWholesalers = $("#table_wholesalers").DataTable({
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -1299,6 +1299,23 @@ docReady(function () {
           //  }
           // }
         });
+
+        function toggleEmptyState() {
+          // Check if the table has any entries
+          var hasEntries = tableWholesalers.data().any();
+          // If the table is empty, show the custom empty state div
+          // Otherwise, hide it
+          if (!hasEntries) {
+            $('#emptystatevendors').show();
+            $('#vendorscontainer').hide();
+          } else {
+            $('#emptystatevendors').hide();
+            $('#vendorscontainer').show();
+          }
+        }
+      
+        // Initial check after the table is initialized
+        toggleEmptyState();
 
         $("#table_wholesalers").on("click", "tr", function () {
           var rowData = table.row(this).data();
