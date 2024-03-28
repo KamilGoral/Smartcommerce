@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -665,9 +665,9 @@ docReady(function () {
   function GetTenantBilling() {
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -703,10 +703,10 @@ docReady(function () {
               break;
             case "specialService":
               // Safely accessing specialService fee
-              content =
+              element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
-                  ? toParse.pricing.specialService.fee + "zł"
+                  toParse.pricing.specialService.fee
+                  ? toParse.pricing.specialService.description + " - " + toParse.pricing.specialService.fee + "zł"
                   : "N/A";
               break;
             case "name":
@@ -1450,9 +1450,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
