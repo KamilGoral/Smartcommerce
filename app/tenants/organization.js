@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -222,7 +222,8 @@ docReady(function () {
         });
 
         if (data.total === 0) {
-          const tablecontentshops = document.getElementById("tablecontentshops");
+          const tablecontentshops =
+            document.getElementById("tablecontentshops");
           tablecontentshops.style.display = "none";
           const emptystateshops = document.getElementById("emptystateshops");
           emptystateshops.style.display = "flex";
@@ -240,7 +241,6 @@ docReady(function () {
 
     request.send();
   }
-
 
   function getUsers() {
     let url = new URL(InvokeURL + "users?perPage=30");
@@ -663,7 +663,12 @@ docReady(function () {
   }
 
   function GetTenantBilling() {
-    let url = new URL(InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing");
+    let url = new URL(
+      InvokeURL +
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
+    );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -673,61 +678,82 @@ docReady(function () {
         var toParse = data; // Assuming 'data' is the object shown in your example
 
         // Iterate over elements with the 'tenantData' attribute
-        document.querySelectorAll('[tenantData]').forEach(element => {
-          const dataType = element.getAttribute('tenantData');
+        document.querySelectorAll("[tenantData]").forEach((element) => {
+          const dataType = element.getAttribute("tenantData");
 
           if (toParse.pricing.specialService !== null) {
             // If specialService is not null, show #specialServiceBox
-            document.getElementById('specialServiceBox').style.display = 'flex';
+            document.getElementById("specialServiceBox").style.display = "flex";
           } else {
             // If specialService is null, hide #specialServiceBox
-            document.getElementById('specialServiceBox').style.display = 'none';
+            document.getElementById("specialServiceBox").style.display = "none";
           }
-          
 
           switch (dataType) {
-            case 'tenantName':
-              element.textContent = organizationName || 'N/A';
+            case "tenantName":
+              element.textContent = organizationName || "N/A";
               break;
-            case 'standard':
-              element.textContent = toParse.pricing.standard + "zł za sklep/miesięcznie" || 'N/A';
+            case "standard":
+              element.textContent =
+                toParse.pricing.standard + "zł za sklep/miesięcznie" || "N/A";
               break;
-            case 'premium':
-              element.textContent = toParse.pricing.premium + "zł za sklep/miesięcznie" || 'N/A';
+            case "premium":
+              element.textContent =
+                toParse.pricing.premium + "zł za sklep/miesięcznie" || "N/A";
               break;
-            case 'specialService':
-              element.textContent = toParse.pricing.specialService.fee || 'N/A';
+            case "specialService":
+              // Safely accessing specialService fee
+              content =
+                toParse.pricing.specialService &&
+                toParse.pricing.specialService.fee
+                  ? toParse.pricing.specialService.fee + "zł"
+                  : "N/A";
               break;
-            case 'name':
-              element.textContent = toParse.name || 'N/A';
+            case "name":
+              element.textContent = toParse.name || "N/A";
               break;
-            case 'taxId':
-              element.textContent = toParse.taxId || 'N/A';
+            case "taxId":
+              element.textContent = toParse.taxId || "N/A";
               break;
-            case 'address':
+            case "address":
               // Safely accessing nested properties
-              element.textContent = (toParse.address && toParse.address.line1) ? toParse.address.line1 : 'N/A';
+              element.textContent =
+                toParse.address && toParse.address.line1
+                  ? toParse.address.line1
+                  : "N/A";
               break;
-            case 'country':
-              element.textContent = (toParse.address && toParse.address.country) ? toParse.address.country : 'N/A';
+            case "country":
+              element.textContent =
+                toParse.address && toParse.address.country
+                  ? toParse.address.country
+                  : "N/A";
               break;
-            case 'town':
-              element.textContent = (toParse.address && toParse.address.town) ? toParse.address.town : 'N/A';
+            case "town":
+              element.textContent =
+                toParse.address && toParse.address.town
+                  ? toParse.address.town
+                  : "N/A";
               break;
-            case 'state':
-              element.textContent = (toParse.address && toParse.address.state) ? toParse.address.state : 'N/A';
+            case "state":
+              element.textContent =
+                toParse.address && toParse.address.state
+                  ? toParse.address.state
+                  : "N/A";
               break;
-            case 'postcode':
-              element.textContent = (toParse.address && toParse.address.postcode) ? toParse.address.postcode : 'N/A';
+            case "postcode":
+              element.textContent =
+                toParse.address && toParse.address.postcode
+                  ? toParse.address.postcode
+                  : "N/A";
               break;
-            case 'emails':
+            case "emails":
               // Logowanie dla celów debugowania
               console.log("Aktualizacja e-maili:", toParse.emails);
-              const emails = toParse.emails && toParse.emails.map(e => e.email).join(", ");
+              const emails =
+                toParse.emails && toParse.emails.map((e) => e.email).join(", ");
               console.log("Przetworzone e-maile do wyświetlenia:", emails);
-              element.textContent = emails || 'N/A';
+              element.textContent = emails || "N/A";
               break;
-
           }
         });
       } else {
@@ -741,9 +767,6 @@ docReady(function () {
 
     request.send();
   }
-
-
-
 
   async function getIntegrations() {
     let attempts = 0;
@@ -1427,9 +1450,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1543,7 +1566,11 @@ docReady(function () {
   };
 
   // Function to patch tenant details via AJAX to a specified endpoint.
-  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
+  makeWebflowFormAjaxPatchTenantBilling = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
@@ -1553,70 +1580,70 @@ docReady(function () {
 
         var data = [
           {
-            "op": "replace",
-            "path": "/name",
-            "value": $('#tenantNameEdit').val(),
+            op: "replace",
+            path: "/name",
+            value: $("#tenantNameEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/taxId",
-            "value": $('#tenantTaxIdEdit').val(),
+            op: "replace",
+            path: "/taxId",
+            value: $("#tenantTaxIdEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/address/country",
-            "value": "Polska"
+            op: "replace",
+            path: "/address/country",
+            value: "Polska",
           },
           {
-            "op": "replace",
-            "path": "/address/line1",
-            "value": $('#tenantAdressEdit').val(),
+            op: "replace",
+            path: "/address/line1",
+            value: $("#tenantAdressEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/address/town",
-            "value": $('#tenantTownEdit').val(),
+            op: "replace",
+            path: "/address/town",
+            value: $("#tenantTownEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/address/state",
-            "value": $('#tenantTaxIdEdit').val(),
+            op: "replace",
+            path: "/address/state",
+            value: $("#tenantTaxIdEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/address/postcode",
-            "value": $('#tenantPostcodeEdit').val(),
+            op: "replace",
+            path: "/address/postcode",
+            value: $("#tenantPostcodeEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/emails/0/email",
-            "value": $('#tenantEmailEdit1').val(),
+            op: "replace",
+            path: "/emails/0/email",
+            value: $("#tenantEmailEdit1").val(),
           },
           {
-            "op": "replace",
-            "path": "/emails/0/description",
-            "value": $('#tenantEmailEditDescription1').val(),
+            op: "replace",
+            path: "/emails/0/description",
+            value: $("#tenantEmailEditDescription1").val(),
           },
           {
-            "op": "replace",
-            "path": "/emails/1/email",
-            "value": $('#tenantEmailEdit2').val(),
+            op: "replace",
+            path: "/emails/1/email",
+            value: $("#tenantEmailEdit2").val(),
           },
           {
-            "op": "replace",
-            "path": "/emails/1/description",
-            "value": $('#tenantEmailEditDescription2').val(),
+            op: "replace",
+            path: "/emails/1/description",
+            value: $("#tenantEmailEditDescription2").val(),
           },
           {
-            "op": "replace",
-            "path": "/emails/1/email",
-            "value": $('#tenantTaxIdEdit').val(),
+            op: "replace",
+            path: "/emails/1/email",
+            value: $("#tenantTaxIdEdit").val(),
           },
           {
-            "op": "replace",
-            "path": "/emails/1/description",
-            "value": $('#tenantEmailEditDescription3').val(),
-          }
+            op: "replace",
+            path: "/emails/1/description",
+            value: $("#tenantEmailEditDescription3").val(),
+          },
         ];
 
         // AJAX call for PATCH request
@@ -1627,9 +1654,9 @@ docReady(function () {
           contentType: "application/json",
           dataType: "json",
           headers: {
-            "Accept": "application/json",
+            Accept: "application/json",
             "Content-Type": "application/json",
-            "Authorization": orgToken,
+            Authorization: orgToken,
           },
           data: JSON.stringify(data), // Convert the JavaScript object to a JSON string
           beforeSend: function () {
@@ -1639,11 +1666,11 @@ docReady(function () {
             $("#waitingdots").hide();
           },
           success: function (resultData) {
-            console.log('Update successful', resultData);
+            console.log("Update successful", resultData);
             // Handle success (e.g., show success message, redirect, etc.)
           },
           error: function (jqXHR, textStatus, errorThrown) {
-            console.error('Update failed', jqXHR, textStatus, errorThrown);
+            console.error("Update failed", jqXHR, textStatus, errorThrown);
             // Handle error (e.g., show error message)
           },
         });
@@ -1651,8 +1678,7 @@ docReady(function () {
         return false; // Prevent the default form submission
       });
     });
-  }
-
+  };
 
   function LoadTippy() {
     $.getScript(
@@ -1685,7 +1711,6 @@ docReady(function () {
   getWholesalers();
   LoadTippy();
 
-
   makeWebflowFormAjaxPatchTenantBilling($(formIdEditBilling));
   makeWebflowFormAjax($(formId));
   makeWebflowFormAjaxDelete($(formIdDelete));
@@ -1709,4 +1734,3 @@ docReady(function () {
     }, 300);
   });
 });
-
