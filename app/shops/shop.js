@@ -1050,6 +1050,22 @@ docReady(function () {
     ],
   });
 
+  function toggleEmptyState() {
+    // Check if the table has any entries
+    var hasEntries = table.data().any();
+
+    // If the table is empty, show the custom empty state div
+    // Otherwise, hide it
+    if (!hasEntries) {
+        $('#emptystateordersdiv').show();
+    } else {
+        $('#emptystateordersdiv').hide();
+    }
+}
+
+// Initial check after the table is initialized
+toggleEmptyState();
+
   $("#table_pricelists_list").on(
     "click",
     "a.buttonoutline.editme",
