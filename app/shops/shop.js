@@ -110,7 +110,7 @@ docReady(function () {
   }
 
   function getOrders() {
-    var table = $("#table_orders").DataTable({
+    var tableOrders = $("#table_orders").DataTable({
       pagingType: "full_numbers",
       order: [],
       dom: '<"top">rt<"bottom"lip>',
@@ -289,6 +289,24 @@ docReady(function () {
         });
       },
     });
+
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      var hasEntries = tableOrders.data().any();
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $('#emptystateorders').show();
+        $('#orderscontainer').hide();
+      } else {
+        $('#emptystateorders').hide();
+        $('#orderscontainer').show();
+      }
+    }
+  
+    // Initial check after the table is initialized
+    toggleEmptyState();
+
   }
 
   $("#table_orders").on("click", ".details-control4 img", function () {
