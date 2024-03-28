@@ -607,6 +607,8 @@ docReady(function () {
               };
               request.send();
               if ($("#CompanyDivEdit").is(":visible")) {
+                doneBlock.show();
+                doneBlock.fadeOut(3000);
               } else {
                 $("#Wholesaler-profile-Selector")
                   .find("option")
