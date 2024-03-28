@@ -606,20 +606,23 @@ docReady(function () {
                 }
               };
               request.send();
-              $("#Wholesaler-profile-Selector")
-                .find("option")
-                .remove()
-                .end()
-                .append("<option value=null>Wybierz profil</option>")
-                .val("null");
+              if ($("#CompanyDivEdit").is(":visible")) {
+              } else {
+                $("#Wholesaler-profile-Selector")
+                  .find("option")
+                  .remove()
+                  .end()
+                  .append("<option value=null>Wybierz profil</option>")
+                  .val("null");
 
-              $(".successmessagetext").text(
-                "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
-              );
-              $(".successmessagetext").text(
-                "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
-              );
-              doneBlock.show();
+                $(".successmessagetext").text(
+                  "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
+                );
+                $(".successmessagetext").text(
+                  "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
+                );
+                doneBlock.show();
+              }
             } else {
               form.show();
               console.log("tutaj");
