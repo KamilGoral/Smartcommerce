@@ -34,11 +34,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -81,22 +81,25 @@ docReady(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
 
-        shName.textContent = data.name;
-        shName2.textContent = data.name;
-        shLine1.textContent = data.address.line1;
-        shTown.textContent = data.address.town;
-        shState.textContent = data.address.state;
-        shPostcode.textContent = data.address.postcode;
-        shShopKey.textContent = data.shopKey;
-        pcMarketId.textContent = data.merchantConsoleShopId;
+        // Set defaults for missing values using the logical OR operator
+        shName.textContent = data.name || '';
+        shName2.textContent = data.name || '';
+        shCountry.textContent = data.address && data.address.country || '';
+        shLine1.textContent = data.address && data.address.line1 || '';
+        shTown.textContent = data.address && data.address.town || '';
+        shState.textContent = data.address && data.address.state || '';
+        shPostcode.textContent = data.address && data.address.postcode || '';
+        shShopKey.textContent = data.shopKey || '';
+        pcMarketId.textContent = data.merchantConsoleShopId || '';
 
-        shNameInput.value = data.name;
-        shKeyInput.value = data.shopKey;
-        shCountryInput.value = data.address.country;
-        shLine1Input.value = data.address.line1;
-        shTownInput.value = data.address.town;
-        shStateInput.value = data.address.state;
-        shPostcodeInput.value = data.address.postcode;
+        shNameInput.value = data.name || '';
+        shKeyInput.value = data.shopKey || '';
+        shCountryInput.value = data.address && data.address.country || '';
+        shLine1Input.value = data.address && data.address.line1 || '';
+        shTownInput.value = data.address && data.address.town || '';
+        shStateInput.value = data.address && data.address.state || '';
+        shPostcodeInput.value = data.address && data.address.postcode || '';
+
       } else {
         console.log("error");
       }
@@ -765,11 +768,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1056,14 +1059,14 @@ docReady(function () {
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
-        $('#emptystatepricelistshop').show();
+      $('#emptystatepricelistshop').show();
     } else {
-        $('#emptystatepricelistshop').hide();
+      $('#emptystatepricelistshop').hide();
     }
-}
+  }
 
-// Initial check after the table is initialized
-toggleEmptyState();
+  // Initial check after the table is initialized
+  toggleEmptyState();
 
   $("#table_pricelists_list").on(
     "click",
@@ -1074,9 +1077,9 @@ toggleEmptyState();
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -1084,9 +1087,9 @@ toggleEmptyState();
   function getWholesalers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1630,11 +1633,11 @@ toggleEmptyState();
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
