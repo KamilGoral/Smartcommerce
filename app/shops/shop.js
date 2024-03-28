@@ -1328,20 +1328,19 @@ docReady(function () {
         toggleEmptyState();
       },
     });
-  }
-
-  function toggleEmptyState() {
-    // Check if the table has any entries
-    var hasEntries = tablevendors.data().any();
-    console.log(hasEntries);
-    // If the table is empty, show the custom empty state div
-    // Otherwise, hide it
-    if (!hasEntries) {
-      $('#emptystatevendors').show();
-      $('#vendorscontainer').hide();
-    } else {
-      $('#emptystatevendors').hide();
-      $('#vendorscontainer').show();
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      var hasEntries = tablevendors.data().any();
+      console.log(hasEntries);
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $('#emptystatevendors').show();
+        $('#vendorscontainer').hide();
+      } else {
+        $('#emptystatevendors').hide();
+        $('#vendorscontainer').show();
+      }
     }
   }
 
