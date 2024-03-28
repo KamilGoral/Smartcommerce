@@ -1311,42 +1311,37 @@ docReady(function () {
       },
       {
         orderable: false,
-        data: null,
+        data: wholesalerKey,
         width: "72px",
-        defaultContent: '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+        defaultContent: '<div class="action-container"><a href="' + "https://" +
+          DomainName +
+          "/app/wholesalers/wholesaler?shopKey=" +
+          shopKey +
+          "&wholesalerKey=" +
+          data + '" class="buttonoutline editme w-button">Przejdź</a></div>',
       },
       ],
       drawCallback: function (settings) {
         toggleEmptyState();
       },
     });
-
-    function toggleEmptyState() {
-      // Check if the table has any entries
-      var hasEntries = tablevendors.data().any();
-      console.log(hasEntries);
-      // If the table is empty, show the custom empty state div
-      // Otherwise, hide it
-      if (!hasEntries) {
-        $('#emptystatevendors').show();
-        $('#vendorscontainer').hide();
-      } else {
-        $('#emptystatevendors').hide();
-        $('#vendorscontainer').show();
-      }
-    }
-
-    $("#table_wholesalers").on("click", "tr", function () {
-      var rowData = table.row(this).data();
-      document.location =
-        "https://" +
-        DomainName +
-        "/app/wholesalers/wholesaler?shopKey=" +
-        shopKey +
-        "&wholesalerKey=" +
-        rowData.wholesalerKey;
-    });
   }
+
+  function toggleEmptyState() {
+    // Check if the table has any entries
+    var hasEntries = tablevendors.data().any();
+    console.log(hasEntries);
+    // If the table is empty, show the custom empty state div
+    // Otherwise, hide it
+    if (!hasEntries) {
+      $('#emptystatevendors').show();
+      $('#vendorscontainer').hide();
+    } else {
+      $('#emptystatevendors').hide();
+      $('#vendorscontainer').show();
+    }
+  }
+
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
