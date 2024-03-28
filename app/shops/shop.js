@@ -457,7 +457,7 @@ docReady(function () {
     }
 
     // Initialize DataTable
-    var table = $("#table_offers").DataTable({
+    var tableOffers= $("#table_offers").DataTable({
       pagingType: "full_numbers",
       order: [],
       dom: '<"top">rt<"bottom"lip>',
@@ -716,6 +716,25 @@ docReady(function () {
         });
       },
     });
+
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      console.log("here");
+      var hasEntries = tableOffers.data().any();
+      console.log(hasEntries);
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $('#emptystateoffers').show();
+        $('#offerscontainer').hide();
+      } else {
+        $('#emptystateoffers').hide();
+        $('#offerscontainer').show();
+      }
+    }
+  
+    // Initial check after the table is initialized
+    toggleEmptyState();
 
     // Set up refresh interval
     refreshInterval = setInterval(function () {
