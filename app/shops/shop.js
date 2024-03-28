@@ -813,7 +813,7 @@ docReady(function () {
     scrollCollapse: true,
     pageLength: 10,
     language: {
-      emptyTable: "Brfak danych",
+      emptyTable: "Brak danych",
       info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
       infoEmpty: "Brak danych",
       infoFiltered: "(z _MAX_ rezultatów)",
@@ -1051,8 +1051,9 @@ docReady(function () {
 
   function toggleEmptyState() {
     // Check if the table has any entries
+    console.log("here");
     var hasEntries = tablePricelists.data().any();
-
+    console.log(hasEntries);
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
