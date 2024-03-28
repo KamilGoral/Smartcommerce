@@ -1162,11 +1162,14 @@ docReady(function () {
           case 2:
             whichColumns = "wholesalerKey:";
             break;
-          case 3:
-            whichColumns = "wholesalerKey:";
+          case 6:
+            whichColumns = "connections.ftp.enabled:";
             break;
-          case 4:
-            whichColumns = "wholesalerKey:";
+          case 8:
+            whichColumns = "connections.onlineOffer.enabled:";
+            break;
+          case 5:
+            whichColumns = "connections.retroactive.enabled:";
             break;
           default:
             whichColumns = "wholesalerKey:";
@@ -1177,10 +1180,10 @@ docReady(function () {
         $.get(
           InvokeURL + "shops/" +
           shopKey + "/wholesalers", {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
-          },
+          sort: sort,
+          perPage: data.length,
+          page: (data.start + data.length) / data.length,
+        },
           function (res) {
             callback({
               recordsTotal: res.total,
@@ -1202,7 +1205,7 @@ docReady(function () {
         defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
       },
       {
-        orderable: false,
+        orderable: true,
         data: "wholesalerKey",
         visible: false,
         render: function (data) {
@@ -1225,7 +1228,7 @@ docReady(function () {
         },
       },
       {
-        orderable: true,
+        orderable: false,
         data: "logisticMinimum",
         width: "108px",
         render: function (data) {
@@ -1344,507 +1347,507 @@ docReady(function () {
         rowData.wholesalerKey;
     });
   }
-  
-makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
-  forms.each(function () {
-    var form = $(this);
-    form.on("submit", function (event) {
-      var container = form.parent();
-      var doneBlock = $("#ShopDeleteSuccess", container);
-      var failBlock = $("#ShopDeleteFail", container);
-      var action = InvokeURL + "shops/" + shopKey;
-      var method = "DELETE";
 
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        success: function (resultData) {
-          if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              console.log(e);
-              return;
+  makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#ShopDeleteSuccess", container);
+        var failBlock = $("#ShopDeleteFail", container);
+        var action = InvokeURL + "shops/" + shopKey;
+        var method = "DELETE";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
             }
-          }
-          form.show();
-          doneBlock.show();
-          failBlock.hide();
-          window.setTimeout(function () {
-            document.location =
-              "https://" +
-              DomainName +
-              "/app/tenants/organization?name=" +
-              OrganizationName +
-              "&clientId=" +
-              ClientID;
-          }, 3000);
-        },
-        error: function (e) {
-          if (typeof errorCallback === "function") {
-            errorCallback(e);
-          }
-          form.show();
-          doneBlock.hide();
-          failBlock.show();
-          console.log(e);
-        },
-      });
-      event.preventDefault();
-      return false;
-    });
-  });
-};
-makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
-  forms.each(function () {
-    var form = $(this);
-    form.on("submit", function (event) {
-      var container = form.parent();
-      var doneBlock = $("#form-doneEditShopInformation", container);
-      var failBlock = $("#form-failEditShopInformation", container);
-      var action = InvokeURL + "shops/" + shopKey;
-      var data = [
-        {
-          op: "add",
-          path: "/name",
-          value: $("#NewShopName").val(),
-        },
-        {
-          op: "add",
-          path: "/key",
-          value: $("#NewShopKey").val(),
-        },
-        {
-          op: "add",
-          path: "/address/country",
-          value: $("#NewShopCountry").val(),
-        },
-        {
-          op: "add",
-          path: "/address/line1",
-          value: $("#NewShopLine").val(),
-        },
-        {
-          op: "add",
-          path: "/address/town",
-          value: $("#NewShopTown").val(),
-        },
-        {
-          op: "add",
-          path: "/address/state",
-          value: $("#NewShopState").val(),
-        },
-        {
-          op: "add",
-          path: "/address/postcode",
-          value: $("#NewShopPostCode").val(),
-        },
-      ];
-      var method = "PATCH";
-
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        data: JSON.stringify(data),
-        success: function (resultData) {
-          if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              console.log(e);
-              return;
+            form.show();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              document.location =
+                "https://" +
+                DomainName +
+                "/app/tenants/organization?name=" +
+                OrganizationName +
+                "&clientId=" +
+                ClientID;
+            }, 3000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
             }
-          }
-          form.show();
-          doneBlock.show();
-          doneBlock.fadeOut(3000);
-          failBlock.hide();
-          window.setTimeout(function () {
-            location.reload();
-          }, 3500);
-        },
-        error: function (e) {
-          if (typeof errorCallback === "function") {
-            errorCallback(e);
-          }
-          form.show();
-          doneBlock.hide();
-          failBlock.show();
-          console.log(e);
-        },
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
       });
-      event.preventDefault();
-      return false;
     });
-  });
-};
-
-makeWebflowFormAjaxRefreshOffer = function (
-  forms,
-  successCallback,
-  errorCallback
-) {
-  forms.each(function () {
-    var form = $(this);
-    form.on("submit", function (event) {
-      var container = form.parent();
-      var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
-      var failBlock = $("#wf-form-RefreshOfferFormfail", container);
-      var action = InvokeURL + "shops/" + shopKey + "/offers";
-      var method = "POST";
-      var data = "";
-
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        data: JSON.stringify(data),
-        success: function (resultData) {
-          if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              return;
-            }
-          }
-          form.show();
-          doneBlock.show();
-          doneBlock.fadeOut(3000);
-          failBlock.hide();
-          window.setTimeout(function () {
-            location.reload();
-          }, 3500);
-        },
-        error: function (jqXHR, exception) {
-          console.log(jqXHR);
-          console.log(exception);
-          var msg = "";
-
-          var MessageText = document.getElementById("WarningMessageMain");
-          if (jqXHR.status === 0) {
-            msg = "Not connect.\n Verify Network.";
-          } else if (jqXHR.status === 403) {
-            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-          } else if (jqXHR.status === 429) {
-            msg =
-              "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
-          } else if (jqXHR.status === 500) {
-            msg = "Internal Server Error [500].";
-          } else if (exception === "parsererror") {
-            msg = "Requested JSON parse failed.";
-          } else if (exception === "timeout") {
-            msg = "Time out error.";
-          } else if (exception === "abort") {
-            msg = "Ajax request aborted.";
-          } else {
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-          }
-          var elements =
-            document.getElementsByClassName("warningmessagetext");
-          for (var i = 0; i < elements.length; i++) {
-            elements[i].textContent = msg;
-          }
-          $("#WarningMessageContainer").fadeOut(3000);
-          form.show();
-          doneBlock.hide();
-          failBlock.show();
-        },
-      });
-      event.preventDefault();
-      return false;
-    });
-  });
-};
-
-function FileUpload(ignoreGTINs) {
-  var xhr = new XMLHttpRequest();
-  const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
-  var myUploadedFiles = document.getElementById("orderfile").files;
-
-  if (myUploadedFiles.length > 0) {
-    var file = myUploadedFiles[0];
-    var fileName = file.name;
-    // Improved file extension extraction
-    var fileExtension = fileName.includes(".")
-      ? fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase()
-      : "";
-    var fileSize = file.size;
-
-    // Check for file size exceeding 10 MB
-    if (fileSize > 10 * 1024 * 1024) {
-      $("#wrongfilemodal").css("display", "flex");
-      $("#wrongfilemessage").text(
-        "Jeden z Twoich plików zamówienie jest zbyt duży. Plik jest większy niż 10 MB"
-      );
-      $("#orderuploadmodal").css("display", "none");
-      document.getElementById("orderfile").value = "";
-      return; // Exit the function
-    }
-
-    // Allow files without extensions and check allowed extensions ( This is not work)
-    // if (
-    //   (fileName.includes(".") &&
-    //     !allowedExtensions.includes(fileExtension)) ||
-    //   (!fileName.includes(".") && fileExtension === "")
-    // ) {
-    //   $("#wrongfilemodal").css("display", "flex");
-    //   $("#wrongfilemessage").text(
-    //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
-    //   );
-    //   $("#orderuploadmodal").css("display", "none");
-    //   document.getElementById("orderfile").value = "";
-    //   return; // Exit the function
-    // }
-  }
-  $("#waitingdots").show();
-  var formData = new FormData();
-  for (var i = 0; i < myUploadedFiles.length; i++) {
-    formData.append("file", myUploadedFiles[i]);
-  }
-  formData.append("name", $("#OrderName").val());
-  console.log(formData);
-  var action = InvokeURL + "shops/" + shopKey + "/orders";
-  // Add custom header if ignoreGTINs is true
-  if (ignoreGTINs) {
-    action += "?ignoreEmptyGtin=true";
-  }
-  xhr.open("POST", action);
-  xhr.setRequestHeader("Accept", "application/json");
-  xhr.setRequestHeader("Authorization", orgToken);
-
-  xhr.onreadystatechange = function () {
-    $("#waitingdots").hide();
-    if (xhr.status === 201) {
-      var response = JSON.parse(xhr.responseText);
-      var action =
-        InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-      var method = "PATCH";
-      var data = [
-        {
-          op: "add",
-          path: "/name",
-          value: $("#OrderName").val(),
-        },
-      ];
-
-      $.ajax({
-        type: method,
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify(data),
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-        },
-        success: function (resultData) {
-          document.getElementById("wf-form-doneCreate-Order").style.display =
-            "block";
-          window.setTimeout(function () {
-            window.location.replace(
-              "https://" +
-              DomainName +
-              "/app/orders/order?orderId=" +
-              response.orderId +
-              "&shopKey=" +
-              shopKey
-            );
-          }, 100);
-        },
-        error: function (jqXHR, exception) {
-          console.log(jqXHR);
-          console.log(exception);
-        },
-      });
-    } else {
-      jsonResponse = JSON.parse(xhr.responseText);
-      console.log(xhr);
-      var msg = "";
-      if (xhr.status === 0) {
-        msg = "Not connect.\n Verify Network.";
-      } else if (xhr.status === 400) {
-        msg = jsonResponse.message;
-
-        // Extract the file name from the message
-        const fileNameMatch = msg.match(/Incorrect file \[(.*?)\]/);
-        const fileName = fileNameMatch ? fileNameMatch[1] : "Nieznany plik";
-
-        // Use regular expression to find the product list string after "Missing GTIN code for products"
-        const match = msg.match(/Missing GTIN code for products \[(.*?)\]/);
-        if (match && match[1]) {
-          // Extract the product list string
-          const productListString = match[1];
-
-          // Split the string into an array of product-price pairs
-          const products = productListString.split(", ");
-
-          function createTable(products, fileName) {
-            const table = document.createElement("table");
-            table.style.border = "1px solid black";
-            table.style.borderCollapse = "collapse";
-
-            // Add additional header row for file name
-            const fileHeaderRow = document.createElement("tr");
-            const fileHeaderCell = document.createElement("th");
-            fileHeaderCell.setAttribute("colspan", "2");
-            fileHeaderCell.textContent = `${fileName}`;
-            fileHeaderRow.appendChild(fileHeaderCell);
-            table.appendChild(fileHeaderRow);
-
-            // Add table header for products
-            const headerRow = document.createElement("tr");
-            const header = document.createElement("th");
-            header.textContent = "Produkt";
-            header.style.border = "1px solid black";
-            headerRow.appendChild(header);
-            table.appendChild(headerRow);
-
-            // Add rows for each product
-            products.forEach((product) => {
-              const row = document.createElement("tr");
-              const cell = document.createElement("td");
-              cell.textContent = product;
-              cell.style.border = "1px solid black";
-              row.appendChild(cell);
-              table.appendChild(row);
-            });
-
-            return table;
-          }
-
-          // Clear existing content and append the new table to the element with ID 'messageText'
-          $("#messageText").empty().append(createTable(products, fileName));
-          $("#orderuploadmodal").hide();
-          $("#wronggtinsmodal").css("display", "flex");
-          // Do not clear the file input in case of 400 error
-        } else {
-          // Handle cases where the product list is not found
-          console.error("Product list not found in the message.");
-        }
-      } else if (xhr.status === 403) {
-        msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-      } else if (xhr.status === 500) {
-        msg = "Internal Server Error [500].";
-        $("#orderfile").val("");
-      } else {
-        msg = jsonResponse.message;
-        $("#orderfile").val("");
-      }
-      $(".warningmessagetext").text(msg);
-      $("#wf-form-failCreate-Order").show();
-      setTimeout(function () {
-        $("#wf-form-failCreate-Order").fadeOut(2000);
-      }, 10000);
-    }
-    // Existing logic for handling the response
   };
-  xhr.send(formData);
-}
+  makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#form-doneEditShopInformation", container);
+        var failBlock = $("#form-failEditShopInformation", container);
+        var action = InvokeURL + "shops/" + shopKey;
+        var data = [
+          {
+            op: "add",
+            path: "/name",
+            value: $("#NewShopName").val(),
+          },
+          {
+            op: "add",
+            path: "/key",
+            value: $("#NewShopKey").val(),
+          },
+          {
+            op: "add",
+            path: "/address/country",
+            value: $("#NewShopCountry").val(),
+          },
+          {
+            op: "add",
+            path: "/address/line1",
+            value: $("#NewShopLine").val(),
+          },
+          {
+            op: "add",
+            path: "/address/town",
+            value: $("#NewShopTown").val(),
+          },
+          {
+            op: "add",
+            path: "/address/state",
+            value: $("#NewShopState").val(),
+          },
+          {
+            op: "add",
+            path: "/address/postcode",
+            value: $("#NewShopPostCode").val(),
+          },
+        ];
+        var method = "PATCH";
 
-UploadButton.addEventListener("click", (event) => {
-  FileUpload(false);
-});
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 3500);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
-cancelButton.addEventListener("click", () => {
-  const modal = document.getElementById("wronggtinsmodal");
-  if (modal) {
-    modal.style.display = "none";
+  makeWebflowFormAjaxRefreshOffer = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
+        var failBlock = $("#wf-form-RefreshOfferFormfail", container);
+        var action = InvokeURL + "shops/" + shopKey + "/offers";
+        var method = "POST";
+        var data = "";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                return;
+              }
+            }
+            form.show();
+            doneBlock.show();
+            doneBlock.fadeOut(3000);
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 3500);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+
+            var MessageText = document.getElementById("WarningMessageMain");
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status === 403) {
+              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+            } else if (jqXHR.status === 429) {
+              msg =
+                "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
+            } else if (jqXHR.status === 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              var msg =
+                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+            }
+            var elements =
+              document.getElementsByClassName("warningmessagetext");
+            for (var i = 0; i < elements.length; i++) {
+              elements[i].textContent = msg;
+            }
+            $("#WarningMessageContainer").fadeOut(3000);
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
+  function FileUpload(ignoreGTINs) {
+    var xhr = new XMLHttpRequest();
+    const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
+    var myUploadedFiles = document.getElementById("orderfile").files;
+
+    if (myUploadedFiles.length > 0) {
+      var file = myUploadedFiles[0];
+      var fileName = file.name;
+      // Improved file extension extraction
+      var fileExtension = fileName.includes(".")
+        ? fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase()
+        : "";
+      var fileSize = file.size;
+
+      // Check for file size exceeding 10 MB
+      if (fileSize > 10 * 1024 * 1024) {
+        $("#wrongfilemodal").css("display", "flex");
+        $("#wrongfilemessage").text(
+          "Jeden z Twoich plików zamówienie jest zbyt duży. Plik jest większy niż 10 MB"
+        );
+        $("#orderuploadmodal").css("display", "none");
+        document.getElementById("orderfile").value = "";
+        return; // Exit the function
+      }
+
+      // Allow files without extensions and check allowed extensions ( This is not work)
+      // if (
+      //   (fileName.includes(".") &&
+      //     !allowedExtensions.includes(fileExtension)) ||
+      //   (!fileName.includes(".") && fileExtension === "")
+      // ) {
+      //   $("#wrongfilemodal").css("display", "flex");
+      //   $("#wrongfilemessage").text(
+      //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
+      //   );
+      //   $("#orderuploadmodal").css("display", "none");
+      //   document.getElementById("orderfile").value = "";
+      //   return; // Exit the function
+      // }
+    }
+    $("#waitingdots").show();
+    var formData = new FormData();
+    for (var i = 0; i < myUploadedFiles.length; i++) {
+      formData.append("file", myUploadedFiles[i]);
+    }
+    formData.append("name", $("#OrderName").val());
+    console.log(formData);
+    var action = InvokeURL + "shops/" + shopKey + "/orders";
+    // Add custom header if ignoreGTINs is true
+    if (ignoreGTINs) {
+      action += "?ignoreEmptyGtin=true";
+    }
+    xhr.open("POST", action);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Authorization", orgToken);
+
+    xhr.onreadystatechange = function () {
+      $("#waitingdots").hide();
+      if (xhr.status === 201) {
+        var response = JSON.parse(xhr.responseText);
+        var action =
+          InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+        var method = "PATCH";
+        var data = [
+          {
+            op: "add",
+            path: "/name",
+            value: $("#OrderName").val(),
+          },
+        ];
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(data),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          success: function (resultData) {
+            document.getElementById("wf-form-doneCreate-Order").style.display =
+              "block";
+            window.setTimeout(function () {
+              window.location.replace(
+                "https://" +
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
+              );
+            }, 100);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+          },
+        });
+      } else {
+        jsonResponse = JSON.parse(xhr.responseText);
+        console.log(xhr);
+        var msg = "";
+        if (xhr.status === 0) {
+          msg = "Not connect.\n Verify Network.";
+        } else if (xhr.status === 400) {
+          msg = jsonResponse.message;
+
+          // Extract the file name from the message
+          const fileNameMatch = msg.match(/Incorrect file \[(.*?)\]/);
+          const fileName = fileNameMatch ? fileNameMatch[1] : "Nieznany plik";
+
+          // Use regular expression to find the product list string after "Missing GTIN code for products"
+          const match = msg.match(/Missing GTIN code for products \[(.*?)\]/);
+          if (match && match[1]) {
+            // Extract the product list string
+            const productListString = match[1];
+
+            // Split the string into an array of product-price pairs
+            const products = productListString.split(", ");
+
+            function createTable(products, fileName) {
+              const table = document.createElement("table");
+              table.style.border = "1px solid black";
+              table.style.borderCollapse = "collapse";
+
+              // Add additional header row for file name
+              const fileHeaderRow = document.createElement("tr");
+              const fileHeaderCell = document.createElement("th");
+              fileHeaderCell.setAttribute("colspan", "2");
+              fileHeaderCell.textContent = `${fileName}`;
+              fileHeaderRow.appendChild(fileHeaderCell);
+              table.appendChild(fileHeaderRow);
+
+              // Add table header for products
+              const headerRow = document.createElement("tr");
+              const header = document.createElement("th");
+              header.textContent = "Produkt";
+              header.style.border = "1px solid black";
+              headerRow.appendChild(header);
+              table.appendChild(headerRow);
+
+              // Add rows for each product
+              products.forEach((product) => {
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.textContent = product;
+                cell.style.border = "1px solid black";
+                row.appendChild(cell);
+                table.appendChild(row);
+              });
+
+              return table;
+            }
+
+            // Clear existing content and append the new table to the element with ID 'messageText'
+            $("#messageText").empty().append(createTable(products, fileName));
+            $("#orderuploadmodal").hide();
+            $("#wronggtinsmodal").css("display", "flex");
+            // Do not clear the file input in case of 400 error
+          } else {
+            // Handle cases where the product list is not found
+            console.error("Product list not found in the message.");
+          }
+        } else if (xhr.status === 403) {
+          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+        } else if (xhr.status === 500) {
+          msg = "Internal Server Error [500].";
+          $("#orderfile").val("");
+        } else {
+          msg = jsonResponse.message;
+          $("#orderfile").val("");
+        }
+        $(".warningmessagetext").text(msg);
+        $("#wf-form-failCreate-Order").show();
+        setTimeout(function () {
+          $("#wf-form-failCreate-Order").fadeOut(2000);
+        }, 10000);
+      }
+      // Existing logic for handling the response
+    };
+    xhr.send(formData);
   }
-});
 
-// Call with custom header
-$("#skipButton").on("click", function () {
-  FileUpload(true);
-});
+  UploadButton.addEventListener("click", (event) => {
+    FileUpload(false);
+  });
 
-makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-makeWebflowFormAjax($("#wf-form-EditShopInformation"));
-makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
+  cancelButton.addEventListener("click", () => {
+    const modal = document.getElementById("wronggtinsmodal");
+    if (modal) {
+      modal.style.display = "none";
+    }
+  });
 
-getWholesalers();
-getShop();
-getOrders();
-getOffers();
+  // Call with custom header
+  $("#skipButton").on("click", function () {
+    FileUpload(true);
+  });
 
-$('div[role="tablist"]').click(function () {
-  setTimeout(function () {
-    console.log("Adjusting");
-    $.fn.dataTable
-      .tables({
-        visible: true,
-        api: true,
-      })
-      .columns.adjust();
-  }, 300);
-});
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
+  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
-$("#table_offers").on("click", "td.details-control", function () {
-  //Get the righ table
-  var table = $("#table_offers").DataTable();
-  var tr = $(this).closest("tr");
-  var row = table.row(tr);
-  if (row.child.isShown()) {
-    row.child.hide();
-    tr.removeClass("shown");
-  } else {
-    row.child(format(row.data())).show();
-    tr.addClass("shown");
-  }
-});
+  getWholesalers();
+  getShop();
+  getOrders();
+  getOffers();
+
+  $('div[role="tablist"]').click(function () {
+    setTimeout(function () {
+      console.log("Adjusting");
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust();
+    }, 300);
+  });
+
+  $("#table_offers").on("click", "td.details-control", function () {
+    //Get the righ table
+    var table = $("#table_offers").DataTable();
+    var tr = $(this).closest("tr");
+    var row = table.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
+    }
+  });
 });
