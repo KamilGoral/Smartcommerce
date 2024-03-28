@@ -1060,8 +1060,10 @@ docReady(function () {
     // Otherwise, hide it
     if (!hasEntries) {
       $('#emptystatepricelistshop').show();
+      $('#pricelistshopcontainer').hide();
     } else {
       $('#emptystatepricelistshop').hide();
+      $('#pricelistshopcontainer').show();
     }
   }
 
