@@ -81,25 +81,6 @@ docReady(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
 
-        // Set defaults for missing values using the logical OR operator
-        shName.textContent = data.name || '';
-        shName2.textContent = data.name || '';
-        shCountry.textContent = data.address && data.address.country || '';
-        shLine1.textContent = data.address && data.address.line1 || '';
-        shTown.textContent = data.address && data.address.town || '';
-        shState.textContent = data.address && data.address.state || '';
-        shPostcode.textContent = data.address && data.address.postcode || '';
-        shShopKey.textContent = data.shopKey || '';
-        pcMarketId.textContent = data.merchantConsoleShopId || '';
-
-        shNameInput.value = data.name || '';
-        shKeyInput.value = data.shopKey || '';
-        shCountryInput.value = data.address && data.address.country || '';
-        shLine1Input.value = data.address && data.address.line1 || '';
-        shTownInput.value = data.address && data.address.town || '';
-        shStateInput.value = data.address && data.address.state || '';
-        shPostcodeInput.value = data.address && data.address.postcode || '';
-
       } else {
         console.log("error");
       }
