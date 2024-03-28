@@ -1113,7 +1113,7 @@ docReady(function () {
       dom: '<"top">rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
-      pageLength: 100,
+      pageLength: 50,
       language: {
         emptyTable: "Brak danych",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
