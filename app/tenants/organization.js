@@ -1641,40 +1641,28 @@ docReady(function () {
               country: "Polska",
               line1: $("#tenantAdressEdit").val(),
               town: $("#tenantTownEdit").val(),
-              state: $("#tenantStatedEdit").val(),
+              state: $("#tenantStateEdit").val(),
               postcode: $("#tenantPostcodeEdit").val(),
             },
           },
-          // {
-          //   op: "replace",
-          //   path: "/emails/0/email",
-          //   value: $("#tenantEmailEdit1").val(),
-          // },
-          // {
-          //   op: "replace",
-          //   path: "/emails/0/description",
-          //   value: $("#tenantEmailEditDescription1").val(),
-          // },
-          // {
-          //   op: "replace",
-          //   path: "/emails/1/email",
-          //   value: $("#tenantEmailEdit2").val(),
-          // },
-          // {
-          //   op: "replace",
-          //   path: "/emails/1/description",
-          //   value: $("#tenantEmailEditDescription2").val(),
-          // },
-          // {
-          //   op: "replace",
-          //   path: "/emails/1/email",
-          //   value: $("#tenantTaxIdEdit").val(),
-          // },
-          // {
-          //   op: "replace",
-          //   path: "/emails/1/description",
-          //   value: $("#tenantEmailEditDescription3").val(),
-          // },
+          {
+            op: "add",
+            path: "/emails",
+            value: [
+              {
+                email: $("#tenantEmailEdit1").val(),
+                description: $("#tenantEmailEditDescription1").val(),
+              },
+              {
+                email: $("#tenantEmailEdit2").val(),
+                description: $("#tenantEmailEditDescription2").val(),
+              },
+              {
+                email: $("#tenantEmailEdit3").val(),
+                description: $("#tenantEmailEditDescription3").val(),
+              },
+            ],
+          },
         ];
 
         // AJAX call for PATCH request
