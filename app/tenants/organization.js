@@ -698,8 +698,12 @@ docReady(function () {
           "Zachodniopomorskie": "West Pomeranian"
         };
 
-        // Use the mapping to set the correct <select> value
-        $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
+        if (data.address && typeof data.address.state !== 'undefined') {
+          $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
+        } else {
+          $("#tenantStateEdit").val("");
+        }
+
 
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
         $("#tenantPostcodeEdit").val(
