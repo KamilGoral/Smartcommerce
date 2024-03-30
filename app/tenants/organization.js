@@ -1674,7 +1674,6 @@ docReady(function () {
           // },
         ];
 
-        // AJAX call for PATCH request
         $.ajax({
           type: "PATCH",
           url: action,
@@ -1686,7 +1685,7 @@ docReady(function () {
             "Content-Type": "application/json",
             Authorization: orgToken,
           },
-          data: JSON.stringify(data), // Convert the JavaScript object to a JSON string
+          data: JSON.stringify(data),
           beforeSend: function () {
             $("#waitingdots").show();
           },
@@ -1703,7 +1702,7 @@ docReady(function () {
           },
         });
 
-        return false; // Prevent the default form submission
+        return false;
       });
     });
   };
