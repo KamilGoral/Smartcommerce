@@ -1654,24 +1654,30 @@ docReady(function () {
               postcode: $("#tenantPostcodeEdit").val(),
             },
           },
-          // {
-          //   op: "add",
-          //   path: "/emails",
-          //   value: [
-          //     {
-          //       email: $("#tenantEmailEdit1").val(),
-          //       description: $("#tenantEmailEditDescription1").val(),
-          //     },
-          //     {
-          //       email: $("#tenantEmailEdit2").val(),
-          //       description: $("#tenantEmailEditDescription2").val(),
-          //     },
-          //     {
-          //       email: $("#tenantEmailEdit3").val(),
-          //       description: $("#tenantEmailEditDescription3").val(),
-          //     },
-          //   ],
-          // },
+          {
+            op: "replace",
+            path: "/emails/0", // Replace the first email
+            value: {
+              email: $("#tenantEmailEdit1").val(),
+              description: $("#tenantEmailEditDescription1").val(),
+            },
+          },
+          {
+            op: "replace",
+            path: "/emails/1", // Replace the second email
+            value: {
+              email: $("#tenantEmailEdit2").val(),
+              description: $("#tenantEmailEditDescription2").val(),
+            },
+          },
+          {
+            op: "replace",
+            path: "/emails/2", // Replace the third email
+            value: {
+              email: $("#tenantEmailEdit3").val(),
+              description: $("#tenantEmailEditDescription3").val(),
+            },
+          },
         ];
 
         $.ajax({
