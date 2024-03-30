@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -665,9 +665,9 @@ docReady(function () {
   function GetTenantBilling() {
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -719,18 +719,18 @@ docReady(function () {
               break;
             case "standard":
               element.textContent =
-                toParse.pricing.standard + "zł za sklep/miesięcznie" || "N/A";
+                toParse.pricing.standard + " zł za sklep/miesięcznie" || "N/A";
               break;
             case "premium":
               element.textContent =
-                toParse.pricing.premium + "zł za sklep/miesięcznie" || "N/A";
+                toParse.pricing.premium + " zł za sklep/miesięcznie" || "N/A";
               break;
             case "specialService":
               // Safely accessing specialService fee
-              content =
+              element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
-                  ? toParse.pricing.specialService.fee + "zł"
+                  toParse.pricing.specialService.fee
+                  ?  toParse.pricing.specialService.description + " - " +  toParse.pricing.specialService.fee + " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -1220,7 +1220,7 @@ docReady(function () {
     });
   };
 
-  var table = $("#table_pricelists_list").DataTable({
+  var tablePriceLists = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
     order: [],
     dom: '<"top">rt<"bottom"lip>',
@@ -1465,6 +1465,23 @@ docReady(function () {
     ],
   });
 
+  function toggleEmptyState() {
+    // Check if the table has any entries
+    var hasEntries = tablePriceLists.data().any();
+    // If the table is empty, show the custom empty state div
+    // Otherwise, hide it
+    if (!hasEntries) {
+      $('#emptystatepricelists').show();
+      $('#pricelistscontainer').hide();
+    } else {
+      $('#emptystatepricelists').hide();
+      $('#pricelistscontainer').show();
+    }
+  }
+
+  // Initial check after the table is initialized
+  toggleEmptyState();
+
   $("#table_pricelists_list").on(
     "click",
     "a.buttonoutline.editme",
@@ -1474,9 +1491,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );

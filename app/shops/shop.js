@@ -34,11 +34,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -81,23 +81,6 @@ docReady(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
 
-        shName.textContent = data.name;
-        shName2.textContent = data.name;
-        shCountry.textContent = data.address.country;
-        shLine1.textContent = data.address.line1;
-        shTown.textContent = data.address.town;
-        shState.textContent = data.address.state;
-        shPostcode.textContent = data.address.postcode;
-        shShopKey.textContent = data.shopKey;
-        pcMarketId.textContent = data.merchantConsoleShopId;
-
-        shNameInput.value = data.name;
-        shKeyInput.value = data.shopKey;
-        shCountryInput.value = data.address.country;
-        shLine1Input.value = data.address.line1;
-        shTownInput.value = data.address.town;
-        shStateInput.value = data.address.state;
-        shPostcodeInput.value = data.address.postcode;
       } else {
         console.log("error");
       }
@@ -108,7 +91,7 @@ docReady(function () {
   }
 
   function getOrders() {
-    var table = $("#table_orders").DataTable({
+    var tableOrders = $("#table_orders").DataTable({
       pagingType: "full_numbers",
       order: [],
       dom: '<"top">rt<"bottom"lip>',
@@ -286,7 +269,25 @@ docReady(function () {
           }
         });
       },
+      drawCallback: function (settings) {
+        toggleEmptyState();
+      },
     });
+
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      var hasEntries = tableOrders.data().any();
+      console.log(hasEntries);
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $('#emptystateorders').show();
+        $('#orderscontainer').hide();
+      } else {
+        $('#emptystateorders').hide();
+        $('#orderscontainer').show();
+      }
+    }
   }
 
   $("#table_orders").on("click", ".details-control4 img", function () {
@@ -441,6 +442,8 @@ docReady(function () {
       clearInterval(counterInterval); // Clear the counter interval as well
       $("#refreshCounter").hide(); // Ukryj licznik
       $("#refreshCounter").text(""); // Clear the counter display
+      $("#emptystateoffers").hide();
+      $("#offerscontainer").show();
     }
   }
 
@@ -455,7 +458,7 @@ docReady(function () {
     }
 
     // Initialize DataTable
-    var table = $("#table_offers").DataTable({
+    var tableOffers = $("#table_offers").DataTable({
       pagingType: "full_numbers",
       order: [],
       dom: '<"top">rt<"bottom"lip>',
@@ -713,7 +716,26 @@ docReady(function () {
           }
         });
       },
+      drawCallback: function (settings) {
+        toggleEmptyState();
+      },
     });
+
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      var hasEntries = tableOffers.data().any();
+      console.log(hasEntries);
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $('#emptystateoffers').show();
+        $('#offerscontainer').hide();
+      } else {
+        $('#emptystateoffers').hide();
+        $('#offerscontainer').show();
+      }
+    }
+
 
     // Set up refresh interval
     refreshInterval = setInterval(function () {
@@ -766,11 +788,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -805,7 +827,7 @@ docReady(function () {
     });
   }
 
-  var table = $("#table_pricelists_list").DataTable({
+  var tablePricelists = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
     order: [],
     dom: '<"top">rt<"bottom"lip>',
@@ -813,8 +835,7 @@ docReady(function () {
     scrollCollapse: true,
     pageLength: 10,
     language: {
-      emptyTable:
-        "<img src='https://experience.sap.com/fiori-design-web/wp-content/uploads/sites/5/2022/11/Empty-states-example-3-2.08.png' alt='No data'><br>No data available in table",
+      emptyTable: "Brak danych",
       info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
       infoEmpty: "Brak danych",
       infoFiltered: "(z _MAX_ rezultatów)",
@@ -1048,7 +1069,26 @@ docReady(function () {
           '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
       },
     ],
+    drawCallback: function (settings) {
+      toggleEmptyState();
+    },
   });
+
+  function toggleEmptyState() {
+    // Check if the table has any entries
+    var hasEntries = tablePricelists.data().any();
+    console.log(hasEntries);
+    // If the table is empty, show the custom empty state div
+    // Otherwise, hide it
+    if (!hasEntries) {
+      $('#emptystatepricelistshop').show();
+      $('#pricelistshopcontainer').hide();
+    } else {
+      $('#emptystatepricelistshop').hide();
+      $('#pricelistshopcontainer').show();
+    }
+  }
+
 
   $("#table_pricelists_list").on(
     "click",
@@ -1059,207 +1099,251 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
 
   function getWholesalers() {
-    let url = new URL(
-      InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
-    );
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      toParse.sort(function (a, b) {
-        return b.enabled - a.enabled;
-      });
-
-      if (request.status >= 200 && request.status < 400) {
-        var table = $("#table_wholesalers").DataTable({
-          data: toParse,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">rt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 100,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
+    var tablevendors = $("#table_wholesalers").DataTable({
+      pagingType: "full_numbers",
+      order: [],
+      dom: '<"top">rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 50,
+      language: {
+        emptyTable: "Brak danych",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rekordów",
+        loadingRecords: "<div class='spinner'</div>",
+        processing: "<div class='spinner'</div>",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
+        },
+      },
+      ajax: function (data, callback, settings) {
+        $.ajaxSetup({
+          headers: {
+            Authorization: orgToken,
           },
-          columns: [
-            {
-              orderable: false,
-              data: null,
-              width: "36px",
-              defaultContent:
-                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                } else {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "name",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                } else {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "logisticMinimum",
-              width: "108px",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                } else {
-                  return "-";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "connections.retroactive",
-              width: "108px",
-              visible: true,
-              render: function (data) {
-                if (data !== null) {
-                  if (data.enabled) {
-                    return '<spann class="positive">Tak</spann>';
-                  } else {
-                    return '<spann class="negative">Nie</spann>';
-                  }
-                } else {
-                  return '<spann class="negative">Nie</spann>';
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "connections.ftp",
-              width: "72px",
-              render: function (data) {
-                if (data !== null) {
-                  if (data.enabled) {
-                    return '<spann class="positive">Tak</spann>';
-                  } else {
-                    return '<spann class="medium">Dodaj</spann>';
-                  }
-                } else {
-                  return '<spann class="negative">Nie</spann>';
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "connections.wms",
-              visible: false,
-              width: "72px",
-              render: function (data) {
-                if (data !== null) {
-                  if (data.enabled) {
-                    return '<spann class="positive">Tak</spann>';
-                  } else {
-                    return '<spann class="noneexisting">Brak</spann>';
-                  }
-                } else {
-                  return '<spann class="noneexisting">Brak</spann>';
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "connections.onlineOffer",
-              width: "72px",
-              render: function (data) {
-                if (data !== null) {
-                  if (data.enabled == true && data.active == true) {
-                    return '<spann class="positive">Tak</spann>';
-                  } else if (data.enabled == false && data.active == false) {
-                    return '<spann class="medium">Dodaj</spann>';
-                  } else if (data.enabled == true && data.active == false) {
-                    return '<spann class="improve">Przywróć</spann>';
-                  } else if (data.enabled == false && data.active == true) {
-                    return '<spann class="medium">Dodaj</spann>';
-                  }
-                } else {
-                  return '<spann class="noneexisting">Brak</spann>';
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: null,
-              width: "72px",
-              defaultContent:
-                '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-            },
-          ],
-          //delete this rowCallback after support for Iglomen Sellitem
-          // "rowCallback": function (row, data) {
-          //  if (data.wholesalerKey == "iglomen-czerwionka") {
-          //    console.log("iglomen")
-          //  $('td:eq(6)', row).html('<spann class="noneexisting">Brak</spann>');
-          //  }
-          // }
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
         });
 
-        $("#table_wholesalers").on("click", "tr", function () {
-          var rowData = table.row(this).data();
-          document.location =
-            "https://" +
+        var whichColumns = "";
+        var direction = "desc";
+
+        if (data.order.length == 0) {
+          whichColumns = 2;
+        } else {
+          whichColumns = data.order[0]["column"];
+          direction = data.order[0]["dir"];
+        }
+
+        switch (whichColumns) {
+          case 2:
+            whichColumns = "wholesalerKey:";
+            break;
+          case 5:
+            whichColumns = "connections.ftp.enabled:";
+            break;
+          case 7:
+            whichColumns = "connections.onlineOffer.enabled:";
+            break;
+          case 4:
+            whichColumns = "connections.retroactive.enabled:";
+            break;
+          default:
+            whichColumns = "wholesalerKey:";
+        }
+
+        var sort = "" + whichColumns + direction;
+
+        $.get(
+          InvokeURL + "shops/" +
+          shopKey + "/wholesalers", {
+          sort: sort,
+          perPage: data.length,
+          page: (data.start + data.length) / data.length,
+        },
+          function (res) {
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          }
+        );
+      },
+      processing: true,
+      serverSide: true,
+      search: {
+        return: true,
+      },
+      columns: [{
+        orderable: false,
+        data: null,
+        width: "36px",
+        defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+      },
+      {
+        orderable: true,
+        data: "wholesalerKey",
+        visible: false,
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          } else {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "name",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          } else {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "logisticMinimum",
+        width: "108px",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          } else {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "connections.retroactive",
+        width: "108px",
+        visible: true,
+        render: function (data) {
+          if (data !== null) {
+            if (data.enabled) {
+              return '<spann class="positive">Tak</spann>';
+            } else {
+              return '<spann class="negative">Nie</spann>';
+            }
+          } else {
+            return '<spann class="negative">Nie</spann>';
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "connections.ftp",
+        width: "72px",
+        render: function (data) {
+          if (data !== null) {
+            if (data.enabled) {
+              return '<spann class="positive">Tak</spann>';
+            } else {
+              return '<spann class="medium">Dodaj</spann>';
+            }
+          } else {
+            return '<spann class="negative">Nie</spann>';
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "connections.wms",
+        visible: false,
+        width: "72px",
+        render: function (data) {
+          if (data !== null) {
+            if (data.enabled) {
+              return '<spann class="positive">Tak</spann>';
+            } else {
+              return '<spann class="noneexisting">Brak</spann>';
+            }
+          } else {
+            return '<spann class="noneexisting">Brak</spann>';
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "connections.onlineOffer",
+        width: "72px",
+        render: function (data) {
+          if (data !== null) {
+            if (data.enabled == true && data.active == true) {
+              return '<spann class="positive">Tak</spann>';
+            } else if (data.enabled == false && data.active == false) {
+              return '<spann class="medium">Dodaj</spann>';
+            } else if (data.enabled == true && data.active == false) {
+              return '<spann class="improve">Przywróć</spann>';
+            } else if (data.enabled == false && data.active == true) {
+              return '<spann class="medium">Dodaj</spann>';
+            }
+          } else {
+            return '<spann class="noneexisting">Brak</spann>';
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "wholesalerKey",
+        width: "72px",
+        render: function (data, type, row, meta) {
+          // Using render function to dynamically generate the anchor tag
+          return '<div class="action-container"><a href="https://' +
             DomainName +
-            "/app/wholesalers/wholesaler?shopKey=" +
+            '/app/wholesalers/wholesaler?shopKey=' +
             shopKey +
-            "&wholesalerKey=" +
-            rowData.wholesalerKey;
-        });
+            '&wholesalerKey=' +
+            data + '" class="buttonoutline editme w-button">Przejdź</a></div>';
+        },
       }
-      if (request.status == 401) {
-        console.log("Unauthorized");
+      ],
+      drawCallback: function (settings) {
+        toggleEmptyState();
+      },
+    });
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      var hasEntries = tablevendors.data().any();
+      console.log(hasEntries);
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $('#emptystatevendors').show();
+        $('#vendorscontainer').hide();
+      } else {
+        $('#emptystatevendors').hide();
+        $('#vendorscontainer').show();
       }
-    };
-    request.send();
+    }
   }
+
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1615,11 +1699,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
