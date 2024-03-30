@@ -676,6 +676,30 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
         var toParse = data; // Assuming 'data' is the object shown in your example
+        console.log(data);
+
+        // Directly mapping data to fields
+        $("#tenantNameEdit").val(data.name || "");
+        $("#tenantTaxIdEdit").val(data.taxId || "");
+        $("#tenantStateEdit").val((data.address && data.address.state) || "");
+        $("#tenantTownEdit").val((data.address && data.address.town) || "");
+        $("#tenantPostcodeEdit").val(
+          (data.address && data.address.postcode) || ""
+        );
+        $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
+
+        // Assuming emails is an array of objects [{email: "", description: ""}, ...]
+        if (data.emails && data.emails.length > 0) {
+          data.emails.forEach((email, index) => {
+            if (index < 3) {
+              // Assuming there are up to 3 emails
+              $(`#tenantEmailEdit${index + 1}`).val(email.email || "");
+              $(`#tenantEmailEditDescription${index + 1}`).val(
+                email.description || ""
+              );
+            }
+          });
+        }
 
         // Iterate over elements with the 'tenantData' attribute
         document.querySelectorAll("[tenantData]").forEach((element) => {
