@@ -743,12 +743,21 @@ docReady(function () {
               element.textContent = toParse.taxId || "N/A";
               break;
             case "address":
-              // Safely accessing nested properties
-              element.textContent =
-                toParse.address && toParse.address.line1
-                  ? toParse.address.line1
-                  : "N/A";
+              // Łączenie wszystkich części adresu w jeden ciąg
+              const addressParts = toParse.address
+                ? [
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.state,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
+                : "N/A";
+              element.textContent = addressParts;
               break;
+
             case "country":
               element.textContent =
                 toParse.address && toParse.address.country
@@ -1641,7 +1650,7 @@ docReady(function () {
               country: "Polska",
               line1: $("#tenantAdressEdit").val(),
               town: $("#tenantTownEdit").val(),
-              state: $("#tenantStateEdit").val(),
+              state: $("#tenantStateEdit").text(),
               postcode: $("#tenantPostcodeEdit").val(),
             },
           },
