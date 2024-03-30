@@ -175,8 +175,6 @@ docReady(function () {
       var data = JSON.parse(this.response);
 
       if (request.status >= 200 && request.status < 400) {
-        console.log(data);
-        console.log(data.role);
         function setCookieAndSession(cName, cValue, expirationSec) {
           let date = new Date();
           date.setTime(date.getTime() + expirationSec * 1000);
@@ -676,8 +674,6 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
         var toParse = data; // Assuming 'data' is the object shown in your example
-        console.log(data);
-
         // Directly mapping data to fields
         $("#tenantNameEdit").val(data.name || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
@@ -806,11 +802,8 @@ docReady(function () {
                   : "N/A";
               break;
             case "emails":
-              // Logowanie dla celów debugowania
-              console.log("Aktualizacja e-maili:", toParse.emails);
               const emails =
                 toParse.emails && toParse.emails.map((e) => e.email).join(", ");
-              console.log("Przetworzone e-maile do wyświetlenia:", emails);
               element.textContent = emails || "N/A";
               break;
           }
