@@ -1650,28 +1650,28 @@ docReady(function () {
               country: "Polska",
               line1: $("#tenantAdressEdit").val(),
               town: $("#tenantTownEdit").val(),
-              state: $("#tenantStateEdit").text(),
+              state: $("#tenantStateEdit option:selected").text(),
               postcode: $("#tenantPostcodeEdit").val(),
             },
           },
-          {
-            op: "add",
-            path: "/emails",
-            value: [
-              {
-                email: $("#tenantEmailEdit1").val(),
-                description: $("#tenantEmailEditDescription1").val(),
-              },
-              {
-                email: $("#tenantEmailEdit2").val(),
-                description: $("#tenantEmailEditDescription2").val(),
-              },
-              {
-                email: $("#tenantEmailEdit3").val(),
-                description: $("#tenantEmailEditDescription3").val(),
-              },
-            ],
-          },
+          // {
+          //   op: "add",
+          //   path: "/emails",
+          //   value: [
+          //     {
+          //       email: $("#tenantEmailEdit1").val(),
+          //       description: $("#tenantEmailEditDescription1").val(),
+          //     },
+          //     {
+          //       email: $("#tenantEmailEdit2").val(),
+          //       description: $("#tenantEmailEditDescription2").val(),
+          //     },
+          //     {
+          //       email: $("#tenantEmailEdit3").val(),
+          //       description: $("#tenantEmailEditDescription3").val(),
+          //     },
+          //   ],
+          // },
         ];
 
         // AJAX call for PATCH request
