@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -665,9 +665,9 @@ docReady(function () {
   function GetTenantBilling() {
     let url = new URL(
       InvokeURL +
-      "tenants/" +
-      document.querySelector("#organizationName").textContent +
-      "/billing"
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -729,8 +729,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                  toParse.pricing.specialService.fee
-                  ?  toParse.pricing.specialService.description + " - " +  toParse.pricing.specialService.fee + " zł/miesięcznie"
+                toParse.pricing.specialService.fee
+                  ? toParse.pricing.specialService.description +
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -1471,11 +1474,11 @@ docReady(function () {
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
-      $('#emptystatepricelists').show();
-      $('#pricelistscontainer').hide();
+      $("#emptystatepricelists").show();
+      $("#pricelistscontainer").hide();
     } else {
-      $('#emptystatepricelists').hide();
-      $('#pricelistscontainer').show();
+      $("#emptystatepricelists").hide();
+      $("#pricelistscontainer").show();
     }
   }
 
@@ -1491,9 +1494,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1617,7 +1620,8 @@ docReady(function () {
       form.on("submit", function (event) {
         event.preventDefault(); // Prevent the default form submission
 
-        var action = InvokeURL + "tenants/" + $("#organizationName").text();
+        var action =
+          InvokeURL + "tenants/" + $("#organizationName").text() + "/billing";
 
         var data = [
           {
