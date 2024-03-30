@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -665,9 +665,9 @@ docReady(function () {
   function GetTenantBilling() {
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -681,7 +681,30 @@ docReady(function () {
         // Directly mapping data to fields
         $("#tenantNameEdit").val(data.name || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
-        $("#tenantStateEdit").val((data.address && data.address.state) || "");
+
+        // Mapping Polish state names to <select> element values
+        var stateMapping = {
+          "Dolnośląskie": "LowerSilesian",
+          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
+          "Lubelskie": "Lublin",
+          "Lubuskie": "Lubusz",
+          "Łódzkie": "Łódź",
+          "Małopolskie": "Lesser Poland",
+          "Mazowieckie": "Masovian",
+          "Opolskie": "Opole",
+          "Podkarpackie": "Subcarpathian",
+          "Podlaskie": "Podlaskie",
+          "Pomorskie": "Pomeranian",
+          "Śląskie": "Silesian",
+          "Świętokrzyskie": "HolyCross",
+          "Warmińsko-Mazurskie": "Warmian-Masurian",
+          "Wielkopolskie": "Greater Poland",
+          "Zachodniopomorskie": "West Pomeranian"
+        };
+
+        // Use the mapping to set the correct <select> value
+        $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
+
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
         $("#tenantPostcodeEdit").val(
           (data.address && data.address.postcode) || ""
@@ -729,11 +752,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
+                  toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
+                  " - " +
+                  toParse.pricing.specialService.fee +
+                  " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -746,14 +769,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.state,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
+                  toParse.address.town,
+                  toParse.address.postcode,
+                  toParse.address.line1,
+                  toParse.address.state,
+                  toParse.address.country,
+                ]
+                  .filter((part) => part)
+                  .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1503,9 +1526,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
