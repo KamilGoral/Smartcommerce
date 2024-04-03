@@ -1641,7 +1641,6 @@ docReady(function () {
   makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
-      event.preventDefault()
       form.on("submit", function (event) {
         event.preventDefault(); // Prevent the default form submission
         let url = new URL(
