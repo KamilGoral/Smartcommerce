@@ -1638,113 +1638,119 @@ docReady(function () {
     });
   };
 
-  // Function to patch tenant details via AJAX to a specified endpoint.
-  makeWebflowFormAjaxPatchTenantBilling = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
+  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
         event.preventDefault(); // Prevent the default form submission
 
-        var action =
-          InvokeURL + "tenants/" + $("#organizationName").text() + "/billing";
+        let url = new URL(
+          InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing"
+        );
 
-        var data = []; // Initialize the data array
+        // Prepare the request to fetch current tenant billing details
+        let request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.setRequestHeader("Authorization", orgToken);
+        request.onload = function () {
+          if (request.status >= 200 && request.status < 400) {
+            // Parse the response to get current data
+            var currentData = JSON.parse(this.response);
 
-        // Add to data array if field is not empty
-        if ($("#tenantNameEdit").val()) {
-          data.push({
-            op: "replace",
-            path: "/name",
-            value: $("#tenantNameEdit").val(),
-          });
-        }
+            // Now compare with user inputs and prepare the PATCH data
+            var patchData = []; // Initialize the PATCH request data array
 
-        if ($("#tenantTaxIdEdit").val()) {
-          data.push({
-            op: "replace",
-            path: "/taxId",
-            value: $("#tenantTaxIdEdit").val(),
-          });
-        }
+            function preparePatchData() {
 
-        // Construct address object dynamically based on field values
-        var addressValue = { country: "Polska" }; // Start with a country as a default key
+              var newName = $("#tenantNameEdit").val();
+              if (newName !== currentData.name) {
+                patchData.push({ op: "replace", path: "/name", value: newName });
+              }
 
-        // Add other keys only if they have values
-        if ($("#tenantAdressEdit").val()) {
-          addressValue.line1 = $("#tenantAdressEdit").val();
-        }
-        if ($("#tenantTownEdit").val()) {
-          addressValue.town = $("#tenantTownEdit").val();
-        }
-        if ($("#tenantStateEdit option:selected").text()) {
-          addressValue.state = $("#tenantStateEdit option:selected").text();
-        }
-        if ($("#tenantPostcodeEdit").val()) {
-          addressValue.postcode = $("#tenantPostcodeEdit").val();
-        }
-
-        // Check if more than just the country key exists before pushing to data
-        if (Object.keys(addressValue).length > 1) {
-          data.push({
-            op: "replace",
-            path: "/address",
-            value: addressValue,
-          });
-        }
+              var newTaxId = $("#tenantTaxIdEdit").val();
+              if (newTaxId !== currentData.taxId) {
+                patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
+              }
 
 
-        // Loop to handle email fields dynamically
-        for (let i = 1; i <= 3; i++) {
-          if ($("#tenantEmailEdit" + i).val() && $("#tenantEmailEditDescription" + i).val()) {
-            data.push({
-              op: "replace",
-              path: `/emails/${i - 1}`,
-              value: {
-                email: $("#tenantEmailEdit" + i).val(),
-                description: $("#tenantEmailEditDescription" + i).val(),
+
+              // Address
+              var newAddress = {
+                country: "Polska", // Assuming country is always Poland
+                line1: $("#tenantAdressEdit").val(),
+                town: $("#tenantTownEdit").val(),
+                state: $("#tenantStateEdit option:selected").text(),
+                postcode: $("#tenantPostcodeEdit").val()
+              };
+
+              if (newAddress.line1 !== currentData.address.line1 || newAddress.town !== currentData.address.town ||
+                newAddress.state !== currentData.address.state || newAddress.postcode !== currentData.address.postcode) {
+                patchData.push({ op: "replace", path: "/address", value: newAddress });
+              }
+
+              // Emails
+              var newEmails = [];
+              for (let i = 1; i <= 3; i++) {
+                let email = $(`#tenantEmailEdit${i}`).val();
+                let description = $(`#tenantEmailEditDescription${i}`).val();
+                if (email || description) { // Assuming we want to add even if one field is filled
+                  newEmails.push({ email: email, description: description });
+                }
+              }
+
+              if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
+                patchData.push({ op: "replace", path: "/emails", value: newEmails });
+              }
+
+              // Here you can continue with other fields similar to the examples above
+            }
+
+            preparePatchData();
+
+
+            $.ajax({
+              type: "PATCH",
+              url: url,
+              cors: true,
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              data: JSON.stringify(patchData),
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              success: function (resultData) {
+                console.log("Update successful", resultData);
+                // Invoke successCallback if provided
+                if (successCallback) successCallback(resultData);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Update failed", jqXHR, textStatus, errorThrown);
+                // Invoke errorCallback if provided
+                if (errorCallback) errorCallback(jqXHR, textStatus, errorThrown);
               },
             });
+          } else {
+            console.error("Failed to fetch current tenant billing details:", request.status);
           }
-        }
+        };
+        request.onerror = function () {
+          console.error("Network error while fetching tenant billing details");
+        };
 
-
-        $.ajax({
-          type: "PATCH",
-          url: action,
-          cors: true,
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-          },
-          data: JSON.stringify(data),
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          success: function (resultData) {
-            console.log("Update successful", resultData);
-            // Handle success (e.g., show success message, redirect, etc.)
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            console.error("Update failed", jqXHR, textStatus, errorThrown);
-            // Handle error (e.g., show error message)
-          },
-        });
-
-        return false;
+        // Send the request to fetch current tenant billing details
+        request.send();
       });
     });
   };
+
 
   function LoadTippy() {
     $.getScript(
