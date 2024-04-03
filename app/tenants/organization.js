@@ -1693,7 +1693,7 @@ docReady(function () {
                 setTimeout(function() {
                   $('#editBillingModal').hide();
                   location.reload();
-                }, 2000);
+                }, 3000);
               },
               error: function() {
                 if (typeof errorCallback === "function") {
