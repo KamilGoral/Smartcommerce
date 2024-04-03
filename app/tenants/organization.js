@@ -1644,17 +1644,13 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function(event) {
         event.preventDefault();
-        var container = form.parent();
-        var doneBlock = $(".form-done-edit", container);
-        var failBlock = $(".form-done-fail-edit", container);
+  
         const organizationName = $("#organizationName").text();
         const url = `${InvokeURL}tenants/${organizationName}/billing`;
   
-        // Begin the process with a GET request to fetch current details
         $.ajax({
           type: "GET",
           url: url,
-          cors: true,
           contentType: "application/json",
           dataType: "json",
           headers: {
@@ -1671,7 +1667,6 @@ docReady(function () {
           success: function(currentData) {
             const patchData = preparePatchData(currentData);
   
-            // Upon successful GET, proceed with the PATCH request
             $.ajax({
               type: "PATCH",
               url: url,
@@ -1683,44 +1678,37 @@ docReady(function () {
               },
               success: function(resultData) {
                 if (typeof successCallback === "function") {
-                  const result = successCallback(resultData);
-                  if (!result) {
-                    form.show();
-                    doneBlock.hide();
-                    failBlock.show();
-                    return;
-                  }
+                  successCallback(resultData);
                 }
-                form.hide();
-                doneBlock.show();
-                failBlock.hide();
+                // Hide editBillingModal and show form-done-edit for 2 seconds
+                $('#editBillingModal').hide();
+                $('#form-done-edit').css('display', 'flex');
                 setTimeout(function() {
-                  location.reload();
-                }, 1000);
+                  $('#form-done-edit').hide();
+                }, 2000);
               },
-              error: function(e) {
+              error: function() {
                 if (typeof errorCallback === "function") {
-                  errorCallback(e);
+                  errorCallback();
                 }
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
+                // Show form-done-fail-edit on error
+                $('#form-done-fail-edit').css('display', 'flex');
               },
             });
           },
-          error: function(e) {
+          error: function() {
             if (typeof errorCallback === "function") {
-              errorCallback(e);
+              errorCallback();
             }
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
+            // Show form-done-fail-edit on error
+            $('#form-done-fail-edit').css('display', 'flex');
           },
         });
         return false; // Prevent the form from submitting normally
       });
     });
   };
+  
   
 
   function preparePatchData(currentData) {
