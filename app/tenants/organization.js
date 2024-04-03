@@ -1680,7 +1680,9 @@ docReady(function () {
                 $("#waitingdots").show();
               },
               complete: function() {
-                $("#waitingdots").hide();
+                setTimeout(function() {
+                  $("#waitingdots").hide();
+                }, 1000); // 1000 milliseconds = 1 second
               },
               success: function(resultData) {
                 if (typeof successCallback === "function") {
