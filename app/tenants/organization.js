@@ -1641,9 +1641,9 @@ docReady(function () {
   makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+      event.preventDefault()
       form.on("submit", function (event) {
         event.preventDefault(); // Prevent the default form submission
-
         let url = new URL(
           InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing"
         );
@@ -1671,8 +1671,6 @@ docReady(function () {
               if (newTaxId !== currentData.taxId) {
                 patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
               }
-
-
 
               // Address
               var newAddress = {
