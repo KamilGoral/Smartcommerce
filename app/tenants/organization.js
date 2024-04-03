@@ -1676,6 +1676,12 @@ docReady(function () {
               headers: {
                 "Authorization": orgToken,
               },
+              beforeSend: function() {
+                $("#waitingdots").show();
+              },
+              complete: function() {
+                $("#waitingdots").hide();
+              },
               success: function(resultData) {
                 if (typeof successCallback === "function") {
                   successCallback(resultData);
