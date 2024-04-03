@@ -1641,8 +1641,6 @@ docReady(function () {
 
   function makeWebflowFormAjaxPatchTenantBilling(successCallback, errorCallback) {
     $('#wf-form-editCompanyBilling-form-correct').on("submit", async function (event) {
-      event.preventDefault(); // Prevent the default form submission
-
       const organizationName = document.querySelector("#organizationName").textContent;
       const url = new URL(`${InvokeURL}tenants/${organizationName}/billing`);
 
@@ -1671,12 +1669,18 @@ docReady(function () {
 
         const resultData = await patchResponse.json();
         console.log("Update successful", resultData);
-        if (successCallback) successCallback(resultData);
+        if (typeof successCallback === 'function') {
+          successCallback(resultData);
+        } else {
+          console.log('successCallback not provided or not a function');
+        }
 
       } catch (error) {
         console.error(error);
         if (errorCallback) errorCallback(error);
       }
+      event.preventDefault();
+      return false;
     });
   }
 
