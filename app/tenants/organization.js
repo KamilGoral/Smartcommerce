@@ -1642,6 +1642,7 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        console.log("Form submit handler called");
         event.preventDefault(); // Prevent the default form submission
         let url = new URL(
           InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing"
