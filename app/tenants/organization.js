@@ -1681,11 +1681,13 @@ docReady(function () {
                   successCallback(resultData);
                 }
                 // Hide editBillingModal and show form-done-edit for 2 seconds
-                $('#editBillingModal').hide();
+                
                 $('#form-done-edit').css('display', 'flex');
                 setTimeout(function() {
                   $('#form-done-edit').hide();
-                }, 2000);
+                  $('#editBillingModal').hide();
+                  location.reload();
+                }, 3000);
               },
               error: function() {
                 if (typeof errorCallback === "function") {
