@@ -1639,63 +1639,89 @@ docReady(function () {
   };
 
 
-  function makeWebflowFormAjaxPatchTenantBilling(successCallback, errorCallback) {
-    $('#wf-form-editCompanyBilling-form-correct').on("submit", function (event) {
-      event.preventDefault();
+  makeWebflowFormAjaxPatchTenantBilling = function(forms, successCallback, errorCallback) {
+    forms.each(function() {
+      var form = $(this);
+      form.on("submit", function(event) {
+        event.preventDefault();
+        var container = form.parent();
+        var doneBlock = $(".form-done-edit", container);
+        var failBlock = $(".form-done-fail-edit", container);
+        const organizationName = $("#organizationName").text();
+        const url = `${InvokeURL}tenants/${organizationName}/billing`;
   
-      setTimeout(function() {
-        const organizationName = document.querySelector("#organizationName").textContent;
-        const url = new URL(`${InvokeURL}tenants/${organizationName}/billing`);
+        // Begin the process with a GET request to fetch current details
+        $.ajax({
+          type: "GET",
+          url: url,
+          cors: true,
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            "Authorization": orgToken,
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
+          beforeSend: function() {
+            $("#waitingdots").show();
+          },
+          complete: function() {
+            $("#waitingdots").hide();
+          },
+          success: function(currentData) {
+            const patchData = preparePatchData(currentData);
   
-        fetch(url, {
-          method: "GET",
-          headers: { "Authorization": orgToken },
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`Failed to fetch current tenant billing details: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(currentData => {
-          const patchData = preparePatchData(currentData);
-  
-          return fetch(url, {
-            method: "PATCH",
-            headers: {
-              "Accept": "application/json",
-              "Content-Type": "application/json",
-              "Authorization": orgToken,
-            },
-            body: JSON.stringify(patchData),
-          });
-        })
-        .then(patchResponse => {
-          if (!patchResponse.ok) {
-            throw new Error("Update failed");
-          }
-          return patchResponse.json();
-        })
-        .then(resultData => {
-          console.log("Update successful", resultData);
-          if (typeof successCallback === 'function') {
-            successCallback(resultData);
-          } else {
-            console.log('successCallback not provided or not a function');
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          if (typeof errorCallback === 'function') {
-            errorCallback(error);
-          }
+            // Upon successful GET, proceed with the PATCH request
+            $.ajax({
+              type: "PATCH",
+              url: url,
+              data: JSON.stringify(patchData),
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                "Authorization": orgToken,
+              },
+              success: function(resultData) {
+                if (typeof successCallback === "function") {
+                  const result = successCallback(resultData);
+                  if (!result) {
+                    form.show();
+                    doneBlock.hide();
+                    failBlock.show();
+                    return;
+                  }
+                }
+                form.hide();
+                doneBlock.show();
+                failBlock.hide();
+                setTimeout(function() {
+                  location.reload();
+                }, 1000);
+              },
+              error: function(e) {
+                if (typeof errorCallback === "function") {
+                  errorCallback(e);
+                }
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+              },
+            });
+          },
+          error: function(e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+          },
         });
-  
-      }, 1000); // This timeout is to delay the handler, remove it if not needed
-      
-      return false; // this is only necessary if you want to stop propagation as well
+        return false; // Prevent the form from submitting normally
+      });
     });
-  }
+  };
+  
 
   function preparePatchData(currentData) {
     var patchData = [];
