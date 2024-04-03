@@ -1652,53 +1652,66 @@ docReady(function () {
         var action =
           InvokeURL + "tenants/" + $("#organizationName").text() + "/billing";
 
-        var data = [
-          {
+        var data = []; // Initialize the data array
+
+        // Add to data array if field is not empty
+        if ($("#tenantNameEdit").val()) {
+          data.push({
             op: "replace",
             path: "/name",
             value: $("#tenantNameEdit").val(),
-          },
-          {
+          });
+        }
+
+        if ($("#tenantTaxIdEdit").val()) {
+          data.push({
             op: "replace",
             path: "/taxId",
             value: $("#tenantTaxIdEdit").val(),
-          },
-          {
+          });
+        }
+
+        // Construct address object dynamically based on field values
+        var addressValue = { country: "Polska" }; // Start with a country as a default key
+
+        // Add other keys only if they have values
+        if ($("#tenantAdressEdit").val()) {
+          addressValue.line1 = $("#tenantAdressEdit").val();
+        }
+        if ($("#tenantTownEdit").val()) {
+          addressValue.town = $("#tenantTownEdit").val();
+        }
+        if ($("#tenantStateEdit option:selected").text()) {
+          addressValue.state = $("#tenantStateEdit option:selected").text();
+        }
+        if ($("#tenantPostcodeEdit").val()) {
+          addressValue.postcode = $("#tenantPostcodeEdit").val();
+        }
+
+        // Check if more than just the country key exists before pushing to data
+        if (Object.keys(addressValue).length > 1) {
+          data.push({
             op: "replace",
             path: "/address",
-            value: {
-              country: "Polska",
-              line1: $("#tenantAdressEdit").val(),
-              town: $("#tenantTownEdit").val(),
-              state: $("#tenantStateEdit option:selected").text(),
-              postcode: $("#tenantPostcodeEdit").val(),
-            },
-          },
-          {
-            op: "replace",
-            path: "/emails/0", // Replace the first email
-            value: {
-              email: $("#tenantEmailEdit1").val(),
-              description: $("#tenantEmailEditDescription1").val(),
-            },
-          },
-          {
-            op: "replace",
-            path: "/emails/1", // Replace the second email
-            value: {
-              email: $("#tenantEmailEdit2").val(),
-              description: $("#tenantEmailEditDescription2").val(),
-            },
-          },
-          {
-            op: "replace",
-            path: "/emails/2", // Replace the third email
-            value: {
-              email: $("#tenantEmailEdit3").val(),
-              description: $("#tenantEmailEditDescription3").val(),
-            },
-          },
-        ];
+            value: addressValue,
+          });
+        }
+
+
+        // Loop to handle email fields dynamically
+        for (let i = 1; i <= 3; i++) {
+          if ($("#tenantEmailEdit" + i).val() && $("#tenantEmailEditDescription" + i).val()) {
+            data.push({
+              op: "replace",
+              path: `/emails/${i - 1}`,
+              value: {
+                email: $("#tenantEmailEdit" + i).val(),
+                description: $("#tenantEmailEditDescription" + i).val(),
+              },
+            });
+          }
+        }
+
 
         $.ajax({
           type: "PATCH",
