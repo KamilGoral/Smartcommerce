@@ -1640,47 +1640,60 @@ docReady(function () {
 
 
   function makeWebflowFormAjaxPatchTenantBilling(successCallback, errorCallback) {
-    $('#wf-form-editCompanyBilling-form-correct').on("submit", async function (event) {
-      const organizationName = document.querySelector("#organizationName").textContent;
-      const url = new URL(`${InvokeURL}tenants/${organizationName}/billing`);
-
-      try {
-        const response = await fetch(url, {
+    $('#wf-form-editCompanyBilling-form-correct').on("submit", function (event) {
+      event.preventDefault();
+  
+      setTimeout(function() {
+        const organizationName = document.querySelector("#organizationName").textContent;
+        const url = new URL(`${InvokeURL}tenants/${organizationName}/billing`);
+  
+        fetch(url, {
           method: "GET",
           headers: { "Authorization": orgToken },
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch current tenant billing details: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(currentData => {
+          const patchData = preparePatchData(currentData);
+  
+          return fetch(url, {
+            method: "PATCH",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "Authorization": orgToken,
+            },
+            body: JSON.stringify(patchData),
+          });
+        })
+        .then(patchResponse => {
+          if (!patchResponse.ok) {
+            throw new Error("Update failed");
+          }
+          return patchResponse.json();
+        })
+        .then(resultData => {
+          console.log("Update successful", resultData);
+          if (typeof successCallback === 'function') {
+            successCallback(resultData);
+          } else {
+            console.log('successCallback not provided or not a function');
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          if (typeof errorCallback === 'function') {
+            errorCallback(error);
+          }
         });
-
-        if (!response.ok) throw new Error(`Failed to fetch current tenant billing details: ${response.status}`);
-
-        const currentData = await response.json();
-        const patchData = preparePatchData(currentData);
-
-        const patchResponse = await fetch(url, {
-          method: "PATCH",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": orgToken,
-          },
-          body: JSON.stringify(patchData),
-        });
-
-        if (!patchResponse.ok) throw new Error("Update failed");
-
-        const resultData = await patchResponse.json();
-        console.log("Update successful", resultData);
-        if (typeof successCallback === 'function') {
-          successCallback(resultData);
-        } else {
-          console.log('successCallback not provided or not a function');
-        }
-
-      } catch (error) {
-        console.error(error);
-        if (errorCallback) errorCallback(error);
-      }
-      event.preventDefault();
-      return false;
+  
+      }, 1000); // This timeout is to delay the handler, remove it if not needed
+      
+      return false; // this is only necessary if you want to stop propagation as well
     });
   }
 
@@ -1776,11 +1789,6 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  Webflow.push(function() {
-    $('form').submit(function(event) {
-      event.preventDefault(); // Prevents the default form submission
-    });
-  });
   
 
   $('div[role="tablist"]').click(function () {
