@@ -1776,6 +1776,13 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
+  Webflow.push(function() {
+    $('form').submit(function(event) {
+      event.preventDefault(); // Prevents the default form submission
+    });
+  });
+  
+
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       console.log("Adjusting");
