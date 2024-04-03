@@ -85,7 +85,9 @@ docReady(function () {
             form.hide();
             doneBlock.show();
             failBlock.hide();
-            window.location.replace("https://" + DomainName + "/app/users/me");
+            setTimeout(function() {
+              window.location.replace("https://" + DomainName + "/app/users/me");
+            }, 2000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
