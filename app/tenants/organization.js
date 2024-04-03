@@ -1640,10 +1640,10 @@ docReady(function () {
 
   makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
     forms.each(function () {
-      var form = $(this);
+      var form = $('#wf-form-editCompanyBilling-form-correct');
       form.on("submit", function (event) {
-        console.log("Form submit handler called");
         event.preventDefault(); // Prevent the default form submission
+
         let url = new URL(
           InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing"
         );
