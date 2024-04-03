@@ -1681,10 +1681,8 @@ docReady(function () {
                   successCallback(resultData);
                 }
                 // Hide editBillingModal and show form-done-edit for 2 seconds
-                
                 $('#form-done-edit').css('display', 'flex');
                 setTimeout(function() {
-                  $('#form-done-edit').hide();
                   $('#editBillingModal').hide();
                   location.reload();
                 }, 3000);
