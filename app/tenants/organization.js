@@ -1691,7 +1691,7 @@ docReady(function () {
                 setTimeout(function() {
                   $('#editBillingModal').hide();
                   location.reload();
-                }, 3000);
+                }, 2000);
               },
               error: function() {
                 if (typeof errorCallback === "function") {
