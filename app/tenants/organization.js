@@ -1638,116 +1638,96 @@ docReady(function () {
     });
   };
 
-  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $('#wf-form-editCompanyBilling-form-correct');
-      form.on("submit", function (event) {
-        event.preventDefault(); // Prevent the default form submission
 
-        let url = new URL(
-          InvokeURL + "tenants/" + document.querySelector("#organizationName").textContent + "/billing"
-        );
+  function makeWebflowFormAjaxPatchTenantBilling(successCallback, errorCallback) {
+    $('#wf-form-editCompanyBilling-form-correct').on("submit", async function (event) {
+      event.preventDefault(); // Prevent the default form submission
 
-        // Prepare the request to fetch current tenant billing details
-        let request = new XMLHttpRequest();
-        request.open("GET", url, true);
-        request.setRequestHeader("Authorization", orgToken);
-        request.onload = function () {
-          if (request.status >= 200 && request.status < 400) {
-            // Parse the response to get current data
-            var currentData = JSON.parse(this.response);
+      const organizationName = document.querySelector("#organizationName").textContent;
+      const url = new URL(`${InvokeURL}tenants/${organizationName}/billing`);
 
-            // Now compare with user inputs and prepare the PATCH data
-            var patchData = []; // Initialize the PATCH request data array
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { "Authorization": orgToken },
+        });
 
-            function preparePatchData() {
+        if (!response.ok) throw new Error(`Failed to fetch current tenant billing details: ${response.status}`);
 
-              var newName = $("#tenantNameEdit").val();
-              if (newName !== currentData.name) {
-                patchData.push({ op: "replace", path: "/name", value: newName });
-              }
+        const currentData = await response.json();
+        const patchData = preparePatchData(currentData);
 
-              var newTaxId = $("#tenantTaxIdEdit").val();
-              if (newTaxId !== currentData.taxId) {
-                patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
-              }
+        const patchResponse = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": orgToken,
+          },
+          body: JSON.stringify(patchData),
+        });
 
-              // Address
-              var newAddress = {
-                country: "Polska", // Assuming country is always Poland
-                line1: $("#tenantAdressEdit").val(),
-                town: $("#tenantTownEdit").val(),
-                state: $("#tenantStateEdit option:selected").text(),
-                postcode: $("#tenantPostcodeEdit").val()
-              };
+        if (!patchResponse.ok) throw new Error("Update failed");
 
-              if (newAddress.line1 !== currentData.address.line1 || newAddress.town !== currentData.address.town ||
-                newAddress.state !== currentData.address.state || newAddress.postcode !== currentData.address.postcode) {
-                patchData.push({ op: "replace", path: "/address", value: newAddress });
-              }
+        const resultData = await patchResponse.json();
+        console.log("Update successful", resultData);
+        if (successCallback) successCallback(resultData);
 
-              // Emails
-              var newEmails = [];
-              for (let i = 1; i <= 3; i++) {
-                let email = $(`#tenantEmailEdit${i}`).val();
-                let description = $(`#tenantEmailEditDescription${i}`).val();
-                if (email || description) { // Assuming we want to add even if one field is filled
-                  newEmails.push({ email: email, description: description });
-                }
-              }
-
-              if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
-                patchData.push({ op: "replace", path: "/emails", value: newEmails });
-              }
-
-              // Here you can continue with other fields similar to the examples above
-            }
-
-            preparePatchData();
-
-
-            $.ajax({
-              type: "PATCH",
-              url: url,
-              cors: true,
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              data: JSON.stringify(patchData),
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              success: function (resultData) {
-                console.log("Update successful", resultData);
-                // Invoke successCallback if provided
-                if (successCallback) successCallback(resultData);
-              },
-              error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Update failed", jqXHR, textStatus, errorThrown);
-                // Invoke errorCallback if provided
-                if (errorCallback) errorCallback(jqXHR, textStatus, errorThrown);
-              },
-            });
-          } else {
-            console.error("Failed to fetch current tenant billing details:", request.status);
-          }
-        };
-        request.onerror = function () {
-          console.error("Network error while fetching tenant billing details");
-        };
-
-        // Send the request to fetch current tenant billing details
-        request.send();
-      });
+      } catch (error) {
+        console.error(error);
+        if (errorCallback) errorCallback(error);
+      }
     });
-  };
+  }
+
+  function preparePatchData(currentData) {
+    var patchData = [];
+
+    // Name
+    var newName = $("#tenantNameEdit").val();
+    if (newName !== currentData.name) {
+      patchData.push({ op: "replace", path: "/name", value: newName });
+    }
+
+    // Tax ID
+    var newTaxId = $("#tenantTaxIdEdit").val();
+    if (newTaxId !== currentData.taxId) {
+      patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
+    }
+
+    // Address
+    var newAddress = {
+      country: "Polska", // Assuming the country is always Poland
+      line1: $("#tenantAdressEdit").val(),
+      town: $("#tenantTownEdit").val(),
+      state: $("#tenantStateEdit option:selected").text(),
+      postcode: $("#tenantPostcodeEdit").val()
+    };
+
+    // Compare each property to see if any part of the address has changed
+    var addressChanged = Object.keys(newAddress).some(key => newAddress[key] !== (currentData.address[key] || ''));
+    if (addressChanged) {
+      patchData.push({ op: "replace", path: "/address", value: newAddress });
+    }
+
+    // Emails
+    var newEmails = [];
+    for (let i = 1; i <= 3; i++) {
+      let email = $(`#tenantEmailEdit${i}`).val();
+      let description = $(`#tenantEmailEditDescription${i}`).val();
+      if (email || description) { // Add if either field is filled
+        newEmails.push({ email: email, description: description });
+      }
+    }
+
+    // Only replace emails if there's a difference, using JSON.stringify for a quick deep comparison
+    if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
+      patchData.push({ op: "replace", path: "/emails", value: newEmails });
+    }
+
+    return patchData;
+  }
+
 
 
   function LoadTippy() {
