@@ -740,6 +740,9 @@ docReady(function () {
             case "tenantName":
               element.textContent = organizationName || "N/A";
               break;
+            case "phone":
+              element.textContent = toParse.phone || "N/A";
+              break;
             case "standard":
               element.textContent =
                 toParse.pricing.standard + " zł za sklep/miesięcznie" || "N/A";
@@ -1639,15 +1642,15 @@ docReady(function () {
   };
 
 
-  makeWebflowFormAjaxPatchTenantBilling = function(forms, successCallback, errorCallback) {
-    forms.each(function() {
+  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
       var form = $(this);
-      form.on("submit", function(event) {
+      form.on("submit", function (event) {
         event.preventDefault();
-  
+
         const organizationName = $("#organizationName").text();
         const url = `${InvokeURL}tenants/${organizationName}/billing`;
-  
+
         $.ajax({
           type: "GET",
           url: url,
@@ -1658,15 +1661,15 @@ docReady(function () {
             "Accept": "application/json",
             "Content-Type": "application/json",
           },
-          beforeSend: function() {
+          beforeSend: function () {
             $("#waitingdots").show();
           },
-          complete: function() {
+          complete: function () {
             $("#waitingdots").hide();
           },
-          success: function(currentData) {
+          success: function (currentData) {
             const patchData = preparePatchData(currentData);
-  
+
             $.ajax({
               type: "PATCH",
               url: url,
@@ -1676,26 +1679,26 @@ docReady(function () {
               headers: {
                 "Authorization": orgToken,
               },
-              beforeSend: function() {
+              beforeSend: function () {
                 $("#waitingdots").show();
               },
-              complete: function() {
-                setTimeout(function() {
+              complete: function () {
+                setTimeout(function () {
                   $("#waitingdots").hide();
                 }, 1000); // 1000 milliseconds = 1 second
               },
-              success: function(resultData) {
+              success: function (resultData) {
                 if (typeof successCallback === "function") {
                   successCallback(resultData);
                 }
                 // Hide editBillingModal and show form-done-edit for 2 seconds
                 $('#form-done-edit').css('display', 'flex');
-                setTimeout(function() {
+                setTimeout(function () {
                   $('#editBillingModal').hide();
                   location.reload();
                 }, 3000);
               },
-              error: function() {
+              error: function () {
                 if (typeof errorCallback === "function") {
                   errorCallback();
                 }
@@ -1704,7 +1707,7 @@ docReady(function () {
               },
             });
           },
-          error: function() {
+          error: function () {
             if (typeof errorCallback === "function") {
               errorCallback();
             }
@@ -1716,8 +1719,8 @@ docReady(function () {
       });
     });
   };
-  
-  
+
+
 
   function preparePatchData(currentData) {
     var patchData = [];
@@ -1732,6 +1735,13 @@ docReady(function () {
     var newTaxId = $("#tenantTaxIdEdit").val();
     if (newTaxId !== currentData.taxId) {
       patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
+    }
+
+    // Telephone number
+
+    var newTelephone = $("#tenantPhoneEdit").val();
+    if (newTelephone !== currentData.phone) {
+      patchData.push({ op: "replace", path: "/phone", value: newTelephone });
     }
 
     // Address
@@ -1811,7 +1821,7 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  
+
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
