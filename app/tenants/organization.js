@@ -205,12 +205,12 @@ docReady(function () {
         if (shopNumber > 0) {
           const deleteButton = document.getElementById('deleteOrganizationButton');
           const deleteOrganizationText = document.getElementById('deleteOrganizationText');
-        
+
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
-        
+
           deleteButton.classList.add('tippy');
-        
+
           deleteOrganizationText.textContent = 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.';
         }
 
@@ -777,7 +777,11 @@ docReady(function () {
               element.textContent = organizationName || "N/A";
               break;
             case "phone":
-              element.textContent = toParse.phones[0].phone || "N/A";
+              if (toParse.phones && toParse.phones.length > 0 && toParse.phones[0].phone) {
+                element.textContent = toParse.phones[0].phone;
+              } else {
+                element.textContent = "N/A";
+              }
               break;
             case "standard":
               element.textContent =
