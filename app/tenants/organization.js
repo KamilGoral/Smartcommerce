@@ -693,11 +693,9 @@ docReady(function () {
       }, 150); // Delay the execution by 150 milliseconds
     }
 
-    // Initial check and setup event listeners
-    showDotForActiveTab();
-    document.querySelectorAll('[data-w-tab]').forEach(link => {
-      link.addEventListener('click', showDotForActiveTab);
-    });
+
+
+
     let url = new URL(
       InvokeURL +
       "tenants/" +
@@ -710,6 +708,30 @@ docReady(function () {
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
+        const hasRequiredKeys = data.taxId !== null &&
+          data.name !== null &&
+          data.address && // Check if address object itself exists
+          data.address.country !== null &&
+          data.address.line1 !== null && // 'line2' is not required
+          data.address.town !== null &&
+          data.address.state !== null &&
+          data.address.postcode !== null && // 'phones' is not required
+          data.pricing && // Check if pricing object itself exists
+          data.pricing.standard !== null &&
+          data.pricing.premium !== null; // 'specialService' and 'trialEndDate' are not required
+
+        console.log(hasRequiredKeys);
+
+        if (hasRequiredKeys) {
+          console.log("All is good")
+        } else {
+          // Initial check and setup event listeners
+          showDotForActiveTab();
+          document.querySelectorAll('[data-w-tab]').forEach(link => {
+            link.addEventListener('click', showDotForActiveTab);
+          });
+
+        }
         var toParse = data; // Assuming 'data' is the object shown in your example
         // Directly mapping data to fields
         $("#tenantNameEdit").val(data.name || "");
