@@ -200,6 +200,24 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
         var toParse = data.items;
+        var shopNumber = data.total;
+
+        if (shopNumber > 0) {
+          // Pobranie przycisku o id deleteOrganizationButton
+          const deleteButton = document.getElementById('deleteOrganizationButton');
+          const deleteOrganizationText = document.getElementById('deleteOrganizationText');
+      
+          // Wyłączenie przycisku
+          deleteButton.disabled = true;
+      
+          // Dodanie klasy tippy do przycisku, aby Tippy.js mogło się do niego odwołać
+          deleteButton.classList.add('tippy');
+      
+          // Ustawienie treści podpowiedzi dla Tippy.js
+          deleteButton.setAttribute('title', 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.');
+          deleteOrganizationText.setAttribute('title', 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.');
+        }
+
         const shopContainer = document.getElementById("Shops-Container");
 
         toParse.forEach((shop) => {
