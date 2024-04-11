@@ -710,6 +710,9 @@ docReady(function () {
           (data.address && data.address.postcode) || ""
         );
         $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
+        $("#tenantPhoneEdit").val((data.phones && data.phones.phone) || "");
+
+        
 
         // Assuming emails is an array of objects [{email: "", description: ""}, ...]
         if (data.emails && data.emails.length > 0) {
@@ -741,7 +744,7 @@ docReady(function () {
               element.textContent = organizationName || "N/A";
               break;
             case "phone":
-              element.textContent = toParse.phone || "N/A";
+              element.textContent = toParse.phones.phone || "N/A";
               break;
             case "standard":
               element.textContent =
