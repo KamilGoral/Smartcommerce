@@ -710,7 +710,7 @@ docReady(function () {
           (data.address && data.address.postcode) || ""
         );
         $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
-        $("#tenantPhoneEdit").val((data.phones && data.phones.phone) || "");
+        $("#tenantPhoneEdit").val((data.phones && data.phones[0].phone) || "");
 
         
 
