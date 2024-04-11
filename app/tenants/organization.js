@@ -1829,8 +1829,11 @@ docReady(function () {
     // Telephone number
 
     var newTelephone = $("#tenantPhoneEdit").val()
+    if (newTelephone === '') {
+      newTelephone = null
+    }
     if (newTelephone !== currentData.phones) {
-      patchData.push({ op: "replace", path: "/phones", value: [{ phone: newTelephone, description: "Główny" }]});
+      patchData.push({ op: "replace", path: "/phones", value: [{ phone: newTelephone, description: "Główny" }] });
     }
 
     // Address
