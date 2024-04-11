@@ -712,7 +712,21 @@ docReady(function () {
         $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
         $("#tenantPhoneEdit").val((data.phones && data.phones[0].phone) || "");
 
-        
+        // Inform the user about the days left and the exact end date
+        var trialEndDateText = ""
+        const now = new Date();
+        const trialEndDate = new Date(toParse.trialEndDate);
+        const diff = trialEndDate.getTime() - now.getTime();
+        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+        if (daysLeft < 0) {
+          trialEndDateText = "Your trial has already ended.";
+        } else {
+          trialEndDateText = `Your trial has ${daysLeft} days left and will finish on ${trialEndDate.toDateString()}.`;
+        }
+
+
+
 
         // Assuming emails is an array of objects [{email: "", description: ""}, ...]
         if (data.emails && data.emails.length > 0) {
@@ -740,6 +754,9 @@ docReady(function () {
           }
 
           switch (dataType) {
+            case "tenantTrialEndDate":
+              element.textContent = trialEndDateText || "Aktywny";
+              break;
             case "tenantName":
               element.textContent = organizationName || "N/A";
               break;
