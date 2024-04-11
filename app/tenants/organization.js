@@ -1238,6 +1238,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
+        var modalCreateShop = $("#modalCreateShop");
         var action = InvokeURL + "shops";
         var data = {
           name: $("#newShopName").val(),
@@ -1273,6 +1274,7 @@ docReady(function () {
               }
             }
             form.hide();
+            modalCreateShop.hide();
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
