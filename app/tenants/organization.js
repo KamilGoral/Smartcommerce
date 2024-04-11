@@ -718,21 +718,23 @@ docReady(function () {
         const trialEndDate = new Date(toParse.trialEndDate);
         const diff = trialEndDate.getTime() - now.getTime();
         const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
         if (daysLeft < 0) {
-          trialEndDateText = "Your trial has already ended.";
+          trialEndDateText = "Aktywny";
+        } else if (daysLeft === 1) {
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 1 dzień i zakończy się ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+        } else if (daysLeft === 0) {
+          trialEndDateText = `Twój bezpłatny okres próbny kończy się dzisiaj, ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+        } else if (daysLeft > 30) {
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 30 dni i zakończy się ${fakeTrialEnd.toLocaleDateString('pl-PL')}.`;
         } else {
-          trialEndDateText = `Your trial has ${daysLeft} days left and will finish on ${trialEndDate.toDateString()}.`;
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze ${daysLeft} dni i zakończy się ${trialEndDate.toLocaleDateString('pl-PL')}.`;
         }
 
-
-
-
-        // Assuming emails is an array of objects [{email: "", description: ""}, ...]
         if (data.emails && data.emails.length > 0) {
           data.emails.forEach((email, index) => {
             if (index < 3) {
-              // Assuming there are up to 3 emails
               $(`#tenantEmailEdit${index + 1}`).val(email.email || "");
               $(`#tenantEmailEditDescription${index + 1}`).val(
                 email.description || ""
