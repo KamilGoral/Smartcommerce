@@ -1879,6 +1879,7 @@ docReady(function () {
     }, 150); // Delay the execution by 150 milliseconds
 }
 
+showDotForActiveTab()
   
   // Listen for tab clicks
   document.querySelectorAll('[data-w-tab]').forEach(link => {
