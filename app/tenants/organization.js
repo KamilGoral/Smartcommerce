@@ -1861,23 +1861,24 @@ docReady(function () {
   makeWebflowFormAjaxNewWh($(formIdNewWh));
 
   function showDotForActiveTab() {
+    setTimeout(function() {
+        if (document.querySelector('#w-tabs-0-data-w-tab-3.w--current')) {
+            document.querySelector('.nb1').classList.add('hidden');
+            document.querySelector('.nb2').classList.remove('hidden');
+        } else {
+            document.querySelector('.nb1').classList.remove('hidden');
+        }
 
-    if (document.querySelector('#w-tabs-0-data-w-tab-3.w--current')) {
-      document.querySelector('.nb1').classList.add('hidden');
-      document.querySelector('.nb2').classList.remove('hidden');
-    } else {
-      document.querySelector('.nb1').classList.remove('hidden');
-    }
-  
-    if (document.querySelector('#w-tabs-2-data-w-tab-1.w--current')) {
-      document.querySelector('.nb2').classList.add('hidden');
-      document.querySelector('.nb3').classList.remove('hidden');
-    } else {
-      document.querySelector('.nb3').classList.add('hidden');
-      document.querySelector('.nb2').classList.remove('hidden');
-    }
-  
-  }
+        if (document.querySelector('#w-tabs-2-data-w-tab-1.w--current')) {
+            document.querySelector('.nb2').classList.add('hidden');
+            document.querySelector('.nb3').classList.remove('hidden');
+        } else {
+            document.querySelector('.nb3').classList.add('hidden');
+            document.querySelector('.nb2').classList.remove('hidden');
+        }
+    }, 150); // Delay the execution by 150 milliseconds
+}
+
   
   // Listen for tab clicks
   document.querySelectorAll('[data-w-tab]').forEach(link => {
