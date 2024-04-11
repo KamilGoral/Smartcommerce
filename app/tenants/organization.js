@@ -203,19 +203,15 @@ docReady(function () {
         var shopNumber = data.total;
 
         if (shopNumber > 0) {
-          // Pobranie przycisku o id deleteOrganizationButton
           const deleteButton = document.getElementById('deleteOrganizationButton');
           const deleteOrganizationText = document.getElementById('deleteOrganizationText');
       
-          // Wyłączenie przycisku
           deleteButton.disabled = true;
+          deleteButton.style.opacity = "0.4";
       
-          // Dodanie klasy tippy do przycisku, aby Tippy.js mogło się do niego odwołać
           deleteButton.classList.add('tippy');
       
-          // Ustawienie treści podpowiedzi dla Tippy.js
-          deleteButton.setAttribute('title', 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.');
-          deleteOrganizationText.setAttribute('title', 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.');
+          deleteOrganizationText.textContent('Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.');
         }
 
         const shopContainer = document.getElementById("Shops-Container");
