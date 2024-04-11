@@ -744,7 +744,7 @@ docReady(function () {
               element.textContent = organizationName || "N/A";
               break;
             case "phone":
-              element.textContent = toParse.phones.phone || "N/A";
+              element.textContent = toParse.phones[0].phone || "N/A";
               break;
             case "standard":
               element.textContent =
