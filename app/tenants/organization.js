@@ -1739,9 +1739,10 @@ docReady(function () {
 
     // Telephone number
 
-    var newTelephone = $("#tenantPhoneEdit").val();
+    var newTelephone = [];
     if (newTelephone !== currentData.phone) {
-      patchData.push({ op: "replace", path: "/phone", value: newTelephone });
+      newTelephone.push({ email: $("#tenantPhoneEdit").val(), description: "Główny" });
+      patchData.push({ op: "replace", path: "/phones", value: newTelephone });
     }
 
     // Address
