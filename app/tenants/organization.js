@@ -1828,10 +1828,9 @@ docReady(function () {
 
     // Telephone number
 
-    var newTelephone = [];
-    if (newTelephone !== currentData.phone) {
-      newTelephone.push({ phone: $("#tenantPhoneEdit").val(), description: "Główny" });
-      patchData.push({ op: "replace", path: "/phones", value: newTelephone });
+    var newTelephone = $("#tenantPhoneEdit").val()
+    if (newTelephone !== currentData.phones) {
+      patchData.push({ op: "replace", path: "/phones", value: [{ phone: newTelephone, description: "Główny" }]});
     }
 
     // Address
