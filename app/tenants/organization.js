@@ -1741,7 +1741,7 @@ docReady(function () {
 
     var newTelephone = [];
     if (newTelephone !== currentData.phone) {
-      newTelephone.push({ email: $("#tenantPhoneEdit").val(), description: "Główny" });
+      newTelephone.push({ phone: $("#tenantPhoneEdit").val(), description: "Główny" });
       patchData.push({ op: "replace", path: "/phones", value: newTelephone });
     }
 
