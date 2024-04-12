@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -203,15 +203,20 @@ docReady(function () {
         var shopNumber = data.total;
 
         if (shopNumber > 0) {
-          const deleteButton = document.getElementById('deleteOrganizationButton');
-          const deleteOrganizationText = document.getElementById('deleteOrganizationText');
+          const deleteButton = document.getElementById(
+            "deleteOrganizationButton"
+          );
+          const deleteOrganizationText = document.getElementById(
+            "deleteOrganizationText"
+          );
 
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
 
-          deleteButton.classList.add('tippy');
+          deleteButton.classList.add("tippy");
 
-          deleteOrganizationText.textContent = 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.';
+          deleteOrganizationText.textContent =
+            "Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.";
         }
 
         const shopContainer = document.getElementById("Shops-Container");
@@ -434,11 +439,7 @@ docReady(function () {
       success: function (response) {
         console.log("User deleted successfully", response);
         // Directly targeting the clicked icon's parent row for removal
-        $("#table_users_list")
-          .DataTable()
-          .row($(this).closest("tr"))
-          .remove()
-          .draw();
+        dataTable.row(row).remove().draw();
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Failed to delete user", textStatus, errorThrown);
@@ -692,23 +693,28 @@ docReady(function () {
 
     function showDotForActiveTab() {
       setTimeout(function () {
-        const isTab3Active = document.querySelector('#w-tabs-0-data-w-tab-3.w--current');
-        const isTab1Active = document.querySelector('#w-tabs-2-data-w-tab-1.w--current');
+        const isTab3Active = document.querySelector(
+          "#w-tabs-0-data-w-tab-3.w--current"
+        );
+        const isTab1Active = document.querySelector(
+          "#w-tabs-2-data-w-tab-1.w--current"
+        );
 
-        document.querySelector('.nb1').classList.toggle('hidden', isTab3Active);
-        document.querySelector('.nb2').classList.toggle('hidden', !isTab3Active || isTab1Active);
-        document.querySelector('.nb3').classList.toggle('hidden', !isTab1Active);
+        document.querySelector(".nb1").classList.toggle("hidden", isTab3Active);
+        document
+          .querySelector(".nb2")
+          .classList.toggle("hidden", !isTab3Active || isTab1Active);
+        document
+          .querySelector(".nb3")
+          .classList.toggle("hidden", !isTab1Active);
       }, 150); // Delay the execution by 150 milliseconds
     }
 
-
-
-
     let url = new URL(
       InvokeURL +
-      "tenants/" +
-      document.querySelector("#organizationName").textContent +
-      "/billing"
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -716,7 +722,8 @@ docReady(function () {
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
-        const hasRequiredKeys = data.taxId !== null &&
+        const hasRequiredKeys =
+          data.taxId !== null &&
           data.name !== null &&
           data.address && // Check if address object itself exists
           data.address.country !== null &&
@@ -731,14 +738,13 @@ docReady(function () {
         console.log(hasRequiredKeys);
 
         if (hasRequiredKeys) {
-          console.log("All is good")
+          console.log("All is good");
         } else {
           // Initial check and setup event listeners
           showDotForActiveTab();
-          document.querySelectorAll('[data-w-tab]').forEach(link => {
-            link.addEventListener('click', showDotForActiveTab);
+          document.querySelectorAll("[data-w-tab]").forEach((link) => {
+            link.addEventListener("click", showDotForActiveTab);
           });
-
         }
         var toParse = data; // Assuming 'data' is the object shown in your example
         // Directly mapping data to fields
@@ -747,30 +753,29 @@ docReady(function () {
 
         // Mapping Polish state names to <select> element values
         var stateMapping = {
-          "Dolnośląskie": "LowerSilesian",
+          Dolnośląskie: "LowerSilesian",
           "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
-          "Lubelskie": "Lublin",
-          "Lubuskie": "Lubusz",
-          "Łódzkie": "Łódź",
-          "Małopolskie": "Lesser Poland",
-          "Mazowieckie": "Masovian",
-          "Opolskie": "Opole",
-          "Podkarpackie": "Subcarpathian",
-          "Podlaskie": "Podlaskie",
-          "Pomorskie": "Pomeranian",
-          "Śląskie": "Silesian",
-          "Świętokrzyskie": "HolyCross",
+          Lubelskie: "Lublin",
+          Lubuskie: "Lubusz",
+          Łódzkie: "Łódź",
+          Małopolskie: "Lesser Poland",
+          Mazowieckie: "Masovian",
+          Opolskie: "Opole",
+          Podkarpackie: "Subcarpathian",
+          Podlaskie: "Podlaskie",
+          Pomorskie: "Pomeranian",
+          Śląskie: "Silesian",
+          Świętokrzyskie: "HolyCross",
           "Warmińsko-Mazurskie": "Warmian-Masurian",
-          "Wielkopolskie": "Greater Poland",
-          "Zachodniopomorskie": "West Pomeranian"
+          Wielkopolskie: "Greater Poland",
+          Zachodniopomorskie: "West Pomeranian",
         };
 
-        if (data.address && typeof data.address.state !== 'undefined') {
+        if (data.address && typeof data.address.state !== "undefined") {
           $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
         } else {
           $("#tenantStateEdit").val("");
         }
-
 
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
         $("#tenantPostcodeEdit").val(
@@ -780,7 +785,7 @@ docReady(function () {
         $("#tenantPhoneEdit").val((data.phones && data.phones[0].phone) || "");
 
         // Inform the user about the days left and the exact end date
-        var trialEndDateText = ""
+        var trialEndDateText = "";
         const now = new Date();
         const trialEndDate = new Date(toParse.trialEndDate);
         const diff = trialEndDate.getTime() - now.getTime();
@@ -790,13 +795,21 @@ docReady(function () {
         if (daysLeft < 0) {
           trialEndDateText = "Aktywny";
         } else if (daysLeft === 1) {
-          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 1 dzień i zakończy się ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 1 dzień i zakończy się ${trialEndDate.toLocaleDateString(
+            "pl-PL"
+          )}.`;
         } else if (daysLeft === 0) {
-          trialEndDateText = `Twój bezpłatny okres próbny kończy się dzisiaj, ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+          trialEndDateText = `Twój bezpłatny okres próbny kończy się dzisiaj, ${trialEndDate.toLocaleDateString(
+            "pl-PL"
+          )}.`;
         } else if (daysLeft > 30) {
-          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 30 dni i zakończy się ${fakeTrialEnd.toLocaleDateString('pl-PL')}.`;
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 30 dni i zakończy się ${fakeTrialEnd.toLocaleDateString(
+            "pl-PL"
+          )}.`;
         } else {
-          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze ${daysLeft} dni i zakończy się ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze ${daysLeft} dni i zakończy się ${trialEndDate.toLocaleDateString(
+            "pl-PL"
+          )}.`;
         }
 
         if (data.emails && data.emails.length > 0) {
@@ -830,7 +843,11 @@ docReady(function () {
               element.textContent = organizationName || "N/A";
               break;
             case "phone":
-              if (toParse.phones && toParse.phones.length > 0 && toParse.phones[0].phone) {
+              if (
+                toParse.phones &&
+                toParse.phones.length > 0 &&
+                toParse.phones[0].phone
+              ) {
                 element.textContent = toParse.phones[0].phone;
               } else {
                 element.textContent = "N/A";
@@ -848,11 +865,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                  toParse.pricing.specialService.fee
+                toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                  " - " +
-                  toParse.pricing.specialService.fee +
-                  " zł/miesięcznie"
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -865,14 +882,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                  toParse.address.town,
-                  toParse.address.postcode,
-                  toParse.address.line1,
-                  toParse.address.state,
-                  toParse.address.country,
-                ]
-                  .filter((part) => part)
-                  .join(", ")
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.state,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -936,8 +953,6 @@ docReady(function () {
       console.log("Action not permitted for non-admin users.");
       return;
     }
-
-
 
     try {
       GetTenantBilling();
@@ -1623,9 +1638,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1738,8 +1753,11 @@ docReady(function () {
     });
   };
 
-
-  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
+  makeWebflowFormAjaxPatchTenantBilling = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
@@ -1754,8 +1772,8 @@ docReady(function () {
           contentType: "application/json",
           dataType: "json",
           headers: {
-            "Authorization": orgToken,
-            "Accept": "application/json",
+            Authorization: orgToken,
+            Accept: "application/json",
             "Content-Type": "application/json",
           },
           beforeSend: function () {
@@ -1774,7 +1792,7 @@ docReady(function () {
               contentType: "application/json",
               dataType: "json",
               headers: {
-                "Authorization": orgToken,
+                Authorization: orgToken,
               },
               beforeSend: function () {
                 $("#waitingdots").show();
@@ -1789,9 +1807,9 @@ docReady(function () {
                   successCallback(resultData);
                 }
                 // Hide editBillingModal and show form-done-edit for 2 seconds
-                $('#form-done-edit').css('display', 'flex');
+                $("#form-done-edit").css("display", "flex");
                 setTimeout(function () {
-                  $('#editBillingModal').hide();
+                  $("#editBillingModal").hide();
                   location.reload();
                 }, 3000);
               },
@@ -1800,7 +1818,7 @@ docReady(function () {
                   errorCallback();
                 }
                 // Show form-done-fail-edit on error
-                $('#form-done-fail-edit').css('display', 'flex');
+                $("#form-done-fail-edit").css("display", "flex");
               },
             });
           },
@@ -1809,15 +1827,13 @@ docReady(function () {
               errorCallback();
             }
             // Show form-done-fail-edit on error
-            $('#form-done-fail-edit').css('display', 'flex');
+            $("#form-done-fail-edit").css("display", "flex");
           },
         });
         return false; // Prevent the form from submitting normally
       });
     });
   };
-
-
 
   function preparePatchData(currentData) {
     var patchData = [];
@@ -1836,12 +1852,16 @@ docReady(function () {
 
     // Telephone number
 
-    var newTelephone = $("#tenantPhoneEdit").val()
-    if (newTelephone === '') {
-      newTelephone = null
+    var newTelephone = $("#tenantPhoneEdit").val();
+    if (newTelephone === "") {
+      newTelephone = null;
     }
     if (newTelephone !== currentData.phones) {
-      patchData.push({ op: "replace", path: "/phones", value: [{ phone: newTelephone, description: "Główny" }] });
+      patchData.push({
+        op: "replace",
+        path: "/phones",
+        value: [{ phone: newTelephone, description: "Główny" }],
+      });
     }
 
     // Address
@@ -1850,11 +1870,13 @@ docReady(function () {
       line1: $("#tenantAdressEdit").val(),
       town: $("#tenantTownEdit").val(),
       state: $("#tenantStateEdit option:selected").text(),
-      postcode: $("#tenantPostcodeEdit").val()
+      postcode: $("#tenantPostcodeEdit").val(),
     };
 
     // Compare each property to see if any part of the address has changed
-    var addressChanged = Object.keys(newAddress).some(key => newAddress[key] !== (currentData.address[key] || ''));
+    var addressChanged = Object.keys(newAddress).some(
+      (key) => newAddress[key] !== (currentData.address[key] || "")
+    );
     if (addressChanged) {
       patchData.push({ op: "replace", path: "/address", value: newAddress });
     }
@@ -1864,7 +1886,8 @@ docReady(function () {
     for (let i = 1; i <= 3; i++) {
       let email = $(`#tenantEmailEdit${i}`).val();
       let description = $(`#tenantEmailEditDescription${i}`).val();
-      if (email || description) { // Add if either field is filled
+      if (email || description) {
+        // Add if either field is filled
         newEmails.push({ email: email, description: description });
       }
     }
@@ -1876,8 +1899,6 @@ docReady(function () {
 
     return patchData;
   }
-
-
 
   function LoadTippy() {
     $.getScript(
@@ -1917,14 +1938,9 @@ docReady(function () {
   makeWebflowFormAjaxCreate($(formIdCreate));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
 
-
-
-
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
-
-
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
