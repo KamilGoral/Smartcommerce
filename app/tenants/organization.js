@@ -389,10 +389,18 @@ docReady(function () {
   });
 
   $("#table_users_list").on("click", ".details-control4", function () {
-    var userId = $(this)
-      .closest("tr")
-      .find(".user-role-select")
-      .data("user-id");
+    // Retrieve the DataTable row as a jQuery object
+    var row = $(this).closest("tr");
+
+    // Retrieve the DataTable API object
+    var dataTable = $("#table_users_list").DataTable();
+
+    // Get the data for the row
+    var rowData = dataTable.row(row).data();
+
+    // Extract the user ID from the hidden column
+    var userId = rowData.id; // Assuming the 'id' is stored in the hidden column
+
     if (!userId) {
       console.error("User ID not found");
       return;

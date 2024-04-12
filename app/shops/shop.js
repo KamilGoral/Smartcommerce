@@ -34,11 +34,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -80,7 +80,6 @@ docReady(function () {
           "href",
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
-
       } else {
         console.log("error");
       }
@@ -281,11 +280,11 @@ docReady(function () {
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
-        $('#emptystateorders').show();
-        $('#orderscontainer').hide();
+        $("#emptystateorders").show();
+        $("#orderscontainer").hide();
       } else {
-        $('#emptystateorders').hide();
-        $('#orderscontainer').show();
+        $("#emptystateorders").hide();
+        $("#orderscontainer").show();
       }
     }
   }
@@ -728,14 +727,13 @@ docReady(function () {
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
-        $('#emptystateoffers').show();
-        $('#offerscontainer').hide();
+        $("#emptystateoffers").show();
+        $("#offerscontainer").hide();
       } else {
-        $('#emptystateoffers').hide();
-        $('#offerscontainer').show();
+        $("#emptystateoffers").hide();
+        $("#offerscontainer").show();
       }
     }
-
 
     // Set up refresh interval
     refreshInterval = setInterval(function () {
@@ -788,11 +786,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1081,14 +1079,13 @@ docReady(function () {
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
-      $('#emptystatepricelistshop').show();
-      $('#pricelistshopcontainer').hide();
+      $("#emptystatepricelistshop").show();
+      $("#pricelistshopcontainer").hide();
     } else {
-      $('#emptystatepricelistshop').hide();
-      $('#pricelistshopcontainer').show();
+      $("#emptystatepricelistshop").hide();
+      $("#pricelistshopcontainer").show();
     }
   }
-
 
   $("#table_pricelists_list").on(
     "click",
@@ -1099,9 +1096,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1178,12 +1175,12 @@ docReady(function () {
         var sort = "" + whichColumns + direction;
 
         $.get(
-          InvokeURL + "shops/" +
-          shopKey + "/wholesalers", {
-          sort: sort,
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
-        },
+          InvokeURL + "shops/" + shopKey + "/wholesalers",
+          {
+            sort: sort,
+            perPage: data.length,
+            page: (data.start + data.length) / data.length,
+          },
           function (res) {
             callback({
               recordsTotal: res.total,
@@ -1198,131 +1195,136 @@ docReady(function () {
       search: {
         return: true,
       },
-      columns: [{
-        orderable: false,
-        data: null,
-        width: "36px",
-        defaultContent: "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-      },
-      {
-        orderable: true,
-        data: "wholesalerKey",
-        visible: false,
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          } else {
-            return "";
-          }
+      columns: [
+        {
+          orderable: false,
+          data: null,
+          width: "36px",
+          defaultContent:
+            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
         },
-      },
-      {
-        orderable: true,
-        data: "name",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          } else {
-            return "";
-          }
+        {
+          orderable: true,
+          data: "wholesalerKey",
+          visible: false,
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            } else {
+              return "";
+            }
+          },
         },
-      },
-      {
-        orderable: false,
-        data: "logisticMinimum",
-        width: "108px",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          } else {
-            return "-";
-          }
+        {
+          orderable: true,
+          data: "name",
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            } else {
+              return "";
+            }
+          },
         },
-      },
-      {
-        orderable: true,
-        data: "connections.retroactive",
-        width: "108px",
-        visible: true,
-        render: function (data) {
-          if (data !== null) {
-            if (data.enabled) {
-              return '<spann class="positive">Tak</spann>';
+        {
+          orderable: false,
+          data: "logisticMinimum",
+          width: "108px",
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            } else {
+              return "-";
+            }
+          },
+        },
+        {
+          orderable: true,
+          data: "connections.retroactive",
+          width: "108px",
+          visible: true,
+          render: function (data) {
+            if (data !== null) {
+              if (data.enabled) {
+                return '<spann class="positive">Tak</spann>';
+              } else {
+                return '<spann class="negative">Nie</spann>';
+              }
             } else {
               return '<spann class="negative">Nie</spann>';
             }
-          } else {
-            return '<spann class="negative">Nie</spann>';
-          }
+          },
         },
-      },
-      {
-        orderable: true,
-        data: "connections.ftp",
-        width: "72px",
-        render: function (data) {
-          if (data !== null) {
-            if (data.enabled) {
-              return '<spann class="positive">Tak</spann>';
+        {
+          orderable: true,
+          data: "connections.ftp",
+          width: "72px",
+          render: function (data) {
+            if (data !== null) {
+              if (data.enabled) {
+                return '<spann class="positive">Tak</spann>';
+              } else {
+                return '<spann class="medium">Dodaj</spann>';
+              }
             } else {
-              return '<spann class="medium">Dodaj</spann>';
+              return '<spann class="negative">Nie</spann>';
             }
-          } else {
-            return '<spann class="negative">Nie</spann>';
-          }
+          },
         },
-      },
-      {
-        orderable: false,
-        data: "connections.wms",
-        visible: false,
-        width: "72px",
-        render: function (data) {
-          if (data !== null) {
-            if (data.enabled) {
-              return '<spann class="positive">Tak</spann>';
+        {
+          orderable: false,
+          data: "connections.wms",
+          visible: false,
+          width: "72px",
+          render: function (data) {
+            if (data !== null) {
+              if (data.enabled) {
+                return '<spann class="positive">Tak</spann>';
+              } else {
+                return '<spann class="noneexisting">Brak</spann>';
+              }
             } else {
               return '<spann class="noneexisting">Brak</spann>';
             }
-          } else {
-            return '<spann class="noneexisting">Brak</spann>';
-          }
+          },
         },
-      },
-      {
-        orderable: true,
-        data: "connections.onlineOffer",
-        width: "72px",
-        render: function (data) {
-          if (data !== null) {
-            if (data.enabled == true && data.active == true) {
-              return '<spann class="positive">Tak</spann>';
-            } else if (data.enabled == false && data.active == false) {
-              return '<spann class="medium">Dodaj</spann>';
-            } else if (data.enabled == true && data.active == false) {
-              return '<spann class="improve">Przywróć</spann>';
-            } else if (data.enabled == false && data.active == true) {
-              return '<spann class="medium">Dodaj</spann>';
+        {
+          orderable: true,
+          data: "connections.onlineOffer",
+          width: "72px",
+          render: function (data) {
+            if (data !== null) {
+              if (data.enabled == true && data.active == true) {
+                return '<spann class="positive">Tak</spann>';
+              } else if (data.enabled == false && data.active == false) {
+                return '<spann class="medium">Dodaj</spann>';
+              } else if (data.enabled == true && data.active == false) {
+                return '<spann class="improve">Przywróć</spann>';
+              } else if (data.enabled == false && data.active == true) {
+                return '<spann class="medium">Dodaj</spann>';
+              }
+            } else {
+              return '<spann class="noneexisting">Brak</spann>';
             }
-          } else {
-            return '<spann class="noneexisting">Brak</spann>';
-          }
+          },
         },
-      },
-      {
-        orderable: false,
-        data: "wholesalerKey",
-        width: "72px",
-        render: function (data, type, row, meta) {
-          // Using render function to dynamically generate the anchor tag
-          return '<div class="action-container"><a href="https://' +
-            DomainName +
-            '/app/wholesalers/wholesaler?shopKey=' +
-            shopKey +
-            '&wholesalerKey=' +
-            data + '" class="buttonoutline editme w-button">Przejdź</a></div>';
+        {
+          orderable: false,
+          data: "wholesalerKey",
+          width: "72px",
+          render: function (data, type, row, meta) {
+            // Using render function to dynamically generate the anchor tag
+            return (
+              '<div class="action-container"><a href="https://' +
+              DomainName +
+              "/app/wholesalers/wholesaler?shopKey=" +
+              shopKey +
+              "&wholesalerKey=" +
+              data +
+              '" class="buttonoutline editme w-button">Przejdź</a></div>'
+            );
+          },
         },
-      }
       ],
       drawCallback: function (settings) {
         toggleEmptyState();
@@ -1335,15 +1337,14 @@ docReady(function () {
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
-        $('#emptystatevendors').show();
-        $('#vendorscontainer').hide();
+        $("#emptystatevendors").show();
+        $("#vendorscontainer").hide();
       } else {
-        $('#emptystatevendors').hide();
-        $('#vendorscontainer').show();
+        $("#emptystatevendors").hide();
+        $("#vendorscontainer").show();
       }
     }
   }
-
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1492,7 +1493,13 @@ docReady(function () {
             doneBlock.fadeOut(3000);
             failBlock.hide();
             window.setTimeout(function () {
-              location.reload();
+              document.location =
+                "https://" +
+                DomainName +
+                "/app/tenants/organization?name=" +
+                OrganizationName +
+                "&clientId=" +
+                ClientID;
             }, 3500);
           },
           error: function (e) {
@@ -1699,11 +1706,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },
