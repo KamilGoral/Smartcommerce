@@ -873,7 +873,7 @@ docReady(function () {
           whname: $("#WholesalerName").text(),
           taxId: "random",
           platformUrl: $("#platformUrl").val(),
-          organizationName: "random",
+          organizationName: OrganizationName,
           form: "new-Wholesaler",
         };
 

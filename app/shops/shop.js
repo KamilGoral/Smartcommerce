@@ -51,26 +51,6 @@ docReady(function () {
       var data = JSON.parse(this.response);
 
       if (request.status >= 200 && request.status < 400) {
-        const itemContainer = document.getElementById("shop-Container");
-        const item = document.getElementById("sampleShop");
-        const shName = document.getElementById("shName");
-        const shName2 = document.getElementById("shName2");
-        const shCountry = document.getElementById("shCountry");
-        const shLine1 = document.getElementById("shLine1");
-        const shTown = document.getElementById("shTown");
-        const shState = document.getElementById("shState");
-        const shPostcode = document.getElementById("shPostcode");
-        const shShopKey = document.getElementById("shShopKey");
-
-        const shNameInput = document.getElementById("NewShopName");
-        const shKeyInput = document.getElementById("NewShopKey");
-        const shCountryInput = document.getElementById("NewShopCountry");
-        const shLine1Input = document.getElementById("NewShopLine");
-        const shTownInput = document.getElementById("NewShopTown");
-        const shStateInput = document.getElementById("NewShopState");
-        const shPostcodeInput = document.getElementById("NewShopPostCode");
-        const pcMarketId = document.getElementById("pcMarketId");
-
         sessionStorage.setItem("shopKey", data.shopKey);
         sessionStorage.setItem("shopName", data.name);
         var ShopKeyBreadName = sessionStorage.getItem("shopName");
@@ -80,6 +60,43 @@ docReady(function () {
           "href",
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
+
+        // Update shopName, shopKey, and other information
+        document.querySelector('[shopdata="shopName"]').textContent =
+          data.name || "N/A";
+        document.querySelector('[shopdata="shopKey"]').textContent =
+          data.shopKey || "N/A";
+
+        // Address information
+        if (data.address) {
+          const { country, line1, town, state, postcode } = data.address;
+          const addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+          document.querySelector('[shopdata="address"]').textContent =
+            addressDescription || "N/A";
+        }
+
+        // Email information
+        if (data.emails && data.emails.length > 0) {
+          const emailsDescription = data.emails
+            .map((email) => email.email)
+            .join(", ");
+          document.querySelector('[shopdata="emails"]').textContent =
+            emailsDescription || "N/A";
+        }
+
+        // Phone information
+        if (data.phones && data.phones.length > 0) {
+          const phonesDescription = data.phones
+            .map((phone) => phone.phone)
+            .join(", ");
+          document.querySelector('[shopdata="phones"]').textContent =
+            phonesDescription || "N/A";
+        }
+        if (data.merchantConsoleShopId) {
+          document.querySelector(
+            '[shopdata="merchantConsoleShopId"]'
+          ).textContent = data.merchantConsoleShopId || "";
+        }
       } else {
         console.log("error");
       }

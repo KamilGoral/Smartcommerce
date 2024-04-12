@@ -41,6 +41,7 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
+        var createorgmodal = $("#createorgmodal");
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
         var action = InvokeURL + "tenants";
@@ -81,11 +82,13 @@ docReady(function () {
                 return;
               }
             }
-
+            createorgmodal.hide();
             form.hide();
             doneBlock.show();
             failBlock.hide();
-            window.location.replace("https://" + DomainName + "/app/users/me");
+            setTimeout(function() {
+              window.location.replace("https://" + DomainName + "/app/users/me");
+            }, 2000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);

@@ -34,7 +34,7 @@ docReady(function () {
   var formIdInvite = "#wf-form-Invite-User";
   var formIdCreate = "#wf-form-Create-Shop";
   var formIdNewWh = "#wf-form-Create-wholesaler";
-  var formIdEditBilling = "#wf-form-editCompanyBilling-form";
+  var formIdEditBilling = "#wf-form-editCompanyBilling-form-correct";
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
   OrganizationNameHeader.textContent = organizationName;
@@ -42,11 +42,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
@@ -175,8 +175,6 @@ docReady(function () {
       var data = JSON.parse(this.response);
 
       if (request.status >= 200 && request.status < 400) {
-        console.log(data);
-        console.log(data.role);
         function setCookieAndSession(cName, cValue, expirationSec) {
           let date = new Date();
           date.setTime(date.getTime() + expirationSec * 1000);
@@ -202,6 +200,20 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
         var toParse = data.items;
+        var shopNumber = data.total;
+
+        if (shopNumber > 0) {
+          const deleteButton = document.getElementById('deleteOrganizationButton');
+          const deleteOrganizationText = document.getElementById('deleteOrganizationText');
+
+          deleteButton.disabled = true;
+          deleteButton.style.opacity = "0.4";
+
+          deleteButton.classList.add('tippy');
+
+          deleteOrganizationText.textContent = 'Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.';
+        }
+
         const shopContainer = document.getElementById("Shops-Container");
 
         toParse.forEach((shop) => {
@@ -671,11 +683,32 @@ docReady(function () {
   }
 
   function GetTenantBilling() {
+    userRole = getCookie("sprytnyUserRole");
+
+    if (userRole !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
+    function showDotForActiveTab() {
+      setTimeout(function () {
+        const isTab3Active = document.querySelector('#w-tabs-0-data-w-tab-3.w--current');
+        const isTab1Active = document.querySelector('#w-tabs-2-data-w-tab-1.w--current');
+
+        document.querySelector('.nb1').classList.toggle('hidden', isTab3Active);
+        document.querySelector('.nb2').classList.toggle('hidden', !isTab3Active || isTab1Active);
+        document.querySelector('.nb3').classList.toggle('hidden', !isTab1Active);
+      }, 150); // Delay the execution by 150 milliseconds
+    }
+
+
+
+
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -683,24 +716,92 @@ docReady(function () {
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
-        var toParse = data; // Assuming 'data' is the object shown in your example
-        console.log(data);
+        const hasRequiredKeys = data.taxId !== null &&
+          data.name !== null &&
+          data.address && // Check if address object itself exists
+          data.address.country !== null &&
+          data.address.line1 !== null && // 'line2' is not required
+          data.address.town !== null &&
+          data.address.state !== null &&
+          data.address.postcode !== null && // 'phones' is not required
+          data.pricing && // Check if pricing object itself exists
+          data.pricing.standard !== null &&
+          data.pricing.premium !== null; // 'specialService' and 'trialEndDate' are not required
 
+        console.log(hasRequiredKeys);
+
+        if (hasRequiredKeys) {
+          console.log("All is good")
+        } else {
+          // Initial check and setup event listeners
+          showDotForActiveTab();
+          document.querySelectorAll('[data-w-tab]').forEach(link => {
+            link.addEventListener('click', showDotForActiveTab);
+          });
+
+        }
+        var toParse = data; // Assuming 'data' is the object shown in your example
         // Directly mapping data to fields
         $("#tenantNameEdit").val(data.name || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
-        $("#tenantStateEdit").val((data.address && data.address.state) || "");
+
+        // Mapping Polish state names to <select> element values
+        var stateMapping = {
+          "Dolnośląskie": "LowerSilesian",
+          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
+          "Lubelskie": "Lublin",
+          "Lubuskie": "Lubusz",
+          "Łódzkie": "Łódź",
+          "Małopolskie": "Lesser Poland",
+          "Mazowieckie": "Masovian",
+          "Opolskie": "Opole",
+          "Podkarpackie": "Subcarpathian",
+          "Podlaskie": "Podlaskie",
+          "Pomorskie": "Pomeranian",
+          "Śląskie": "Silesian",
+          "Świętokrzyskie": "HolyCross",
+          "Warmińsko-Mazurskie": "Warmian-Masurian",
+          "Wielkopolskie": "Greater Poland",
+          "Zachodniopomorskie": "West Pomeranian"
+        };
+
+        if (data.address && typeof data.address.state !== 'undefined') {
+          $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
+        } else {
+          $("#tenantStateEdit").val("");
+        }
+
+
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
         $("#tenantPostcodeEdit").val(
           (data.address && data.address.postcode) || ""
         );
         $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
+        $("#tenantPhoneEdit").val((data.phones && data.phones[0].phone) || "");
 
-        // Assuming emails is an array of objects [{email: "", description: ""}, ...]
+        // Inform the user about the days left and the exact end date
+        var trialEndDateText = ""
+        const now = new Date();
+        const trialEndDate = new Date(toParse.trialEndDate);
+        const diff = trialEndDate.getTime() - now.getTime();
+        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        if (daysLeft < 0) {
+          trialEndDateText = "Aktywny";
+        } else if (daysLeft === 1) {
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 1 dzień i zakończy się ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+        } else if (daysLeft === 0) {
+          trialEndDateText = `Twój bezpłatny okres próbny kończy się dzisiaj, ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+        } else if (daysLeft > 30) {
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 30 dni i zakończy się ${fakeTrialEnd.toLocaleDateString('pl-PL')}.`;
+        } else {
+          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze ${daysLeft} dni i zakończy się ${trialEndDate.toLocaleDateString('pl-PL')}.`;
+        }
+
         if (data.emails && data.emails.length > 0) {
           data.emails.forEach((email, index) => {
             if (index < 3) {
-              // Assuming there are up to 3 emails
               $(`#tenantEmailEdit${index + 1}`).val(email.email || "");
               $(`#tenantEmailEditDescription${index + 1}`).val(
                 email.description || ""
@@ -722,8 +823,18 @@ docReady(function () {
           }
 
           switch (dataType) {
+            case "tenantTrialEndDate":
+              element.textContent = trialEndDateText || "Aktywny";
+              break;
             case "tenantName":
               element.textContent = organizationName || "N/A";
+              break;
+            case "phone":
+              if (toParse.phones && toParse.phones.length > 0 && toParse.phones[0].phone) {
+                element.textContent = toParse.phones[0].phone;
+              } else {
+                element.textContent = "N/A";
+              }
               break;
             case "standard":
               element.textContent =
@@ -737,11 +848,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
+                  toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
+                  " - " +
+                  toParse.pricing.specialService.fee +
+                  " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -754,14 +865,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.state,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
+                  toParse.address.town,
+                  toParse.address.postcode,
+                  toParse.address.line1,
+                  toParse.address.state,
+                  toParse.address.country,
+                ]
+                  .filter((part) => part)
+                  .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -791,11 +902,8 @@ docReady(function () {
                   : "N/A";
               break;
             case "emails":
-              // Logowanie dla celów debugowania
-              console.log("Aktualizacja e-maili:", toParse.emails);
               const emails =
                 toParse.emails && toParse.emails.map((e) => e.email).join(", ");
-              console.log("Przetworzone e-maile do wyświetlenia:", emails);
               element.textContent = emails || "N/A";
               break;
           }
@@ -828,6 +936,8 @@ docReady(function () {
       console.log("Action not permitted for non-admin users.");
       return;
     }
+
+
 
     try {
       GetTenantBilling();
@@ -1183,6 +1293,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $(".w-form-done", container);
         var failBlock = $(".w-form-fail", container);
+        var modalCreateShop = $("#modalCreateShop");
         var action = InvokeURL + "shops";
         var data = {
           name: $("#newShopName").val(),
@@ -1218,6 +1329,7 @@ docReady(function () {
               }
             }
             form.hide();
+            modalCreateShop.hide();
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
@@ -1511,9 +1623,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -1626,94 +1738,146 @@ docReady(function () {
     });
   };
 
-  // Function to patch tenant details via AJAX to a specified endpoint.
-  makeWebflowFormAjaxPatchTenantBilling = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
+
+  makeWebflowFormAjaxPatchTenantBilling = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
 
-        var action =
-          InvokeURL + "tenants/" + $("#organizationName").text() + "/billing";
-
-        var data = [
-          {
-            op: "replace",
-            path: "/name",
-            value: $("#tenantNameEdit").val(),
-          },
-          {
-            op: "replace",
-            path: "/taxId",
-            value: $("#tenantTaxIdEdit").val(),
-          },
-          {
-            op: "replace",
-            path: "/address",
-            value: {
-              country: "Polska",
-              line1: $("#tenantAdressEdit").val(),
-              town: $("#tenantTownEdit").val(),
-              state: $("#tenantStateEdit option:selected").text(),
-              postcode: $("#tenantPostcodeEdit").val(),
-            },
-          },
-          // {
-          //   op: "add",
-          //   path: "/emails",
-          //   value: [
-          //     {
-          //       email: $("#tenantEmailEdit1").val(),
-          //       description: $("#tenantEmailEditDescription1").val(),
-          //     },
-          //     {
-          //       email: $("#tenantEmailEdit2").val(),
-          //       description: $("#tenantEmailEditDescription2").val(),
-          //     },
-          //     {
-          //       email: $("#tenantEmailEdit3").val(),
-          //       description: $("#tenantEmailEditDescription3").val(),
-          //     },
-          //   ],
-          // },
-        ];
+        const organizationName = $("#organizationName").text();
+        const url = `${InvokeURL}tenants/${organizationName}/billing`;
 
         $.ajax({
-          type: "PATCH",
-          url: action,
-          cors: true,
+          type: "GET",
+          url: url,
           contentType: "application/json",
           dataType: "json",
           headers: {
-            Accept: "application/json",
+            "Authorization": orgToken,
+            "Accept": "application/json",
             "Content-Type": "application/json",
-            Authorization: orgToken,
           },
-          data: JSON.stringify(data),
           beforeSend: function () {
             $("#waitingdots").show();
           },
           complete: function () {
             $("#waitingdots").hide();
           },
-          success: function (resultData) {
-            console.log("Update successful", resultData);
-            // Handle success (e.g., show success message, redirect, etc.)
+          success: function (currentData) {
+            const patchData = preparePatchData(currentData);
+
+            $.ajax({
+              type: "PATCH",
+              url: url,
+              data: JSON.stringify(patchData),
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                "Authorization": orgToken,
+              },
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                setTimeout(function () {
+                  $("#waitingdots").hide();
+                }, 1000); // 1000 milliseconds = 1 second
+              },
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  successCallback(resultData);
+                }
+                // Hide editBillingModal and show form-done-edit for 2 seconds
+                $('#form-done-edit').css('display', 'flex');
+                setTimeout(function () {
+                  $('#editBillingModal').hide();
+                  location.reload();
+                }, 3000);
+              },
+              error: function () {
+                if (typeof errorCallback === "function") {
+                  errorCallback();
+                }
+                // Show form-done-fail-edit on error
+                $('#form-done-fail-edit').css('display', 'flex');
+              },
+            });
           },
-          error: function (jqXHR, textStatus, errorThrown) {
-            console.error("Update failed", jqXHR, textStatus, errorThrown);
-            // Handle error (e.g., show error message)
+          error: function () {
+            if (typeof errorCallback === "function") {
+              errorCallback();
+            }
+            // Show form-done-fail-edit on error
+            $('#form-done-fail-edit').css('display', 'flex');
           },
         });
-
-        return false;
+        return false; // Prevent the form from submitting normally
       });
     });
   };
+
+
+
+  function preparePatchData(currentData) {
+    var patchData = [];
+
+    // Name
+    var newName = $("#tenantNameEdit").val();
+    if (newName !== currentData.name) {
+      patchData.push({ op: "replace", path: "/name", value: newName });
+    }
+
+    // Tax ID
+    var newTaxId = $("#tenantTaxIdEdit").val();
+    if (newTaxId !== currentData.taxId) {
+      patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
+    }
+
+    // Telephone number
+
+    var newTelephone = $("#tenantPhoneEdit").val()
+    if (newTelephone === '') {
+      newTelephone = null
+    }
+    if (newTelephone !== currentData.phones) {
+      patchData.push({ op: "replace", path: "/phones", value: [{ phone: newTelephone, description: "Główny" }] });
+    }
+
+    // Address
+    var newAddress = {
+      country: "Polska", // Assuming the country is always Poland
+      line1: $("#tenantAdressEdit").val(),
+      town: $("#tenantTownEdit").val(),
+      state: $("#tenantStateEdit option:selected").text(),
+      postcode: $("#tenantPostcodeEdit").val()
+    };
+
+    // Compare each property to see if any part of the address has changed
+    var addressChanged = Object.keys(newAddress).some(key => newAddress[key] !== (currentData.address[key] || ''));
+    if (addressChanged) {
+      patchData.push({ op: "replace", path: "/address", value: newAddress });
+    }
+
+    // Emails
+    var newEmails = [];
+    for (let i = 1; i <= 3; i++) {
+      let email = $(`#tenantEmailEdit${i}`).val();
+      let description = $(`#tenantEmailEditDescription${i}`).val();
+      if (email || description) { // Add if either field is filled
+        newEmails.push({ email: email, description: description });
+      }
+    }
+
+    // Only replace emails if there's a difference, using JSON.stringify for a quick deep comparison
+    if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
+      patchData.push({ op: "replace", path: "/emails", value: newEmails });
+    }
+
+    return patchData;
+  }
+
+
 
   function LoadTippy() {
     $.getScript(
@@ -1753,9 +1917,14 @@ docReady(function () {
   makeWebflowFormAjaxCreate($(formIdCreate));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
 
+
+
+
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
+
+
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
