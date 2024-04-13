@@ -325,7 +325,7 @@ docReady(function () {
             {
               orderable: true,
               data: "status",
-              width: "127px",
+              width: "172px",
               render: function (data) {
                 if (data === "active") {
                   return '<spann class="positive">Aktywny</spann>';
@@ -337,7 +337,7 @@ docReady(function () {
             {
               orderable: true,
               data: "role",
-              width: "127px",
+              width: "172px",
               render: function (data, type, row) {
                 if (type === "display") {
                   // If role is null, display a disabled dropdown
@@ -797,7 +797,7 @@ docReady(function () {
 
         function updateAnimationColors(daysLeft) {
           var color;
-          if (daysLeft <= 1) {
+          if (daysLeft <= 3) {
             color = "rgba(255, 0, 0, 0.8)"; // Red for high urgency
           } else if (daysLeft <= 7) {
             color = "rgba(255, 165, 0, 0.8)"; // Orange for moderate urgency
