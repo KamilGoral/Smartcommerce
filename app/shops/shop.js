@@ -102,7 +102,11 @@ docReady(function () {
           (data.address && data.address.postcode) || ""
         );
         $("#shopAdressEdit").val((data.address && data.address.line1) || "");
-        $("#shopPhoneEdit").val((data.phones && data.phones[0].phone) || "");
+        $("#shopPhoneEdit").val(
+          Array.isArray(data.phones) && data.phones.length > 0
+            ? data.phones[0].phone
+            : ""
+        );
 
         // Address information
         if (data.address) {
