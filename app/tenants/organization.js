@@ -2029,7 +2029,7 @@ docReady(function () {
 
       // AJAX call to PATCH the data
       $.ajax({
-        url: InvokeURL + "/wholesalers" + wholesalerKey,
+        url: InvokeURL + "wholesalers/" + wholesalerKey,
         type: "PATCH",
         contentType: "application/json",
         data: JSON.stringify(patchData),
