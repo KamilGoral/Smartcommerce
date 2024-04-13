@@ -64,8 +64,8 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name || "N/A";
-        document.querySelector('[shopdata="shopKey"]').textContent =
-          data.shopKey || "N/A";
+        // document.querySelector('[shopdata="shopKey"]').textContent =
+        //   data.shopKey || "N/A";
 
         // Address information
         if (data.address) {
