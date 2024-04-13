@@ -795,6 +795,33 @@ docReady(function () {
         const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
         var dots = document.querySelectorAll(".tooltip-dot");
 
+        function updateAnimationColors(daysLeft) {
+          var color;
+          if (daysLeft <= 1) {
+            color = "rgba(255, 0, 0, 0.8)"; // Red for high urgency
+          } else if (daysLeft <= 7) {
+            color = "rgba(255, 165, 0, 0.8)"; // Orange for moderate urgency
+          } else {
+            color = "rgba(42, 168, 255, 0.8)"; // Original blue for normal situation
+          }
+
+          var styleSheet = document.createElement("style");
+          styleSheet.type = "text/css";
+          styleSheet.innerText = `
+            @keyframes tourDot {
+              0%   { box-shadow: 0 0 0 0px ${color}; }
+              80% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+              100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+            }
+            .tooltip-dot {
+              animation: tourDot 2.0s ease-out infinite;
+            }
+          `;
+          document.head.appendChild(styleSheet);
+        }
+
+        updateAnimationColors(daysLeft);
+
         dots.forEach(function (dot) {
           if (daysLeft <= 1) {
             // Red for high urgency
