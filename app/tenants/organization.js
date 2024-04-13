@@ -277,6 +277,7 @@ docReady(function () {
           pagingType: "full_numbers",
           pageLength: 10,
           scrollY: "60vh",
+          scrollCollapse: true,
           destroy: true,
           orderMulti: true,
           order: [[3, "desc"]],
