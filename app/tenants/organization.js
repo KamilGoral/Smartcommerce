@@ -2047,53 +2047,57 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  $("#table_wholesalers_list").on("focusout", "input", function () {
-    var table = $("#table_wholesalers_list").DataTable();
-    let newValue = parseFloat($(this).val());
-    var initialValue = parseFloat($(this).data("initialValue"));
+  $("#table_wholesalers_list").on(
+    "focusout",
+    "input[type='number']",
+    function () {
+      var table = $("#table_wholesalers_list").DataTable();
+      let newValue = parseFloat($(this).val());
+      var initialValue = parseFloat($(this).data("initialValue"));
 
-    if (newValue !== initialValue) {
-      // Update the value in the dataset and the attribute for next initialization
-      $(this).attr("value", newValue).data("initialValue", newValue);
+      if (newValue !== initialValue) {
+        // Update the value in the dataset and the attribute for next initialization
+        $(this).attr("value", newValue).data("initialValue", newValue);
 
-      var row = table.row($(this).parents("tr"));
-      var data = row.data();
+        var row = table.row($(this).parents("tr"));
+        var data = row.data();
 
-      var wholesalerKey = data.wholesalerKey; // Assuming this column exists and is named wholesalerKey
-      if (!wholesalerKey) {
-        console.error("No wholesaler key found for the row.");
-        return;
+        var wholesalerKey = data.wholesalerKey; // Assuming this column exists and is named wholesalerKey
+        if (!wholesalerKey) {
+          console.error("No wholesaler key found for the row.");
+          return;
+        }
+
+        var patchData = [
+          {
+            op: "add", // or "replace" if the value can already exist
+            path: "/preferentialBonus",
+            value: newValue,
+          },
+        ];
+
+        // AJAX call to PATCH the data
+        $.ajax({
+          url: InvokeURL + "wholesalers/" + wholesalerKey,
+          type: "PATCH",
+          contentType: "application/json",
+          data: JSON.stringify(patchData),
+          success: function (response) {
+            console.log("Data updated successfully", response);
+            // Optional: show some user feedback
+          },
+          error: function (xhr, status, error) {
+            console.error("Failed to update data", status, error);
+            // Optional: revert the input on error
+            $(this)
+              .val(initialValue)
+              .attr("value", initialValue)
+              .data("initialValue", initialValue);
+          },
+        });
       }
-
-      var patchData = [
-        {
-          op: "add", // or "replace" if the value can already exist
-          path: "/preferentialBonus",
-          value: newValue,
-        },
-      ];
-
-      // AJAX call to PATCH the data
-      $.ajax({
-        url: InvokeURL + "wholesalers/" + wholesalerKey,
-        type: "PATCH",
-        contentType: "application/json",
-        data: JSON.stringify(patchData),
-        success: function (response) {
-          console.log("Data updated successfully", response);
-          // Optional: show some user feedback
-        },
-        error: function (xhr, status, error) {
-          console.error("Failed to update data", status, error);
-          // Optional: revert the input on error
-          $(this)
-            .val(initialValue)
-            .attr("value", initialValue)
-            .data("initialValue", initialValue);
-        },
-      });
     }
-  });
+  );
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
