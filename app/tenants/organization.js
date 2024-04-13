@@ -692,6 +692,7 @@ docReady(function () {
           "change",
           "input.editor-active",
           function () {
+            var table = $("#table_wholesalers_list").DataTable(); // Initialize your DataTable here if not already initialized
             var checkbox = this; // Store reference to the checkbox
             var isChecked = checkbox.checked; // Store the current state
             var row = table.row($(this).closest("tr")); // Get the DataTable row
