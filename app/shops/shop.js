@@ -64,12 +64,12 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name || "N/A";
-        // document.querySelector('[shopdata="shopKey"]').textContent =
-        //   data.shopKey || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
-        $("#shopCodeEdit").val(data.name || "");
-        $("#merchantConsoleShopId").val(data.name || "");
+        $("#shopCodeEdit").val(data.shopKey || "");
+        $("#merchantConsoleShopId")
+          .val(data.merchantConsoleShopId || "")
+          .prop("disabled", true);
 
         // Mapping Polish state names to <select> element values
         var stateMapping = {
