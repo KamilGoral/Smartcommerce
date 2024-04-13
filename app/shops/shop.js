@@ -67,6 +67,43 @@ docReady(function () {
         // document.querySelector('[shopdata="shopKey"]').textContent =
         //   data.shopKey || "N/A";
 
+        $("#shopNameEdit").val(data.name || "");
+        $("#shopCodeEdit").val(data.name || "");
+        $("#merchantConsoleShopId").val(data.name || "");
+
+        // Mapping Polish state names to <select> element values
+        var stateMapping = {
+          Dolnośląskie: "LowerSilesian",
+          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
+          Lubelskie: "Lublin",
+          Lubuskie: "Lubusz",
+          Łódzkie: "Łódź",
+          Małopolskie: "Lesser Poland",
+          Mazowieckie: "Masovian",
+          Opolskie: "Opole",
+          Podkarpackie: "Subcarpathian",
+          Podlaskie: "Podlaskie",
+          Pomorskie: "Pomeranian",
+          Śląskie: "Silesian",
+          Świętokrzyskie: "HolyCross",
+          "Warmińsko-Mazurskie": "Warmian-Masurian",
+          Wielkopolskie: "Greater Poland",
+          Zachodniopomorskie: "West Pomeranian",
+        };
+
+        if (data.address && typeof data.address.state !== "undefined") {
+          $("#shopStateEdit").val(stateMapping[data.address.state] || "");
+        } else {
+          $("#shopStateEdit").val("");
+        }
+
+        $("#shopTownEdit").val((data.address && data.address.town) || "");
+        $("#shopPostcodeEdit").val(
+          (data.address && data.address.postcode) || ""
+        );
+        $("#shopAdressEdit").val((data.address && data.address.line1) || "");
+        $("#shopPhoneEdit").val((data.phones && data.phones[0].phone) || "");
+
         // Address information
         if (data.address) {
           const { country, line1, town, state, postcode } = data.address;
@@ -74,29 +111,6 @@ docReady(function () {
           document.querySelector('[shopdata="address"]').textContent =
             addressDescription || "N/A";
         }
-
-        // Email information
-        if (data.emails && data.emails.length > 0) {
-          const emailsDescription = data.emails
-            .map((email) => email.email)
-            .join(", ");
-          document.querySelector('[shopdata="emails"]').textContent =
-            emailsDescription || "N/A";
-        }
-
-        // Phone information
-        if (data.phones && data.phones.length > 0) {
-          const phonesDescription = data.phones
-            .map((phone) => phone.phone)
-            .join(", ");
-          document.querySelector('[shopdata="phones"]').textContent =
-            phonesDescription || "N/A";
-        }
-        // if (data.merchantConsoleShopId) {
-        //   document.querySelector(
-        //     '[shopdata="merchantConsoleShopId"]'
-        //   ).textContent = data.merchantConsoleShopId || "";
-        // }
       } else {
         console.log("error");
       }
@@ -1434,44 +1448,44 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#form-doneEditShopInformation", container);
-        var failBlock = $("#form-failEditShopInformation", container);
+        var doneBlock = $("#form-done-edit", container);
+        var failBlock = $("#form-done-fail-edit", container);
         var action = InvokeURL + "shops/" + shopKey;
         var data = [
           {
             op: "add",
             path: "/name",
-            value: $("#NewShopName").val(),
+            value: $("#shopNameEdit").val(),
           },
           {
             op: "add",
             path: "/key",
-            value: $("#NewShopKey").val(),
+            value: $("#shopCodeEdit").val(),
           },
           {
             op: "add",
             path: "/address/country",
-            value: $("#NewShopCountry").val(),
+            value: "Polska",
           },
           {
             op: "add",
             path: "/address/line1",
-            value: $("#NewShopLine").val(),
+            value: $("#shopAdressEdit").val(),
           },
           {
             op: "add",
             path: "/address/town",
-            value: $("#NewShopTown").val(),
+            value: $("#shopTownEdit").val(),
           },
           {
             op: "add",
             path: "/address/state",
-            value: $("#NewShopState").val(),
+            value: $("#shopStateEdit").val(),
           },
           {
             op: "add",
             path: "/address/postcode",
-            value: $("#NewShopPostCode").val(),
+            value: $("#shopPostcodeEdit").val(),
           },
         ];
         var method = "PATCH";
@@ -1838,7 +1852,7 @@ docReady(function () {
   });
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-  makeWebflowFormAjax($("#wf-form-EditShopInformation"));
+  makeWebflowFormAjax($("#wf-form-EditShop"));
   makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
   getWholesalers();
