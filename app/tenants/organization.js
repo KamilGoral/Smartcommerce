@@ -699,13 +699,15 @@ docReady(function () {
         const isTab1Active = document.querySelector(
           "#w-tabs-2-data-w-tab-1.w--current"
         );
-
         document.querySelector(".nb1").classList.toggle("hidden", isTab3Active);
         document
           .querySelector(".nb2")
           .classList.toggle("hidden", !isTab3Active || isTab1Active);
         document
           .querySelector(".nb3")
+          .classList.toggle("hidden", !isTab1Active);
+        document
+          .querySelector("#fillUpOrganizationDetail")
           .classList.toggle("hidden", !isTab1Active);
       }, 150); // Delay the execution by 150 milliseconds
     }
