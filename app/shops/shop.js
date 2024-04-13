@@ -64,9 +64,9 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-            " | " +
+            " - " +
             data.shopKey +
-            " | " +
+            " | PC-Market ID - " +
             data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
@@ -1462,111 +1462,152 @@ docReady(function () {
       });
     });
   };
-  makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
+
+  makeWebflowFormAjaxPatchShopEdit = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#form-done-edit", container);
-        var failBlock = $("#form-done-fail-edit", container);
-        var action = InvokeURL + "shops/" + shopKey;
-        var data = [
-          {
-            op: "add",
-            path: "/name",
-            value: $("#shopNameEdit").val(),
-          },
-          {
-            op: "add",
-            path: "/key",
-            value: $("#shopCodeEdit").val(),
-          },
-          {
-            op: "add",
-            path: "/address/country",
-            value: "Polska",
-          },
-          {
-            op: "add",
-            path: "/address/line1",
-            value: $("#shopAdressEdit").val(),
-          },
-          {
-            op: "add",
-            path: "/address/town",
-            value: $("#shopTownEdit").val(),
-          },
-          {
-            op: "add",
-            path: "/address/state",
-            value: $("#tenantStateEdit option:selected").text(),
-          },
-          {
-            op: "add",
-            path: "/address/postcode",
-            value: $("#shopPostcodeEdit").val(),
-          },
-        ];
-        var method = "PATCH";
+        event.preventDefault();
+
+        const url = InvokeURL + "shops/" + shopKey;
 
         $.ajax({
-          type: method,
-          url: action,
-          cors: true,
+          type: "GET",
+          url: url,
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Authorization: orgToken,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
           beforeSend: function () {
             $("#waitingdots").show();
           },
           complete: function () {
             $("#waitingdots").hide();
           },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
+          success: function (currentData) {
+            const patchData = preparePatchData(currentData);
+
+            $.ajax({
+              type: "PATCH",
+              url: url,
+              data: JSON.stringify(patchData),
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Authorization: orgToken,
+              },
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                setTimeout(function () {
+                  $("#waitingdots").hide();
+                }, 1000); // 1000 milliseconds = 1 second
+              },
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  successCallback(resultData);
+                }
+                // Hide editBillingModal and show form-done-edit for 2 seconds
+                $("#form-done-edit").css("display", "flex");
+                setTimeout(function () {
+                  $("#editShopModal").hide();
+                  location.reload();
+                }, 3000);
+              },
+              error: function () {
+                if (typeof errorCallback === "function") {
+                  errorCallback();
+                }
+                // Show form-done-fail-edit on error
+                $("#form-done-fail-edit").css("display", "flex");
+              },
+            });
           },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                console.log(e);
-                return;
-              }
-            }
-            form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            failBlock.hide();
-            window.setTimeout(function () {
-              document.location =
-                "https://" +
-                DomainName +
-                "/app/tenants/organization?name=" +
-                OrganizationName +
-                "&clientId=" +
-                ClientID;
-            }, 3500);
-          },
-          error: function (e) {
+          error: function () {
             if (typeof errorCallback === "function") {
-              errorCallback(e);
+              errorCallback();
             }
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            console.log(e);
+            // Show form-done-fail-edit on error
+            $("#form-done-fail-edit").css("display", "flex");
           },
         });
-        event.preventDefault();
-        return false;
+        return false; // Prevent the form from submitting normally
       });
     });
   };
+
+  function preparePatchData(currentData) {
+    var patchData = [];
+
+    // Name
+    var newName = $("#shopNameEdit").val();
+    if (newName !== currentData.name) {
+      patchData.push({ op: "replace", path: "/name", value: newName });
+    }
+
+    // shopCodeEdit
+    var shopCodeEdit = $("#shopCodeEdit").val();
+    if (shopCodeEdit !== currentData.shopCodeEdit) {
+      patchData.push({ op: "replace", path: "/key", value: shopCodeEdit });
+    }
+
+    // Telephone number
+
+    var newTelephone = $("#shopPhoneEdit").val();
+    if (newTelephone === "") {
+      newTelephone = null;
+    }
+    if (newTelephone !== currentData.phones) {
+      patchData.push({
+        op: "replace",
+        path: "/phones",
+        value: [{ phone: newTelephone, description: "Główny" }],
+      });
+    }
+
+    // Address
+    var newAddress = {
+      country: "Polska", // Assuming the country is always Poland
+      line1: $("#shopAdressEdit").val(),
+      town: $("#shopTownEdit").val(),
+      state: $("#shopStateEdit option:selected").text(),
+      postcode: $("#shopPostcodeEdit").val(),
+    };
+
+    // Compare each property to see if any part of the address has changed
+    var addressChanged = Object.keys(newAddress).some(
+      (key) => newAddress[key] !== (currentData.address[key] || "")
+    );
+    if (addressChanged) {
+      patchData.push({ op: "replace", path: "/address", value: newAddress });
+    }
+
+    // Emails
+    var newEmails = [];
+    for (let i = 1; i <= 3; i++) {
+      let email = $(`#shopEmailEdit${i}`).val();
+      let description = $(`#shopEmailEditDescription${i}`).val();
+      if (email || description) {
+        // Add if either field is filled
+        newEmails.push({ email: email, description: description });
+      }
+    }
+
+    // Only replace emails if there's a difference, using JSON.stringify for a quick deep comparison
+    if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
+      patchData.push({ op: "replace", path: "/emails", value: newEmails });
+    }
+
+    return patchData;
+  }
 
   makeWebflowFormAjaxRefreshOffer = function (
     forms,
@@ -1871,7 +1912,7 @@ docReady(function () {
   });
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
-  makeWebflowFormAjax($("#wf-form-EditShop"));
+  makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
   makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
 
   getWholesalers();
