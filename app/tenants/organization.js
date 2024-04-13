@@ -49,6 +49,28 @@ docReady(function () {
       clientId
   );
 
+  function validateInput(event, input) {
+    const charCode = event.which ? event.which : event.keyCode;
+
+    if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46) {
+      return false;
+    }
+
+    if (charCode === 46 && input.value.includes(".")) {
+      return false;
+    }
+
+    const [integer, decimal] = input.value.split(".");
+    if (charCode !== 46 && decimal && decimal.length >= 2) {
+      return false;
+    }
+    if (integer.length > 3 || parseFloat(input.value) > 500) {
+      return false;
+    }
+
+    return true;
+  }
+
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
     console.log("starting Updating function");
     var form = $("#wf-form-WholesalerChangeStatusForm ");
@@ -548,12 +570,22 @@ docReady(function () {
             {
               orderable: true,
               data: "preferentialBonus",
-              render: function (data) {
-                return (
-                  '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
-                  parseFloat(data).toFixed(2) + // Ensure the number is formatted to two decimal places
-                  '">'
-                );
+              render: function (data, type, row) {
+                // Add 'row' to access the complete data object for the row
+                if (row.enabled) {
+                  // Check if the enabled property is true
+                  return (
+                    '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
+                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
+                    '">'
+                  );
+                } else {
+                  return (
+                    '<input type="number" step="0.01" style="max-width: 80px" disabled min="0" max="500" value="' +
+                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
+                    '" disabled>'
+                  ); // Disable the input
+                }
               },
             },
             {
