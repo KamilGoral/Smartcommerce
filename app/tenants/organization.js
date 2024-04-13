@@ -276,6 +276,7 @@ docReady(function () {
         var tableUsers = $("#table_users_list").DataTable({
           pagingType: "full_numbers",
           pageLength: 10,
+          scrollY: "60vh",
           destroy: true,
           orderMulti: true,
           order: [[3, "desc"]],
