@@ -36,11 +36,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -55,11 +55,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   function saveToSessionStorage(productsData) {
@@ -153,18 +153,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -235,8 +235,9 @@ docReady(function () {
           const numericContent = Number(content);
           const formattedContent = isNaN(numericContent)
             ? "-"
-            : `${numericContent.toFixed(2)} zł${percentage ? ` (${percentage.toFixed(2)}%)` : ""
-            }`;
+            : `${numericContent.toFixed(2)} zł${
+                percentage ? ` (${percentage.toFixed(2)}%)` : ""
+              }`;
           element.textContent = formattedContent;
         };
 
@@ -358,7 +359,7 @@ docReady(function () {
                 if (data.logisticMinimum === null) {
                   return "-";
                 } else {
-                  var toGo = (data.logisticMinimum - data.value).toFixed(2);
+                  var toGo = (data.logisticMinimum - data.netValue).toFixed(2);
                   if (toGo > 0) {
                     return data.logisticMinimum + " (" + toGo + ")";
                   }
@@ -447,7 +448,7 @@ docReady(function () {
             },
           ],
           rowCallback: function (row, data) {
-            if (data.logisticMinimum > data.value) {
+            if (data.logisticMinimum > data.netValue) {
               $("td", row).css("background-color", "#FFFAE6");
             }
           },
@@ -489,26 +490,40 @@ docReady(function () {
           var response = JSON.parse(jqXHR.responseText);
           var translatedError = "";
 
-          if (response.message === "Unable to split requested order: no products to split.") {
-            translatedError = "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
-          } else if (response.message.includes("Quantities of products exceed limit for GTINs")) {
+          if (
+            response.message ===
+            "Unable to split requested order: no products to split."
+          ) {
+            translatedError =
+              "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
+          } else if (
+            response.message.includes(
+              "Quantities of products exceed limit for GTINs"
+            )
+          ) {
             // Extract GTINs from the message
             var gtins = response.message.match(/\[([^\]]+)\]/)[1];
             translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
-          } else if (response.message.includes("Exceptions occurred for GTINs")) {
+          } else if (
+            response.message.includes("Exceptions occurred for GTINs")
+          ) {
             // Extract GTINs from the message
             var gtins = response.message.match(/\[([^\]]+)\]/)[1];
             translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
-          } else if (response.message === "Total value for the order exceeded the available limit.") {
-            translatedError = "Całkowita wartość zamówienia przekroczyła dostępny limit.";
+          } else if (
+            response.message ===
+            "Total value for the order exceeded the available limit."
+          ) {
+            translatedError =
+              "Całkowita wartość zamówienia przekroczyła dostępny limit.";
           }
 
           if (translatedError) {
             console.error(translatedError);
 
             // Display the warning message container with the translated error
-            $('#WarningMessageMain').text(translatedError); // Update the warning message
-            $('#WarningMessageContainer').show().delay(4000).fadeOut(2000);
+            $("#WarningMessageMain").text(translatedError); // Update the warning message
+            $("#WarningMessageContainer").show().delay(4000).fadeOut(2000);
           }
         }
         if (jqXHR.status === 404) {
@@ -516,40 +531,41 @@ docReady(function () {
             var response = JSON.parse(jqXHR.responseText);
 
             // Existing handling for order not found
-            var orderRegex = /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
+            var orderRegex =
+              /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
             if (orderRegex.test(response.message)) {
-              $('#WarningMessageMain').text("Zamówienie nie istnieje. Za moment nastąpi przekierowanie");
-              $('#WarningMessageContainer').show().delay(4000).fadeOut(2000);
+              $("#WarningMessageMain").text(
+                "Zamówienie nie istnieje. Za moment nastąpi przekierowanie"
+              );
+              $("#WarningMessageContainer").show().delay(4000).fadeOut(2000);
             }
 
             // Additional handling for split offer not found
             var splitOfferRegex = /Offer does not exist/;
             if (splitOfferRegex.test(response.message)) {
-              $('#WarningMessageMain').text("Brak oferty dla sklepu. Za moment nastąpi przekierowanie");
-              $('#WarningMessageContainer').show().delay(4000).fadeOut(2000);
+              $("#WarningMessageMain").text(
+                "Brak oferty dla sklepu. Za moment nastąpi przekierowanie"
+              );
+              $("#WarningMessageContainer").show().delay(4000).fadeOut(2000);
             }
             window.setTimeout(function () {
-              window.location.href = "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
+              window.location.href =
+                "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
             }, 4000);
-
           } catch (e) {
             console.error("Error while parsing response:", e);
           }
         }
-
       },
-
-
-
     });
   }
 
   function getOffers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/offers?perPage=100&sort=createDate:desc"
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -666,10 +682,11 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${promotion
-            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-            : "<td>-</td>"
-          }
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.maxQuantity ?? "-"}</td>
             <td>${item.promotion?.package ?? "-"}</td>
@@ -727,10 +744,11 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            }>${wholesalerName}</option>`;
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru ( tymczasowo on hold)
@@ -745,10 +763,11 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -822,10 +841,10 @@ docReady(function () {
                   var row = this;
                   if (!row.child.isShown()) {
                     row.child(format(row.data())).show();
-                    $(row.node()).addClass('shown');
+                    $(row.node()).addClass("shown");
                   }
                 });
-              }
+              },
             },
             {
               text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
@@ -835,10 +854,10 @@ docReady(function () {
                   var row = this;
                   if (row.child.isShown()) {
                     row.child.hide();
-                    $(row.node()).removeClass('shown');
+                    $(row.node()).removeClass("shown");
                   }
                 });
-              }
+              },
             },
             {
               extend: "copyHtml5",
@@ -1609,11 +1628,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1"
+        "shops/" +
+        shopKey +
+        "/products/" +
+        rowData.gtin +
+        "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1644,7 +1663,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1658,7 +1677,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1671,7 +1690,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1684,7 +1703,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -2089,11 +2108,11 @@ docReady(function () {
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/products?perPage=10000"
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products?perPage=10000"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -2272,10 +2291,10 @@ docReady(function () {
             var row = this;
             if (!row.child.isShown()) {
               row.child(format(row.data())).show();
-              $(row.node()).addClass('shown');
+              $(row.node()).addClass("shown");
             }
           });
-        }
+        },
       },
       {
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
@@ -2285,10 +2304,10 @@ docReady(function () {
             var row = this;
             if (row.child.isShown()) {
               row.child.hide();
-              $(row.node()).removeClass('shown');
+              $(row.node()).removeClass("shown");
             }
           });
-        }
+        },
       },
       {
         extend: "copyHtml5",
@@ -2304,7 +2323,7 @@ docReady(function () {
         extend: "pdfHtml5",
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
         titleAttr: "PDF",
-      }
+      },
     ],
     scrollY: "60vh",
     scrollCollapse: true,
@@ -2779,12 +2798,12 @@ docReady(function () {
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers?filesFormat=" +
+          fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -2826,12 +2845,12 @@ docReady(function () {
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -2887,8 +2906,6 @@ docReady(function () {
       LoadTippy();
     }
   });
-
-
 
   $("#spl_table").on("focusin", "input", function () {
     // Store the current value when the input element is focused

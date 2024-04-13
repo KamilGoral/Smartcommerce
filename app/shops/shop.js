@@ -61,6 +61,10 @@ docReady(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
 
+        if ((data.merchantConsoleShopId = null)) {
+          data.merchantConsoleShopId = "";
+        }
+
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
