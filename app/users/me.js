@@ -86,8 +86,10 @@ docReady(function () {
             form.hide();
             doneBlock.show();
             failBlock.hide();
-            setTimeout(function() {
-              window.location.replace("https://" + DomainName + "/app/users/me");
+            setTimeout(function () {
+              window.location.replace(
+                "https://" + DomainName + "/app/users/me"
+              );
             }, 2000);
           },
           error: function (jqXHR, exception) {
@@ -95,9 +97,9 @@ docReady(function () {
             console.log(exception);
             var msg = "";
             if (jqXHR.status === 0) {
-                msg = "Brak połączenia. Sprawdź sieć.";
+              msg = "Brak połączenia. Sprawdź sieć.";
             } else if (jqXHR.status == 404) {
-                msg = "Nie znaleziono żądanej strony. [404]";
+              msg = "Nie znaleziono żądanej strony. [404]";
             } else if (jqXHR.status == 403) {
               msg =
                 "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
@@ -131,31 +133,33 @@ docReady(function () {
                 },
               });
             } else if (jqXHR.status == 400) {
-                msg = "Błąd - Numer VAT musi być poprawnym numerem identyfikacji podatkowej VAT";
+              msg =
+                "Błąd - Numer VAT musi być poprawnym numerem identyfikacji podatkowej VAT";
             } else if (jqXHR.status == 409) {
-                msg = "Aktualnie trwa proces weryfikacji jednej z Twoich organizacji. Przed założeniem nowej, konieczne jest zakończenie tego procesu.";
+              msg =
+                "Aktualnie trwa proces weryfikacji jednej z Twoich organizacji. Przed założeniem nowej, konieczne jest zakończenie tego procesu.";
             } else if (jqXHR.status == 500) {
-                msg = "Błąd wewnętrzny serwera [500].";
+              msg = "Błąd wewnętrzny serwera [500].";
             } else if (exception === "parsererror") {
-                msg = "Nieudana próba parsowania JSON.";
+              msg = "Nieudana próba parsowania JSON.";
             } else if (exception === "timeout") {
-                msg = "Przekroczono czas odpowiedzi.";
+              msg = "Przekroczono czas odpowiedzi.";
             } else if (exception === "abort") {
-                msg = "Żądanie AJAX zostało przerwane.";
+              msg = "Żądanie AJAX zostało przerwane.";
             } else {
-                try {
-                    var responseText = JSON.parse(jqXHR.responseText);
-                    msg = "Nieoczekiwany błąd.\n" + responseText.message;
-                } catch(e) {
-                    msg = "Nieoczekiwany błąd.\n" + jqXHR.responseText;
-                }
+              try {
+                var responseText = JSON.parse(jqXHR.responseText);
+                msg = "Nieoczekiwany błąd.\n" + responseText.message;
+              } catch (e) {
+                msg = "Nieoczekiwany błąd.\n" + jqXHR.responseText;
+              }
             }
             $(".warningmessagetext").text(msg);
             form.show();
             doneBlock.hide();
             failBlock.show();
             return;
-        },
+          },
         });
         event.preventDefault();
         return false;
@@ -234,7 +238,8 @@ docReady(function () {
           row.style.display = "flex";
 
           // Update the invitation details
-          row.querySelector("#tenantName").textContent = invitation.tenantName || 'Project name';
+          row.querySelector("#tenantName").textContent =
+            invitation.tenantName || "Project name";
 
           function setupButton(element, invitation, action) {
             // Store the invitation ID and action within the element's dataset for easier retrieval
@@ -247,11 +252,16 @@ docReady(function () {
             };
           }
 
-
-          setupButton(row.querySelector("#acceptInvitation"), invitation, "accept");
-          setupButton(row.querySelector("#rejectInvitation"), invitation, "reject");
-
-
+          setupButton(
+            row.querySelector("#acceptInvitation"),
+            invitation,
+            "accept"
+          );
+          setupButton(
+            row.querySelector("#rejectInvitation"),
+            invitation,
+            "reject"
+          );
 
           orgContainer.appendChild(row);
         });
@@ -264,7 +274,10 @@ docReady(function () {
       } else if (request.status == 401) {
         MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
       } else {
-        console.log("Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " + request.status);
+        console.log(
+          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
+            request.status
+        );
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
     };
@@ -318,12 +331,12 @@ docReady(function () {
         }
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
+            DomainName +
+            "/app/tenants/organization" +
+            "?name=" +
+            OrganizationName +
+            "&clientId=" +
+            OrganizationclientId
         );
       },
       error: function (jqXHR, exception) {
@@ -337,21 +350,23 @@ docReady(function () {
   }
 
   function getOrganizations() {
-    const url = `${InvokeURL}users/me/tenants`;
+    const url = `${InvokeURL}users/me/tenants?perPage=100`;
 
     fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': smartToken
-      }
+        Authorization: smartToken,
+      },
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Server error: ${response.status} ${response.statusText}`
+          );
         }
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         const { items: toParse, total } = data;
 
         if (total >= 4) {
@@ -359,24 +374,30 @@ docReady(function () {
         }
 
         if (total > 0) {
-          const orgContainer = document.getElementById("Organization-Container");
-          toParse.forEach(organization => {
+          const orgContainer = document.getElementById(
+            "Organization-Container"
+          );
+          toParse.forEach((organization) => {
             const template = document.getElementById("samplerow");
             const row = template.cloneNode(true);
 
             const statusMap = {
-              'onboarding': { color: '#fff1b8', text: 'W trakcie weryfikacji' }, 
-              'problem': { color: '#ffd666', text: 'Problem' },
-              'client': { color: '#ffffff00', text: '' },
-              'suspended': { color: '#ff7875', text: 'Zawieszony' }
+              onboarding: { color: "#fff1b8", text: "W trakcie weryfikacji" },
+              problem: { color: "#ffd666", text: "Problem" },
+              client: { color: "#ffffff00", text: "" },
+              suspended: { color: "#ff7875", text: "Zawieszony" },
             };
 
             // Use the status to get both the color and text
-            const statusInfo = statusMap[organization.status.toLowerCase()] || statusMap['onboarding']; // Default to onboarding if not matched
+            const statusInfo =
+              statusMap[organization.status.toLowerCase()] ||
+              statusMap["onboarding"]; // Default to onboarding if not matched
             // Update organization specific attributes
-            row.querySelector("#tenantName").textContent = organization.name || 'Brak';
+            row.querySelector("#tenantName").textContent =
+              organization.name || "Brak";
             // Apply color and text
-            row.querySelector("#statusWraper").style.backgroundColor = statusInfo.color;
+            row.querySelector("#statusWraper").style.backgroundColor =
+              statusInfo.color;
             row.querySelector("#tenantStatus").textContent = statusInfo.text;
 
             // Setting organization attributes for row
@@ -394,12 +415,11 @@ docReady(function () {
           // document.getElementById("emptystateorganization").style.display = "none";
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Failed to fetch organizations:", error.message);
         MessageBox(error.message);
       });
   }
-
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -515,9 +535,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status +
-          " " +
-          UserInfo.message
+            request.status +
+            " " +
+            UserInfo.message
         );
         MessageBox(UserInfo.message);
       }
