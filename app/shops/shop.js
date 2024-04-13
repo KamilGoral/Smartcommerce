@@ -66,7 +66,7 @@ docReady(function () {
           data.name +
             " - " +
             data.shopKey +
-            " | PC-Market ID - " +
+            " | " +
             data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
