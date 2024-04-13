@@ -693,14 +693,21 @@ docReady(function () {
           "input.editor-active",
           function () {
             var checkbox = this; // Store reference to the checkbox
-            var isChecked = this.checked; // Store the current state
+            var isChecked = checkbox.checked; // Store the current state
+            var row = table.row($(this).closest("tr")); // Get the DataTable row
+            var data = row.data(); // Get row data
 
             // Define what to do in case of error
             var onErrorCallback = function () {
               // Revert checkbox state
               $(checkbox).prop("checked", !isChecked);
+              // Optionally revert preferentialBonus disable state
+              $(row.node())
+                .find('input[type="number"]')
+                .prop("disabled", isChecked);
             };
 
+            // Update row data according to checkbox state
             if (isChecked) {
               console.log(checkbox.getAttribute("wholesalerkey"));
               console.log("Nieaktywny był");
@@ -709,6 +716,10 @@ docReady(function () {
                 checkbox.getAttribute("wholesalerkey"),
                 onErrorCallback
               );
+              // Enable the preferentialBonus input if the checkbox is checked
+              $(row.node())
+                .find('input[type="number"]')
+                .prop("disabled", false);
             } else {
               console.log(checkbox.getAttribute("wholesalerkey"));
               console.log("Aktywny był");
@@ -717,6 +728,8 @@ docReady(function () {
                 checkbox.getAttribute("wholesalerkey"),
                 onErrorCallback
               );
+              // Disable the preferentialBonus input if the checkbox is unchecked
+              $(row.node()).find('input[type="number"]').prop("disabled", true);
             }
           }
         );
