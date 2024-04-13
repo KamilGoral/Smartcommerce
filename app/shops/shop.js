@@ -108,6 +108,17 @@ docReady(function () {
             : ""
         );
 
+        if (data.emails && data.emails.length > 0) {
+          data.emails.forEach((email, index) => {
+            if (index < 3) {
+              $(`#shopEmailEdit${index + 1}`).val(email.email || "");
+              $(`#shopEmailEditDescription${index + 1}`).val(
+                email.description || ""
+              );
+            }
+          });
+        }
+
         // Address information
         if (data.address) {
           const { country, line1, town, state, postcode } = data.address;
@@ -1484,7 +1495,7 @@ docReady(function () {
           {
             op: "add",
             path: "/address/state",
-            value: $("#shopStateEdit").val(),
+            value: $("#tenantStateEdit option:selected").text(),
           },
           {
             op: "add",
