@@ -92,11 +92,11 @@ docReady(function () {
           document.querySelector('[shopdata="phones"]').textContent =
             phonesDescription || "N/A";
         }
-        if (data.merchantConsoleShopId) {
-          document.querySelector(
-            '[shopdata="merchantConsoleShopId"]'
-          ).textContent = data.merchantConsoleShopId || "";
-        }
+        // if (data.merchantConsoleShopId) {
+        //   document.querySelector(
+        //     '[shopdata="merchantConsoleShopId"]'
+        //   ).textContent = data.merchantConsoleShopId || "";
+        // }
       } else {
         console.log("error");
       }
