@@ -550,7 +550,7 @@ docReady(function () {
               data: "preferentialBonus",
               render: function (data) {
                 return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 4 || this.value < 500)" min="0" max="500" value="' +
+                  '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 4 || this.value < 500)" min="0" max="500" value="' +
                   data.quantity +
                   '">'
                 );
