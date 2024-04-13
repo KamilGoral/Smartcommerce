@@ -550,8 +550,8 @@ docReady(function () {
               data: "preferentialBonus",
               render: function (data) {
                 return (
-                  '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 4 || this.value < 500)" min="0" max="500" value="' +
-                  data.quantity +
+                  '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
+                  parseFloat(data).toFixed(2) + // Ensure the number is formatted to two decimal places
                   '">'
                 );
               },
@@ -2002,6 +2002,7 @@ docReady(function () {
   });
 
   $("#table_wholesalers_list").on("focusout", "input", function () {
+    var table = $("#table_wholesalers_list").DataTable();
     let newValue = parseFloat($(this).val());
     var initialValue = parseFloat($(this).data("initialValue"));
 
