@@ -459,16 +459,16 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      if (organizationName == "Famix") {
-        const filteredItems = data.items.filter((item) => {
-          return (
-            organizationName === "Famix" &&
-            (item.wholesalerKey === "famix-krakow" ||
-              item.wholesalerKey === "central-warehouse")
-          );
-        });
-        toParse = filteredItems;
-      }
+      // if (organizationName == "Famix") {
+      //   const filteredItems = data.items.filter((item) => {
+      //     return (
+      //       organizationName === "Famix" &&
+      //       (item.wholesalerKey === "famix-krakow" ||
+      //         item.wholesalerKey === "central-warehouse")
+      //     );
+      //   });
+      //   toParse = filteredItems;
+      // }
 
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
