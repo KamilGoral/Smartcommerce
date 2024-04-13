@@ -547,6 +547,17 @@ docReady(function () {
             },
             {
               orderable: true,
+              data: "preferentialBonus",
+              render: function (data) {
+                return (
+                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 4 || this.value < 500)" min="0" max="500" value="' +
+                  data.quantity +
+                  '">'
+                );
+              },
+            },
+            {
+              orderable: true,
               data: "address",
               visible: false,
               render: function (data) {
