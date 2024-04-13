@@ -793,6 +793,23 @@ docReady(function () {
         const diff = trialEndDate.getTime() - now.getTime();
         const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        var dots = document.querySelectorAll(".tooltip-dot");
+
+        dots.forEach(function (dot) {
+          if (daysLeft <= 1) {
+            // Red for high urgency
+            dot.style.backgroundColor = "rgb(255, 0, 0)";
+            dot.style.borderColor = "rgb(255, 0, 0)";
+            dot.style.boxShadow = "0 0 0 50px rgba(255, 0, 0, 0)";
+          } else if (daysLeft <= 7) {
+            // Orange for moderate urgency
+            dot.style.backgroundColor = "rgb(255, 165, 0)";
+            dot.style.borderColor = "rgb(255, 165, 0)";
+            dot.style.boxShadow = "0 0 0 50px rgba(255, 165, 0, 0)";
+          } else {
+            // Original blue for normal situation
+          }
+        });
 
         if (daysLeft < 0) {
           trialEndDateText = "Aktywny";
