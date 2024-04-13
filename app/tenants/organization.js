@@ -2054,6 +2054,10 @@ docReady(function () {
       var table = $("#table_wholesalers_list").DataTable();
       let newValue = parseFloat($(this).val());
       var initialValue = parseFloat($(this).data("initialValue"));
+      var form = $("#wf-form-WholesalerChangeStatusForm ");
+      var container = form.parent();
+      var doneBlock = $(".w-form-done", container);
+      var failBlock = $(".w-form-fail", container);
 
       if (newValue !== initialValue) {
         // Update the value in the dataset and the attribute for next initialization
@@ -2084,15 +2088,58 @@ docReady(function () {
           data: JSON.stringify(patchData),
           success: function (response) {
             console.log("Data updated successfully", response);
+            // show success (done) block
+            doneBlock.show();
+            setTimeout(function () {
+              doneBlock.hide();
+            }, 2000);
             // Optional: show some user feedback
           },
-          error: function (xhr, status, error) {
-            console.error("Failed to update data", status, error);
-            // Optional: revert the input on error
+          error: function (jqXHR, exception) {
+            console.log("błąd");
+            console.log(jqXHR);
+            console.log(exception);
+            //$('#customSwitchText').attr('disabled', 'disabled');
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Nie masz połączenia z internetem.";
+            } else if (jqXHR.status == 404) {
+              msg = "Nie znaleziono strony";
+            } else if (jqXHR.status == 403) {
+              msg = "Nie masz uprawnień do tej czynności";
+            } else if (jqXHR.status == 409) {
+              msg =
+                "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
+            } else if (jqXHR.status == 500) {
+              msg =
+                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+            } else if (exception === "parsererror") {
+              msg = "Nie udało się odczytać danych";
+            } else if (exception === "timeout") {
+              msg = "Przekroczony czas oczekiwania";
+            } else if (exception === "abort") {
+              msg = "Twoje żądanie zostało zaniechane";
+            } else {
+              msg = "" + jqXHR.responseText;
+            }
+
+            // Call the onErrorCallback if defined
+            if (typeof onErrorCallback === "function") {
+              onErrorCallback();
+            }
+
+            $(".warningmessagetext").text(msg);
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            setTimeout(function () {
+              failBlock.hide();
+            }, 2000);
             $(this)
               .val(initialValue)
               .attr("value", initialValue)
               .data("initialValue", initialValue);
+            return;
           },
         });
       }
