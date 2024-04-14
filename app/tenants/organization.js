@@ -483,17 +483,6 @@ docReady(function () {
         return b.enabled - a.enabled;
       });
 
-      // if (organizationName == "Famix") {
-      //   const filteredItems = data.items.filter((item) => {
-      //     return (
-      //       organizationName === "Famix" &&
-      //       (item.wholesalerKey === "famix-krakow" ||
-      //         item.wholesalerKey === "central-warehouse")
-      //     );
-      //   });
-      //   toParse = filteredItems;
-      // }
-
       if (request.status >= 200 && request.status < 400) {
         var tableWh = $("#table_wholesalers_list").DataTable({
           data: toParse,
@@ -687,7 +676,114 @@ docReady(function () {
             },
           ],
         });
-
+        var tableWhBonus = $("#table_wholesalers_list_bonus").DataTable({
+          data: toParse,
+          pagingType: "full_numbers",
+          order: [],
+          dom: '<"top">frt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 100,
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          columns: [
+            {
+              orderable: false,
+              data: "image",
+              width: "36px",
+              height: "36px",
+              render: function (data) {
+                if (data !== null) {
+                  return (
+                    "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
+                    data +
+                    "' alt='logo'></img></div>"
+                  );
+                }
+                if (data === null) {
+                  return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "name",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "taxId",
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: false,
+              data: "wholesalerKey",
+              visible: false,
+              render: function (data) {
+                if (data !== null) {
+                  return data;
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "preferentialBonus",
+              render: function (data, type, row) {
+                // Add 'row' to access the complete data object for the row
+                if (row.enabled) {
+                  // Check if the enabled property is true
+                  return (
+                    '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
+                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
+                    '">'
+                  );
+                } else {
+                  return (
+                    '<input type="number" step="0.01" style="max-width: 80px" disabled min="0" max="500" value="' +
+                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
+                    '" disabled>'
+                  ); // Disable the input
+                }
+              },
+            },
+          ],
+        });
         $("#table_wholesalers_list").on(
           "change",
           "input.editor-active",
@@ -702,10 +798,6 @@ docReady(function () {
             var onErrorCallback = function () {
               // Revert checkbox state
               $(checkbox).prop("checked", !isChecked);
-              // Optionally revert preferentialBonus disable state
-              $(row.node())
-                .find('input[type="number"]')
-                .prop("disabled", isChecked);
             };
 
             // Update row data according to checkbox state
@@ -717,10 +809,6 @@ docReady(function () {
                 checkbox.getAttribute("wholesalerkey"),
                 onErrorCallback
               );
-              // Enable the preferentialBonus input if the checkbox is checked
-              $(row.node())
-                .find('input[type="number"]')
-                .prop("disabled", false);
             } else {
               console.log(checkbox.getAttribute("wholesalerkey"));
               console.log("Aktywny był");
@@ -729,12 +817,11 @@ docReady(function () {
                 checkbox.getAttribute("wholesalerkey"),
                 onErrorCallback
               );
-              // Disable the preferentialBonus input if the checkbox is unchecked
-              $(row.node()).find('input[type="number"]').prop("disabled", true);
             }
           }
         );
       }
+
       if (request.status == 401) {
         console.log("Unauthorized");
       }
@@ -2047,11 +2134,11 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  $("#table_wholesalers_list").on(
+  $("#table_wholesalers_list_bonus").on(
     "focusout",
     "input[type='number']",
     function () {
-      var table = $("#table_wholesalers_list").DataTable();
+      var table = $("#table_wholesalers_list_bonus").DataTable();
       let newValue = parseFloat($(this).val());
       var initialValue = parseFloat($(this).data("initialValue"));
       var form = $("#wf-form-WholesalerChangeStatusForm ");
