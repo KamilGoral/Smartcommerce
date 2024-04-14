@@ -477,14 +477,13 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      toParse.sort(function (a, b) {
-        return b.enabled - a.enabled;
-      });
-
       if (request.status >= 200 && request.status < 400) {
-        var tableWh = $("#table_wholesalers_list").DataTable({
+        var data = JSON.parse(this.response);
+        var toParse = data.items;
+        toParse.sort(function (a, b) {
+          return b.enabled - a.enabled;
+        });
+        $("#table_wholesalers_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -553,27 +552,6 @@ docReady(function () {
                 }
                 if (data === null) {
                   return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "preferentialBonus",
-              render: function (data, type, row) {
-                // Add 'row' to access the complete data object for the row
-                if (row.enabled) {
-                  // Check if the enabled property is true
-                  return (
-                    '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
-                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
-                    '">'
-                  );
-                } else {
-                  return (
-                    '<input type="number" step="0.01" style="max-width: 80px" disabled min="0" max="500" value="' +
-                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
-                    '" disabled>'
-                  ); // Disable the input
                 }
               },
             },
@@ -676,7 +654,7 @@ docReady(function () {
             },
           ],
         });
-        var tableWhBonus = $("#table_wholesalers_list_bonus").DataTable({
+        $("#table_wholesalers_list_bonus").DataTable({
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -762,7 +740,7 @@ docReady(function () {
               },
             },
             {
-              orderable: true,
+              orderable: false,
               data: "preferentialBonus",
               render: function (data, type, row) {
                 // Add 'row' to access the complete data object for the row
