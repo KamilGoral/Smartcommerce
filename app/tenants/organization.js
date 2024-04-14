@@ -747,21 +747,11 @@ docReady(function () {
               orderable: false,
               data: "preferentialBonus",
               render: function (data, type, row) {
-                // Add 'row' to access the complete data object for the row
-                if (row.enabled) {
-                  // Check if the enabled property is true
-                  return (
-                    '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
-                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
-                    '">'
-                  );
-                } else {
-                  return (
-                    '<input type="number" step="0.01" style="max-width: 80px" disabled min="0" max="500" value="' +
-                    parseFloat(data).toFixed(2) + // Format the number to two decimal places
-                    '" disabled>'
-                  ); // Disable the input
-                }
+                return (
+                  '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
+                  parseFloat(data).toFixed(2) + // Format the number to two decimal places
+                  '">'
+                );
               },
             },
           ],
