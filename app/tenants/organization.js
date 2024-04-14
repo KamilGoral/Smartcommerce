@@ -483,6 +483,10 @@ docReady(function () {
         toParse.sort(function (a, b) {
           return b.enabled - a.enabled;
         });
+        // Filter to only include enabled wholesalers for the second table
+        var enabledWholesalers = toParse.filter(function (item) {
+          return item.enabled === true;
+        });
         $("#table_wholesalers_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
@@ -655,7 +659,7 @@ docReady(function () {
           ],
         });
         $("#table_wholesalers_list_bonus").DataTable({
-          data: toParse,
+          data: enabledWholesalers,
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">frt<"bottom"lip>',
@@ -766,38 +770,51 @@ docReady(function () {
           "change",
           "input.editor-active",
           function () {
-            var table = $("#table_wholesalers_list").DataTable(); // Initialize your DataTable here if not already initialized
-            var checkbox = this; // Store reference to the checkbox
-            var isChecked = checkbox.checked; // Store the current state
-            var row = table.row($(this).closest("tr")); // Get the DataTable row
+            var checkbox = this; // Reference to the checkbox
+            var isChecked = checkbox.checked; // Current state
+            var row = $("#table_wholesalers_list")
+              .DataTable()
+              .row($(this).closest("tr")); // Get the DataTable row
             var data = row.data(); // Get row data
 
-            // Define what to do in case of error
             var onErrorCallback = function () {
-              // Revert checkbox state
+              // Revert checkbox state if there's an error
               $(checkbox).prop("checked", !isChecked);
             };
 
-            // Update row data according to checkbox state
             if (isChecked) {
-              console.log(checkbox.getAttribute("wholesalerkey"));
-              console.log("Nieaktywny był");
               updateStatus(
                 true,
-                checkbox.getAttribute("wholesalerkey"),
+                checkbox.getAttribute("wholesalerKey"),
                 onErrorCallback
               );
+              // Add to the second table if enabled
+              addToSecondTable(data);
             } else {
-              console.log(checkbox.getAttribute("wholesalerkey"));
-              console.log("Aktywny był");
               updateStatus(
                 false,
-                checkbox.getAttribute("wholesalerkey"),
+                checkbox.getAttribute("wholesalerKey"),
                 onErrorCallback
               );
+              // Remove from the second table if disabled
+              removeFromSecondTable(data.wholesalerKey);
             }
           }
         );
+        function addToSecondTable(data) {
+          var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
+          tableBonus.row.add(data).draw();
+        }
+
+        function removeFromSecondTable(wholesalerKey) {
+          var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
+          var rowIndex = tableBonus
+            .rows(function (idx, data, node) {
+              return data.wholesalerKey === wholesalerKey;
+            })
+            .indexes();
+          tableBonus.row(rowIndex).remove().draw();
+        }
       }
 
       if (request.status == 401) {
