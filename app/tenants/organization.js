@@ -354,7 +354,7 @@ docReady(function () {
                 if (data === "active") {
                   return '<spann class="positive">Aktywny</spann>';
                 } else {
-                  return '<spann class="medium">Oczekuję...</spann>';
+                  return '<spann class="medium">Oczekuję</spann>';
                 }
               },
             },
@@ -747,11 +747,7 @@ docReady(function () {
               orderable: false,
               data: "preferentialBonus",
               render: function (data, type, row) {
-                return (
-                  '<input type="number" step="0.01" style="max-width: 80px" onkeypress="return validateInput(event, this)" min="0" max="500" value="' +
-                  parseFloat(data).toFixed(2) + // Format the number to two decimal places
-                  '">'
-                );
+                return '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="0.00">';
               },
             },
           ],
@@ -972,19 +968,15 @@ docReady(function () {
         if (daysLeft < 0) {
           trialEndDateText = "Aktywny";
         } else if (daysLeft === 1) {
-          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 1 dzień i zakończy się ${trialEndDate.toLocaleDateString(
-            "pl-PL"
-          )}.`;
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się jutro.`;
         } else if (daysLeft === 0) {
-          trialEndDateText = `Twój bezpłatny okres próbny kończy się dzisiaj, ${trialEndDate.toLocaleDateString(
-            "pl-PL"
-          )}.`;
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się dzisiaj.`;
         } else if (daysLeft > 30) {
-          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze 30 dni i zakończy się ${fakeTrialEnd.toLocaleDateString(
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się za 30 dni - ${fakeTrialEnd.toLocaleDateString(
             "pl-PL"
           )}.`;
         } else {
-          trialEndDateText = `Twój bezpłatny okres próbny ma jeszcze ${daysLeft} dni i zakończy się ${trialEndDate.toLocaleDateString(
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się za  ${daysLeft} - ${trialEndDate.toLocaleDateString(
             "pl-PL"
           )}.`;
         }
@@ -1167,7 +1159,7 @@ docReady(function () {
       updateIntegrationStatus($integrationStatus, "Succeeded", "green");
       checkIntegrationStatus(integration, $integrationStatus);
     } else {
-      updateIntegrationStatus($integrationStatus, "Oczekuję...", null);
+      updateIntegrationStatus($integrationStatus, "Oczekuję", null);
     }
 
     const href = getIntegrationHref(integration.integrationKey);
@@ -1180,8 +1172,8 @@ docReady(function () {
     if (statusText === "Succeeded") {
       statusText = "Aktywny";
       color = "green";
-    } else if (statusText === "Oczekuję...") {
-      statusText = "Oczekuję...";
+    } else if (statusText === "Oczekuję") {
+      statusText = "Oczekuję";
       color = "gray";
     } else {
       statusText = "Błąd";
