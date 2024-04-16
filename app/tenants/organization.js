@@ -1779,6 +1779,9 @@ docReady(function () {
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
       },
     ],
+    initComplete: function (settings, json) {
+      toggleEmptyState();
+    },
   });
 
   function toggleEmptyState() {
