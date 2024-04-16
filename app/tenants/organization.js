@@ -1784,6 +1784,7 @@ docReady(function () {
   function toggleEmptyState() {
     // Check if the table has any entries
     var hasEntries = tablePriceLists.data().any();
+    console.log(hasEntries);
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
@@ -1794,9 +1795,6 @@ docReady(function () {
       $("#pricelistscontainer").show();
     }
   }
-
-  // Initial check after the table is initialized
-  toggleEmptyState();
 
   $("#table_pricelists_list").on(
     "click",
