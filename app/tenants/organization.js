@@ -994,6 +994,8 @@ docReady(function () {
           if (toParse.pricing.specialService !== null) {
             // If specialService is not null, show #specialServiceBox
             document.getElementById("specialServiceBox").style.display = "flex";
+            document.getElementById("pricingStandard").style.display = "none";
+            document.getElementById("pricingPremium").style.display = "none";
           } else {
             // If specialService is null, hide #specialServiceBox
             document.getElementById("specialServiceBox").style.display = "none";
