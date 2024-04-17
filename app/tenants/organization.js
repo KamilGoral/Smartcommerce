@@ -858,13 +858,8 @@ docReady(function () {
           data.address.country !== null &&
           data.address.line1 !== null && // 'line2' is not required
           data.address.town !== null &&
-          data.address.state !== null &&
           data.address.postcode !== null && // 'phones' is not required
-          data.pricing && // Check if pricing object itself exists
-          data.pricing.standard !== null &&
-          data.pricing.premium !== null; // 'specialService' and 'trialEndDate' are not required
-
-        console.log(hasRequiredKeys);
+          console.log(hasRequiredKeys);
 
         if (hasRequiredKeys) {
           console.log("All is good");
