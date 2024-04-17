@@ -858,8 +858,8 @@ docReady(function () {
           data.address.country !== null &&
           data.address.line1 !== null && // 'line2' is not required
           data.address.town !== null &&
-          data.address.postcode !== null && // 'phones' is not required
-          console.log(hasRequiredKeys);
+          data.address.postcode !== null; // 'phones' is not required
+        console.log(hasRequiredKeys);
 
         if (hasRequiredKeys) {
           console.log("All is good");
