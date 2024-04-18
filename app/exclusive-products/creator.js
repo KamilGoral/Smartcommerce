@@ -384,12 +384,12 @@ docReady(function () {
           });
         }
 
-        if ($("#WholesalerSelector").val() === "null") {
-          for (var i = 0; i < postData.length; i++) {
-            delete postData[i].wholesalerKey;
-          }
-          console.log("delete wholesalerKey");
-        }
+        // if ($("#WholesalerSelector").val() === "null") {
+        //   for (var i = 0; i < postData.length; i++) {
+        //     delete postData[i].wholesalerKey;
+        //   }
+        //   console.log("delete wholesalerKey");
+        // }
 
         console.log(postData);
 
