@@ -747,7 +747,11 @@ docReady(function () {
               orderable: false,
               data: "preferentialBonus",
               render: function (data, type, row) {
-                return '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="0.00">';
+                return (
+                  '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
+                  data +
+                  '">'
+                );
               },
             },
           ],
