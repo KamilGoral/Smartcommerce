@@ -886,12 +886,18 @@ docReady(function () {
         var action = InvokeURL + "exclusive-products";
         var method = "POST";
 
+        var wholesalerKeyPOST = $("#WholesalerSelector-Exclusive-2").val()
+
+        if (wholesalerKeyPOST === "null") {
+          wholesalerKeyPOST = null
+        }
+
         if ($("#NeverSingle").is(":checked")) {
           var postData = [
             {
               gtin: $("#GTINInput").val(),
               name: "name1",
-              wholesalerKey: $("#WholesalerSelector-Exclusive-2").val(),
+              wholesalerKey: wholesalerKeyPOST,
               startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
               endDate: "infinity",
             },
@@ -901,17 +907,12 @@ docReady(function () {
             {
               gtin: $("#GTINInput").val(),
               name: "name1",
-              wholesalerKey: $("#WholesalerSelector-Exclusive-2").val(),
+              wholesalerKey:wholesalerKeyPOST,
               startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
               endDate: $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
             },
           ];
         }
-
-        // if ($("#WholesalerSelector-Exclusive-2").val() === "null") {
-        //   delete postData[0].wholesalerKey;
-        //   console.log("delete wholesalerKey");
-        // }
 
         console.log(postData);
 

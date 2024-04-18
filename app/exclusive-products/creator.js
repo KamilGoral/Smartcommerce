@@ -31,11 +31,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ExclusiveWizardBread = document.getElementById("ExclusiveWizardBread");
@@ -366,10 +366,16 @@ docReady(function () {
         var table = $("#validproducts").DataTable();
         var productsFromTable = table.rows().data().toArray();
 
+        var wholesalerKeyPOST = $("#WholesalerSelector").val();
+
+        if (wholesalerKeyPOST === "null") {
+          wholesalerKeyPOST = null;
+        }
+
         if ($("#Never").is(":checked")) {
           var postData = productsFromTable.map(function (el) {
             var o = Object.assign({}, el);
-            o.wholesalerKey = $("#WholesalerSelector").val();
+            o.wholesalerKey = wholesalerKeyPOST;
             o.startDate = $("#startDate").val() + "T00:00:01.00Z";
             o.endDate = "infinity";
             return o;
@@ -377,20 +383,12 @@ docReady(function () {
         } else {
           var postData = productsFromTable.map(function (el) {
             var o = Object.assign({}, el);
-            o.wholesalerKey = $("#WholesalerSelector").val();
+            o.wholesalerKey = wholesalerKeyPOST;
             o.startDate = $("#startDate").val() + "T00:00:01.00Z";
             o.endDate = $("#endDate").val() + "T23:59:59.00Z";
             return o;
           });
         }
-
-        // if ($("#WholesalerSelector").val() === "null") {
-        //   for (var i = 0; i < postData.length; i++) {
-        //     delete postData[i].wholesalerKey;
-        //   }
-        //   console.log("delete wholesalerKey");
-        // }
-
         console.log(postData);
 
         $.ajax({
@@ -601,9 +599,8 @@ docReady(function () {
             const day = date.getDate();
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-            return `${day < 10 ? "0" : ""}${day}.${
-              month < 10 ? "0" : ""
-            }${month}.${year}`;
+            return `${day < 10 ? "0" : ""}${day}.${month < 10 ? "0" : ""
+              }${month}.${year}`;
           };
 
           // Sprawdź czy spełnione są warunki
