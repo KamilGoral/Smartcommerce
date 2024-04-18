@@ -892,6 +892,8 @@ docReady(function () {
           wholesalerKeyPOST = null
         }
 
+        console.log(wholesalerKeyPOST);
+
         if ($("#NeverSingle").is(":checked")) {
           var postData = [
             {
@@ -907,7 +909,7 @@ docReady(function () {
             {
               gtin: $("#GTINInput").val(),
               name: "name1",
-              wholesalerKey:wholesalerKeyPOST,
+              wholesalerKey: wholesalerKeyPOST,
               startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
               endDate: $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
             },
