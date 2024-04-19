@@ -99,6 +99,7 @@ docReady(function () {
         $("#login-credentials-container").removeClass("hide");
         const statusmessagebox = document.getElementById("statusmessagebox");
         $("#UsernameEdit").val(data2.credentials.username).change();
+        $("#logisticMinimumEdit").val(data2).change();
         if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
           var firstCreateDate = "";
@@ -377,6 +378,12 @@ docReady(function () {
         var foundWholesaler = data.items.find(function (item) {
           return item.wholesalerKey === wholesalerKey;
         });
+
+        var logisticMinimum = foundWholesaler.logisticMinimum;
+
+        if (logisticMinimum !== null) {
+          $("#logisticMinimumEdit").val(logisticMinimum).change();
+        }
 
         if (
           foundWholesaler &&
