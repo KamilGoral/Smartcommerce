@@ -3006,7 +3006,7 @@ docReady(function () {
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
-    table.row($(this).parents("tr")).remove().draw();
+    table.row($(this).parents("tr")).remove().draw(false);
     checkChangesPayload();
 
     // Aktualizuj wartość input w tabeli $('#table_id') na null
