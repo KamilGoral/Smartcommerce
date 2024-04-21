@@ -80,7 +80,7 @@ docReady(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
 
-        if ((data.merchantConsoleShopId = null)) {
+        if ((data.merchantConsoleShopId === null)) {
           data.merchantConsoleShopId = "";
         }
 
