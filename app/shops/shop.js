@@ -1578,7 +1578,7 @@ docReady(function () {
 
     // shopCodeEdit
     var shopCodeEdit = $("#shopCodeEdit").val();
-    if (shopCodeEdit !== currentData.shopCodeEdit) {
+    if (shopCodeEdit !== currentData.shopKey) {
       patchData.push({ op: "replace", path: "/key", value: shopCodeEdit });
     }
 
