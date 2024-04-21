@@ -45,7 +45,7 @@ docReady(function () {
         var doneBlock = $("#wf-form-doneLogin-Form", container);
         var failBlock = $("#wf-form-failLogin-Form", container);
         var action =
-          "https://hook.integromat.com/vjrtt8ltcfd1adrpmtidf9u08lptt8op";
+          "https://hook.eu1.make.com/btal1sfexvsxkqry9eplik26sc4xxidu";
         var method = form.attr("method");
 
         var data = {
