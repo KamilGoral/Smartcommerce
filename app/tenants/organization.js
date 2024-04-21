@@ -20,11 +20,19 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
+  function setCookie(cName, cValue, expirationSec) {
+    let date = new Date();
+    date.setTime(date.getTime() + expirationSec * 1000);
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+  }
+
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var clientId = new URL(location.href).searchParams.get("clientId");
+  
   var orgToken = getCookie(clientId);
-  console.log(orgToken);
+  setCookie('sprytnyToken', orgToken, 7200);
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
   
