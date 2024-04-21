@@ -1588,7 +1588,7 @@ docReady(function () {
     if (newTelephone === "") {
       newTelephone = null;
     }
-    if (newTelephone !== currentData.phones) {
+    if (newTelephone !== null && newTelephone !== currentData.phones) {
       patchData.push({
         op: "replace",
         path: "/phones",
