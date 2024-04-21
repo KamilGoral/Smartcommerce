@@ -73,12 +73,49 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             // Iterate over the array of results and set cookies
+            if (!Array.isArray(resultData)) {
+              console.error('Expected an array of results but got:', resultData);
+              return;
+            }
+
             resultData.forEach(function (authResult) {
+              if (!authResult || !authResult.AuthenticationResult) {
+                console.error('Missing AuthenticationResult in:', authResult);
+                setCookie(
+                  "sprytnycookie",
+                  "Bearer " + authResultAccessToken,
+                  authResult.ExpiresIn
+                );
+                setCookie(
+                  "sprytnyDomainName",
+                  DomainName,
+                  authResult.ExpiresIn
+                );
+                setCookie(
+                  "sprytnyOrganizationclientId",
+                  OrganizationclientId,
+                  authResult.ExpiresIn
+                );
+                setCookie(
+                  "sprytnyInvokeURL",
+                  resultData.InvokeURL,
+                  authResult.ExpiresIn
+                );
+                return;
+              }
+
               var clientId = authResult.clientId ? authResult.clientId : 'sprytnycookie';
               var accessToken = authResult.AuthenticationResult.AccessToken;
               var expiresIn = authResult.AuthenticationResult.ExpiresIn;
+
+              if (!accessToken) {
+                console.error('AccessToken is missing for clientId:', clientId);
+                return;
+              }
+
               setCookie(clientId, "Bearer " + accessToken, expiresIn);
             });
+
 
             if (typeof successCallback === 'function') {
               var result = successCallback(resultData);
