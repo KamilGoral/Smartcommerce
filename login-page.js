@@ -45,7 +45,7 @@ docReady(function () {
         var doneBlock = $("#wf-form-doneLogin-Form", container);
         var failBlock = $("#wf-form-failLogin-Form", container);
         var action =
-          "https://hook.eu1.make.com/btal1sfexvsxkqry9eplik26sc4xxidu";
+          "https://hook.eu1.make.com/tgkr3w2th4y8t9kxcdk2bebkdwy73jyh";
         var method = form.attr("method");
 
         var data = {
