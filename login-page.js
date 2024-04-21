@@ -72,15 +72,11 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
+            console.log(resultData)
             // Iterate over the array of results and set cookies
-            if (!Array.isArray(resultData)) {
-              console.error('Expected an array of results but got:', resultData);
-              return;
-            }
-
             resultData.forEach(function (authResult) {
-              if (!authResult || !authResult.AuthenticationResult) {
-                console.error('Missing AuthenticationResult in:', authResult);
+              console.log(authResult);
+              if (!authResult.AuthenticationResult) {
                 setCookie(
                   "sprytnycookie",
                   "Bearer " + authResult.AccessToken,
