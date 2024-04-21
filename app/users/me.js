@@ -276,7 +276,7 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status
+          request.status
         );
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
@@ -289,62 +289,78 @@ docReady(function () {
   }
 
   function LoginIntoOrganization(evt) {
-    evt.preventDefault(); // This ensures the event is correctly passed and used
+    evt.preventDefault(); // Prevent the default form submission
+
     var OrganizationName = this.getAttribute("OrganizationName");
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
-  /// if there is no cookie that is equal OrganizationclientId make a request and all this function
-    var data = {
-      smartToken: smartToken,
-      OrganizationclientId: OrganizationclientId,
-      OrganizationName: OrganizationName,
-    };
-    $.ajax({
-      type: "POST",
-      url: "https://hook.integromat.com/3k5pcq058xulm1gafamujedv9hwx6qn8",
-      cors: true,
-      beforeSend: function () {
-        $("#waitingdots").show();
-      },
-      complete: function () {
-        $("#waitingdots").hide();
-      },
-      contentType: "application/json",
-      dataType: "json",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      data: JSON.stringify(data),
-      success: function (resultData) {
-        setCookieAndSession(
-          OrganizationclientId,
-          "Bearer " + resultData.AccessToken,
-          resultData.ExpiresIn
-        );
-        sessionStorage.clear();
-        if (typeof successCallback === "function") {
-          result = successCallback(resultData);
-          if (!result) {
-            return;
+
+    // Check if the organization's client ID is already stored as a cookie
+    if (!getCookie(OrganizationclientId)) {
+      var data = {
+        smartToken: smartToken, // Ensure smartToken is correctly initialized and available
+        OrganizationclientId: OrganizationclientId,
+        OrganizationName: OrganizationName,
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "https://hook.integromat.com/3k5pcq058xulm1gafamujedv9hwx6qn8",
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show(); // Display loading indicator
+        },
+        complete: function () {
+          $("#waitingdots").hide(); // Hide loading indicator
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify(data),
+        success: function (resultData) {
+          // Set the cookie and session storage after a successful response
+          setCookieAndSession(
+            OrganizationclientId,
+            "Bearer " + resultData.AccessToken,
+            resultData.ExpiresIn
+          );
+          sessionStorage.clear(); // Optionally clear other session data
+          if (typeof successCallback === "function") {
+            var result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
           }
-        }
-        window.location.replace(
-          "https://" +
+          // Redirect to the organization's page
+          window.location.replace(
+            "https://" +
             DomainName +
             "/app/tenants/organization" +
             "?name=" +
             OrganizationName +
             "&clientId=" +
             OrganizationclientId
-        );
-      },
-      error: function (jqXHR, exception) {
-        console.log(jqXHR);
-        console.log(exception);
-        return;
-      },
-    });
-    event.preventDefault();
+          );
+        },
+        error: function (jqXHR, exception) {
+          console.error("Error during AJAX request:", jqXHR, exception);
+        },
+      });
+    } else {
+      console.log("Cookie already set for this OrganizationclientId:", OrganizationclientId);
+      // Redirect to the organization's page
+      window.location.replace(
+        "https://" +
+        DomainName +
+        "/app/tenants/organization" +
+        "?name=" +
+        OrganizationName +
+        "&clientId=" +
+        OrganizationclientId
+      );
+    }
     return false;
   }
 
@@ -534,9 +550,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            UserInfo.message
+          request.status +
+          " " +
+          UserInfo.message
         );
         MessageBox(UserInfo.message);
       }
