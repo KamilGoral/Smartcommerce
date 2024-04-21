@@ -45,7 +45,7 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var ClientID = getCookieNameByValue(orgToken);
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const UploadButton = document.getElementById("UploadButton");
   const cancelButton = document.getElementById("cancelButton");
