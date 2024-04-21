@@ -1504,7 +1504,6 @@ docReady(function () {
   }
 
   function applyTippyTooltips() {
-    console.log("Applying tooltips");
     tippy(".tippy:not([data-tippy-initialized])", {
       theme: "light",
       animation: "scale",
@@ -3006,7 +3005,7 @@ docReady(function () {
     addObject(changesPayload, payloadDelete);
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
-    table.row($(this).parents("tr")).remove().draw();
+    table.row($(this).parents("tr")).remove().draw(false);
     checkChangesPayload();
 
     // Aktualizuj wartość input w tabeli $('#table_id') na null
@@ -3120,8 +3119,6 @@ docReady(function () {
     var table = $("#table_id").DataTable();
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
-    console.log(initialValue);
-    console.log(newValue);
     // Check if the value has changed
     if (newValue !== initialValue && parseInt(newValue) >= 0) {
       $(this).attr("value", newValue);
@@ -3168,7 +3165,6 @@ docReady(function () {
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
-      console.log("Adjusting");
       updateOverlaySize("table-content");
 
       // Check if the overlay element exists
@@ -3204,7 +3200,6 @@ docReady(function () {
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
-      console.log("Adjusting");
       $.fn.dataTable
         .tables({
           visible: true,
