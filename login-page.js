@@ -83,7 +83,7 @@ docReady(function () {
                 console.error('Missing AuthenticationResult in:', authResult);
                 setCookie(
                   "sprytnycookie",
-                  "Bearer " + authResultAccessToken,
+                  "Bearer " + authResult.AccessToken,
                   authResult.ExpiresIn
                 );
                 setCookie(
@@ -98,7 +98,7 @@ docReady(function () {
                 );
                 setCookie(
                   "sprytnyInvokeURL",
-                  resultData.InvokeURL,
+                  InvokeURL,
                   authResult.ExpiresIn
                 );
               }
