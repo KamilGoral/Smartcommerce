@@ -76,7 +76,17 @@ docReady(function () {
             // Iterate over the array of results and set cookies
             resultData.forEach(function (authResult) {
               console.log(authResult);
-              if (!authResult.AuthenticationResult) {
+              if (authResult.AuthenticationResult) {
+                var clientId = authResult.clientId;
+                var accessToken = authResult.AuthenticationResult.AccessToken;
+                var expiresIn = authResult.AuthenticationResult.ExpiresIn;
+                if (!accessToken) {
+                  console.error('AccessToken is missing for clientId:', clientId);
+                  return;
+                }
+                setCookie(clientId, "Bearer " + accessToken, expiresIn);
+
+              } else {
                 setCookie(
                   "sprytnycookie",
                   "Bearer " + authResult.AccessToken,
@@ -99,18 +109,7 @@ docReady(function () {
                 );
               }
 
-              var clientId = authResult.clientId;
-              var accessToken = authResult.AuthenticationResult.AccessToken;
-              var expiresIn = authResult.AuthenticationResult.ExpiresIn;
-
-              if (!accessToken) {
-                console.error('AccessToken is missing for clientId:', clientId);
-                return;
-              }
-
-              setCookie(clientId, "Bearer " + accessToken, expiresIn);
             });
-
 
             if (typeof successCallback === 'function') {
               var result = successCallback(resultData);
