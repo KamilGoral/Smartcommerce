@@ -22,10 +22,11 @@ docReady(function () {
 
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
-  var orgToken = getCookie("sprytnyToken");
+  var clientId = new URL(location.href).searchParams.get("clientId");
+  var orgToken = getCookie(clientId);
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
-  var clientId = new URL(location.href).searchParams.get("clientId");
+  
   var organizationName = new URL(document.location.href).searchParams.get(
     "name"
   );
