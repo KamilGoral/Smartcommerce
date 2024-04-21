@@ -292,6 +292,7 @@ docReady(function () {
     evt.preventDefault(); // This ensures the event is correctly passed and used
     var OrganizationName = this.getAttribute("OrganizationName");
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
+  /// if there is no cookie that is equal OrganizationclientId make a request and all this function
     var data = {
       smartToken: smartToken,
       OrganizationclientId: OrganizationclientId,
@@ -316,13 +317,11 @@ docReady(function () {
       data: JSON.stringify(data),
       success: function (resultData) {
         setCookieAndSession(
-          "sprytnyToken",
+          OrganizationclientId,
           "Bearer " + resultData.AccessToken,
           resultData.ExpiresIn
         );
         sessionStorage.clear();
-        sessionStorage.setItem("OrganizationclientId", OrganizationclientId);
-        sessionStorage.setItem("OrganizationName", OrganizationName);
         if (typeof successCallback === "function") {
           result = successCallback(resultData);
           if (!result) {
