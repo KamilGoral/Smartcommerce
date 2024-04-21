@@ -74,10 +74,9 @@ docReady(function () {
           success: function (resultData) {
             // Iterate over the array of results and set cookies
             resultData.forEach(function (authResult) {
-              var clientId = authResult.clientId;
+              var clientId = authResult.clientId ? authResult.clientId : 'sprytnycookie';
               var accessToken = authResult.AuthenticationResult.AccessToken;
               var expiresIn = authResult.AuthenticationResult.ExpiresIn;
-
               setCookie(clientId, "Bearer " + accessToken, expiresIn);
             });
 

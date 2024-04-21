@@ -178,10 +178,7 @@ docReady(function () {
 
   function LogoutNonUser() {
     if (
-      getCookie("sprytnyInvokeURL") == null ||
-      getCookie("sprytnycookie") == null ||
-      getCookie("sprytnyToken") == null ||
-      getCookie("sprytnyDomainName") == null
+      getCookie("sprytnycookie") == null
     ) {
       alert("Twoja sesja wygasła.");
       window.location.href = "https://sprytnykupiec.pl/login-page";
