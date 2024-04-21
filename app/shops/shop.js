@@ -24,21 +24,21 @@ docReady(function () {
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split('; ');
-    
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
       const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
         return name;  // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
-  
+
 
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var orgToken = getCookie("sprytnyToken");
@@ -53,11 +53,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -87,10 +87,10 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-            " - " +
-            data.shopKey +
-            " | " +
-            data.merchantConsoleShopId || "N/A";
+          " - " +
+          data.shopKey +
+          " | " +
+          data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -859,11 +859,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1169,9 +1169,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -1605,10 +1605,12 @@ docReady(function () {
       postcode: $("#shopPostcodeEdit").val(),
     };
 
-    // Compare each property to see if any part of the address has changed
+    // Check if the current data has an address to compare against
+    var currentAddress = currentData.address || {};
     var addressChanged = Object.keys(newAddress).some(
-      (key) => newAddress[key] !== (currentData.address[key] || "")
+      key => newAddress[key] !== (currentAddress[key] || "")
     );
+
     if (addressChanged) {
       patchData.push({ op: "replace", path: "/address", value: newAddress });
     }
@@ -1820,11 +1822,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
