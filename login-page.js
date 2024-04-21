@@ -45,7 +45,7 @@ docReady(function () {
         var doneBlock = $("#wf-form-doneLogin-Form", container);
         var failBlock = $("#wf-form-failLogin-Form", container);
         var action =
-          "https://hook.eu1.make.com/tgkr3w2th4y8t9kxcdk2bebkdwy73jyh";
+          "https://hook.eu1.make.com/btal1sfexvsxkqry9eplik26sc4xxidu";
         var method = form.attr("method");
 
         var data = {
@@ -72,29 +72,17 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            setCookie(
-              "sprytnycookie",
-              "Bearer " + resultData.AuthenticationResult.AccessToken,
-              resultData.AuthenticationResult.ExpiresIn
-            );
-            setCookie(
-              "sprytnyDomainName",
-              DomainName,
-              resultData.AuthenticationResult.ExpiresIn
-            );
-            setCookie(
-              "sprytnyOrganizationclientId",
-              OrganizationclientId,
-              resultData.AuthenticationResult.ExpiresIn
-            );
-            setCookie(
-              "sprytnyInvokeURL",
-              resultData.InvokeURL,
-              resultData.AuthenticationResult.ExpiresIn
-            );
+            // Iterate over the array of results and set cookies
+            resultData.forEach(function (authResult) {
+              var clientId = authResult.clientId;
+              var accessToken = authResult.AuthenticationResult.AccessToken;
+              var expiresIn = authResult.AuthenticationResult.ExpiresIn;
 
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
+              setCookie(clientId, "Bearer " + accessToken, expiresIn);
+            });
+
+            if (typeof successCallback === 'function') {
+              var result = successCallback(resultData);
               if (!result) {
                 form.show();
                 doneBlock.hide();
@@ -103,6 +91,7 @@ docReady(function () {
               }
             }
             window.location.replace("https://" + DomainName + "/app/users/me");
+
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
