@@ -101,10 +101,9 @@ docReady(function () {
                   resultData.InvokeURL,
                   authResult.ExpiresIn
                 );
-                return;
               }
 
-              var clientId = authResult.clientId ? authResult.clientId : 'sprytnycookie';
+              var clientId = authResult.clientId;
               var accessToken = authResult.AuthenticationResult.AccessToken;
               var expiresIn = authResult.AuthenticationResult.ExpiresIn;
 
