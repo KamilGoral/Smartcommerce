@@ -34,7 +34,7 @@ docReady(function () {
   var LastStatusMessage = document.getElementById("LastStatusMessage");
 
   var ClientID = sessionStorage.getItem("OrganizationclientId");
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
 
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;

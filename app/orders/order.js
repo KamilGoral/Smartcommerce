@@ -30,7 +30,7 @@ docReady(function () {
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var orderId = new URL(location.href).searchParams.get("orderId");
   var ClientID = sessionStorage.getItem("OrganizationclientId");
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(

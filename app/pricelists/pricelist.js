@@ -23,7 +23,7 @@ docReady(function () {
   var orgToken = getCookie("sprytnyToken");
   var DomainName = getCookie("sprytnyDomainName");
   var ClientID = sessionStorage.getItem("OrganizationclientId");
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var priceListId = new URL(location.href).searchParams.get("uuid");
   var InvokeURL = getCookie("sprytnyInvokeURL");

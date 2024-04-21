@@ -25,7 +25,7 @@ docReady(function () {
   var ClientID = sessionStorage.getItem("OrganizationclientId");
   var InvokeURL = getCookie("sprytnyInvokeURL");
 
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(

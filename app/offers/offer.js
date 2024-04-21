@@ -25,7 +25,7 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var ClientID = sessionStorage.getItem("OrganizationclientId");
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
   var counter = 0;
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var offerId = new URL(location.href).searchParams.get("offerId");

@@ -27,7 +27,7 @@ docReady(function () {
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
   var ClientID = sessionStorage.getItem("OrganizationclientId");
-  var OrganizationName = sessionStorage.getItem("OrganizationName");
+  var OrganizationName = getCookie("OrganizationName");
   var formIdNewServer = "#wf-form-Create-server";
   var formIdDeleteServer = "#wf-form-Delete-server";
   var formIdResetPassword = "#wf-form-Reset-password";
