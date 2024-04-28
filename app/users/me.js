@@ -331,7 +331,7 @@ docReady(function () {
 
     var OrganizationName = this.getAttribute("OrganizationName");
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
-    var OrganizationStatus = this.getAttribute("tenantStatus");
+    var OrganizationStatus = this.getAttribute("OrganizationStatus");
 
     // Check organization status first
     if (OrganizationStatus === "suspended") {
@@ -462,6 +462,7 @@ docReady(function () {
             // Setting organization attributes for row
             row.setAttribute("OrganizationName", organization.name);
             row.setAttribute("OrganizationclientId", organization.clientId);
+            row.setAttribute("OrganizationStatus", organization.status);
             row.style.display = "flex";
 
             // Append row to the container
