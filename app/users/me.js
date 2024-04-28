@@ -203,12 +203,17 @@ docReady(function () {
   function MessageBox(text) {
     const messageBox = document.querySelector("#WarningMessageMain");
     messageBox.innerText = text;
-    messageBox.setAttribute(
-      "onclick",
-      "location='https://sprytnykupiec.pl/login-page'"
-    );
     messageBox.setAttribute("style", "cursor:pointer;");
     $("#WarningMessageContainer").show();
+
+    // Set a timeout to hide the message box after 3 seconds
+    setTimeout(function () {
+      // Fade out the message over 1 second
+      $("#WarningMessageContainer").fadeOut(1000, function () {
+        // After the fade out, hide the container completely
+        $(this).hide();
+      });
+    }, 3000); // Display time before fade starts
   }
 
   function decisionInvitation(but) {
@@ -328,11 +333,14 @@ docReady(function () {
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
     var OrganizationStatus = this.getAttribute("tenantStatus");
 
+    // Check organization status first
+    if (OrganizationStatus === "suspended") {
+      MessageBox("Nie możesz zalogować się do organizacji"); // Display message if suspended
+      return false; // Exit function after displaying message
+    }
+
     // Check if the organization's client ID is already stored as a cookie
-    if (
-      !getCookie(OrganizationclientId) &&
-      OrganizationStatus !== "suspended"
-    ) {
+    if (!getCookie(OrganizationclientId)) {
       var data = {
         smartToken: smartToken, // Ensure smartToken is correctly initialized and available
         OrganizationclientId: OrganizationclientId,
@@ -386,11 +394,6 @@ docReady(function () {
         },
       });
     } else {
-      console.log(
-        "Cookie already set for this OrganizationclientId:" +
-          OrganizationclientId +
-          "or organization is suspended"
-      );
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
