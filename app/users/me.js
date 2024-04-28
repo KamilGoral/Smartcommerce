@@ -158,9 +158,9 @@ docReady(function () {
                   responseText.message.includes("already exist")
                 ) {
                   msg =
-                    "Organizacja o nazwie: " +
+                    'Organizacja o nazwie:  "' +
                     $(formId + " #newOrgName").val() +
-                    " już istnieje. Proszę wybrać inną nazwę.";
+                    '" już istnieje. Proszę wybrać inną nazwę.';
                 } else {
                   msg =
                     "Aktualnie trwa proces weryfikacji jednej z Twoich organizacji. Przed założeniem nowej, konieczne jest zakończenie tego procesu.";
@@ -326,9 +326,13 @@ docReady(function () {
 
     var OrganizationName = this.getAttribute("OrganizationName");
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
+    var OrganizationStatus = this.getAttribute("tenantStatus");
 
     // Check if the organization's client ID is already stored as a cookie
-    if (!getCookie(OrganizationclientId)) {
+    if (
+      !getCookie(OrganizationclientId) &&
+      OrganizationStatus !== "suspended"
+    ) {
       var data = {
         smartToken: smartToken, // Ensure smartToken is correctly initialized and available
         OrganizationclientId: OrganizationclientId,
@@ -383,8 +387,9 @@ docReady(function () {
       });
     } else {
       console.log(
-        "Cookie already set for this OrganizationclientId:",
-        OrganizationclientId
+        "Cookie already set for this OrganizationclientId:" +
+          OrganizationclientId +
+          "or organization is suspended"
       );
       // Redirect to the organization's page
       window.location.replace(
