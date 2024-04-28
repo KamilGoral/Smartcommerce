@@ -22,19 +22,19 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
-    
+    const cookies = document.cookie.split("; ");
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
 
@@ -150,9 +150,24 @@ docReady(function () {
                   console.log("Błąd podczas wysyłania danych na endpoint.");
                 },
               });
-            } else if (jqXHR.status == 400) {
-              msg =
-                "Błąd - Numer VAT musi być poprawnym numerem identyfikacji podatkowej VAT";
+            } else if (jqXHR.status == 409) {
+              try {
+                var responseText = JSON.parse(jqXHR.responseText);
+                if (
+                  responseText.message &&
+                  responseText.message.includes("already exist")
+                ) {
+                  msg =
+                    "Organizacja o nazwie: " +
+                    $(formId + " #newOrgName").val() +
+                    " już istnieje. Proszę wybrać inną nazwę.";
+                } else {
+                  msg =
+                    "Aktualnie trwa proces weryfikacji jednej z Twoich organizacji. Przed założeniem nowej, konieczne jest zakończenie tego procesu.";
+                }
+              } catch (e) {
+                msg = "Błąd związany z konfliktem danych. [409]";
+              }
             } else if (jqXHR.status == 409) {
               msg =
                 "Aktualnie trwa proces weryfikacji jednej z Twoich organizacji. Przed założeniem nowej, konieczne jest zakończenie tego procesu.";
@@ -294,7 +309,7 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status
+            request.status
         );
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
@@ -354,12 +369,12 @@ docReady(function () {
           // Redirect to the organization's page
           window.location.replace(
             "https://" +
-            DomainName +
-            "/app/tenants/organization" +
-            "?name=" +
-            OrganizationName +
-            "&clientId=" +
-            OrganizationclientId
+              DomainName +
+              "/app/tenants/organization" +
+              "?name=" +
+              OrganizationName +
+              "&clientId=" +
+              OrganizationclientId
           );
         },
         error: function (jqXHR, exception) {
@@ -367,16 +382,19 @@ docReady(function () {
         },
       });
     } else {
-      console.log("Cookie already set for this OrganizationclientId:", OrganizationclientId);
+      console.log(
+        "Cookie already set for this OrganizationclientId:",
+        OrganizationclientId
+      );
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/tenants/organization" +
-        "?name=" +
-        OrganizationName +
-        "&clientId=" +
-        OrganizationclientId
+          DomainName +
+          "/app/tenants/organization" +
+          "?name=" +
+          OrganizationName +
+          "&clientId=" +
+          OrganizationclientId
       );
     }
     return false;
@@ -568,9 +586,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status +
-          " " +
-          UserInfo.message
+            request.status +
+            " " +
+            UserInfo.message
         );
         MessageBox(UserInfo.message);
       }
