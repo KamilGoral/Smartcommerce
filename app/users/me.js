@@ -87,8 +87,6 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            console.log(resultData);
-
             if (typeof successCallback === "function") {
               // call custom callback
               result = successCallback(resultData);
@@ -217,7 +215,6 @@ docReady(function () {
   }
 
   function decisionInvitation(but) {
-    console.log(but);
     const invitationId = but.dataset.invitationId; // Retrieve the stored invitation ID
     const action = but.dataset.action; // Retrieve the action
     const isTrueSet = action === "accept";
@@ -334,8 +331,10 @@ docReady(function () {
     var OrganizationStatus = this.getAttribute("OrganizationStatus");
 
     // Check organization status first
-    if (OrganizationStatus === "suspended") {
-      MessageBox("Nie możesz zalogować się do organizacji"); // Display message if suspended
+    if (OrganizationStatus === "Suspended") {
+      MessageBox(
+        "Nie możesz zalogować się do tej organizacji. Proszę najpierw uregulować zaległe faktury."
+      ); // Display message if suspended
       return false; // Exit function after displaying message
     }
 
@@ -513,7 +512,6 @@ docReady(function () {
           dataType: "json",
           data: JSON.stringify(data),
           success: function (resultData) {
-            console.log(resultData);
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
               if (!result) {
