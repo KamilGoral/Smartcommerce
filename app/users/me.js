@@ -39,7 +39,6 @@ docReady(function () {
   }
 
   var InvokeURL = getCookie("sprytnyInvokeURL");
-  var smartToken = getCookie("sprytnycookie");
   var DomainName = getCookie("sprytnyDomainName");
   var formId = "#wf-form-Create-Organization-Form";
   var smartToken = getCookie("sprytnycookie");
