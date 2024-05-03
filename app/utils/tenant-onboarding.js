@@ -39,6 +39,7 @@ docReady(function () {
   }
 
   var smartToken = getCookie("sprytnycookie");
+  var InvokeURL = getCookie("sprytnyInvokeURL");
   const forwardButton = document.getElementById("forwardButton");
   // Onboarding steps required
 
