@@ -50,7 +50,6 @@ docReady(function () {
   nextStepButtons.forEach((button) => {
     button.addEventListener("click", function () {
       // Find the button with the ID 'forwardButton' and simulate a click
-
       if (forwardButton) {
         forwardButton.click();
       }
@@ -100,6 +99,12 @@ docReady(function () {
       success: function (resultData) {
         // Navigate to next slide
         forwardButton.click();
+        console.log(resultData);
+        setCookieAndSession(
+          "sprytnyNewOrganizationId",
+          resultData.clientId,
+          96000
+        );
       },
       error: function (jqXHR, textStatus, errorThrown) {
         // Display error message on the current slide
