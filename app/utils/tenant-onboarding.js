@@ -149,7 +149,7 @@ docReady(function () {
       var data = {
         smartToken: smartToken, // Ensure smartToken is correctly initialized and available
         OrganizationclientId: OrganizationclientId,
-        OrganizationName: OrganizationName,
+        OrganizationName: $("#tenantName").val(),
       };
 
       $.ajax({
