@@ -126,6 +126,19 @@ docReady(function () {
   });
 
   //step3: Login to tenant
+
+  // Get the button by its ID
+  const finishOnboardingButton = document.getElementById("finishOnboarding");
+
+  // Check if the button exists to avoid errors
+  if (finishOnboardingButton) {
+    // Add a click event listener to the button
+    finishOnboardingButton.addEventListener("click", function (event) {
+      LoginIntoOrganization(event); // Call the function, passing the event object
+    });
+  } else {
+    console.log("The 'finishOnboarding' button was not found on the page.");
+  }
   function LoginIntoOrganization(evt) {
     evt.preventDefault(); // Prevent the default form submission
 
