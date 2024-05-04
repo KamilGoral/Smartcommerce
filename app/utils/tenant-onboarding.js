@@ -142,7 +142,7 @@ docReady(function () {
   function LoginIntoOrganization(evt) {
     evt.preventDefault(); // Prevent the default form submission
 
-    var OrganizationclientId = getCookie(sprytnyNewOrganizationId);
+    var OrganizationclientId = getCookie("sprytnyNewOrganizationId");
 
     // Check if the organization's client ID is already stored as a cookie
     if (!getCookie(OrganizationclientId)) {
