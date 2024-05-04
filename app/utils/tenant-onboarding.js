@@ -266,6 +266,7 @@ docReady(function () {
             }
           }
           console.log("Shop created successfully");
+          forwardButton.click();
         },
         error: function (error) {
           // Assuming 'errorCallback' is a function that handles error
