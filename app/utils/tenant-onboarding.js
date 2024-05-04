@@ -309,7 +309,7 @@ docReady(function () {
           dom: '<"top">frt',
           scrollY: "196px",
           scrollCollapse: true,
-          pageLength: 10,
+          pageLength: 200,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -406,6 +406,7 @@ docReady(function () {
             },
             {
               orderable: true,
+              visible: false,
               data: "platformUrl",
               render: function (data) {
                 if (data !== null) {
