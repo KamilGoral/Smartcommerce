@@ -306,8 +306,8 @@ docReady(function () {
           data: toParse,
           pagingType: "full_numbers",
           order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "20vh",
+          dom: '<"top">frt',
+          scrollY: "268px",
           scrollCollapse: true,
           pageLength: 10,
           language: {
