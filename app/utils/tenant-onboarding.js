@@ -254,7 +254,7 @@ docReady(function () {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: getCookie("" + OrganizationclientId), // Make sure the 'orgToken' is defined and valid
+          Authorization: getCookie(getCookie("sprytnyNewOrganizationId")), // Make sure the 'orgToken' is defined and valid
         },
         data: JSON.stringify(data),
         success: function (resultData) {
