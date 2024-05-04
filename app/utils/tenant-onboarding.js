@@ -307,7 +307,7 @@ docReady(function () {
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">frt',
-          scrollY: "268px",
+          scrollY: "212px",
           scrollCollapse: true,
           pageLength: 10,
           language: {
