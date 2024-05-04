@@ -27,6 +27,21 @@ docReady(function () {
     document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
   }
 
+  const successmessagetext = "";
+  const WarningMessage = "";
+
+  const tenantName = "";
+  const tenantTaxId = "";
+  const tenantButton = "";
+  const confirmationPassword = "";
+  const shopButton = document.getElementById("shopButton");
+  const wholesalerLogin = "";
+  const wholesalerOptional = "";
+  const wholesalerButton = "";
+  const skipButton = "";
+
+  const finishOnboarding = "";
+
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
@@ -209,26 +224,68 @@ docReady(function () {
   }
 
   //step4: Create Shop
+
+  // Find the button with the ID 'shopButton'
+
+  // Check if the button exists to avoid errors
+  if (shopButton) {
+    // Add a click event listener to the button
+    shopButton.addEventListener("click", function (event) {
+      event.preventDefault(); // Prevent any default action initiated by clicking
+
+      var action = InvokeURL + "shops";
+      var data = {
+        name: $("#shopName").val(),
+        shopKey: $("#shopKey").val().toUpperCase(),
+      };
+
+      $.ajax({
+        type: "POST",
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show(); // Display loading indicator
+        },
+        complete: function () {
+          $("#waitingdots").hide(); // Hide loading indicator
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: getCookie("" + OrganizationclientId), // Make sure the 'orgToken' is defined and valid
+        },
+        data: JSON.stringify(data),
+        success: function (resultData) {
+          // Assuming 'successCallback' is a function that handles successful data processing
+          if (typeof successCallback === "function") {
+            var result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
+          }
+          console.log("Shop created successfully");
+        },
+        error: function (error) {
+          // Assuming 'errorCallback' is a function that handles error
+          if (typeof errorCallback === "function") {
+            errorCallback(error);
+          }
+          console.log("Error creating shop");
+          console.error(error);
+        },
+      });
+
+      return false; // Prevent default form submission if it's nested inside a form
+    });
+  } else {
+    console.log("The 'shopButton' was not found on the page.");
+  }
+
   //step5: Activate Wholesalers
   //Step6: Integrate Wholesalers
   //Step7: Redirect to Organization
-
-  const successmessagetext = "";
-  const WarningMessage = "";
-
-  const tenantName = "";
-  const tenantTaxId = "";
-  const tenantButton = "";
-  const confirmationPassword = "";
-  const shopName = "";
-  const shopKey = "";
-  const shopButton = "";
-  const wholesalerLogin = "";
-  const wholesalerOptional = "";
-  const wholesalerButton = "";
-  const skipButton = "";
-
-  const finishOnboarding = "";
 
   function loginToTenant() {}
 
