@@ -307,9 +307,9 @@ docReady(function () {
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">frt<"bottom"lip>',
-          // scrollY: "60vh",
+          scrollY: "20vh",
           scrollCollapse: true,
-          pageLength: 200,
+          pageLength: 10,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
