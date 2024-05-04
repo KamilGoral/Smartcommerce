@@ -20,6 +20,13 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
+  function setCookieAndSession(cName, cValue, expirationSec) {
+    let date = new Date();
+    date.setTime(date.getTime() + expirationSec * 1000);
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+  }
+
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
@@ -119,6 +126,75 @@ docReady(function () {
   });
 
   //step3: Login to tenant
+  function LoginIntoOrganization(evt) {
+    evt.preventDefault(); // Prevent the default form submission
+
+    var OrganizationclientId = getCookie(sprytnyNewOrganizationId);
+
+    // Check if the organization's client ID is already stored as a cookie
+    if (!getCookie(OrganizationclientId)) {
+      var data = {
+        smartToken: smartToken, // Ensure smartToken is correctly initialized and available
+        OrganizationclientId: OrganizationclientId,
+        OrganizationName: OrganizationName,
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "https://hook.integromat.com/3k5pcq058xulm1gafamujedv9hwx6qn8",
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show(); // Display loading indicator
+        },
+        complete: function () {
+          $("#waitingdots").hide(); // Hide loading indicator
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify(data),
+        success: function (resultData) {
+          // Set the cookie and session storage after a successful response
+          setCookieAndSession(
+            OrganizationclientId,
+            "Bearer " + resultData.AccessToken,
+            resultData.ExpiresIn
+          );
+          sessionStorage.clear(); // Optionally clear other session data
+          if (typeof successCallback === "function") {
+            var result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
+          }
+          // Redirect to the organization's page
+          console.log("Zalogowano");
+          forwardButton.click();
+          console.log(resultData);
+        },
+        error: function (jqXHR, exception) {
+          console.error("Error during AJAX request:", jqXHR, exception);
+        },
+      });
+    } else {
+      console.log("Problem");
+      // Redirect to the organization's page
+      // window.location.replace(
+      //   "https://" +
+      //     DomainName +
+      //     "/app/tenants/organization" +
+      //     "?name=" +
+      //     OrganizationName +
+      //     "&clientId=" +
+      //     OrganizationclientId
+      // );
+    }
+    return false;
+  }
+
   //step4: Create Shop
   //step5: Activate Wholesalers
   //Step6: Integrate Wholesalers
