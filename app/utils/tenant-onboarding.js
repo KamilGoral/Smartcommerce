@@ -307,7 +307,7 @@ docReady(function () {
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
+          // scrollY: "60vh",
           scrollCollapse: true,
           pageLength: 200,
           language: {
