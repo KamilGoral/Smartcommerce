@@ -37,9 +37,9 @@ docReady(function () {
     var button = $("#activateWholesalersButton");
     var buttonText = $(".button-20", button);
 
-    if (activeWholesalerCount >= 3) {
+    if (activeWholesalerCount > 3) {
       button.removeClass("disabled");
-      buttonText.text("Aktywnych: " + activeWholesalerCount +" dostawców. Przejdź dalej");
+      buttonText.text("Aktywuj wszystkich swoich dostawców i przejdź dalej");
     } else {
       button.addClass("disabled");
       buttonText.text("Aktywuj jeszcze " + (3 - activeWholesalerCount) + " dostawców.");
@@ -47,6 +47,17 @@ docReady(function () {
   }
 
   updateActivateWholesalersButton();
+
+  // Handle click event for the activate wholesalers button
+  $("#activateWholesalersButton").click(function (event) {
+    if (activeWholesalerCount >= 3) {
+      // Click the forward button if activeWholesalerCount is more than or equal to 3
+      $("#forwardButton").click();
+    } else {
+      // Prevent default action if activeWholesalerCount is less than 3
+      event.preventDefault();
+    }
+  });
 
   const tenantName = "";
   const tenantTaxId = "";
