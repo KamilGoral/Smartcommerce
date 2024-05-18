@@ -552,34 +552,4 @@ docReady(function () {
     );
   }
 
-  $("#table_wholesalers").on("change", "input.editor-active", function () {
-    var checkbox = this; // Reference to the checkbox
-    var isChecked = checkbox.checked; // Current state
-    var row = $("#table_wholesalers").DataTable().row($(this).closest("tr")); // Get the DataTable row
-    var data = row.data(); // Get row data
-    var activeWholesalersCount = 0
-
-    var onErrorCallback = function () {
-      // Revert checkbox state if there's an error
-      $(checkbox).prop("checked", !isChecked);
-    };
-
-    if (isChecked) {
-      updateStatus(
-        true,
-        checkbox.getAttribute("wholesalerKey"),
-        onErrorCallback
-      );
-      activeWholesalersCount = activeWholesalersCount + 1;
-      console.log(activeWholesalersCount);
-    } else {
-      updateStatus(
-        false,
-        checkbox.getAttribute("wholesalerKey"),
-        onErrorCallback
-      );
-      activeWholesalersCount = activeWholesalersCount - 1;
-      console.log(activeWholesalersCount);
-    }
-  });
 });
