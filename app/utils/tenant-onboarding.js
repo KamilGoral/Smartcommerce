@@ -120,14 +120,13 @@ docReady(function () {
         $("#waitingdots").hide();
       },
       success: function (resultData) {
-        // Navigate to next slide
-        forwardButton.click();
         console.log(resultData);
         setCookieAndSession(
           "sprytnyNewOrganizationId",
           resultData.clientId,
           96000
         );
+        LoginIntoOrganization()
       },
       error: function (jqXHR, textStatus, errorThrown) {
         // Display error message on the current slide
@@ -143,10 +142,6 @@ docReady(function () {
 
 
   // Step 3: Login to tenant
-
-  $("#finishOnboarding").click(function (event) {
-    LoginIntoOrganization(event);
-  });
 
   function LoginIntoOrganization(evt) {
     evt.preventDefault(); // Prevent the default form submission
