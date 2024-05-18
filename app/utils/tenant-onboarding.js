@@ -405,16 +405,12 @@ docReady(function () {
                 checkbox.getAttribute("wholesalerKey"),
                 onErrorCallback
               );
-              // Add to the second table if enabled
-              addToSecondTable(data);
             } else {
               updateStatus(
                 false,
                 checkbox.getAttribute("wholesalerKey"),
                 onErrorCallback
               );
-              // Remove from the second table if disabled
-              removeFromSecondTable(data.wholesalerKey);
             }
           }
         );
