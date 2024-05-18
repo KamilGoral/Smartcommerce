@@ -513,7 +513,7 @@ docReady(function () {
 
         $.ajax({
           type: "PATCH",
-          url: InvokeURL + "integrations/pc-market/" + shopKey,
+          url: InvokeURL + "integrations/pc-market/shops/" + shopKey,
           cors: true,
           beforeSend: function () {
             $("#waitingdots").show();
