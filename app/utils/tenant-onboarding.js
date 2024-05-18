@@ -29,7 +29,24 @@ docReady(function () {
 
   const successmessagetext = "";
   const WarningMessage = "";
-  var activeWholesalerCount = 0;
+
+  var activeWholesalerCount = 0; // Initialize the active wholesaler count
+
+  // Function to update the button text and state
+  function updateActivateWholesalersButton() {
+    var button = $("#activateWholesalersButton");
+    var buttonText = $(".button-20", button);
+
+    if (activeWholesalerCount >= 3) {
+      button.removeClass("disabled");
+      buttonText.text("Aktywnych: " + activeWholesalerCount +" dostawców. Przejdź dalej");
+    } else {
+      button.addClass("disabled");
+      buttonText.text("Aktywuj jeszcze " + (3 - activeWholesalerCount) + " dostawców.");
+    }
+  }
+
+  updateActivateWholesalersButton();
 
   const tenantName = "";
   const tenantTaxId = "";
@@ -227,7 +244,7 @@ docReady(function () {
 
   //step5: Activate Wholesalers
 
-  $("#whoYouWorkWith").click(function() {
+  $("#whoYouWorkWith").click(function () {
     getWholesalers();
   });
 
@@ -426,7 +443,7 @@ docReady(function () {
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
     console.log("starting Updating function");
-    
+
     var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
     var doneBlock = $(".w-form-done", container);
@@ -467,9 +484,12 @@ docReady(function () {
           console.log(activeWholesalerCount);
         } else {
           console.log("Nieaktywny");
-          activeWholesalerCount = activeWholesalerCount -1 ;
+          activeWholesalerCount = activeWholesalerCount - 1;
           console.log(activeWholesalerCount);
         }
+
+        // Update the button text and state after each status change
+        updateActivateWholesalersButton();
 
         if (typeof successCallback === "function") {
           // call custom callback
