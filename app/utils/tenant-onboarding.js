@@ -473,10 +473,10 @@ docReady(function () {
       url: InvokeURL + "wholesalers/" + wholesalerKey,
       cors: true,
       beforeSend: function () {
-        $("#waitingdots").show();
+        // $("#waitingdots").show();
       },
       complete: function () {
-        $("#waitingdots").hide();
+        // $("#waitingdots").hide();
       },
       contentType: "application/json",
       dataType: "json",
