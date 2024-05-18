@@ -457,7 +457,7 @@ docReady(function () {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: orgToken,
+        Authorization: getCookie(getCookie("sprytnyNewOrganizationId")),
       },
       data: JSON.stringify(data),
       success: function (resultData) {
@@ -561,6 +561,7 @@ docReady(function () {
     var isChecked = checkbox.checked; // Current state
     var row = $("#table_wholesalers").DataTable().row($(this).closest("tr")); // Get the DataTable row
     var data = row.data(); // Get row data
+    var activeWholesalersCount = 0
 
     var onErrorCallback = function () {
       // Revert checkbox state if there's an error
@@ -573,16 +574,16 @@ docReady(function () {
         checkbox.getAttribute("wholesalerKey"),
         onErrorCallback
       );
-      // Add to the second table if enabled
-      addToSecondTable(data);
+      activeWholesalersCount = activeWholesalersCount + 1;
+      console.log(activeWholesalersCount);
     } else {
       updateStatus(
         false,
         checkbox.getAttribute("wholesalerKey"),
         onErrorCallback
       );
-      // Remove from the second table if disabled
-      removeFromSecondTable(data.wholesalerKey);
+      activeWholesalersCount = activeWholesalersCount - 1;
+      console.log(activeWholesalersCount);
     }
   });
 });
