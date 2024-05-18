@@ -27,10 +27,27 @@ docReady(function () {
     document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
   }
 
-  const successmessagetext = "";
-  const WarningMessage = "";
+  function displayWarningMessage(message) {
+    $(".warningmessagetext").text(message);
+  }
 
-  var activeWholesalerCount = 0; // Initialize the active wholesaler count
+  function getCookieNameByValue(searchValue) {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+      const [name, value] = cookie.split("=");
+      if (decodeURIComponent(value) === searchValue) {
+        return name;
+      }
+    }
+    return null;
+  }
+
+  // Variables
+  let activeWholesalerCount = 0;
+  const smartToken = getCookie("sprytnycookie");
+  const InvokeURL = getCookie("sprytnyInvokeURL");
+  const forwardButton = document.getElementById("forwardButton");
+
 
   // Function to update the button text and state
   function updateActivateWholesalersButton() {
@@ -46,71 +63,26 @@ docReady(function () {
     }
   }
 
+  // Initial update of the button
+
   updateActivateWholesalersButton();
 
   // Handle click event for the activate wholesalers button
   $("#activateWholesalersButton").click(function (event) {
     if (activeWholesalerCount >= 3) {
-      // Click the forward button if activeWholesalerCount is more than or equal to 3
       $("#forwardButton").click();
     } else {
-      // Prevent default action if activeWholesalerCount is less than 3
       event.preventDefault();
     }
   });
 
-  const tenantName = "";
-  const tenantTaxId = "";
-  const tenantButton = "";
-  const confirmationPassword = "";
-  const shopButton = document.getElementById("shopButton");
-  const wholesalerLogin = "";
-  const wholesalerOptional = "";
-  const wholesalerButton = "";
-  const skipButton = "";
+  // Onboarding steps
 
-  const finishOnboarding = "";
-
-  function getCookieNameByValue(searchValue) {
-    // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split("; ");
-
-    // Iterate through each cookie string
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const [name, value] = cookie.split("="); // Split each cookie into name and value
-
-      // Decode the cookie value and compare it to the searchValue
-      if (decodeURIComponent(value) === searchValue) {
-        return name; // Return the cookie name if the values match
-      }
+  $(".nextstep").click(function () {
+    if (forwardButton) {
+      forwardButton.click();
     }
-
-    return null; // Return null if no matching value is found
-  }
-
-  var smartToken = getCookie("sprytnycookie");
-  var InvokeURL = getCookie("sprytnyInvokeURL");
-  const forwardButton = document.getElementById("forwardButton");
-  // Onboarding steps required
-
-  // Find all buttons with the class 'nextstep'
-  const nextStepButtons = document.querySelectorAll(".nextstep");
-
-  // Add a click event listener to each 'nextstep' button
-  nextStepButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      // Find the button with the ID 'forwardButton' and simulate a click
-      if (forwardButton) {
-        forwardButton.click();
-      }
-    });
   });
-
-  function displayWarningMessage(message) {
-    $(".warningmessagetext").text(message);
-    // Ensure you have a container with class 'warningmessagetext' for displaying error messages
-  }
 
   //step2: Create tenant
 
@@ -169,29 +141,21 @@ docReady(function () {
     });
   });
 
-  //step3: Login to tenant
 
-  // Get the button by its ID
-  const finishOnboardingButton = document.getElementById("finishOnboarding");
+  // Step 3: Login to tenant
 
-  // Check if the button exists to avoid errors
-  if (finishOnboardingButton) {
-    // Add a click event listener to the button
-    finishOnboardingButton.addEventListener("click", function (event) {
-      LoginIntoOrganization(event); // Call the function, passing the event object
-    });
-  } else {
-    console.log("The 'finishOnboarding' button was not found on the page.");
-  }
+  $("#finishOnboarding").click(function (event) {
+    LoginIntoOrganization(event);
+  });
+
   function LoginIntoOrganization(evt) {
     evt.preventDefault(); // Prevent the default form submission
 
-    var OrganizationclientId = getCookie("sprytnyNewOrganizationId");
+    const OrganizationclientId = getCookie("sprytnyNewOrganizationId");
 
-    // Check if the organization's client ID is already stored as a cookie
     if (!getCookie(OrganizationclientId)) {
       var data = {
-        smartToken: smartToken, // Ensure smartToken is correctly initialized and available
+        smartToken: smartToken,
         OrganizationclientId: OrganizationclientId,
         OrganizationName: $("#tenantName").val(),
       };
@@ -229,7 +193,7 @@ docReady(function () {
           }
           // Redirect to the organization's page
           console.log("Zalogowano");
-          forwardButton.click();
+          getWholesalers();
           console.log(resultData);
         },
         error: function (jqXHR, exception) {
@@ -238,16 +202,6 @@ docReady(function () {
       });
     } else {
       console.log("Problem");
-      // Redirect to the organization's page
-      // window.location.replace(
-      //   "https://" +
-      //     DomainName +
-      //     "/app/tenants/organization" +
-      //     "?name=" +
-      //     OrganizationName +
-      //     "&clientId=" +
-      //     OrganizationclientId
-      // );
     }
     return false;
   }
@@ -255,9 +209,7 @@ docReady(function () {
 
   //step5: Activate Wholesalers
 
-  $("#whoYouWorkWith").click(function () {
-    getWholesalers();
-  });
+  $("#whoYouWorkWith").click(getWholesalers);
 
   function getWholesalers() {
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
@@ -443,6 +395,7 @@ docReady(function () {
             }
           }
         );
+        forwardButton.click();
       }
 
       if (request.status == 401) {
@@ -565,7 +518,6 @@ docReady(function () {
     });
   }
 
-
   function LoadTippy() {
     $.getScript(
       "https://unpkg.com/popper.js@1",
@@ -588,5 +540,7 @@ docReady(function () {
       }
     );
   }
+
+  LoadTippy()
 
 });
