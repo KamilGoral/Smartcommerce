@@ -29,6 +29,7 @@ docReady(function () {
 
   const successmessagetext = "";
   const WarningMessage = "";
+  var activeWholesalerCount = 0;
 
   const tenantName = "";
   const tenantTaxId = "";
@@ -425,6 +426,7 @@ docReady(function () {
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
     console.log("starting Updating function");
+    
     var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
     var doneBlock = $(".w-form-done", container);
@@ -461,8 +463,12 @@ docReady(function () {
 
         if (resultData.enabled == true) {
           console.log("Aktywny");
+          activeWholesalerCount = activeWholesalerCount + 1;
+          console.log(activeWholesalerCount);
         } else {
           console.log("Nieaktywny");
+          activeWholesalerCount = activeWholesalerCount -1 ;
+          console.log(activeWholesalerCount);
         }
 
         if (typeof successCallback === "function") {
