@@ -1638,42 +1638,54 @@ docReady(function () {
           success: function (currentData) {
             const patchData = preparePatchData(currentData);
 
-            $.ajax({
-              type: "PATCH",
-              url: url,
-              data: JSON.stringify(patchData),
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Authorization: orgToken,
-              },
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                setTimeout(function () {
-                  $("#waitingdots").hide();
-                }, 1000); // 1000 milliseconds = 1 second
-              },
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  successCallback(resultData);
-                }
-                // Hide editBillingModal and show form-done-edit for 2 seconds
-                $("#form-done-edit").css("display", "flex");
-                setTimeout(function () {
-                  $("#editBillingModal").hide();
-                  location.reload();
-                }, 3000);
-              },
-              error: function () {
-                if (typeof errorCallback === "function") {
-                  errorCallback();
-                }
-                // Show form-done-fail-edit on error
-                $("#form-done-fail-edit").css("display", "flex");
-              },
-            });
+            if (patchData.length > 0) {
+              // Send PATCH request only if there are changes
+              $.ajax({
+                type: "PATCH",
+                url: url,
+                data: JSON.stringify(patchData),
+                contentType: "application/json",
+                dataType: "json",
+                headers: {
+                  Authorization: orgToken,
+                },
+                beforeSend: function () {
+                  $("#waitingdots").show();
+                },
+                complete: function () {
+                  setTimeout(function () {
+                    $("#waitingdots").hide();
+                  }, 1000); // 1000 milliseconds = 1 second
+                },
+                success: function (resultData) {
+                  if (typeof successCallback === "function") {
+                    successCallback(resultData);
+                  }
+                  // Hide editBillingModal and show form-done-edit for 2 seconds
+                  $("#form-done-edit").css("display", "flex");
+                  setTimeout(function () {
+                    $("#editBillingModal").hide();
+                    location.reload();
+                  }, 3000);
+                },
+                error: function () {
+                  if (typeof errorCallback === "function") {
+                    errorCallback();
+                  }
+                  // Show form-done-fail-edit on error
+                  $("#form-done-fail-edit").css("display", "flex");
+                },
+              });
+            } else {
+              if (typeof successCallback === "function") {
+                successCallback(currentData);
+              }
+              $("#form-done-edit").css("display", "flex");
+              setTimeout(function () {
+                $("#editBillingModal").hide();
+                location.reload();
+              }, 3000);
+            }
           },
           error: function () {
             if (typeof errorCallback === "function") {
@@ -1704,12 +1716,12 @@ docReady(function () {
     }
 
     // Telephone number
-
     var newTelephone = $("#tenantPhoneEdit").val();
-    if (newTelephone === "") {
-      newTelephone = null;
-    }
-    if (newTelephone !== currentData.phones) {
+    if (
+      newTelephone !== "" &&
+      newTelephone !==
+        (currentData.phones[0] ? currentData.phones[0].phone : null)
+    ) {
       patchData.push({
         op: "replace",
         path: "/phones",
