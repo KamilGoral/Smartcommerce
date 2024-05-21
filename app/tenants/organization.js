@@ -562,6 +562,7 @@ docReady(function () {
 
         // Mapping Polish state names to <select> element values
         var stateMapping = {
+          Wybierz: null,
           Dolnośląskie: "LowerSilesian",
           "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
           Lubelskie: "Lublin",
