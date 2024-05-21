@@ -582,9 +582,9 @@ docReady(function () {
         };
 
         if (data.address && typeof data.address.state !== "undefined") {
-          $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
+          $("#tenantStateEdit").val(stateMapping[data.address.state] || null);
         } else {
-          $("#tenantStateEdit").val("");
+          $("#tenantStateEdit").val(null);
         }
 
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
