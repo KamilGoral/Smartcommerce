@@ -30,16 +30,16 @@ docReady(function () {
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var clientId = new URL(location.href).searchParams.get("clientId");
-  
+
   var orgToken = getCookie(clientId);
-  setCookie('sprytnyToken', orgToken, 7200);
+  setCookie("sprytnyToken", orgToken, 7200);
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
-  
+
   var organizationName = new URL(document.location.href).searchParams.get(
     "name"
   );
-  setCookie('OrganizationName',organizationName, 7200);
+  setCookie("OrganizationName", organizationName, 7200);
   var formId = "#wf-form-NewOrganizationName";
   var formIdDelete = "#wf-form-DeleteOrganization";
   var formIdInvite = "#wf-form-Invite-User";
@@ -188,9 +188,7 @@ docReady(function () {
   }
 
   function LogoutNonUser() {
-    if (
-      getCookie("sprytnycookie") == null
-    ) {
+    if (getCookie("sprytnycookie") == null) {
       alert("Twoja sesja wygasła.");
       window.location.href = "https://sprytnykupiec.pl/login-page";
     }
@@ -884,8 +882,17 @@ docReady(function () {
         }
         var toParse = data; // Assuming 'data' is the object shown in your example
         // Directly mapping data to fields
-        $("#tenantNameEdit").val(data.name || "");
+        $("#tenantNameEdit").val(data.companyName || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
+        $("#firstName").val(data.firstName || "");
+        $("#lastName").val(data.lastName || "");
+
+        // Mapping employment type names to <select> element values
+
+        var employmentMapping = {
+          Firma: "other_business",
+          Osoba: "self_employment",
+        };
 
         // Mapping Polish state names to <select> element values
         var stateMapping = {
@@ -906,6 +913,14 @@ docReady(function () {
           Wielkopolskie: "Greater Poland",
           Zachodniopomorskie: "West Pomeranian",
         };
+
+        if (data.activityKind) {
+          $("#tenantActivityKind").val(
+            employmentMapping[data.activityKind] || ""
+          );
+        } else {
+          $("#tenantActivityKind").val("");
+        }
 
         if (data.address && typeof data.address.state !== "undefined") {
           $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
