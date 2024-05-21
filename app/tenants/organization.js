@@ -1746,6 +1746,36 @@ docReady(function () {
       patchData.push({ op: "replace", path: "/emails", value: newEmails });
     }
 
+    // Tenant Activity Kind
+    var newActivityKind = $("#tenantActivityKind").val();
+    if (newActivityKind !== currentData.activityKind) {
+      patchData.push({
+        op: "replace",
+        path: "/activityKind",
+        value: newActivityKind,
+      });
+    }
+
+    // First Name and Last Name if tenantActivityKind is not "other_business"
+    if (newActivityKind !== "other_business") {
+      var newFirstName = $("#firstName").val();
+      var newLastName = $("#lastName").val();
+      if (newFirstName !== currentData.firstName) {
+        patchData.push({
+          op: "replace",
+          path: "/firstName",
+          value: newFirstName,
+        });
+      }
+      if (newLastName !== currentData.lastName) {
+        patchData.push({
+          op: "replace",
+          path: "/lastName",
+          value: newLastName,
+        });
+      }
+    }
+
     return patchData;
   }
 
