@@ -1718,11 +1718,9 @@ docReady(function () {
 
     // Telephone number
     var newTelephone = $("#tenantPhoneEdit").val();
-    if (
-      newTelephone !== "" &&
-      newTelephone !==
-        (currentData.phones[0] ? currentData.phones[0].phone : null)
-    ) {
+    var currentTelephone =
+      currentData.phones.length > 0 ? currentData.phones[0].phone : null;
+    if (newTelephone !== "" && newTelephone !== currentTelephone) {
       patchData.push({
         op: "replace",
         path: "/phones",
@@ -1743,9 +1741,17 @@ docReady(function () {
     };
 
     // Compare each property to see if any part of the address has changed
-    var addressChanged = Object.keys(newAddress).some(
-      (key) => newAddress[key] !== (currentData.address[key] || "")
-    );
+    var addressChanged = false;
+    for (var key in newAddress) {
+      if (
+        newAddress[key] !==
+        (currentData.address[key] === null ? null : currentData.address[key])
+      ) {
+        addressChanged = true;
+        break;
+      }
+    }
+
     if (addressChanged) {
       patchData.push({ op: "replace", path: "/address", value: newAddress });
     }
