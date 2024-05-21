@@ -1735,7 +1735,10 @@ docReady(function () {
       country: "Polska", // Assuming the country is always Poland
       line1: $("#tenantAdressEdit").val(),
       town: $("#tenantTownEdit").val(),
-      state: $("#tenantStateEdit option:selected").text(),
+      state:
+        $("#tenantStateEdit").val() === "null"
+          ? null
+          : $("#tenantStateEdit").val(),
       postcode: $("#tenantPostcodeEdit").val(),
     };
 
