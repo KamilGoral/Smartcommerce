@@ -477,346 +477,291 @@ docReady(function () {
     });
   });
 
-  function getWholesalers() {
-    let url = new URL(InvokeURL + "wholesalers?perPage=1000");
+  function GetTenantBilling() {
+    userRole = getCookie("sprytnyUserRole");
+
+    if (userRole !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
+    function showDotForActiveTab() {
+      setTimeout(function () {
+        const isTab3Active = document.querySelector(
+          "#w-tabs-0-data-w-tab-3.w--current"
+        );
+        const isTab1Active = document.querySelector(
+          "#w-tabs-2-data-w-tab-1.w--current"
+        );
+        document.querySelector(".nb1").classList.toggle("hidden", isTab3Active);
+        document
+          .querySelector(".nb2")
+          .classList.toggle("hidden", !isTab3Active || isTab1Active);
+        document
+          .querySelector(".nb3")
+          .classList.toggle("hidden", !isTab1Active);
+        document
+          .querySelector("#fillUpOrganizationDetail")
+          .classList.toggle("hidden", !isTab1Active);
+      }, 150); // Delay the execution by 150 milliseconds
+    }
+
+    let url = new URL(
+      InvokeURL +
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
+    );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
-        var toParse = data.items;
-        toParse.sort(function (a, b) {
-          return b.enabled - a.enabled;
-        });
-        // Filter to only include enabled wholesalers for the second table
-        var enabledWholesalers = toParse.filter(function (item) {
-          return item.enabled === true;
-        });
-        $("#table_wholesalers_list").DataTable({
-          data: toParse,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 100,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          columns: [
-            {
-              orderable: false,
-              data: "image",
-              width: "36px",
-              height: "36px",
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
-                    data +
-                    "' alt='logo'></img></div>"
-                  );
-                }
-                if (data === null) {
-                  return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "name",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "taxId",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "address",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    data.state &&
-                    data.state[0].toUpperCase() + data.state.slice(1)
-                  );
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "platformUrl",
-              render: function (data) {
-                if (data !== null) {
-                  return '<spann class="positive">Tak</spann>';
-                } else {
-                  return '<spann class="negative">Nie</spann>';
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "connections.retroactive",
-              width: "108px",
-              visible: true,
-              render: function (data) {
-                if (data !== null) {
-                  if (data.enabled) {
-                    return '<spann class="positive">Tak</spann>';
-                  } else {
-                    return '<spann class="negative">Nie</spann>';
-                  }
-                } else {
-                  return '<spann class="negative">Nie</spann>';
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "enabled",
-              render: function (data, type, row) {
-                if (type === "display") {
-                  if (data) {
-                    return (
-                      '<label class="switchCss"><input type="checkbox" checked class="editor-active"  wholesalerKey="' +
-                      row["wholesalerKey"] +
-                      '"><span class="slider round"></span></label>'
-                    );
-                  } else {
-                    return (
-                      '<label class="switchCss"><input type="checkbox" class="editor-active" wholesalerKey="' +
-                      row["wholesalerKey"] +
-                      '"><span class="slider round"></span></label>'
-                    );
-                  }
-                }
-                return data;
-              },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    '<div class="action-container"><a href="https://' +
-                    DomainName +
-                    "/app/wholesalers/wholesaler-page?wholesalerKey=" +
-                    data +
-                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
-                  );
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-          ],
-        });
-        $("#table_wholesalers_list_bonus").DataTable({
-          data: enabledWholesalers,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 100,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          columns: [
-            {
-              orderable: false,
-              data: "image",
-              width: "36px",
-              height: "36px",
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
-                    data +
-                    "' alt='logo'></img></div>"
-                  );
-                }
-                if (data === null) {
-                  return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "name",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "taxId",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: "preferentialBonus",
-              render: function (data, type, row) {
-                return (
-                  '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
-                  data +
-                  '">'
-                );
-              },
-            },
-          ],
-        });
-        $("#table_wholesalers_list").on(
-          "change",
-          "input.editor-active",
-          function () {
-            var checkbox = this; // Reference to the checkbox
-            var isChecked = checkbox.checked; // Current state
-            var row = $("#table_wholesalers_list")
-              .DataTable()
-              .row($(this).closest("tr")); // Get the DataTable row
-            var data = row.data(); // Get row data
+        const hasRequiredKeys =
+          data.taxId !== null &&
+          data.name !== null &&
+          data.address && // Check if address object itself exists
+          data.address.country !== null &&
+          data.address.line1 !== null && // 'line2' is not required
+          data.address.town !== null &&
+          data.address.postcode !== null; // 'phones' is not required
+        console.log(hasRequiredKeys);
 
-            var onErrorCallback = function () {
-              // Revert checkbox state if there's an error
-              $(checkbox).prop("checked", !isChecked);
-            };
+        if (hasRequiredKeys) {
+          console.log("All is good");
+        } else {
+          // Initial check and setup event listeners
+          showDotForActiveTab();
+          document.querySelectorAll("[data-w-tab]").forEach((link) => {
+            link.addEventListener("click", showDotForActiveTab);
+          });
+        }
+        var toParse = data; // Assuming 'data' is the object shown in your example
+        // Directly mapping data to fields
+        $("#tenantNameEdit").val(data.name || "");
+        $("#tenantTaxIdEdit").val(data.taxId || "");
 
-            if (isChecked) {
-              updateStatus(
-                true,
-                checkbox.getAttribute("wholesalerKey"),
-                onErrorCallback
-              );
-              // Add to the second table if enabled
-              addToSecondTable(data);
-            } else {
-              updateStatus(
-                false,
-                checkbox.getAttribute("wholesalerKey"),
-                onErrorCallback
-              );
-              // Remove from the second table if disabled
-              removeFromSecondTable(data.wholesalerKey);
-            }
-          }
+        // Mapping Polish state names to <select> element values
+        var stateMapping = {
+          Dolnośląskie: "LowerSilesian",
+          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
+          Lubelskie: "Lublin",
+          Lubuskie: "Lubusz",
+          Łódzkie: "Łódź",
+          Małopolskie: "Lesser Poland",
+          Mazowieckie: "Masovian",
+          Opolskie: "Opole",
+          Podkarpackie: "Subcarpathian",
+          Podlaskie: "Podlaskie",
+          Pomorskie: "Pomeranian",
+          Śląskie: "Silesian",
+          Świętokrzyskie: "HolyCross",
+          "Warmińsko-Mazurskie": "Warmian-Masurian",
+          Wielkopolskie: "Greater Poland",
+          Zachodniopomorskie: "West Pomeranian",
+        };
+
+        if (data.address && typeof data.address.state !== "undefined") {
+          $("#tenantStateEdit").val(stateMapping[data.address.state] || "");
+        } else {
+          $("#tenantStateEdit").val("");
+        }
+
+        $("#tenantTownEdit").val((data.address && data.address.town) || "");
+        $("#tenantPostcodeEdit").val(
+          (data.address && data.address.postcode) || ""
         );
-        function addToSecondTable(data) {
-          var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
-          tableBonus.row.add(data).draw();
+        $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
+        $("#tenantPhoneEdit").val((data.phones && data.phones[0]?.phone) || "");
+
+        // Inform the user about the days left and the exact end date
+        var trialEndDateText = "";
+        const now = new Date();
+        const trialEndDate = new Date(toParse.trialEndDate);
+        const diff = trialEndDate.getTime() - now.getTime();
+        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        var dots = document.querySelectorAll(".tooltip-dot");
+
+        function updateAnimationColors(daysLeft) {
+          var color;
+          if (daysLeft <= 3) {
+            color = "rgba(255, 0, 0, 0.8)"; // Red for high urgency
+          } else if (daysLeft <= 7) {
+            color = "rgba(255, 165, 0, 0.8)"; // Orange for moderate urgency
+          } else {
+            color = "rgba(42, 168, 255, 0.8)"; // Original blue for normal situation
+          }
+
+          var styleSheet = document.createElement("style");
+          styleSheet.type = "text/css";
+          styleSheet.innerText = `
+            @keyframes tourDot {
+              0%   { box-shadow: 0 0 0 0px ${color}; }
+              80% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+              100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+            }
+            .tooltip-dot {
+              animation: tourDot 2.0s ease-out infinite;
+            }
+          `;
+          document.head.appendChild(styleSheet);
         }
 
-        function removeFromSecondTable(wholesalerKey) {
-          var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
-          var rowIndex = tableBonus
-            .rows(function (idx, data, node) {
-              return data.wholesalerKey === wholesalerKey;
-            })
-            .indexes();
-          tableBonus.row(rowIndex).remove().draw();
-        }
-      }
+        updateAnimationColors(daysLeft);
 
-      if (request.status == 401) {
-        console.log("Unauthorized");
+        dots.forEach(function (dot) {
+          if (daysLeft <= 1) {
+            // Red for high urgency
+            dot.style.backgroundColor = "rgb(255, 0, 0)";
+            dot.style.borderColor = "rgb(255, 0, 0)";
+            dot.style.boxShadow = "0 0 0 50px rgba(255, 0, 0, 0)";
+          } else if (daysLeft <= 7) {
+            // Orange for moderate urgency
+            dot.style.backgroundColor = "rgb(255, 165, 0)";
+            dot.style.borderColor = "rgb(255, 165, 0)";
+            dot.style.boxShadow = "0 0 0 50px rgba(255, 165, 0, 0)";
+          } else {
+            // Original blue for normal situation
+          }
+        });
+
+        if (daysLeft < 0) {
+          trialEndDateText = "Aktywny";
+        } else if (daysLeft === 1) {
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się jutro.`;
+        } else if (daysLeft === 0) {
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się dzisiaj.`;
+        } else if (daysLeft > 30) {
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się za 30 dni - ${fakeTrialEnd.toLocaleDateString(
+            "pl-PL"
+          )}.`;
+        } else {
+          trialEndDateText = `Twój bezpłatny okres testowy kończy się za ${daysLeft} dni - ${trialEndDate.toLocaleDateString(
+            "pl-PL"
+          )}.`;
+        }
+
+        if (data.emails && data.emails.length > 0) {
+          data.emails.forEach((email, index) => {
+            if (index < 3) {
+              $(`#tenantEmailEdit${index + 1}`).val(email.email || "");
+              $(`#tenantEmailEditDescription${index + 1}`).val(
+                email.description || ""
+              );
+            }
+          });
+        }
+
+        // Iterate over elements with the 'tenantData' attribute
+        document.querySelectorAll("[tenantData]").forEach((element) => {
+          const dataType = element.getAttribute("tenantData");
+
+          if (toParse.pricing.specialService !== null) {
+            // If specialService is not null, show #specialServiceBox
+            document.getElementById("specialServiceBox").style.display = "flex";
+            document.getElementById("pricingStandard").style.display = "none";
+            document.getElementById("pricingPremium").style.display = "none";
+          } else {
+            // If specialService is null, hide #specialServiceBox
+            document.getElementById("specialServiceBox").style.display = "none";
+          }
+
+          switch (dataType) {
+            case "tenantTrialEndDate":
+              element.textContent = trialEndDateText || "Aktywny";
+              break;
+            case "tenantName":
+              element.textContent = data.companyName || "N/A";
+              break;
+            case "phone":
+              if (toParse.phones && toParse.phones.length > 0) {
+                element.textContent = toParse.phones[0].phone || "N/A";
+              } else {
+                element.textContent = "N/A";
+              }
+              break;
+            case "standard":
+              element.textContent =
+                toParse.pricing.standard + " zł za sklep/miesięcznie" || "N/A";
+              break;
+            case "premium":
+              element.textContent =
+                toParse.pricing.premium + " zł za sklep/miesięcznie" || "N/A";
+              break;
+            case "specialService":
+              // Safely accessing specialService fee
+              element.textContent =
+                toParse.pricing.specialService &&
+                toParse.pricing.specialService.fee
+                  ? toParse.pricing.specialService.description +
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
+                  : "N/A";
+              break;
+            case "name":
+              element.textContent = toParse.name || "N/A";
+              break;
+            case "taxId":
+              element.textContent = toParse.taxId || "N/A";
+              break;
+            case "address":
+              // Łączenie wszystkich części adresu w jeden ciąg
+              const addressParts = toParse.address
+                ? [
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.state,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
+                : "N/A";
+              element.textContent = addressParts;
+              break;
+            case "country":
+              element.textContent =
+                toParse.address && toParse.address.country
+                  ? toParse.address.country
+                  : "N/A";
+              break;
+            case "town":
+              element.textContent =
+                toParse.address && toParse.address.town
+                  ? toParse.address.town
+                  : "N/A";
+              break;
+            case "state":
+              element.textContent =
+                toParse.address && toParse.address.state
+                  ? toParse.address.state
+                  : "N/A";
+              break;
+            case "postcode":
+              element.textContent =
+                toParse.address && toParse.address.postcode
+                  ? toParse.address.postcode
+                  : "N/A";
+              break;
+            case "emails":
+              const emails =
+                toParse.emails && toParse.emails.map((e) => e.email).join(", ");
+              element.textContent = emails || "N/A";
+              break;
+          }
+        });
+      } else {
+        console.error("Error loading tenant billing info:", request.status);
       }
     };
+
+    request.onerror = function () {
+      console.error("Error loading tenant billing info:", request.statusText);
+    };
+
     request.send();
   }
 
@@ -933,7 +878,7 @@ docReady(function () {
           (data.address && data.address.postcode) || ""
         );
         $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
-        $("#tenantPhoneEdit").val((data.phones && data.phones[0].phone) || "");
+        $("#tenantPhoneEdit").val((data.phones && data.phones[0]?.phone) || "");
 
         // Inform the user about the days left and the exact end date
         var trialEndDateText = "";
