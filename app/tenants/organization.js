@@ -477,6 +477,24 @@ docReady(function () {
     });
   });
 
+  const tenantActivityKind = document.getElementById("tenantActivityKind");
+  const selfEploymentContainer = document.getElementById(
+    "selfEploymentContainer"
+  );
+
+  function toggleSelfEploymentContainer() {
+    if (tenantActivityKind.value !== "other_business") {
+      selfEploymentContainer.style.display = "block";
+    } else {
+      selfEploymentContainer.style.display = "none";
+    }
+  }
+
+  tenantActivityKind.addEventListener("change", toggleSelfEploymentContainer);
+
+  // Initial call to set the correct display based on the initial value
+  toggleSelfEploymentContainer();
+
   function GetTenantBilling() {
     userRole = getCookie("sprytnyUserRole");
 
@@ -520,7 +538,7 @@ docReady(function () {
         var data = JSON.parse(this.response);
         const hasRequiredKeys =
           data.taxId !== null &&
-          data.name !== null &&
+          data.companyName !== null &&
           data.address && // Check if address object itself exists
           data.address.country !== null &&
           data.address.line1 !== null && // 'line2' is not required
@@ -539,7 +557,7 @@ docReady(function () {
         }
         var toParse = data; // Assuming 'data' is the object shown in your example
         // Directly mapping data to fields
-        $("#tenantNameEdit").val(data.name || "");
+        $("#tenantNameEdit").val(data.companyName || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
 
         // Mapping Polish state names to <select> element values
@@ -1671,7 +1689,7 @@ docReady(function () {
 
     // Name
     var newName = $("#tenantNameEdit").val();
-    if (newName !== currentData.name) {
+    if (newName !== currentData.companyName) {
       patchData.push({ op: "replace", path: "/name", value: newName });
     }
 
