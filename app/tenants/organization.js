@@ -484,7 +484,7 @@ docReady(function () {
 
   function toggleSelfEploymentContainer() {
     if (tenantActivityKind.value !== "other_business") {
-      selfEploymentContainer.style.display = "block";
+      selfEploymentContainer.style.display = "grid";
     } else {
       selfEploymentContainer.style.display = "none";
     }
