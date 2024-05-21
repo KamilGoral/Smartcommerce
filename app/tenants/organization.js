@@ -693,6 +693,10 @@ docReady(function () {
             case "tenantName":
               element.textContent = data.companyName || "N/A";
               break;
+            case "organizationName":
+              element.textContent = organizationName || "N/A";
+              break;
+
             case "phone":
               if (toParse.phones && toParse.phones.length > 0) {
                 element.textContent = toParse.phones[0].phone || "N/A";
