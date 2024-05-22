@@ -23,22 +23,21 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
+    const cookies = document.cookie.split("; ");
 
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
 
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
 
     return null; // Return null if no matching value is found
   }
-
 
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var orgToken = getCookie("sprytnyToken");
@@ -53,11 +52,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -80,17 +79,17 @@ docReady(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
         );
 
-        if ((data.merchantConsoleShopId === null)) {
+        if (data.merchantConsoleShopId === null) {
           data.merchantConsoleShopId = "";
         }
 
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-          " - " +
-          data.shopKey +
-          " | " +
-          data.merchantConsoleShopId || "N/A";
+            " - " +
+            data.shopKey +
+            " | " +
+            data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -543,8 +542,8 @@ docReady(function () {
         infoEmpty: "Brak danych",
         infoFiltered: "(z _MAX_ rezultatów)",
         lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'</div>",
-        processing: "<div class='spinner'</div>",
+        loadingRecords: "<div class='spinner'></div>",
+        processing: "<div class='spinner'></div>",
         search: "Szukaj:",
         zeroRecords: "Brak pasujących rezultatów",
         paginate: {
@@ -606,18 +605,29 @@ docReady(function () {
             const groupedData = {};
 
             res.items.forEach((item) => {
-              const createDate = item.createDate.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-              const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+              if (item.createDate) {
+                const createDate = item.createDate.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+                const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
-              if (!groupedData[createDate]) {
-                groupedData[createDate] = [];
+                if (!groupedData[createDate]) {
+                  groupedData[createDate] = [];
+                }
+
+                groupedData[createDate].push({
+                  offerId: item.offerId,
+                  status: item.status,
+                  createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
+                });
+              } else {
+                if (!groupedData["unknown"]) {
+                  groupedData["unknown"] = [];
+                }
+                groupedData["unknown"].push({
+                  offerId: item.offerId,
+                  status: item.status,
+                  createDate: "Brak daty", // Default value when date is missing
+                });
               }
-
-              groupedData[createDate].push({
-                offerId: item.offerId,
-                status: item.status,
-                createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
-              });
             });
 
             // Sortowanie ofert w każdym dniu od najświeższej do najstarszej
@@ -675,11 +685,7 @@ docReady(function () {
           data: null,
           width: "36px",
           defaultContent: "",
-          createdCell: function (
-            cell,
-
-            rowData
-          ) {
+          createdCell: function (cell, rowData) {
             if (rowData.offers && rowData.offers.length > 1) {
               $(cell).addClass("details-control");
             } else {
@@ -734,22 +740,22 @@ docReady(function () {
           render: function (data) {
             if (data !== null) {
               if (data.offers[0].status == "ready") {
-                return '<spann class="positive">Gotowa</spann>';
+                return '<span class="positive">Gotowa</span>';
               }
               if (data.offers[0].status == "error") {
-                return '<spann class="negative">Problem</spann>';
+                return '<span class="negative">Problem</span>';
               }
               if (data.offers[0].status == "in progress") {
-                return '<spann class="medium">W trakcie</spann>';
+                return '<span class="medium">W trakcie</span>';
               }
               if (data.offers[0].status == "incomplete") {
-                return '<spann class="medium">Niekompletna</spann>';
+                return '<span class="medium">Niekompletna</span>';
               }
               if (data.offers[0].status == "batching") {
-                return '<spann class="medium">W kolejce</spann>';
+                return '<span class="medium">W kolejce</span>';
               }
               if (data.offers[0].status == "forced") {
-                return '<spann class="medium">W kolejce</spann>';
+                return '<span class="medium">W kolejce</span>';
               }
             }
             if (data === null) {
@@ -786,6 +792,7 @@ docReady(function () {
           } else if (e.keyCode == 13 || !textBox.val()) {
             api.search(this.value).draw();
           }
+          toggleEmptyState();
         });
       },
       drawCallback: function (settings) {
@@ -859,11 +866,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -880,7 +887,7 @@ docReady(function () {
           },
           success: function (data) {
             MessageText.textContent =
-              "Uwaga! Oferta nie jest komplenta. " + data.messages;
+              "Uwaga! Oferta nie jest kompletna. " + data.messages;
             MessageContainer.style.display = "flex";
             $("#WarningMessageContainer").fadeOut(3000, function () {
               MessageContainer.style.display = "none";
@@ -1169,9 +1176,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1608,7 +1615,7 @@ docReady(function () {
     // Check if the current data has an address to compare against
     var currentAddress = currentData.address || {};
     var addressChanged = Object.keys(newAddress).some(
-      key => newAddress[key] !== (currentAddress[key] || "")
+      (key) => newAddress[key] !== (currentAddress[key] || "")
     );
 
     if (addressChanged) {
@@ -1822,11 +1829,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },
