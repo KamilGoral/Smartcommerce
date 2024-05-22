@@ -560,33 +560,6 @@ docReady(function () {
         $("#tenantNameEdit").val(data.companyName || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
 
-        // Mapping Polish state names to <select> element values
-        var stateMapping = {
-          Wybierz: null,
-          Dolnośląskie: "LowerSilesian",
-          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
-          Lubelskie: "Lublin",
-          Lubuskie: "Lubusz",
-          Łódzkie: "Łódź",
-          Małopolskie: "Lesser Poland",
-          Mazowieckie: "Masovian",
-          Opolskie: "Opole",
-          Podkarpackie: "Subcarpathian",
-          Podlaskie: "Podlaskie",
-          Pomorskie: "Pomeranian",
-          Śląskie: "Silesian",
-          Świętokrzyskie: "HolyCross",
-          "Warmińsko-Mazurskie": "Warmian-Masurian",
-          Wielkopolskie: "Greater Poland",
-          Zachodniopomorskie: "West Pomeranian",
-        };
-
-        if (data.address && typeof data.address.state !== "undefined") {
-          $("#tenantStateEdit").val(stateMapping[data.address.state] || "null");
-        } else {
-          $("#tenantStateEdit").val("null");
-        }
-
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
         $("#tenantPostcodeEdit").val(
           (data.address && data.address.postcode) || ""
@@ -737,7 +710,7 @@ docReady(function () {
                     toParse.address.town,
                     toParse.address.postcode,
                     toParse.address.line1,
-                    toParse.address.state,
+                    toParse.address.line2,
                     toParse.address.country,
                   ]
                     .filter((part) => part)
@@ -755,12 +728,6 @@ docReady(function () {
               element.textContent =
                 toParse.address && toParse.address.town
                   ? toParse.address.town
-                  : "N/A";
-              break;
-            case "state":
-              element.textContent =
-                toParse.address && toParse.address.state
-                  ? toParse.address.state
                   : "N/A";
               break;
             case "postcode":
@@ -1732,11 +1699,9 @@ docReady(function () {
     var newAddress = {
       country: "Polska", // Assuming the country is always Poland
       line1: $("#tenantAdressEdit").val(),
+      line2: $("#tenantAdressEdit2").val(),
       town: $("#tenantTownEdit").val(),
-      state:
-        $("#tenantStateEdit").val() === "null"
-          ? null
-          : $("#tenantStateEdit").val(),
+      state: null,
       postcode: $("#tenantPostcodeEdit").val(),
     };
 
