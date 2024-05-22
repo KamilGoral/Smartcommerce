@@ -1594,116 +1594,6 @@ docReady(function () {
         const organizationName = $("#organizationName").text();
         const url = `${InvokeURL}tenants/${organizationName}/billing`;
 
-        // Function to validate the form
-        function validateForm() {
-          const activityKind = $("#tenantActivityKind").val();
-          const taxId = $("#tenantTaxIdEdit").val();
-          const companyName = $("#tenantNameEdit").val();
-          const addressLine1 = $("#tenantAdressEdit").val();
-          const town = $("#tenantTownEdit").val();
-          const postcode = $("#tenantPostcodeEdit").val();
-          const firstName = $("#firstName").val();
-          const lastName = $("#lastName").val();
-
-          let isValid = true;
-
-          // Check for self_employed activity kind
-          if (activityKind === "self_employed") {
-            if (!firstName) {
-              $("#firstName")
-                .attr(
-                  "title",
-                  "Imię jest wymagane dla działalności gospodarczej."
-                )
-                .addClass("input-error");
-              isValid = false;
-            } else {
-              $("#firstName").attr("title", "").removeClass("input-error");
-            }
-            if (!lastName) {
-              $("#lastName")
-                .attr(
-                  "title",
-                  "Nazwisko jest wymagane dla działalności gospodarczej."
-                )
-                .addClass("input-error");
-              isValid = false;
-            } else {
-              $("#lastName").attr("title", "").removeClass("input-error");
-            }
-          } else {
-            $("#firstName").attr("title", "").removeClass("input-error");
-            $("#lastName").attr("title", "").removeClass("input-error");
-          }
-
-          // Check for taxId change requirements
-          if (
-            taxId &&
-            (companyName === "" ||
-              addressLine1 === "" ||
-              town === "" ||
-              postcode === "")
-          ) {
-            if (companyName === "") {
-              $("#tenantNameEdit")
-                .attr(
-                  "title",
-                  "Nazwa firmy jest wymagana, jeśli NIP jest zmieniany."
-                )
-                .addClass("input-error");
-            } else {
-              $("#tenantNameEdit").attr("title", "").removeClass("input-error");
-            }
-            if (addressLine1 === "") {
-              $("#tenantAdressEdit")
-                .attr("title", "Adres jest wymagany, jeśli NIP jest zmieniany.")
-                .addClass("input-error");
-            } else {
-              $("#tenantAdressEdit")
-                .attr("title", "")
-                .removeClass("input-error");
-            }
-            if (town === "") {
-              $("#tenantTownEdit")
-                .attr(
-                  "title",
-                  "Miasto jest wymagane, jeśli NIP jest zmieniany."
-                )
-                .addClass("input-error");
-            } else {
-              $("#tenantTownEdit").attr("title", "").removeClass("input-error");
-            }
-            if (postcode === "") {
-              $("#tenantPostcodeEdit")
-                .attr(
-                  "title",
-                  "Kod pocztowy jest wymagany, jeśli NIP jest zmieniany."
-                )
-                .addClass("input-error");
-            } else {
-              $("#tenantPostcodeEdit")
-                .attr("title", "")
-                .removeClass("input-error");
-            }
-            isValid = false;
-          } else {
-            $("#tenantNameEdit").attr("title", "").removeClass("input-error");
-            $("#tenantAdressEdit").attr("title", "").removeClass("input-error");
-            $("#tenantTownEdit").attr("title", "").removeClass("input-error");
-            $("#tenantPostcodeEdit")
-              .attr("title", "")
-              .removeClass("input-error");
-          }
-
-          return isValid;
-        }
-
-        // Run validation before making the GET request
-        if (!validateForm()) {
-          alert("Proszę poprawić błędy w formularzu przed wysłaniem.");
-          return;
-        }
-
         $.ajax({
           type: "GET",
           url: url,
@@ -1722,6 +1612,31 @@ docReady(function () {
           },
           success: function (currentData) {
             const patchData = preparePatchData(currentData);
+
+            // Additional checks for required fields
+            const newActivityKind = $("#tenantActivityKind").val();
+            if (newActivityKind === "self_employed") {
+              const newFirstName = $("#firstName").val();
+              const newLastName = $("#lastName").val();
+              if (!newFirstName || !newLastName) {
+                alert(
+                  "First Name and Last Name are required for self_employed activity kind."
+                );
+                return;
+              }
+            }
+
+            if (patchData.some((patch) => patch.path === "/taxId")) {
+              if (
+                !patchData.some((patch) => patch.path === "/name") ||
+                !patchData.some((patch) => patch.path === "/address")
+              ) {
+                alert(
+                  "If taxId is changed, both companyName and address must also be provided."
+                );
+                return;
+              }
+            }
 
             if (patchData.length > 0) {
               // Send PATCH request only if there are changes
@@ -1794,20 +1709,10 @@ docReady(function () {
 
     // Tax ID
     var newTaxId = $("#tenantTaxIdEdit").val();
+    var taxIdChanged = false;
     if (newTaxId !== currentData.taxId) {
       patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
-    }
-
-    // Telephone number
-    var newTelephone = $("#tenantPhoneEdit").val();
-    var currentTelephone =
-      currentData.phones.length > 0 ? currentData.phones[0].phone : null;
-    if (newTelephone !== "" && newTelephone !== currentTelephone) {
-      patchData.push({
-        op: "replace",
-        path: "/phones",
-        value: [{ phone: newTelephone, description: "Główny" }],
-      });
+      taxIdChanged = true;
     }
 
     // Address
@@ -1832,7 +1737,7 @@ docReady(function () {
       }
     }
 
-    if (addressChanged) {
+    if (addressChanged || taxIdChanged) {
       patchData.push({ op: "replace", path: "/address", value: newAddress });
     }
 
