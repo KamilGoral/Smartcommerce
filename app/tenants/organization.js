@@ -1594,6 +1594,116 @@ docReady(function () {
         const organizationName = $("#organizationName").text();
         const url = `${InvokeURL}tenants/${organizationName}/billing`;
 
+        // Function to validate the form
+        function validateForm() {
+          const activityKind = $("#tenantActivityKind").val();
+          const taxId = $("#tenantTaxIdEdit").val();
+          const companyName = $("#tenantNameEdit").val();
+          const addressLine1 = $("#tenantAdressEdit").val();
+          const town = $("#tenantTownEdit").val();
+          const postcode = $("#tenantPostcodeEdit").val();
+          const firstName = $("#firstName").val();
+          const lastName = $("#lastName").val();
+
+          let isValid = true;
+
+          // Check for self_employed activity kind
+          if (activityKind === "self_employed") {
+            if (!firstName) {
+              $("#firstName")
+                .attr(
+                  "title",
+                  "Imię jest wymagane dla działalności gospodarczej."
+                )
+                .addClass("input-error");
+              isValid = false;
+            } else {
+              $("#firstName").attr("title", "").removeClass("input-error");
+            }
+            if (!lastName) {
+              $("#lastName")
+                .attr(
+                  "title",
+                  "Nazwisko jest wymagane dla działalności gospodarczej."
+                )
+                .addClass("input-error");
+              isValid = false;
+            } else {
+              $("#lastName").attr("title", "").removeClass("input-error");
+            }
+          } else {
+            $("#firstName").attr("title", "").removeClass("input-error");
+            $("#lastName").attr("title", "").removeClass("input-error");
+          }
+
+          // Check for taxId change requirements
+          if (
+            taxId &&
+            (companyName === "" ||
+              addressLine1 === "" ||
+              town === "" ||
+              postcode === "")
+          ) {
+            if (companyName === "") {
+              $("#tenantNameEdit")
+                .attr(
+                  "title",
+                  "Nazwa firmy jest wymagana, jeśli NIP jest zmieniany."
+                )
+                .addClass("input-error");
+            } else {
+              $("#tenantNameEdit").attr("title", "").removeClass("input-error");
+            }
+            if (addressLine1 === "") {
+              $("#tenantAdressEdit")
+                .attr("title", "Adres jest wymagany, jeśli NIP jest zmieniany.")
+                .addClass("input-error");
+            } else {
+              $("#tenantAdressEdit")
+                .attr("title", "")
+                .removeClass("input-error");
+            }
+            if (town === "") {
+              $("#tenantTownEdit")
+                .attr(
+                  "title",
+                  "Miasto jest wymagane, jeśli NIP jest zmieniany."
+                )
+                .addClass("input-error");
+            } else {
+              $("#tenantTownEdit").attr("title", "").removeClass("input-error");
+            }
+            if (postcode === "") {
+              $("#tenantPostcodeEdit")
+                .attr(
+                  "title",
+                  "Kod pocztowy jest wymagany, jeśli NIP jest zmieniany."
+                )
+                .addClass("input-error");
+            } else {
+              $("#tenantPostcodeEdit")
+                .attr("title", "")
+                .removeClass("input-error");
+            }
+            isValid = false;
+          } else {
+            $("#tenantNameEdit").attr("title", "").removeClass("input-error");
+            $("#tenantAdressEdit").attr("title", "").removeClass("input-error");
+            $("#tenantTownEdit").attr("title", "").removeClass("input-error");
+            $("#tenantPostcodeEdit")
+              .attr("title", "")
+              .removeClass("input-error");
+          }
+
+          return isValid;
+        }
+
+        // Run validation before making the GET request
+        if (!validateForm()) {
+          alert("Proszę poprawić błędy w formularzu przed wysłaniem.");
+          return;
+        }
+
         $.ajax({
           type: "GET",
           url: url,
@@ -1628,9 +1738,7 @@ docReady(function () {
                   $("#waitingdots").show();
                 },
                 complete: function () {
-                  setTimeout(function () {
-                    $("#waitingdots").hide();
-                  }, 1000); // 1000 milliseconds = 1 second
+                  $("#waitingdots").hide();
                 },
                 success: function (resultData) {
                   if (typeof successCallback === "function") {
