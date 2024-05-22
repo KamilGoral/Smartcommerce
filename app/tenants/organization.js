@@ -1619,8 +1619,9 @@ docReady(function () {
               const newFirstName = $("#firstName").val();
               const newLastName = $("#lastName").val();
               if (!newFirstName || !newLastName) {
-                alert(
-                  "First Name and Last Name are required for self_employed activity kind."
+                $("#form-done-fail-edit").css("display", "flex");
+                $("#WarningMessagePatchTenant").text(
+                  "Pola Imię i Nazwisko są wymagane przy zmianie rodzaju działalności"
                 );
                 return;
               }
@@ -1631,8 +1632,9 @@ docReady(function () {
                 !patchData.some((patch) => patch.path === "/name") ||
                 !patchData.some((patch) => patch.path === "/address")
               ) {
-                alert(
-                  "If taxId is changed, both companyName and address must also be provided."
+                $("#form-done-fail-edit").css("display", "flex");
+                $("#WarningMessagePatchTenant").text(
+                  "Jeśli zmieniasz NIP, proszę podać również Nazwę Firmy oraz Adres."
                 );
                 return;
               }
