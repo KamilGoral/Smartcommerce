@@ -546,7 +546,8 @@ docReady(function () {
         // Directly mapping data to fields
         $("#tenantNameEdit").val(data.companyName || "");
         $("#tenantTaxIdEdit").val(data.taxId || "");
-
+        $("#firstName").val(data.firstName || "");
+        $("#lastName").val(data.lastName || "");
         $("#tenantTownEdit").val((data.address && data.address.town) || "");
         $("#tenantPostcodeEdit").val(
           (data.address && data.address.postcode) || ""
