@@ -482,19 +482,6 @@ docReady(function () {
     "selfEploymentContainer"
   );
 
-  function toggleSelfEploymentContainer() {
-    if (tenantActivityKind.value !== "other_business") {
-      selfEploymentContainer.style.display = "grid";
-    } else {
-      selfEploymentContainer.style.display = "none";
-    }
-  }
-
-  tenantActivityKind.addEventListener("change", toggleSelfEploymentContainer);
-
-  // Initial call to set the correct display based on the initial value
-  toggleSelfEploymentContainer();
-
   function GetTenantBilling() {
     userRole = getCookie("sprytnyUserRole");
 
@@ -567,6 +554,24 @@ docReady(function () {
         $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
         $("#tenantAdressEdit2").val((data.address && data.address.line2) || "");
         $("#tenantPhoneEdit").val((data.phones && data.phones[0]?.phone) || "");
+        // Set tenantActivityKind
+        $("#tenantActivityKind").val(data.activityKind || "other_business");
+
+        function toggleSelfEploymentContainer() {
+          if (tenantActivityKind.value !== "other_business") {
+            selfEploymentContainer.style.display = "grid";
+          } else {
+            selfEploymentContainer.style.display = "none";
+          }
+        }
+
+        tenantActivityKind.addEventListener(
+          "change",
+          toggleSelfEploymentContainer
+        );
+
+        // Initial call to set the correct display based on the initial value
+        toggleSelfEploymentContainer();
 
         // Inform the user about the days left and the exact end date
         var trialEndDateText = "";
