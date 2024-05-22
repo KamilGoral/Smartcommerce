@@ -625,7 +625,7 @@ docReady(function () {
                 groupedData["unknown"].push({
                   offerId: item.offerId,
                   status: item.status,
-                  createDate: "Brak daty", // Default value when date is missing
+                  createDate: "-", // Default value when date is missing
                 });
               }
             });
@@ -719,7 +719,7 @@ docReady(function () {
           orderable: true,
           data: "createDate",
           render: function (data) {
-            if (data !== null) {
+            if (data !== "-" && data !== null) {
               const creationDate = new Date(data);
               const startDate = creationDate.toLocaleDateString("pl-PL", {
                 year: "numeric",
@@ -729,9 +729,7 @@ docReady(function () {
 
               return startDate;
             }
-            if (data === null) {
-              return "";
-            }
+            return "-";
           },
         },
         {
@@ -758,9 +756,7 @@ docReady(function () {
                 return '<span class="medium">W kolejce</span>';
               }
             }
-            if (data === null) {
-              return "";
-            }
+            return "-";
           },
         },
         {
@@ -777,6 +773,7 @@ docReady(function () {
                 '" class="buttonoutline editme w-button">Przejdź</a></div>'
               );
             }
+            return "-";
           },
         },
       ],
