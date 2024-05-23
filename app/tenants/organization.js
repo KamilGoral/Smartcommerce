@@ -1635,7 +1635,7 @@ docReady(function () {
               ) {
                 $("#form-done-fail-edit").css("display", "flex");
                 $("#WarningMessagePatchTenant").text(
-                  "Jeśli zmieniasz NIP, proszę podać również Nazwę Firmy oraz Adres."
+                  "Jeśli zmieniasz NIP, proszę podać również nazwę firmy oraz adres."
                 );
                 return;
               }
@@ -1675,6 +1675,9 @@ docReady(function () {
                   }
                   // Show form-done-fail-edit on error
                   $("#form-done-fail-edit").css("display", "flex");
+                  $("#WarningMessagePatchTenant").text(
+                    "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  );
                 },
               });
             } else {

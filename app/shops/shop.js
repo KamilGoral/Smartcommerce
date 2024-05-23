@@ -471,11 +471,23 @@ docReady(function () {
         "</td>" +
         "<td style='width:" +
         columnWidths[3] +
-        ";'><div class='action-container'><a href='#' status='" +
-        offers[i].status +
-        "' offerId='" +
-        offers[i].offerId +
-        "'class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>";
+        ";'><div class='action-container'";
+
+      if (offers[i].status == "error") {
+        toDisplayHtml +=
+          " style='opacity: 0.5;'><a href='#' status='" +
+          offers[i].status +
+          "' offerId='" +
+          offers[i].offerId +
+          "' class='buttonoutline editme w-button'>Brak</a></div></td></tr>";
+      } else {
+        toDisplayHtml +=
+          "><a href='#' status='" +
+          offers[i].status +
+          "' offerId='" +
+          offers[i].offerId +
+          "' class='buttonoutline editme w-button'>Przejdź</a></div></td></tr>";
+      }
     }
 
     // Zamknij tabelę z ofertami
@@ -765,6 +777,15 @@ docReady(function () {
           width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
+              if (row.offers[0].status == "error") {
+                return (
+                  '<div class="action-container" style="opacity: 0.5;"><a href="#" status="' +
+                  row.offers[0]["status"] +
+                  '" offerId="' +
+                  row.offers[0]["offerId"] +
+                  '" class="buttonoutline editme w-button">Brak</a></div>'
+                );
+              }
               return (
                 '<div class="action-container"><a href="#" status="' +
                 row.offers[0]["status"] +
