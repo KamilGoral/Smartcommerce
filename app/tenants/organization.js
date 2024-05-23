@@ -1706,7 +1706,7 @@ docReady(function () {
     // Name
     var newName = $("#tenantNameEdit").val();
     if (newName !== currentData.companyName) {
-      patchData.push({ op: "replace", path: "/name", value: newName });
+      patchData.push({ op: "replace", path: "/companyName", value: newName });
     }
 
     // Tax ID
