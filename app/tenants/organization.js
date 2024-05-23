@@ -537,10 +537,11 @@ docReady(function () {
           console.log("All is good");
         } else {
           // Initial check and setup event listeners
-          showDotForActiveTab();
-          document.querySelectorAll("[data-w-tab]").forEach((link) => {
-            link.addEventListener("click", showDotForActiveTab);
-          });
+          // poniedzialek
+          // showDotForActiveTab();
+          // document.querySelectorAll("[data-w-tab]").forEach((link) => {
+          //   link.addEventListener("click", showDotForActiveTab);
+          // });
         }
         var toParse = data; // Assuming 'data' is the object shown in your example
         // Directly mapping data to fields
