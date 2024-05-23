@@ -1682,10 +1682,7 @@ docReady(function () {
                 successCallback(currentData);
               }
               $("#form-done-edit").css("display", "flex");
-              setTimeout(function () {
-                $("#editBillingModal").hide();
-                location.reload();
-              }, 3000);
+              $("#form-done-edit").fadeOut(3000);
             }
           },
           error: function () {
