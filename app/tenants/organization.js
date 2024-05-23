@@ -1721,7 +1721,6 @@ docReady(function () {
       line1: $("#tenantAdressEdit").val(),
       line2: $("#tenantAdressEdit2").val(),
       town: $("#tenantTownEdit").val(),
-      state: null,
       postcode: $("#tenantPostcodeEdit").val(),
     };
 
