@@ -1612,6 +1612,7 @@ docReady(function () {
           },
           success: function (currentData) {
             const patchData = preparePatchData(currentData);
+            console.log(patchData);
 
             // Additional checks for required fields
             const newActivityKind = $("#tenantActivityKind").val();
@@ -1629,7 +1630,7 @@ docReady(function () {
 
             if (patchData.some((patch) => patch.path === "/taxId")) {
               if (
-                !patchData.some((patch) => patch.path === "/name") ||
+                !patchData.some((patch) => patch.path === "/companyName") ||
                 !patchData.some((patch) => patch.path === "/address")
               ) {
                 $("#form-done-fail-edit").css("display", "flex");
