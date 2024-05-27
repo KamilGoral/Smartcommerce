@@ -300,10 +300,6 @@ docReady(function () {
     }
 
     if (userRole !== "admin") {
-      var createButtons = document.querySelectorAll("#AddShopButton");
-      createButtons.forEach(function (button) {
-        button.style.display = "none";
-      });
       console.log("Action not permitted for non-admin users.");
       return;
     }
