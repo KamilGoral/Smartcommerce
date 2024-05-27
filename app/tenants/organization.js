@@ -704,11 +704,14 @@ docReady(function () {
               break;
             case "nextInvoiceDate":
               element.textContent =
-                newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
+                "Data odnowienia subskrypcji: " +
+                  newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
-                toParse.monthCostBreakdown.forecast.total + " zł" || "N/A";
+                "Szacowana kwota faktury: " +
+                  toParse.monthCostBreakdown.forecast.total +
+                  " zł" || "N/A";
               break;
 
             case "standard":
