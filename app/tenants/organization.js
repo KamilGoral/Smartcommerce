@@ -300,6 +300,10 @@ docReady(function () {
     }
 
     if (userRole !== "admin") {
+      var createButtons = document.querySelectorAll("#AddShopButton");
+      createButtons.forEach(function (button) {
+        button.style.display = "none";
+      });
       console.log("Action not permitted for non-admin users.");
       return;
     }
@@ -326,7 +330,7 @@ docReady(function () {
           order: [[3, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
-            emptyTable: "Brak danych do wyświetlenia",
+            emptyTable: "Nie posiadasz odpowiednich uprawnień",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
             infoEmpty: "Brak danych",
             infoFiltered: "(z _MAX_ rezultatów)",
