@@ -288,6 +288,10 @@ docReady(function () {
   }
 
   function getUsers() {
+    if (userRole !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
     let url = new URL(InvokeURL + "users?perPage=30");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
