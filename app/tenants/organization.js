@@ -288,21 +288,6 @@ docReady(function () {
   }
 
   async function getUsers() {
-    let attempts = 0;
-    let userRole = getCookie("sprytnyUserRole");
-
-    while (!userRole && attempts < 3) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      userRole = getCookie("sprytnyUserRole");
-      console.log(userRole);
-      console.log(attempts);
-      attempts++;
-    }
-
-    if (userRole !== "admin") {
-      console.log("Action not permitted for non-admin users.");
-      return;
-    }
     let url = new URL(InvokeURL + "users?perPage=30");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
