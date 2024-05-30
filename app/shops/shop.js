@@ -65,6 +65,8 @@ docReady(function () {
   if (userRole !== "admin") {
     console.log("Actions not permitted for non-admin users.");
     $("#deleteShopContainer").hide();
+    $("#refreshOfferButton").hide();
+    $("#createPricelistButton").hide();
   }
 
   function getShop() {
