@@ -1199,9 +1199,6 @@ docReady(function () {
           }
         });
 
-        // // Clear DataTable global search and column searches
-        // api.search("").columns().search("").draw();
-
         // Clear the internal DataTable search state
         table.state.clear();
 
@@ -1218,10 +1215,11 @@ docReady(function () {
       });
 
       function checkFilters() {
+        var searchValue = api.search();
         var anyFilterActive =
-          api.search() ||
+          searchValue !== "" ||
           $(".filterinput").filter(function () {
-            return this.value;
+            return this.value !== "";
           }).length > 0;
         if (anyFilterActive) {
           $("#ClearAllButton").show();
