@@ -1163,6 +1163,7 @@ docReady(function () {
     initComplete: function (settings, json) {
       var api = this.api();
       var textBox = $("#table_id_filter label input");
+
       $(".filterinput").on("change", function () {
         table.draw();
         checkFilters();
@@ -1187,6 +1188,7 @@ docReady(function () {
 
       // Clear all filters
       $("#ClearAllButton").on("click", function () {
+        // Clear DataTable global search and column searches
         api.search("").columns().search("").draw();
 
         // Reset all input fields
@@ -1199,6 +1201,10 @@ docReady(function () {
             $(this).prop("selectedIndex", 0);
           }
         });
+
+        // Clear the internal DataTable search state
+        table.state.clear();
+        table.ajax.reload(null, false); // Reload the table data
 
         checkFilters(); // Re-check filters after clearing
       });
