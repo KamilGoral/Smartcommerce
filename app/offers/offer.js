@@ -23,19 +23,19 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
-    
+    const cookies = document.cookie.split("; ");
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
 
@@ -728,10 +728,10 @@ docReady(function () {
             var row = this;
             if (!row.child.isShown()) {
               row.child(format(row.data())).show();
-              $(row.node()).addClass('shown');
+              $(row.node()).addClass("shown");
             }
           });
-        }
+        },
       },
       {
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
@@ -741,10 +741,10 @@ docReady(function () {
             var row = this;
             if (row.child.isShown()) {
               row.child.hide();
-              $(row.node()).removeClass('shown');
+              $(row.node()).removeClass("shown");
             }
           });
-        }
+        },
       },
       {
         extend: "copyHtml5",
@@ -1165,17 +1165,45 @@ docReady(function () {
       var textBox = $("#table_id_filter label input");
       $(".filterinput").on("change", function () {
         table.draw();
+        checkFilters();
       });
+
       textBox.unbind();
       textBox.bind("keyup input", function (e) {
         if (e.keyCode == 13) {
           api.search(this.value).draw();
+          checkFilters();
         }
       });
+
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+
       $("table.dataTable").on("show", function () {
         $(this).DataTable().columns.adjust();
       });
+
+      // Check filters initially
+      checkFilters();
+
+      // Clear all filters
+      $("#ClearAllButton").on("click", function () {
+        api.search("").columns().search("").draw();
+        $(".filterinput").val(""); // Reset all input fields
+        $(this).hide(); // Hide the button after clearing
+      });
+
+      function checkFilters() {
+        var anyFilterActive =
+          api.search() ||
+          $(".filterinput").filter(function () {
+            return this.value;
+          }).length > 0;
+        if (anyFilterActive) {
+          $("#ClearAllButton").show();
+        } else {
+          $("#ClearAllButton").hide();
+        }
+      }
     },
   });
 
