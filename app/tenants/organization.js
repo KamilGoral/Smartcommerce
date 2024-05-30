@@ -694,7 +694,11 @@ docReady(function () {
             case "organizationName":
               element.textContent = organizationName || "N/A";
               break;
-
+            case "toDate":
+              element.textContent =
+                "Kwota faktury po usunięciu: " +
+                  toParse.monthCostBreakdown.toDate.total +
+                  " zł" || "N/A";
             case "phone":
               if (toParse.phones && toParse.phones.length > 0) {
                 element.textContent = toParse.phones[0].phone || "N/A";
