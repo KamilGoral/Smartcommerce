@@ -1220,7 +1220,7 @@ docReady(function () {
           searchValue !== "" ||
           $(".filterinput").filter(function () {
             return this.value !== "";
-          }).length > 0;
+          }).length > 2;
         if (anyFilterActive) {
           $("#ClearAllButton").show();
         } else {
