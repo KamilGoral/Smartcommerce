@@ -1188,8 +1188,19 @@ docReady(function () {
       // Clear all filters
       $("#ClearAllButton").on("click", function () {
         api.search("").columns().search("").draw();
-        $(".filterinput").val(""); // Reset all input fields
-        $(this).hide(); // Hide the button after clearing
+
+        // Reset all input fields
+        $(".filterinput").each(function () {
+          if (this.type === "text" || this.type === "number") {
+            $(this).val("");
+          } else if (this.type === "checkbox") {
+            $(this).prop("checked", false);
+          } else if (this.tagName.toLowerCase() === "select") {
+            $(this).prop("selectedIndex", 0);
+          }
+        });
+
+        checkFilters(); // Re-check filters after clearing
       });
 
       function checkFilters() {
