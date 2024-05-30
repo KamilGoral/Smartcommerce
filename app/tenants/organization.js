@@ -699,6 +699,7 @@ docReady(function () {
                 "Kwota faktury po usunięciu: " +
                   toParse.monthCostBreakdown.toDate.total +
                   " zł" || "N/A";
+              break;
             case "phone":
               if (toParse.phones && toParse.phones.length > 0) {
                 element.textContent = toParse.phones[0].phone || "N/A";
