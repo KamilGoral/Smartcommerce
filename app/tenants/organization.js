@@ -219,6 +219,8 @@ docReady(function () {
     request.send();
   }
 
+  let userRole = getCookie("sprytnyUserRole");
+
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
     let request = new XMLHttpRequest();
@@ -482,8 +484,11 @@ docReady(function () {
     "selfEploymentContainer"
   );
 
-  function GetTenantBilling() {
-    userRole = getCookie("sprytnyUserRole");
+  async function GetTenantBilling() {
+    while (!userRole && attempts < 3) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
 
     if (userRole !== "admin") {
       console.log("Action not permitted for non-admin users.");
@@ -1141,13 +1146,9 @@ docReady(function () {
 
   async function getIntegrations() {
     let attempts = 0;
-    let userRole = getCookie("sprytnyUserRole");
 
     while (!userRole && attempts < 3) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      userRole = getCookie("sprytnyUserRole");
-      console.log(userRole);
-      console.log(attempts);
       attempts++;
     }
 
@@ -2187,8 +2188,8 @@ docReady(function () {
     );
   }
 
-  LogoutNonUser();
   getUserRole();
+  LogoutNonUser();
   getShops();
   getUsers();
   getIntegrations();
