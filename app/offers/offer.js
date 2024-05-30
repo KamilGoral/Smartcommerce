@@ -1166,12 +1166,14 @@ docReady(function () {
 
       $(".filterinput").on("change", function () {
         table.draw();
+        checkFilters();
       });
 
       textBox.unbind();
       textBox.bind("keyup input", function (e) {
         if (e.keyCode == 13) {
           api.search(this.value).draw();
+          checkFilters();
         }
       });
 
@@ -1180,6 +1182,9 @@ docReady(function () {
       $("table.dataTable").on("show", function () {
         $(this).DataTable().columns.adjust();
       });
+
+      // Check filters initially
+      checkFilters();
 
       // Clear all filters
       $("#ClearAllButton").on("click", function () {
@@ -1205,7 +1210,31 @@ docReady(function () {
             // Add custom logic to modify data object here if necessary
           });
         }, false);
+
+        checkFilters(); // Re-check filters after clearing
       });
+
+      function checkFilters() {
+        var searchValue = api.search();
+        var anyFilterActive =
+          searchValue !== "" ||
+          $(".filterinput").filter(function () {
+            return this.value !== "";
+          }).length > 2; // Two checkboxes are allways active
+
+        console.log(searchValue);
+        console.log(anyFilterActive);
+        console.log(
+          $(".filterinput").filter(function () {
+            return this.value !== "";
+          })
+        );
+        if (anyFilterActive) {
+          $("#ClearAllButton").show();
+        } else {
+          $("#ClearAllButton").hide();
+        }
+      }
     },
   });
 
