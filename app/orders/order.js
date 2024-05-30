@@ -23,19 +23,19 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
-    
+    const cookies = document.cookie.split("; ");
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
 
@@ -2768,16 +2768,81 @@ docReady(function () {
     initComplete: function (settings, json) {
       var api = this.api();
       var textBox = $("#table_id_filter label input");
+
       $(".filterinput").on("change", function () {
         table.draw();
+        checkFilters();
       });
+
       textBox.unbind();
       textBox.bind("keyup input", function (e) {
         if (e.keyCode == 13) {
           api.search(this.value).draw();
+          checkFilters();
         }
       });
+
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+
+      $("table.dataTable").on("show", function () {
+        $(this).DataTable().columns.adjust();
+      });
+
+      // Check filters initially
+      checkFilters();
+
+      // Clear all filters
+      $("#ClearAllButton").on("click", function () {
+        // Reset search field
+        $("#table_id_filter input[type='search']").val("");
+        api.search("").draw(); // Ensure the DataTable search is also reset
+        // Reset all input fields
+        $(".filterinput").each(function () {
+          if (this.type === "text" || this.type === "number") {
+            $(this).val("");
+          } else if (this.type === "checkbox") {
+            $(this).prop("checked", false);
+          } else if (this.tagName.toLowerCase() === "select") {
+            $(this).prop("selectedIndex", 0);
+          }
+        });
+
+        // Clear the internal DataTable search state
+        table.state.clear();
+
+        // Disable the draw callback temporarily to prevent multiple requests
+        table.off("preXhr.dt");
+        table.ajax.reload(function () {
+          // Re-enable the draw callback after reload
+          table.on("preXhr.dt", function (e, settings, data) {
+            // Add custom logic to modify data object here if necessary
+          });
+        }, false);
+
+        checkFilters(); // Re-check filters after clearing
+      });
+
+      function checkFilters() {
+        var searchValue = api.search();
+        var anyFilterActive =
+          searchValue !== "" ||
+          $(".filterinput").filter(function () {
+            return this.value !== "";
+          }).length > 2; // Two checkboxes are allways active
+
+        console.log(searchValue);
+        console.log(anyFilterActive);
+        console.log(
+          $(".filterinput").filter(function () {
+            return this.value !== "";
+          })
+        );
+        if (anyFilterActive) {
+          $("#ClearAllButton").show();
+        } else {
+          $("#ClearAllButton").hide();
+        }
+      }
     },
   });
 
