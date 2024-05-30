@@ -2829,14 +2829,6 @@ docReady(function () {
           $(".filterinput").filter(function () {
             return this.value !== "";
           }).length > 2; // Two checkboxes are allways active
-
-        console.log(searchValue);
-        console.log(anyFilterActive);
-        console.log(
-          $(".filterinput").filter(function () {
-            return this.value !== "";
-          })
-        );
         if (anyFilterActive) {
           $("#ClearAllButton").show();
         } else {
