@@ -1188,6 +1188,8 @@ docReady(function () {
 
       // Clear all filters
       $("#ClearAllButton").on("click", function () {
+        // Reset search field
+        $("#table_id_filter input[type='search']").val("");
         // Reset all input fields
         $(".filterinput").each(function () {
           if (this.type === "text" || this.type === "number") {
