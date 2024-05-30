@@ -1188,9 +1188,6 @@ docReady(function () {
 
       // Clear all filters
       $("#ClearAllButton").on("click", function () {
-        // Clear DataTable global search and column searches
-        api.search("").columns().search("").draw();
-
         // Reset all input fields
         $(".filterinput").each(function () {
           if (this.type === "text" || this.type === "number") {
@@ -1201,6 +1198,9 @@ docReady(function () {
             $(this).prop("selectedIndex", 0);
           }
         });
+
+        // Clear DataTable global search and column searches
+        api.search("").columns().search("").draw();
 
         // Clear the internal DataTable search state
         table.state.clear();
