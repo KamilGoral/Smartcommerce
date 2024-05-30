@@ -1204,7 +1204,15 @@ docReady(function () {
 
         // Clear the internal DataTable search state
         table.state.clear();
-        table.ajax.reload(null, false); // Reload the table data
+
+        // Disable the draw callback temporarily to prevent multiple requests
+        table.off("preXhr.dt");
+        table.ajax.reload(function () {
+          // Re-enable the draw callback after reload
+          table.on("preXhr.dt", function (e, settings, data) {
+            // Add custom logic to modify data object here if necessary
+          });
+        }, false);
 
         checkFilters(); // Re-check filters after clearing
       });
