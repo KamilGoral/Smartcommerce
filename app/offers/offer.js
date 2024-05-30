@@ -1199,8 +1199,8 @@ docReady(function () {
           }
         });
 
-        // Clear DataTable global search and column searches
-        api.search("").columns().search("").draw();
+        // // Clear DataTable global search and column searches
+        // api.search("").columns().search("").draw();
 
         // Clear the internal DataTable search state
         table.state.clear();
