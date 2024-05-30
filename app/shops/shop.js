@@ -60,6 +60,14 @@ docReady(function () {
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
+  userRole = getCookie("sprytnyUserRole");
+
+  if (userRole !== "admin") {
+    console.log("Actions not permitted for non-admin users.");
+    $("#deleteShopContainer").hide();
+    return;
+  }
+
   function getShop() {
     var request = new XMLHttpRequest();
     let endpoint = new URL(InvokeURL + "shops/" + shopKey);
