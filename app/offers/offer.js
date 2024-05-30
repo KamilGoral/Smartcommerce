@@ -1217,10 +1217,10 @@ docReady(function () {
       function checkFilters() {
         var searchValue = api.search();
         var anyFilterActive =
-          searchValue !== "" ||
+          searchValue !== "" &&
           $(".filterinput").filter(function () {
             return this.value !== "";
-          }).length > 2;
+          }).length > 2; // Two checkboxes are allways active
         if (anyFilterActive) {
           $("#ClearAllButton").show();
         } else {
