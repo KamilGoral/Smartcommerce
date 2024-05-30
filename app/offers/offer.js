@@ -1190,6 +1190,7 @@ docReady(function () {
       $("#ClearAllButton").on("click", function () {
         // Reset search field
         $("#table_id_filter input[type='search']").val("");
+        api.search("").draw(); // Ensure the DataTable search is also reset
         // Reset all input fields
         $(".filterinput").each(function () {
           if (this.type === "text" || this.type === "number") {
