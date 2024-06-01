@@ -239,7 +239,7 @@ docReady(function () {
 
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
-          $("#deleteOrganizationText").show();
+          $("#deleteTenantMessage").show();
         }
 
         const shopContainer = document.getElementById("Shops-Container");
@@ -565,12 +565,14 @@ docReady(function () {
         );
         const X = firstDayOfMonth.toISOString().split("T")[0];
         const Y = currentDate.toISOString().split("T")[0];
-
         const totalCost = data.monthCostBreakdown.toDate.total;
 
         const deleteTenantDetails = `Kwota faktury do zapłacenia za okres od ${X} do ${Y} wynosi ${totalCost} zł.`;
 
-        $("#deleteTenantDetails").val(deleteTenantDetails || "");
+        $("#deleteTenantDetails").html(
+          `<strong>${deleteTenantDetails}</strong>` || ""
+        );
+
         function toggleSelfEploymentContainer() {
           if (tenantActivityKind.value !== "other_business") {
             selfEploymentContainer.style.display = "grid";
