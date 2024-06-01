@@ -1868,21 +1868,24 @@ docReady(function () {
       var direction = "desc";
 
       if (data.order.length == 0) {
-        whichColumns = 2;
+        whichColumns = 4;
       } else {
         whichColumns = data.order[0]["column"];
         direction = data.order[0]["dir"];
       }
 
       switch (whichColumns) {
+        case 1:
+          whichColumns = "wholesalerkey:";
+          break;
         case 2:
-          whichColumns = "created.at:";
+          whichColumns = "type:";
           break;
         case 3:
-          whichColumns = "startDate:";
+          whichColumns = "name:";
           break;
         case 4:
-          whichColumns = "endDate:";
+          whichColumns = "created.at:";
           break;
         default:
           whichColumns = "created.at:";
