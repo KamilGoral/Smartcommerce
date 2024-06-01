@@ -46,7 +46,7 @@ docReady(function () {
   var ClientID = getCookieNameByValue(orgToken);
   var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
-  const UploadButton = document.getElementById("UploadButton");
+  const UploadDocumentButton = document.getElementById("UploadDocumentButton");
   const cancelButton = document.getElementById("cancelButton");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
@@ -1954,7 +1954,7 @@ docReady(function () {
     xhr.send(formData);
   }
 
-  UploadButton.addEventListener("click", (event) => {
+  UploadDocumentButton.addEventListener("click", (event) => {
     FileUpload(false);
   });
 
