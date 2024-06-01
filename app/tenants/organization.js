@@ -2080,7 +2080,7 @@ docReady(function () {
 
     $("#waitingdots").show();
     var formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", documentFile);
     formData.append("name", $("#documentName").val());
     formData.append("name", $("#documentType").val());
     formData.append("name", $("#documentShop").val());
