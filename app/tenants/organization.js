@@ -2064,13 +2064,8 @@ docReady(function () {
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
     // const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
-    var file = document.getElementById("documentfile").file;
-    var fileName = file.name;
-    // Improved file extension extraction
-    var fileExtension = fileName.includes(".")
-      ? fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase()
-      : "";
-    var fileSize = file.size;
+    var documentFile = document.getElementById("documentfile").file;
+    var fileSize = documentFile.size;
 
     // Check for file size exceeding 10 MB
     if (fileSize > 10 * 1024 * 1024) {
@@ -2082,21 +2077,6 @@ docReady(function () {
       document.getElementById("documentfile").value = "";
       return; // Exit the function
     }
-
-    // Allow files without extensions and check allowed extensions ( This is not work)
-    // if (
-    //   (fileName.includes(".") &&
-    //     !allowedExtensions.includes(fileExtension)) ||
-    //   (!fileName.includes(".") && fileExtension === "")
-    // ) {
-    //   $("#wrongfilemodal").css("display", "flex");
-    //   $("#wrongfilemessage").text(
-    //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
-    //   );
-    //   $("#orderuploadmodal").css("display", "none");
-    //   document.getElementById("orderfile").value = "";
-    //   return; // Exit the function
-    // }
 
     $("#waitingdots").show();
     var formData = new FormData();
