@@ -2059,6 +2059,112 @@ docReady(function () {
     },
   });
 
+  ////tutaj//
+
+  function DocumentFileUpload(skipTypeCheck) {
+    var xhr = new XMLHttpRequest();
+    // const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
+    var myUploadedFiles = document.getElementById("documentfile").files;
+
+    if (myUploadedFiles.length > 0) {
+      var file = myUploadedFiles[0];
+      var fileName = file.name;
+      // Improved file extension extraction
+      var fileExtension = fileName.includes(".")
+        ? fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase()
+        : "";
+      var fileSize = file.size;
+
+      // Check for file size exceeding 10 MB
+      if (fileSize > 10 * 1024 * 1024) {
+        $("#wrongfilemodal").css("display", "flex");
+        $("#wrongfilemessage").text(
+          "Jeden z Twoich plików jest zbyt duży. Plik jest większy niż 10 MB"
+        );
+        $("#addDocumentModal").css("display", "none");
+        document.getElementById("documentfile").value = "";
+        return; // Exit the function
+      }
+
+      // Allow files without extensions and check allowed extensions ( This is not work)
+      // if (
+      //   (fileName.includes(".") &&
+      //     !allowedExtensions.includes(fileExtension)) ||
+      //   (!fileName.includes(".") && fileExtension === "")
+      // ) {
+      //   $("#wrongfilemodal").css("display", "flex");
+      //   $("#wrongfilemessage").text(
+      //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
+      //   );
+      //   $("#orderuploadmodal").css("display", "none");
+      //   document.getElementById("orderfile").value = "";
+      //   return; // Exit the function
+      // }
+    }
+    $("#waitingdots").show();
+    var formData = new FormData();
+    for (var i = 0; i < myUploadedFiles.length; i++) {
+      formData.append("file", myUploadedFiles[i]);
+    }
+    formData.append("name", $("#documentName").val());
+    formData.append("name", $("#documentType").val());
+    formData.append("name", $("#documentShop").val());
+    formData.append("name", $("#documentWholesaler").val());
+
+    console.log(formData);
+    var action = InvokeURL + "van/transactions";
+    // Add custom header if skipTypeCheck is true
+    if (skipTypeCheck) {
+      action += "?skipTypeCheck=true";
+    }
+    xhr.open("POST", action);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Authorization", orgToken);
+
+    xhr.onreadystatechange = function () {
+      $("#waitingdots").hide();
+      if (xhr.status === 201) {
+        var response = JSON.parse(xhr.responseText);
+        console.log(response);
+      } else {
+        jsonResponse = JSON.parse(xhr.responseText);
+        console.log(xhr);
+        var msg = "";
+        if (xhr.status === 0) {
+          msg = "Not connect.\n Verify Network.";
+        } else if (xhr.status === 400) {
+          msg = jsonResponse.message;
+        } else if (xhr.status === 403) {
+          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+        } else if (xhr.status === 500) {
+          msg = "Internal Server Error [500].";
+          $("#orderfile").val("");
+        } else {
+          msg = jsonResponse.message;
+          $("#orderfile").val("");
+        }
+        $(".warningmessagetext").text(msg);
+        $("#wf-form-failCreate-Document").show();
+        setTimeout(function () {
+          $("#wf-form-failCreate-Document").fadeOut(2000);
+        }, 10000);
+      }
+      // Existing logic for handling the response
+    };
+    xhr.send(formData);
+  }
+
+  UploadDocumentButton.addEventListener("click", (event) => {
+    DocumentFileUpload(false);
+  });
+
+  // Call with custom header
+  $("#skipButton").on("click", function () {
+    DocumentFileUpload(true);
+  });
+
+  ///koniec//
+
   function toggleEmptyState() {
     // Check if the table has any entries
     var hasEntries = tablePriceLists.data().any();
