@@ -2093,7 +2093,7 @@ docReady(function () {
       action += "?skipTypeCheck=true";
     }
     xhr.open("POST", action);
-    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Accept", "application/octet-stream");
     xhr.setRequestHeader("Authorization", orgToken);
 
     xhr.onreadystatechange = function () {
