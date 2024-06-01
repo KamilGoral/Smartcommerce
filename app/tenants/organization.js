@@ -2091,7 +2091,7 @@ docReady(function () {
     }
     xhr.open("POST", action, true);
     xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Authorization", "Bearer " + orgToken);
+    xhr.setRequestHeader("Authorization", orgToken);
 
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
