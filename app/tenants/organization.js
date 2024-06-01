@@ -569,7 +569,7 @@ docReady(function () {
         );
         $("#deleteTotalToDate").html("Suma: " + totalCost + "zł" || "");
 
-        const deleteTenantDetails = `Kwota faktury do zapłacenia za obecny okres wynosi ${totalCost} zł.`;
+        const deleteTenantDetails = `Kwota faktury do zapłacenia za bieżący okres wynosi ${totalCost} zł.`;
 
         $("#deleteTenantDetails").html(
           `<strong>${deleteTenantDetails}</strong>` || ""
@@ -1820,6 +1820,239 @@ docReady(function () {
     ],
     initComplete: function (settings, json) {
       toggleEmptyState();
+    },
+  });
+
+  var tableDocuments = $("#table_documents").DataTable({
+    pagingType: "full_numbers",
+    order: [],
+    dom: '<"top">rt<"bottom"lip>',
+    scrollY: "60vh",
+    scrollCollapse: true,
+    pageLength: 10,
+    language: {
+      emptyTable: "Brak danych do wyświetlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+      infoEmpty: "Brak danych",
+      infoFiltered: "(z _MAX_ rezultatów)",
+      lengthMenu: "Pokaż _MENU_ rekordów",
+      loadingRecords: "<div class='spinner'</div>",
+      processing: "<div class='spinner'</div>",
+      search: "Szukaj:",
+      zeroRecords: "Brak pasujących rezultatów",
+      paginate: {
+        first: "<<",
+        last: ">>",
+        next: " >",
+        previous: "< ",
+      },
+      aria: {
+        sortAscending: ": Sortowanie rosnące",
+        sortDescending: ": Sortowanie malejące",
+      },
+    },
+    ajax: function (data, callback, settings) {
+      $.ajaxSetup({
+        headers: {
+          Authorization: orgToken,
+        },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+      });
+
+      var whichColumns = "";
+      var direction = "desc";
+
+      if (data.order.length == 0) {
+        whichColumns = 2;
+      } else {
+        whichColumns = data.order[0]["column"];
+        direction = data.order[0]["dir"];
+      }
+
+      switch (whichColumns) {
+        case 2:
+          whichColumns = "created.at:";
+          break;
+        case 3:
+          whichColumns = "startDate:";
+          break;
+        case 4:
+          whichColumns = "endDate:";
+          break;
+        default:
+          whichColumns = "created.at:";
+      }
+
+      var sort = "" + whichColumns + direction;
+
+      $.get(
+        InvokeURL + "van/transactions",
+        {
+          sort: sort,
+          perPage: data.length,
+          page: (data.start + data.length) / data.length,
+        },
+        function (res) {
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        }
+      );
+    },
+    processing: true,
+    serverSide: true,
+    search: {
+      return: true,
+    },
+    columns: [
+      {
+        orderable: false,
+        data: null,
+        width: "36px",
+        defaultContent:
+          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+      },
+      {
+        orderable: false,
+        visible: false,
+        data: "uuid",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "wholesalerKey",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "type",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "name",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "created.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "created.at",
+        render: function (data) {
+          if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            return utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "modified.at",
+        render: function (data) {
+          if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            return utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "modified.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: null,
+        defaultContent:
+          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+      },
+    ],
+    initComplete: function (settings, json) {
+      var hasEntries = tableDocuments.data().any();
+      console.log(hasEntries);
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $("#emptystatedocuments").show();
+        $("#documentscontainer").hide();
+      } else {
+        $("#emptystatedocuments").hide();
+        $("#documentscontainer").show();
+      }
     },
   });
 
