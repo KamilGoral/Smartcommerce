@@ -239,11 +239,7 @@ docReady(function () {
 
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
-
-          deleteButton.classList.add("tippy");
-
-          deleteButton.textContent =
-            "Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.";
+          $("#deleteOrganizationText").show();
         }
 
         const shopContainer = document.getElementById("Shops-Container");
