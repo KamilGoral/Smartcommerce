@@ -557,29 +557,19 @@ docReady(function () {
         // Set tenantActivityKind
         $("#tenantActivityKind").val(data.activityKind || "other_business");
 
-        $("#deleteStandardToDate").val(
-          "Plan Podstawowy: " + data.monthCostBreakdown.toDate.premium + "zł" ||
-            ""
-        );
-        $("#deletePremiumToDate").val(
-          "Plan Premium: " + data.monthCostBreakdown.toDate.standard + "zł" ||
-            ""
-        );
-        $("#deleteTotalToDate").val(
-          "Suma: " + data.monthCostBreakdown.toDate.total + "zł" || ""
-        );
-
-        const currentDate = new Date();
-        const firstDayOfMonth = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          1
-        );
-        const X = firstDayOfMonth.toISOString().split("T")[0];
-        const Y = currentDate.toISOString().split("T")[0];
         const totalCost = data.monthCostBreakdown.toDate.total;
+        const standardCost = data.monthCostBreakdown.toDate.standard;
+        const premiumCost = data.monthCostBreakdown.toDate.premium;
 
-        const deleteTenantDetails = `Kwota faktury do zapłacenia za okres od ${X} do ${Y} wynosi ${totalCost} zł.`;
+        $("#deleteStandardToDate").html(
+          "Plan Podstawowy: " + premiumCost + "zł" || ""
+        );
+        $("#deletePremiumToDate").html(
+          "Plan Premium: " + standardCost + "zł" || ""
+        );
+        $("#deleteTotalToDate").html("Suma: " + totalCost + "zł" || "");
+
+        const deleteTenantDetails = `Kwota faktury do zapłacenia za obecny okres wynosi ${totalCost} zł.`;
 
         $("#deleteTenantDetails").html(
           `<strong>${deleteTenantDetails}</strong>` || ""
