@@ -2064,7 +2064,7 @@ docReady(function () {
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
     // const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
-    var documentFile = document.getElementById("documentfile").file;
+    var documentFile = document.getElementById("documentfile").files[0];
     var fileSize = documentFile.size;
 
     // Check for file size exceeding 10 MB
