@@ -2094,6 +2094,7 @@ docReady(function () {
     }
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/octet-stream");
+    xhr.setRequestHeader("Content-Type", "multipart/form-data");
     xhr.setRequestHeader("Authorization", orgToken);
 
     xhr.onreadystatechange = function () {
