@@ -557,6 +557,18 @@ docReady(function () {
         // Set tenantActivityKind
         $("#tenantActivityKind").val(data.activityKind || "other_business");
 
+        $("#deleteStandardToDate").val(
+          "Plan Podstawowy: " + data.monthCostBreakdown.toDate.premium + "zł" ||
+            ""
+        );
+        $("#deletePremiumToDate").val(
+          "Plan Premium: " + data.monthCostBreakdown.toDate.standard + "zł" ||
+            ""
+        );
+        $("#deleteTotalToDate").val(
+          "Suma: " + data.monthCostBreakdown.toDate.total + "zł" || ""
+        );
+
         const currentDate = new Date();
         const firstDayOfMonth = new Date(
           currentDate.getFullYear(),
