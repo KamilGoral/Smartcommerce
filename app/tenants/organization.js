@@ -2078,14 +2078,17 @@ docReady(function () {
     }
 
     $("#waitingdots").show();
-    var formData = new FormData();
-    formData.append("file", documentFile);
-    formData.append("name", $("#documentName").val());
-    formData.append("type", $("#documentType").val());
-    formData.append("shop", $("#documentShop").val());
-    formData.append("wholesaler", $("#documentWholesaler").val());
 
-    var action = InvokeURL + "van/transactions";
+    // Build query parameters
+    var queryParams =
+      `name=${encodeURIComponent($("#documentName").val())}&` +
+      `type=${encodeURIComponent($("#documentType").val())}&` +
+      `shop=${encodeURIComponent($("#documentShop").val())}&` +
+      `wholesaler=${encodeURIComponent($("#documentWholesaler").val())}`;
+
+    console.log(queryParams);
+
+    var action = InvokeURL + "van/transactions?" + queryParams;
     if (skipTypeCheck) {
       action += "?skipTypeCheck=true";
     }
