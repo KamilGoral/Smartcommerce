@@ -236,16 +236,13 @@ docReady(function () {
           const deleteButton = document.getElementById(
             "deleteOrganizationButton"
           );
-          const deleteOrganizationText = document.getElementById(
-            "deleteOrganizationText"
-          );
 
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
 
           deleteButton.classList.add("tippy");
 
-          deleteOrganizationText.textContent =
+          deleteButton.textContent =
             "Nie możesz usunąć organizacji, w której są aktywne sklepy. Najpierw usuń sklepy, aby móc usunąć organizację.";
         }
 
