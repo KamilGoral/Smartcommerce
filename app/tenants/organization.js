@@ -2063,7 +2063,6 @@ docReady(function () {
 
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
-    // const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
     var documentFile = document.getElementById("documentfile").files[0];
     var fileSize = documentFile.size;
 
@@ -2082,52 +2081,62 @@ docReady(function () {
     var formData = new FormData();
     formData.append("file", documentFile);
     formData.append("name", $("#documentName").val());
-    formData.append("name", $("#documentType").val());
-    formData.append("name", $("#documentShop").val());
-    formData.append("name", $("#documentWholesaler").val());
+    formData.append("type", $("#documentType").val());
+    formData.append("shop", $("#documentShop").val());
+    formData.append("wholesaler", $("#documentWholesaler").val());
 
-    console.log(formData);
     var action = InvokeURL + "van/transactions";
-    // Add custom header if skipTypeCheck is true
     if (skipTypeCheck) {
       action += "?skipTypeCheck=true";
     }
-    xhr.open("POST", action);
-    xhr.setRequestHeader("Accept", "application/octet-stream");
-    xhr.setRequestHeader("Content-Type", "multipart/form-data");
-    xhr.setRequestHeader("Authorization", orgToken);
+    xhr.open("POST", action, true);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + orgToken);
 
     xhr.onreadystatechange = function () {
-      $("#waitingdots").hide();
-      if (xhr.status === 201) {
-        var response = JSON.parse(xhr.responseText);
-        console.log(response);
-      } else {
-        jsonResponse = JSON.parse(xhr.responseText);
-        console.log(xhr);
-        var msg = "";
-        if (xhr.status === 0) {
-          msg = "Not connect.\n Verify Network.";
-        } else if (xhr.status === 400) {
-          msg = jsonResponse.message;
-        } else if (xhr.status === 403) {
-          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-        } else if (xhr.status === 500) {
-          msg = "Internal Server Error [500].";
-          $("#orderfile").val("");
+      if (xhr.readyState === 4) {
+        $("#waitingdots").hide();
+        if (xhr.status === 201) {
+          var response = JSON.parse(xhr.responseText);
+          console.log(response);
         } else {
-          msg = jsonResponse.message;
-          $("#orderfile").val("");
+          var msg = "";
+          try {
+            var jsonResponse = JSON.parse(xhr.responseText);
+            msg = jsonResponse.message || "Unknown error occurred";
+          } catch (e) {
+            msg = "Unable to parse response";
+          }
+          console.log(xhr);
+          if (xhr.status === 0) {
+            msg = "Not connect.\n Verify Network.";
+          } else if (xhr.status === 400) {
+            msg = jsonResponse.message;
+          } else if (xhr.status === 403) {
+            msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+          } else if (xhr.status === 500) {
+            msg = "Internal Server Error [500].";
+            $("#orderfile").val("");
+          } else {
+            msg = jsonResponse.message;
+            $("#orderfile").val("");
+          }
+          $(".warningmessagetext").text(msg);
+          $("#wf-form-failCreate-Document").show();
+          setTimeout(function () {
+            $("#wf-form-failCreate-Document").fadeOut(2000);
+          }, 10000);
         }
-        $(".warningmessagetext").text(msg);
-        $("#wf-form-failCreate-Document").show();
-        setTimeout(function () {
-          $("#wf-form-failCreate-Document").fadeOut(2000);
-        }, 10000);
       }
-      // Existing logic for handling the response
     };
-    xhr.send(formData);
+
+    // Read the file as binary and send it
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      var binaryData = event.target.result;
+      xhr.send(binaryData);
+    };
+    reader.readAsArrayBuffer(documentFile);
   }
 
   UploadDocumentButton.addEventListener("click", (event) => {
