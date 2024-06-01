@@ -564,6 +564,20 @@ docReady(function () {
         // Set tenantActivityKind
         $("#tenantActivityKind").val(data.activityKind || "other_business");
 
+        const currentDate = new Date();
+        const firstDayOfMonth = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          1
+        );
+        const X = firstDayOfMonth.toISOString().split("T")[0];
+        const Y = currentDate.toISOString().split("T")[0];
+
+        const totalCost = data.monthCostBreakdown.toDate.total;
+
+        const deleteTenantDetails = `Kwota faktury do zapłacenia za okres od ${X} do ${Y} wynosi ${totalCost} zł.`;
+
+        $("#deleteTenantDetails").val(deleteTenantDetails || "");
         function toggleSelfEploymentContainer() {
           if (tenantActivityKind.value !== "other_business") {
             selfEploymentContainer.style.display = "grid";
@@ -698,12 +712,6 @@ docReady(function () {
               break;
             case "organizationName":
               element.textContent = organizationName || "N/A";
-              break;
-            case "toDate":
-              element.textContent =
-                "Kwota faktury po usunięciu: " +
-                  toParse.monthCostBreakdown.toDate.total +
-                  " zł" || "N/A";
               break;
             case "phone":
               if (toParse.phones && toParse.phones.length > 0) {
