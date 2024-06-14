@@ -2143,9 +2143,9 @@ docReady(function () {
     reader.readAsArrayBuffer(documentFile);
   }
 
-  // UploadDocumentButton.addEventListener("click", (event) => {
-  //   DocumentFileUpload(false);
-  // });
+  UploadDocumentButton.addEventListener("click", (event) => {
+    DocumentFileUpload(false);
+  });
 
   // Call with custom header
   $("#skipButton").on("click", function () {

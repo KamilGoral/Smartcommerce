@@ -46,7 +46,7 @@ docReady(function () {
   var ClientID = getCookieNameByValue(orgToken);
   var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
-  const UploadDocumentButton = document.getElementById("UploadDocumentButton");
+  // const UploadDocumentButton = document.getElementById("UploadDocumentButton");
   const cancelButton = document.getElementById("cancelButton");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
@@ -1954,9 +1954,9 @@ docReady(function () {
     xhr.send(formData);
   }
 
-  UploadDocumentButton.addEventListener("click", (event) => {
-    FileUpload(false);
-  });
+  // UploadDocumentButton.addEventListener("click", (event) => {
+  //   FileUpload(false);
+  // });
 
   cancelButton.addEventListener("click", () => {
     const modal = document.getElementById("wronggtinsmodal");
