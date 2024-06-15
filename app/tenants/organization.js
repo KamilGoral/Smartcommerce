@@ -2143,6 +2143,8 @@ docReady(function () {
     reader.readAsArrayBuffer(documentFile);
   }
 
+  const UploadDocumentButton = document.getElementById("UploadDocumentButton");
+
   UploadDocumentButton.addEventListener("click", (event) => {
     DocumentFileUpload(false);
   });
