@@ -490,8 +490,8 @@ docReady(function () {
 
     function showDotForActiveTab() {
       setTimeout(function () {
-        const isTab3Active = document.querySelector(
-          "#w-tabs-0-data-w-tab-3.w--current"
+        const isTab4Active = document.querySelector(
+          "#w-tabs-0-data-w-tab-4.w--current"
         );
         const isTab1Active = document.querySelector(
           "#w-tabs-2-data-w-tab-1.w--current"
