@@ -496,7 +496,7 @@ docReady(function () {
         const isTab1Active = document.querySelector(
           "#w-tabs-2-data-w-tab-1.w--current"
         );
-        document.querySelector(".nb1").classList.toggle("hidden", isTab3Active);
+        document.querySelector(".nb1").classList.toggle("hidden", isTab4Active);
         document
           .querySelector(".nb2")
           .classList.toggle("hidden", !isTab3Active || isTab1Active);
