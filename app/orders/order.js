@@ -679,6 +679,11 @@ docReady(function () {
       // Add more as needed
     };
 
+    function calculatePackage(quantityFactor) {
+      if (!quantityFactor) return "-";
+      return Math.round(1 / quantityFactor);
+    }
+
     const toDisplayHtml = arr
       .map((item) => {
         const promotion = promotionMap[item.promotion?.type];
@@ -706,8 +711,10 @@ docReady(function () {
                 : "<td>-</td>"
             }
             <td>${item.promotion?.threshold ?? "-"}</td>
-            <td>${item.promotion?.maxQuantity ?? "-"}</td>
-            <td>${item.promotion?.package ?? "-"}</td>
+            <td>${item.promotion?.cap ?? "-"}</td>
+            <td>${calculatePackage(
+              item.promotion?.factors?.quantityFactor
+            )}</td>
             <td>${showRelated}</td>
         </tr>`;
       })
