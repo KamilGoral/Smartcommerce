@@ -673,9 +673,18 @@ docReady(function () {
       // Add more as needed
     };
 
-    function calculatePackage(quantityFactor) {
+    function calculatePackage(promotion) {
+      if (!promotion || !promotion.factors) return "-";
+      const { type, factors } = promotion;
+      const { quantityFactor, consolidationSet } = factors;
+
       if (!quantityFactor) return "-";
-      return Math.round(1 / quantityFactor);
+
+      if (type === "package mix") {
+        return Math.round((1 / quantityFactor) * (consolidationSet || 1));
+      }
+
+      return "-";
     }
 
     const toDisplayHtml = arr
@@ -706,9 +715,7 @@ docReady(function () {
             }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
-            <td>${calculatePackage(
-              item.promotion?.factors?.quantityFactor
-            )}</td>
+            <td>${calculatePackage(item.promotion)}</td> 
             <td>${showRelated}</td>
         </tr>`;
       })
