@@ -499,7 +499,7 @@ docReady(function () {
         document.querySelector(".nb1").classList.toggle("hidden", isTab4Active);
         document
           .querySelector(".nb2")
-          .classList.toggle("hidden", !isTab3Active || isTab1Active);
+          .classList.toggle("hidden", !isTab4Active || isTab1Active);
         document
           .querySelector(".nb3")
           .classList.toggle("hidden", !isTab1Active);
