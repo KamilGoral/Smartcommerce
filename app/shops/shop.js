@@ -1966,7 +1966,7 @@ docReady(function () {
   });
 
   // Call with custom header
-  $("#skipButton").on("click", function () {
+  $("#UploadButton").on("click", function () {
     FileUpload(true);
   });
 
