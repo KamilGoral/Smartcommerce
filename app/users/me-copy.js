@@ -43,7 +43,7 @@ docReady(function () {
   var formId = "#wf-form-Create-Organization-Form";
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
-  var emailElement = document.getElementById("useremail");
+  const emailElement = document.getElementById("useremail");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
 
   function setCookieAndSession(cName, cValue, expirationSec) {
@@ -120,7 +120,6 @@ docReady(function () {
                 "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
 
               // Jeśli wystąpił błąd 403, przygotuj dane do wysłania
-              var emailElement = document.getElementById("useremail");
               var requestData = [
                 {
                   org_nip: "",
@@ -563,7 +562,7 @@ docReady(function () {
         username.value = UserInfo.UserAttributes[2].Value;
         const userfamilyname = document.getElementById("lastName");
         userfamilyname.value = UserInfo.UserAttributes[3].Value;
-        var emailElement = document.getElementById("emailadress");
+
         emailElement.textContent = UserInfo.UserAttributes[4].Value;
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
