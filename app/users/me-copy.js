@@ -551,7 +551,6 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#form-done-edit-profile", container);
         var failBlock = $("#form-done-fail-edit-profile", container);
-        const accessToken = "YOUR_ACCESS_TOKEN"; // Replace with actual access token
         const firstName = $("#firstName").val();
         const lastName = $("#lastName").val();
         const emailAddress = $("#emailAddress").val();
@@ -560,7 +559,7 @@ docReady(function () {
           AccessToken: accessToken,
           UserAttributes: [
             {
-              Name: "given_name",
+              Name: "name",
               Value: firstName
             },
             {
