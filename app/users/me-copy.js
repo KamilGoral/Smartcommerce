@@ -45,6 +45,7 @@ docReady(function () {
   var accessToken = smartToken.split("Bearer ")[1];
   const emailElement = document.getElementById("useremail");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
+  var formIdChangeProfile = "#wf-form-editProfile";
 
   function setCookieAndSession(cName, cValue, expirationSec) {
     let date = new Date();
@@ -309,7 +310,7 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status
+          request.status
         );
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
@@ -378,12 +379,12 @@ docReady(function () {
           // Redirect to the organization's page
           window.location.replace(
             "https://" +
-              DomainName +
-              "/app/tenants/organization" +
-              "?name=" +
-              OrganizationName +
-              "&clientId=" +
-              OrganizationclientId
+            DomainName +
+            "/app/tenants/organization" +
+            "?name=" +
+            OrganizationName +
+            "&clientId=" +
+            OrganizationclientId
           );
         },
         error: function (jqXHR, exception) {
@@ -394,12 +395,12 @@ docReady(function () {
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
+        DomainName +
+        "/app/tenants/organization" +
+        "?name=" +
+        OrganizationName +
+        "&clientId=" +
+        OrganizationclientId
       );
     }
     return false;
@@ -543,6 +544,81 @@ docReady(function () {
     });
   };
 
+  makeWebflowFormAjaxChange = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var container = form.parent();
+        var doneBlock = $("#form-done-edit-profile", container);
+        var failBlock = $("#form-done-fail-edit-profile", container);
+        const accessToken = "YOUR_ACCESS_TOKEN"; // Replace with actual access token
+        const firstName = $("#firstName").val();
+        const lastName = $("#lastName").val();
+        const emailAddress = $("#emailAddress").val();
+
+        const datatosend = {
+          AccessToken: accessToken,
+          UserAttributes: [
+            {
+              Name: "given_name",
+              Value: firstName
+            },
+            {
+              Name: "family_name",
+              Value: lastName
+            },
+            {
+              Name: "email",
+              Value: emailAddress
+            }
+          ]
+        };
+
+        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "x-amz-target": "AWSCognitoIdentityProviderService.UpdateUserAttributes"
+          },
+          data: JSON.stringify(datatosend),
+          dataType: "json",
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                console.log(e);
+                return;
+              }
+            }
+            $("#editProfileModal").hide();
+            doneBlock.show();
+            failBlock.hide();
+            window.setTimeout(function () {
+              location.reload();
+            }, 1000);
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   function getUser() {
     var datatosend = {
       AccessToken: accessToken,
@@ -591,9 +667,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            UserInfo.message
+          request.status +
+          " " +
+          UserInfo.message
         );
         MessageBox(UserInfo.message);
       }
@@ -630,6 +706,7 @@ docReady(function () {
   }
 
   makeWebflowFormAjaxCreate($(formIdChangePassword));
+  makeWebflowFormAjaxChange($(formIdChangeProfile));
   makeWebflowFormAjax($(formId));
   getInvitations();
   getOrganizations();
