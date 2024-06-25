@@ -605,7 +605,7 @@ docReady(function () {
             failBlock2.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 3000);
+            }, 300);
             $("#editProfileModal").hide();
           },
           error: function (e) {
