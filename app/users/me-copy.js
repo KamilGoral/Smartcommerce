@@ -594,12 +594,13 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock2.hide();
+                $("#form-done-edit-profile").show();
                 failBlock2.show();
                 console.log(e);
                 return;
               }
             }
+            form.show();
             $("#form-done-edit-profile").show();
             failBlock2.hide();
             window.setTimeout(function () {
