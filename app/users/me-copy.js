@@ -549,8 +549,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock2 = $("#form-done-edit-profile", container);
-        var failBlock2 = $("#form-done-fail-edit-profile", container);
+        var doneBlock2 = $("#form-done-edit-profile");
+        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstName = $("#firstName").val();
         const lastName = $("#lastName").val();
         const emailAddress = $("#emailadress").val();
