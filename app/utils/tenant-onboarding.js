@@ -144,7 +144,6 @@ docReady(function () {
   // Step 3: Login to tenant
 
   function LoginIntoOrganization(evt) {
-    evt.preventDefault(); // Prevent the default form submission
 
     const OrganizationclientId = getCookie("sprytnyNewOrganizationId");
 
