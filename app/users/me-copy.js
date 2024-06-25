@@ -560,11 +560,11 @@ docReady(function () {
       var UserInfo = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         const username = document.getElementById("firstName");
-        username.textContent = UserInfo.UserAttributes[2].Value;
+        username.value = UserInfo.UserAttributes[2].Value;
         const userfamilyname = document.getElementById("lastName");
-        userfamilyname.textContent = UserInfo.UserAttributes[3].Value;
+        userfamilyname.value = UserInfo.UserAttributes[3].Value;
         var useremail = document.getElementById("emailadress");
-        useremail.textContent = UserInfo.UserAttributes[4].Value;
+        useremail.value = UserInfo.UserAttributes[4].Value;
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
           "Witaj, " +
