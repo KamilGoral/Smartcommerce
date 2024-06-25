@@ -548,8 +548,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock2 = $("#form-done-edit-profile");
         var failBlock2 = $("#form-done-fail-edit-profile");
         const firstName = $("#firstName").val();
         const lastName = $("#lastName").val();
@@ -602,19 +600,19 @@ docReady(function () {
                 return;
               }
             }
-            $("#editProfileModal").hide();
-            doneBlock2.show();
+            $("#form-done-edit-profile").show();
             failBlock2.hide();
             window.setTimeout(function () {
               location.reload();
             }, 3000);
+            $("#editProfileModal").hide();
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock2.hide();
+            $("#form-done-edit-profile").show();
             failBlock2.show();
             console.log(e);
           },
