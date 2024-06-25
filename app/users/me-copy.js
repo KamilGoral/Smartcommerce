@@ -559,13 +559,11 @@ docReady(function () {
     request.onload = function () {
       var UserInfo = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
-        const userid = document.getElementById("userid");
-        userid.textContent = UserInfo.Username;
-        const username = document.getElementById("username");
+        const username = document.getElementById("firstName");
         username.textContent = UserInfo.UserAttributes[2].Value;
-        const userfamilyname = document.getElementById("userfamilyname");
+        const userfamilyname = document.getElementById("lastName");
         userfamilyname.textContent = UserInfo.UserAttributes[3].Value;
-        var useremail = document.getElementById("useremail");
+        var useremail = document.getElementById("emailadress");
         useremail.textContent = UserInfo.UserAttributes[4].Value;
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
