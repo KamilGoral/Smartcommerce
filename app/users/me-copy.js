@@ -520,7 +520,7 @@ docReady(function () {
                 return;
               }
             }
-            form.hide();
+            $("#editPasswordModal").hide();
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
