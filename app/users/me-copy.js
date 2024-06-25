@@ -549,8 +549,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#form-done-edit-profile", container);
-        var failBlock = $("#form-done-fail-edit-profile", container);
+        var doneBlock2 = $("#form-done-edit-profile", container);
+        var failBlock2 = $("#form-done-fail-edit-profile", container);
         const firstName = $("#firstName").val();
         const lastName = $("#lastName").val();
         const emailAddress = $("#emailadress").val();
@@ -582,6 +582,13 @@ docReady(function () {
             "Content-Type": "application/x-amz-json-1.1",
             "x-amz-target": "AWSCognitoIdentityProviderService.UpdateUserAttributes"
           },
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
           data: JSON.stringify(datatosend),
           dataType: "json",
           success: function (resultData) {
@@ -589,26 +596,26 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                doneBlock2.hide();
+                failBlock2.show();
                 console.log(e);
                 return;
               }
             }
             $("#editProfileModal").hide();
-            doneBlock.show();
-            failBlock.hide();
+            doneBlock2.show();
+            failBlock2.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 1000);
+            }, 3000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            doneBlock2.hide();
+            failBlock2.show();
             console.log(e);
           },
         });
