@@ -484,10 +484,10 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#wf-form-Form-Change-Password-done", container);
-        var failBlock = $("#wf-form-Form-Change-Password-fail", container);
+        var doneBlock = $("#form-done-edit-password", container);
+        var failBlock = $("#form-done-fail-edit", container);
         var action =
-          "https://hook.integromat.com/49ulcdq4vjorv11dbsq316xvpjjpa6ye";
+          "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
         var inputdata = form.serializeArray();
 
         var data = {
