@@ -563,8 +563,8 @@ docReady(function () {
         username.value = UserInfo.UserAttributes[2].Value;
         const userfamilyname = document.getElementById("lastName");
         userfamilyname.value = UserInfo.UserAttributes[3].Value;
-        var useremail = document.getElementById("emailadress");
-        useremail.value = UserInfo.UserAttributes[4].Value;
+        var emailElement = document.getElementById("emailadress");
+        emailElement.textContent = UserInfo.UserAttributes[4].Value;
         const welcomeMessage = document.getElementById("WelcomeMessage");
         welcomeMessage.textContent =
           "Witaj, " +
