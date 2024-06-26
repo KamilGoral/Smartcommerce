@@ -1289,7 +1289,7 @@ docReady(function () {
                 return;
               }
             }
-            form.hide();
+            $("#deleteOrganizationModal").hide();
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
