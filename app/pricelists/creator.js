@@ -22,19 +22,19 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
-    
+    const cookies = document.cookie.split("; ");
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
 
@@ -42,6 +42,8 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var ClientID = getCookieNameByValue(orgToken);
   var InvokeURL = getCookie("sprytnyInvokeURL");
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
 
   var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
@@ -49,11 +51,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -482,7 +484,11 @@ docReady(function () {
             console.log(resultData);
             $("#Create-Pricelist-Success").show();
             $("#Create-Pricelist-Success").fadeOut(4000);
-            var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
+            var pricelistUrl =
+              "https://" +
+              DomainName +
+              "/app/pricelists/pricelist?uuid=" +
+              resultData.uuid;
             // Redirect after a short delay to allow the success message to be shown
             window.setTimeout(function () {
               window.location.href = pricelistUrl;

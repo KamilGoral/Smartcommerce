@@ -48,6 +48,8 @@ docReady(function () {
   var formIdEditBilling = "#wf-form-editCompanyBilling-form-correct";
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
   OrganizationNameHeader.textContent = organizationName;
   OrganizationBread0.textContent = organizationName;
   OrganizationBread0.setAttribute(

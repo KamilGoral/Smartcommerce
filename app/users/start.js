@@ -44,6 +44,7 @@ docReady(function () {
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
   var formIdChangeProfile = "#wf-form-editProfile";
   const welcomeMessage = document.getElementById("WelcomeMessage");

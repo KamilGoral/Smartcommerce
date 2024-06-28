@@ -44,6 +44,8 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var ClientID = getCookieNameByValue(orgToken);
   var OrganizationName = getCookie("OrganizationName");
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
   var counter = 0;
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var offerId = new URL(location.href).searchParams.get("offerId");

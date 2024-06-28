@@ -22,19 +22,19 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
-    
+    const cookies = document.cookie.split("; ");
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
 
@@ -50,6 +50,8 @@ docReady(function () {
   var OrganizationClientId = getCookie("sprytnyOrganizationclientId");
   var formIdEditPriceList = "#wf-form-UpdatePriceList";
   var formIdDeletePriceList = "#wf-form-DeletePriceList";
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
 
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const priceListIdBread = document.getElementById("priceListIdBread");

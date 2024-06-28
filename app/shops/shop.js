@@ -40,6 +40,8 @@ docReady(function () {
   }
 
   var shopKey = new URL(location.href).searchParams.get("shopKey");
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
   var orgToken = getCookie("sprytnyToken");
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");

@@ -42,6 +42,8 @@ docReady(function () {
   var orgToken = getCookie("sprytnyToken");
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
   var counter = 0;
   var offerId = "latest";
   var changesPayload = [];
