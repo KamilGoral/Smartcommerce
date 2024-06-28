@@ -531,6 +531,8 @@ docReady(function () {
               msg = "Not connect.\n Verify Network.";
             } else if (jqXHR.status == 403) {
               msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+            } else if (jqXHR.status == 400) {
+              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie";
             } else if (jqXHR.status == 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
@@ -542,8 +544,10 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            // const message = document.getElementById("errormessage");
-            // message.textContent = "Nieprawidłowe hasło";
+            const message = document.getElementById(
+              "WarningMessageChangePassword"
+            );
+            message.textContent = msg;
             form.show();
             $("#form-done-edit-password").hide();
             $("#form-done-fail-edit").show();
