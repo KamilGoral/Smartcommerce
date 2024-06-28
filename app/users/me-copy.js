@@ -483,9 +483,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#form-done-edit-password");
-        var failBlock = $("#form-done-fail-edit");
         var action =
           "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
         var inputdata = form.serializeArray();
@@ -515,26 +512,23 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                $("#form-done-edit-password").hide();
+                $("#form-done-fail-edit").show();
                 console.log(e);
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 3000);
+            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
+            $("#form-done-fail-edit").hide();
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            $("#form-done-edit-password").hide();
+            $("#form-done-fail-edit").show();
             console.log(e);
           },
         });
@@ -602,18 +596,16 @@ docReady(function () {
               }
             }
             form.show();
-            $("#form-done-edit-profile").show();
+            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
             failBlock2.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 2000);
+            welcomeMessage.textContent =
+              "Witaj, " + firstName + " " + lastName + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            $("#form-done-edit-profile").show();
             failBlock2.show();
             console.log(e);
           },
