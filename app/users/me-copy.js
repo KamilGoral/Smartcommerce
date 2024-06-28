@@ -532,7 +532,7 @@ docReady(function () {
             } else if (jqXHR.status == 403) {
               msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
             } else if (jqXHR.status == 400) {
-              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie";
+              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
             } else if (jqXHR.status == 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
