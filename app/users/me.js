@@ -43,8 +43,10 @@ docReady(function () {
   var formId = "#wf-form-Create-Organization-Form";
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
-  var emailElement = document.getElementById("useremail");
+  const emailElement = document.getElementById("useremail");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
+  var formIdChangeProfile = "#wf-form-editProfile";
+  const welcomeMessage = document.getElementById("WelcomeMessage");
 
   function setCookieAndSession(cName, cValue, expirationSec) {
     let date = new Date();
@@ -120,7 +122,6 @@ docReady(function () {
                 "Dostęp zablokowany - skontaktujemy się z Państwem do 24 godzin, Zespół Sprytnykupiec.pl";
 
               // Jeśli wystąpił błąd 403, przygotuj dane do wysłania
-              var emailElement = document.getElementById("useremail");
               var requestData = [
                 {
                   org_nip: "",
@@ -445,6 +446,21 @@ docReady(function () {
               suspended: { color: "#ff7875", text: "Zawieszony" },
             };
 
+            if (organization.status.toLowerCase() === "onboarding") {
+              onboardingExists = true;
+            }
+
+            // Disable button if there is an organization with status "onboarding"
+            const createOrgButton = document.getElementById("CreateOrgButton");
+            if (onboardingExists) {
+              createOrgButton.disabled = true;
+              createOrgButton.title =
+                "Tylko jedna organizacja może być w trakcie weryfikacji.";
+            } else {
+              createOrgButton.disabled = false;
+              createOrgButton.title = "";
+            }
+
             // Use the status to get both the color and text
             const statusInfo =
               statusMap[organization.status.toLowerCase()] ||
@@ -483,11 +499,8 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#wf-form-Form-Change-Password-done", container);
-        var failBlock = $("#wf-form-Form-Change-Password-fail", container);
         var action =
-          "https://hook.integromat.com/49ulcdq4vjorv11dbsq316xvpjjpa6ye";
+          "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
         var inputdata = form.serializeArray();
 
         var data = {
@@ -515,26 +528,122 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                $("#form-done-edit-password").hide();
+                $("#form-done-fail-edit").show();
                 console.log(e);
                 return;
               }
             }
-            form.hide();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 1000);
+            form.show();
+            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
+            $("#form-done-fail-edit").hide();
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status == 403) {
+              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+            } else if (jqXHR.status == 400) {
+              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
+            } else if (jqXHR.status == 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseText;
+            }
+            const message = document.getElementById(
+              "WarningMessageChangePassword"
+            );
+            message.textContent = msg;
+            form.show();
+            $("#form-done-edit-password").hide();
+            $("#form-done-fail-edit").show();
+            return;
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
+  makeWebflowFormAjaxChange = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var failBlock2 = $("#form-done-fail-edit-profile");
+        const firstName = $("#firstName").val();
+        const lastName = $("#lastName").val();
+        const emailAddress = $("#emailadress").val();
+
+        const datatosend = {
+          AccessToken: accessToken,
+          UserAttributes: [
+            {
+              Name: "name",
+              Value: firstName,
+            },
+            {
+              Name: "family_name",
+              Value: lastName,
+            },
+            {
+              Name: "email",
+              Value: emailAddress,
+            },
+          ],
+        };
+
+        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "x-amz-target":
+              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+          },
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          data: JSON.stringify(datatosend),
+          dataType: "json",
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                $("#form-done-edit-profile").hide();
+                failBlock2.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
+            failBlock2.hide();
+            welcomeMessage.textContent =
+              "Witaj, " + firstName + " " + lastName + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            failBlock2.show();
             console.log(e);
           },
         });
@@ -559,15 +668,15 @@ docReady(function () {
     request.onload = function () {
       var UserInfo = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
-        const userid = document.getElementById("userid");
-        userid.textContent = UserInfo.Username;
-        const username = document.getElementById("username");
-        username.textContent = UserInfo.UserAttributes[2].Value;
-        const userfamilyname = document.getElementById("userfamilyname");
-        userfamilyname.textContent = UserInfo.UserAttributes[3].Value;
-        var useremail = document.getElementById("useremail");
-        useremail.textContent = UserInfo.UserAttributes[4].Value;
-        const welcomeMessage = document.getElementById("WelcomeMessage");
+        const username = document.getElementById("firstName");
+        username.value = UserInfo.UserAttributes[2].Value;
+        const userfamilyname = document.getElementById("lastName");
+        userfamilyname.value = UserInfo.UserAttributes[3].Value;
+
+        emailElement.textContent = UserInfo.UserAttributes[4].Value;
+        var emailadress = document.getElementById("emailadress");
+        emailadress.value = UserInfo.UserAttributes[4].Value;
+
         welcomeMessage.textContent =
           "Witaj, " +
           UserInfo.UserAttributes[2].Value +
@@ -631,6 +740,7 @@ docReady(function () {
   }
 
   makeWebflowFormAjaxCreate($(formIdChangePassword));
+  makeWebflowFormAjaxChange($(formIdChangeProfile));
   makeWebflowFormAjax($(formId));
   getInvitations();
   getOrganizations();
