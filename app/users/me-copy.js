@@ -523,14 +523,31 @@ docReady(function () {
             $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
             $("#form-done-fail-edit").hide();
           },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status == 403) {
+              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+            } else if (jqXHR.status == 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseText;
             }
+            const message = document.getElementById("errormessage");
+            message.textContent = "Nieprawidłowe hasło";
             form.show();
             $("#form-done-edit-password").hide();
             $("#form-done-fail-edit").show();
-            console.log(e);
+            return;
           },
         });
         event.preventDefault();
