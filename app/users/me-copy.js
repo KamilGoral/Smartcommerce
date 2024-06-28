@@ -542,8 +542,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById("errormessage");
-            message.textContent = "Nieprawidłowe hasło";
+            // const message = document.getElementById("errormessage");
+            // message.textContent = "Nieprawidłowe hasło";
             form.show();
             $("#form-done-edit-password").hide();
             $("#form-done-fail-edit").show();
