@@ -310,7 +310,7 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status
+            request.status
         );
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
@@ -379,12 +379,12 @@ docReady(function () {
           // Redirect to the organization's page
           window.location.replace(
             "https://" +
-            DomainName +
-            "/app/tenants/organization" +
-            "?name=" +
-            OrganizationName +
-            "&clientId=" +
-            OrganizationclientId
+              DomainName +
+              "/app/tenants/organization" +
+              "?name=" +
+              OrganizationName +
+              "&clientId=" +
+              OrganizationclientId
           );
         },
         error: function (jqXHR, exception) {
@@ -395,12 +395,12 @@ docReady(function () {
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/tenants/organization" +
-        "?name=" +
-        OrganizationName +
-        "&clientId=" +
-        OrganizationclientId
+          DomainName +
+          "/app/tenants/organization" +
+          "?name=" +
+          OrganizationName +
+          "&clientId=" +
+          OrganizationclientId
       );
     }
     return false;
@@ -484,8 +484,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#form-done-edit-password", container);
-        var failBlock = $("#form-done-fail-edit", container);
+        var doneBlock = $("#form-done-edit-password");
+        var failBlock = $("#form-done-fail-edit");
         var action =
           "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
         var inputdata = form.serializeArray();
@@ -521,12 +521,12 @@ docReady(function () {
                 return;
               }
             }
-            $("#editPasswordModal").hide();
+            form.show();
             doneBlock.show();
             failBlock.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 1000);
+            }, 3000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -558,17 +558,17 @@ docReady(function () {
           UserAttributes: [
             {
               Name: "name",
-              Value: firstName
+              Value: firstName,
             },
             {
               Name: "family_name",
-              Value: lastName
+              Value: lastName,
             },
             {
               Name: "email",
-              Value: emailAddress
-            }
-          ]
+              Value: emailAddress,
+            },
+          ],
         };
 
         const url = "https://cognito-idp.us-east-1.amazonaws.com/";
@@ -578,7 +578,8 @@ docReady(function () {
           url: url,
           headers: {
             "Content-Type": "application/x-amz-json-1.1",
-            "x-amz-target": "AWSCognitoIdentityProviderService.UpdateUserAttributes"
+            "x-amz-target":
+              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
           },
           cors: true,
           beforeSend: function () {
@@ -594,7 +595,7 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").show();
+                $("#form-done-edit-profile").hide();
                 failBlock2.show();
                 console.log(e);
                 return;
@@ -605,8 +606,7 @@ docReady(function () {
             failBlock2.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 300);
-            $("#editProfileModal").hide();
+            }, 2000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -672,9 +672,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status +
-          " " +
-          UserInfo.message
+            request.status +
+            " " +
+            UserInfo.message
         );
         MessageBox(UserInfo.message);
       }
