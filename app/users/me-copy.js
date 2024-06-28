@@ -46,6 +46,7 @@ docReady(function () {
   const emailElement = document.getElementById("useremail");
   var formIdChangePassword = "#wf-form-Form-Change-Password";
   var formIdChangeProfile = "#wf-form-editProfile";
+  const welcomeMessage = document.getElementById("WelcomeMessage");
 
   function setCookieAndSession(cName, cValue, expirationSec) {
     let date = new Date();
@@ -639,7 +640,7 @@ docReady(function () {
         emailElement.textContent = UserInfo.UserAttributes[4].Value;
         var emailadress = document.getElementById("emailadress");
         emailadress.value = UserInfo.UserAttributes[4].Value;
-        const welcomeMessage = document.getElementById("WelcomeMessage");
+
         welcomeMessage.textContent =
           "Witaj, " +
           UserInfo.UserAttributes[2].Value +
