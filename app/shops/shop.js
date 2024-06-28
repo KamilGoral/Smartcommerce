@@ -1502,7 +1502,7 @@ docReady(function () {
                 OrganizationName +
                 "&clientId=" +
                 ClientID;
-            }, 3000);
+            }, 500);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
