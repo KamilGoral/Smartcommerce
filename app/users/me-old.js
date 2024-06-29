@@ -577,25 +577,25 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var failBlock2 = $("#form-done-fail-edit-profile");
-        const firstName = $("#firstName").val();
-        const lastName = $("#lastName").val();
-        const emailAddress = $("#emailadress").val();
+        const firstNameUser = $("#firstNameUser").val();
+        const lastNameUser = $("#lastNameUser").val();
+        // const emailadressUser = $("#emailadressUser").val();
 
         const datatosend = {
           AccessToken: accessToken,
           UserAttributes: [
             {
               Name: "name",
-              Value: firstName,
+              Value: firstNameUser,
             },
             {
               Name: "family_name",
-              Value: lastName,
+              Value: lastNameUser,
             },
-            {
-              Name: "email",
-              Value: emailAddress,
-            },
+            // {
+            //   Name: "email",
+            //   Value: emailadressUser,
+            // },
           ],
         };
 
@@ -633,7 +633,7 @@ docReady(function () {
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
             failBlock2.hide();
             welcomeMessage.textContent =
-              "Witaj, " + firstName + " " + lastName + "!";
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
