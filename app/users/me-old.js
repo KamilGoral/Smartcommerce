@@ -665,13 +665,12 @@ docReady(function () {
 
         setCookieAndSession(
           "SpytnyUserAttributes",
-          "{username:" +
+          "username:" +
             UserInfo.UserAttributes[2].Value +
             ",familyname:" +
             UserInfo.UserAttributes[3].Value +
             ",email:" +
-            UserInfo.UserAttributes[4].Value +
-            "}",
+            UserInfo.UserAttributes[4].Value,
           72000
         );
 
