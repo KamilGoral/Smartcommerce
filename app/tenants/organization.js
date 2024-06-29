@@ -18,14 +18,15 @@ docReady(function () {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
+      return decodeURIComponent(partss.pop().split(";").shift());
   }
 
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
     const expires = "expires=" + date.toUTCString();
-    document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+    const encodedValue = encodeURIComponent(cValue);
+    document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
   }
 
   function parseAttributes(cookieValue) {
