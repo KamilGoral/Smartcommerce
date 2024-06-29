@@ -1294,7 +1294,8 @@ docReady(function () {
       tabela.clear().rows.add(res.items).draw();
     });
   }
-
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjaxSingleEdit($(formIdEditSingleExclusive));
   makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
   getWholesalersSh();

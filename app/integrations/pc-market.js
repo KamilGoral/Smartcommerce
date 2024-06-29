@@ -766,6 +766,8 @@ docReady(function () {
   makeWebflowFormAjaxCreate($("#wf-form-IntegrationsForm"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
   makeWebflowFormAjaxSingleEdit($("#wf-form-IntegrationsFormEdit"));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 
   $("#integrationStatus").on("change", "input.editor-active", function () {
     var myValue = $(this);

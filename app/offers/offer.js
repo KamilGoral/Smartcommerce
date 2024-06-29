@@ -1565,6 +1565,8 @@ docReady(function () {
 
   getOfferStatus();
   getWholesalersSh();
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {

@@ -21,7 +21,7 @@ docReady(function () {
     const expires = "expires=" + date.toUTCString();
     document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
   }
-  
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -30,19 +30,19 @@ docReady(function () {
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
-    const cookies = document.cookie.split('; ');
-    
+    const cookies = document.cookie.split("; ");
+
     // Iterate through each cookie string
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
-      const [name, value] = cookie.split('=');  // Split each cookie into name and value
-  
+      const [name, value] = cookie.split("="); // Split each cookie into name and value
+
       // Decode the cookie value and compare it to the searchValue
       if (decodeURIComponent(value) === searchValue) {
-        return name;  // Return the cookie name if the values match
+        return name; // Return the cookie name if the values match
       }
     }
-  
+
     return null; // Return null if no matching value is found
   }
 
@@ -96,7 +96,7 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            console.log(resultData)
+            console.log(resultData);
             // Iterate over the array of results and set cookies
             resultData.forEach(function (authResult) {
               console.log(authResult);
@@ -105,11 +105,13 @@ docReady(function () {
                 var accessToken = authResult.AuthenticationResult.AccessToken;
                 var expiresIn = authResult.AuthenticationResult.ExpiresIn;
                 if (!accessToken) {
-                  console.error('AccessToken is missing for clientId:', clientId);
+                  console.error(
+                    "AccessToken is missing for clientId:",
+                    clientId
+                  );
                   return;
                 }
                 setCookie(clientId, "Bearer " + accessToken, expiresIn);
-
               } else {
                 setCookie(
                   "sprytnycookie",
@@ -126,16 +128,11 @@ docReady(function () {
                   OrganizationclientId,
                   authResult.ExpiresIn
                 );
-                setCookie(
-                  "sprytnyInvokeURL",
-                  InvokeURL,
-                  authResult.ExpiresIn
-                );
+                setCookie("sprytnyInvokeURL", InvokeURL, authResult.ExpiresIn);
               }
-
             });
 
-            if (typeof successCallback === 'function') {
+            if (typeof successCallback === "function") {
               var result = successCallback(resultData);
               if (!result) {
                 form.show();
@@ -145,7 +142,6 @@ docReady(function () {
               }
             }
             window.location.replace("https://" + DomainName + "/app/users/me");
-
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -181,4 +177,6 @@ docReady(function () {
     });
   };
   makeWebflowFormAjax($(formId));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 });

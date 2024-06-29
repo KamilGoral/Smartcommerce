@@ -444,4 +444,6 @@ docReady(function () {
   $("#waitingdots").hide();
   makeWebflowFormAjax($(formIdRetroactive));
   makeWebflowFormAjaxDelete($(formIdRetroactiveDelete));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 });

@@ -3524,6 +3524,8 @@ docReady(function () {
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 
   // DataTables initialization and event handling
   $("table.dataTable").on("init.dt xhr.dt page.dt", function () {

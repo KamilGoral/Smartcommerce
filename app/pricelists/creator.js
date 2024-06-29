@@ -704,6 +704,8 @@ docReady(function () {
   makeWebflowFormAjax($(formIdCreatePricing));
   getShops();
   getWholesalersSh();
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 
   $(document).ready(function () {
     $.fn.dataTable.ext.errMode = () =>

@@ -1107,5 +1107,7 @@ docReady(function () {
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
   $("#waitingdots").hide();
 });

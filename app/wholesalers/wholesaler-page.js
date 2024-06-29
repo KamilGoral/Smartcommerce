@@ -526,6 +526,8 @@ docReady(function () {
   getFTP();
   getWholesaler();
 
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjaxServerWh($(formIdNewServer));
   makeWebflowFormAjaxResetPassword($(formIdResetPassword));
   makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));

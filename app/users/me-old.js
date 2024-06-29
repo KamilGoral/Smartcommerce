@@ -55,8 +55,7 @@ docReady(function () {
   var accessToken = smartToken.split("Bearer ")[1];
   const emailElement = document.getElementById("useremail");
   emailElement.textContent = getCookie("sprytnyUser");
-  var formIdChangePassword = "#wf-form-Form-Change-Password";
-  var formIdChangeProfile = "#wf-form-editProfile";
+
   const welcomeMessage = document.getElementById("WelcomeMessage");
 
   function setCookie(cName, cValue, expirationSec) {
@@ -492,7 +491,7 @@ docReady(function () {
       });
   }
 
-  makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
+  postChangePassword = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
@@ -572,7 +571,7 @@ docReady(function () {
     });
   };
 
-  makeWebflowFormAjaxChange = function (forms, successCallback, errorCallback) {
+  postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
@@ -737,8 +736,8 @@ docReady(function () {
     );
   }
 
-  makeWebflowFormAjaxCreate($(formIdChangePassword));
-  makeWebflowFormAjaxChange($(formIdChangeProfile));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjax($(formId));
   getInvitations();
   getOrganizations();

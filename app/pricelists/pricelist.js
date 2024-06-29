@@ -48,7 +48,7 @@ docReady(function () {
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
 
-  makeWebflowFormAjaxChange = function (forms, successCallback, errorCallback) {
+  postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
@@ -126,7 +126,7 @@ docReady(function () {
     });
   };
 
-  makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
+  postChangePassword = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
@@ -585,6 +585,8 @@ docReady(function () {
 
   makeWebflowFormAjaxDeletePriceList($(formIdDeletePriceList));
   makeWebflowFormAjaxEditPriceList($(formIdEditPriceList));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
   getPriceList();
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
