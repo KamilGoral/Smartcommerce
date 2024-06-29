@@ -325,7 +325,7 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status
+          request.status
         );
         MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
       }
@@ -394,12 +394,12 @@ docReady(function () {
           // Redirect to the organization's page
           window.location.replace(
             "https://" +
-              DomainName +
-              "/app/tenants/organization" +
-              "?name=" +
-              OrganizationName +
-              "&clientId=" +
-              OrganizationclientId
+            DomainName +
+            "/app/tenants/organization" +
+            "?name=" +
+            OrganizationName +
+            "&clientId=" +
+            OrganizationclientId
           );
         },
         error: function (jqXHR, exception) {
@@ -410,12 +410,12 @@ docReady(function () {
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
+        DomainName +
+        "/app/tenants/organization" +
+        "?name=" +
+        OrganizationName +
+        "&clientId=" +
+        OrganizationclientId
       );
     }
     return false;
@@ -481,8 +481,15 @@ docReady(function () {
             // Append row to the container
             orgContainer.appendChild(row);
 
-            // Adding click listener for each row
-            row.addEventListener("click", LoginIntoOrganization, false);
+            // If the organization is onboarding, remove click actions and add class .tippy
+            if (organization.status.toLowerCase() === "onboarding") {
+              const createOrgButton = document.getElementById("CreateOrgButton");
+              createOrgButton.style.pointerEvents = "none";
+              createOrgButton.classList.add("tippy");
+            } else {
+              row.addEventListener("click", LoginIntoOrganization, false);
+            }
+
           });
         } else if (total === 0) {
           // document.getElementById("emptystateorganization").style.display = "none";
@@ -680,11 +687,11 @@ docReady(function () {
         setCookie(
           "SpytnyUserAttributes",
           "username:" +
-            UserInfo.UserAttributes[2].Value +
-            ",familyname:" +
-            UserInfo.UserAttributes[3].Value +
-            ",email:" +
-            UserInfo.UserAttributes[4].Value,
+          UserInfo.UserAttributes[2].Value +
+          ",familyname:" +
+          UserInfo.UserAttributes[3].Value +
+          ",email:" +
+          UserInfo.UserAttributes[4].Value,
           72000
         );
 
@@ -702,9 +709,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            UserInfo.message
+          request.status +
+          " " +
+          UserInfo.message
         );
         MessageBox(UserInfo.message);
       }

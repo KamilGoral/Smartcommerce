@@ -117,7 +117,9 @@ docReady(function () {
         $("#waitingdots").show();
       },
       complete: function () {
-        $("#waitingdots").hide();
+        setTimeout(function() {
+          $("#waitingdots").hide();
+      }, 1000);
       },
       success: function (resultData) {
         console.log(resultData);
