@@ -665,13 +665,13 @@ docReady(function () {
     request.onload = function () {
       var UserInfo = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
-        const username = document.getElementById("firstName");
+        const username = document.getElementById("firstNameUser");
         username.value = UserInfo.UserAttributes[2].Value;
-        const userfamilyname = document.getElementById("lastName");
+        const userfamilyname = document.getElementById("lastNameUser");
         userfamilyname.value = UserInfo.UserAttributes[3].Value;
 
         emailElement.textContent = UserInfo.UserAttributes[4].Value;
-        var emailadress = document.getElementById("emailadress");
+        var emailadress = document.getElementById("emailadressUser");
         emailadress.value = UserInfo.UserAttributes[4].Value;
 
         setCookie(
