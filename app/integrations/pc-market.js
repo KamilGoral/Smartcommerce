@@ -14,11 +14,118 @@ function docReady(fn) {
 }
 
 docReady(function () {
+  // DOM is loaded and ready for manipulation here
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
+    if (parts.length === 2)
+      return decodeURIComponent(parts.pop().split(";").shift());
   }
+
+  function setCookie(cName, cValue, expirationSec) {
+    let date = new Date();
+    date.setTime(date.getTime() + expirationSec * 1000);
+    const expires = "expires=" + date.toUTCString();
+    const encodedValue = encodeURIComponent(cValue);
+    document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
+  }
+
+  function parseAttributes(cookieValue) {
+    const attributes = cookieValue.split(",");
+    const result = {};
+    attributes.forEach((attribute) => {
+      const [key, value] = attribute.split(":");
+      result[key.trim()] = value.trim();
+    });
+    return result;
+  }
+  const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
+  const username = document.getElementById("firstNameUser");
+  username.value = attributes["username"];
+  const userfamilyname = document.getElementById("lastNameUser");
+  userfamilyname.value = attributes["familyname"];
+  const emailElement = document.getElementById("useremail");
+  const emailadress = document.getElementById("emailadressUser");
+  emailElement.textContent = attributes["email"];
+  emailadress.value = attributes["email"];
+
+  makeWebflowFormAjaxChange = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var failBlock2 = $("#form-done-fail-edit-profile");
+        const firstNameUser = $("#firstNameUser").val();
+        const lastNameUser = $("#lastNameUser").val();
+        // const emailadressUser = $("#emailadressUser").val();
+
+        const datatosend = {
+          AccessToken: accessToken,
+          UserAttributes: [
+            {
+              Name: "name",
+              Value: firstNameUser,
+            },
+            {
+              Name: "family_name",
+              Value: lastNameUser,
+            },
+            // {
+            //   Name: "email",
+            //   Value: emailadressUser,
+            // },
+          ],
+        };
+
+        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "x-amz-target":
+              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+          },
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          data: JSON.stringify(datatosend),
+          dataType: "json",
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                $("#form-done-edit-profile").hide();
+                failBlock2.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
+            failBlock2.hide();
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            failBlock2.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
@@ -41,8 +148,6 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var integrationKeyId = "pc-market";
-  const emailElement = document.getElementById("useremail");
-  emailElement.textContent = getCookie("sprytnyUser");
   var smartToken = getCookie("sprytnycookie");
   document.getElementById("waitingdots").style.display = "flex";
   document.getElementById("integrationcontainer").style.display = "none";
