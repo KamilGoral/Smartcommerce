@@ -59,11 +59,12 @@ docReady(function () {
   var formIdChangeProfile = "#wf-form-editProfile";
   const welcomeMessage = document.getElementById("WelcomeMessage");
 
-  function setCookieAndSession(cName, cValue, expirationSec) {
+  function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
     const expires = "expires=" + date.toUTCString();
-    document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+    const encodedValue = encodeURIComponent(cValue);
+    document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
   }
 
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
@@ -376,7 +377,7 @@ docReady(function () {
         data: JSON.stringify(data),
         success: function (resultData) {
           // Set the cookie and session storage after a successful response
-          setCookieAndSession(
+          setCookie(
             OrganizationclientId,
             "Bearer " + resultData.AccessToken,
             resultData.ExpiresIn
@@ -673,7 +674,7 @@ docReady(function () {
         var emailadress = document.getElementById("emailadress");
         emailadress.value = UserInfo.UserAttributes[4].Value;
 
-        setCookieAndSession(
+        setCookie(
           "SpytnyUserAttributes",
           "username:" +
             UserInfo.UserAttributes[2].Value +
@@ -691,18 +692,8 @@ docReady(function () {
           UserInfo.UserAttributes[3].Value +
           "!";
 
-        function setCookieAndSession(cName, cValue, expirationSec) {
-          let date = new Date();
-          date.setTime(date.getTime() + expirationSec * 1000);
-          const expires = "expires=" + date.toUTCString();
-          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
-        }
-        setCookieAndSession(
-          "sprytnyUser",
-          UserInfo.UserAttributes[4].Value,
-          72000
-        );
-        setCookieAndSession("sprytnyUsername", UserInfo.Username, 72000);
+        setCookie("sprytnyUser", UserInfo.UserAttributes[4].Value, 72000);
+        setCookie("sprytnyUsername", UserInfo.Username, 72000);
       } else if (request.status === 401) {
         console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
       } else {
