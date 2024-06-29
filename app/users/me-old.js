@@ -48,6 +48,9 @@ docReady(function () {
     return result;
   }
 
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
+
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var formId = "#wf-form-Create-Organization-Form";

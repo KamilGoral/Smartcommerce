@@ -41,6 +41,9 @@ docReady(function () {
 
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
+
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
   const username = document.getElementById("firstNameUser");
   username.value = attributes["username"];
