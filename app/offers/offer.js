@@ -1,11 +1,3 @@
-import { globalVariable1, globalFunction1 } from "../globals.js";
-
-// Now you can use globalVariable1 and globalFunction1
-console.log(globalVariable1);
-globalFunction1();
-
-// Your offer.js code continues here
-
 console.log("Script Loaded v3");
 function docReady(fn) {
   // see if DOM is already available
