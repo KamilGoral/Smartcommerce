@@ -423,6 +423,7 @@ docReady(function () {
 
   function getOrganizations() {
     const url = `${InvokeURL}users/me/tenants?perPage=100`;
+    const createOrgButton = document.getElementById("CreateOrgButton");
 
     fetch(url, {
       method: "GET",
@@ -483,6 +484,7 @@ docReady(function () {
 
             // If the organization is onboarding, remove click actions and add class .tippy
             if (organization.status.toLowerCase() === "onboarding") {
+              
               createOrgButton.style.pointerEvents = "none"; // Disable pointer events
               createOrgButton.classList.add("tippy"); // Add the tippy class
               createOrgButton.style.opacity = "0.5"; // Set opacity to 50%
@@ -492,6 +494,7 @@ docReady(function () {
 
           });
         } else if (total === 0) {
+          createOrgButton.display = "flex";
           // document.getElementById("emptystateorganization").style.display = "none";
         }
       })
