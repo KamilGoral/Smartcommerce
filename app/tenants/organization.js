@@ -39,12 +39,12 @@ docReady(function () {
     return result;
   }
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
-  const username = document.getElementById("firstName");
+  const username = document.getElementById("firstNameUser");
   username.value = attributes["username"];
-  const userfamilyname = document.getElementById("lastName");
+  const userfamilyname = document.getElementById("lastNameUser");
   userfamilyname.value = attributes["familyname"];
   const emailElement = document.getElementById("useremail");
-  const emailadress = document.getElementById("emailadress");
+  const emailadress = document.getElementById("emailadressUser");
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
 
