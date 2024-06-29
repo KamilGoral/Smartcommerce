@@ -58,7 +58,7 @@ docReady(function () {
         var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
-        // const emailadressUser = $("#emailadressUser").val();
+        const emailadressUser = $("#emailadressUser").val();
 
         const datatosend = {
           AccessToken: accessToken,
@@ -110,6 +110,16 @@ docReady(function () {
               }
             }
             form.show();
+            setCookie(
+              "SpytnyUserAttributes",
+              "username:" +
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
+              72000
+            );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
             failBlock2.hide();
           },

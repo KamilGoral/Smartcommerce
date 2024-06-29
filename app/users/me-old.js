@@ -581,7 +581,7 @@ docReady(function () {
         var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
-        // const emailadressUser = $("#emailadressUser").val();
+        const emailadressUser = $("#emailadressUser").val();
 
         const datatosend = {
           AccessToken: accessToken,
