@@ -672,7 +672,7 @@ docReady(function () {
             ",email:" +
             UserInfo.UserAttributes[4].Value +
             "}",
-          resultData.ExpiresIn
+          72000
         );
 
         welcomeMessage.textContent =
