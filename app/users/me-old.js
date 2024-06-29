@@ -486,6 +486,7 @@ docReady(function () {
               const createOrgButton = document.getElementById("CreateOrgButton");
               createOrgButton.style.pointerEvents = "none";
               createOrgButton.classList.add("tippy");
+              LoadTippy();
             } else {
               row.addEventListener("click", LoginIntoOrganization, false);
             }
