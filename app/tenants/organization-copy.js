@@ -1767,9 +1767,14 @@ docReady(function () {
     });
   };
 
+  ////Startujemy///
+
   var tablePriceLists = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
-    order: [],
+    order: [
+      [1, "asc"],
+      [3, "desc"],
+    ], // Sortuj najpierw po wholesalerKey, potem po dacie rozpoczęcia
     dom: '<"top">rt<"bottom"lip>',
     scrollY: "60vh",
     scrollCollapse: true,
@@ -1808,212 +1813,372 @@ docReady(function () {
         },
       });
 
-      var whichColumns = "";
-      var direction = "desc";
-
-      if (data.order.length == 0) {
-        whichColumns = 2;
-      } else {
-        whichColumns = data.order[0]["column"];
-        direction = data.order[0]["dir"];
-      }
-
-      switch (whichColumns) {
-        case 2:
-          whichColumns = "created.at:";
-          break;
-        case 3:
-          whichColumns = "startDate:";
-          break;
-        case 4:
-          whichColumns = "endDate:";
-          break;
-        default:
-          whichColumns = "created.at:";
-      }
-
-      var sort = "" + whichColumns + direction;
-
       $.get(
         InvokeURL + "price-lists",
         {
-          sort: sort,
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
+          sort: "wholesalerKey:asc,startDate:desc",
+          perPage: 1000, // Pobierz więcej danych, aby umożliwić grupowanie po stronie klienta
+          page: 1,
         },
         function (res) {
+          // Grupowanie danych po wholesalerKey
+          var groupedData = {};
+          res.items.forEach(function (item) {
+            if (!groupedData[item.wholesalerKey]) {
+              groupedData[item.wholesalerKey] = [];
+            }
+            groupedData[item.wholesalerKey].push(item);
+          });
+
+          // Przekształć zgrupowane dane do formatu wymaganego przez DataTables
+          var dataForTable = Object.keys(groupedData).map(function (key) {
+            return {
+              wholesalerKey: key,
+              wholesalerName: groupedData[key][0].wholesalerName,
+              items: groupedData[key],
+            };
+          });
+
           callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
+            recordsTotal: dataForTable.length,
+            recordsFiltered: dataForTable.length,
+            data: dataForTable,
           });
         }
       );
     },
-    processing: true,
-    serverSide: true,
-    search: {
-      return: true,
-    },
     columns: [
       {
+        className: "details-control",
         orderable: false,
         data: null,
+        defaultContent: "",
+        render: function (data, type, row) {
+          return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="expand">';
+        },
         width: "36px",
-        defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
       },
+      { data: "wholesalerKey", visible: false },
+      { data: "wholesalerName" },
       {
-        orderable: false,
-        visible: false,
-        data: "uuid",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "wholesalerKey",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "created.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "startDate",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleDateString("pl-PL");
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "endDate",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            var nowDate = new Date();
-            nowDate.setUTCHours(0, 0, 0, 0);
-
-            if (utcDate >= nowDate) {
-              return (
-                '<span class="positive">' +
-                utcDate.toLocaleDateString("pl-PL") +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span class="medium">' +
-                utcDate.toLocaleDateString("pl-PL") +
-                "</span>"
-              );
-            }
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "created.by",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.by",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "-";
-          }
-        },
-      },
-      {
-        orderable: false,
         data: null,
-        defaultContent:
-          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
-      {
-        orderable: false,
-        class: "details-control4",
-        width: "20px",
-        data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+        render: function (data, type, row) {
+          var activeCount = row.items.filter(function (item) {
+            return new Date(item.endDate) >= new Date();
+          }).length;
+          return activeCount + " / " + row.items.length;
+        },
+        title: "Aktywne / Wszystkie",
       },
     ],
-    initComplete: function (settings, json) {
-      toggleEmptyState();
+    rowCallback: function (row, data, index) {
+      $(row).find("td:eq(0)").attr("colspan", 2);
+      $(row).find("td:eq(1)").css("font-weight", "bold");
     },
   });
+
+  // Obsługa rozwijania/zwijania wierszy
+  $("#table_pricelists_list tbody").on(
+    "click",
+    "td.details-control",
+    function () {
+      var tr = $(this).closest("tr");
+      var row = tablePriceLists.row(tr);
+
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass("shown");
+      } else {
+        row.child(formatSubTable(row.data())).show();
+        tr.addClass("shown");
+      }
+    }
+  );
+
+  // Funkcja do formatowania pod-tabeli
+  function formatSubTable(rowData) {
+    var subTable =
+      '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+    subTable +=
+      "<thead><tr><th>Data rozpoczęcia</th><th>Data zakończenia</th><th>Utworzono przez</th><th>Zmodyfikowano</th><th>Akcje</th></tr></thead>";
+    subTable += "<tbody>";
+
+    rowData.items.forEach(function (item) {
+      var startDate = new Date(item.startDate).toLocaleDateString("pl-PL");
+      var endDate = new Date(item.endDate);
+      var endDateClass = endDate >= new Date() ? "positive" : "medium";
+      var endDateFormatted = endDate.toLocaleDateString("pl-PL");
+
+      subTable += "<tr>";
+      subTable += "<td>" + startDate + "</td>";
+      subTable +=
+        '<td><span class="' +
+        endDateClass +
+        '">' +
+        endDateFormatted +
+        "</span></td>";
+      subTable += "<td>" + item.created.by + "</td>";
+      subTable +=
+        "<td>" + new Date(item.modified.at).toLocaleString("pl-PL") + "</td>";
+      subTable +=
+        '<td><div class="action-container"><a href="#" class="buttonoutline editme w-button" data-uuid="' +
+        item.uuid +
+        '">Przejdź</a></div></td>';
+      subTable += "</tr>";
+    });
+
+    subTable += "</tbody></table>";
+
+    return subTable;
+  }
+
+  // var tablePriceLists = $("#table_pricelists_list").DataTable({
+  //   pagingType: "full_numbers",
+  //   order: [],
+  //   dom: '<"top">rt<"bottom"lip>',
+  //   scrollY: "60vh",
+  //   scrollCollapse: true,
+  //   pageLength: 10,
+  //   language: {
+  //     emptyTable: "Brak danych do wyświetlenia",
+  //     info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+  //     infoEmpty: "Brak danych",
+  //     infoFiltered: "(z _MAX_ rezultatów)",
+  //     lengthMenu: "Pokaż _MENU_ rekordów",
+  //     loadingRecords: "<div class='spinner'</div>",
+  //     processing: "<div class='spinner'</div>",
+  //     search: "Szukaj:",
+  //     zeroRecords: "Brak pasujących rezultatów",
+  //     paginate: {
+  //       first: "<<",
+  //       last: ">>",
+  //       next: " >",
+  //       previous: "< ",
+  //     },
+  //     aria: {
+  //       sortAscending: ": Sortowanie rosnące",
+  //       sortDescending: ": Sortowanie malejące",
+  //     },
+  //   },
+  //   ajax: function (data, callback, settings) {
+  //     $.ajaxSetup({
+  //       headers: {
+  //         Authorization: orgToken,
+  //       },
+  //       beforeSend: function () {
+  //         $("#waitingdots").show();
+  //       },
+  //       complete: function () {
+  //         $("#waitingdots").hide();
+  //       },
+  //     });
+
+  //     var whichColumns = "";
+  //     var direction = "desc";
+
+  //     if (data.order.length == 0) {
+  //       whichColumns = 2;
+  //     } else {
+  //       whichColumns = data.order[0]["column"];
+  //       direction = data.order[0]["dir"];
+  //     }
+
+  //     switch (whichColumns) {
+  //       case 2:
+  //         whichColumns = "created.at:";
+  //         break;
+  //       case 3:
+  //         whichColumns = "startDate:";
+  //         break;
+  //       case 4:
+  //         whichColumns = "endDate:";
+  //         break;
+  //       default:
+  //         whichColumns = "created.at:";
+  //     }
+
+  //     var sort = "" + whichColumns + direction;
+
+  //     $.get(
+  //       InvokeURL + "price-lists",
+  //       {
+  //         sort: sort,
+  //         perPage: data.length,
+  //         page: (data.start + data.length) / data.length,
+  //       },
+  //       function (res) {
+  //         callback({
+  //           recordsTotal: res.total,
+  //           recordsFiltered: res.total,
+  //           data: res.items,
+  //         });
+  //       }
+  //     );
+  //   },
+  //   processing: true,
+  //   serverSide: true,
+  //   search: {
+  //     return: true,
+  //   },
+  //   columns: [
+  //     {
+  //       orderable: false,
+  //       data: null,
+  //       width: "36px",
+  //       defaultContent:
+  //         "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+  //     },
+  //     {
+  //       orderable: false,
+  //       visible: false,
+  //       data: "uuid",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "wholesalerKey",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: true,
+  //       data: "created.at",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleString("pl-PL", {
+  //             year: "numeric",
+  //             month: "2-digit",
+  //             day: "2-digit",
+  //             hour: "2-digit",
+  //             minute: "2-digit",
+  //             second: "2-digit",
+  //             hour12: false,
+  //           });
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: true,
+  //       data: "startDate",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleDateString("pl-PL");
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: true,
+  //       data: "endDate",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           var nowDate = new Date();
+  //           nowDate.setUTCHours(0, 0, 0, 0);
+
+  //           if (utcDate >= nowDate) {
+  //             return (
+  //               '<span class="positive">' +
+  //               utcDate.toLocaleDateString("pl-PL") +
+  //               "</span>"
+  //             );
+  //           } else {
+  //             return (
+  //               '<span class="medium">' +
+  //               utcDate.toLocaleDateString("pl-PL") +
+  //               "</span>"
+  //             );
+  //           }
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "created.by",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "modified.at",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleString("pl-PL", {
+  //             year: "numeric",
+  //             month: "2-digit",
+  //             day: "2-digit",
+  //             hour: "2-digit",
+  //             minute: "2-digit",
+  //             second: "2-digit",
+  //             hour12: false,
+  //           });
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "modified.by",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "-";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: null,
+  //       defaultContent:
+  //         '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+  //     },
+  //     {
+  //       orderable: false,
+  //       class: "details-control4",
+  //       width: "20px",
+  //       data: null,
+  //       defaultContent:
+  //         "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+  //     },
+  //   ],
+  //   initComplete: function (settings, json) {
+  //     toggleEmptyState();
+  //   },
+  // });
 
   var tableDocuments = $("#table_documents").DataTable({
     pagingType: "full_numbers",
