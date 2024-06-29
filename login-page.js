@@ -177,6 +177,4 @@ docReady(function () {
     });
   };
   makeWebflowFormAjax($(formId));
-  postChangePassword($("#wf-form-Form-Change-Password"));
-  postEditUserProfile($("#wf-form-editProfile"));
 });
