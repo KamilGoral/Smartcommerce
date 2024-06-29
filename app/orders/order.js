@@ -477,8 +477,6 @@ docReady(function () {
           savingsNetPercentage: savingsNetPercentage,
         } = calculateAndSetSavings(data.netNetValues, "net");
 
-        console.log(savingsNetValue, savingsNetPercentage, data.netNetValues);
-
         // Determine text color
         const textColor =
           savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
@@ -1265,7 +1263,7 @@ docReady(function () {
 
                   // Jeśli obie wartości są null, przerywamy dalsze działanie
                   if (currentPrice === null) {
-                    return "<td>N/A</td>";
+                    return "<td>0.00%</td>";
                   }
                   // Znajdowanie najniższych wartości dla netPrice i netNetPrice, pomijając null dla netNetPrice
                   let lowestNetPrice = Infinity;

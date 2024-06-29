@@ -554,7 +554,6 @@ docReady(function () {
     function toggleEmptyState() {
       // Check if the table has any entries
       var hasEntries = tableOrders.data().any();
-      console.log(hasEntries);
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
@@ -1027,7 +1026,6 @@ docReady(function () {
     function toggleEmptyState() {
       // Check if the table has any entries
       var hasEntries = tableOffers.data().any();
-      console.log(hasEntries);
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
@@ -1379,7 +1377,6 @@ docReady(function () {
   function toggleEmptyState() {
     // Check if the table has any entries
     var hasEntries = tablePricelists.data().any();
-    console.log(hasEntries);
     // If the table is empty, show the custom empty state div
     // Otherwise, hide it
     if (!hasEntries) {
@@ -1637,7 +1634,6 @@ docReady(function () {
     function toggleEmptyState() {
       // Check if the table has any entries
       var hasEntries = tablevendors.data().any();
-      console.log(hasEntries);
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {

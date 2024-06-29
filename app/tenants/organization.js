@@ -670,7 +670,7 @@ docReady(function () {
   );
 
   async function GetTenantBilling() {
-    while (!userRole && attempts < 3) {
+    while (!userRole && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
@@ -1344,7 +1344,7 @@ docReady(function () {
   async function getIntegrations() {
     let attempts = 0;
 
-    while (!userRole && attempts < 3) {
+    while (!userRole && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
