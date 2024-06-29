@@ -1,4 +1,8 @@
 console.log("Script Loaded v3");
+import { globalVariable1, globalFunction1 } from "./globals.js";
+
+console.log(globalVariable1); // Outputs: some value
+globalFunction1(); // Outputs: This is global function 1
 function docReady(fn) {
   // see if DOM is already available
   if (
