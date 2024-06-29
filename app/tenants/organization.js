@@ -36,7 +36,7 @@ docReady(function () {
     });
     return result;
   }
-  const attributes = parseAttributes(getCookie("sprytnyatributes"));
+  const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
   const username = document.getElementById("firstName");
   username.value = attributes["username"];
   const userfamilyname = document.getElementById("lastName");
