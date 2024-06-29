@@ -664,7 +664,7 @@ docReady(function () {
         emailadress.value = UserInfo.UserAttributes[4].Value;
 
         setCookieAndSession(
-          UserAttributes,
+          "SpytnyUserAttributes",
           "{username:" +
             UserInfo.UserAttributes[2].Value +
             ",familyname:" +
