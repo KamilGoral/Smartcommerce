@@ -488,6 +488,7 @@ docReady(function () {
               createOrgButton.style.pointerEvents = "none"; // Disable pointer events
               createOrgButton.classList.add("tippy"); // Add the tippy class
               createOrgButton.style.opacity = "0.5"; // Set opacity to 50%
+              createOrgButton.display = "flex";
             } else {
               row.addEventListener("click", LoginIntoOrganization, false);
             }
