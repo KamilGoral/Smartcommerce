@@ -663,6 +663,18 @@ docReady(function () {
         var emailadress = document.getElementById("emailadress");
         emailadress.value = UserInfo.UserAttributes[4].Value;
 
+        setCookieAndSession(
+          UserAttributes,
+          "{username:" +
+            UserInfo.UserAttributes[2].Value +
+            ",familyname:" +
+            UserInfo.UserAttributes[3].Value +
+            ",email:" +
+            UserInfo.UserAttributes[4].Value +
+            "}",
+          resultData.ExpiresIn
+        );
+
         welcomeMessage.textContent =
           "Witaj, " +
           UserInfo.UserAttributes[2].Value +
