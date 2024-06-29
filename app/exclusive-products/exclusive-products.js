@@ -108,8 +108,6 @@ docReady(function () {
             form.show();
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
             failBlock2.hide();
-            welcomeMessage.textContent =
-              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
