@@ -27,6 +27,25 @@ docReady(function () {
     document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
   }
 
+  function parseAttributes(cookieValue) {
+    const attributes = cookieValue.split(",");
+    const result = {};
+    attributes.forEach((attribute) => {
+      const [key, value] = attribute.split(":");
+      result[key.trim()] = value.trim();
+    });
+    return result;
+  }
+  const attributes = parseAttributes(getCookie("sprytnyatributes"));
+  const username = document.getElementById("firstName");
+  username.value = attributes["username"];
+  const userfamilyname = document.getElementById("lastName");
+  userfamilyname.value = attributes["familyname"];
+  const emailElement = document.getElementById("useremail");
+  const emailadress = document.getElementById("emailadress");
+  emailElement.textContent = attributes["email"];
+  emailadress.value = attributes["email"];
+
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var clientId = new URL(location.href).searchParams.get("clientId");
@@ -48,8 +67,7 @@ docReady(function () {
   var formIdEditBilling = "#wf-form-editCompanyBilling-form-correct";
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const OrganizationNameHeader = document.getElementById("organizationName");
-  const emailElement = document.getElementById("useremail");
-  emailElement.textContent = getCookie("sprytnyUser");
+
   OrganizationNameHeader.textContent = organizationName;
   OrganizationBread0.textContent = organizationName;
   OrganizationBread0.setAttribute(

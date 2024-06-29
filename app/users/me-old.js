@@ -38,6 +38,16 @@ docReady(function () {
     return null; // Return null if no matching value is found
   }
 
+  function parseAttributes(cookieValue) {
+    const attributes = cookieValue.split(",");
+    const result = {};
+    attributes.forEach((attribute) => {
+      const [key, value] = attribute.split(":");
+      result[key.trim()] = value.trim();
+    });
+    return result;
+  }
+
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var formId = "#wf-form-Create-Organization-Form";
