@@ -483,10 +483,9 @@ docReady(function () {
 
             // If the organization is onboarding, remove click actions and add class .tippy
             if (organization.status.toLowerCase() === "onboarding") {
-              const createOrgButton = document.getElementById("CreateOrgButton");
-              createOrgButton.style.pointerEvents = "none";
-              createOrgButton.classList.add("tippy");
-              LoadTippy();
+              createOrgButton.style.pointerEvents = "none"; // Disable pointer events
+              createOrgButton.classList.add("tippy"); // Add the tippy class
+              createOrgButton.style.opacity = "0.5"; // Set opacity to 50%
             } else {
               row.addEventListener("click", LoginIntoOrganization, false);
             }
@@ -754,5 +753,8 @@ docReady(function () {
   getInvitations();
   getOrganizations();
   getUser();
-  LoadTippy();
+  
+  setTimeout(function() {
+    LoadTippy();
+}, 2000);
 });
