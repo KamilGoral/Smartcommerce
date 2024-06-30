@@ -827,6 +827,15 @@ docReady(function () {
                 });
               } else {
                 const todayDate = new Date().toISOString().split('T')[0]; // Get today's date in "YYYY-MM-DD" format
+                var formattedDate = todayDate.toLocaleString("pl-PL", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                });
 
                 if (!groupedData[todayDate]) {
                   groupedData[todayDate] = [];
@@ -834,7 +843,7 @@ docReady(function () {
                 groupedData[todayDate].push({
                   offerId: item.offerId,
                   status: item.status,
-                  createDate: "-", // Default value when date is missing
+                  createDate: formattedDate, // Default value when date is missing
                 });
               }
             });
