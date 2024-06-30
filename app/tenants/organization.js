@@ -1785,7 +1785,7 @@ docReady(function () {
           const now = new Date();
           const startDate = new Date(item.startDate);
           const endDate = new Date(item.endDate);
-          const daysValid = Math.floor((endDate - now) / (1000 * 60 * 60 * 24));
+          const daysValid = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
 
           let status;
           if (now < startDate) {
@@ -1896,21 +1896,25 @@ docReady(function () {
                 let className;
                 let displayText;
 
+                displayText = `${data} dni`;
+
                 if (data > 3) {
                   className = "super";
                 } else if (data >= 1) {
                   className = "positive";
+                  displayText = `${data} dzień`;
                 } else if (data == 0) {
                   className = "medium";
                 } else if (data === -1) {
                   className = "negative";
+                  displayText = `${data} dzień`;
                 } else if (data >= -3) {
                   className = "negative";
                 } else {
                   className = "negative";
                 }
 
-                displayText = `${data} dni`;
+                
 
                 return `<span class="${className}">${displayText}</span>`;
               },
