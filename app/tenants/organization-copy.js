@@ -1807,7 +1807,7 @@ docReady(function () {
         });
         console.log(toParse);
 
-        var hasEntries = length(toParse);
+        var hasEntries = toParse.length;
         console.log(hasEntries);
         // If the table is empty, show the custom empty state div
         // Otherwise, hide it
