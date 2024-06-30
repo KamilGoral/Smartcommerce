@@ -113,11 +113,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                ",familyname:" +
-                lastNameUser +
-                ",email:" +
-                emailadressUser,
+              firstNameUser +
+              ",familyname:" +
+              lastNameUser +
+              ",email:" +
+              emailadressUser,
               72000
             );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
@@ -249,11 +249,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -292,10 +292,10 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-            " - " +
-            data.shopKey +
-            " | " +
-            data.merchantConsoleShopId || "N/A";
+          " - " +
+          data.shopKey +
+          " | " +
+          data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -609,27 +609,27 @@ docReady(function () {
     var toDisplayHtml = "";
 
     function getStatusHtml(item) {
-        switch (item.status) {
-            case "ready":
-                return '<span class="positive">Gotowa</span>';
-            case "error":
-                return '<span class="negative">Problem</span>';
-            case "in progress":
-                return '<span class="medium">W trakcie</span>';
-            case "incomplete":
-                return '<span class="medium">Niekompletna</span>';
-            case "batching":
-            case "forced":
-                return '<span class="medium">W kolejce</span>';
-            default:
-                return '-';
-        }
+      switch (item.status) {
+        case "ready":
+          return '<span class="positive">Gotowa</span>';
+        case "error":
+          return '<span class="negative">Problem</span>';
+        case "in progress":
+          return '<span class="medium">W trakcie</span>';
+        case "incomplete":
+          return '<span class="medium">Niekompletna</span>';
+        case "batching":
+        case "forced":
+          return '<span class="medium">W kolejce</span>';
+        default:
+          return '-';
+      }
     }
 
     // Get the column widths from the main table
     const columnWidths = [];
     $("#table_offers th").each(function () {
-        columnWidths.push($(this).width() + "px");
+      columnWidths.push($(this).width() + "px");
     });
 
     // Table headers for the offers table
@@ -642,53 +642,53 @@ docReady(function () {
 
     // Iterate through the array of offers
     for (var i = 0; i < offers.length; i++) {
-        var formattedDate = '-';
-        if (offers[i].createDate) {
-            var utcDate = new Date(offers[i].createDate.replace(" ", "T") + "Z");
-            formattedDate = utcDate.toLocaleString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false,
-            });
-        } else {
-            // If createDate is null, use current date and time
-            var currentDate = new Date();
-            formattedDate = currentDate.toLocaleString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false,
-            });
-        }
+      var formattedDate = '-';
+      if (offers[i].createDate) {
+        var utcDate = new Date(offers[i].createDate.replace(" ", "T") + "Z");
+        formattedDate = utcDate.toLocaleString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
+      } else {
+        // If createDate is null, use current date and time
+        var currentDate = new Date();
+        formattedDate = currentDate.toLocaleString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
+      }
 
+      toDisplayHtml +=
+        '<tr>' +
+        '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
+        '<td style="width:' + columnWidths[1] + ';">' + formattedDate + '</td>' +
+        '<td style="width:' + columnWidths[2] + ';">' + getStatusHtml(offers[i]) + '</td>' +
+        '<td style="width:' + columnWidths[3] + ';"><div class="action-container"';
+
+      if (offers[i].status == "error") {
         toDisplayHtml +=
-            '<tr>' +
-            '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
-            '<td style="width:' + columnWidths[1] + ';">' + formattedDate + '</td>' +
-            '<td style="width:' + columnWidths[2] + ';">' + getStatusHtml(offers[i]) + '</td>' +
-            '<td style="width:' + columnWidths[3] + ';"><div class="action-container"';
-
-        if (offers[i].status == "error") {
-            toDisplayHtml +=
-                ' style="opacity: 0.5;"><a href="#" status="' + offers[i].status + '" offerId="' + offers[i].offerId + '" class="buttonoutline editme w-button">Brak</a></div></td></tr>';
-        } else {
-            toDisplayHtml +=
-                '><a href="#" status="' + offers[i].status + '" offerId="' + offers[i].offerId + '" class="buttonoutline editme w-button">Przejdź</a></div></td></tr>';
-        }
+          ' style="opacity: 0.5;"><a href="#" status="' + offers[i].status + '" offerId="' + offers[i].offerId + '" class="buttonoutline editme w-button">Brak</a></div></td></tr>';
+      } else {
+        toDisplayHtml +=
+          '><a href="#" status="' + offers[i].status + '" offerId="' + offers[i].offerId + '" class="buttonoutline editme w-button">Przejdź</a></div></td></tr>';
+      }
     }
 
     // Close the offers table
     toDisplayHtml += '<tr><td colspan="4"></td></tr></table>';
 
     return toDisplayHtml;
-}
+  }
 
 
   var refreshInterval;
@@ -928,13 +928,28 @@ docReady(function () {
           orderable: true,
           data: "createDate",
           render: function (data) {
+            if (data === null) {
+              var currentDate = new Date();
+              formattedDate = currentDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+              return formattedDate;
+            }
             if (data !== "-" && data !== null) {
               const creationDate = new Date(data);
+
               const startDate = creationDate.toLocaleDateString("pl-PL", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
               });
+
 
               return startDate;
             }
@@ -1080,11 +1095,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1389,9 +1404,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -2041,11 +2056,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
