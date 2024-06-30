@@ -1872,10 +1872,10 @@ docReady(function () {
                     className = "positive";
                     break;
                   case "Przyszły":
-                    className = "super";
+                    className = "noneexisting";
                     break;
                   case "Przeszły":
-                    className = "medium";
+                    className = "negative";
                     break;
                 }
                 return `<span class="${className}">${data}</span>`;
@@ -1887,9 +1887,9 @@ docReady(function () {
               render: function (data) {
                 let className;
                 if (data > 3) {
-                  className = "positive";
-                } else if (data >= 1) {
                   className = "super";
+                } else if (data >= 1) {
+                  className = "positive";
                 } else if (data == 0) {
                   className = "medium";
                 } else if (data >= -3) {
