@@ -1791,7 +1791,7 @@ docReady(function () {
           if (now < startDate) {
             status = "Przyszły";
           } else if (now <= endDate) {
-            status = "Aktywny";
+            status = "Obowiązujący";
           } else {
             status = "Przeszły";
           }
@@ -1865,7 +1865,7 @@ docReady(function () {
               render: function (data) {
                 let className;
                 switch (data) {
-                  case "Aktywny":
+                  case "Obowiązujący":
                     className = "positive";
                     break;
                   case "Przyszły":
@@ -1894,7 +1894,7 @@ docReady(function () {
                 } else {
                   className = "bad";
                 }
-                return `<span class="${className}">${data} dni</span>`;
+                return `<span style="opacity: 0;">${data}</span><span class="${className}">${data} dni</span>`;
               },
             },
             {
