@@ -1892,6 +1892,25 @@ docReady(function () {
             },
             {
               orderable: true,
+              data: "daysValid",
+              render: function (data) {
+                let color;
+                if (data > 3) {
+                  color = colors.darkGreen;
+                } else if (data >= 1) {
+                  color = colors.lightGreen;
+                } else if (data == 0) {
+                  color = colors.orange;
+                } else if (data >= -3) {
+                  color = colors.lightRed;
+                } else {
+                  color = colors.darkRed;
+                }
+                return `<span style="color: ${color}">${data} dni</span>`;
+              },
+            },
+            {
+              orderable: true,
               data: "startDate",
               render: function (data) {
                 if (data !== null) {
@@ -1932,25 +1951,6 @@ docReady(function () {
               data: "created.by",
               render: function (data) {
                 return data !== null ? data : "";
-              },
-            },
-            {
-              orderable: true,
-              data: "daysValid",
-              render: function (data) {
-                let color;
-                if (data > 3) {
-                  color = colors.darkGreen;
-                } else if (data >= 1) {
-                  color = colors.lightGreen;
-                } else if (data == 0) {
-                  color = colors.orange;
-                } else if (data >= -3) {
-                  color = colors.lightRed;
-                } else {
-                  color = colors.darkRed;
-                }
-                return `<span style="color: ${color}">${data} dni</span>`;
               },
             },
             {
@@ -2005,30 +2005,6 @@ docReady(function () {
     };
     request.send();
   }
-
-  // Add event listener for the day range filter
-  $("#dayRangeFilter").on("change", function () {
-    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-      var days = parseFloat(data[7]) || 0; // Assuming the days column is at index 7
-      var range = $("#dayRangeFilter").val();
-
-      switch (range) {
-        case "-3 and less":
-          return days <= -3;
-        case "-3 to -1":
-          return days > -3 && days <= -1;
-        case "0":
-          return days == 0;
-        case "1 to 3":
-          return days >= 1 && days <= 3;
-        case "3 and more":
-          return days >= 3;
-        default:
-          return true;
-      }
-    });
-    tablePriceLists.draw();
-  });
 
   var tableDocuments = $("#table_documents").DataTable({
     pagingType: "full_numbers",
