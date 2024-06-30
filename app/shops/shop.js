@@ -827,7 +827,7 @@ docReady(function () {
                 });
               } else {
                 const todayDate = new Date().toISOString().split('T')[0]; // Get today's date in "YYYY-MM-DD" format
-                var formattedDate = todayDate.toLocaleString("pl-PL", {
+                var formattedDate = new Date().toLocaleString("pl-PL", {
                   year: "numeric",
                   month: "2-digit",
                   day: "2-digit",
