@@ -1767,174 +1767,255 @@ docReady(function () {
     });
   };
 
-  var tablePriceLists = $("#table_pricelists_list").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top"f>rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 10,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'></div>",
-      processing: "<div class='spinner'></div>",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-      aria: {
-        sortAscending: ": Sortowanie rosnące",
-        sortDescending: ": Sortowanie malejące",
-      },
-    },
-    ajax: {
-      url: InvokeURL + "price-lists",
-      headers: {
-        Authorization: orgToken,
-      },
-      data: {
-        perPage: 1000,
-      },
-      dataSrc: "items",
-    },
-    columns: [
-      {
-        orderable: false,
-        data: null,
-        width: "36px",
-        defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-      },
-      {
-        orderable: false,
-        visible: false,
-        data: "uuid",
-        render: function (data) {
-          return data !== null ? data : "";
-        },
-      },
-      {
-        orderable: true,
-        data: "wholesalerKey",
-        render: function (data) {
-          return data !== null ? data : "";
-        },
-      },
-      {
-        orderable: true,
-        data: "created.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "startDate",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleDateString("pl-PL");
-          }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "endDate",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            var nowDate = new Date();
-            nowDate.setUTCHours(0, 0, 0, 0);
+  // Define colors for easy modification
+  const colors = {
+    darkGreen: "#28a745",
+    lightGreen: "#5cb85c",
+    orange: "#ffa500",
+    lightRed: "#ff6b6b",
+    darkRed: "#dc3545",
+  };
 
-            if (utcDate >= nowDate) {
-              return (
-                '<span class="positive">' +
-                utcDate.toLocaleDateString("pl-PL") +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span class="medium">' +
-                utcDate.toLocaleDateString("pl-PL") +
-                "</span>"
-              );
-            }
+  function getPriceLists() {
+    let url = new URL(InvokeURL + "price-lists?perPage=1000");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(this.response);
+        var toParse = data.items.map(function (item) {
+          const now = new Date();
+          const startDate = new Date(item.startDate);
+          const endDate = new Date(item.endDate);
+          const daysValid = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+
+          let status;
+          if (now < startDate) {
+            status = "Przyszły";
+          } else if (now > endDate) {
+            status = "Przeszły";
+          } else {
+            status = "Aktywny";
           }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "created.by",
-        render: function (data) {
-          return data !== null ? data : "";
-        },
-      },
-      {
-        orderable: true,
-        data: "modified.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "modified.by",
-        render: function (data) {
-          return data !== null ? data : "-";
-        },
-      },
-      {
-        orderable: false,
-        data: null,
-        defaultContent:
-          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
-      {
-        orderable: false,
-        class: "details-control4",
-        width: "20px",
-        data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-      },
-    ],
-    initComplete: function (settings, json) {
-      toggleEmptyState();
-    },
+
+          return {
+            ...item,
+            status: status,
+            daysValid: Math.max(daysValid, -30),
+          };
+        });
+        console.log(toParse);
+
+        $("#table_pricelists_list").DataTable({
+          data: toParse,
+          pagingType: "full_numbers",
+          order: [],
+          dom: '<"top"f>rt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 10,
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'></div>",
+            processing: "<div class='spinner'></div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          columns: [
+            {
+              orderable: false,
+              data: null,
+              width: "36px",
+              defaultContent:
+                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+            },
+            {
+              orderable: false,
+              visible: false,
+              data: "uuid",
+              render: function (data) {
+                return data !== null ? data : "";
+              },
+            },
+            {
+              orderable: true,
+              data: "wholesalerKey",
+              render: function (data) {
+                return data !== null ? data : "";
+              },
+            },
+            {
+              orderable: true,
+              data: "status",
+              render: function (data) {
+                let color;
+                switch (data) {
+                  case "Aktywny":
+                    color = colors.darkGreen;
+                    break;
+                  case "Przyszły":
+                    color = colors.lightGreen;
+                    break;
+                  case "Przeszły":
+                    color = colors.orange;
+                    break;
+                }
+                return `<span style="color: ${color}">${data}</span>`;
+              },
+            },
+            {
+              orderable: true,
+              data: "startDate",
+              render: function (data) {
+                if (data !== null) {
+                  var utcDate = new Date(Date.parse(data));
+                  return utcDate.toLocaleDateString("pl-PL");
+                }
+                return "";
+              },
+            },
+            {
+              orderable: true,
+              data: "endDate",
+              render: function (data) {
+                if (data !== null) {
+                  var utcDate = new Date(Date.parse(data));
+                  var nowDate = new Date();
+                  nowDate.setUTCHours(0, 0, 0, 0);
+
+                  if (utcDate >= nowDate) {
+                    return (
+                      '<span class="positive">' +
+                      utcDate.toLocaleDateString("pl-PL") +
+                      "</span>"
+                    );
+                  } else {
+                    return (
+                      '<span class="medium">' +
+                      utcDate.toLocaleDateString("pl-PL") +
+                      "</span>"
+                    );
+                  }
+                }
+                return "";
+              },
+            },
+            {
+              orderable: true,
+              data: "created.by",
+              render: function (data) {
+                return data !== null ? data : "";
+              },
+            },
+            {
+              orderable: true,
+              data: "daysValid",
+              render: function (data) {
+                let color;
+                if (data > 3) {
+                  color = colors.darkGreen;
+                } else if (data >= 1) {
+                  color = colors.lightGreen;
+                } else if (data == 0) {
+                  color = colors.orange;
+                } else if (data >= -3) {
+                  color = colors.lightRed;
+                } else {
+                  color = colors.darkRed;
+                }
+                return `<span style="color: ${color}">${data} dni</span>`;
+              },
+            },
+            {
+              orderable: false,
+              data: null,
+              defaultContent:
+                '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+            },
+            {
+              orderable: false,
+              class: "details-control4",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+            },
+          ],
+          initComplete: function (settings, json) {
+            toggleEmptyState();
+            this.api()
+              .columns([2, 6])
+              .every(function () {
+                var column = this;
+                var select = $(
+                  '<select><option value="">Wszystkie</option></select>'
+                )
+                  .appendTo($(column.footer()).empty())
+                  .on("change", function () {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    column
+                      .search(val ? "^" + val + "$" : "", true, false)
+                      .draw();
+                  });
+
+                column
+                  .data()
+                  .unique()
+                  .sort()
+                  .each(function (d, j) {
+                    select.append(
+                      '<option value="' + d + '">' + d + "</option>"
+                    );
+                  });
+              });
+          },
+        });
+      }
+
+      if (request.status == 401) {
+        console.log("Unauthorized");
+      }
+    };
+    request.send();
+  }
+
+  // Add event listener for the day range filter
+  $("#dayRangeFilter").on("change", function () {
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+      var days = parseFloat(data[7]) || 0; // Assuming the days column is at index 7
+      var range = $("#dayRangeFilter").val();
+
+      switch (range) {
+        case "-3 and less":
+          return days <= -3;
+        case "-3 to -1":
+          return days > -3 && days <= -1;
+        case "0":
+          return days == 0;
+        case "1 to 3":
+          return days >= 1 && days <= 3;
+        case "3 and more":
+          return days >= 3;
+        default:
+          return true;
+      }
+    });
+    tablePriceLists.draw();
   });
 
   var tableDocuments = $("#table_documents").DataTable({
@@ -2644,6 +2725,7 @@ docReady(function () {
   LogoutNonUser();
   getShops();
   getUsers();
+  getPriceLists();
   getIntegrations();
   getWholesalers();
   LoadTippy();

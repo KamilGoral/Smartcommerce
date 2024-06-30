@@ -1770,7 +1770,7 @@ docReady(function () {
   var tablePriceLists = $("#table_pricelists_list").DataTable({
     pagingType: "full_numbers",
     order: [],
-    dom: '<"top">rt<"bottom"lip>',
+    dom: '<"top"f>rt<"bottom"lip>',
     scrollY: "60vh",
     scrollCollapse: true,
     pageLength: 10,
@@ -1780,8 +1780,8 @@ docReady(function () {
       infoEmpty: "Brak danych",
       infoFiltered: "(z _MAX_ rezultatów)",
       lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'</div>",
-      processing: "<div class='spinner'</div>",
+      loadingRecords: "<div class='spinner'></div>",
+      processing: "<div class='spinner'></div>",
       search: "Szukaj:",
       zeroRecords: "Brak pasujących rezultatów",
       paginate: {
@@ -1795,65 +1795,15 @@ docReady(function () {
         sortDescending: ": Sortowanie malejące",
       },
     },
-    ajax: function (data, callback, settings) {
-      $.ajaxSetup({
-        headers: {
-          Authorization: orgToken,
-        },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-      });
-
-      var whichColumns = "";
-      var direction = "desc";
-
-      if (data.order.length == 0) {
-        whichColumns = 2;
-      } else {
-        whichColumns = data.order[0]["column"];
-        direction = data.order[0]["dir"];
-      }
-
-      switch (whichColumns) {
-        case 2:
-          whichColumns = "created.at:";
-          break;
-        case 3:
-          whichColumns = "startDate:";
-          break;
-        case 4:
-          whichColumns = "endDate:";
-          break;
-        default:
-          whichColumns = "created.at:";
-      }
-
-      var sort = "" + whichColumns + direction;
-
-      $.get(
-        InvokeURL + "price-lists",
-        {
-          sort: sort,
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
-        },
-        function (res) {
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        }
-      );
-    },
-    processing: true,
-    serverSide: true,
-    search: {
-      return: true,
+    ajax: {
+      url: InvokeURL + "price-lists",
+      headers: {
+        Authorization: orgToken,
+      },
+      data: {
+        perPage: 1000,
+      },
+      dataSrc: "items",
     },
     columns: [
       {
@@ -1868,24 +1818,14 @@ docReady(function () {
         visible: false,
         data: "uuid",
         render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
+          return data !== null ? data : "";
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "wholesalerKey",
         render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
+          return data !== null ? data : "";
         },
       },
       {
@@ -1904,9 +1844,7 @@ docReady(function () {
               hour12: false,
             });
           }
-          if (data === null) {
-            return "";
-          }
+          return "";
         },
       },
       {
@@ -1917,9 +1855,7 @@ docReady(function () {
             var utcDate = new Date(Date.parse(data));
             return utcDate.toLocaleDateString("pl-PL");
           }
-          if (data === null) {
-            return "";
-          }
+          return "";
         },
       },
       {
@@ -1945,25 +1881,18 @@ docReady(function () {
               );
             }
           }
-          if (data === null) {
-            return "";
-          }
+          return "";
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "created.by",
         render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
+          return data !== null ? data : "";
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "modified.at",
         render: function (data) {
           if (data !== null) {
@@ -1978,21 +1907,14 @@ docReady(function () {
               hour12: false,
             });
           }
-          if (data === null) {
-            return "";
-          }
+          return "";
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "modified.by",
         render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "-";
-          }
+          return data !== null ? data : "-";
         },
       },
       {
