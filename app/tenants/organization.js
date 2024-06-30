@@ -1986,7 +1986,7 @@ docReady(function () {
               // Zawijanie każdego filtru w div dla lepszego stylowania
               select
                 .prev("label")
-                .andSelf()
+                .addBack()
                 .wrapAll('<div class="filter-item"></div>');
             }, this);
           },
