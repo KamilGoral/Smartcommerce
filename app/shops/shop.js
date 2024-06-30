@@ -836,8 +836,10 @@ docReady(function () {
                   createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               } else {
-                if (!groupedData["unknown"]) {
-                  groupedData["unknown"] = [];
+                const todayDate = new Date().toISOString().split('T')[0]; // Get today's date in "YYYY-MM-DD" format
+
+                if (!groupedData[todayDate]) {
+                  groupedData[todayDate] = [];
                 }
                 groupedData["unknown"].push({
                   offerId: item.offerId,

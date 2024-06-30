@@ -1923,6 +1923,7 @@ docReady(function () {
             {
               orderable: true,
               data: "startDate",
+              type: "date",
               render: function (data) {
                 if (data !== null) {
                   var utcDate = new Date(Date.parse(data));
@@ -1934,6 +1935,7 @@ docReady(function () {
             {
               orderable: true,
               data: "endDate",
+              type: "date",
               render: function (data) {
                 if (data !== null) {
                   var utcDate = new Date(Date.parse(data));
