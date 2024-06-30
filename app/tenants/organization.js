@@ -1894,7 +1894,7 @@ docReady(function () {
                 } else {
                   className = "bad";
                 }
-                return `<span style="opacity: 0;">${data}</span><span class="${className}">${data} dni</span>`;
+                return `<span value="${data}" class="${className}">${data} dni</span>`;
               },
             },
             {
