@@ -1784,16 +1784,16 @@ docReady(function () {
           let status;
           if (now < startDate) {
             status = "Przyszły";
-          } else if (now > endDate) {
-            status = "Przeszły";
-          } else {
+          } else if (now <= endDate) {
             status = "Aktywny";
+          } else {
+            status = "Przeszły";
           }
 
           return {
             ...item,
             status: status,
-            daysValid: Math.max(daysValid, -30),
+            daysValid: daysValid,
           };
         });
         console.log(toParse);
@@ -1946,6 +1946,32 @@ docReady(function () {
           ],
           initComplete: function (settings, json) {
             toggleEmptyState();
+            // Dodanie filtrów
+            this.api()
+              .columns([2, 3, 7])
+              .every(function () {
+                var column = this;
+                var select = $(
+                  '<select><option value="">Wszystkie</option></select>'
+                )
+                  .appendTo($(column.header()))
+                  .on("change", function () {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    column
+                      .search(val ? "^" + val + "$" : "", true, false)
+                      .draw();
+                  });
+
+                column
+                  .data()
+                  .unique()
+                  .sort()
+                  .each(function (d, j) {
+                    select.append(
+                      '<option value="' + d + '">' + d + "</option>"
+                    );
+                  });
+              });
           },
         });
       }
