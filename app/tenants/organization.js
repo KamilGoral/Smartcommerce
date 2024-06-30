@@ -1945,7 +1945,6 @@ docReady(function () {
             },
           ],
           initComplete: function (settings, json) {
-            toggleEmptyState();
             // Dodanie filtrów
             this.api()
               .columns([2, 3, 7])
