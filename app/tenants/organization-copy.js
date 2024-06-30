@@ -113,11 +113,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              ",familyname:" +
-              lastNameUser +
-              ",email:" +
-              emailadressUser,
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
               72000
             );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
@@ -245,11 +245,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function validateInput(event, input) {
@@ -703,9 +703,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-      "tenants/" +
-      document.querySelector("#organizationName").textContent +
-      "/billing"
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -912,13 +912,13 @@ docReady(function () {
             case "nextInvoiceDate":
               element.textContent =
                 "Data odnowienia subskrypcji: " +
-                newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
+                  newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                toParse.monthCostBreakdown.forecast.total +
-                " zł" || "N/A";
+                  toParse.monthCostBreakdown.forecast.total +
+                  " zł" || "N/A";
               break;
 
             case "standard":
@@ -933,11 +933,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                  toParse.pricing.specialService.fee
+                toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                  " - " +
-                  toParse.pricing.specialService.fee +
-                  " zł/miesięcznie"
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -950,14 +950,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                  toParse.address.town,
-                  toParse.address.postcode,
-                  toParse.address.line1,
-                  toParse.address.line2,
-                  toParse.address.country,
-                ]
-                  .filter((part) => part)
-                  .join(", ")
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.line2,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1767,190 +1767,253 @@ docReady(function () {
     });
   };
 
-  ////Startujemy///
-
-  // Function to fetch wholesalers
-function getEnabledWholesalers() {
-  let url = new URL(InvokeURL + "wholesalers?perPage=1000");
-  let request = new XMLHttpRequest();
-  request.open("GET", url, true);
-  request.setRequestHeader("Authorization", orgToken);
-
-  request.onload = function () {
-    if (request.status >= 200 && request.status < 400) {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      toParse.sort(function (a, b) {
-        return b.enabled - a.enabled;
-      });
-
-      var enabledWholesalers = toParse.filter(function (item) {
-        return item.enabled === true;
-      });
-
-      getWholesalerPriceLists(enabledWholesalers);
-    } else {
-      console.log("Failed to fetch wholesalers");
-    }
-  };
-
-  request.send();
-}
-
-// Function to fetch price lists and combine with wholesaler data
-function getWholesalerPriceLists(wholesalers) {
-  $.ajaxSetup({
-    headers: {
-      Authorization: orgToken,
+  var tablePriceLists = $("#table_pricelists_list").DataTable({
+    pagingType: "full_numbers",
+    order: [],
+    dom: '<"top">rt<"bottom"lip>',
+    scrollY: "60vh",
+    scrollCollapse: true,
+    pageLength: 10,
+    language: {
+      emptyTable: "Brak danych do wyświetlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+      infoEmpty: "Brak danych",
+      infoFiltered: "(z _MAX_ rezultatów)",
+      lengthMenu: "Pokaż _MENU_ rekordów",
+      loadingRecords: "<div class='spinner'</div>",
+      processing: "<div class='spinner'</div>",
+      search: "Szukaj:",
+      zeroRecords: "Brak pasujących rezultatów",
+      paginate: {
+        first: "<<",
+        last: ">>",
+        next: " >",
+        previous: "< ",
+      },
+      aria: {
+        sortAscending: ": Sortowanie rosnące",
+        sortDescending: ": Sortowanie malejące",
+      },
     },
-    beforeSend: function () {
-      $("#waitingdots").show();
-    },
-    complete: function () {
-      $("#waitingdots").hide();
-    },
-  });
-
-  var request = $.get(InvokeURL + "price-lists", { perPage: 1000 });
-
-  request.done(function (res) {
-    var priceLists = res.items;
-
-    var combinedData = wholesalers.map(function (wholesaler) {
-      wholesaler.priceLists = priceLists.filter(function (priceList) {
-        return priceList.wholesalerKey === wholesaler.wholesalerKey;
+    ajax: function (data, callback, settings) {
+      $.ajaxSetup({
+        headers: {
+          Authorization: orgToken,
+        },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
       });
 
-      wholesaler.latestPriceList = wholesaler.priceLists.length
-        ? wholesaler.priceLists[0]
-        : null;
+      var whichColumns = "";
+      var direction = "desc";
 
-      wholesaler.priceListHistory = wholesaler.priceLists.map(function (priceList) {
-        return priceList.endDate;
-      });
-
-      return wholesaler;
-    });
-
-    console.log(combinedData);
-
-
-    var table = $('#wholesaler-pricelist-table').DataTable({
-      data: combinedData,
-      columns: [
-        {
-          className: 'details-control',
-          orderable: false,
-          data: null,
-          defaultContent: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="details">'
-        },
-        { 
-          data: 'name',
-          render: function (data) {
-            return data !== null ? data : "-";
-          }
-        },
-        {
-          data: null,
-          render: function (data, type, row) {
-            if (!row.latestPriceList || !row.latestPriceList.endDate) return '-';
-            
-            var today = new Date();
-            var endDate = new Date(row.latestPriceList.endDate);
-            
-            if (endDate > today) return 'Aktywny';
-            if (endDate.toDateString() === today.toDateString()) return 'Kończy się';
-            return 'Nieaktywny';
-          }
-        },
-        {
-          data: null,
-          render: function (data, type, row) {
-            if (!row.latestPriceList || !row.latestPriceList.endDate) return '-';
-            
-            var today = new Date();
-            var endDate = new Date(row.latestPriceList.endDate);
-            
-            var diffTime = Math.abs(endDate - today);
-            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays + ' dni';
-          }
-        },
-        {
-          data: null,
-          defaultContent: "-",  // Ensure a default content in case of null values
-          render: function (data, type, row) {
-            if (!row.latestPriceList || !row.latestPriceList.source) return '-';
-            return row.latestPriceList.source;
-          }
-        },
-
-        {
-          data: null,
-          render: function (data, type, row) {
-            if (!row.priceListHistory || row.priceListHistory.length === 0) return '-';
-            
-            return createHistoryBar(row.priceListHistory);
-          }
-        }
-      ],
-      order: [[1, 'asc']]
-    });
-    
-    
-  
-    $('#wholesaler-pricelist-table tbody').on('click', 'td.details-control', function () {
-      var tr = $(this).closest('tr');
-      var row = table.row(tr);
-  
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass('shown');
+      if (data.order.length == 0) {
+        whichColumns = 2;
       } else {
-        row.child(format(row.data())).show();
-        tr.addClass('shown');
+        whichColumns = data.order[0]["column"];
+        direction = data.order[0]["dir"];
       }
-    });
-  
-    function format(d) {
-      return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-        d.priceLists.map(function (priceList) {
-          return '<tr>' +
-            '<td>' + priceList.uuid + '</td>' +
-            '<td>' + priceList.wholesalerKey + '</td>' +
-            '<td>' + new Date(priceList.created.at).toLocaleString('pl-PL') + '</td>' +
-            '<td>' + new Date(priceList.startDate).toLocaleDateString('pl-PL') + '</td>' +
-            '<td>' + new Date(priceList.endDate).toLocaleDateString('pl-PL') + '</td>' +
-            '<td>' + priceList.created.by + '</td>' +
-            '<td>' + new Date(priceList.modified.at).toLocaleString('pl-PL') + '</td>' +
-            '<td>' + (priceList.modified.by || '-') + '</td>' +
-            '<td><a href="#" class="buttonoutline editme w-button">Przejdź</a></td>' +
-            '</tr>';
-        }).join('') +
-        '</table>';
-    }
-  
-    function createHistoryBar(history) {
-      var bar = '';
-      for (var i = 29; i >= 0; i--) {
-        var date = new Date();
-        date.setDate(date.getDate() - i);
-        var color = history.includes(date.toISOString().split('T')[0]) ? 'green' : 'gray';
-        bar += '<span style="display:inline-block;width:3px;height:20px;background-color:' + color + ';margin-right:1px;"></span>';
+
+      switch (whichColumns) {
+        case 2:
+          whichColumns = "created.at:";
+          break;
+        case 3:
+          whichColumns = "startDate:";
+          break;
+        case 4:
+          whichColumns = "endDate:";
+          break;
+        default:
+          whichColumns = "created.at:";
       }
-      return bar;
-    }
-    // You can now use `combinedData` which contains the wholesalers with their price lists
+
+      var sort = "" + whichColumns + direction;
+
+      $.get(
+        InvokeURL + "price-lists",
+        {
+          sort: sort,
+          perPage: data.length,
+          page: (data.start + data.length) / data.length,
+        },
+        function (res) {
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        }
+      );
+    },
+    processing: true,
+    serverSide: true,
+    search: {
+      return: true,
+    },
+    columns: [
+      {
+        orderable: false,
+        data: null,
+        width: "36px",
+        defaultContent:
+          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+      },
+      {
+        orderable: false,
+        visible: false,
+        data: "uuid",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "wholesalerKey",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "created.at",
+        render: function (data) {
+          if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            return utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "startDate",
+        render: function (data) {
+          if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            return utcDate.toLocaleDateString("pl-PL");
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "endDate",
+        render: function (data) {
+          if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            var nowDate = new Date();
+            nowDate.setUTCHours(0, 0, 0, 0);
+
+            if (utcDate >= nowDate) {
+              return (
+                '<span class="positive">' +
+                utcDate.toLocaleDateString("pl-PL") +
+                "</span>"
+              );
+            } else {
+              return (
+                '<span class="medium">' +
+                utcDate.toLocaleDateString("pl-PL") +
+                "</span>"
+              );
+            }
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "created.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "modified.at",
+        render: function (data) {
+          if (data !== null) {
+            var utcDate = new Date(Date.parse(data));
+            return utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+          }
+          if (data === null) {
+            return "";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: "modified.by",
+        render: function (data) {
+          if (data !== null) {
+            return data;
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: false,
+        data: null,
+        defaultContent:
+          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+      },
+      {
+        orderable: false,
+        class: "details-control4",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+      },
+    ],
+    initComplete: function (settings, json) {
+      toggleEmptyState();
+    },
   });
-
-  request.fail(function () {
-    console.log("Failed to fetch price lists");
-  });
-}
-
-// Call the function to fetch and combine the data
-getEnabledWholesalers();
-
 
   var tableDocuments = $("#table_documents").DataTable({
     pagingType: "full_numbers",
@@ -2309,9 +2372,9 @@ getEnabledWholesalers();
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
