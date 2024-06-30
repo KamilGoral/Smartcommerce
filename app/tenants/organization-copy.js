@@ -1836,7 +1836,6 @@ function getWholesalerPriceLists(wholesalers) {
 
 
     var table = $('#wholesaler-pricelist-table').DataTable({
-
       data: combinedData,
       columns: [
         {
@@ -1845,13 +1844,20 @@ function getWholesalerPriceLists(wholesalers) {
           data: null,
           defaultContent: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="details">'
         },
-        { data: 'name' },
+        { 
+          data: 'name',
+          render: function (data) {
+            return data !== null ? data : "-";
+          }
+        },
         {
           data: null,
           render: function (data, type, row) {
+            if (!row.latestPriceList || !row.latestPriceList.endDate) return '-';
+            
             var today = new Date();
             var endDate = new Date(row.latestPriceList.endDate);
-            if (!row.latestPriceList.endDate) return 'Brak';
+            
             if (endDate > today) return 'Aktywny';
             if (endDate.toDateString() === today.toDateString()) return 'Kończy się';
             return 'Nieaktywny';
@@ -1860,24 +1866,34 @@ function getWholesalerPriceLists(wholesalers) {
         {
           data: null,
           render: function (data, type, row) {
+            if (!row.latestPriceList || !row.latestPriceList.endDate) return '-';
+            
             var today = new Date();
             var endDate = new Date(row.latestPriceList.endDate);
-            if (!row.latestPriceList.endDate) return 'Brak';
+            
             var diffTime = Math.abs(endDate - today);
             var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             return diffDays + ' dni';
           }
         },
-        { data: 'latestPriceList.source' },
+        {
+          data: 'latestPriceList.source',
+          render: function (data) {
+            return data !== null ? data : "-";
+          }
+        },
         {
           data: null,
           render: function (data, type, row) {
+            if (!row.priceListHistory || row.priceListHistory.length === 0) return '-';
+            
             return createHistoryBar(row.priceListHistory);
           }
         }
       ],
       order: [[1, 'asc']]
     });
+    
   
     $('#wholesaler-pricelist-table tbody').on('click', 'td.details-control', function () {
       var tr = $(this).closest('tr');
