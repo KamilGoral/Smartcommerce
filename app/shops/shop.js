@@ -826,8 +826,11 @@ docReady(function () {
                   createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               } else {
+                
                 const todayDate = new Date().toISOString().split('T')[0]; // Get today's date in "YYYY-MM-DD" format
                 var currentDateTime = new Date().toISOString();
+                const createDate = currentDateTime.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+                const timePart = currentDateTime.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
                 if (!groupedData[todayDate]) {
                   groupedData[todayDate] = [];
@@ -835,7 +838,7 @@ docReady(function () {
                 groupedData[todayDate].push({
                   offerId: item.offerId,
                   status: item.status,
-                  createDate: currentDateTime, // Default value when date is missing
+                  createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               }
             });
