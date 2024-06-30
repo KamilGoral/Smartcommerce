@@ -1807,7 +1807,7 @@ docReady(function () {
         });
         console.log(toParse);
 
-        $("#table_pricelists_list").DataTable({
+        var tablePriceLists = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
           order: [],
