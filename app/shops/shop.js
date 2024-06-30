@@ -841,7 +841,7 @@ docReady(function () {
                 if (!groupedData[todayDate]) {
                   groupedData[todayDate] = [];
                 }
-                groupedData["unknown"].push({
+                groupedData[todayDate].push({
                   offerId: item.offerId,
                   status: item.status,
                   createDate: "-", // Default value when date is missing
