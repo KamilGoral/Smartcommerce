@@ -1767,15 +1767,6 @@ docReady(function () {
     });
   };
 
-  // Define colors for easy modification
-  const colors = {
-    darkGreen: "#28a745",
-    lightGreen: "#5cb85c",
-    orange: "#ffa500",
-    lightRed: "#ff6b6b",
-    darkRed: "#dc3545",
-  };
-
   function getPriceLists() {
     let url = new URL(InvokeURL + "price-lists?perPage=1000");
     let request = new XMLHttpRequest();
@@ -1875,38 +1866,38 @@ docReady(function () {
               orderable: true,
               data: "status",
               render: function (data) {
-                let color;
+                let className;
                 switch (data) {
                   case "Aktywny":
-                    color = colors.darkGreen;
+                    className = "positive";
                     break;
                   case "Przyszły":
-                    color = colors.lightGreen;
+                    className = "super";
                     break;
                   case "Przeszły":
-                    color = colors.orange;
+                    className = "medium";
                     break;
                 }
-                return `<span style="color: ${color}">${data}</span>`;
+                return `<span class="${className}">${data}</span>`;
               },
             },
             {
               orderable: true,
               data: "daysValid",
               render: function (data) {
-                let color;
+                let className;
                 if (data > 3) {
-                  color = colors.darkGreen;
+                  className = "positive";
                 } else if (data >= 1) {
-                  color = colors.lightGreen;
+                  className = "super";
                 } else if (data == 0) {
-                  color = colors.orange;
+                  className = "medium";
                 } else if (data >= -3) {
-                  color = colors.lightRed;
+                  className = "negative";
                 } else {
-                  color = colors.darkRed;
+                  className = "bad";
                 }
-                return `<span style="color: ${color}">${data} dni</span>`;
+                return `<span class="${className}">${data} dni</span>`;
               },
             },
             {
@@ -1970,31 +1961,6 @@ docReady(function () {
           ],
           initComplete: function (settings, json) {
             toggleEmptyState();
-            this.api()
-              .columns([2, 6])
-              .every(function () {
-                var column = this;
-                var select = $(
-                  '<select><option value="">Wszystkie</option></select>'
-                )
-                  .appendTo($(column.footer()).empty())
-                  .on("change", function () {
-                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    column
-                      .search(val ? "^" + val + "$" : "", true, false)
-                      .draw();
-                  });
-
-                column
-                  .data()
-                  .unique()
-                  .sort()
-                  .each(function (d, j) {
-                    select.append(
-                      '<option value="' + d + '">' + d + "</option>"
-                    );
-                  });
-              });
           },
         });
       }
