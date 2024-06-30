@@ -1909,17 +1909,9 @@ docReady(function () {
                   className = "negative";
                 }
 
-                displayText = `${data} dni`;
+                displayText = `${data}`;
 
                 return `<span class="${className}">${displayText}</span>`;
-              },
-              orderData: function (data, type, row) {
-                // Sort by numeric value of daysValid
-                if (type === "sort") {
-                  return row.daysValid;
-                }
-                // For display and other types, return original data
-                return data;
               },
             },
 
