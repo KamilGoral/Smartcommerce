@@ -1876,7 +1876,7 @@ docReady(function () {
                     className = "noneexisting";
                     break;
                   case "Przeszły":
-                    className = "bad";
+                    className = "negative";
                     break;
                   case "Kończy się":
                     className = "medium";
@@ -1893,27 +1893,41 @@ docReady(function () {
               data: "daysValid",
               render: function (data) {
                 let className;
-                if (data > 3) {
-                  className = "super";
-                } else if (data >= 1) {
-                  className = "positive";
-                } else if (data == 0) {
-                  className = "medium";
-                } else if (data >= -3) {
-                  className = "negative";
+                let displayText;
+
+                if (data === 0 && row.status === "Obowiązujący") {
+                  className = "ending";
+                  displayText = "Kończy się";
+                } else if (data === -1) {
+                  className = "ended";
+                  displayText = "Skończony";
                 } else {
-                  className = "bad";
+                  if (data > 3) {
+                    className = "super";
+                  } else if (data >= 1) {
+                    className = "positive";
+                  } else if (data == 0) {
+                    className = "medium";
+                  } else if (data >= -3) {
+                    className = "negative";
+                  } else {
+                    className = "negative";
+                  }
+                  displayText = `${data} dni`;
                 }
-                return `<span value="${data}" class="${className}">${data} dni</span>`;
+
+                return `<span style="opacity: 0;">${data}</span><span class="${className}">${displayText}</span>`;
               },
               orderData: function (data, type, row) {
                 // Sort by numeric value of daysValid
                 if (type === "sort") {
                   return row.daysValid;
                 }
+                // For display and other types, return original data
                 return data;
               },
             },
+
             {
               orderable: true,
               data: "startDate",
