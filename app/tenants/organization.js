@@ -1922,15 +1922,11 @@ docReady(function () {
 
                   if (utcDate >= nowDate) {
                     return (
-                      '<span class="positive">' +
-                      utcDate.toLocaleDateString("pl-PL") +
-                      "</span>"
+                      "<span>" + utcDate.toLocaleDateString("pl-PL") + "</span>"
                     );
                   } else {
                     return (
-                      '<span class="medium">' +
-                      utcDate.toLocaleDateString("pl-PL") +
-                      "</span>"
+                      "<span>" + utcDate.toLocaleDateString("pl-PL") + "</span>"
                     );
                   }
                 }
