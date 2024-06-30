@@ -1895,24 +1895,21 @@ docReady(function () {
                 let className;
                 let displayText;
 
-                if (data === 0 && row.status === "Obowiązujący") {
-                  className = "negative";
+                if (data > 3) {
+                  className = "super";
+                } else if (data >= 1) {
+                  className = "positive";
+                } else if (data == 0) {
+                  className = "medium";
                 } else if (data === -1) {
                   className = "negative";
+                } else if (data >= -3) {
+                  className = "negative";
                 } else {
-                  if (data > 3) {
-                    className = "super";
-                  } else if (data >= 1) {
-                    className = "positive";
-                  } else if (data == 0) {
-                    className = "medium";
-                  } else if (data >= -3) {
-                    className = "negative";
-                  } else {
-                    className = "negative";
-                  }
-                  displayText = `${data} dni`;
+                  className = "negative";
                 }
+
+                displayText = `${data} dni`;
 
                 return `<span class="${className}">${displayText}</span>`;
               },
