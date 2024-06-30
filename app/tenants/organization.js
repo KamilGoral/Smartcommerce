@@ -1767,175 +1767,210 @@ docReady(function () {
     });
   };
 
-  var tablePriceLists = $("#table_pricelists_list").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top"f>rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 10,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'></div>",
-      processing: "<div class='spinner'></div>",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-      aria: {
-        sortAscending: ": Sortowanie rosnące",
-        sortDescending: ": Sortowanie malejące",
-      },
-    },
-    ajax: {
-      url: InvokeURL + "price-lists",
-      headers: {
-        Authorization: orgToken,
-      },
-      data: {
-        perPage: 1000,
-      },
-      dataSrc: "items",
-    },
-    columns: [
-      {
-        orderable: false,
-        data: null,
-        width: "36px",
-        defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-      },
-      {
-        orderable: false,
-        visible: false,
-        data: "uuid",
-        render: function (data) {
-          return data !== null ? data : "";
-        },
-      },
-      {
-        orderable: true,
-        data: "wholesalerKey",
-        render: function (data) {
-          return data !== null ? data : "";
-        },
-      },
-      {
-        orderable: true,
-        data: "created.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "startDate",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleDateString("pl-PL");
-          }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "endDate",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            var nowDate = new Date();
-            nowDate.setUTCHours(0, 0, 0, 0);
+  function getPriceLists() {
+    let url = new URL(InvokeURL + "price-lists?perPage=1000");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(this.response);
+        var toParse = data.items.map(function (item) {
+          const now = new Date();
+          const startDate = new Date(item.startDate);
+          const endDate = new Date(item.endDate);
+          const daysValid = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
 
-            if (utcDate >= nowDate) {
-              return (
-                '<span class="positive">' +
-                utcDate.toLocaleDateString("pl-PL") +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span class="medium">' +
-                utcDate.toLocaleDateString("pl-PL") +
-                "</span>"
-              );
-            }
+          let status;
+          if (now < startDate) {
+            status = "Przyszły";
+          } else if (now > endDate) {
+            status = "Przeszły";
+          } else {
+            status = "Aktywny";
           }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "created.by",
-        render: function (data) {
-          return data !== null ? data : "";
-        },
-      },
-      {
-        orderable: true,
-        data: "modified.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          return "";
-        },
-      },
-      {
-        orderable: true,
-        data: "modified.by",
-        render: function (data) {
-          return data !== null ? data : "-";
-        },
-      },
-      {
-        orderable: false,
-        data: null,
-        defaultContent:
-          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
-      {
-        orderable: false,
-        class: "details-control4",
-        width: "20px",
-        data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-      },
-    ],
-    initComplete: function (settings, json) {
-      toggleEmptyState();
-    },
-  });
+
+          return {
+            ...item,
+            status: status,
+            daysValid: Math.max(daysValid, -30),
+          };
+        });
+        console.log(toParse);
+
+        var hasEntries = toParse.length;
+        console.log(hasEntries);
+        // If the table is empty, show the custom empty state div
+        // Otherwise, hide it
+        if (!hasEntries) {
+          $("#emptystatepricelists").show();
+          $("#pricelistscontainer").hide();
+        } else {
+          $("#emptystatepricelists").hide();
+          $("#pricelistscontainer").show();
+        }
+
+        $("#table_pricelists_list").DataTable({
+          data: toParse,
+          pagingType: "full_numbers",
+          order: [],
+          dom: '<"top"f>rt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 10,
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'></div>",
+            processing: "<div class='spinner'></div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          columns: [
+            {
+              orderable: false,
+              data: null,
+              width: "36px",
+              defaultContent:
+                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+            },
+            {
+              orderable: false,
+              visible: false,
+              data: "uuid",
+              render: function (data) {
+                return data !== null ? data : "";
+              },
+            },
+            {
+              orderable: true,
+              data: "wholesalerKey",
+              render: function (data) {
+                return data !== null ? data : "";
+              },
+            },
+            {
+              orderable: true,
+              data: "status",
+              render: function (data) {
+                let className;
+                switch (data) {
+                  case "Aktywny":
+                    className = "positive";
+                    break;
+                  case "Przyszły":
+                    className = "noneexisting";
+                    break;
+                  case "Przeszły":
+                    className = "negative";
+                    break;
+                }
+                return `<span class="${className}">${data}</span>`;
+              },
+            },
+            {
+              orderable: true,
+              data: "daysValid",
+              render: function (data) {
+                let className;
+                if (data > 3) {
+                  className = "super";
+                } else if (data >= 1) {
+                  className = "positive";
+                } else if (data == 0) {
+                  className = "medium";
+                } else if (data >= -3) {
+                  className = "negative";
+                } else {
+                  className = "bad";
+                }
+                return `<span class="${className}">${data} dni</span>`;
+              },
+            },
+            {
+              orderable: true,
+              data: "startDate",
+              render: function (data) {
+                if (data !== null) {
+                  var utcDate = new Date(Date.parse(data));
+                  return utcDate.toLocaleDateString("pl-PL");
+                }
+                return "";
+              },
+            },
+            {
+              orderable: true,
+              data: "endDate",
+              render: function (data) {
+                if (data !== null) {
+                  var utcDate = new Date(Date.parse(data));
+                  var nowDate = new Date();
+                  nowDate.setUTCHours(0, 0, 0, 0);
+
+                  if (utcDate >= nowDate) {
+                    return (
+                      '<span class="positive">' +
+                      utcDate.toLocaleDateString("pl-PL") +
+                      "</span>"
+                    );
+                  } else {
+                    return (
+                      '<span class="medium">' +
+                      utcDate.toLocaleDateString("pl-PL") +
+                      "</span>"
+                    );
+                  }
+                }
+                return "";
+              },
+            },
+            {
+              orderable: true,
+              data: "created.by",
+              render: function (data) {
+                return data !== null ? data : "";
+              },
+            },
+            {
+              orderable: false,
+              data: null,
+              defaultContent:
+                '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+            },
+            {
+              orderable: false,
+              class: "details-control4",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+            },
+          ],
+          initComplete: function (settings, json) {
+            toggleEmptyState();
+          },
+        });
+      }
+
+      if (request.status == 401) {
+        console.log("Unauthorized");
+      }
+    };
+    request.send();
+  }
 
   var tableDocuments = $("#table_documents").DataTable({
     pagingType: "full_numbers",
@@ -2269,21 +2304,6 @@ docReady(function () {
   });
 
   ///koniec//
-
-  function toggleEmptyState() {
-    // Check if the table has any entries
-    var hasEntries = tablePriceLists.data().any();
-    console.log(hasEntries);
-    // If the table is empty, show the custom empty state div
-    // Otherwise, hide it
-    if (!hasEntries) {
-      $("#emptystatepricelists").show();
-      $("#pricelistscontainer").hide();
-    } else {
-      $("#emptystatepricelists").hide();
-      $("#pricelistscontainer").show();
-    }
-  }
 
   $("#table_pricelists_list").on(
     "click",
@@ -2644,6 +2664,7 @@ docReady(function () {
   LogoutNonUser();
   getShops();
   getUsers();
+  getPriceLists();
   getIntegrations();
   getWholesalers();
   LoadTippy();
