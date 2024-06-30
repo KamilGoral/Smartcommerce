@@ -1833,6 +1833,93 @@ function getWholesalerPriceLists(wholesalers) {
     });
 
     console.log(combinedData);
+
+
+    var table = $('#wholesaler-pricelist-table').DataTable({
+
+      data: combinedData,
+      columns: [
+        {
+          className: 'details-control',
+          orderable: false,
+          data: null,
+          defaultContent: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="details">'
+        },
+        { data: 'name' },
+        {
+          data: null,
+          render: function (data, type, row) {
+            var today = new Date();
+            var endDate = new Date(row.latestPriceList.endDate);
+            if (!row.latestPriceList.endDate) return 'Brak';
+            if (endDate > today) return 'Aktywny';
+            if (endDate.toDateString() === today.toDateString()) return 'Kończy się';
+            return 'Nieaktywny';
+          }
+        },
+        {
+          data: null,
+          render: function (data, type, row) {
+            var today = new Date();
+            var endDate = new Date(row.latestPriceList.endDate);
+            if (!row.latestPriceList.endDate) return 'Brak';
+            var diffTime = Math.abs(endDate - today);
+            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays + ' dni';
+          }
+        },
+        { data: 'latestPriceList.source' },
+        {
+          data: null,
+          render: function (data, type, row) {
+            return createHistoryBar(row.priceListHistory);
+          }
+        }
+      ],
+      order: [[1, 'asc']]
+    });
+  
+    $('#wholesaler-pricelist-table tbody').on('click', 'td.details-control', function () {
+      var tr = $(this).closest('tr');
+      var row = table.row(tr);
+  
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        row.child(format(row.data())).show();
+        tr.addClass('shown');
+      }
+    });
+  
+    function format(d) {
+      return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+        d.priceLists.map(function (priceList) {
+          return '<tr>' +
+            '<td>' + priceList.uuid + '</td>' +
+            '<td>' + priceList.wholesalerKey + '</td>' +
+            '<td>' + new Date(priceList.created.at).toLocaleString('pl-PL') + '</td>' +
+            '<td>' + new Date(priceList.startDate).toLocaleDateString('pl-PL') + '</td>' +
+            '<td>' + new Date(priceList.endDate).toLocaleDateString('pl-PL') + '</td>' +
+            '<td>' + priceList.created.by + '</td>' +
+            '<td>' + new Date(priceList.modified.at).toLocaleString('pl-PL') + '</td>' +
+            '<td>' + (priceList.modified.by || '-') + '</td>' +
+            '<td><a href="#" class="buttonoutline editme w-button">Przejdź</a></td>' +
+            '</tr>';
+        }).join('') +
+        '</table>';
+    }
+  
+    function createHistoryBar(history) {
+      var bar = '';
+      for (var i = 29; i >= 0; i--) {
+        var date = new Date();
+        date.setDate(date.getDate() - i);
+        var color = history.includes(date.toISOString().split('T')[0]) ? 'green' : 'gray';
+        bar += '<span style="display:inline-block;width:3px;height:20px;background-color:' + color + ';margin-right:1px;"></span>';
+      }
+      return bar;
+    }
     // You can now use `combinedData` which contains the wholesalers with their price lists
   });
 
@@ -1845,91 +1932,7 @@ function getWholesalerPriceLists(wholesalers) {
 getEnabledWholesalers();
 
 
-  // var table = $('#wholesaler-pricelist-table').DataTable({
-
-  //   data: getWholesalerData(),
-  //   columns: [
-  //     {
-  //       className: 'details-control',
-  //       orderable: false,
-  //       data: null,
-  //       defaultContent: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="details">'
-  //     },
-  //     { data: 'name' },
-  //     {
-  //       data: null,
-  //       render: function (data, type, row) {
-  //         var today = new Date();
-  //         var endDate = new Date(row.latestPriceList.endDate);
-  //         if (!row.latestPriceList.endDate) return 'Brak';
-  //         if (endDate > today) return 'Aktywny';
-  //         if (endDate.toDateString() === today.toDateString()) return 'Kończy się';
-  //         return 'Nieaktywny';
-  //       }
-  //     },
-  //     {
-  //       data: null,
-  //       render: function (data, type, row) {
-  //         var today = new Date();
-  //         var endDate = new Date(row.latestPriceList.endDate);
-  //         if (!row.latestPriceList.endDate) return 'Brak';
-  //         var diffTime = Math.abs(endDate - today);
-  //         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  //         return diffDays + ' dni';
-  //       }
-  //     },
-  //     { data: 'latestPriceList.source' },
-  //     {
-  //       data: null,
-  //       render: function (data, type, row) {
-  //         return createHistoryBar(row.priceListHistory);
-  //       }
-  //     }
-  //   ],
-  //   order: [[1, 'asc']]
-  // });
-
-  // $('#wholesaler-pricelist-table tbody').on('click', 'td.details-control', function () {
-  //   var tr = $(this).closest('tr');
-  //   var row = table.row(tr);
-
-  //   if (row.child.isShown()) {
-  //     row.child.hide();
-  //     tr.removeClass('shown');
-  //   } else {
-  //     row.child(format(row.data())).show();
-  //     tr.addClass('shown');
-  //   }
-  // });
-
-  // function format(d) {
-  //   return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-  //     d.priceLists.map(function (priceList) {
-  //       return '<tr>' +
-  //         '<td>' + priceList.uuid + '</td>' +
-  //         '<td>' + priceList.wholesalerKey + '</td>' +
-  //         '<td>' + new Date(priceList.created.at).toLocaleString('pl-PL') + '</td>' +
-  //         '<td>' + new Date(priceList.startDate).toLocaleDateString('pl-PL') + '</td>' +
-  //         '<td>' + new Date(priceList.endDate).toLocaleDateString('pl-PL') + '</td>' +
-  //         '<td>' + priceList.created.by + '</td>' +
-  //         '<td>' + new Date(priceList.modified.at).toLocaleString('pl-PL') + '</td>' +
-  //         '<td>' + (priceList.modified.by || '-') + '</td>' +
-  //         '<td><a href="#" class="buttonoutline editme w-button">Przejdź</a></td>' +
-  //         '</tr>';
-  //     }).join('') +
-  //     '</table>';
-  // }
-
-  // function createHistoryBar(history) {
-  //   var bar = '';
-  //   for (var i = 29; i >= 0; i--) {
-  //     var date = new Date();
-  //     date.setDate(date.getDate() - i);
-  //     var color = history.includes(date.toISOString().split('T')[0]) ? 'green' : 'gray';
-  //     bar += '<span style="display:inline-block;width:3px;height:20px;background-color:' + color + ';margin-right:1px;"></span>';
-  //   }
-  //   return bar;
-  // }
+  
 
   // function getWholesalerData() {
   //   // This function should make an AJAX call to get the wholesaler data
