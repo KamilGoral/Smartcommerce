@@ -1906,6 +1906,13 @@ docReady(function () {
                 }
                 return `<span value="${data}" class="${className}">${data} dni</span>`;
               },
+              orderData: function (data, type, row) {
+                // Sort by numeric value of daysValid
+                if (type === "sort") {
+                  return row.daysValid;
+                }
+                return data;
+              },
             },
             {
               orderable: true,
