@@ -1877,12 +1877,14 @@ function getWholesalerPriceLists(wholesalers) {
           }
         },
         {
-          data: 'latestPriceList.source',
+          data: null,
           defaultContent: "-",  // Ensure a default content in case of null values
-          render: function (data) {
-            return data !== null ? data : "-";
+          render: function (data, type, row) {
+            if (!row.latestPriceList || !row.latestPriceList.source) return '-';
+            return row.latestPriceList.source;
           }
         },
+
         {
           data: null,
           render: function (data, type, row) {
