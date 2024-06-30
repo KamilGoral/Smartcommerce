@@ -1945,32 +1945,50 @@ docReady(function () {
             },
           ],
           initComplete: function (settings, json) {
-            // Dodanie filtrów
-            this.api()
-              .columns([2, 3, 7])
-              .every(function () {
-                var column = this;
-                var select = $(
-                  '<select><option value="">Wszystkie</option></select>'
-                )
-                  .appendTo($(column.header()))
-                  .on("change", function () {
-                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    column
-                      .search(val ? "^" + val + "$" : "", true, false)
-                      .draw();
-                  });
+            // Dodanie filtrów do osobnego boxu
+            var filtersToAdd = [
+              { column: 2, name: "Dostawca" },
+              { column: 3, name: "Status" },
+              { column: 7, name: "Autor" },
+            ];
 
-                column
-                  .data()
-                  .unique()
-                  .sort()
-                  .each(function (d, j) {
-                    select.append(
-                      '<option value="' + d + '">' + d + "</option>"
-                    );
-                  });
-              });
+            filtersToAdd.forEach(function (filter) {
+              var column = this.api().column(filter.column);
+              var select = $(
+                '<select><option value="">Wszystkie ' +
+                  filter.name +
+                  "</option></select>"
+              )
+                .appendTo($("#filter-box"))
+                .on("change", function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? "^" + val + "$" : "", true, false).draw();
+                });
+
+              column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  select.append('<option value="' + d + '">' + d + "</option>");
+                });
+
+              // Dodanie etykiety do selecta
+              select.before(
+                '<label for="filter-' +
+                  filter.name.toLowerCase() +
+                  '">' +
+                  filter.name +
+                  ": </label>"
+              );
+              select.attr("id", "filter-" + filter.name.toLowerCase());
+
+              // Zawijanie każdego filtru w div dla lepszego stylowania
+              select
+                .prev("label")
+                .andSelf()
+                .wrapAll('<div class="filter-item"></div>');
+            }, this);
           },
         });
       }
