@@ -1891,7 +1891,7 @@ docReady(function () {
             {
               orderable: true,
               data: "daysValid",
-              render: function (data, type, row) {
+              render: function (data) {
                 let className;
                 let displayText;
 
