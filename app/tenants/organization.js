@@ -1891,16 +1891,14 @@ docReady(function () {
             {
               orderable: true,
               data: "daysValid",
-              render: function (data) {
+              render: function (data, type, row) {
                 let className;
                 let displayText;
 
                 if (data === 0 && row.status === "Obowiązujący") {
-                  className = "ending";
-                  displayText = "Kończy się";
+                  className = "negative";
                 } else if (data === -1) {
-                  className = "ended";
-                  displayText = "Skończony";
+                  className = "negative";
                 } else {
                   if (data > 3) {
                     className = "super";
@@ -1916,7 +1914,7 @@ docReady(function () {
                   displayText = `${data} dni`;
                 }
 
-                return `<span style="opacity: 0;">${data}</span><span class="${className}">${displayText}</span>`;
+                return `<span class="${className}">${displayText}</span>`;
               },
               orderData: function (data, type, row) {
                 // Sort by numeric value of daysValid
