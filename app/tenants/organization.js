@@ -1769,13 +1769,19 @@ docReady(function () {
 
   function getPriceLists() {
     let url = new URL(InvokeURL + "price-lists?perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(this.response);
-        var toParse = data.items.map(function (item) {
+    fetch(url, {
+      headers: {
+        Authorization: orgToken,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const toParse = data.items.map((item) => {
           const now = new Date();
           const startDate = new Date(item.startDate);
           const endDate = new Date(item.endDate);
@@ -1796,26 +1802,12 @@ docReady(function () {
             daysValid: daysValid,
           };
         });
-        console.log(toParse);
 
-        var hasEntries = toParse.length;
-        console.log(hasEntries);
-        // If the table is empty, show the custom empty state div
-        // Otherwise, hide it
-        if (!hasEntries) {
-          $("#emptystatepricelists").show();
-          $("#pricelistscontainer").hide();
-        } else {
-          $("#emptystatepricelists").hide();
-          $("#pricelistscontainer").show();
-          // Tworzenie boxu z filtrami
-          var filterBox = $(
-            '<div id="filter-box" class="filter-container"></div>'
-          );
-          $("#pricelistscontainer").before(filterBox);
-        }
+        const hasEntries = toParse.length > 0;
+        $("#emptystatepricelists").toggle(!hasEntries);
+        $("#pricelistscontainer").toggle(hasEntries);
 
-        $("#table_pricelists_list").DataTable({
+        const table = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -1950,59 +1942,54 @@ docReady(function () {
             },
           ],
           initComplete: function (settings, json) {
-            // Dodanie filtrów do osobnego boxu
-            var filtersToAdd = [
-              { column: 2, name: "Dostawca" },
-              { column: 3, name: "Status" },
-              { column: 7, name: "Autor" },
+            const filtersToAdd = [
+              {
+                column: 2,
+                name: "Dostawca",
+                elementId: "wholesalerKeyIndicator",
+              },
+              { column: 3, name: "Status", elementId: "statusIndicator" },
+              { column: 7, name: "Autor", elementId: "authorIndicator" },
             ];
 
-            filtersToAdd.forEach(function (filter) {
-              var column = this.api().column(filter.column);
-              var select = $(
-                '<select><option value="">Wszystkie ' +
-                  filter.name +
-                  "</option></select>"
-              )
-                .appendTo($("#filter-box"))
-                .on("change", function () {
-                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                  column.search(val ? "^" + val + "$" : "", true, false).draw();
-                });
+            filtersToAdd.forEach((filter) => {
+              const column = this.api().column(filter.column);
+              const select = $(`#${filter.elementId}`);
 
+              // Clear existing options
+              select.empty().append('<option value=""></option>');
+
+              // Add new options
               column
                 .data()
                 .unique()
                 .sort()
                 .each(function (d, j) {
-                  select.append('<option value="' + d + '">' + d + "</option>");
+                  select.append(`<option value="${d}">${d}</option>`);
                 });
 
-              // Dodanie etykiety do selecta
-              select.before(
-                '<label for="filter-' +
-                  filter.name.toLowerCase() +
-                  '">' +
-                  filter.name +
-                  ": </label>"
-              );
-              select.attr("id", "filter-" + filter.name.toLowerCase());
-
-              // Zawijanie każdego filtru w div dla lepszego stylowania
-              select
-                .prev("label")
-                .addBack()
-                .wrapAll('<div class="filter-item"></div>');
-            }, this);
+              // Add change event listener
+              select.on("change", function () {
+                const val = $.fn.dataTable.util.escapeRegex($(this).val());
+                column.search(val ? `^${val}$` : "", true, false).draw();
+              });
+            });
           },
         });
-      }
 
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    };
-    request.send();
+        // Add global search functionality
+        $(".dataTables_filter input")
+          .unbind()
+          .bind("input", function () {
+            table.search(this.value).draw();
+          });
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+        if (error.message === "Unauthorized") {
+          console.log("Unauthorized");
+        }
+      });
   }
 
   var tableDocuments = $("#table_documents").DataTable({
