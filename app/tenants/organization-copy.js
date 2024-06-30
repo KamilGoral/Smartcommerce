@@ -1807,7 +1807,19 @@ docReady(function () {
         });
         console.log(toParse);
 
-        var tablePriceLists = $("#table_pricelists_list").DataTable({
+        var hasEntries = length(toParse);
+        console.log(hasEntries);
+        // If the table is empty, show the custom empty state div
+        // Otherwise, hide it
+        if (!hasEntries) {
+          $("#emptystatepricelists").show();
+          $("#pricelistscontainer").hide();
+        } else {
+          $("#emptystatepricelists").hide();
+          $("#pricelistscontainer").show();
+        }
+
+        $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -2350,21 +2362,6 @@ docReady(function () {
   });
 
   ///koniec//
-
-  function toggleEmptyState() {
-    // Check if the table has any entries
-    var hasEntries = tablePriceLists.data().any();
-    console.log(hasEntries);
-    // If the table is empty, show the custom empty state div
-    // Otherwise, hide it
-    if (!hasEntries) {
-      $("#emptystatepricelists").show();
-      $("#pricelistscontainer").hide();
-    } else {
-      $("#emptystatepricelists").hide();
-      $("#pricelistscontainer").show();
-    }
-  }
 
   $("#table_pricelists_list").on(
     "click",
