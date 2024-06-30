@@ -1917,18 +1917,7 @@ docReady(function () {
               render: function (data) {
                 if (data !== null) {
                   var utcDate = new Date(Date.parse(data));
-                  var nowDate = new Date();
-                  nowDate.setUTCHours(0, 0, 0, 0);
-
-                  if (utcDate >= nowDate) {
-                    return (
-                      "<span>" + utcDate.toLocaleDateString("pl-PL") + "</span>"
-                    );
-                  } else {
-                    return (
-                      "<span>" + utcDate.toLocaleDateString("pl-PL") + "</span>"
-                    );
-                  }
+                  return utcDate.toLocaleDateString("pl-PL");
                 }
                 return "";
               },
