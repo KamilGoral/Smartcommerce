@@ -113,11 +113,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                ",familyname:" +
-                lastNameUser +
-                ",email:" +
-                emailadressUser,
+              firstNameUser +
+              ",familyname:" +
+              lastNameUser +
+              ",email:" +
+              emailadressUser,
               72000
             );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
@@ -245,11 +245,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   function validateInput(event, input) {
@@ -703,9 +703,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -912,13 +912,13 @@ docReady(function () {
             case "nextInvoiceDate":
               element.textContent =
                 "Data odnowienia subskrypcji: " +
-                  newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
+                newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                  toParse.monthCostBreakdown.forecast.total +
-                  " zł" || "N/A";
+                toParse.monthCostBreakdown.forecast.total +
+                " zł" || "N/A";
               break;
 
             case "standard":
@@ -933,11 +933,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
+                  toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
+                  " - " +
+                  toParse.pricing.specialService.fee +
+                  " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -950,14 +950,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.line2,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
+                  toParse.address.town,
+                  toParse.address.postcode,
+                  toParse.address.line1,
+                  toParse.address.line2,
+                  toParse.address.country,
+                ]
+                  .filter((part) => part)
+                  .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1769,168 +1769,198 @@ docReady(function () {
 
   ////Startujemy///
 
-  var tablePriceLists = $("#table_pricelists_list").DataTable({
-    pagingType: "full_numbers",
-    order: [
-      [1, "asc"],
-      [3, "desc"],
-    ], // Sortuj najpierw po wholesalerKey, potem po dacie rozpoczęcia
-    dom: '<"top">rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 10,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'</div>",
-      processing: "<div class='spinner'</div>",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-      aria: {
-        sortAscending: ": Sortowanie rosnące",
-        sortDescending: ": Sortowanie malejące",
-      },
-    },
-    ajax: function (data, callback, settings) {
-      $.ajaxSetup({
-        headers: {
-          Authorization: orgToken,
-        },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
+  // Function to fetch wholesalers
+function getEnabledWholesalers() {
+  let url = new URL(InvokeURL + "wholesalers?perPage=1000");
+  let request = new XMLHttpRequest();
+  request.open("GET", url, true);
+  request.setRequestHeader("Authorization", orgToken);
+
+  request.onload = function () {
+    if (request.status >= 200 && request.status < 400) {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      toParse.sort(function (a, b) {
+        return b.enabled - a.enabled;
       });
 
-      $.get(
-        InvokeURL + "price-lists",
-        {
-          sort: "wholesalerKey:asc,startDate:desc",
-          perPage: 1000, // Pobierz więcej danych, aby umożliwić grupowanie po stronie klienta
-          page: 1,
-        },
-        function (res) {
-          // Grupowanie danych po wholesalerKey
-          var groupedData = {};
-          res.items.forEach(function (item) {
-            if (!groupedData[item.wholesalerKey]) {
-              groupedData[item.wholesalerKey] = [];
-            }
-            groupedData[item.wholesalerKey].push(item);
-          });
+      var enabledWholesalers = toParse.filter(function (item) {
+        return item.enabled === true;
+      });
 
-          // Przekształć zgrupowane dane do formatu wymaganego przez DataTables
-          var dataForTable = Object.keys(groupedData).map(function (key) {
-            return {
-              wholesalerKey: key,
-              wholesalerName: groupedData[key][0].wholesalerName,
-              items: groupedData[key],
-            };
-          });
+      getWholesalerPriceLists(enabledWholesalers);
+    } else {
+      console.log("Failed to fetch wholesalers");
+    }
+  };
 
-          callback({
-            recordsTotal: dataForTable.length,
-            recordsFiltered: dataForTable.length,
-            data: dataForTable,
-          });
-        }
-      );
+  request.send();
+}
+
+// Function to fetch price lists and combine with wholesaler data
+function getWholesalerPriceLists(wholesalers) {
+  $.ajaxSetup({
+    headers: {
+      Authorization: orgToken,
     },
-    columns: [
-      {
-        className: "details-control",
-        orderable: false,
-        data: null,
-        defaultContent: "",
-        render: function (data, type, row) {
-          return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="expand">';
-        },
-        width: "36px",
-      },
-      { data: "wholesalerKey", visible: false },
-      { data: "wholesalerName" },
-      {
-        data: null,
-        render: function (data, type, row) {
-          var activeCount = row.items.filter(function (item) {
-            return new Date(item.endDate) >= new Date();
-          }).length;
-          return activeCount + " / " + row.items.length;
-        },
-        title: "Aktywne / Wszystkie",
-      },
-    ],
-    rowCallback: function (row, data, index) {
-      $(row).find("td:eq(0)").attr("colspan", 2);
-      $(row).find("td:eq(1)").css("font-weight", "bold");
+    beforeSend: function () {
+      $("#waitingdots").show();
+    },
+    complete: function () {
+      $("#waitingdots").hide();
     },
   });
 
-  // Obsługa rozwijania/zwijania wierszy
-  $("#table_pricelists_list tbody").on(
-    "click",
-    "td.details-control",
-    function () {
-      var tr = $(this).closest("tr");
-      var row = tablePriceLists.row(tr);
+  var request = $.get(InvokeURL + "price-lists", { perPage: 1000 });
 
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass("shown");
-      } else {
-        row.child(formatSubTable(row.data())).show();
-        tr.addClass("shown");
-      }
-    }
-  );
+  request.done(function (res) {
+    var priceLists = res.items;
 
-  // Funkcja do formatowania pod-tabeli
-  function formatSubTable(rowData) {
-    var subTable =
-      '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-    subTable +=
-      "<thead><tr><th>Data rozpoczęcia</th><th>Data zakończenia</th><th>Utworzono przez</th><th>Zmodyfikowano</th><th>Akcje</th></tr></thead>";
-    subTable += "<tbody>";
+    var combinedData = wholesalers.map(function (wholesaler) {
+      wholesaler.priceLists = priceLists.filter(function (priceList) {
+        return priceList.wholesalerKey === wholesaler.wholesalerKey;
+      });
 
-    rowData.items.forEach(function (item) {
-      var startDate = new Date(item.startDate).toLocaleDateString("pl-PL");
-      var endDate = new Date(item.endDate);
-      var endDateClass = endDate >= new Date() ? "positive" : "medium";
-      var endDateFormatted = endDate.toLocaleDateString("pl-PL");
+      wholesaler.latestPriceList = wholesaler.priceLists.length
+        ? wholesaler.priceLists[0]
+        : null;
 
-      subTable += "<tr>";
-      subTable += "<td>" + startDate + "</td>";
-      subTable +=
-        '<td><span class="' +
-        endDateClass +
-        '">' +
-        endDateFormatted +
-        "</span></td>";
-      subTable += "<td>" + item.created.by + "</td>";
-      subTable +=
-        "<td>" + new Date(item.modified.at).toLocaleString("pl-PL") + "</td>";
-      subTable +=
-        '<td><div class="action-container"><a href="#" class="buttonoutline editme w-button" data-uuid="' +
-        item.uuid +
-        '">Przejdź</a></div></td>';
-      subTable += "</tr>";
+      wholesaler.priceListHistory = wholesaler.priceLists.map(function (priceList) {
+        return priceList.endDate;
+      });
+
+      return wholesaler;
     });
 
-    subTable += "</tbody></table>";
+    console.log(combinedData);
+    // You can now use `combinedData` which contains the wholesalers with their price lists
+  });
 
-    return subTable;
-  }
+  request.fail(function () {
+    console.log("Failed to fetch price lists");
+  });
+}
+
+// Call the function to fetch and combine the data
+getEnabledWholesalers();
+
+
+  // var table = $('#wholesaler-pricelist-table').DataTable({
+
+  //   data: getWholesalerData(),
+  //   columns: [
+  //     {
+  //       className: 'details-control',
+  //       orderable: false,
+  //       data: null,
+  //       defaultContent: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="details">'
+  //     },
+  //     { data: 'name' },
+  //     {
+  //       data: null,
+  //       render: function (data, type, row) {
+  //         var today = new Date();
+  //         var endDate = new Date(row.latestPriceList.endDate);
+  //         if (!row.latestPriceList.endDate) return 'Brak';
+  //         if (endDate > today) return 'Aktywny';
+  //         if (endDate.toDateString() === today.toDateString()) return 'Kończy się';
+  //         return 'Nieaktywny';
+  //       }
+  //     },
+  //     {
+  //       data: null,
+  //       render: function (data, type, row) {
+  //         var today = new Date();
+  //         var endDate = new Date(row.latestPriceList.endDate);
+  //         if (!row.latestPriceList.endDate) return 'Brak';
+  //         var diffTime = Math.abs(endDate - today);
+  //         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  //         return diffDays + ' dni';
+  //       }
+  //     },
+  //     { data: 'latestPriceList.source' },
+  //     {
+  //       data: null,
+  //       render: function (data, type, row) {
+  //         return createHistoryBar(row.priceListHistory);
+  //       }
+  //     }
+  //   ],
+  //   order: [[1, 'asc']]
+  // });
+
+  // $('#wholesaler-pricelist-table tbody').on('click', 'td.details-control', function () {
+  //   var tr = $(this).closest('tr');
+  //   var row = table.row(tr);
+
+  //   if (row.child.isShown()) {
+  //     row.child.hide();
+  //     tr.removeClass('shown');
+  //   } else {
+  //     row.child(format(row.data())).show();
+  //     tr.addClass('shown');
+  //   }
+  // });
+
+  // function format(d) {
+  //   return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+  //     d.priceLists.map(function (priceList) {
+  //       return '<tr>' +
+  //         '<td>' + priceList.uuid + '</td>' +
+  //         '<td>' + priceList.wholesalerKey + '</td>' +
+  //         '<td>' + new Date(priceList.created.at).toLocaleString('pl-PL') + '</td>' +
+  //         '<td>' + new Date(priceList.startDate).toLocaleDateString('pl-PL') + '</td>' +
+  //         '<td>' + new Date(priceList.endDate).toLocaleDateString('pl-PL') + '</td>' +
+  //         '<td>' + priceList.created.by + '</td>' +
+  //         '<td>' + new Date(priceList.modified.at).toLocaleString('pl-PL') + '</td>' +
+  //         '<td>' + (priceList.modified.by || '-') + '</td>' +
+  //         '<td><a href="#" class="buttonoutline editme w-button">Przejdź</a></td>' +
+  //         '</tr>';
+  //     }).join('') +
+  //     '</table>';
+  // }
+
+  // function createHistoryBar(history) {
+  //   var bar = '';
+  //   for (var i = 29; i >= 0; i--) {
+  //     var date = new Date();
+  //     date.setDate(date.getDate() - i);
+  //     var color = history.includes(date.toISOString().split('T')[0]) ? 'green' : 'gray';
+  //     bar += '<span style="display:inline-block;width:3px;height:20px;background-color:' + color + ';margin-right:1px;"></span>';
+  //   }
+  //   return bar;
+  // }
+
+  // function getWholesalerData() {
+  //   // This function should make an AJAX call to get the wholesaler data
+  //   // For now, we'll return a mock data structure
+  //   return [
+  //     {
+  //       name: 'ABE Dystrybucja',
+  //       latestPriceList: {
+  //         endDate: '2024-07-01',
+  //         source: 'API'
+  //       },
+  //       priceListHistory: ['2024-06-30', '2024-06-29', '2024-06-28', '2024-06-27'],
+  //       priceLists: [
+  //         {
+  //           uuid: '123456',
+  //           wholesalerKey: 'abe-dystrybucja',
+  //           created: { at: '2024-06-01T10:00:00Z', by: 'John Doe' },
+  //           startDate: '2024-06-01',
+  //           endDate: '2024-07-01',
+  //           modified: { at: '2024-06-01T10:00:00Z', by: 'John Doe' }
+  //         }
+  //         // ... more price lists
+  //       ]
+  //     },
+  //     // ... more wholesalers
+  //   ];
+  // }
+
+
+  //// koniec///
+
 
   // var tablePriceLists = $("#table_pricelists_list").DataTable({
   //   pagingType: "full_numbers",
@@ -2537,9 +2567,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
