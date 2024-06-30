@@ -1792,6 +1792,10 @@ docReady(function () {
             status = "Przyszły";
           } else if (now <= endDate) {
             status = "Obowiązujący";
+          } else if (now <= endDate && daysValid == 0) {
+            status = "Kończy się";
+          } else if (now > endDate && daysValid == -1) {
+            status = "Zakończył się";
           } else {
             status = "Przeszły";
           }
@@ -1872,6 +1876,12 @@ docReady(function () {
                     className = "noneexisting";
                     break;
                   case "Przeszły":
+                    className = "bad";
+                    break;
+                  case "Kończy się":
+                    className = "medium";
+                    break;
+                  case "Zakończył się":
                     className = "negative";
                     break;
                 }
