@@ -1785,7 +1785,7 @@ docReady(function () {
           const now = new Date();
           const startDate = new Date(item.startDate);
           const endDate = new Date(item.endDate);
-          const daysValid = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+          const daysValid = Math.floor((endDate - now) / (1000 * 60 * 60 * 24));
 
           let status;
           if (now < startDate) {
