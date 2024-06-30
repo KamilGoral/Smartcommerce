@@ -1808,6 +1808,11 @@ docReady(function () {
         } else {
           $("#emptystatepricelists").hide();
           $("#pricelistscontainer").show();
+          // Tworzenie boxu z filtrami
+          var filterBox = $(
+            '<div id="filter-box" class="filter-container"></div>'
+          );
+          $("#pricelistscontainer").before(filterBox);
         }
 
         $("#table_pricelists_list").DataTable({
