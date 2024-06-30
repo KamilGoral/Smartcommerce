@@ -1790,12 +1790,12 @@ docReady(function () {
           let status;
           if (now < startDate) {
             status = "Przyszły";
-          } else if (now <= endDate) {
-            status = "Obowiązujący";
           } else if (now <= endDate && daysValid == 0) {
             status = "Kończy się";
           } else if (now > endDate && daysValid == -1) {
             status = "Zakończył się";
+          } else if (now <= endDate) {
+            status = "Obowiązujący";
           } else {
             status = "Przeszły";
           }
