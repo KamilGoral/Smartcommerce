@@ -1891,6 +1891,7 @@ docReady(function () {
             {
               orderable: true,
               data: "daysValid",
+              type: "natural",
               render: function (data) {
                 let className;
                 let displayText;
@@ -1909,7 +1910,7 @@ docReady(function () {
                   className = "negative";
                 }
 
-                displayText = `${data}`;
+                displayText = `${data} dni`;
 
                 return `<span class="${className}">${displayText}</span>`;
               },
