@@ -21,10 +21,10 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-var ecEnabledValue = getCookie("EcEnabled");
-        if (ecEnabledValue === "true" && isAnyTargetWholesalerPresent) {
-          $("#alertMessage").show(); // Pokaż alert
-        }
+  var ecEnabledValue = getCookie("EcEnabled");
+  if (ecEnabledValue === "true") {
+    $("#alertMessage").show();
+  }
 
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
@@ -1033,7 +1033,7 @@ var ecEnabledValue = getCookie("EcEnabled");
           $("#alertMessage").show();
         }
 
-        
+
 
         $("#table_wholesalers_list").DataTable({
           data: toParse,
