@@ -21,6 +21,11 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
+var ecEnabledValue = getCookie("EcEnabled");
+        if (ecEnabledValue === "true" && isAnyTargetWholesalerPresent) {
+          $("#alertMessage").show(); // Pokaż alert
+        }
+
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
@@ -1014,6 +1019,22 @@ docReady(function () {
         var enabledWholesalers = toParse.filter(function (item) {
           return item.enabled === true;
         });
+
+        var targetWholesalerKeys = ["eurocash", "eurocash-serwis"];
+
+        var isAnyTargetWholesalerPresent = targetWholesalerKeys.some(function (key) {
+          return enabledWholesalers.some(function (item) {
+            return item.wholesalerKey === key;
+          });
+        });
+
+        if (isAnyTargetWholesalerPresent) {
+          setCookie("EcEnabled", "true", 7 * 24 * 60 * 60);
+          $("#alertMessage").show();
+        }
+
+        
+
         $("#table_wholesalers_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
@@ -1791,11 +1812,11 @@ docReady(function () {
           if (now < startDate) {
             status = "Przyszły";
           } else if (now <= endDate && daysValid == 0) {
-            status = "Kończy się";
+            status = "Wygasa";
           } else if (now > endDate && daysValid == -1) {
-            status = "Zakończył się";
+            status = "Zakończony";
           } else if (now <= endDate) {
-            status = "Obowiązujący";
+            status = "Aktywny";
           } else {
             status = "Przeszły";
           }
