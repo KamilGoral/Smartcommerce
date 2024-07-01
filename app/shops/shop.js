@@ -21,10 +21,10 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-var ecEnabledValue = getCookie("EcEnabled");
-        if (ecEnabledValue === "true" && isAnyTargetWholesalerPresent) {
-          $("#alertMessage").show(); // Pokaż alert
-        }
+  var ecEnabledValue = getCookie("EcEnabled");
+  if (ecEnabledValue === "true") {
+    $("#alertMessage").show();
+  }
 
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
@@ -831,7 +831,7 @@ var ecEnabledValue = getCookie("EcEnabled");
                   createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               } else {
-                
+
                 const todayDate = new Date().toISOString().split('T')[0]; // Get today's date in "YYYY-MM-DD" format
                 var currentDateTime = new Date().toISOString();
                 const createDate = currentDateTime.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"

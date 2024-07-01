@@ -22,10 +22,9 @@ docReady(function () {
   }
 
 var ecEnabledValue = getCookie("EcEnabled");
-        if (ecEnabledValue === "true" && isAnyTargetWholesalerPresent) {
-          $("#alertMessage").show(); // Pokaż alert
-        }
-
+  if (ecEnabledValue === "true") {
+    $("#alertMessage").show();
+  }
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
