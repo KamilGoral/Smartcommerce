@@ -20,6 +20,11 @@ docReady(function () {
     if (parts.length === 2) return parts.pop().split(";").shift();
   }
 
+  var ecEnabledValue = getCookie("EcEnabled");
+  if (ecEnabledValue === "true") {
+    $("#alertMessage").show();
+  }
+
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
