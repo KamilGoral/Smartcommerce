@@ -263,7 +263,7 @@ docReady(function () {
     console.log("Actions not permitted for non-admin users.");
     $("#deleteShopContainer").hide();
     $("#refreshOfferButton").hide();
-    $("#createPricelistButton").hide();
+    // $("#createPricelistButton").hide();
   }
 
   function getShop() {
