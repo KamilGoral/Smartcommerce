@@ -1786,8 +1786,11 @@ docReady(function () {
           now.setHours(0, 0, 0, 0);
           const startDate = new Date(item.startDate);
           const endDate = new Date(item.endDate);
-          const daysValid = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-
+          const daysValid = Math((endDate - now) / (1000 * 60 * 60 * 24));
+          console.log(now);
+          console.log(startDate);
+          console.log(endDate);
+          console.log(daysValid);
           let status;
           if (now < startDate) {
             status = "Przyszły";
