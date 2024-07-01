@@ -608,6 +608,85 @@ docReady(function () {
     });
   };
 
+  postEditUserProfile = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var failBlock2 = $("#form-done-fail-edit-profile");
+        const firstNameUser = $("#firstNameUser").val();
+        const lastNameUser = $("#lastNameUser").val();
+        const emailadressUser = $("#emailadressUser").val();
+
+        const datatosend = {
+          AccessToken: accessToken,
+          UserAttributes: [
+            {
+              Name: "name",
+              Value: firstNameUser,
+            },
+            {
+              Name: "family_name",
+              Value: lastNameUser,
+            },
+            // {
+            //   Name: "email",
+            //   Value: emailadressUser,
+            // },
+          ],
+        };
+
+        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "x-amz-target":
+              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+            Authorization: smartToken,
+          },
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          data: JSON.stringify(datatosend),
+          dataType: "json",
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                $("#form-done-edit-profile").hide();
+                failBlock2.show();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
+            failBlock2.hide();
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            failBlock2.show();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjaxServerWh($(formIdNewServer));
