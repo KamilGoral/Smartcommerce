@@ -561,13 +561,19 @@ docReady(function () {
               return "gtin";
             case "kod ean":
               return "gtin";
+            case "ean towaru":
+              return "gtin";
             case "nazwa":
               return "name";
             case "nazwa_indeksu":
               return "name";
+            case "nazwa towaru":
+              return "name";
             case "cena":
               return "price";
             case "cena po rabacie":
+              return "price";
+            case "cena netto":
               return "price";
             default:
               console.log("Sorry");
