@@ -21,6 +21,10 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
+var ecEnabledValue = getCookie("EcEnabled");
+  if (ecEnabledValue === "true") {
+    $("#alertMessage").show();
+  }
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
