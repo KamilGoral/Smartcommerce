@@ -571,12 +571,7 @@ docReady(function () {
             failBlock.hide();
             window.setTimeout(function () {
               window.location.replace(
-                "https://" +
-                  DomainName +
-                  "/app/tenants/organization?name=" +
-                  OrganizationName +
-                  "&clientId=" +
-                  OrganizationClientId
+                "https://" + DomainName + "/app/users/me-old"
               );
             }, 2000);
           },
