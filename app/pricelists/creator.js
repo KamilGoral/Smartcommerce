@@ -22,7 +22,7 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-var ecEnabledValue = getCookie("EcEnabled");
+  var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
     $("#alertMessage").show();
   }
@@ -567,17 +567,23 @@ var ecEnabledValue = getCookie("EcEnabled");
               return "gtin";
             case "ean towaru":
               return "gtin";
+            case "kod_kreskowy":
+              return "gtin";
             case "nazwa":
               return "name";
             case "nazwa_indeksu":
               return "name";
             case "nazwa towaru":
               return "name";
+            case "nazwa_towaru":
+              return "name";
             case "cena":
               return "price";
             case "cena po rabacie":
               return "price";
             case "cena netto":
+              return "price";
+            case "cena_kat_netto":
               return "price";
             default:
               console.log("Sorry");
