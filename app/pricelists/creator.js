@@ -322,16 +322,15 @@ docReady(function () {
           reason: "Niepoprawny kod EAN",
         };
       }
-
       if (typeof barcode == "number") {
         var x = barcode.toString().length;
         if (x >= 5 && x <= 13) {
           if (x <= 8) {
-            var zeroesToAdd = 8 - x;
-            barcode = "0".repeat(zeroesToAdd) + barcode;
+            var zeroesToadd = 8 - x;
+            barcode = "0".repeat(zeroesToadd) + barcode;
           } else {
-            var zeroesToAdd = 13 - x;
-            barcode = "0".repeat(zeroesToAdd) + barcode;
+            var zeroesToadd = 13 - x;
+            barcode = "0".repeat(zeroesToadd) + barcode;
           }
 
           var lastDigit = Number(barcode.substring(barcode.length - 1));
@@ -341,13 +340,7 @@ docReady(function () {
               valid: false,
               reason: "Nieprawidłowa liczba kontrolna kodu EAN",
             };
-          }
-
-          // Check for restricted prefixes 200-299
-          var prefix = parseInt(barcode.substring(0, 3), 10);
-          if (prefix >= 200 && prefix <= 299) {
-            return { valid: false, reason: "Kod zastrzeżony" };
-          }
+          } // not a valid upc/GTIN
 
           var arr = barcode
             .substring(0, barcode.length - 1)
@@ -359,7 +352,7 @@ docReady(function () {
           for (var i = 0; i < arr.length; i++) {
             if (isNaN(arr[i])) {
               return { valid: false, reason: "Brak kodu EAN" };
-            }
+            } // can't be a valid upc/GTIN we're checking for
 
             if (i % 2 == 0) {
               oddTotal += Number(arr[i]) * 3;
@@ -369,6 +362,7 @@ docReady(function () {
           }
           checkSum = (10 - ((evenTotal + oddTotal) % 10)) % 10;
 
+          // true if they are equal
           if (checkSum == lastDigit) {
             return { valid: true, barcode: barcode, reason: "" };
           } else {
