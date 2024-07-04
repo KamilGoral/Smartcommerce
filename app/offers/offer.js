@@ -21,7 +21,7 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-var ecEnabledValue = getCookie("EcEnabled");
+  var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
     $("#alertMessage").show();
   }
@@ -117,11 +117,11 @@ var ecEnabledValue = getCookie("EcEnabled");
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                ",familyname:" +
-                lastNameUser +
-                ",email:" +
-                emailadressUser,
+              firstNameUser +
+              ",familyname:" +
+              lastNameUser +
+              ",email:" +
+              emailadressUser,
               72000
             );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
@@ -254,11 +254,11 @@ var ecEnabledValue = getCookie("EcEnabled");
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -273,11 +273,11 @@ var ecEnabledValue = getCookie("EcEnabled");
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/offers/offer?shopKey=" +
-      shopKey +
-      "&offerId=" +
-      offerId
+    DomainName +
+    "/app/offers/offer?shopKey=" +
+    shopKey +
+    "&offerId=" +
+    offerId
   );
 
   function getProductDetails(rowData) {
@@ -509,7 +509,7 @@ var ecEnabledValue = getCookie("EcEnabled");
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -523,7 +523,7 @@ var ecEnabledValue = getCookie("EcEnabled");
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -536,7 +536,7 @@ var ecEnabledValue = getCookie("EcEnabled");
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -549,7 +549,7 @@ var ecEnabledValue = getCookie("EcEnabled");
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -909,11 +909,10 @@ var ecEnabledValue = getCookie("EcEnabled");
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
+            ${promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+          }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
@@ -1435,11 +1434,14 @@ var ecEnabledValue = getCookie("EcEnabled");
 
       function checkFilters() {
         var searchValue = api.search();
+        console.log(searchValue)
         var anyFilterActive =
           searchValue !== "" ||
           $(".filterinput").filter(function () {
             return this.value !== "";
           }).length > 2; // Two checkboxes are allways active
+
+        console.log(anyFilterActive);
 
         if (anyFilterActive) {
           $("#ClearAllButton").show();
