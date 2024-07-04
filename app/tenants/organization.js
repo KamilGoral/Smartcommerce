@@ -881,22 +881,6 @@ docReady(function () {
             document.getElementById("specialServiceBox").style.display = "none";
           }
 
-          function getNextInvoiceDate(currentDate) {
-            let nextInvoiceDate = new Date(currentDate);
-
-            if (nextInvoiceDate.getDate() > 2) {
-              nextInvoiceDate.setMonth(nextInvoiceDate.getMonth() + 1);
-            }
-
-            nextInvoiceDate.setDate(2);
-
-            return nextInvoiceDate;
-          }
-
-          // Przykładowe użycie:
-          let currentDate = new Date(); // Użyj bieżącej daty lub dowolnego obiektu Date
-          let newInvoiceDate = getNextInvoiceDate(currentDate);
-
           switch (dataType) {
             case "tenantTrialEndDate":
               element.textContent = trialEndDateText || "Aktywny";
@@ -917,7 +901,7 @@ docReady(function () {
             case "nextInvoiceDate":
               element.textContent =
                 "Data odnowienia subskrypcji: " +
-                newInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
+                toParse.nextInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
