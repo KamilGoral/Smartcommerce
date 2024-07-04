@@ -792,7 +792,9 @@ docReady(function () {
         var trialEndDateText = "";
         const now = new Date();
         const trialEndDate = new Date(toParse.trialEndDate);
-        const nextInvoiceDate = new Date(toParse.nextInvoiceDate);
+        const nextInvoiceDate = new Date(toParse.nextInvoiceDate).toLocaleDateString(
+          "pl-PL"
+        );
         const diff = trialEndDate.getTime() - now.getTime();
         const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
