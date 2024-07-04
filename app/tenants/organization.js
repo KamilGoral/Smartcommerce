@@ -790,8 +790,10 @@ docReady(function () {
 
         // Inform the user about the days left and the exact end date
         var trialEndDateText = "";
+        var nextInvoiceDate = "";
         const now = new Date();
         const trialEndDate = new Date(toParse.trialEndDate);
+        const nextInvoiceDate = new Date(toParse.nextInvoiceDate);
         const diff = trialEndDate.getTime() - now.getTime();
         const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -901,7 +903,7 @@ docReady(function () {
             case "nextInvoiceDate":
               element.textContent =
                 "Data odnowienia subskrypcji: " +
-                toParse.nextInvoiceDate.toLocaleDateString("pl-PL") || "N/A";
+                nextInvoiceDate.nextInvoiceDatetoLocaleDateString("pl-PL") || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
