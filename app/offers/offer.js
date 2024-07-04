@@ -1405,7 +1405,7 @@ docReady(function () {
       $("#ClearAllButton").on("click", function () {
         // Reset search field
         $("#table_id_filter input[type='search']").val("");
-        api.search("").draw(); // Ensure the DataTable search is also reset
+        
         // Reset all input fields
         $(".filterinput").each(function () {
           if (this.type === "text" || this.type === "number") {
@@ -1416,20 +1416,21 @@ docReady(function () {
             $(this).prop("selectedIndex", 0);
           }
         });
-
+        
         // Clear the internal DataTable search state
         table.state.clear();
-
+        
         // Disable the draw callback temporarily to prevent multiple requests
         table.off("preXhr.dt");
-        table.ajax.reload(function () {
+        
+        // Combine search clearing and data reload into a single operation
+        table.search("").ajax.reload(function () {
           // Re-enable the draw callback after reload
           table.on("preXhr.dt", function (e, settings, data) {
             // Add custom logic to modify data object here if necessary
           });
+          checkFilters(); // Re-check filters after clearing
         }, false);
-
-        checkFilters(); // Re-check filters after clearing
       });
 
       function checkFilters() {
