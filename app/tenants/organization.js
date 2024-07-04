@@ -902,7 +902,7 @@ docReady(function () {
             case "nextInvoiceDate":
               element.textContent =
                 "Data odnowienia subskrypcji: " +
-                nextInvoiceDate.nextInvoiceDatetoLocaleDateString("pl-PL") || "N/A";
+                nextInvoiceDate || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
