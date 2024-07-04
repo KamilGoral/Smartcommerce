@@ -790,7 +790,6 @@ docReady(function () {
 
         // Inform the user about the days left and the exact end date
         var trialEndDateText = "";
-        var nextInvoiceDate = "";
         const now = new Date();
         const trialEndDate = new Date(toParse.trialEndDate);
         const nextInvoiceDate = new Date(toParse.nextInvoiceDate);
