@@ -797,7 +797,7 @@ docReady(function () {
             whichColumns = "createDate:";
             break;
           case 2:
-            whichColumns = "status:";
+            whichColumns = "createDate:";
             break;
           default:
             whichColumns = "createDate:";
