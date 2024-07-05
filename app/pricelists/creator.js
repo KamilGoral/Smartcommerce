@@ -643,7 +643,10 @@ docReady(function () {
     forms.each(function () {
         var form = $(this);
         form.on("submit", function (event) {
-            
+            event.preventDefault();
+
+            // Ukryj poprzedni komunikat o błędzie, jeśli istnieje
+            $("#Create-Pricelist-Fail").stop(true, true).hide();
 
             var wholesalerKey = $("#WholesalerSelector").val();
             if (!wholesalerKey) {
@@ -707,7 +710,7 @@ docReady(function () {
                     displayError(msg);
                 },
             });
-            event.preventDefault();
+
             return false;
         });
     });
@@ -718,24 +721,8 @@ function displayError(message) {
     for (var i = 0; i < elements.length; i++) {
         elements[i].textContent = message;
     }
-    $("#Create-Pricelist-Fail").show().fadeOut(5000);
+    $("#Create-Pricelist-Fail").stop(true, true).show().fadeOut(7000);
 }
-
-  function displayError(message) {
-    var elements = document.getElementsByClassName("warningmessagetext");
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].textContent = message;
-    }
-    $("#Create-Pricelist-Fail").show().fadeOut(5000);
-  }
-
-  function displayError(message) {
-    var elements = document.getElementsByClassName("warningmessagetext");
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].textContent = message;
-    }
-    $("#Create-Pricelist-Fail").show().fadeOut(7000);
-  }
 
   makeWebflowFormAjax($(formIdCreatePricing));
   getShops();
