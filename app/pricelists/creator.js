@@ -694,7 +694,8 @@ docReady(function () {
           data: JSON.stringify(postData),
           success: function (resultData) {
             console.log(resultData);
-            $("#Create-Pricelist-Success").show().fadeOut(4000);
+            $("#Create-Pricelist-Fail").hide();
+            $("#Create-Pricelist-Success").show().fadeOut(7000);
             var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
