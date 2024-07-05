@@ -118,11 +118,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                ",familyname:" +
-                lastNameUser +
-                ",email:" +
-                emailadressUser,
+              firstNameUser +
+              ",familyname:" +
+              lastNameUser +
+              ",email:" +
+              emailadressUser,
               72000
             );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
@@ -251,11 +251,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -643,6 +643,14 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
+        var wholesalerKey = $("#WholesalerSelector").val();
+        if (!wholesalerKey) {
+          displayError("Błąd: Nie wybrano dostawcy. Proszę wybrać dostawcę z listy.");
+          return false;
+        }
+
         var action = InvokeURL + "price-lists";
         var method = "POST";
         var table = $("#validproducts").DataTable();
@@ -653,26 +661,18 @@ docReady(function () {
         };
 
         var dataRequest = {
-          wholesalerKey: $("#WholesalerSelector").val(),
+          wholesalerKey: wholesalerKey,
           startDate: $("#startDate").val() + "T00:00:01.00Z",
           endDate: $("#endDate").val() + "T23:59:59.00Z",
           shopKeys: $("#shopKeys").val(),
         };
 
         if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
-          var errorMsg = "Błąd: Lista Sklepów jest pusta.";
-          console.log(errorMsg);
-          var elements = document.getElementsByClassName("warningmessagetext");
-          for (var i = 0; i < elements.length; i++) {
-            elements[i].textContent = errorMsg;
-          }
-          $("#Create-Pricelist-Fail").show();
-          $("#Create-Pricelist-Fail").fadeOut(5000);
-          return;
+          displayError("Błąd: Lista Sklepów jest pusta.");
+          return false;
         }
 
         let postData = Object.assign(dataRequest, productsToAdd);
-        //
 
         $.ajax({
           type: method,
@@ -694,40 +694,30 @@ docReady(function () {
           data: JSON.stringify(postData),
           success: function (resultData) {
             console.log(resultData);
-            $("#Create-Pricelist-Success").show();
-            $("#Create-Pricelist-Success").fadeOut(4000);
-            var pricelistUrl =
-              "https://" +
-              DomainName +
-              "/app/pricelists/pricelist?uuid=" +
-              resultData.uuid;
-            // Redirect after a short delay to allow the success message to be shown
+            $("#Create-Pricelist-Success").show().fadeOut(4000);
+            var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 1000); // Adjust the timeout duration as needed
+            }, 1000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
-            console.log(jqXHR);
             console.log(exception);
-            var msg =
-              "Błąd.\n" +
-              translateErrorMessage(JSON.parse(jqXHR.responseText).message);
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
-            form.show();
-            $("#Create-Pricelist-Fail").show();
-            return;
+            var msg = "Błąd.\n" + translateErrorMessage(JSON.parse(jqXHR.responseText).message);
+            displayError(msg);
           },
         });
-        event.preventDefault();
-        return false;
       });
     });
   };
+
+  function displayError(message) {
+    var elements = document.getElementsByClassName("warningmessagetext");
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].textContent = message;
+    }
+    $("#Create-Pricelist-Fail").show().fadeOut(5000);
+  }
 
   makeWebflowFormAjax($(formIdCreatePricing));
   getShops();
