@@ -643,7 +643,9 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        // Prevent the default form submission
         event.preventDefault();
+        event.stopPropagation();
 
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
@@ -694,8 +696,7 @@ docReady(function () {
           data: JSON.stringify(postData),
           success: function (resultData) {
             console.log(resultData);
-            $("#Create-Pricelist-Fail").hide();
-            $("#Create-Pricelist-Success").show().fadeOut(7000);
+            $("#Create-Pricelist-Success").show().fadeOut(4000);
             var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
@@ -708,9 +709,26 @@ docReady(function () {
             displayError(msg);
           },
         });
+
+        // Prevent the form from submitting normally
+        return false;
+      });
+
+      // Disable the default form submission
+      form.off('submit').on('submit', function (e) {
+        e.preventDefault();
+        return false;
       });
     });
   };
+
+  function displayError(message) {
+    var elements = document.getElementsByClassName("warningmessagetext");
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].textContent = message;
+    }
+    $("#Create-Pricelist-Fail").show().fadeOut(5000);
+  }
 
   function displayError(message) {
     var elements = document.getElementsByClassName("warningmessagetext");
