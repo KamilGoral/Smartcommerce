@@ -716,7 +716,7 @@ docReady(function () {
     for (var i = 0; i < elements.length; i++) {
       elements[i].textContent = message;
     }
-    $("#Create-Pricelist-Fail").show().fadeOut(5000);
+    $("#Create-Pricelist-Fail").show().fadeOut(7000);
   }
 
   makeWebflowFormAjax($(formIdCreatePricing));
