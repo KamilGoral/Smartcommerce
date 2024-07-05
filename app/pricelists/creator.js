@@ -547,7 +547,7 @@ docReady(function () {
       Papa.parse(file, {
         quotes: true,
         header: true,
-        encoding: "iso-8859-2",
+        encoding: "UTF-8",
         transform: function (h, i) {
           switch (i) {
             case "price":
