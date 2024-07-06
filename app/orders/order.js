@@ -22,7 +22,7 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-var ecEnabledValue = getCookie("EcEnabled");
+  var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
     $("#alertMessage").show();
   }
@@ -118,11 +118,11 @@ var ecEnabledValue = getCookie("EcEnabled");
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                ",familyname:" +
-                lastNameUser +
-                ",email:" +
-                emailadressUser,
+              firstNameUser +
+              ",familyname:" +
+              lastNameUser +
+              ",email:" +
+              emailadressUser,
               72000
             );
             $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
@@ -256,11 +256,11 @@ var ecEnabledValue = getCookie("EcEnabled");
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -275,11 +275,11 @@ var ecEnabledValue = getCookie("EcEnabled");
   IdBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/orders/order?orderId=" +
-      OrderIdBread +
-      "&shopKey=" +
-      shopKey
+    DomainName +
+    "/app/orders/order?orderId=" +
+    OrderIdBread +
+    "&shopKey=" +
+    shopKey
   );
 
   function saveToSessionStorage(productsData) {
@@ -373,18 +373,18 @@ var ecEnabledValue = getCookie("EcEnabled");
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-          wholesaler +
-          '">' +
-          wholesaler +
-          '<input type="checkbox" class="theClass" id="' +
-          wholesaler +
-          '" value="' +
-          wholesaler +
-          '" name="' +
-          wholesaler +
-          '"><label class="mylabel" for="' +
-          wholesaler +
-          '"></label></div>'
+        wholesaler +
+        '">' +
+        wholesaler +
+        '<input type="checkbox" class="theClass" id="' +
+        wholesaler +
+        '" value="' +
+        wholesaler +
+        '" name="' +
+        wholesaler +
+        '"><label class="mylabel" for="' +
+        wholesaler +
+        '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -455,9 +455,8 @@ var ecEnabledValue = getCookie("EcEnabled");
           const numericContent = Number(content);
           const formattedContent = isNaN(numericContent)
             ? "-"
-            : `${numericContent.toFixed(2)} zł${
-                percentage ? ` (${percentage.toFixed(2)}%)` : ""
-              }`;
+            : `${numericContent.toFixed(2)} zł${percentage ? ` (${percentage.toFixed(2)}%)` : ""
+            }`;
           element.textContent = formattedContent;
         };
 
@@ -781,9 +780,9 @@ var ecEnabledValue = getCookie("EcEnabled");
   function getOffers() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/offers?perPage=100&sort=createDate:desc"
+      "shops/" +
+      shopKey +
+      "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -914,11 +913,10 @@ var ecEnabledValue = getCookie("EcEnabled");
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
+            ${promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+          }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
@@ -976,11 +974,10 @@ var ecEnabledValue = getCookie("EcEnabled");
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${
-            item.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          }>${wholesalerName}</option>`;
+            }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru ( tymczasowo on hold)
@@ -995,11 +992,10 @@ var ecEnabledValue = getCookie("EcEnabled");
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
-            wholesaler.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -1863,11 +1859,11 @@ var ecEnabledValue = getCookie("EcEnabled");
     }
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/products/" +
-        rowData.gtin +
-        "/history?perPage=91&page=1"
+      "shops/" +
+      shopKey +
+      "/products/" +
+      rowData.gtin +
+      "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1898,7 +1894,7 @@ var ecEnabledValue = getCookie("EcEnabled");
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -1912,7 +1908,7 @@ var ecEnabledValue = getCookie("EcEnabled");
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -1925,7 +1921,7 @@ var ecEnabledValue = getCookie("EcEnabled");
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1938,7 +1934,7 @@ var ecEnabledValue = getCookie("EcEnabled");
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -2343,11 +2339,11 @@ var ecEnabledValue = getCookie("EcEnabled");
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/products?perPage=10000"
+      "shops/" +
+      shopKey +
+      "/orders/" +
+      orderId +
+      "/products?perPage=10000"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -2381,7 +2377,9 @@ var ecEnabledValue = getCookie("EcEnabled");
             $("#waitingdots").show();
           },
           complete: function () {
-            $("#waitingdots").hide();
+            setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 3000); // 1000 milliseconds = 1 second
           },
           contentType: "application/json",
           dataType: "json",
@@ -2407,7 +2405,7 @@ var ecEnabledValue = getCookie("EcEnabled");
             window.setTimeout(function () {
               document.location =
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
-            }, 3000);
+            }, 2000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -3092,12 +3090,12 @@ var ecEnabledValue = getCookie("EcEnabled");
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/wholesalers?filesFormat=" +
-          fileformat
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers?filesFormat=" +
+        fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -3139,12 +3137,12 @@ var ecEnabledValue = getCookie("EcEnabled");
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/wholesalers/" +
-          wholesalerKey
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/wholesalers/" +
+        wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
