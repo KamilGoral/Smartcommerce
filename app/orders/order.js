@@ -2400,7 +2400,7 @@ docReady(function () {
               }
             }
             $("#deleteorderdmodal").hide();
-            $("#deleteordersuccess").show();
+            $("#deleteordersuccess").css("display", "flex").show();
             failBlock.hide();
             window.setTimeout(function () {
               document.location =

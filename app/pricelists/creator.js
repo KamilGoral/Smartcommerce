@@ -685,7 +685,9 @@ docReady(function () {
                     $("#waitingdots").show();
                 },
                 complete: function () {
+                  setTimeout(function () {
                     $("#waitingdots").hide();
+                  }, 3000); // 1000 milliseconds = 1 second
                 },
                 contentType: "application/json",
                 dataType: "json",
@@ -697,7 +699,7 @@ docReady(function () {
                 data: JSON.stringify(postData),
                 success: function (resultData) {
                     console.log(resultData);
-                    $("#Create-Pricelist-Success").show().fadeOut(4000);
+                    $("#createpricelistsuccess").css("display", "flex").show();
                     var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
                     window.setTimeout(function () {
                         window.location.href = pricelistUrl;
