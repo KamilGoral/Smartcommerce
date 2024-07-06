@@ -2399,8 +2399,8 @@ docReady(function () {
                 return;
               }
             }
-            form.show();
-            doneBlock.show();
+            $("#deleteorderdmodal").hide();
+            $("#deleteordersuccess").show();
             failBlock.hide();
             window.setTimeout(function () {
               document.location =
