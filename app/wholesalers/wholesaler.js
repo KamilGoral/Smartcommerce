@@ -1096,7 +1096,6 @@ docReady(function () {
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
-      console.log("Tutaj");
       form.on("submit", function (event) {
         var action =
           "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3";
