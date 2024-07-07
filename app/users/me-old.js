@@ -694,9 +694,9 @@ docReady(function () {
           "SpytnyUserAttributes",
           "username:" +
             UserInfo.UserAttributes[2].Value +
-            ",familyname:" +
+            "|familyname:" +
             UserInfo.UserAttributes[3].Value +
-            ",email:" +
+            "|email:" +
             UserInfo.UserAttributes[4].Value,
           72000
         );
