@@ -682,7 +682,7 @@ docReady(function () {
                 lastNameUser +
                 ",email:" +
                 emailadressUser,
-              72000
+              720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
             welcomeMessage.textContent =
