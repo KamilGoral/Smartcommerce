@@ -558,7 +558,7 @@ docReady(function () {
   // Funkcja inicjalizująca komponent
   function initMultiSelectSearch() {
     console.log('Initializing MultiSelectSearch...');
-    const container = document.getElementById('countryDistributorName');
+    const container = document.getElementById('multiSelectSearch');
     if (container) {
       console.log('MultiSelectSearch container found');
       new MultiSelectSearch(container);
