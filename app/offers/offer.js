@@ -437,9 +437,6 @@ docReady(function () {
     request.send();
   }
 
-  // Globalne zmienne (zakładam, że są zdefiniowane gdzie indziej w Twoim kodzie)
-  let InvokeURL, shopKey, offerId, orgToken;
-
   class MultiSelectSearch {
     constructor(element) {
       if (!element) {
