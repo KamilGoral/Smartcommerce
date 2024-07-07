@@ -13,6 +13,11 @@ function docReady(fn) {
 }
 
 docReady(function () {
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+  }
   // DOM is loaded and ready for manipulation here
 
   function setCookie(cName, cValue, expirationSec) {

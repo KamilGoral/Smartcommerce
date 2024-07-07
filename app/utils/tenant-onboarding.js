@@ -13,6 +13,11 @@ function docReady(fn) {
 }
 
 docReady(function () {
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+  }
   // DOM is loaded and ready for manipulation here
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -48,7 +53,6 @@ docReady(function () {
   const InvokeURL = getCookie("sprytnyInvokeURL");
   const forwardButton = document.getElementById("forwardButton");
 
-
   // Function to update the button text and state
   function updateActivateWholesalersButton() {
     var button = $("#activateWholesalersButton");
@@ -59,7 +63,9 @@ docReady(function () {
       buttonText.text("Przejdź dalej");
     } else {
       button.addClass("disabled");
-      buttonText.text("Aktywuj jeszcze " + (3 - activeWholesalerCount) + " dostawców.");
+      buttonText.text(
+        "Aktywuj jeszcze " + (3 - activeWholesalerCount) + " dostawców."
+      );
     }
   }
 
@@ -117,9 +123,9 @@ docReady(function () {
         $("#waitingdots").show();
       },
       complete: function () {
-        setTimeout(function() {
+        setTimeout(function () {
           $("#waitingdots").hide();
-      }, 1000);
+        }, 1000);
       },
       success: function (resultData) {
         console.log(resultData);
@@ -128,7 +134,7 @@ docReady(function () {
           resultData.clientId,
           96000
         );
-        LoginIntoOrganization()
+        LoginIntoOrganization();
       },
       error: function (jqXHR, textStatus, errorThrown) {
         // Display error message on the current slide
@@ -142,11 +148,9 @@ docReady(function () {
     });
   });
 
-
   // Step 3: Login to tenant
 
   function LoginIntoOrganization(evt) {
-
     const OrganizationclientId = getCookie("sprytnyNewOrganizationId");
 
     if (!getCookie(OrganizationclientId)) {
@@ -201,7 +205,6 @@ docReady(function () {
     }
     return false;
   }
-
 
   //step5: Activate Wholesalers
 
@@ -537,6 +540,5 @@ docReady(function () {
     );
   }
 
-  LoadTippy()
-
+  LoadTippy();
 });
