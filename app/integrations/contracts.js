@@ -362,7 +362,6 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
                 displayMessage(
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."

@@ -440,8 +440,6 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#wf-form-DoneUpdatePriceList", container);
-        var failBlock = $("#wf-form-FailUpdatePriceList", container);
         var action = InvokeURL + "price-lists/" + priceListId;
         var method = "PATCH";
         var data = [
@@ -505,16 +503,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
 
-            $("#wf-form-DoneUpdatePriceList").show();
-            $("#wf-form-DoneUpdatePriceList").fadeOut(3000);
-            failBlock.hide();
+            displayMessage("Success", "Cennik został zmieniony.");
             window.setTimeout(function () {
               window.location.replace(window.location.href);
             }, 1000);
@@ -524,8 +522,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -544,8 +544,6 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#wf-form-DoneDeletePriceList", container);
-        var failBlock = $("#wf-form-FailDeletePriceList", container);
 
         if (shopKey) {
           var action =
@@ -580,15 +578,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
-            form.hide();
-            doneBlock.show();
-            failBlock.hide();
+            form.show();
+            displayMessage("Success", "Cennik został usunięty.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/users/me-old"
@@ -600,8 +599,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
           },
         });
         event.preventDefault();

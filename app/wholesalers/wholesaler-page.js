@@ -375,8 +375,6 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#wf-form-Delete-wholesaler-done", container);
-        var failBlock = $("#wf-form-Delete-wholesaler-fail", container);
         var action = InvokeURL + "/wholesalers/" + wholesalerKey + "/ftp";
         var method = "DELETE";
 
@@ -405,14 +403,18 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Serwer FTP dla dostawcy został usunięty."
+            );
             window.setTimeout(function () {
               location.reload();
             }, 2000);
@@ -436,11 +438,9 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseJSON.message;
             }
-            $(".warningmessagetext").text(msg);
+
             form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(5000);
+            displayMessage("Error", msg);
           },
         });
         event.preventDefault();

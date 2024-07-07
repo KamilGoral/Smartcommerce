@@ -397,9 +397,6 @@ docReady(function () {
 
   function updateStatus(changeOfStatus) {
     console.log("starting Updating function");
-    var doneBlock = $("#integrationsuccess");
-    var failBlock = $("#integrationfail");
-
     var ajaxConfig = {
       url: InvokeURL + "integrations/pc-market",
       cors: true,
@@ -431,19 +428,11 @@ docReady(function () {
           // call custom callback
           result = successCallback(resultData);
           if (!result) {
-            // show error (fail) block
-            // doneBlock.hide();
-            // failBlock.show();
-            // console.log(e);
             return;
           }
         }
         //show success (done) block
-        doneBlock.show();
-        setTimeout(function () {
-          doneBlock.hide();
-        }, 2000);
-        failBlock.hide();
+        displayMessage("Success", "Twoje dane zostały zmienione");
         window.setTimeout(function () {
           location.reload();
         }, 1000);
@@ -475,13 +464,7 @@ docReady(function () {
         } else {
           msg = "" + jqXHR.responseJSON.message;
         }
-
-        $(".warningmessagetext").text(msg);
-        doneBlock.hide();
-        failBlock.show();
-        setTimeout(function () {
-          failBlock.hide();
-        }, 2000);
+        displayMessage("Error", msg);
         return;
       },
     };
