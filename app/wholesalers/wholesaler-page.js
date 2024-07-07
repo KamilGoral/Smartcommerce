@@ -687,8 +687,15 @@ docReady(function () {
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
-            welcomeMessage.textContent =
-              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
+            const welcomeMessage = document.getElementById("welcomeMessage");
+            if (welcomeMessage) {
+              welcomeMessage.textContent =
+                "Witaj, " + firstNameUser + " " + lastNameUser + "!";
+            } else {
+              console.log(
+                "Element 'welcomeMessage' nie został znaleziony. Pomijam ustawienie powitania."
+              );
+            }
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
