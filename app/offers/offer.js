@@ -1608,8 +1608,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var doneBlock = $("#Edit-Success");
-        var failBlock = $("#Edit-Fail");
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("new-name");
@@ -1651,44 +1649,34 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
-                console.log("tutaj");
-                window.setTimeout(function () {
-                  $("#ProposeChangeInGtinModal").css("display", "none");
-                  $("#Edit-Success").css("display", "none");
-                }, 2000);
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 form.trigger("reset");
                 return;
               }
             }
-            console.log("tutaj2");
             form.show();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Twoje zgłoszenie została przyjęte. Dziękujemy."
+            );
             form.trigger("reset");
-            window.setTimeout(function () {
-              $("#ProposeChangeInGtinModal").css("display", "none");
-              $("#Edit-Success").css("display", "none");
-            }, 2000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
-            console.log("tutaj3");
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
             form.trigger("reset");
-            window.setTimeout(function () {
-              $("#ProposeChangeInGtinModal").css("display", "none");
-              $("#Edit-Fail").css("display", "none");
-            }, 2000);
           },
         });
-        console.log("tutaj4");
         event.preventDefault();
         form.trigger("reset");
         return false;
