@@ -56,11 +56,24 @@ docReady(function () {
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
 
+  const displaySuccessMessage = (message) => {
+    if (message) {
+      $("#Success-Message-Text").text(message);
+    }
+    $("#Success-Message").show().delay(5000).fadeOut("slow");
+  };
+
+  const displayErrorMessage = (message) => {
+    if (message) {
+      $("#Error-Message-Text").text(message);
+    }
+    $("#Error-Message").show().delay(5000).fadeOut("slow");
+  };
+
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
@@ -109,7 +122,7 @@ docReady(function () {
               if (!result) {
                 form.show();
                 $("#form-done-edit-profile").hide();
-                failBlock2.show();
+                displayErrorMessage();
                 console.log(e);
                 return;
               }
@@ -118,22 +131,21 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              ",familyname:" +
-              lastNameUser +
-              ",email:" +
-              emailadressUser,
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
               72000
             );
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
+            displaySuccessMessage("Twoje dane zostały zmienione");
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            failBlock2.show();
+            displayErrorMessage();
             console.log(e);
           },
         });
@@ -176,15 +188,13 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
+                displayErrorMessage();
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
+            displaySuccessMessage("Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -207,13 +217,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
             form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
+            displayErrorMessage(msg);
             return;
           },
         });
@@ -250,11 +255,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   function validateInput(event, input) {
@@ -708,9 +713,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-      "tenants/" +
-      document.querySelector("#organizationName").textContent +
-      "/billing"
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -792,9 +797,9 @@ docReady(function () {
         var trialEndDateText = "";
         const now = new Date();
         const trialEndDate = new Date(toParse.trialEndDate);
-        const nextInvoiceDate = new Date(toParse.nextInvoiceDate).toLocaleDateString(
-          "pl-PL"
-        );
+        const nextInvoiceDate = new Date(
+          toParse.nextInvoiceDate
+        ).toLocaleDateString("pl-PL");
         const diff = trialEndDate.getTime() - now.getTime();
         const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -903,14 +908,13 @@ docReady(function () {
               break;
             case "nextInvoiceDate":
               element.textContent =
-                "Data odnowienia subskrypcji: " +
-                nextInvoiceDate || "N/A";
+                "Data odnowienia subskrypcji: " + nextInvoiceDate || "N/A";
               break;
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                toParse.monthCostBreakdown.forecast.total +
-                " zł" || "N/A";
+                  toParse.monthCostBreakdown.forecast.total +
+                  " zł" || "N/A";
               break;
 
             case "standard":
@@ -925,11 +929,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                  toParse.pricing.specialService.fee
+                toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                  " - " +
-                  toParse.pricing.specialService.fee +
-                  " zł/miesięcznie"
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -942,14 +946,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                  toParse.address.town,
-                  toParse.address.postcode,
-                  toParse.address.line1,
-                  toParse.address.line2,
-                  toParse.address.country,
-                ]
-                  .filter((part) => part)
-                  .join(", ")
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.line2,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1009,7 +1013,9 @@ docReady(function () {
 
         var targetWholesalerKeys = ["eurocash", "eurocash-serwis"];
 
-        var isAnyTargetWholesalerPresent = targetWholesalerKeys.some(function (key) {
+        var isAnyTargetWholesalerPresent = targetWholesalerKeys.some(function (
+          key
+        ) {
           return enabledWholesalers.some(function (item) {
             return item.wholesalerKey === key;
           });
@@ -1019,8 +1025,6 @@ docReady(function () {
           setCookie("EcEnabled", "true", 7 * 24 * 60 * 60);
           $("#alertMessage").show();
         }
-
-
 
         $("#table_wholesalers_list").DataTable({
           data: toParse,
@@ -1922,8 +1926,6 @@ docReady(function () {
                   className = "negative";
                 }
 
-
-
                 return `<span class="${className}">${displayText}</span>`;
               },
             },
@@ -2367,9 +2369,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );

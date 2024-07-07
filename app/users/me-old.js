@@ -14,6 +14,17 @@ function docReady(fn) {
 }
 
 docReady(function () {
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
+  var InvokeURL = getCookie("sprytnyInvokeURL");
+  var DomainName = getCookie("sprytnyDomainName");
+  var formId = "#wf-form-Create-Organization-Form";
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
+  const welcomeMessage = document.getElementById("WelcomeMessage");
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -53,18 +64,177 @@ docReady(function () {
     return result;
   }
 
-  var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
+  const displaySuccessMessage = (message) => {
+    if (message) {
+      $("#Success-Message-Text").text(message);
+    }
+    $("#Success-Message").show().delay(5000).fadeOut("slow");
+  };
 
-  var InvokeURL = getCookie("sprytnyInvokeURL");
-  var DomainName = getCookie("sprytnyDomainName");
-  var formId = "#wf-form-Create-Organization-Form";
-  var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
-  const emailElement = document.getElementById("useremail");
-  emailElement.textContent = getCookie("sprytnyUser");
+  const displayErrorMessage = (message) => {
+    if (message) {
+      $("#Error-Message-Text").text(message);
+    }
+    $("#Error-Message").show().delay(5000).fadeOut("slow");
+  };
 
-  const welcomeMessage = document.getElementById("WelcomeMessage");
+  postEditUserProfile = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        const firstNameUser = $("#firstNameUser").val();
+        const lastNameUser = $("#lastNameUser").val();
+        const emailadressUser = $("#emailadressUser").val();
+
+        const datatosend = {
+          AccessToken: accessToken,
+          UserAttributes: [
+            {
+              Name: "name",
+              Value: firstNameUser,
+            },
+            {
+              Name: "family_name",
+              Value: lastNameUser,
+            },
+            // {
+            //   Name: "email",
+            //   Value: emailadressUser,
+            // },
+          ],
+        };
+
+        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "x-amz-target":
+              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+            Authorization: smartToken,
+          },
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          data: JSON.stringify(datatosend),
+          dataType: "json",
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                $("#form-done-edit-profile").hide();
+                displayErrorMessage();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            setCookie(
+              "SpytnyUserAttributes",
+              "username:" +
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
+              72000
+            );
+            displaySuccessMessage("Twoje dane zostały zmienione");
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            displayErrorMessage();
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
+  postChangePassword = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var action =
+          "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
+        var inputdata = form.serializeArray();
+
+        var data = {
+          "Current-Password": inputdata[0].value,
+          "New-Password": inputdata[1].value,
+          AccessToken: accessToken,
+          "User-Email": $("#useremail").text(),
+        };
+
+        $.ajax({
+          type: "POST",
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayErrorMessage();
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            displaySuccessMessage("Twoje hasło zostało zmienione.");
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status == 403) {
+              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+            } else if (jqXHR.status == 400) {
+              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
+            } else if (jqXHR.status == 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseText;
+            }
+            form.show();
+            displayErrorMessage(msg);
+            return;
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
@@ -78,10 +248,7 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
         var createorgmodal = $("#createorgmodal");
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var action = InvokeURL + "tenants";
         var method = form.attr("method");
         var data = {
@@ -113,15 +280,13 @@ docReady(function () {
               if (!result) {
                 // show error (fail) block
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayErrorMessage();
                 return;
               }
             }
             createorgmodal.hide();
             form.hide();
-            doneBlock.show();
-            failBlock.hide();
+            displaySuccessMessage("Twoja organizacja została stworzona.");
             setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/users/me"
@@ -204,10 +369,8 @@ docReady(function () {
                 msg = "Nieoczekiwany błąd.\n" + jqXHR.responseText;
               }
             }
-            $(".warningmessagetext").text(msg);
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayErrorMessage(msg);
             return;
           },
         });
@@ -216,22 +379,6 @@ docReady(function () {
       });
     });
   };
-
-  function MessageBox(text) {
-    const messageBox = document.querySelector("#WarningMessageMain");
-    messageBox.innerText = text;
-    messageBox.setAttribute("style", "cursor:pointer;");
-    $("#WarningMessageContainer").show();
-
-    // Set a timeout to hide the message box after 3 seconds
-    setTimeout(function () {
-      // Fade out the message over 1 second
-      $("#WarningMessageContainer").fadeOut(1000, function () {
-        // After the fade out, hide the container completely
-        $(this).hide();
-      });
-    }, 3000); // Display time before fade starts
-  }
 
   function decisionInvitation(but) {
     const invitationId = but.dataset.invitationId; // Retrieve the stored invitation ID
@@ -267,7 +414,7 @@ docReady(function () {
       },
       error: function (jqXHR, exception) {
         if (jqXHR.status === 401) {
-          MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
+          displayErrorMessage("Twoja sesja wygasła. Zaloguj się ponownie");
         }
       },
     });
@@ -326,13 +473,13 @@ docReady(function () {
           console.log("Brak zaproszeń");
         }
       } else if (request.status == 401) {
-        MessageBox("Twoja sesja wygasła. Zaloguj się ponownie");
+        displayErrorMessage("Twoja sesja wygasła. Zaloguj się ponownie");
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status
+            request.status
         );
-        MessageBox("Wystąpił błąd podczas komunikacji z serwerem.");
+        displayErrorMessage("Wystąpił błąd podczas komunikacji z serwerem.");
       }
     };
 
@@ -351,7 +498,7 @@ docReady(function () {
 
     // Check organization status first
     if (OrganizationStatus === "Suspended") {
-      MessageBox(
+      displayErrorMessage(
         "Nie możesz zalogować się do tej organizacji. Proszę najpierw uregulować zaległe faktury."
       ); // Display message if suspended
       return false; // Exit function after displaying message
@@ -399,12 +546,12 @@ docReady(function () {
           // Redirect to the organization's page
           window.location.replace(
             "https://" +
-            DomainName +
-            "/app/tenants/organization" +
-            "?name=" +
-            OrganizationName +
-            "&clientId=" +
-            OrganizationclientId
+              DomainName +
+              "/app/tenants/organization" +
+              "?name=" +
+              OrganizationName +
+              "&clientId=" +
+              OrganizationclientId
           );
         },
         error: function (jqXHR, exception) {
@@ -415,12 +562,12 @@ docReady(function () {
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/tenants/organization" +
-        "?name=" +
-        OrganizationName +
-        "&clientId=" +
-        OrganizationclientId
+          DomainName +
+          "/app/tenants/organization" +
+          "?name=" +
+          OrganizationName +
+          "&clientId=" +
+          OrganizationclientId
       );
     }
     return false;
@@ -505,168 +652,9 @@ docReady(function () {
       })
       .catch((error) => {
         console.error("Failed to fetch organizations:", error.message);
-        MessageBox(error.message);
+        displayErrorMessage(error.message);
       });
   }
-
-  postChangePassword = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var action =
-          "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
-        var inputdata = form.serializeArray();
-
-        var data = {
-          "Current-Password": inputdata[0].value,
-          "New-Password": inputdata[1].value,
-          AccessToken: accessToken,
-          "User-Email": $("#useremail").text(),
-        };
-
-        $.ajax({
-          type: "POST",
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
-                console.log(e);
-                return;
-              }
-            }
-            form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
-            } else if (jqXHR.status == 403) {
-              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
-            } else if (jqXHR.status == 400) {
-              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
-            } else if (jqXHR.status == 500) {
-              msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-              msg = "Time out error.";
-            } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
-            } else {
-              msg = "" + jqXHR.responseText;
-            }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
-            form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
-            return;
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
-
-  postEditUserProfile = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
-        const firstNameUser = $("#firstNameUser").val();
-        const lastNameUser = $("#lastNameUser").val();
-        const emailadressUser = $("#emailadressUser").val();
-
-        const datatosend = {
-          AccessToken: accessToken,
-          UserAttributes: [
-            {
-              Name: "name",
-              Value: firstNameUser,
-            },
-            {
-              Name: "family_name",
-              Value: lastNameUser,
-            },
-            // {
-            //   Name: "email",
-            //   Value: emailadressUser,
-            // },
-          ],
-        };
-
-        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
-
-        $.ajax({
-          type: "POST",
-          url: url,
-          headers: {
-            "Content-Type": "application/x-amz-json-1.1",
-            "x-amz-target":
-              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
-            Authorization: smartToken,
-          },
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          data: JSON.stringify(datatosend),
-          dataType: "json",
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
-                console.log(e);
-                return;
-              }
-            }
-            form.show();
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
-            welcomeMessage.textContent =
-              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            failBlock2.show();
-            console.log(e);
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
 
   function getUser() {
     var datatosend = {
@@ -695,11 +683,11 @@ docReady(function () {
         setCookie(
           "SpytnyUserAttributes",
           "username:" +
-          UserInfo.UserAttributes[2].Value +
-          ",familyname:" +
-          UserInfo.UserAttributes[3].Value +
-          ",email:" +
-          UserInfo.UserAttributes[4].Value,
+            UserInfo.UserAttributes[2].Value +
+            ",familyname:" +
+            UserInfo.UserAttributes[3].Value +
+            ",email:" +
+            UserInfo.UserAttributes[4].Value,
           72000
         );
 
@@ -717,11 +705,11 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-          request.status +
-          " " +
-          UserInfo.message
+            request.status +
+            " " +
+            UserInfo.message
         );
-        MessageBox(UserInfo.message);
+        displayErrorMessage(UserInfo.message);
       }
     };
 
