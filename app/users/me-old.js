@@ -65,6 +65,7 @@ docReady(function () {
   }
 
   const displaySuccessMessage = (message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
     if (message) {
       $("#Success-Message-Text").text(message);
     }
@@ -72,6 +73,7 @@ docReady(function () {
   };
 
   const displayErrorMessage = (message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
     if (message) {
       $("#Error-Message-Text").text(message);
     }
@@ -129,7 +131,6 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
                 displayErrorMessage();
                 console.log(e);
                 return;
