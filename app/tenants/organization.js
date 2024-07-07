@@ -2685,30 +2685,28 @@ docReady(function () {
       var table = $("#table_wholesalers_list_bonus").DataTable();
       let newValue = parseFloat($(this).val());
       var initialValue = parseFloat($(this).data("initialValue"));
-      var form = $("#wf-form-WholesalerChangeStatusForm ");
+      var form = $("#wf-form-WholesalerChangeStatusForm");
+      var $input = $(this);
 
       if (newValue !== initialValue) {
-        // Update the value in the dataset and the attribute for next initialization
-        $(this).attr("value", newValue).data("initialValue", newValue);
-
-        var row = table.row($(this).parents("tr"));
+        var row = table.row($input.parents("tr"));
         var data = row.data();
+        var wholesalerKey = data.wholesalerKey;
 
-        var wholesalerKey = data.wholesalerKey; // Assuming this column exists and is named wholesalerKey
         if (!wholesalerKey) {
           console.error("No wholesaler key found for the row.");
+          resetInputValue($input, initialValue);
           return;
         }
 
         var patchData = [
           {
-            op: "add", // or "replace" if the value can already exist
+            op: "add",
             path: "/preferentialBonus",
             value: newValue,
           },
         ];
 
-        // AJAX call to PATCH the data
         $.ajax({
           url: InvokeURL + "wholesalers/" + wholesalerKey,
           type: "PATCH",
@@ -2717,12 +2715,13 @@ docReady(function () {
           success: function (response) {
             console.log("Data updated successfully", response);
             displayMessage("Success", "Bonus został zaktualizowany.");
+            $input.attr("value", newValue).data("initialValue", newValue);
           },
           error: function (jqXHR, exception) {
             console.log("błąd");
             console.log(jqXHR);
             console.log(exception);
-            //$('#customSwitchText').attr('disabled', 'disabled');
+
             var msg = "";
             if (jqXHR.status === 0) {
               msg = "Nie masz połączenia z internetem.";
@@ -2746,22 +2745,22 @@ docReady(function () {
               msg = "" + jqXHR.responseJSON.message;
             }
 
-            // Call the onErrorCallback if defined
             if (typeof onErrorCallback === "function") {
               onErrorCallback();
             }
+
             form.show();
             displayMessage("Error", msg);
-            $(this)
-              .val(initialValue)
-              .attr("value", initialValue)
-              .data("initialValue", initialValue);
-            return;
+            resetInputValue($input, initialValue);
           },
         });
       }
     }
   );
+
+  function resetInputValue($input, value) {
+    $input.val(value).attr("value", value).data("initialValue", value);
+  }
 
   $('div[role="tablist"]').click(function () {
     setTimeout(function () {
