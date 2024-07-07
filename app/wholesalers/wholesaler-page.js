@@ -464,7 +464,6 @@ docReady(function () {
       window.location.href = "https://sprytnykupiec.pl/login-page";
     }
   }
-  getFTP();
   getWholesaler();
 
   postChangePassword = function (forms, successCallback, errorCallback) {
