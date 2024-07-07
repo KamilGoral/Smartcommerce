@@ -1712,7 +1712,6 @@ docReady(function () {
 
   getOfferStatus();
   getWholesalersSh();
-  getShopOfferCountryDistributors();
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
