@@ -633,17 +633,11 @@ docReady(function () {
             // Append row to the container
             orgContainer.appendChild(row);
 
-            // If the organization is onboarding, remove click actions and add class .tippy
+            // If the organization is onboarding, remove click actions
             if (organization.status.toLowerCase() === "onboarding") {
               createOrgButton.style.pointerEvents = "none"; // Disable pointer events
               createOrgButton.style.opacity = "0.5"; // Set opacity to 50%
               createOrgButton.style.display = "flex";
-              $("#CreateOrgButton").click(function () {
-                displayMessage(
-                  "Error",
-                  "Trwa konfiguracja jednej z Twoich organizacji. Dokończ ją, by utworzyć kolejną."
-                );
-              });
               row.addEventListener("click", LoginIntoOrganization, false);
             } else {
               row.addEventListener("click", LoginIntoOrganization, false);
