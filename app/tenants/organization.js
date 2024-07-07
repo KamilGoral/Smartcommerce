@@ -1878,7 +1878,7 @@ docReady(function () {
                 }
                 
                 if (daysValid > 3) {
-                  className = "noneexisting";
+                  className = "positive";
                 } else if (daysValid >= 1) {
                   className = "positive";
                 } else if (daysValid == 0) {
