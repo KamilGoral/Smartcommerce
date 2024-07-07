@@ -126,11 +126,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +270,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -289,11 +289,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/offers/offer?shopKey=" +
-      shopKey +
-      "&offerId=" +
-      offerId
+    DomainName +
+    "/app/offers/offer?shopKey=" +
+    shopKey +
+    "&offerId=" +
+    offerId
   );
 
   function getProductDetails(rowData) {
@@ -436,39 +436,105 @@ docReady(function () {
     request.send();
   }
 
-  function getShopOfferCountryDistributors() {
-    let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/country-distributors"
-    );
+  class MultiSelectSearch {
+    constructor(element) {
+      this.container = element;
+      this.input = element.querySelector('.multi-select-input');
+      this.dropdown = element.querySelector('.multi-select-dropdown');
+      this.selectedDistributors = [];
+      this.distributors = [];
 
-    
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      
-      // Get the select element
-      const selectElement = document.getElementById('countryDistributorName');
+      this.init();
+    }
 
-      // Clear existing options
-      selectElement.innerHTML = '<option value=""></option>';
+    init() {
+      this.getShopOfferCountryDistributors();
+      this.addEventListeners();
+    }
 
-      // Check if items exist in the response
-      if (data.items && data.items.length > 0) {
-        // Populate the select element with the items
-        data.items.forEach((item) => {
-          if (item.name && item.taxId && item.countryCode) {
-            let option = document.createElement('option');
-            option.value = item.taxId;
-            option.textContent = `${item.name}`;
-            selectElement.appendChild(option);
-          }
-        });
+    getShopOfferCountryDistributors() {
+      let url = new URL(
+        InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/country-distributors"
+      );
+
+      let request = new XMLHttpRequest();
+      request.open("GET", url, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.onload = () => {
+        var data = JSON.parse(request.response);
+
+        if (data.items && data.items.length > 0) {
+          this.distributors = data.items.filter(item => item.name && item.taxId && item.countryCode)
+            .map(item => ({ id: item.taxId, name: item.name }));
+          this.renderDropdown();
+        }
+      };
+      request.send();
+    }
+
+    renderDropdown() {
+      this.dropdown.innerHTML = this.distributors.map(distributor => `
+            <div class="multi-select-item" data-id="${distributor.id}">
+                <input type="checkbox" id="dist-${distributor.id}">
+                <label for="dist-${distributor.id}">${distributor.name}</label>
+            </div>
+        `).join('');
+    }
+
+    addEventListeners() {
+      this.input.addEventListener('click', () => this.toggleDropdown());
+      this.input.addEventListener('input', () => this.filterDistributors());
+
+      this.dropdown.addEventListener('change', (e) => {
+        if (e.target.type === 'checkbox') {
+          this.toggleDistributor(e.target.closest('.multi-select-item').dataset.id);
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!this.container.contains(e.target)) {
+          this.closeDropdown();
+        }
+      });
+    }
+
+    toggleDropdown() {
+      this.dropdown.style.display = this.dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    closeDropdown() {
+      this.dropdown.style.display = 'none';
+    }
+
+    filterDistributors() {
+      const searchTerm = this.input.value.toLowerCase();
+      Array.from(this.dropdown.children).forEach(item => {
+        const matches = item.textContent.toLowerCase().includes(searchTerm);
+        item.style.display = matches ? 'block' : 'none';
+      });
+    }
+
+    toggleDistributor(id) {
+      const index = this.selectedDistributors.indexOf(id);
+      if (index > -1) {
+        this.selectedDistributors.splice(index, 1);
+      } else {
+        this.selectedDistributors.push(id);
       }
-    };
-    request.send();
+      this.updateInputText();
+    }
+
+    updateInputText() {
+      const count = this.selectedDistributors.length;
+      this.input.value = count > 0 ? `Wybrano (${count})` : '';
+      this.input.placeholder = count > 0 ? '' : 'Wybierz';
+    }
   }
+
+  // Inicjalizacja komponentu
+  document.addEventListener('DOMContentLoaded', () => {
+    new MultiSelectSearch(document.getElementById('multiSelectSearch'));
+  });
 
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
@@ -559,7 +625,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -573,7 +639,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -586,7 +652,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -599,7 +665,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -959,11 +1025,10 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
+            ${promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+          }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
