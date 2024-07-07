@@ -1068,12 +1068,24 @@ docReady(function () {
       if (rotIndiStr) {
         QStr = QStr + "&rotationIndicator=" + rotIndiStr;
       }
+
       var whKeyIndi = $("#wholesalerKeyIndicator")
         .map(function () {
           return this.value;
         })
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
+
+      var cdKeyIndi = $("#countryDistributorName")
+        .map(function () {
+          return this.value;
+        })
+        .get();
+      var cdKeyIndiStr = cdKeyIndi.toString();
+      if (cdKeyIndiStr) {
+        QStr = QStr + "&countryDistributorTaxId=" + cdKeyIndiStr;
+      }
+
 
       $(document).on("click", 'input[type="checkbox"]', function () {
         $('input[type="checkbox"]').not(this).prop("checked", false);
