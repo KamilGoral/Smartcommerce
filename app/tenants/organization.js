@@ -1780,7 +1780,7 @@ docReady(function () {
         const table = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
-          order: [],
+          order: [[3, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
