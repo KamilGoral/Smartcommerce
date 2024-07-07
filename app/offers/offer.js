@@ -50,7 +50,8 @@ docReady(function () {
     });
     return result;
   }
-
+  
+  new MultiSelectSearch(document.getElementById('multiSelectSearch'));
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
@@ -1800,8 +1801,6 @@ docReady(function () {
     $(this).DataTable().columns.adjust();
     LoadTippy();
   });
-
-  new MultiSelectSearch(document.getElementById('multiSelectSearch'));
 
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
