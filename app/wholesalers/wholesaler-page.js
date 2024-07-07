@@ -14,14 +14,15 @@ function docReady(fn) {
 
 docReady(function () {
   // DOM is loaded and ready for manipulation here
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
-var ecEnabledValue = getCookie("EcEnabled");
+  var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
     $("#alertMessage").show();
   }
@@ -565,15 +566,16 @@ var ecEnabledValue = getCookie("EcEnabled");
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -596,13 +598,8 @@ var ecEnabledValue = getCookie("EcEnabled");
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
             form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -616,7 +613,6 @@ var ecEnabledValue = getCookie("EcEnabled");
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
@@ -664,15 +660,26 @@ var ecEnabledValue = getCookie("EcEnabled");
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
+            setCookie(
+              "SpytnyUserAttributes",
+              "username:" +
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
+              72000
+            );
+            displayMessage("Success", "Twoje dane zostały zmienione");
             welcomeMessage.textContent =
               "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
@@ -681,7 +688,10 @@ var ecEnabledValue = getCookie("EcEnabled");
               errorCallback(e);
             }
             form.show();
-            failBlock2.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });

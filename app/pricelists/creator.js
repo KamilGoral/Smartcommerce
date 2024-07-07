@@ -15,12 +15,13 @@ function docReady(fn) {
 docReady(function () {
   // DOM is loaded and ready for manipulation here
   // DOM is loaded and ready for manipulation here
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
@@ -60,7 +61,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
@@ -108,8 +108,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -118,22 +120,26 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              ",familyname:" +
-              lastNameUser +
-              ",email:" +
-              emailadressUser,
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
               72000
             );
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            failBlock2.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -176,15 +182,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -207,13 +214,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
             form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -251,11 +253,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -641,90 +643,98 @@ docReady(function () {
 
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
-        var form = $(this);
-        form.on("submit", function (event) {
-            event.preventDefault();
+      var form = $(this);
+      form.on("submit", function (event) {
+        event.preventDefault();
 
-            // Ukryj poprzedni komunikat o błędzie, jeśli istnieje
-            $("#Create-Pricelist-Fail").stop(true, true).hide();
+        // Ukryj poprzedni komunikat o błędzie, jeśli istnieje
+        $("#Create-Pricelist-Fail").stop(true, true).hide();
 
-            var wholesalerKey = $("#WholesalerSelector").val();
-            if (!wholesalerKey) {
-                displayError("Błąd: Nie wybrano dostawcy. Proszę wybrać dostawcę z listy.");
-                return false;
-            }
+        var wholesalerKey = $("#WholesalerSelector").val();
+        if (!wholesalerKey) {
+          displayError(
+            "Błąd: Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
+          );
+          return false;
+        }
 
-            var action = InvokeURL + "price-lists";
-            var method = "POST";
-            var table = $("#validproducts").DataTable();
-            var productsFromTable = table.rows().data().toArray();
+        var action = InvokeURL + "price-lists";
+        var method = "POST";
+        var table = $("#validproducts").DataTable();
+        var productsFromTable = table.rows().data().toArray();
 
-            var productsToAdd = {
-                products: productsFromTable,
-            };
+        var productsToAdd = {
+          products: productsFromTable,
+        };
 
-            var dataRequest = {
-                wholesalerKey: wholesalerKey,
-                startDate: $("#startDate").val() + "T00:00:01.00Z",
-                endDate: $("#endDate").val() + "T23:59:59.00Z",
-                shopKeys: $("#shopKeys").val(),
-            };
+        var dataRequest = {
+          wholesalerKey: wholesalerKey,
+          startDate: $("#startDate").val() + "T00:00:01.00Z",
+          endDate: $("#endDate").val() + "T23:59:59.00Z",
+          shopKeys: $("#shopKeys").val(),
+        };
 
-            if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
-                displayError("Błąd: Lista Sklepów jest pusta.");
-                return false;
-            }
+        if (!dataRequest.shopKeys || dataRequest.shopKeys.length === 0) {
+          displayError("Błąd: Lista Sklepów jest pusta.");
+          return false;
+        }
 
-            let postData = Object.assign(dataRequest, productsToAdd);
+        let postData = Object.assign(dataRequest, productsToAdd);
 
-            $.ajax({
-                type: method,
-                url: action,
-                cors: true,
-                beforeSend: function () {
-                    $("#waitingdots").show();
-                },
-                complete: function () {
-                  setTimeout(function () {
-                    $("#waitingdots").hide();
-                  }, 3000); // 1000 milliseconds = 1 second
-                },
-                contentType: "application/json",
-                dataType: "json",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    Authorization: orgToken,
-                },
-                data: JSON.stringify(postData),
-                success: function (resultData) {
-                    console.log(resultData);
-                    $("#createpricelistsuccess").css("display", "flex").show();
-                    var pricelistUrl = "https://" + DomainName + "/app/pricelists/pricelist?uuid=" + resultData.uuid;
-                    window.setTimeout(function () {
-                        window.location.href = pricelistUrl;
-                    }, 1000);
-                },
-                error: function (jqXHR, exception) {
-                    console.log(jqXHR);
-                    console.log(exception);
-                    var msg = "Błąd.\n" + translateErrorMessage(JSON.parse(jqXHR.responseText).message);
-                    displayError(msg);
-                },
-            });
-
-            return false;
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 3000); // 1000 milliseconds = 1 second
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+          },
+          data: JSON.stringify(postData),
+          success: function (resultData) {
+            console.log(resultData);
+            $("#createpricelistsuccess").css("display", "flex").show();
+            var pricelistUrl =
+              "https://" +
+              DomainName +
+              "/app/pricelists/pricelist?uuid=" +
+              resultData.uuid;
+            window.setTimeout(function () {
+              window.location.href = pricelistUrl;
+            }, 1000);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg =
+              "Błąd.\n" +
+              translateErrorMessage(JSON.parse(jqXHR.responseText).message);
+            displayError(msg);
+          },
         });
-    });
-};
 
-function displayError(message) {
+        return false;
+      });
+    });
+  };
+
+  function displayError(message) {
     var elements = document.getElementsByClassName("warningmessagetext");
     for (var i = 0; i < elements.length; i++) {
-        elements[i].textContent = message;
+      elements[i].textContent = message;
     }
     $("#Create-Pricelist-Fail").stop(true, true).show().fadeOut(7000);
-}
+  }
 
   makeWebflowFormAjax($(formIdCreatePricing));
   getShops();

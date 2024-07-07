@@ -14,12 +14,13 @@ function docReady(fn) {
 
 docReady(function () {
   // DOM is loaded and ready for manipulation here
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
@@ -60,7 +61,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
@@ -108,8 +108,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -118,22 +120,26 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              ",familyname:" +
-              lastNameUser +
-              ",email:" +
-              emailadressUser,
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
               72000
             );
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            failBlock2.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -176,15 +182,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -207,13 +214,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
             form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -254,11 +256,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -297,10 +299,10 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-          " - " +
-          data.shopKey +
-          " | " +
-          data.merchantConsoleShopId || "N/A";
+            " - " +
+            data.shopKey +
+            " | " +
+            data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -627,7 +629,7 @@ docReady(function () {
         case "forced":
           return '<span class="medium">W kolejce</span>';
         default:
-          return '-';
+          return "-";
       }
     }
 
@@ -640,14 +642,15 @@ docReady(function () {
     // Table headers for the offers table
     toDisplayHtml += '<table style="table-layout: fixed; width: 100%;"><tr>';
     toDisplayHtml += '<th style="width:' + columnWidths[0] + ';"></th>';
-    toDisplayHtml += '<th style="width:' + columnWidths[1] + ';">Data utworzenia</th>';
+    toDisplayHtml +=
+      '<th style="width:' + columnWidths[1] + ';">Data utworzenia</th>';
     toDisplayHtml += '<th style="width:' + columnWidths[2] + ';">Status</th>';
     toDisplayHtml += '<th style="width:' + columnWidths[3] + ';">Akcje</th>';
-    toDisplayHtml += '</tr>';
+    toDisplayHtml += "</tr>";
 
     // Iterate through the array of offers
     for (var i = 0; i < offers.length; i++) {
-      var formattedDate = '-';
+      var formattedDate = "-";
       if (offers[i].createDate) {
         var utcDate = new Date(offers[i].createDate.replace(" ", "T") + "Z");
         formattedDate = utcDate.toLocaleString("pl-PL", {
@@ -674,18 +677,38 @@ docReady(function () {
       }
 
       toDisplayHtml +=
-        '<tr>' +
-        '<td class="details-container2" style="width:' + columnWidths[0] + '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
-        '<td style="width:' + columnWidths[1] + ';">' + formattedDate + '</td>' +
-        '<td style="width:' + columnWidths[2] + ';">' + getStatusHtml(offers[i]) + '</td>' +
-        '<td style="width:' + columnWidths[3] + ';"><div class="action-container"';
+        "<tr>" +
+        '<td class="details-container2" style="width:' +
+        columnWidths[0] +
+        '; justify-content: center;"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="offer"></td>' +
+        '<td style="width:' +
+        columnWidths[1] +
+        ';">' +
+        formattedDate +
+        "</td>" +
+        '<td style="width:' +
+        columnWidths[2] +
+        ';">' +
+        getStatusHtml(offers[i]) +
+        "</td>" +
+        '<td style="width:' +
+        columnWidths[3] +
+        ';"><div class="action-container"';
 
       if (offers[i].status == "error") {
         toDisplayHtml +=
-          ' style="opacity: 0.5;"><a href="#" status="' + offers[i].status + '" offerId="' + offers[i].offerId + '" class="buttonoutline editme w-button">Brak</a></div></td></tr>';
+          ' style="opacity: 0.5;"><a href="#" status="' +
+          offers[i].status +
+          '" offerId="' +
+          offers[i].offerId +
+          '" class="buttonoutline editme w-button">Brak</a></div></td></tr>';
       } else {
         toDisplayHtml +=
-          '><a href="#" status="' + offers[i].status + '" offerId="' + offers[i].offerId + '" class="buttonoutline editme w-button">Przejdź</a></div></td></tr>';
+          '><a href="#" status="' +
+          offers[i].status +
+          '" offerId="' +
+          offers[i].offerId +
+          '" class="buttonoutline editme w-button">Przejdź</a></div></td></tr>';
       }
     }
 
@@ -694,7 +717,6 @@ docReady(function () {
 
     return toDisplayHtml;
   }
-
 
   var refreshInterval;
   var counterInterval;
@@ -831,8 +853,7 @@ docReady(function () {
                   createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               } else {
-
-                const todayDate = new Date().toISOString().split('T')[0]; // Get today's date in "YYYY-MM-DD" format
+                const todayDate = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
                 var currentDateTime = new Date().toISOString();
                 const createDate = currentDateTime.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
                 const timePart = currentDateTime.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
@@ -958,7 +979,6 @@ docReady(function () {
                 month: "2-digit",
                 day: "2-digit",
               });
-
 
               return startDate;
             }
@@ -1104,11 +1124,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1413,9 +1433,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -2065,11 +2085,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 100);
           },

@@ -14,12 +14,13 @@ function docReady(fn) {
 
 docReady(function () {
   // DOM is loaded and ready for manipulation here
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
@@ -59,7 +60,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
@@ -107,8 +107,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -117,22 +119,26 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              ",familyname:" +
-              lastNameUser +
-              ",email:" +
-              emailadressUser,
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
               72000
             );
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            failBlock2.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -175,15 +181,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -206,13 +213,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
             form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -254,11 +256,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -273,11 +275,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/offers/offer?shopKey=" +
-    shopKey +
-    "&offerId=" +
-    offerId
+      DomainName +
+      "/app/offers/offer?shopKey=" +
+      shopKey +
+      "&offerId=" +
+      offerId
   );
 
   function getProductDetails(rowData) {
@@ -509,7 +511,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -523,7 +525,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -536,7 +538,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -549,7 +551,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -909,10 +911,11 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${promotion
-            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-            : "<td>-</td>"
-          }
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
@@ -1405,7 +1408,7 @@ docReady(function () {
       $("#ClearAllButton").on("click", function () {
         // Reset search field
         $("#table_id_filter input[type='search']").val("");
-        
+
         // Reset all input fields
         $(".filterinput").each(function () {
           if (this.type === "text" || this.type === "number") {
@@ -1416,13 +1419,13 @@ docReady(function () {
             $(this).prop("selectedIndex", 0);
           }
         });
-        
+
         // Clear the internal DataTable search state
         table.state.clear();
-        
+
         // Disable the draw callback temporarily to prevent multiple requests
         table.off("preXhr.dt");
-        
+
         // Combine search clearing and data reload into a single operation
         table.search("").ajax.reload(function () {
           // Re-enable the draw callback after reload
@@ -1435,7 +1438,7 @@ docReady(function () {
 
       function checkFilters() {
         var searchValue = api.search();
-        console.log(searchValue)
+        console.log(searchValue);
         var anyFilterActive =
           searchValue !== "" ||
           $(".filterinput").filter(function () {

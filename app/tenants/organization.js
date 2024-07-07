@@ -14,12 +14,13 @@ function docReady(fn) {
 
 docReady(function () {
   // DOM is loaded and ready for manipulation here
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
@@ -33,14 +34,6 @@ docReady(function () {
     const encodedValue = encodeURIComponent(cValue);
     document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
   }
-
-  const displayMessage = (type, message) => {
-    $("#Message-Container").show().delay(5000).fadeOut("slow");
-    if (message) {
-      $(`#${type}-Message-Text`).text(message);
-    }
-    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
-  };
 
   function parseAttributes(cookieValue) {
     const attributes = cookieValue.split(",");

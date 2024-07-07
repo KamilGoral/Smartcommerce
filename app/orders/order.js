@@ -15,12 +15,13 @@ function docReady(fn) {
 
 docReady(function () {
   // DOM is loaded and ready for manipulation here
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2)
-      return decodeURIComponent(parts.pop().split(";").shift());
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
@@ -60,7 +61,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
@@ -108,8 +108,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -118,22 +120,26 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              ",familyname:" +
-              lastNameUser +
-              ",email:" +
-              emailadressUser,
+                firstNameUser +
+                ",familyname:" +
+                lastNameUser +
+                ",email:" +
+                emailadressUser,
               72000
             );
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            failBlock2.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -176,15 +182,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-password").hide();
-                $("#form-done-fail-edit").show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            $("#form-done-edit-password").show().delay(2000).fadeOut("slow");
-            $("#form-done-fail-edit").hide();
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -207,13 +214,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById(
-              "WarningMessageChangePassword"
-            );
-            message.textContent = msg;
             form.show();
-            $("#form-done-edit-password").hide();
-            $("#form-done-fail-edit").show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -256,11 +258,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -275,11 +277,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   function saveToSessionStorage(productsData) {
@@ -373,18 +375,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -455,8 +457,9 @@ docReady(function () {
           const numericContent = Number(content);
           const formattedContent = isNaN(numericContent)
             ? "-"
-            : `${numericContent.toFixed(2)} zł${percentage ? ` (${percentage.toFixed(2)}%)` : ""
-            }`;
+            : `${numericContent.toFixed(2)} zł${
+                percentage ? ` (${percentage.toFixed(2)}%)` : ""
+              }`;
           element.textContent = formattedContent;
         };
 
@@ -780,9 +783,9 @@ docReady(function () {
   function getOffers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/offers?perPage=100&sort=createDate:desc"
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -913,10 +916,11 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${promotion
-            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-            : "<td>-</td>"
-          }
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
@@ -974,10 +978,11 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-            }>${wholesalerName}</option>`;
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru ( tymczasowo on hold)
@@ -992,10 +997,11 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -1859,11 +1865,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1"
+        "shops/" +
+        shopKey +
+        "/products/" +
+        rowData.gtin +
+        "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1894,7 +1900,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1908,7 +1914,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1921,7 +1927,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1934,7 +1940,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -2339,11 +2345,11 @@ docReady(function () {
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/products?perPage=10000"
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products?perPage=10000"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -3090,12 +3096,12 @@ docReady(function () {
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers?filesFormat=" +
+          fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -3137,12 +3143,12 @@ docReady(function () {
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
