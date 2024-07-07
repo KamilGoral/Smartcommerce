@@ -140,6 +140,8 @@ docReady(function () {
               72000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
