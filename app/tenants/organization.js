@@ -1861,29 +1861,34 @@ docReady(function () {
               render: function (data) {
                 let className;
                 let displayText;
-
-                displayText = `${data} dni`;
-
-                if (data > 3) {
+            
+                // Truncate data to remove decimal part
+                const daysValid = Math.trunc(data);
+            
+                if (daysValid === 1) {
+                  displayText = `${daysValid} dzień`;
+                } else {
+                  displayText = `${daysValid} dni`;
+                }
+            
+                if (daysValid > 3) {
                   className = "super";
-                } else if (data >= 1) {
+                } else if (daysValid >= 1) {
                   className = "positive";
-                  displayText = `${data} dzień`;
-                } else if (data == 0) {
+                } else if (daysValid == 0) {
                   className = "medium";
-                } else if (data === -1) {
+                } else if (daysValid === -1) {
                   className = "negative";
-                  displayText = `${data} dzień`;
-                } else if (data >= -3) {
+                  displayText = `${daysValid} dzień`;
+                } else if (daysValid >= -3) {
                   className = "negative";
                 } else {
                   className = "negative";
                 }
-
+            
                 return `<span class="${className}">${displayText}</span>`;
               },
             },
-
             {
               orderable: true,
               data: "startDate",
