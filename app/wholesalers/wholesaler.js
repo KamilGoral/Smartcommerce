@@ -40,7 +40,7 @@ docReady(function () {
   }
 
   function parseAttributes(cookieValue) {
-    const attributes = cookieValue.split(",");
+    const attributes = cookieValue.split("|");
     const result = {};
     attributes.forEach((attribute) => {
       const [key, value] = attribute.split(":");

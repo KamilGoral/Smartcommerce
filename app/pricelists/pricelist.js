@@ -40,7 +40,7 @@ docReady(function () {
   }
 
   function parseAttributes(cookieValue) {
-    const attributes = cookieValue.split(",");
+    const attributes = cookieValue.split("|");
     const result = {};
     attributes.forEach((attribute) => {
       const [key, value] = attribute.split(":");
@@ -125,9 +125,9 @@ docReady(function () {
               "SpytnyUserAttributes",
               "username:" +
                 firstNameUser +
-                ",familyname:" +
+                "|familyname:" +
                 lastNameUser +
-                ",email:" +
+                "|email:" +
                 emailadressUser,
               720000
             );
