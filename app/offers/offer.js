@@ -531,10 +531,9 @@ docReady(function () {
     }
   }
 
-  // Inicjalizacja komponentu
-  document.addEventListener('DOMContentLoaded', () => {
-    new MultiSelectSearch(document.getElementById('multiSelectSearch'));
-  });
+
+  
+
 
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
@@ -1801,6 +1800,8 @@ docReady(function () {
     $(this).DataTable().columns.adjust();
     LoadTippy();
   });
+
+  new MultiSelectSearch(document.getElementById('multiSelectSearch'));
 
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
