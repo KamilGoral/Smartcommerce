@@ -1961,7 +1961,10 @@ docReady(function () {
               }
             }
             form.show();
-            displayMessage("Success", "Twoje dane zostały zmienione");
+            displayMessage(
+              "Success",
+              "Oferta w trakcie tworzenia. Proszę poczekaj..."
+            );
             window.setTimeout(function () {
               location.reload();
             }, 3500);
