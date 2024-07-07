@@ -2008,8 +2008,8 @@ docReady(function () {
 
       // Check for file size exceeding 10 MB
       if (fileSize > 10 * 1024 * 1024) {
-        $("#wrongfilemodal").css("display", "flex");
-        $("#wrongfilemessage").text(
+        displayMessage(
+          "Error",
           "Jeden z Twoich plików zamówienie jest zbyt duży. Plik jest większy niż 10 MB"
         );
         $("#orderuploadmodal").css("display", "none");
@@ -2038,7 +2038,6 @@ docReady(function () {
       formData.append("file", myUploadedFiles[i]);
     }
     formData.append("name", $("#OrderName").val());
-    console.log(formData);
     var action = InvokeURL + "shops/" + shopKey + "/orders";
     // Add custom header if ignoreGTINs is true
     if (ignoreGTINs) {
@@ -2051,6 +2050,7 @@ docReady(function () {
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
       if (xhr.status === 201) {
+        displayMessage("Success", "Twoje zamówienie zostało stworzone.");
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
@@ -2082,7 +2082,6 @@ docReady(function () {
             Authorization: orgToken,
           },
           success: function (resultData) {
-            displayMessage("Success", "Twoje zamówieni zostało stworzone.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
