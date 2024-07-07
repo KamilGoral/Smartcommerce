@@ -73,6 +73,7 @@ docReady(function () {
   var organizationName = new URL(document.location.href).searchParams.get(
     "name"
   );
+  $("#NewOrganizationName").val(organizationName);
   setCookie("OrganizationName", organizationName, 7200);
   var formId = "#wf-form-NewOrganizationName";
   var formIdDelete = "#wf-form-DeleteOrganization";
