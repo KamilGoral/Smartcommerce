@@ -51,6 +51,82 @@ docReady(function () {
     return result;
   }
 
+  postChangePassword = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var action =
+          "https://hook.eu1.make.com/2laahxeoqfuo7nmf2gh1yyuatq92jiai";
+        var inputdata = form.serializeArray();
+
+        var data = {
+          "Current-Password": inputdata[0].value,
+          "New-Password": inputdata[1].value,
+          AccessToken: accessToken,
+          "User-Email": $("#useremail").text(),
+        };
+
+        $.ajax({
+          type: "POST",
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status == 403) {
+              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+            } else if (jqXHR.status == 400) {
+              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
+            } else if (jqXHR.status == 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseJSON.message;
+            }
+            form.show();
+            displayMessage("Error", msg);
+            return;
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
