@@ -436,6 +436,40 @@ docReady(function () {
     request.send();
   }
 
+  function getShopOfferCountryDistributors() {
+    let url = new URL(
+      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/country-distributors"
+    );
+
+    
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      
+      // Get the select element
+      const selectElement = document.getElementById('countryDistributorName');
+
+      // Clear existing options
+      selectElement.innerHTML = '<option value=""></option>';
+
+      // Check if items exist in the response
+      if (data.items && data.items.length > 0) {
+        // Populate the select element with the items
+        data.items.forEach((item) => {
+          if (item.name && item.taxId && item.countryCode) {
+            let option = document.createElement('option');
+            option.value = item.taxId;
+            option.textContent = `${item.name}`;
+            selectElement.appendChild(option);
+          }
+        });
+      }
+    };
+    request.send();
+  }
+
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
       rowData.stock = {
@@ -1601,6 +1635,7 @@ docReady(function () {
 
   getOfferStatus();
   getWholesalersSh();
+  getShopOfferCountryDistributors();
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
