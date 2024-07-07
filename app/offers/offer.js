@@ -447,27 +447,36 @@ docReady(function () {
         return;
       }
       this.container = element;
-      this.input = this.container.querySelector('input');
-      this.dropdown = document.createElement('div');
-      this.dropdown.className = 'multi-select-dropdown';
-      this.container.appendChild(this.dropdown);
-
+      this.input = this.container.querySelector('.multi-select-input');
+      
+      if (!this.input) {
+        console.error('Input element inside container not found');
+        return;
+      }
+  
+      this.dropdown = this.container.querySelector('.multi-select-dropdown');
+      
+      if (!this.dropdown) {
+        console.error('Dropdown element inside container not found');
+        return;
+      }
+  
       this.selectedDistributors = [];
       this.distributors = [];
-
+  
       this.init();
     }
-
+  
     init() {
       this.getShopOfferCountryDistributors();
       this.addEventListeners();
     }
-
+  
     getShopOfferCountryDistributors() {
       let url = new URL(
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/country-distributors"
       );
-
+  
       let request = new XMLHttpRequest();
       request.open("GET", url, true);
       request.setRequestHeader("Authorization", orgToken);
@@ -475,7 +484,7 @@ docReady(function () {
         if (request.status >= 200 && request.status < 400) {
           try {
             var data = JSON.parse(request.response);
-
+  
             if (data.items && data.items.length > 0) {
               this.distributors = data.items.filter(item => item.name && item.taxId && item.countryCode)
                 .map(item => ({ id: item.taxId, name: item.name }));
@@ -495,7 +504,7 @@ docReady(function () {
       };
       request.send();
     }
-
+  
     renderDropdown() {
       this.dropdown.innerHTML = this.distributors.map(distributor => `
             <div class="multi-select-item">
@@ -504,32 +513,36 @@ docReady(function () {
             </div>
         `).join('');
     }
-
+  
     addEventListeners() {
+      if (!this.input) {
+        console.error('Input element not found');
+        return;
+      }
       this.input.addEventListener('click', () => this.toggleDropdown());
       this.input.addEventListener('input', () => this.filterDistributors());
-
+  
       this.dropdown.addEventListener('change', (e) => {
         if (e.target.type === 'checkbox') {
           this.toggleDistributor(e.target.value);
         }
       });
-
+  
       document.addEventListener('click', (e) => {
         if (!this.container.contains(e.target)) {
           this.closeDropdown();
         }
       });
     }
-
+  
     toggleDropdown() {
       this.dropdown.style.display = this.dropdown.style.display === 'none' ? 'block' : 'none';
     }
-
+  
     closeDropdown() {
       this.dropdown.style.display = 'none';
     }
-
+  
     filterDistributors() {
       const searchTerm = this.input.value.toLowerCase();
       Array.from(this.dropdown.querySelectorAll('.multi-select-item')).forEach(item => {
@@ -537,7 +550,7 @@ docReady(function () {
         item.style.display = matches ? 'block' : 'none';
       });
     }
-
+  
     toggleDistributor(id) {
       const index = this.selectedDistributors.indexOf(id);
       if (index > -1) {
@@ -547,14 +560,14 @@ docReady(function () {
       }
       this.updateInputText();
     }
-
+  
     updateInputText() {
       const count = this.selectedDistributors.length;
       this.input.value = count > 0 ? `Wybrano (${count})` : '';
       this.input.placeholder = count > 0 ? '' : 'Wybierz';
     }
   }
-
+  
   // Funkcja inicjalizująca komponent
   function initMultiSelectSearch() {
     console.log('Initializing MultiSelectSearch...');
@@ -566,6 +579,9 @@ docReady(function () {
       console.error('MultiSelectSearch container not found');
     }
   }
+  
+  document.addEventListener('DOMContentLoaded', initMultiSelectSearch);
+  
 
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
