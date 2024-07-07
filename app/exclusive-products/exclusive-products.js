@@ -218,7 +218,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
             form.show();
             displayMessage("Error", msg);

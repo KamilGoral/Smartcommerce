@@ -251,7 +251,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
             form.show();
             displayMessage("Error", msg);
@@ -357,7 +357,7 @@ docReady(function () {
         } else if (exception === "abort") {
           msg = "Twoje żądanie zostało zaniechane";
         } else {
-          msg = "" + jqXHR.responseText;
+          msg = "" + jqXHR.responseJSON.message;
         }
         displayMessage("Error", msg);
         form.show();
@@ -1492,7 +1492,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
             form.show();
             displayMessage("Error", msg);
@@ -1576,7 +1576,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
 
             form.show();
@@ -1657,7 +1657,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
             form.show();
             displayMessage("Error", msg);

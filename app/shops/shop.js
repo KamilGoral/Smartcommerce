@@ -219,7 +219,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
             form.show();
             displayMessage("Error", msg);
@@ -604,6 +604,7 @@ docReady(function () {
       },
       success: function () {
         console.log("Order deleted successfully");
+        displayMessage("Success", "Twoje zamówienei zostało usunięte.");
         // Introduce a 100ms delay before redrawing the table
         setTimeout(function () {
           // Redraw the table without removing the row, server-side will reflect the deletion
@@ -612,6 +613,7 @@ docReady(function () {
         }, 100); // Ensure at least 100ms delay for backend processing
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
         console.error("Failed to delete order", textStatus, errorThrown);
         $("#waitingdots").hide(); // Hide waiting dots even if error occurs
       },
@@ -1693,9 +1695,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#ShopDeleteSuccess", container);
-        var failBlock = $("#ShopDeleteFail", container);
         var action = InvokeURL + "shops/" + shopKey;
         var method = "DELETE";
 
@@ -1721,15 +1720,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage("Success", "Twój sklep został usunięty.");
             window.setTimeout(function () {
               document.location =
                 "https://" +
@@ -1745,8 +1745,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -1808,8 +1810,7 @@ docReady(function () {
                 if (typeof successCallback === "function") {
                   successCallback(resultData);
                 }
-                // Hide editBillingModal and show form-done-edit for 2 seconds
-                $("#form-done-edit").css("display", "flex");
+                displayMessage("Success", "Twoje dane zostały zmienione");
                 setTimeout(function () {
                   $("#editShopModal").hide();
                   location.reload();
@@ -1820,7 +1821,10 @@ docReady(function () {
                   errorCallback();
                 }
                 // Show form-done-fail-edit on error
-                $("#form-done-fail-edit").css("display", "flex");
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
               },
             });
           },
@@ -1829,7 +1833,10 @@ docReady(function () {
               errorCallback();
             }
             // Show form-done-fail-edit on error
-            $("#form-done-fail-edit").css("display", "flex");
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
           },
         });
         return false; // Prevent the form from submitting normally
@@ -1912,9 +1919,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#wf-form-RefreshOfferFormdone", container);
-        var failBlock = $("#wf-form-RefreshOfferFormfail", container);
         var action = InvokeURL + "shops/" + shopKey + "/offers";
         var method = "POST";
         var data = "";
@@ -1942,15 +1946,15 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            failBlock.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
             window.setTimeout(function () {
               location.reload();
             }, 3500);
@@ -1960,7 +1964,6 @@ docReady(function () {
             console.log(exception);
             var msg = "";
 
-            var MessageText = document.getElementById("WarningMessageMain");
             if (jqXHR.status === 0) {
               msg = "Not connect.\n Verify Network.";
             } else if (jqXHR.status === 403) {
@@ -1977,18 +1980,10 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              var msg =
-                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+              msg = "" + jqXHR.responseJSON.message;
             }
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
-            $("#WarningMessageContainer").fadeOut(3000);
+            displayMessage("Error", msg);
             form.show();
-            doneBlock.hide();
-            failBlock.show();
           },
         });
         event.preventDefault();
@@ -2087,8 +2082,7 @@ docReady(function () {
             Authorization: orgToken,
           },
           success: function (resultData) {
-            document.getElementById("wf-form-doneCreate-Order").style.display =
-              "block";
+            displayMessage("Success", "Twoje zamówieni zostało stworzone.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +

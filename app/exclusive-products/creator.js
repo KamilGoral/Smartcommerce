@@ -218,7 +218,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseText;
+              msg = "" + jqXHR.responseJSON.message;
             }
             form.show();
             displayMessage("Error", msg);
@@ -744,8 +744,7 @@ docReady(function () {
                 form.show();
               });
             } else {
-              var msg =
-                "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+              msg = "" + jqXHR.responseJSON.message;
               var elements =
                 document.getElementsByClassName("warningmessagetext");
               for (var i = 0; i < elements.length; i++) {

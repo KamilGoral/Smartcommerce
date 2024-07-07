@@ -493,7 +493,7 @@ docReady(function () {
         } else if (exception === "abort") {
           msg = "Twoje żądanie zostało zaniechane";
         } else {
-          msg = "" + jqXHR.responseText;
+          msg = "" + jqXHR.responseJSON.message;
         }
 
         // Call the onErrorCallback if defined
