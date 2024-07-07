@@ -611,7 +611,7 @@ docReady(function () {
       },
       success: function () {
         console.log("Order deleted successfully");
-        displayMessage("Success", "Twoje zamówienei zostało usunięte.");
+        displayMessage("Success", "Twoje zamówienie zostało usunięte.");
         // Introduce a 100ms delay before redrawing the table
         setTimeout(function () {
           // Redraw the table without removing the row, server-side will reflect the deletion
@@ -1817,7 +1817,7 @@ docReady(function () {
                 if (typeof successCallback === "function") {
                   successCallback(resultData);
                 }
-                displayMessage("Success", "Twoje dane zostały zmienione");
+                displayMessage("Success", "Twoje dane zostały zaktualizowane.");
                 setTimeout(function () {
                   $("#editShopModal").hide();
                   location.reload();
