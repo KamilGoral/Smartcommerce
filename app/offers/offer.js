@@ -50,8 +50,8 @@ docReady(function () {
     });
     return result;
   }
-  
-  new MultiSelectSearch(document.getElementById('multiSelectSearch'));
+
+
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
@@ -437,11 +437,24 @@ docReady(function () {
     request.send();
   }
 
+  // Globalne zmienne (zakładam, że są zdefiniowane gdzie indziej w Twoim kodzie)
+  let InvokeURL, shopKey, offerId, orgToken;
+
   class MultiSelectSearch {
     constructor(element) {
+      if (!element) {
+        console.error('Element for MultiSelectSearch not found');
+        return;
+      }
       this.container = element;
       this.input = element.querySelector('.multi-select-input');
       this.dropdown = element.querySelector('.multi-select-dropdown');
+
+      if (!this.input || !this.dropdown) {
+        console.error('Required elements not found in the MultiSelectSearch container');
+        return;
+      }
+
       this.selectedDistributors = [];
       this.distributors = [];
 
@@ -462,13 +475,26 @@ docReady(function () {
       request.open("GET", url, true);
       request.setRequestHeader("Authorization", orgToken);
       request.onload = () => {
-        var data = JSON.parse(request.response);
+        if (request.status >= 200 && request.status < 400) {
+          try {
+            var data = JSON.parse(request.response);
 
-        if (data.items && data.items.length > 0) {
-          this.distributors = data.items.filter(item => item.name && item.taxId && item.countryCode)
-            .map(item => ({ id: item.taxId, name: item.name }));
-          this.renderDropdown();
+            if (data.items && data.items.length > 0) {
+              this.distributors = data.items.filter(item => item.name && item.taxId && item.countryCode)
+                .map(item => ({ id: item.taxId, name: item.name }));
+              this.renderDropdown();
+            } else {
+              console.warn('No distributors found in the API response');
+            }
+          } catch (error) {
+            console.error('Error parsing API response:', error);
+          }
+        } else {
+          console.error('API request failed. Status:', request.status);
         }
+      };
+      request.onerror = () => {
+        console.error('There was a network error with the API request');
       };
       request.send();
     }
@@ -532,8 +558,25 @@ docReady(function () {
     }
   }
 
+  // Inicjalizacja komponentu
+  function initMultiSelectSearch() {
+    const container = document.getElementById('multiSelectSearch');
+    if (container) {
+      new MultiSelectSearch(container);
+    } else {
+      console.error('MultiSelectSearch container not found');
+    }
+  }
 
-  
+  // Upewnij się, że DOM jest załadowany przed inicjalizacją
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMultiSelectSearch);
+  } else {
+    initMultiSelectSearch();
+  }
+
+
+
 
 
   function getProductHistory(rowData) {
@@ -1796,6 +1839,8 @@ docReady(function () {
   };
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+
+  new MultiSelectSearch(document.getElementById('multiSelectSearch'));
 
   $("table.dataTable").on("init.dt xhr.dt", function () {
     $(this).DataTable().columns.adjust();
