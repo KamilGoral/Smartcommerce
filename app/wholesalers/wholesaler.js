@@ -993,7 +993,10 @@ docReady(function () {
               }
             }
             form.show();
-            displayMessage("Success", "Twoje dane zostały zmienione");
+            displayMessage(
+              "Success",
+              "Minimum logistyczne dla dostawcy zostało zmienione"
+            );
           },
           error: function (e) {
             if (typeof errorCallback === "function") {

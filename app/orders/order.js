@@ -754,10 +754,7 @@ docReady(function () {
 
           if (translatedError) {
             console.error(translatedError);
-
-            // Display the warning message container with the translated error
-            $("#WarningMessageMain").text(translatedError); // Update the warning message
-            $("#WarningMessageContainer").show().delay(4000).fadeOut(2000);
+            displayMessage("Error", translatedError);
           }
         }
         if (jqXHR.status === 404) {
@@ -768,19 +765,19 @@ docReady(function () {
             var orderRegex =
               /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
             if (orderRegex.test(response.message)) {
-              $("#WarningMessageMain").text(
+              displayMessage(
+                "Error",
                 "Zamówienie nie istnieje. Za moment nastąpi przekierowanie"
               );
-              $("#WarningMessageContainer").show().delay(4000).fadeOut(2000);
             }
 
             // Additional handling for split offer not found
             var splitOfferRegex = /Offer does not exist/;
             if (splitOfferRegex.test(response.message)) {
-              $("#WarningMessageMain").text(
+              displayMessage(
+                "Error",
                 "Brak oferty dla sklepu. Za moment nastąpi przekierowanie"
               );
-              $("#WarningMessageContainer").show().delay(4000).fadeOut(2000);
             }
             window.setTimeout(function () {
               window.location.href =
@@ -2383,9 +2380,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#OrderDeleteSuccess", container);
-        var failBlock = $("#OrderDeleteFail", container);
         var action = InvokeURL + "shops/" + shopKey + "/orders/" + orderId;
         var method = "DELETE";
 
@@ -2413,15 +2407,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             $("#deleteorderdmodal").hide();
-            $("#deleteordersuccess").css("display", "flex").show();
-            failBlock.hide();
+            displayMessage("Error", "Twoje zamówienie zostało usunięte.");
             window.setTimeout(function () {
               document.location =
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
@@ -2432,8 +2427,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -2447,8 +2444,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var doneBlock = $("#Edit-Success");
-        var failBlock = $("#Edit-Fail");
         var organization = sessionStorage.getItem("OrganizationName");
         var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("new-name");
@@ -2490,38 +2485,32 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
-                window.setTimeout(function () {
-                  $("#ProposeChangeInGtinModal").css("display", "none");
-                  $("#Edit-Success").css("display", "none");
-                }, 2000);
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 form.trigger("reset");
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Twoje zgłoszenie została przyjęte. Dziękujemy."
+            );
             form.trigger("reset");
-            window.setTimeout(function () {
-              $("#ProposeChangeInGtinModal").css("display", "none");
-              $("#Edit-Success").css("display", "none");
-            }, 2000);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
             form.trigger("reset");
-            window.setTimeout(function () {
-              $("#ProposeChangeInGtinModal").css("display", "none");
-              $("#Edit-Fail").css("display", "none");
-            }, 2000);
           },
         });
         event.preventDefault();
