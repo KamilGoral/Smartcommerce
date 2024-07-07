@@ -636,9 +636,14 @@ docReady(function () {
             // If the organization is onboarding, remove click actions and add class .tippy
             if (organization.status.toLowerCase() === "onboarding") {
               createOrgButton.style.pointerEvents = "none"; // Disable pointer events
-              createOrgButton.classList.add("tippy"); // Add the tippy class
               createOrgButton.style.opacity = "0.5"; // Set opacity to 50%
               createOrgButton.style.display = "flex";
+              $("#CreateOrgButton").click(function () {
+                displayMessage(
+                  "Error",
+                  "Trwa konfiguracja jednej z Twoich organizacji. Dokończ ją, by utworzyć kolejną."
+                );
+              });
               row.addEventListener("click", LoginIntoOrganization, false);
             } else {
               row.addEventListener("click", LoginIntoOrganization, false);
