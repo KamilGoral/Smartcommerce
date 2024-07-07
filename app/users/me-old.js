@@ -64,20 +64,12 @@ docReady(function () {
     return result;
   }
 
-  const displaySuccessMessage = (message) => {
+  const displayMessage = (type, message) => {
     $("#Message-Container").show().delay(5000).fadeOut("slow");
     if (message) {
-      $("#Success-Message-Text").text(message);
+      $(`#${type}-Message-Text`).text(message);
     }
-    $("#Success-Message").show().delay(5000).fadeOut("slow");
-  };
-
-  const displayErrorMessage = (message) => {
-    $("#Message-Container").show().delay(5000).fadeOut("slow");
-    if (message) {
-      $("#Error-Message-Text").text(message);
-    }
-    $("#Error-Message").show().delay(5000).fadeOut("slow");
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
   };
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -131,7 +123,7 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                displayErrorMessage();
+                displayMessage("Error");
                 console.log(e);
                 return;
               }
@@ -147,14 +139,14 @@ docReady(function () {
                 emailadressUser,
               72000
             );
-            displaySuccessMessage("Twoje dane zostały zmienione");
+            displayMessage("Success", "Twoje dane zostały zmienione");
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            displayErrorMessage();
+            displayMessage("Error");
             console.log(e);
           },
         });
@@ -197,13 +189,13 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                displayErrorMessage();
+                displayMessage("Error");
                 console.log(e);
                 return;
               }
             }
             form.show();
-            displaySuccessMessage("Twoje hasło zostało zmienione.");
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -227,7 +219,7 @@ docReady(function () {
               msg = "" + jqXHR.responseText;
             }
             form.show();
-            displayErrorMessage(msg);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -281,13 +273,13 @@ docReady(function () {
               if (!result) {
                 // show error (fail) block
                 form.show();
-                displayErrorMessage();
+                displayMessage("Error");
                 return;
               }
             }
             createorgmodal.hide();
             form.hide();
-            displaySuccessMessage("Twoja organizacja została stworzona.");
+            displayMessage("Success", "Twoja organizacja została stworzona.");
             setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/users/me"
@@ -371,7 +363,7 @@ docReady(function () {
               }
             }
             form.show();
-            displayErrorMessage(msg);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -415,7 +407,7 @@ docReady(function () {
       },
       error: function (jqXHR, exception) {
         if (jqXHR.status === 401) {
-          displayErrorMessage("Twoja sesja wygasła. Zaloguj się ponownie");
+          displayMessage("Error", "Twoja sesja wygasła. Zaloguj się ponownie");
         }
       },
     });
@@ -474,13 +466,16 @@ docReady(function () {
           console.log("Brak zaproszeń");
         }
       } else if (request.status == 401) {
-        displayErrorMessage("Twoja sesja wygasła. Zaloguj się ponownie");
+        displayMessage("Error", "Twoja sesja wygasła. Zaloguj się ponownie");
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
             request.status
         );
-        displayErrorMessage("Wystąpił błąd podczas komunikacji z serwerem.");
+        displayMessage(
+          "Error",
+          "Wystąpił błąd podczas komunikacji z serwerem."
+        );
       }
     };
 
@@ -499,7 +494,8 @@ docReady(function () {
 
     // Check organization status first
     if (OrganizationStatus === "Suspended") {
-      displayErrorMessage(
+      displayMessage(
+        "Error",
         "Nie możesz zalogować się do tej organizacji. Proszę najpierw uregulować zaległe faktury."
       ); // Display message if suspended
       return false; // Exit function after displaying message
@@ -653,7 +649,7 @@ docReady(function () {
       })
       .catch((error) => {
         console.error("Failed to fetch organizations:", error.message);
-        displayErrorMessage(error.message);
+        displayMessage("Error", error.message);
       });
   }
 
@@ -710,7 +706,7 @@ docReady(function () {
             " " +
             UserInfo.message
         );
-        displayErrorMessage(UserInfo.message);
+        displayMessage("Error", UserInfo.message);
       }
     };
 
