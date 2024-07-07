@@ -709,7 +709,6 @@ docReady(function () {
           data.address.line1 !== null && // 'line2' is not required
           data.address.town !== null &&
           data.address.postcode !== null; // 'phones' is not required
-        console.log(hasRequiredKeys);
 
         if (hasRequiredKeys) {
           console.log("All is good");
@@ -2202,9 +2201,6 @@ docReady(function () {
     ],
     initComplete: function (settings, json) {
       var hasEntries = tableDocuments.data().any();
-      console.log(hasEntries);
-      // If the table is empty, show the custom empty state div
-      // Otherwise, hide it
       if (!hasEntries) {
         $("#emptystatedocuments").show();
         $("#documentscontainer").hide();
@@ -2409,7 +2405,7 @@ docReady(function () {
                 return;
               }
             }
-            form.hide();
+            form.show();
             displayMessage(
               "Success",
               "Dostawca został zgłoszony. Możesz zgłosić kolejnego."
@@ -2720,7 +2716,6 @@ docReady(function () {
           data: JSON.stringify(patchData),
           success: function (response) {
             console.log("Data updated successfully", response);
-            // show success (done) block
             displayMessage("Success", "Bonus został zaktualizowany.");
           },
           error: function (jqXHR, exception) {
