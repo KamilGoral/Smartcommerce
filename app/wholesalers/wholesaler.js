@@ -63,83 +63,6 @@ docReady(function () {
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
 
-  makeWebflowFormAjaxChange = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var failBlock2 = $("#form-done-fail-edit-profile");
-        const firstNameUser = $("#firstNameUser").val();
-        const lastNameUser = $("#lastNameUser").val();
-        // const emailadressUser = $("#emailadressUser").val();
-
-        const datatosend = {
-          AccessToken: accessToken,
-          UserAttributes: [
-            {
-              Name: "name",
-              Value: firstNameUser,
-            },
-            {
-              Name: "family_name",
-              Value: lastNameUser,
-            },
-            // {
-            //   Name: "email",
-            //   Value: emailadressUser,
-            // },
-          ],
-        };
-
-        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
-
-        $.ajax({
-          type: "POST",
-          url: url,
-          headers: {
-            "Content-Type": "application/x-amz-json-1.1",
-            "x-amz-target":
-              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
-            Authorization: smartToken,
-          },
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          data: JSON.stringify(datatosend),
-          dataType: "json",
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                $("#form-done-edit-profile").hide();
-                failBlock2.show();
-                console.log(e);
-                return;
-              }
-            }
-            form.show();
-            $("#form-done-edit-profile").show().delay(2000).fadeOut("slow");
-            failBlock2.hide();
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            failBlock2.show();
-            console.log(e);
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
-
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
@@ -571,9 +494,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#w-form-done4", container);
-        var failBlock = $("#w-form-fail4", container);
         var action =
           InvokeURL +
           "shops/" +
@@ -670,8 +590,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 window.setTimeout(function () {
                   console.log("reload1");
@@ -748,15 +670,18 @@ docReady(function () {
                   const Iehurt = document.getElementById("Iehurt");
                   Iehurt.classList.add("enabled");
                   form.show();
-                  doneBlock.show();
-                  doneBlock.fadeOut(3000);
-                  failBlock.hide();
+                  displayMessage(
+                    "Success",
+                    "Dostawca został pomyślnie skonfigurowany."
+                  );
                 }
               };
               request.send();
               if ($("#CompanyDivEdit").is(":visible")) {
-                doneBlock.show();
-                doneBlock.fadeOut(3000);
+                displayMessage(
+                  "Success",
+                  "Dostawca został pomyślnie skonfigurowany."
+                );
               } else {
                 $("#Wholesaler-profile-Selector")
                   .find("option")
@@ -764,27 +689,24 @@ docReady(function () {
                   .end()
                   .append("<option value=null>Wybierz profil</option>")
                   .val("null");
-
-                $(".successmessagetext").text(
+                displayMessage(
+                  "Success",
                   "Trwa logowanie... Za moment proszę wybrać profil właściwy dla konfigurowanego sklepu."
                 );
-                $(".successmessagetext").text(
-                  "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
-                );
-                doneBlock.show();
+                window.setTimeout(function () {
+                  displayMessage(
+                    "Success",
+                    "Proszę wybrać profil z listy dla konfigurowanego sklepu i kliknąć 'Zmień'."
+                  );
+                }, 2000);
               }
             } else {
               form.show();
-              console.log("tutaj");
-              $(".successmessagetext").text(
+              displayMessage(
+                "Success",
                 "Dostawca został pomyślnie skonfigurowany."
               );
-              $(".warningmessagetext").css("color", "#3a4570");
-              $(".error-message-fixed-main").css("background-color", "#ffc53d");
-              $("#w-form-done4").show();
-              $("#w-form-done4").fadeOut(6000);
               window.setTimeout(function () {
-                console.log("reload3");
                 location.reload();
               }, 3000);
             }
@@ -825,11 +747,7 @@ docReady(function () {
                     : jqXHR.responseJSON.message;
                 break;
             }
-            $(".warningmessagetext").css("color", "#3a4570");
-            $(".warningmessagetext").text(msg);
-            $(".error-message-fixed-main").css("background-color", "#ffc53d");
-            $("#w-form-fail4").show();
-            $("#w-form-fail4").fadeOut(6000);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -847,9 +765,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#w-form-done4", container);
-        var failBlock = $("#w-form-fail4", container);
         var action =
           InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
 
@@ -894,26 +809,26 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            doneBlock.fadeOut(3000);
-            failBlock.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(3000);
-            failBlock.hide();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -931,9 +846,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlockDelete = $("#w-form-done3", container);
-        var failBlockDelete = $("#w-form-fail3", container);
         var action =
           InvokeURL +
           "shops/" +
@@ -972,15 +884,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlockDelete.hide();
-                failBlockDelete.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            doneBlockDelete.show();
-            doneBlockDelete.fadeOut(1000);
+            displayMessage("Success", "Integracja zostałą cofnięta.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
@@ -992,10 +905,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            doneBlockDelete.hide();
-            failBlockDelete.show();
-            failBlockDelete.fadeOut(1000);
-            failBlockDelete.hide();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -1010,9 +923,6 @@ docReady(function () {
       var form = $(this);
       console.log("Tutaj");
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var action =
           "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3";
         var data = {
@@ -1046,26 +956,31 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
-            form.hide();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 1000);
+            form.show();
+            displayMessage(
+              "Success",
+              "Dostawca został zgłoszony. Możesz zgłosić kolejnego."
+            );
+            $("#Wholesaler-Name").val("");
+            $("#platformUrl").val("");
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
