@@ -719,9 +719,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done2", container);
-        var failBlock = $(".w-form-fail2", container);
         var inputdata = form.serializeArray();
 
         var data = {
@@ -756,15 +753,19 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
-            form.hide();
-            doneBlock.show();
-            failBlock.hide();
+            form.show();
+            displayMessage(
+              "Success",
+              "Integracja z Konsolą Kupca przebiegła pomyślnie."
+            );
             window.setTimeout(function () {
               location.reload();
             }, 1000);
@@ -772,14 +773,8 @@ docReady(function () {
           error: function (jqXHR, exception) {
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
+            displayMessage("Error", msg);
             form.show();
-            failBlock.show();
-            failBlock.fadeOut(5000);
             return;
           },
         });
@@ -793,9 +788,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#IntegrationDeleteSuccess", container);
-        var failBlock = $("#IntegrationDeleteFail", container);
         var action = InvokeURL + "integrations/" + integrationKeyId;
         var method = "DELETE";
 
@@ -821,14 +813,18 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Integracja z Konsolą Kupca została usunięta."
+            );
             window.setTimeout(function () {
               (document.location = "href"),
                 "https://" +
@@ -842,14 +838,8 @@ docReady(function () {
           error: function (jqXHR, exception) {
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
             form.show();
-            failBlock.show();
-            failBlock.fadeOut(5000);
+            displayMessage("Error", msg);
             return;
           },
         });

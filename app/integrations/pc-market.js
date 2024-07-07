@@ -507,8 +507,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var doneBlock = $("#w-form-done4");
-        var failBlock = $("#w-form-fail4");
         var inputdata = form.serializeArray();
         var shopKey = $("#shopKeyIntegrate").attr("shopkey");
 
@@ -550,14 +548,18 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.hide();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Integracja z PC-Market przebiegła pomyślnie."
+            );
             window.setTimeout(function () {
               location.reload();
             }, 1000);
@@ -592,15 +594,8 @@ docReady(function () {
               msg =
                 "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
             }
-
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
             form.show();
-            failBlock.show();
-            failBlock.fadeOut(10000);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -614,9 +609,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#IntegrationDeleteSuccess", container);
-        var failBlock = $("#IntegrationDeleteFail", container);
         var shopKey = $("#shopKeyIntegrateEdit").attr("shopkey");
         var action = InvokeURL + "integrations/pc-market/shops/" + shopKey;
         var method = "DELETE";
@@ -643,15 +635,19 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Integracja z PC-Marketa została usunięta."
+            );
             window.setTimeout(function () {
               document.location =
                 "https://" +
@@ -668,14 +664,8 @@ docReady(function () {
             console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
             form.show();
-            failBlock.show();
-            failBlock.fadeOut(5000);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -695,8 +685,6 @@ docReady(function () {
       form.on("submit", function (event) {
         var shopKey = $("#shopKeyIntegrateEdit").attr("shopkey");
         var inputdata = form.serializeArray();
-        var doneBlock = $("#w-form-done2");
-        var failBlock = $("#w-form-fail2");
         var postData = [
           {
             op: "replace",
@@ -753,15 +741,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.hide();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage("Success", "Twoje dane zostały zmienione");
             window.setTimeout(function () {
               location.reload();
             }, 1000);
@@ -778,8 +767,7 @@ docReady(function () {
               elements[i].textContent = msg;
             }
             form.show();
-            failBlock.show();
-            failBlock.fadeOut(5000);
+            displayMessage("Error", msg);
             return;
           },
         });

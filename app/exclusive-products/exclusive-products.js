@@ -1175,9 +1175,8 @@ docReady(function () {
           success: function (resultData) {
             console.log(resultData);
             form.show();
-            $("#Create-Pricelist-Success").show();
+            displayMessage("Success", "Blokada została założona.");
             refreshTable();
-            $("#Create-Pricelist-Success").fadeOut(4000);
             $("#GTINInput").val("");
           },
           error: function (jqXHR, exception) {
@@ -1192,8 +1191,10 @@ docReady(function () {
               elements[i].textContent = msg;
             }
             form.show();
-            $("#SingleExclusiveForm-Fail2").show();
-            $("#SingleExclusiveForm-Fail2").fadeOut(7000);
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             return;
           },
         });
@@ -1281,9 +1282,8 @@ docReady(function () {
           success: function (resultData) {
             console.log(resultData);
             form.show();
-            $("#Edit-Exclusive-Success").show();
+            displayMessage("Success", "Blokada została zmieniona.");
             refreshTable();
-            $("#Edit-Exclusive-Success").fadeOut(4000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -1297,8 +1297,7 @@ docReady(function () {
               elements[i].textContent = msg;
             }
             form.show();
-            $("#Edit-Exclusive-Fail").show();
-            $("#Edit-Exclusive-Fail").fadeOut(7000);
+            displayMessage("Error", msg);
             return;
           },
         });

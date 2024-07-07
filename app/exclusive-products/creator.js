@@ -646,8 +646,7 @@ docReady(function () {
           data: JSON.stringify(postData),
           success: function (resultData) {
             console.log(resultData);
-            $("#Create-Pricelist-Success").show();
-            $("#Create-Pricelist-Success").fadeOut(10000);
+            displayMessage("Success", "Cennik został pomyślnie dodany.");
             window.setTimeout(function () {
               location.reload();
             }, 3000);
@@ -658,14 +657,9 @@ docReady(function () {
             console.log(exception);
             var msg =
               "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
+
             form.show();
-            $("#Create-Pricelist-Fail").show();
-            $("#Create-Pricelist-Fail").fadeOut(10000);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -738,8 +732,7 @@ docReady(function () {
           success: function (resultData) {
             console.log(resultData);
             form.show();
-            $("#Create-Exclusive-Success").show();
-            $("#Create-Exclusive-Success").fadeOut(10000);
+            displayMessage("Success", "Blokada została założona.");
             $("#GTINInput").val("");
             $("#waitingdots").hide();
           },
@@ -752,14 +745,12 @@ docReady(function () {
               });
             } else {
               msg = "" + jqXHR.responseJSON.message;
-              var elements =
-                document.getElementsByClassName("warningmessagetext");
-              for (var i = 0; i < elements.length; i++) {
-                elements[i].textContent = msg;
-              }
+
               form.show();
-              $("#Create-Pricelist-Fail").show();
-              $("#Create-Pricelist-Fail").fadeOut(15000);
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
 
               // Set the flag to indicate that existing blocks are displayed
               existingBlocksDisplayed = true;
@@ -876,7 +867,6 @@ docReady(function () {
         console.log(jqXHR);
         console.log(exception);
         if (jqXHR.status === 409) {
-          // Handle the 409 error here, e.g., by calling a callback function
           callback("409 Error"); // You can customize this message as needed
         } else {
           var msg =

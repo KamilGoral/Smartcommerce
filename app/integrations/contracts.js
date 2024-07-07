@@ -331,9 +331,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var inputdata = form.serializeArray();
 
         var data = {
@@ -366,25 +363,29 @@ docReady(function () {
               if (!result) {
                 form.show();
                 doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
-            form.hide();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 1000);
+            form.show();
+            displayMessage(
+              "Success",
+              "Tabela kontraktów została zintegrowana."
+            );
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -393,13 +394,11 @@ docReady(function () {
       });
     });
   };
+
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#ShopDeleteSuccess", container);
-        var failBlock = $("#ShopDeleteFail", container);
         var action = InvokeURL + "integrations/retroactive";
         var method = "DELETE";
 
@@ -429,18 +428,20 @@ docReady(function () {
               // call custom callback
               result = successCallback(resultData);
               if (!result) {
-                // show error (fail) block
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
-            // show success (done) block
-
             form.show();
-            doneBlock.show();
+            displayMessage(
+              "Success",
+              "Integracja z tabelą kontraków zostałą usunięta."
+            );
             failBlock.hide();
             window.setTimeout(function () {
               window.location.replace(
@@ -460,8 +461,10 @@ docReady(function () {
             }
             // show error (fail) block
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
