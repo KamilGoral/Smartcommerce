@@ -14,17 +14,6 @@ function docReady(fn) {
 }
 
 docReady(function () {
-  var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
-  var InvokeURL = getCookie("sprytnyInvokeURL");
-  var DomainName = getCookie("sprytnyDomainName");
-  var formId = "#wf-form-Create-Organization-Form";
-  var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
-  const emailElement = document.getElementById("useremail");
-  emailElement.textContent = getCookie("sprytnyUser");
-  const welcomeMessage = document.getElementById("WelcomeMessage");
-
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -53,6 +42,17 @@ docReady(function () {
 
     return null; // Return null if no matching value is found
   }
+
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
+  var InvokeURL = getCookie("sprytnyInvokeURL");
+  var DomainName = getCookie("sprytnyDomainName");
+  var formId = "#wf-form-Create-Organization-Form";
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
+  const emailElement = document.getElementById("useremail");
+  emailElement.textContent = getCookie("sprytnyUser");
+  const welcomeMessage = document.getElementById("WelcomeMessage");
 
   function parseAttributes(cookieValue) {
     const attributes = cookieValue.split(",");
@@ -123,7 +123,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                displayMessage("Error");
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -148,7 +151,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            displayMessage("Error");
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -191,7 +197,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                displayMessage("Error");
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -275,7 +284,10 @@ docReady(function () {
               if (!result) {
                 // show error (fail) block
                 form.show();
-                displayMessage("Error");
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 return;
               }
             }

@@ -34,6 +34,14 @@ docReady(function () {
     document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
   }
 
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
+
   function parseAttributes(cookieValue) {
     const attributes = cookieValue.split(",");
     const result = {};
@@ -43,7 +51,6 @@ docReady(function () {
     });
     return result;
   }
-
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
@@ -55,20 +62,38 @@ docReady(function () {
   const emailadress = document.getElementById("emailadressUser");
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
+  var Webflow = Webflow || [];
+  var InvokeURL = getCookie("sprytnyInvokeURL");
+  var clientId = new URL(location.href).searchParams.get("clientId");
+  var orgToken = getCookie(clientId);
+  setCookie("sprytnyToken", orgToken, 7200);
+  var DomainName = getCookie("sprytnyDomainName");
+  var userKey = getCookie("sprytnyUsername") || "me";
 
-  const displaySuccessMessage = (message) => {
-    if (message) {
-      $("#Success-Message-Text").text(message);
-    }
-    $("#Success-Message").show().delay(5000).fadeOut("slow");
-  };
+  var organizationName = new URL(document.location.href).searchParams.get(
+    "name"
+  );
+  setCookie("OrganizationName", organizationName, 7200);
+  var formId = "#wf-form-NewOrganizationName";
+  var formIdDelete = "#wf-form-DeleteOrganization";
+  var formIdInvite = "#wf-form-Invite-User";
+  var formIdCreate = "#wf-form-Create-Shop";
+  var formIdNewWh = "#wf-form-Create-wholesaler";
+  var formIdEditBilling = "#wf-form-editCompanyBilling-form-correct";
+  const OrganizationBread0 = document.getElementById("OrganizationBread0");
+  const OrganizationNameHeader = document.getElementById("organizationName");
 
-  const displayErrorMessage = (message) => {
-    if (message) {
-      $("#Error-Message-Text").text(message);
-    }
-    $("#Error-Message").show().delay(5000).fadeOut("slow");
-  };
+  OrganizationNameHeader.textContent = organizationName;
+  OrganizationBread0.textContent = organizationName;
+  OrganizationBread0.setAttribute(
+    "href",
+    "https://" +
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
+  );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -121,8 +146,10 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                $("#form-done-edit-profile").hide();
-                displayErrorMessage();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
@@ -138,14 +165,19 @@ docReady(function () {
                 emailadressUser,
               72000
             );
-            displaySuccessMessage("Twoje dane zostały zmienione");
+            displayMessage("Success", "Twoje dane zostały zmienione");
+            welcomeMessage.textContent =
+              "Witaj, " + firstNameUser + " " + lastNameUser + "!";
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            displayErrorMessage();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             console.log(e);
           },
         });
@@ -188,13 +220,16 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                displayErrorMessage();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 console.log(e);
                 return;
               }
             }
             form.show();
-            displaySuccessMessage("Twoje hasło zostało zmienione.");
+            displayMessage("Success", "Twoje hasło zostało zmienione.");
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -218,7 +253,7 @@ docReady(function () {
               msg = "" + jqXHR.responseText;
             }
             form.show();
-            displayErrorMessage(msg);
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -227,40 +262,6 @@ docReady(function () {
       });
     });
   };
-
-  var Webflow = Webflow || [];
-  var InvokeURL = getCookie("sprytnyInvokeURL");
-  var clientId = new URL(location.href).searchParams.get("clientId");
-
-  var orgToken = getCookie(clientId);
-  setCookie("sprytnyToken", orgToken, 7200);
-  var DomainName = getCookie("sprytnyDomainName");
-  var userKey = getCookie("sprytnyUsername") || "me";
-
-  var organizationName = new URL(document.location.href).searchParams.get(
-    "name"
-  );
-  setCookie("OrganizationName", organizationName, 7200);
-  var formId = "#wf-form-NewOrganizationName";
-  var formIdDelete = "#wf-form-DeleteOrganization";
-  var formIdInvite = "#wf-form-Invite-User";
-  var formIdCreate = "#wf-form-Create-Shop";
-  var formIdNewWh = "#wf-form-Create-wholesaler";
-  var formIdEditBilling = "#wf-form-editCompanyBilling-form-correct";
-  const OrganizationBread0 = document.getElementById("OrganizationBread0");
-  const OrganizationNameHeader = document.getElementById("organizationName");
-
-  OrganizationNameHeader.textContent = organizationName;
-  OrganizationBread0.textContent = organizationName;
-  OrganizationBread0.setAttribute(
-    "href",
-    "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
-  );
 
   function validateInput(event, input) {
     const charCode = event.which ? event.which : event.keyCode;
@@ -288,8 +289,6 @@ docReady(function () {
     console.log("starting Updating function");
     var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
-    var doneBlock = $(".w-form-done", container);
-    var failBlock = $(".w-form-fail", container);
 
     var data = [
       {
@@ -318,37 +317,25 @@ docReady(function () {
       },
       data: JSON.stringify(data),
       success: function (resultData) {
-        console.log(resultData);
-
-        if (resultData.enabled == true) {
-          console.log("Aktywny");
-        } else {
-          console.log("Nieaktywny");
-        }
-
         if (typeof successCallback === "function") {
           // call custom callback
           result = successCallback(resultData);
           if (!result) {
             // show error (fail) block
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage(
+              "Error",
+              "Nie udało się zmienić statusu. Spróbuj ponownie."
+            );
             console.log(e);
             return;
           }
         }
-        // show success (done) block
-        doneBlock.show();
-        setTimeout(function () {
-          doneBlock.hide();
-        }, 2000);
-        failBlock.hide();
+        displayMessage("Success", "Status dostawcy został zmieniony.");
       },
       error: function (jqXHR, exception) {
         console.log("błąd");
         console.log(jqXHR);
         console.log(exception);
-        //$('#customSwitchText').attr('disabled', 'disabled');
         var msg = "";
         if (jqXHR.status === 0) {
           msg = "Nie masz połączenia z internetem.";
@@ -371,19 +358,8 @@ docReady(function () {
         } else {
           msg = "" + jqXHR.responseText;
         }
-
-        // Call the onErrorCallback if defined
-        if (typeof onErrorCallback === "function") {
-          onErrorCallback();
-        }
-
-        $(".warningmessagetext").text(msg);
+        displayMessage("Error", msg);
         form.show();
-        doneBlock.hide();
-        failBlock.show();
-        setTimeout(function () {
-          failBlock.hide();
-        }, 2000);
         return;
       },
     });
@@ -416,8 +392,6 @@ docReady(function () {
         console.log("error");
       }
     };
-
-    // Send request
     request.send();
   }
 
@@ -624,9 +598,11 @@ docReady(function () {
       },
       data: data,
       success: function (response) {
+        displayMessage("Success", "Rola użytkownika została zmieniona.");
         console.log("Role updated successfully", response);
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        displayMessage("Error", "Nie udało się zmienić roli użytkownika.");
         console.error("Failed to update role", textStatus, errorThrown);
       },
     });
@@ -665,10 +641,12 @@ docReady(function () {
       },
       success: function (response) {
         console.log("User deleted successfully", response);
+        displayMessage("Success", "Użytkownik został usunięty.");
         // Directly targeting the clicked icon's parent row for removal
         dataTable.row(row).remove().draw();
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        displayMessage("Error", "Nie udało się usunąć użytkownika.");
         console.error("Failed to delete user", textStatus, errorThrown);
       },
     });
@@ -1462,9 +1440,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var endpoint =
           InvokeURL +
           "tenants/" +
@@ -1488,17 +1463,17 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
+
+                displayMessage("Error", "Nie udało się usunąć organizacji.");
                 failBlock.show();
                 return;
               }
             }
             $("#deleteOrganizationModal").hide();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage("Success", "Organizacja została usunięta.");
             window.setTimeout(function () {
               window.location = "https://" + DomainName + "/app/users/me";
-            }, 500);
+            }, 1000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -1519,11 +1494,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById("WarningMessage");
-            message.textContent = msg;
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -1537,9 +1509,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var action = InvokeURL + "users";
         var emailInput = $("#InviteUserEmail");
         var emailValue = emailInput.val();
@@ -1576,15 +1545,15 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage("Error", "Nie udało się wysłać zaproszenia.");
                 console.log(e);
                 return;
               }
             }
-
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage(
+              "Success",
+              "Zaproszenie zostało wysłane. Możesz wysłać kolejne."
+            );
             emailInput.val("");
           },
           error: function (jqXHR, exception) {
@@ -1610,11 +1579,8 @@ docReady(function () {
               msg = "" + jqXHR.responseText;
             }
 
-            const message = document.getElementById("WarningMessage");
-            message.textContent = msg;
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -1629,9 +1595,6 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         event.preventDefault();
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var action = InvokeURL + "tenants/" + organizationName;
         var NewOrgName = $("#NewOrganizationName").val();
 
@@ -1666,15 +1629,13 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage("Error", "Nie udało się utworzyć organizacji.");
                 console.log(e);
                 return;
               }
             }
             form.hide();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage("Success", "Organizacja została utworzona.");
             window.setTimeout(function () {
               window.location = "https://" + DomainName + "/app/users/me";
             }, 500);
@@ -1698,11 +1659,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById("WarningMessage");
-            message.textContent = msg;
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage("Error", msg);
             return;
           },
         });
@@ -1717,9 +1675,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var modalCreateShop = $("#modalCreateShop");
         var action = InvokeURL + "shops";
         var data = {
@@ -1749,16 +1704,14 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage("Error", "Nie udało się utworzyć sklepu.");
                 console.log(e);
                 return;
               }
             }
             form.hide();
             modalCreateShop.hide();
-            doneBlock.show();
-            failBlock.hide();
+            displayMessage("Success", "Twój sklep został utworzony.");
             window.setTimeout(function () {
               location.reload();
             }, 1000);
@@ -1768,8 +1721,7 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage("Error", "Nie udało się utworzyć sklepu.");
             console.log(e);
           },
         });
@@ -2419,9 +2371,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $(".w-form-done", container);
-        var failBlock = $(".w-form-fail", container);
         var action =
           "https://hook.integromat.com/1xsh5m1qtu8wj7vns24y5tekcrgq2pc3";
         var data = {
@@ -2455,26 +2404,26 @@ docReady(function () {
               result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage("Error", "Nie udało się zgłosić dostawcy.");
                 console.log(e);
                 return;
               }
             }
             form.hide();
-            doneBlock.show();
-            failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 1000);
+            displayMessage(
+              "Success",
+              "Dostawca został zgłoszony. Możesz zgłosić kolejnego."
+            );
+            $("#Wholesaler-Name").val("");
+            $("#taxId").val("");
+            $("#platformUrl").val("");
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
             form.show();
-            doneBlock.hide();
-            failBlock.show();
+            displayMessage("Error", "Nie udało się zgłosić dostawcy.");
             console.log(e);
           },
         });
@@ -2493,10 +2442,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         event.preventDefault();
-
         const organizationName = $("#organizationName").text();
         const url = `${InvokeURL}tenants/${organizationName}/billing`;
-
         $.ajax({
           type: "GET",
           url: url,
@@ -2523,8 +2470,8 @@ docReady(function () {
               const newFirstName = $("#firstName").val();
               const newLastName = $("#lastName").val();
               if (!newFirstName || !newLastName) {
-                $("#form-done-fail-edit").css("display", "flex");
-                $("#WarningMessagePatchTenant").text(
+                displayMessage(
+                  "Error",
                   "Pola Imię i Nazwisko są wymagane przy zmianie rodzaju działalności"
                 );
                 return;
@@ -2536,8 +2483,8 @@ docReady(function () {
                 !patchData.some((patch) => patch.path === "/companyName") ||
                 !patchData.some((patch) => patch.path === "/address")
               ) {
-                $("#form-done-fail-edit").css("display", "flex");
-                $("#WarningMessagePatchTenant").text(
+                displayMessage(
+                  "Error",
                   "Jeśli zmieniasz NIP, proszę podać również nazwę firmy oraz adres."
                 );
                 return;
@@ -2565,17 +2512,14 @@ docReady(function () {
                   if (typeof successCallback === "function") {
                     successCallback(resultData);
                   }
-                  // Hide editBillingModal and show form-done-edit for 2 seconds
-                  $("#form-done-edit").css("display", "flex");
-                  $("#form-done-edit").fadeOut(3000);
+                  displayMessage("Success", "Dane zostały zaktualizowane.");
                 },
                 error: function () {
                   if (typeof errorCallback === "function") {
                     errorCallback();
                   }
-                  // Show form-done-fail-edit on error
-                  $("#form-done-fail-edit").css("display", "flex");
-                  $("#WarningMessagePatchTenant").text(
+                  displayMessage(
+                    "Error",
                     "Oops. Coś poszło nie tak, spróbuj ponownie."
                   );
                 },
@@ -2584,16 +2528,17 @@ docReady(function () {
               if (typeof successCallback === "function") {
                 successCallback(currentData);
               }
-              $("#form-done-edit").css("display", "flex");
-              $("#form-done-edit").fadeOut(3000);
+              displayMessage("Success", "Dane zostały zaktualizowane.");
             }
           },
           error: function () {
             if (typeof errorCallback === "function") {
               errorCallback();
             }
-            // Show form-done-fail-edit on error
-            $("#form-done-fail-edit").css("display", "flex");
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
           },
         });
         return false; // Prevent the form from submitting normally
@@ -2745,9 +2690,6 @@ docReady(function () {
       let newValue = parseFloat($(this).val());
       var initialValue = parseFloat($(this).data("initialValue"));
       var form = $("#wf-form-WholesalerChangeStatusForm ");
-      var container = form.parent();
-      var doneBlock = $(".w-form-done", container);
-      var failBlock = $(".w-form-fail", container);
 
       if (newValue !== initialValue) {
         // Update the value in the dataset and the attribute for next initialization
@@ -2779,11 +2721,7 @@ docReady(function () {
           success: function (response) {
             console.log("Data updated successfully", response);
             // show success (done) block
-            doneBlock.show();
-            setTimeout(function () {
-              doneBlock.hide();
-            }, 2000);
-            // Optional: show some user feedback
+            displayMessage("Success", "Bonus został zaktualizowany.");
           },
           error: function (jqXHR, exception) {
             console.log("błąd");
@@ -2817,14 +2755,8 @@ docReady(function () {
             if (typeof onErrorCallback === "function") {
               onErrorCallback();
             }
-
-            $(".warningmessagetext").text(msg);
             form.show();
-            doneBlock.hide();
-            failBlock.show();
-            setTimeout(function () {
-              failBlock.hide();
-            }, 2000);
+            displayMessage("Error", msg);
             $(this)
               .val(initialValue)
               .attr("value", initialValue)
