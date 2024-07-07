@@ -1835,11 +1835,11 @@ docReady(function () {
               render: function (data) {
                 let className;
                 switch (data) {
-                  case "Obowiązujący":
+                  case "Aktywny":
                     className = "positive";
                     break;
                   case "Przyszły":
-                    className = "noneexisting";
+                    className = "positive";
                     break;
                   case "Przeszły":
                     className = "negative";
@@ -1857,35 +1857,38 @@ docReady(function () {
             {
               orderable: true,
               data: "daysValid",
-              type: "natural",
-              render: function (data) {
-                let className;
-                let displayText;
-            
+              type: "num",
+              render: function (data, type, row) {
                 // Truncate data to remove decimal part
                 const daysValid = Math.trunc(data);
-            
-                if (daysValid === 1) {
+                
+                // For sorting, return the numeric value
+                if (type === 'sort') {
+                  return daysValid;
+                }
+                
+                // For display, format the text and apply styling
+                let className;
+                let displayText;
+                
+                if (daysValid === 1 || daysValid === -1) {
                   displayText = `${daysValid} dzień`;
                 } else {
                   displayText = `${daysValid} dni`;
                 }
-            
+                
                 if (daysValid > 3) {
-                  className = "super";
+                  className = "noneexisting";
                 } else if (daysValid >= 1) {
                   className = "positive";
                 } else if (daysValid == 0) {
                   className = "medium";
-                } else if (daysValid === -1) {
-                  className = "negative";
-                  displayText = `${daysValid} dzień`;
                 } else if (daysValid >= -3) {
                   className = "negative";
                 } else {
                   className = "negative";
                 }
-            
+                
                 return `<span class="${className}">${displayText}</span>`;
               },
             },
