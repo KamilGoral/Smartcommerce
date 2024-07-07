@@ -13,6 +13,8 @@ function docReady(fn) {
 }
 
 docReady(function () {
+
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -437,6 +439,7 @@ docReady(function () {
     request.send();
   }
 
+
   class MultiSelectSearch {
     constructor(element) {
       if (!element) {
@@ -444,13 +447,10 @@ docReady(function () {
         return;
       }
       this.container = element;
-      this.input = element.querySelector('.multi-select-input');
-      this.dropdown = element.querySelector('.multi-select-dropdown');
-
-      if (!this.input || !this.dropdown) {
-        console.error('Required elements not found in the MultiSelectSearch container');
-        return;
-      }
+      this.input = this.container.querySelector('input');
+      this.dropdown = document.createElement('div');
+      this.dropdown.className = 'multi-select-dropdown';
+      this.container.appendChild(this.dropdown);
 
       this.selectedDistributors = [];
       this.distributors = [];
@@ -498,8 +498,8 @@ docReady(function () {
 
     renderDropdown() {
       this.dropdown.innerHTML = this.distributors.map(distributor => `
-            <div class="multi-select-item" data-id="${distributor.id}">
-                <input type="checkbox" id="dist-${distributor.id}">
+            <div class="multi-select-item">
+                <input type="checkbox" id="dist-${distributor.id}" value="${distributor.id}">
                 <label for="dist-${distributor.id}">${distributor.name}</label>
             </div>
         `).join('');
@@ -511,7 +511,7 @@ docReady(function () {
 
       this.dropdown.addEventListener('change', (e) => {
         if (e.target.type === 'checkbox') {
-          this.toggleDistributor(e.target.closest('.multi-select-item').dataset.id);
+          this.toggleDistributor(e.target.value);
         }
       });
 
@@ -532,7 +532,7 @@ docReady(function () {
 
     filterDistributors() {
       const searchTerm = this.input.value.toLowerCase();
-      Array.from(this.dropdown.children).forEach(item => {
+      Array.from(this.dropdown.querySelectorAll('.multi-select-item')).forEach(item => {
         const matches = item.textContent.toLowerCase().includes(searchTerm);
         item.style.display = matches ? 'block' : 'none';
       });
@@ -555,26 +555,17 @@ docReady(function () {
     }
   }
 
-  // Inicjalizacja komponentu
+  // Funkcja inicjalizująca komponent
   function initMultiSelectSearch() {
-    const container = document.getElementById('multiSelectSearch');
+    console.log('Initializing MultiSelectSearch...');
+    const container = document.querySelector('.wlasciciel-marki-container');
     if (container) {
+      console.log('MultiSelectSearch container found');
       new MultiSelectSearch(container);
     } else {
       console.error('MultiSelectSearch container not found');
     }
   }
-
-  // Upewnij się, że DOM jest załadowany przed inicjalizacją
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMultiSelectSearch);
-  } else {
-    initMultiSelectSearch();
-  }
-
-
-
-
 
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
@@ -1836,6 +1827,40 @@ docReady(function () {
   };
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+
+  setTimeout(initMultiSelectSearch, 100);
+
+  function addStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+        .multi-select-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .multi-select-item:hover {
+            background-color: #f0f0f0;
+        }
+        .multi-select-item input {
+            margin-right: 5px;
+        }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Dodaj style
+  addStyles();
 
   new MultiSelectSearch(document.getElementById('multiSelectSearch'));
 
