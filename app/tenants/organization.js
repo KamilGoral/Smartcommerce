@@ -1847,7 +1847,7 @@ docReady(function () {
                   case "Kończy się":
                     className = "medium";
                     break;
-                  case "Zakończył się":
+                  case "Zakończony":
                     className = "negative";
                     break;
                 }
