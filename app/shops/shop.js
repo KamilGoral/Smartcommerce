@@ -1120,22 +1120,17 @@ docReady(function () {
 
     $("#table_offers").on("click", "a", function () {
       var clikedEl = this;
-      var MessageContainer = document.getElementById("WarningMessageContainer");
-      var MessageText = document.getElementById("WarningMessageMain");
-
       if (clikedEl.getAttribute("status") == "in progress") {
-        MessageText.textContent =
-          "Oferta w trakcie tworzenia. Proszę poczekaj...";
-        MessageContainer.style.display = "flex";
-        $("#WarningMessageContainer").fadeOut(3000);
-        MessageContainer.style.display = "none";
+        displayMessage(
+          "Error",
+          "Oferta w trakcie tworzenia. Proszę poczekaj..."
+        );
       }
       if (clikedEl.getAttribute("status") == "error") {
-        MessageText.textContent =
-          "Oops! Coś poszło nie tak. Spróbuj ponownie...";
-        MessageContainer.style.display = "flex";
-        $("#WarningMessageContainer").fadeOut(3000);
-        MessageContainer.style.display = "none";
+        displayMessage(
+          "Error",
+          "Oops! Coś poszło nie tak. Spróbuj ponownie..."
+        );
       }
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
@@ -1160,19 +1155,17 @@ docReady(function () {
             xhr.setRequestHeader("Authorization", orgToken);
           },
           success: function (data) {
-            MessageText.textContent =
-              "Uwaga! Oferta nie jest kompletna. " + data.messages;
-            MessageContainer.style.display = "flex";
-            $("#WarningMessageContainer").fadeOut(3000, function () {
-              MessageContainer.style.display = "none";
-              document.location =
-                "https://" +
-                DomainName +
-                "/app/offers/offer?shopKey=" +
-                shopKey +
-                "&offerId=" +
-                clikedEl.getAttribute("offerId");
-            });
+            displayMessage(
+              "Error",
+              "Uwaga! Oferta nie jest kompletna " + data.messages
+            );
+            document.location =
+              "https://" +
+              DomainName +
+              "/app/offers/offer?shopKey=" +
+              shopKey +
+              "&offerId=" +
+              clikedEl.getAttribute("offerId");
           },
         });
       }
