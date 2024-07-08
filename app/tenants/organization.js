@@ -89,11 +89,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -159,11 +159,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -694,9 +694,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-      "tenants/" +
-      document.querySelector("#organizationName").textContent +
-      "/billing"
+        "tenants/" +
+        document.querySelector("#organizationName").textContent +
+        "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -893,8 +893,8 @@ docReady(function () {
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                toParse.monthCostBreakdown.forecast.total +
-                " zł" || "N/A";
+                  toParse.monthCostBreakdown.forecast.total +
+                  " zł" || "N/A";
               break;
 
             case "standard":
@@ -909,11 +909,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                  toParse.pricing.specialService.fee
+                toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                  " - " +
-                  toParse.pricing.specialService.fee +
-                  " zł/miesięcznie"
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -926,14 +926,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                  toParse.address.town,
-                  toParse.address.postcode,
-                  toParse.address.line1,
-                  toParse.address.line2,
-                  toParse.address.country,
-                ]
-                  .filter((part) => part)
-                  .join(", ")
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.line2,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1780,7 +1780,7 @@ docReady(function () {
         const table = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
-          order: [[3, "desc"]],
+          order: [[3, "asc"]],
           dom: '<"top">rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
@@ -1861,22 +1861,22 @@ docReady(function () {
               render: function (data, type, row) {
                 // Truncate data to remove decimal part
                 const daysValid = Math.trunc(data);
-                
+
                 // For sorting, return the numeric value
-                if (type === 'sort') {
+                if (type === "sort") {
                   return daysValid;
                 }
-                
+
                 // For display, format the text and apply styling
                 let className;
                 let displayText;
-                
+
                 if (daysValid === 1 || daysValid === -1) {
                   displayText = `${daysValid} dzień`;
                 } else {
                   displayText = `${daysValid} dni`;
                 }
-                
+
                 if (daysValid > 3) {
                   className = "positive";
                 } else if (daysValid >= 1) {
@@ -1888,7 +1888,7 @@ docReady(function () {
                 } else {
                   className = "negative";
                 }
-                
+
                 return `<span class="${className}">${displayText}</span>`;
               },
             },
@@ -2328,9 +2328,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -2373,7 +2373,6 @@ docReady(function () {
       console.error("Brak UUID w danych rekordu.");
     }
   });
-
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
