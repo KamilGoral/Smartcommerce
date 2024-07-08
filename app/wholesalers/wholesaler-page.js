@@ -99,11 +99,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const WholesalerIdBread = document.getElementById("WholesalerBread0");
@@ -141,7 +141,11 @@ docReady(function () {
         } else {
           $("#loginButton").hide();
         }
-        //
+
+        if (data.enabled) {
+          getFTP();
+        }
+
         whTaxId.textContent = data.taxId;
         whCountry.textContent = data.address.country;
         whLine1.textContent = data.address.line1;
@@ -319,8 +323,8 @@ docReady(function () {
             form.hide();
             $(".successmessagetext").text(
               "Gotowe! Hasło zostało zresetowane ! Nowe hasło to: " +
-                resultData.credentials.password +
-                ". Za moment strona zostanie odświeżona"
+              resultData.credentials.password +
+              ". Za moment strona zostanie odświeżona"
             );
 
             const ftpUsername = document.getElementById("ftpUsername");
@@ -460,7 +464,6 @@ docReady(function () {
       window.location.href = "https://sprytnykupiec.pl/login-page";
     }
   }
-  getFTP();
   getWholesaler();
 
   postChangePassword = function (forms, successCallback, errorCallback) {
@@ -602,11 +605,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");

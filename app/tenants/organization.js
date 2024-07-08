@@ -89,11 +89,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -159,11 +159,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -617,16 +617,11 @@ docReady(function () {
   });
 
   $("#table_users_list").on("click", ".details-control4", function () {
-    // Retrieve the DataTable row as a jQuery object
     var row = $(this).closest("tr");
 
     // Retrieve the DataTable API object
     var dataTable = $("#table_users_list").DataTable();
-
-    // Get the data for the row
     var rowData = dataTable.row(row).data();
-
-    // Extract the user ID from the hidden column
     var userId = rowData.id; // Assuming the 'id' is stored in the hidden column
 
     if (!userId) {
@@ -699,9 +694,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -898,8 +893,8 @@ docReady(function () {
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                  toParse.monthCostBreakdown.forecast.total +
-                  " zł" || "N/A";
+                toParse.monthCostBreakdown.forecast.total +
+                " zł" || "N/A";
               break;
 
             case "standard":
@@ -914,11 +909,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
+                  toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
+                  " - " +
+                  toParse.pricing.specialService.fee +
+                  " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -931,14 +926,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.line2,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
+                  toParse.address.town,
+                  toParse.address.postcode,
+                  toParse.address.line1,
+                  toParse.address.line2,
+                  toParse.address.country,
+                ]
+                  .filter((part) => part)
+                  .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1785,7 +1780,7 @@ docReady(function () {
         const table = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
-          order: [],
+          order: [[3, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
@@ -1840,11 +1835,11 @@ docReady(function () {
               render: function (data) {
                 let className;
                 switch (data) {
-                  case "Obowiązujący":
+                  case "Aktywny":
                     className = "positive";
                     break;
                   case "Przyszły":
-                    className = "noneexisting";
+                    className = "positive";
                     break;
                   case "Przeszły":
                     className = "negative";
@@ -1852,7 +1847,7 @@ docReady(function () {
                   case "Kończy się":
                     className = "medium";
                     break;
-                  case "Zakończył się":
+                  case "Zakończony":
                     className = "negative";
                     break;
                 }
@@ -1862,33 +1857,41 @@ docReady(function () {
             {
               orderable: true,
               data: "daysValid",
-              type: "natural",
-              render: function (data) {
+              type: "num",
+              render: function (data, type, row) {
+                // Truncate data to remove decimal part
+                const daysValid = Math.trunc(data);
+                
+                // For sorting, return the numeric value
+                if (type === 'sort') {
+                  return daysValid;
+                }
+                
+                // For display, format the text and apply styling
                 let className;
                 let displayText;
-
-                displayText = `${data} dni`;
-
-                if (data > 3) {
-                  className = "super";
-                } else if (data >= 1) {
+                
+                if (daysValid === 1 || daysValid === -1) {
+                  displayText = `${daysValid} dzień`;
+                } else {
+                  displayText = `${daysValid} dni`;
+                }
+                
+                if (daysValid > 3) {
                   className = "positive";
-                  displayText = `${data} dzień`;
-                } else if (data == 0) {
+                } else if (daysValid >= 1) {
+                  className = "positive";
+                } else if (daysValid == 0) {
                   className = "medium";
-                } else if (data === -1) {
-                  className = "negative";
-                  displayText = `${data} dzień`;
-                } else if (data >= -3) {
+                } else if (daysValid >= -3) {
                   className = "negative";
                 } else {
                   className = "negative";
                 }
-
+                
                 return `<span class="${className}">${displayText}</span>`;
               },
             },
-
             {
               orderable: true,
               data: "startDate",
@@ -2325,9 +2328,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -2359,7 +2362,7 @@ docReady(function () {
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
             $("#waitingdots").show(1).delay(150).hide(1);
-            table.row($(this).parents("tr")).remove().draw();
+            table.row(tr).remove().draw(); // Use the captured `tr` directly
           },
           error: function (xhr, status, error) {
             console.error("Błąd usuwania rekordu:", error);
@@ -2370,6 +2373,7 @@ docReady(function () {
       console.error("Brak UUID w danych rekordu.");
     }
   });
+
 
   makeWebflowFormAjaxNewWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {

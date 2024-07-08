@@ -13,6 +13,8 @@ function docReady(fn) {
 }
 
 docReady(function () {
+
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -50,6 +52,7 @@ docReady(function () {
     });
     return result;
   }
+
 
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
@@ -126,11 +129,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +273,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -289,11 +292,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/offers/offer?shopKey=" +
-      shopKey +
-      "&offerId=" +
-      offerId
+    DomainName +
+    "/app/offers/offer?shopKey=" +
+    shopKey +
+    "&offerId=" +
+    offerId
   );
 
   function getProductDetails(rowData) {
@@ -435,7 +438,7 @@ docReady(function () {
     };
     request.send();
   }
-
+  
   function getProductHistory(rowData) {
     if (rowData.stock === null) {
       rowData.stock = {
@@ -525,7 +528,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -539,7 +542,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -552,7 +555,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -565,7 +568,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -925,11 +928,10 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
+            ${promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+          }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
@@ -1034,12 +1036,24 @@ docReady(function () {
       if (rotIndiStr) {
         QStr = QStr + "&rotationIndicator=" + rotIndiStr;
       }
+
       var whKeyIndi = $("#wholesalerKeyIndicator")
         .map(function () {
           return this.value;
         })
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
+
+      var cdKeyIndi = $("#countryDistributorName")
+        .map(function () {
+          return this.value;
+        })
+        .get();
+      var cdKeyIndiStr = cdKeyIndi.toString();
+      if (cdKeyIndiStr) {
+        QStr = QStr + "&countryDistributorTaxId=" + cdKeyIndiStr;
+      }
+
 
       $(document).on("click", 'input[type="checkbox"]', function () {
         $('input[type="checkbox"]').not(this).prop("checked", false);
@@ -1685,6 +1699,42 @@ docReady(function () {
   };
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+
+  setTimeout(initMultiSelectSearch, 100);
+
+  function addStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+        .multi-select-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .multi-select-item:hover {
+            background-color: #f0f0f0;
+        }
+        .multi-select-item input {
+            margin-right: 5px;
+        }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Dodaj style
+  addStyles();
+
+  new MultiSelectSearch(document.getElementById('multiSelectSearch'));
 
   $("table.dataTable").on("init.dt xhr.dt", function () {
     $(this).DataTable().columns.adjust();
