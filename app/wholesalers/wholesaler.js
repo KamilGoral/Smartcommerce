@@ -305,15 +305,16 @@ docReady(function () {
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
 
-    if (
-      wholesalerKey == "mirex" ||
-      wholesalerKey == "phup-gniezno" ||
-      wholesalerKey == "smakosz" ||
-      wholesalerKey == "abe-dystrybucja" ||
-      wholesalerKey == "etqa" ||
-      wholesalerKey == "biologistic" ||
-      wholesalerKey == "elleena"
-    ) {
+    const validWholesalerKeys = [
+      "mirex",
+      "smakosz",
+      "abe-dystrybucja",
+      "etqa",
+      "biologistic",
+      "elleena",
+    ];
+
+    if (validWholesalerKeys.includes(wholesalerKey)) {
       $("#CompanyDivEdit").show();
     } else {
       $("#CompanyDivEdit").hide();
