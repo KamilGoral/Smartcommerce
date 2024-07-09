@@ -514,6 +514,7 @@ docReady(function () {
     var OrganizationName = this.getAttribute("OrganizationName");
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
     var OrganizationStatus = this.getAttribute("OrganizationStatus");
+    setCookie("OrganizationName", OrganizationName, 72000);
 
     // Check organization status first
     if (OrganizationStatus === "Suspended") {
@@ -532,7 +533,7 @@ docReady(function () {
         OrganizationName: OrganizationName,
       };
 
-      setCookie("OrganizationName", OrganizationName, 72000);
+
 
       $.ajax({
         type: "POST",
