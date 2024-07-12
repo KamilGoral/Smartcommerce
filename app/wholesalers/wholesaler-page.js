@@ -99,11 +99,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const WholesalerIdBread = document.getElementById("WholesalerBread0");
@@ -196,7 +196,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#wf-form-Create-wholesaler-done", container);
         var failBlock = $("#wf-form-Create-wholesaler-fail", container);
-        var action = InvokeURL + "/wholesalers/" + wholesalerKey + "/ftp";
+        var action = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "POST";
 
         var data = {
@@ -290,7 +290,7 @@ docReady(function () {
         var doneBlock = $("#wf-form-Reset-password-done", container);
         var failBlock = $("#wf-form-Reset-password-fail", container);
         var action =
-          InvokeURL + "/wholesalers/" + wholesalerKey + "/ftp/reset-password";
+          InvokeURL + "wholesalers/" + wholesalerKey + "/ftp/reset-password";
         var method = "GET";
 
         $.ajax({
@@ -323,8 +323,8 @@ docReady(function () {
             form.hide();
             $(".successmessagetext").text(
               "Gotowe! Hasło zostało zresetowane ! Nowe hasło to: " +
-              resultData.credentials.password +
-              ". Za moment strona zostanie odświeżona"
+                resultData.credentials.password +
+                ". Za moment strona zostanie odświeżona"
             );
 
             const ftpUsername = document.getElementById("ftpUsername");
@@ -379,7 +379,7 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var action = InvokeURL + "/wholesalers/" + wholesalerKey + "/ftp";
+        var action = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "DELETE";
 
         var data = [];
@@ -605,11 +605,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");

@@ -87,11 +87,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -572,6 +572,137 @@ docReady(function () {
               data: null,
               defaultContent:
                 "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+            },
+          ],
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+    };
+    request.send();
+  }
+
+  async function getInvoices() {
+    let url = new URL(InvokeURL + "invoices?perPage=30");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.onload = function () {
+      let dataItems =
+        request.status >= 200 && request.status < 400
+          ? JSON.parse(this.response).items
+          : [];
+      if (
+        request.status == 403 ||
+        (request.status >= 200 && request.status < 400)
+      ) {
+        var tableInvoices = $("#table_invoices_list").DataTable({
+          pagingType: "full_numbers",
+          pageLength: 10,
+          scrollY: "60vh",
+          scrollCollapse: true,
+          destroy: true,
+          orderMulti: true,
+          order: [[1, "desc"]],
+          dom: '<"top">rt<"bottom"lip>',
+          language: {
+            emptyTable: "Brak faktur",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'></div>",
+            processing: "<div class='spinner'></div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          data: dataItems,
+          search: {
+            return: true,
+          },
+          columns: [
+            {
+              orderable: false,
+              data: null,
+              width: "20px",
+              defaultContent:
+                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" loading="lazy" >',
+            },
+            {
+              orderable: true,
+              data: "number",
+            },
+            {
+              orderable: true,
+              data: "status",
+              width: "120px",
+              render: function (data) {
+                switch (data) {
+                  case "draft":
+                    return '<span class="medium">Szkic</span>';
+                  case "sent":
+                    return '<span class="positive">Wysłana</span>';
+                  case "paid":
+                    return '<span class="positive">Opłacona</span>';
+                  default:
+                    return '<span class="neutral">Nieznany</span>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "paymentDueDate",
+              render: function (data) {
+                return new Date(data).toLocaleDateString("pl-PL");
+              },
+            },
+            {
+              orderable: true,
+              data: "netPrice",
+              render: function (data) {
+                return new Intl.NumberFormat("pl-PL", {
+                  style: "currency",
+                  currency: "PLN",
+                }).format(data);
+              },
+            },
+            {
+              orderable: false,
+              data: "paymentLink",
+              render: function (data) {
+                return data
+                  ? '<a href="' + data + '">Link do płatności</a>'
+                  : "-";
+              },
+            },
+            {
+              orderable: false,
+              data: "uuid",
+              render: function (data) {
+                if (data !== null) {
+                  return (
+                    '<div class="action-container"><a href="https://' +
+                    DomainName +
+                    "/app/tenants/invoices/invoice?uuid=" +
+                    data +
+                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
+                  );
+                }
+                if (data === null) {
+                  return "";
+                }
+              },
             },
           ],
         });
