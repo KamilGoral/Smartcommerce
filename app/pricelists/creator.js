@@ -727,7 +727,7 @@ docReady(function () {
               resultData.uuid;
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 3000);
+            }, 5000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
