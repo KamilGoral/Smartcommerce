@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -267,11 +267,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -600,6 +600,8 @@ docReady(function () {
             case "cena netto":
               return "price";
             case "cena_kat_netto":
+              return "price";
+            case "cena_netto":
               return "price";
             default:
               console.log("Sorry");

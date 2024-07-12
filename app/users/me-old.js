@@ -137,11 +137,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -493,7 +493,7 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status
+          request.status
         );
         displayMessage(
           "Error",
@@ -514,6 +514,7 @@ docReady(function () {
     var OrganizationName = this.getAttribute("OrganizationName");
     var OrganizationclientId = this.getAttribute("OrganizationclientId");
     var OrganizationStatus = this.getAttribute("OrganizationStatus");
+    setCookie("OrganizationName", OrganizationName, 72000);
 
     // Check organization status first
     if (OrganizationStatus === "Suspended") {
@@ -531,6 +532,8 @@ docReady(function () {
         OrganizationclientId: OrganizationclientId,
         OrganizationName: OrganizationName,
       };
+
+
 
       $.ajax({
         type: "POST",
@@ -566,12 +569,9 @@ docReady(function () {
           // Redirect to the organization's page
           window.location.replace(
             "https://" +
-              DomainName +
-              "/app/tenants/organization" +
-              "?name=" +
-              OrganizationName +
-              "&clientId=" +
-              OrganizationclientId
+            DomainName +
+            "/app/tenants/organization?clientId=" +
+            OrganizationclientId
           );
         },
         error: function (jqXHR, exception) {
@@ -582,12 +582,9 @@ docReady(function () {
       // Redirect to the organization's page
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/tenants/organization" +
-          "?name=" +
-          OrganizationName +
-          "&clientId=" +
-          OrganizationclientId
+        DomainName +
+        "/app/tenants/organization?clientId=" +
+        OrganizationclientId
       );
     }
     return false;
@@ -702,11 +699,11 @@ docReady(function () {
         setCookie(
           "SpytnyUserAttributes",
           "username:" +
-            UserInfo.UserAttributes[2].Value +
-            "|familyname:" +
-            UserInfo.UserAttributes[3].Value +
-            "|email:" +
-            UserInfo.UserAttributes[4].Value,
+          UserInfo.UserAttributes[2].Value +
+          "|familyname:" +
+          UserInfo.UserAttributes[3].Value +
+          "|email:" +
+          UserInfo.UserAttributes[4].Value,
           72000
         );
 
@@ -724,9 +721,9 @@ docReady(function () {
       } else {
         console.log(
           "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            UserInfo.message
+          request.status +
+          " " +
+          UserInfo.message
         );
         displayMessage("Error", UserInfo.message);
       }

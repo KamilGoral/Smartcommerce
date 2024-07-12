@@ -70,9 +70,7 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
 
-  var organizationName = new URL(document.location.href).searchParams.get(
-    "name"
-  );
+  var organizationName = getCookie("OrganizationName");
   $("#NewOrganizationName").val(organizationName);
   setCookie("OrganizationName", organizationName, 7200);
   var formId = "#wf-form-NewOrganizationName";
@@ -89,11 +87,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
