@@ -691,19 +691,11 @@ docReady(function () {
             {
               orderable: false,
               data: "uuid",
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    '<div class="action-container"><a href="https://' +
-                    DomainName +
-                    "/app/tenants/invoices/invoice?uuid=" +
-                    data +
-                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
-                  );
-                }
-                if (data === null) {
-                  return "";
-                }
+              width: "36px",
+              render: function (data, type, row) {
+                return `<a href="#" class="download-invoice" data-uuid="${data}" data-tenant="${organizationName}">
+                          <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64aebe6c6b74d731caa86950_download.svg' alt='Pobierz dokument'>
+                        </a>`;
               },
             },
           ],
@@ -715,6 +707,31 @@ docReady(function () {
     };
     request.send();
   }
+
+  $(document).on("click", ".download-invoice", function (e) {
+    e.preventDefault();
+    const uuid = $(this).data("uuid");
+    const tenant = $(this).data("tenant");
+    const url = `${InvokeURL}tenants/${organizationName}/invoices/${uuid}?documentType=regular`;
+
+    fetch(url, {
+      headers: {
+        Authorization: orgToken,
+      },
+    })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `invoice_${uuid}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => console.error("Error downloading invoice:", error));
+  });
 
   $("#table_users_list").on("change", ".user-role-select", function () {
     var userId = $(this).data("user-id");
