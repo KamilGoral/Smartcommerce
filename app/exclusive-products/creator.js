@@ -894,7 +894,7 @@ docReady(function () {
   $(document).ready(function () {
     $.fn.dataTable.ext.errMode = () =>
       alert(
-        'Plik nie zawiera jednej z kolumn: "Nazwa", "Kod". Sprawdź plik i spróbuj ponownie.'
+        'Plik nie zawiera jednej z kolumn: "Nazwa", "Kod" lub nie jest ma rozszerzenia .csv. Sprawdź plik i spróbuj ponownie.'
       );
   });
 

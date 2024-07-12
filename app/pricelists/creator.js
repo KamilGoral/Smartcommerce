@@ -661,7 +661,7 @@ docReady(function () {
       form.on("submit", function (event) {
         event.preventDefault();
 
-        // Ukryj poprzedni komunikat o błędzie, jeśli istnieje
+        // Hide previous error message, if any
         $("#Create-Pricelist-Fail").stop(true, true).hide();
 
         var wholesalerKey = $("#WholesalerSelector").val();
@@ -717,7 +717,7 @@ docReady(function () {
           data: JSON.stringify(postData),
           success: function (resultData) {
             console.log(resultData);
-            $("#createpricelistsuccess").css("display", "flex").show();
+            displayMessage("Success", "Cennik został dodany.");
             var pricelistUrl =
               "https://" +
               DomainName +
@@ -730,10 +730,23 @@ docReady(function () {
           error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
-            var msg =
-              "Błąd.\n" +
-              translateErrorMessage(JSON.parse(jqXHR.responseText).message);
-            displayError(msg);
+            var msg;
+
+            if (jqXHR.status === 504) {
+              msg =
+                "Błąd: Przekroczono limit czasu żądania. Spróbuj ponownie później.";
+            } else {
+              try {
+                msg =
+                  "Błąd.\n" +
+                  translateErrorMessage(JSON.parse(jqXHR.responseText).message);
+              } catch (e) {
+                msg = "Błąd: Wystąpił nieoczekiwany błąd.";
+              }
+            }
+
+            displayMessage("Error", msg);
+            $("#waitingdots").hide(); // Ensure the loading dots are hidden in case of error
           },
         });
 
