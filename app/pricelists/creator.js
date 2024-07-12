@@ -728,7 +728,7 @@ docReady(function () {
               resultData.uuid;
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 5000);
+            }, 3000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -736,8 +736,7 @@ docReady(function () {
             var msg;
 
             if (jqXHR.status === 504) {
-              msg =
-                "Błąd: Przekroczono limit czasu żądania. Spróbuj ponownie później.";
+              msg = "Przekroczono limit czasu żądania.";
             } else {
               try {
                 msg =
