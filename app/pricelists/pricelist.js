@@ -312,15 +312,19 @@ docReady(function () {
   function getPriceList() {
     getShops();
 
-    var request = new XMLHttpRequest();
-    let endpoint = new URL(InvokeURL + "price-lists/" + priceListId);
-
-    request.open("GET", endpoint.toString(), true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-
-      if (request.status >= 200 && request.status < 400) {
+    $.ajax({
+      url: `${InvokeURL}price-lists/${priceListId}`,
+      type: "GET",
+      headers: {
+        Authorization: orgToken,
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function (data) {
         const wholesalerKey = document.getElementById("wholesalerKey");
         const createdBy = document.getElementById("createdBy");
         const createDate = document.getElementById("createDate");
@@ -366,6 +370,7 @@ docReady(function () {
           $(this).prop("selected", !$(this).prop("selected"));
           return false;
         });
+
         var myValidProducts = data.products;
 
         $(document).ready(function () {
@@ -407,28 +412,39 @@ docReady(function () {
             paging: true,
             autoWidth: true,
             columns: [
-              {
-                data: "gtin",
-              },
-              {
-                data: "name",
-              },
+              { data: "gtin" },
+              { data: "name" },
               {
                 orderable: false,
                 data: "countryDistributorName",
                 defaultContent: "-",
               },
-              {
-                data: "price",
-              },
+              { data: "price" },
             ],
           });
         });
-      } else {
-        console.log("error");
-      }
-    };
-    request.send();
+      },
+      error: function (jqXHR, exception) {
+        console.log(jqXHR);
+        console.log(exception);
+        var msg;
+
+        if (jqXHR.status === 504) {
+          msg = "Przekroczono limit czasu żądania.";
+        } else {
+          try {
+            msg =
+              "Błąd.\n" +
+              translateErrorMessage(JSON.parse(jqXHR.responseText).message);
+          } catch (e) {
+            msg = "Błąd: Wystąpił nieoczekiwany błąd.";
+          }
+        }
+
+        displayMessage("Error", msg);
+        $("#waitingdots").hide();
+      },
+    });
   }
 
   makeWebflowFormAjaxEditPriceList = function (
