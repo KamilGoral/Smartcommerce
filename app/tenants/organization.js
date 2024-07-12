@@ -2800,6 +2800,7 @@ docReady(function () {
   LogoutNonUser();
   getShops();
   getUsers();
+  getInvoices();
   getPriceLists();
   getIntegrations();
   getWholesalers();
