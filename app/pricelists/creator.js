@@ -718,6 +718,7 @@ docReady(function () {
           },
           data: JSON.stringify(postData),
           success: function (resultData) {
+            $("#waitingdots").hide();
             console.log(resultData);
             displayMessage("Success", "Cennik został dodany.");
             var pricelistUrl =
