@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -267,11 +267,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -707,7 +707,7 @@ docReady(function () {
           complete: function () {
             setTimeout(function () {
               $("#waitingdots").hide();
-            }, 3000); // 1000 milliseconds = 1 second
+            }, 100); // 1000 milliseconds = 1 second
           },
           contentType: "application/json",
           dataType: "json",
@@ -727,7 +727,7 @@ docReady(function () {
               resultData.uuid;
             window.setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 1000);
+            }, 3000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
