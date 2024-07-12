@@ -1905,7 +1905,7 @@ docReady(function () {
           if (now < startDate) {
             status = "Przyszły";
           } else if (now <= endDate && daysValid == 0) {
-            status = "Wygasa";
+            status = "Kończy się";
           } else if (now > endDate && daysValid == -1) {
             status = "Zakończony";
           } else if (now <= endDate) {
@@ -1928,7 +1928,7 @@ docReady(function () {
         const table = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
-          order: [[3, "asc"]],
+          order: [[4, "asc"]],
           dom: '<"top">rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
