@@ -1524,11 +1524,6 @@ docReady(function () {
     popupContainer.style.display = "flex";
   });
 
-  // Close the popup when the close button is clicked
-  $(document).on("click", ".close-popup", function () {
-    document.getElementById("ReleatedProducts").style.display = "none";
-  });
-
   // Close the popup when clicking outside of the popup content
   $(window).on("click", function (event) {
     var popupContainer = document.getElementById("ReleatedProducts");

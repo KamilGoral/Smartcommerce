@@ -3376,15 +3376,21 @@ docReady(function () {
     const popupContent = document.getElementById("popupContent");
     var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
-    var output = "<td>";
+
     for (var i = 0; i < values.length; i++) {
       output += "<p>" + values[i] + "</p>";
     }
 
-    output += "</td>";
-
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
+  });
+
+  // Close the popup when clicking outside of the popup content
+  $(window).on("click", function (event) {
+    var popupContainer = document.getElementById("ReleatedProducts");
+    if (event.target == popupContainer) {
+      popupContainer.style.display = "none";
+    }
   });
 
   $("#table_id tbody").on("click", "td.details-control2", function () {
