@@ -648,7 +648,7 @@ docReady(function () {
             {
               orderable: true,
               data: "status",
-              width: "120px",
+              width: "128px",
               render: function (data) {
                 switch (data) {
                   case "draft":
@@ -682,10 +682,10 @@ docReady(function () {
             {
               orderable: false,
               data: null,
-              width: "100px",
+              width: "320px",
               render: function (data, type, row) {
                 const paymentLink = row.paymentLink
-                  ? `<a href="${row.paymentLink}">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                  ? `<a href="${row.paymentLink}" target="_blank">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : "-";
                 const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName} data-tenant="${row.number}">Pobierz
                                         <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
@@ -711,7 +711,7 @@ docReady(function () {
   
     // Function to sanitize the file name
     function sanitizeFilename(name) {
-      return name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
     }
   
     const sanitizedOrganizationName = sanitizeFilename(tenant);
@@ -751,6 +751,7 @@ docReady(function () {
         $("#waitingdots").hide();
       });
   });
+  
   
 
   $("#table_users_list").on("change", ".user-role-select", function () {
