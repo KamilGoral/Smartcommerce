@@ -606,7 +606,7 @@ docReady(function () {
           scrollCollapse: true,
           destroy: true,
           orderMulti: true,
-          order: [[3, "desc"]],
+          order: [[3, "asc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak faktur",
@@ -682,10 +682,9 @@ docReady(function () {
             {
               orderable: false,
               data: null,
-              width: "320px",
               render: function (data, type, row) {
                 const paymentLink = row.paymentLink
-                  ? `<a href="${row.paymentLink}" target="_blank">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                  ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : "-";
                 const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName} data-tenant="${row.number}">Pobierz
                                         <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
@@ -708,21 +707,21 @@ docReady(function () {
     const uuid = $(this).data("uuid");
     const tenant = $(this).data("tenant");
     const number = $(this).data("number");
-  
+
     // Function to sanitize the file name
     function sanitizeFilename(name) {
       return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
     }
-  
+
     const sanitizedOrganizationName = sanitizeFilename(tenant);
     const sanitizedNumber = sanitizeFilename(number);
     const filename = `${sanitizedOrganizationName}-${sanitizedNumber}.pdf`;
-  
+
     const url = `${InvokeURL}tenants/${organizationName}/invoices/${uuid}?documentType=regular`;
-  
+
     // Show waiting screen
     $("#waitingdots").show();
-  
+
     fetch(url, {
       headers: {
         Authorization: orgToken,
@@ -751,8 +750,8 @@ docReady(function () {
         $("#waitingdots").hide();
       });
   });
-  
-  
+
+
 
   $("#table_users_list").on("change", ".user-role-select", function () {
     var userId = $(this).data("user-id");
