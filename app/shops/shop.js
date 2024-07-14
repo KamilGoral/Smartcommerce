@@ -1999,6 +1999,7 @@ docReady(function () {
   // Function to handle tab switch
   $(".in-page-menu-link").on("click", function () {
     var $uploadButton = $("#UploadButton");
+    var isFile = $("#orderfile").get(0).files.length > 0
 
     // Adjust UploadButton based on active tab
     if ($(this).attr("data-w-tab") === "Tab 2") {
@@ -2006,11 +2007,7 @@ docReady(function () {
         .removeClass("disabledfornow")
         .text("Kontynuuj")
         .css({ opacity: 1, cursor: "pointer" });
-    } else if ($(this).attr("data-w-tab") === "Tab 1" && $("#orderfile").get(0).files.length > 0) {
-      $uploadButton
-        .removeClass("disabledfornow")
-        .text("Kontynuuj")
-        .css({ opacity: 1, cursor: "pointer" });
+    } else if (isFile) {
     } else if ($(this).attr("data-w-tab") === "Tab 1") {
       $uploadButton
         .addClass("disabledfornow")
