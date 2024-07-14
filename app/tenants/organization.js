@@ -394,6 +394,12 @@ docReady(function () {
           document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
         }
         setCookieAndSession("sprytnyUserRole", data.role, 72000);
+        if (data.role === "admin") {
+          $('a[data-w-tab="Policy"]').show();
+          $('a[data-w-tab="Documents"]').show();
+          $('a[data-w-tab="Integrations"]').show();
+          $('a[data-w-tab="Settings"]').show();
+        }
       } else {
         console.log("error");
       }
@@ -1656,7 +1662,7 @@ docReady(function () {
             } else if (jqXHR.status === 403) {
               msg = "Użytkownik nie ma uprawnień do usunięcia organizacji.";
             } else if (jqXHR.status === 409) {
-                msg = "Aby móc usunąć organizację, prosimy o uregulowanie zaległych faktur.";
+              msg = "Aby móc usunąć organizację, prosimy o uregulowanie zaległych faktur.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
