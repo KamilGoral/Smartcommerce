@@ -2003,17 +2003,17 @@ docReady(function () {
     // Adjust UploadButton based on active tab
     if ($(this).attr("data-w-tab") === "Tab 2") {
       $uploadButton
-        .removeClass("disabled")
+        .removeClass("disabledfornow")
         .text("Kontynuuj")
         .css({ opacity: 1, cursor: "pointer" });
     } else if ($(this).attr("data-w-tab") === "Tab 1" && $("#orderfile").get(0).files.length > 0) {
       $uploadButton
-        .removeClass("disabled")
+        .removeClass("disabledfornow")
         .text("Kontynuuj")
         .css({ opacity: 1, cursor: "pointer" });
     } else if ($(this).attr("data-w-tab") === "Tab 1") {
       $uploadButton
-        .addClass("disabled")
+        .addClass("disabledfornow")
         .text("Najpierw wybierz plik zamówienia.")
         .css({ opacity: 0.5, cursor: "default" });
     }
