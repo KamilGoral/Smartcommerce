@@ -407,8 +407,6 @@ docReady(function () {
     request.send();
   }
 
-  let userRole = getCookie("sprytnyUserRole");
-
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
     let request = new XMLHttpRequest();
@@ -837,12 +835,12 @@ docReady(function () {
   );
 
   async function GetTenantBilling() {
-    while (!userRole && attempts < 5) {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
 
-    if (userRole !== "admin") {
+    if (getCookie("sprytnyUserRole") !== "admin") {
       console.log("Action not permitted for non-admin users.");
       return;
     }
@@ -1512,12 +1510,12 @@ docReady(function () {
   async function getIntegrations() {
     let attempts = 0;
 
-    while (!userRole && attempts < 5) {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
 
-    if (userRole !== "admin") {
+    if (getCookie("sprytnyUserRole") !== "admin") {
       console.log("Action not permitted for non-admin users.");
       return;
     }
