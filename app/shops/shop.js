@@ -1999,7 +1999,9 @@ docReady(function () {
 
   // Function to handle file change event
   $("#orderfile").change(function (e) {
-    checkFileSelection();
+    if ($("#w-tabs-1-data-w-tab-0").hasClass("w--current")) {
+      checkFileSelection();
+    }
   });
 
   function checkFileSelection() {
@@ -2021,9 +2023,70 @@ docReady(function () {
   // Click event handling for UploadButton
   $("#UploadButton").on("click", function (e) {
     e.preventDefault(); // Prevent default action
-    if (!$(this).hasClass("disabledfornow")) {
-      // Proceed with upload if button is not disabled
-      FileUpload(true);
+
+    if ($("#w-tabs-1-data-w-tab-0").hasClass("w--current")) {
+      if (!$(this).hasClass("disabledfornow")) {
+        // Proceed with upload if button is not disabled
+        FileUpload(true);
+      }
+    } else if ($("#createfromscratch").hasClass("w--current")) {
+      // Logic for "Stwórz z oferty" tab
+      var action = InvokeURL + "shops/" + shopKey + "/orders";
+      action += "?ignoreEmptyGtin=true";
+
+      $.ajax({
+        type: "POST",
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+        },
+        success: function (response) {
+          displayMessage("Success", "Twoje zamówienie zostało stworzone.");
+          window.setTimeout(function () {
+            window.location.replace(
+              "https://" +
+              DomainName +
+              "/app/orders/order?orderId=" +
+              response.orderId +
+              "&shopKey=" +
+              shopKey
+            );
+          }, 1000);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(jqXHR);
+          console.log(errorThrown);
+          displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
+        },
+      });
+    }
+  });
+
+  // Function to handle tab switch
+  $(".in-page-menu-link").on("click", function () {
+    if ($(this).attr("data-w-tab") === "Tab 0") {
+      // Wczytaj z pliku tab active
+      $("#UploadButton")
+        .removeClass("disabledfornow")
+        .text("Kontynuuj")
+        .css({ opacity: 1, cursor: "pointer" });
+    } else if ($(this).attr("data-w-tab") === "Tab 1") {
+      // Stwórz z oferty tab active
+      $("#UploadButton")
+        .addClass("disabledfornow")
+        .text("Najpierw wybierz plik zamówienia.")
+        .css({ opacity: 0.5, cursor: "default" });
     }
   });
 
@@ -2051,7 +2114,6 @@ docReady(function () {
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
       if (xhr.status === 201) {
-        displayMessage("Success", "Twoje zamówienie zostało stworzone.");
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
@@ -2083,6 +2145,7 @@ docReady(function () {
             Authorization: orgToken,
           },
           success: function (resultData) {
+            displayMessage("Success", "Twoje zamówienie zostało stworzone.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
@@ -2092,11 +2155,12 @@ docReady(function () {
                 "&shopKey=" +
                 shopKey
               );
-            }, 100);
+            }, 1000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
+            displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
           },
         });
       } else {
@@ -2184,9 +2248,6 @@ docReady(function () {
     xhr.send(formData);
   }
 
-  // UploadDocumentButton.addEventListener("click", (event) => {
-  //   FileUpload(false);
-  // });
 
   cancelButton.addEventListener("click", () => {
     const modal = document.getElementById("wronggtinsmodal");
