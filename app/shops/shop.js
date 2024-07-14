@@ -2195,10 +2195,6 @@ docReady(function () {
     }
   });
 
-  // Call with custom header
-  $("#UploadButton").on("click", function () {
-    FileUpload(true);
-  });
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
