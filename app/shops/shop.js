@@ -2000,6 +2000,8 @@ docReady(function () {
   $(".in-page-menu-link").on("click", function () {
     var $uploadButton = $("#UploadButton");
     var isFile = $("#orderfile").get(0).files.length > 0
+    console.log($(this).attr("data-w-tab"));
+    console.log(isFile);
 
     // Adjust UploadButton based on active tab
     if ($(this).attr("data-w-tab") === "Tab 2") {
@@ -2090,23 +2092,6 @@ docReady(function () {
           displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
         },
       });
-    }
-  });
-
-  // Function to handle tab switch
-  $(".in-page-menu-link").on("click", function () {
-    if ($(this).attr("data-w-tab") === "Tab 0") {
-      // Wczytaj z pliku tab active
-      $("#UploadButton")
-        .removeClass("disabledfornow")
-        .text("Kontynuuj")
-        .css({ opacity: 1, cursor: "pointer" });
-    } else if ($(this).attr("data-w-tab") === "Tab 1") {
-      // Stwórz z oferty tab active
-      $("#UploadButton")
-        .addClass("disabledfornow")
-        .text("Najpierw wybierz plik zamówienia.")
-        .css({ opacity: 0.5, cursor: "default" });
     }
   });
 
