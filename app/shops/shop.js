@@ -2034,6 +2034,8 @@ docReady(function () {
       var action = InvokeURL + "shops/" + shopKey + "/orders";
       action += "?ignoreEmptyGtin=true";
 
+      data = [];
+
       $.ajax({
         type: "POST",
         url: action,
@@ -2046,6 +2048,7 @@ docReady(function () {
         },
         contentType: "application/json",
         dataType: "json",
+        data: JSON.stringify(data),
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
