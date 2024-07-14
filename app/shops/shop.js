@@ -1995,46 +1995,46 @@ docReady(function () {
     });
   };
 
+  $("#orderfile").change(function (e) {
+    if (this.files.length > 0) {
+      // File is selected
+      $("#UploadButton")
+        .prop("disabled", false) // Enable the button
+        .text("Kontynuuj") // Change button text
+        .css({ opacity: 1, cursor: "pointer" }); // Set opacity and cursor
+    } else {
+      // No file selected
+      $("#UploadButton")
+        .prop("disabled", true) // Disable the button
+        .text("Najpierw wybierz plik zamówienia.") // Change button text
+        .css({ opacity: 0.5, cursor: "default" }); // Set opacity and cursor
+    }
+  });
+  
+
+  // // Initial state check after 1 second
+  // setTimeout(function() {
+  //   if ($('#createfromscratch').hasClass('w--current')) {
+  //     if ($("#orderfile").get(0).files.length > 0) {
+  //       $("#UploadButton").prop("disabled", false); // Enable if file already selected
+  //     }
+  //   } else {
+  //     $("#UploadButton").prop("disabled", true); // Ensure disabled if condition doesn't match
+  //   }
+  // }, 1000);
+
+  // Click event handling for UploadButton
+  $("#UploadButton").on("click", function () {
+    FileUpload(true); // Call FileUpload function with ignoreGTINs parameter true
+  });
+
+
+
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
-    const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
     var myUploadedFiles = document.getElementById("orderfile").files;
-
-    if (myUploadedFiles.length > 0) {
-      var file = myUploadedFiles[0];
-      var fileName = file.name;
-      // Improved file extension extraction
-      var fileExtension = fileName.includes(".")
-        ? fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase()
-        : "";
-      var fileSize = file.size;
-
-      // Check for file size exceeding 10 MB
-      if (fileSize > 10 * 1024 * 1024) {
-        displayMessage(
-          "Error",
-          "Jeden z Twoich plików zamówienie jest zbyt duży. Plik jest większy niż 10 MB"
-        );
-        $("#orderuploadmodal").css("display", "none");
-        document.getElementById("orderfile").value = "";
-        return; // Exit the function
-      }
-
-      // Allow files without extensions and check allowed extensions ( This is not work)
-      // if (
-      //   (fileName.includes(".") &&
-      //     !allowedExtensions.includes(fileExtension)) ||
-      //   (!fileName.includes(".") && fileExtension === "")
-      // ) {
-      //   $("#wrongfilemodal").css("display", "flex");
-      //   $("#wrongfilemessage").text(
-      //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
-      //   );
-      //   $("#orderuploadmodal").css("display", "none");
-      //   document.getElementById("orderfile").value = "";
-      //   return; // Exit the function
-      // }
-    }
+  
+  
     $("#waitingdots").show();
     var formData = new FormData();
     for (var i = 0; i < myUploadedFiles.length; i++) {
@@ -2046,6 +2046,7 @@ docReady(function () {
     if (ignoreGTINs) {
       action += "?ignoreEmptyGtin=true";
     }
+  
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
