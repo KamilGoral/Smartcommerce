@@ -652,11 +652,13 @@ docReady(function () {
               render: function (data) {
                 switch (data) {
                   case "draft":
-                    return '<span class="medium">Szkic</span>';
+                    return '<span class="neutral">Szkic</span>';
                   case "sent":
                     return '<span class="positive">Wysłana</span>';
                   case "paid":
                     return '<span class="positive">Opłacona</span>';
+                  case "overdue":
+                    return '<span class="positive">Po terminie</span>';
                   default:
                     return '<span class="neutral">Nieznany</span>';
                 }
@@ -684,10 +686,10 @@ docReady(function () {
               data: null,
               render: function (data, type, row) {
                 const paymentLink = row.paymentLink
-                  ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                  ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : "-";
-                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName} data-tenant="${row.number}">Pobierz
-                                        <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
+                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-tenant="${row.number}">Pobierz
+                                        <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
                                       </a>`;
                 return `${paymentLink} ${downloadLink}`;
               },
