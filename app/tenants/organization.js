@@ -687,7 +687,7 @@ docReady(function () {
                 const paymentLink = row.paymentLink
                   ? `<a href="${row.paymentLink}">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : "-";
-                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}">Pobierz
+                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName} data-tenant="${row.number}">Pobierz
                                         <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
                                       </a>`;
                 return `${paymentLink} ${downloadLink}`;
@@ -707,8 +707,22 @@ docReady(function () {
     e.preventDefault();
     const uuid = $(this).data("uuid");
     const tenant = $(this).data("tenant");
+    const number = $(this).data("number");
+  
+    // Function to sanitize the file name
+    function sanitizeFilename(name) {
+      return name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    }
+  
+    const sanitizedOrganizationName = sanitizeFilename(tenant);
+    const sanitizedNumber = sanitizeFilename(number);
+    const filename = `${sanitizedOrganizationName}-${sanitizedNumber}.pdf`;
+  
     const url = `${InvokeURL}tenants/${organizationName}/invoices/${uuid}?documentType=regular`;
-
+  
+    // Show waiting screen
+    $("#waitingdots").show();
+  
     fetch(url, {
       headers: {
         Authorization: orgToken,
@@ -726,13 +740,18 @@ docReady(function () {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = `invoice_${uuid}.pdf`;
+        a.download = filename; // Use the sanitized file name here
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
       })
-      .catch((error) => console.error('Error downloading invoice:', error));
+      .catch((error) => console.error('Error downloading invoice:', error))
+      .finally(() => {
+        // Hide waiting screen
+        $("#waitingdots").hide();
+      });
   });
+  
 
   $("#table_users_list").on("change", ".user-role-select", function () {
     var userId = $(this).data("user-id");
