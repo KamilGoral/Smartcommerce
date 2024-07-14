@@ -1655,6 +1655,8 @@ docReady(function () {
               msg = "Not connect.\n Verify Network.";
             } else if (jqXHR.status === 403) {
               msg = "Użytkownik nie ma uprawnień do usunięcia organizacji.";
+            } else if (jqXHR.status === 409) {
+                msg = "Aby móc usunąć organizację, prosimy o uregulowanie zaległych faktur.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
