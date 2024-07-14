@@ -2000,8 +2000,6 @@ docReady(function () {
   $(".in-page-menu-link").on("click", function () {
     var $uploadButton = $("#UploadButton");
     var isFile = $("#orderfile").get(0).files.length > 0
-    console.log($(this).attr("data-w-tab"));
-    console.log(isFile);
 
     // Adjust UploadButton based on active tab
     if ($(this).attr("data-w-tab") === "Tab 2") {
