@@ -379,34 +379,40 @@ docReady(function () {
   }
 
   function getUserRole() {
-
-    var request = new XMLHttpRequest();
-    let endpoint = new URL(InvokeURL + "users/" + userKey);
-    request.open("GET", endpoint, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-
-      if (request.status >= 200 && request.status < 400) {
-        function setCookieAndSession(cName, cValue, expirationSec) {
-          let date = new Date();
-          date.setTime(date.getTime() + expirationSec * 1000);
-          const expires = "expires=" + date.toUTCString();
-          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+    return new Promise((resolve, reject) => {
+      var request = new XMLHttpRequest();
+      let endpoint = new URL(InvokeURL + "users/" + userKey);
+      request.open("GET", endpoint, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+          var data = JSON.parse(request.responseText);
+          function setCookieAndSession(cName, cValue, expirationSec) {
+            let date = new Date();
+            date.setTime(date.getTime() + expirationSec * 1000);
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+          }
+          setCookieAndSession("sprytnyUserRole", data.role, 72000);
+          if (data.role === "admin") {
+            $('a[data-w-tab="Policy"]').show();
+            $('a[data-w-tab="Integrations"]').show();
+            $('a[data-w-tab="Settings"]').show();
+          }
+          resolve(data.role); // Resolve with the user role
+        } else {
+          console.error("Error fetching user role. Status:", request.status);
+          reject("Error fetching user role"); // Reject if there's an error
         }
-        setCookieAndSession("sprytnyUserRole", data.role, 72000);
-        if (data.role === "admin") {
-          $('a[data-w-tab="Policy"]').show();
-          // $('a[data-w-tab="Documents"]').show();
-          $('a[data-w-tab="Integrations"]').show();
-          $('a[data-w-tab="Settings"]').show();
-        }
-      } else {
-        console.log("error");
-      }
-    };
-    request.send();
+      };
+      request.onerror = function () {
+        console.error("Request error:", request.status);
+        reject("Request error"); // Reject if there's a request error
+      };
+      request.send();
+    });
   }
+
 
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
@@ -2887,22 +2893,22 @@ docReady(function () {
   LogoutNonUser();
 
   getUserRole()
-  .then(() => {
-    return Promise.all([
-      getUsers(),
-      getInvoices(),
-      getPriceLists(),
-      getIntegrations(),
-      getWholesalers()
-    ]);
-  })
-  .then(() => {
-    LoadTippy();
-  })
-  .catch((error) => {
-    console.error('Error while fetching user role or subsequent data:', error);
-    // Handle error if necessary
-  });
+    .then(() => {
+      return Promise.all([
+        getUsers(),
+        getInvoices(),
+        getPriceLists(),
+        getIntegrations(),
+        getWholesalers()
+      ]);
+    })
+    .then(() => {
+      LoadTippy();
+    })
+    .catch((error) => {
+      console.error('Error while fetching user role or subsequent data:', error);
+      // Handle error if necessary
+    });
 
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
