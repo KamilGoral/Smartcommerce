@@ -2011,6 +2011,7 @@ docReady(function () {
         .addClass("disabled")
         .text("Najpierw wybierz plik zamówienia.")
         .css({ opacity: 0.5, cursor: "default" });
+      checkFileSelection();
     }
   });
 
@@ -2080,7 +2081,7 @@ docReady(function () {
               "/app/orders/order?orderId=" +
               response.orderId +
               "&shopKey=" +
-              shopKey
+              shopKey + "&data-w-tab=add"
             );
           }, 1000);
         },
