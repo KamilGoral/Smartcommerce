@@ -2007,21 +2007,21 @@ docReady(function () {
       $("#UploadButton")
         .prop("disabled", true) // Disable the button
         .text("Najpierw wybierz plik zamówienia.") // Change button text
-        .css({ opacity: 0.5, cursor: "default" }); // Set opacity and cursor
+        .css({ opacity: 0.7, cursor: "default" }); // Set opacity and cursor
     }
   });
   
 
-  // // Initial state check after 1 second
-  // setTimeout(function() {
-  //   if ($('#createfromscratch').hasClass('w--current')) {
-  //     if ($("#orderfile").get(0).files.length > 0) {
-  //       $("#UploadButton").prop("disabled", false); // Enable if file already selected
-  //     }
-  //   } else {
-  //     $("#UploadButton").prop("disabled", true); // Ensure disabled if condition doesn't match
-  //   }
-  // }, 1000);
+  // Initial state check after 1 second
+  setTimeout(function() {
+    if ($('#createfromscratch').hasClass('w--current')) {
+      if ($("#orderfile").get(0).files.length > 0) {
+        $("#UploadButton").prop("disabled", false); // Enable if file already selected
+      }
+    } else {
+      $("#UploadButton").prop("disabled", true); // Ensure disabled if condition doesn't match
+    }
+  }, 1000);
 
   // Click event handling for UploadButton
   $("#UploadButton").on("click", function () {
