@@ -896,7 +896,7 @@ docReady(function () {
     let url = new URL(
       InvokeURL +
       "tenants/" +
-      document.querySelector("#organizationName").textContent +
+      getCookie("OrganizationName") +
       "/billing"
     );
     let request = new XMLHttpRequest();
@@ -1655,7 +1655,7 @@ docReady(function () {
         var endpoint =
           InvokeURL +
           "tenants/" +
-          document.querySelector("#organizationName").textContent;
+          getCookie("OrganizationName");
 
         $.ajax({
           type: "DELETE",
