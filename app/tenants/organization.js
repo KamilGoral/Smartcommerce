@@ -606,7 +606,7 @@ docReady(function () {
           scrollCollapse: true,
           destroy: true,
           orderMulti: true,
-          order: [[1, "desc"]],
+          order: [[3, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak faktur",
