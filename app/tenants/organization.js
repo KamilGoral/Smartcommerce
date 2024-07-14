@@ -681,21 +681,16 @@ docReady(function () {
             },
             {
               orderable: false,
-              data: "paymentLink",
-              render: function (data) {
-                return data
-                  ? '<a href="' + data + '">Link do płatności</a>'
-                  : "-";
-              },
-            },
-            {
-              orderable: false,
-              data: "uuid",
-              width: "36px",
+              data: null,
+              width: "100px",
               render: function (data, type, row) {
-                return `<a href="#" class="download-invoice" data-uuid="${data}" data-tenant="${organizationName}">
-                          <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
-                        </a>`;
+                const paymentLink = row.paymentLink
+                  ? `<a href="${row.paymentLink}">Zapłać teraz<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                  : "-";
+                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}">Pobierz
+                                        <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
+                                      </a>`;
+                return `${paymentLink} ${downloadLink}`;
               },
             },
           ],
