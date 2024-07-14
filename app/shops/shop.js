@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +270,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -313,10 +313,10 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-            " - " +
-            data.shopKey +
-            " | " +
-            data.merchantConsoleShopId || "N/A";
+          " - " +
+          data.shopKey +
+          " | " +
+          data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -1135,11 +1135,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1442,9 +1442,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -1995,46 +1995,43 @@ docReady(function () {
     });
   };
 
+  checkFileSelection();
+
+  // Function to handle file change event
   $("#orderfile").change(function (e) {
-    if (this.files.length > 0) {
-      // File is selected
+    checkFileSelection();
+  });
+
+  function checkFileSelection() {
+    if ($("#orderfile").get(0).files.length > 0) {
+      // Files are selected
       $("#UploadButton")
-        .prop("disabled", false) // Enable the button
+        .removeClass("disabledfornow") // Remove disabled class
         .text("Kontynuuj") // Change button text
         .css({ opacity: 1, cursor: "pointer" }); // Set opacity and cursor
     } else {
-      // No file selected
+      // No files selected
       $("#UploadButton")
-        .prop("disabled", true) // Disable the button
+        .addClass("disabledfornow") // Add disabled class
         .text("Najpierw wybierz plik zamówienia.") // Change button text
-        .css({ opacity: 0.7, cursor: "default" }); // Set opacity and cursor
+        .css({ opacity: 0.5, cursor: "default" }); // Set opacity and cursor
     }
-  });
-  
-
-  // Initial state check after 1 second
-  setTimeout(function() {
-    if ($('#createfromscratch').hasClass('w--current')) {
-      if ($("#orderfile").get(0).files.length > 0) {
-        $("#UploadButton").prop("disabled", false); // Enable if file already selected
-      }
-    } else {
-      $("#UploadButton").prop("disabled", true); // Ensure disabled if condition doesn't match
-    }
-  }, 1000);
+  }
 
   // Click event handling for UploadButton
-  $("#UploadButton").on("click", function () {
-    FileUpload(true); // Call FileUpload function with ignoreGTINs parameter true
+  $("#UploadButton").on("click", function (e) {
+    e.preventDefault(); // Prevent default action
+    if (!$(this).hasClass("disabledfornow")) {
+      // Proceed with upload if button is not disabled
+      FileUpload(true);
+    }
   });
-
-
 
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
     var myUploadedFiles = document.getElementById("orderfile").files;
-  
-  
+
+
     $("#waitingdots").show();
     var formData = new FormData();
     for (var i = 0; i < myUploadedFiles.length; i++) {
@@ -2046,7 +2043,7 @@ docReady(function () {
     if (ignoreGTINs) {
       action += "?ignoreEmptyGtin=true";
     }
-  
+
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
@@ -2089,11 +2086,11 @@ docReady(function () {
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
             }, 100);
           },
