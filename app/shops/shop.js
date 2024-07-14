@@ -1995,7 +1995,43 @@ docReady(function () {
     });
   };
 
-  checkFileSelection();
+
+  // Function to handle tab switch
+  $(".in-page-menu-link").on("click", function () {
+    var $uploadButton = $("#UploadButton");
+
+    // Remove current class from all links
+    $(".in-page-menu-link").removeClass("w--current");
+    $(this).addClass("w--current");
+
+    // Adjust UploadButton based on active tab
+    if ($(this).attr("data-w-tab") === "Tab 0") {
+      $uploadButton
+        .removeClass("disabled")
+        .text("Kontynuuj")
+        .css({ opacity: 1, cursor: "pointer" });
+    } else if ($(this).attr("data-w-tab") === "Tab 1") {
+      $uploadButton
+        .addClass("disabled")
+        .text("Najpierw wybierz plik zamówienia.")
+        .css({ opacity: 0.5, cursor: "default" });
+    }
+  });
+
+  // Initial setup for UploadButton based on the initial active tab
+  $(document).ready(function () {
+    if ($("#createfromscratch").hasClass("w--current")) {
+      $("#UploadButton")
+        .addClass("disabled")
+        .text("Najpierw wybierz plik zamówienia.")
+        .css({ opacity: 0.5, cursor: "default" });
+    } else {
+      $("#UploadButton")
+        .removeClass("disabled")
+        .text("Kontynuuj")
+        .css({ opacity: 1, cursor: "pointer" });
+    }
+  });
 
   // Function to handle file change event
   $("#orderfile").change(function (e) {
