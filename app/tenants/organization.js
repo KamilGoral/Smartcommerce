@@ -2883,16 +2883,26 @@ docReady(function () {
     );
   }
 
-
-  getUserRole();
+  getShops()
   LogoutNonUser();
-  getShops();
-  getUsers();
-  getInvoices();
-  getPriceLists();
-  getIntegrations();
-  getWholesalers();
-  LoadTippy();
+
+  getUserRole()
+  .then(() => {
+    return Promise.all([
+      getUsers(),
+      getInvoices(),
+      getPriceLists(),
+      getIntegrations(),
+      getWholesalers()
+    ]);
+  })
+  .then(() => {
+    LoadTippy();
+  })
+  .catch((error) => {
+    console.error('Error while fetching user role or subsequent data:', error);
+    // Handle error if necessary
+  });
 
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
