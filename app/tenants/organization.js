@@ -717,7 +717,7 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
-        Accept: "pdf"
+        Accept: "application/pdf"
       },
     })
       .then((response) => {
