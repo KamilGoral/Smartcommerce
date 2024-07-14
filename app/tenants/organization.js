@@ -396,7 +396,7 @@ docReady(function () {
         setCookieAndSession("sprytnyUserRole", data.role, 72000);
         if (data.role === "admin") {
           $('a[data-w-tab="Policy"]').show();
-          $('a[data-w-tab="Documents"]').show();
+          // $('a[data-w-tab="Documents"]').show();
           $('a[data-w-tab="Integrations"]').show();
           $('a[data-w-tab="Settings"]').show();
         }
