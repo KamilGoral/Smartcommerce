@@ -87,11 +87,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -157,11 +157,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -671,7 +671,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "netPrice",
+              data: "netTotal",
               render: function (data) {
                 return new Intl.NumberFormat("pl-PL", {
                   style: "currency",
@@ -694,7 +694,7 @@ docReady(function () {
               width: "36px",
               render: function (data, type, row) {
                 return `<a href="#" class="download-invoice" data-uuid="${data}" data-tenant="${organizationName}">
-                          <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64aebe6c6b74d731caa86950_download.svg' alt='Pobierz dokument'>
+                          <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
                         </a>`;
               },
             },
@@ -717,20 +717,26 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
+        Accept: "pdf"
       },
     })
-      .then((response) => response.blob())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.blob();
+      })
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
+        const a = document.createElement('a');
+        a.style.display = 'none';
         a.href = url;
         a.download = `invoice_${uuid}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
       })
-      .catch((error) => console.error("Error downloading invoice:", error));
+      .catch((error) => console.error('Error downloading invoice:', error));
   });
 
   $("#table_users_list").on("change", ".user-role-select", function () {
@@ -842,9 +848,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      document.querySelector("#organizationName").textContent +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1041,8 +1047,8 @@ docReady(function () {
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                  toParse.monthCostBreakdown.forecast.total +
-                  " zł" || "N/A";
+                toParse.monthCostBreakdown.forecast.total +
+                " zł" || "N/A";
               break;
 
             case "standard":
@@ -1057,11 +1063,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
+                  toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
+                  " - " +
+                  toParse.pricing.specialService.fee +
+                  " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -1074,14 +1080,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.line2,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
+                  toParse.address.town,
+                  toParse.address.postcode,
+                  toParse.address.line1,
+                  toParse.address.line2,
+                  toParse.address.country,
+                ]
+                  .filter((part) => part)
+                  .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -2476,9 +2482,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
