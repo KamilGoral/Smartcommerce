@@ -379,6 +379,7 @@ docReady(function () {
   }
 
   function getUserRole() {
+
     var request = new XMLHttpRequest();
     let endpoint = new URL(InvokeURL + "users/" + userKey);
     request.open("GET", endpoint, true);
@@ -469,6 +470,16 @@ docReady(function () {
   }
 
   async function getUsers() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
     let url = new URL(InvokeURL + "users?perPage=30");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -588,6 +599,16 @@ docReady(function () {
   }
 
   async function getInvoices() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
     let url = new URL(
       InvokeURL + "tenants/" + organizationName + "/invoices?perPage=25"
     );
@@ -1148,7 +1169,16 @@ docReady(function () {
     request.send();
   }
 
-  function getWholesalers() {
+  async function getWholesalers() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1909,7 +1939,17 @@ docReady(function () {
     });
   };
 
-  function getPriceLists() {
+  async function getPriceLists() {
+
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
     let url = new URL(InvokeURL + "price-lists?perPage=1000");
     fetch(url, {
       headers: {
@@ -2165,238 +2205,238 @@ docReady(function () {
       });
   }
 
-  var tableDocuments = $("#table_documents").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top">rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 10,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'</div>",
-      processing: "<div class='spinner'</div>",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-      aria: {
-        sortAscending: ": Sortowanie rosnące",
-        sortDescending: ": Sortowanie malejące",
-      },
-    },
-    ajax: function (data, callback, settings) {
-      $.ajaxSetup({
-        headers: {
-          Authorization: orgToken,
-        },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-      });
+  // var tableDocuments = $("#table_documents").DataTable({
+  //   pagingType: "full_numbers",
+  //   order: [],
+  //   dom: '<"top">rt<"bottom"lip>',
+  //   scrollY: "60vh",
+  //   scrollCollapse: true,
+  //   pageLength: 10,
+  //   language: {
+  //     emptyTable: "Brak danych do wyświetlenia",
+  //     info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+  //     infoEmpty: "Brak danych",
+  //     infoFiltered: "(z _MAX_ rezultatów)",
+  //     lengthMenu: "Pokaż _MENU_ rekordów",
+  //     loadingRecords: "<div class='spinner'</div>",
+  //     processing: "<div class='spinner'</div>",
+  //     search: "Szukaj:",
+  //     zeroRecords: "Brak pasujących rezultatów",
+  //     paginate: {
+  //       first: "<<",
+  //       last: ">>",
+  //       next: " >",
+  //       previous: "< ",
+  //     },
+  //     aria: {
+  //       sortAscending: ": Sortowanie rosnące",
+  //       sortDescending: ": Sortowanie malejące",
+  //     },
+  //   },
+  //   ajax: function (data, callback, settings) {
+  //     $.ajaxSetup({
+  //       headers: {
+  //         Authorization: orgToken,
+  //       },
+  //       beforeSend: function () {
+  //         $("#waitingdots").show();
+  //       },
+  //       complete: function () {
+  //         $("#waitingdots").hide();
+  //       },
+  //     });
 
-      var whichColumns = "";
-      var direction = "desc";
+  //     var whichColumns = "";
+  //     var direction = "desc";
 
-      if (data.order.length == 0) {
-        whichColumns = 4;
-      } else {
-        whichColumns = data.order[0]["column"];
-        direction = data.order[0]["dir"];
-      }
+  //     if (data.order.length == 0) {
+  //       whichColumns = 4;
+  //     } else {
+  //       whichColumns = data.order[0]["column"];
+  //       direction = data.order[0]["dir"];
+  //     }
 
-      switch (whichColumns) {
-        case 1:
-          whichColumns = "wholesalerkey:";
-          break;
-        case 2:
-          whichColumns = "type:";
-          break;
-        case 3:
-          whichColumns = "name:";
-          break;
-        case 4:
-          whichColumns = "created.at:";
-          break;
-        default:
-          whichColumns = "created.at:";
-      }
+  //     switch (whichColumns) {
+  //       case 1:
+  //         whichColumns = "wholesalerkey:";
+  //         break;
+  //       case 2:
+  //         whichColumns = "type:";
+  //         break;
+  //       case 3:
+  //         whichColumns = "name:";
+  //         break;
+  //       case 4:
+  //         whichColumns = "created.at:";
+  //         break;
+  //       default:
+  //         whichColumns = "created.at:";
+  //     }
 
-      var sort = "" + whichColumns + direction;
+  //     var sort = "" + whichColumns + direction;
 
-      $.get(
-        InvokeURL + "van/transactions",
-        {
-          sort: sort,
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
-        },
-        function (res) {
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        }
-      );
-    },
-    processing: true,
-    serverSide: true,
-    search: {
-      return: true,
-    },
-    columns: [
-      {
-        orderable: false,
-        data: null,
-        width: "36px",
-        defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-      },
-      {
-        orderable: false,
-        visible: false,
-        data: "uuid",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "wholesalerKey",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "type",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "name",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "created.by",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "created.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.by",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "-";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: null,
-        defaultContent:
-          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
-    ],
-    initComplete: function (settings, json) {
-      var hasEntries = tableDocuments.data().any();
-      if (!hasEntries) {
-        $("#emptystatedocuments").show();
-        $("#documentscontainer").hide();
-      } else {
-        $("#emptystatedocuments").hide();
-        $("#documentscontainer").show();
-      }
-    },
-  });
+  //     $.get(
+  //       InvokeURL + "van/transactions",
+  //       {
+  //         sort: sort,
+  //         perPage: data.length,
+  //         page: (data.start + data.length) / data.length,
+  //       },
+  //       function (res) {
+  //         callback({
+  //           recordsTotal: res.total,
+  //           recordsFiltered: res.total,
+  //           data: res.items,
+  //         });
+  //       }
+  //     );
+  //   },
+  //   processing: true,
+  //   serverSide: true,
+  //   search: {
+  //     return: true,
+  //   },
+  //   columns: [
+  //     {
+  //       orderable: false,
+  //       data: null,
+  //       width: "36px",
+  //       defaultContent:
+  //         "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+  //     },
+  //     {
+  //       orderable: false,
+  //       visible: false,
+  //       data: "uuid",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "wholesalerKey",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "type",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "name",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "created.by",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: true,
+  //       data: "created.at",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleString("pl-PL", {
+  //             year: "numeric",
+  //             month: "2-digit",
+  //             day: "2-digit",
+  //             hour: "2-digit",
+  //             minute: "2-digit",
+  //             second: "2-digit",
+  //             hour12: false,
+  //           });
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "modified.at",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleString("pl-PL", {
+  //             year: "numeric",
+  //             month: "2-digit",
+  //             day: "2-digit",
+  //             hour: "2-digit",
+  //             minute: "2-digit",
+  //             second: "2-digit",
+  //             hour12: false,
+  //           });
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "modified.by",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "-";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: null,
+  //       defaultContent:
+  //         '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+  //     },
+  //   ],
+  //   initComplete: function (settings, json) {
+  //     var hasEntries = tableDocuments.data().any();
+  //     if (!hasEntries) {
+  //       $("#emptystatedocuments").show();
+  //       $("#documentscontainer").hide();
+  //     } else {
+  //       $("#emptystatedocuments").hide();
+  //       $("#documentscontainer").show();
+  //     }
+  //   },
+  // });
 
   ////tutaj//
 
@@ -2842,6 +2882,7 @@ docReady(function () {
       }
     );
   }
+
 
   getUserRole();
   LogoutNonUser();
