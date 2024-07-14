@@ -654,9 +654,9 @@ docReady(function () {
                   case "draft":
                     return '<span class="neutral">Szkic</span>';
                   case "sent":
-                    return '<span class="positive">Wysłana</span>';
+                    return '<span class="noneexisting">Nie Zapłacono</span>';
                   case "paid":
-                    return '<span class="positive">Opłacona</span>';
+                    return '<span class="positive">Zapłacono</span>';
                   case "overdue":
                     return '<span class="positive">Po terminie</span>';
                   default:
