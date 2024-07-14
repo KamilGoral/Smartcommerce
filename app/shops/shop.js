@@ -2006,20 +2006,22 @@ docReady(function () {
         .removeClass("disabled")
         .text("Kontynuuj")
         .css({ opacity: 1, cursor: "pointer" });
+    } else if ($(this).attr("data-w-tab") === "Tab 1" && $("#orderfile").get(0).files.length > 0) {
+      $uploadButton
+        .removeClass("disabled")
+        .text("Kontynuuj")
+        .css({ opacity: 1, cursor: "pointer" });
     } else if ($(this).attr("data-w-tab") === "Tab 1") {
       $uploadButton
         .addClass("disabled")
         .text("Najpierw wybierz plik zamówienia.")
         .css({ opacity: 0.5, cursor: "default" });
-      checkFileSelection();
     }
   });
 
   // Function to handle file change event
   $("#orderfile").change(function (e) {
-    if ($("#w-tabs-1-data-w-tab-0").hasClass("w--current")) {
-      checkFileSelection();
-    }
+    checkFileSelection();
   });
 
   function checkFileSelection() {
