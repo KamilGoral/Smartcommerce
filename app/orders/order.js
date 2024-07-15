@@ -3566,7 +3566,9 @@ docReady(function () {
   }
 
   if (tabToClick === "add") {
-    clickTab("addProducts"); // Click the 'Add' tab if the parameter is present
+    setTimeout(function () {
+      clickTab("addProducts"); // Click the 'Add' tab if the parameter is present
+    }, 2000); // 1000 milliseconds = 1 second
   } else {
     CreateOrder(); // Fire CreateOrder() if the parameter is not present
   }
