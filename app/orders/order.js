@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -272,11 +272,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
@@ -291,11 +291,11 @@ docReady(function () {
   IdBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/orders/order?orderId=" +
-    OrderIdBread +
-    "&shopKey=" +
-    shopKey
+      DomainName +
+      "/app/orders/order?orderId=" +
+      OrderIdBread +
+      "&shopKey=" +
+      shopKey
   );
 
   function saveToSessionStorage(productsData) {
@@ -343,8 +343,6 @@ docReady(function () {
   }
 
   async function CreateOrder() {
-
-
     const tableId = "#spl_table";
 
     // Wymaż wartwę blur
@@ -391,18 +389,18 @@ docReady(function () {
     searchIDs.forEach((wholesaler) => {
       $("#DeletedContainer").append(
         '<div class="deletedwh" id="d' +
-        wholesaler +
-        '">' +
-        wholesaler +
-        '<input type="checkbox" class="theClass" id="' +
-        wholesaler +
-        '" value="' +
-        wholesaler +
-        '" name="' +
-        wholesaler +
-        '"><label class="mylabel" for="' +
-        wholesaler +
-        '"></label></div>'
+          wholesaler +
+          '">' +
+          wholesaler +
+          '<input type="checkbox" class="theClass" id="' +
+          wholesaler +
+          '" value="' +
+          wholesaler +
+          '" name="' +
+          wholesaler +
+          '"><label class="mylabel" for="' +
+          wholesaler +
+          '"></label></div>'
       );
     });
     var UrlParameters = "";
@@ -473,8 +471,9 @@ docReady(function () {
           const numericContent = Number(content);
           const formattedContent = isNaN(numericContent)
             ? "-"
-            : `${numericContent.toFixed(2)} zł${percentage ? ` (${percentage.toFixed(2)}%)` : ""
-            }`;
+            : `${numericContent.toFixed(2)} zł${
+                percentage ? ` (${percentage.toFixed(2)}%)` : ""
+              }`;
           element.textContent = formattedContent;
         };
 
@@ -795,9 +794,9 @@ docReady(function () {
   function getOffers() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/offers?perPage=100&sort=createDate:desc"
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -928,10 +927,11 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${promotion
-            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-            : "<td>-</td>"
-          }
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td> 
@@ -989,10 +989,11 @@ docReady(function () {
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${item.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            }>${wholesalerName}</option>`;
+          selectHTML += `<option value="${item.wholesalerKey}"${
+            item.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          }>${wholesalerName}</option>`;
         });
       } else {
         // Dodawanie nieprzydzielone górze listy wyboru ( tymczasowo on hold)
@@ -1007,10 +1008,11 @@ docReady(function () {
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           )
         ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${wholesaler.wholesalerKey === selectedWholesalerKey
-            ? ' selected style="font-weight: bold"'
-            : ""
-            } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+            wholesaler.wholesalerKey === selectedWholesalerKey
+              ? ' selected style="font-weight: bold"'
+              : ""
+          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -1874,11 +1876,11 @@ docReady(function () {
     }
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1"
+        "shops/" +
+        shopKey +
+        "/products/" +
+        rowData.gtin +
+        "/history?perPage=91&page=1"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1909,7 +1911,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1923,7 +1925,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -1936,7 +1938,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -1949,7 +1951,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -2354,11 +2356,11 @@ docReady(function () {
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/products?perPage=10000"
+        "shops/" +
+        shopKey +
+        "/orders/" +
+        orderId +
+        "/products?perPage=10000"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -3097,12 +3099,12 @@ docReady(function () {
       var fileformat = $(this).attr("fileformat");
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?filesFormat=" +
-        fileformat
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers?filesFormat=" +
+          fileformat
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -3144,12 +3146,12 @@ docReady(function () {
       var wholesalerKey = data.wholesalerKey;
       const downloadLink = new URL(
         InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers/" +
-        wholesalerKey
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey
       );
       let anchor = document.createElement("a");
       document.body.appendChild(anchor);
@@ -3545,50 +3547,49 @@ docReady(function () {
   // Function to check if a parameter exists in the URL query string
   function getParameterByName(name, url) {
     if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
       results = regex.exec(url);
     if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
 
-  var tabToClick = getParameterByName('data-w-tab');
+  var tabToClick = getParameterByName("data-w-tab");
 
   // Function to simulate clicking on a tab by its data-w-tab attribute
   function clickTab(tabName) {
-    var tabLink = document.querySelector('a[data-w-tab="' + tabName + '"]');
+    var tabLink = document.getElementById(tabName);
     if (tabLink) {
       tabLink.click();
     }
   }
 
-  if (tabToClick === 'add') {
-    clickTab('Add'); // Click the 'Add' tab if the parameter is present
+  if (tabToClick === "add") {
+    clickTab("addProducts"); // Click the 'Add' tab if the parameter is present
   } else {
     CreateOrder(); // Fire CreateOrder() if the parameter is not present
   }
 
+  getOffers();
+  getWholesalersSh();
+  fetchDataFromEndpoint();
 
-getOffers();
-getWholesalersSh();
-fetchDataFromEndpoint();
+  makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+  makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
+  postChangePassword($("#wf-form-Form-Change-Password"));
+  postEditUserProfile($("#wf-form-editProfile"));
 
-makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
-makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
-postChangePassword($("#wf-form-Form-Change-Password"));
-postEditUserProfile($("#wf-form-editProfile"));
-
-// DataTables initialization and event handling
-$("table.dataTable").on("init.dt xhr.dt page.dt", function () {
-  $(this).DataTable().columns.adjust();
-  LoadTippy();
-});
-
-$(document).ready(function ($) {
-  $("tableSelector").DataTable({
-    dom: '<"pull-left"f><"pull-right"l>tip',
+  // DataTables initialization and event handling
+  $("table.dataTable").on("init.dt xhr.dt page.dt", function () {
+    $(this).DataTable().columns.adjust();
+    LoadTippy();
   });
-  $(".dataTables_filter input").attr("maxLength", 60);
-});
+
+  $(document).ready(function ($) {
+    $("tableSelector").DataTable({
+      dom: '<"pull-left"f><"pull-right"l>tip',
+    });
+    $(".dataTables_filter input").attr("maxLength", 60);
+  });
 });
