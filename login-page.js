@@ -20,6 +20,13 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
   // DOM is loaded and ready for manipulation here
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
@@ -65,9 +72,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var container = form.parent();
-        var doneBlock = $("#wf-form-doneLogin-Form", container);
-        var failBlock = $("#wf-form-failLogin-Form", container);
         var action =
           "https://hook.eu1.make.com/btal1sfexvsxkqry9eplik26sc4xxidu";
         var method = form.attr("method");
@@ -136,8 +140,10 @@ docReady(function () {
               var result = successCallback(resultData);
               if (!result) {
                 form.show();
-                doneBlock.hide();
-                failBlock.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
                 return;
               }
             }
@@ -162,11 +168,8 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseText;
             }
-            const message = document.getElementById("errormessage");
-            message.textContent = msg;
+            displayMessage("Error", msg);
             form.show();
-            doneBlock.hide();
-            failBlock.show();
             return;
           },
         });
