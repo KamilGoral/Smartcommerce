@@ -160,7 +160,7 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseJSON.responseText;
+              msg = "" + jqXHR.responseText;
             }
             const message = document.getElementById("errormessage");
             message.textContent = msg;
