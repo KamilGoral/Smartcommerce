@@ -160,10 +160,10 @@ docReady(function () {
             } else if (exception === "abort") {
               msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseJSON.message;
+              msg = "" + jqXHR.responseJSON.responseText;
             }
             const message = document.getElementById("errormessage");
-            message.textContent = "Nieprawidłowy login lub hasło";
+            message.textContent = msg;
             form.show();
             doneBlock.hide();
             failBlock.show();
