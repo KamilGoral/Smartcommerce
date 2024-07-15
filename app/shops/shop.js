@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +270,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -313,10 +313,10 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-            " - " +
-            data.shopKey +
-            " | " +
-            data.merchantConsoleShopId || "N/A";
+          " - " +
+          data.shopKey +
+          " | " +
+          data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -1135,11 +1135,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          DomainName +
+          "/app/offers/offer?shopKey=" +
+          shopKey +
+          "&offerId=" +
+          clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1442,9 +1442,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -1995,46 +1995,109 @@ docReady(function () {
     });
   };
 
+
+  // Function to handle tab switch
+  $(".in-page-menu-link").on("click", function () {
+    var $uploadButton = $("#UploadButton");
+    var isFile = $("#orderfile").get(0).files.length > 0
+
+    // Adjust UploadButton based on active tab
+    if ($(this).attr("data-w-tab") === "Tab 2") {
+      $uploadButton
+        .removeClass("disabledfornow")
+        .text("Kontynuuj")
+        .css({ opacity: 1, cursor: "pointer" });
+    } else if (isFile) {
+    } else if ($(this).attr("data-w-tab") === "Tab 1") {
+      $uploadButton
+        .addClass("disabledfornow")
+        .text("Najpierw wybierz plik zamówienia.")
+        .css({ opacity: 0.5, cursor: "default" });
+    }
+  });
+
+  // Function to handle file change event
+  $("#orderfile").change(function (e) {
+    checkFileSelection();
+  });
+
+  function checkFileSelection() {
+    if ($("#orderfile").get(0).files.length > 0) {
+      // Files are selected
+      $("#UploadButton")
+        .removeClass("disabledfornow") // Remove disabled class
+        .text("Kontynuuj") // Change button text
+        .css({ opacity: 1, cursor: "pointer" }); // Set opacity and cursor
+    } else {
+      // No files selected
+      $("#UploadButton")
+        .addClass("disabledfornow") // Add disabled class
+        .text("Najpierw wybierz plik zamówienia.") // Change button text
+        .css({ opacity: 0.5, cursor: "default" }); // Set opacity and cursor
+    }
+  }
+
+  // Click event handling for UploadButton
+  $("#UploadButton").on("click", function (e) {
+    e.preventDefault(); // Prevent default action
+
+    if ($("#w-tabs-1-data-w-tab-0").hasClass("w--current")) {
+      if (!$(this).hasClass("disabledfornow")) {
+        // Proceed with upload if button is not disabled
+        FileUpload(true);
+      }
+    } else if ($("#createfromscratch").hasClass("w--current")) {
+      // Logic for "Stwórz z oferty" tab
+      var action = InvokeURL + "shops/" + shopKey + "/orders";
+      action += "?ignoreEmptyGtin=true";
+
+      data = [];
+
+      $.ajax({
+        type: "POST",
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(data),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+        },
+        success: function (response) {
+          displayMessage("Success", "Twoje zamówienie zostało stworzone.");
+          window.setTimeout(function () {
+            window.location.replace(
+              "https://" +
+              DomainName +
+              "/app/orders/order?orderId=" +
+              response.orderId +
+              "&shopKey=" +
+              shopKey + "&data-w-tab=add"
+            );
+          }, 1000);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(jqXHR);
+          console.log(errorThrown);
+          displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
+        },
+      });
+    }
+  });
+
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
-    const allowedExtensions = ["txt", "edi", "csv", "kuc", "paczka"];
     var myUploadedFiles = document.getElementById("orderfile").files;
 
-    if (myUploadedFiles.length > 0) {
-      var file = myUploadedFiles[0];
-      var fileName = file.name;
-      // Improved file extension extraction
-      var fileExtension = fileName.includes(".")
-        ? fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase()
-        : "";
-      var fileSize = file.size;
 
-      // Check for file size exceeding 10 MB
-      if (fileSize > 10 * 1024 * 1024) {
-        displayMessage(
-          "Error",
-          "Jeden z Twoich plików zamówienie jest zbyt duży. Plik jest większy niż 10 MB"
-        );
-        $("#orderuploadmodal").css("display", "none");
-        document.getElementById("orderfile").value = "";
-        return; // Exit the function
-      }
-
-      // Allow files without extensions and check allowed extensions ( This is not work)
-      // if (
-      //   (fileName.includes(".") &&
-      //     !allowedExtensions.includes(fileExtension)) ||
-      //   (!fileName.includes(".") && fileExtension === "")
-      // ) {
-      //   $("#wrongfilemodal").css("display", "flex");
-      //   $("#wrongfilemessage").text(
-      //     "Jeden z Twoich plików zamówienie nie jest w wymaganym formacie: *.txt, *.edi, *.csv, *.kuc, *.paczka"
-      //   );
-      //   $("#orderuploadmodal").css("display", "none");
-      //   document.getElementById("orderfile").value = "";
-      //   return; // Exit the function
-      // }
-    }
     $("#waitingdots").show();
     var formData = new FormData();
     for (var i = 0; i < myUploadedFiles.length; i++) {
@@ -2046,6 +2109,7 @@ docReady(function () {
     if (ignoreGTINs) {
       action += "?ignoreEmptyGtin=true";
     }
+
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
@@ -2053,7 +2117,6 @@ docReady(function () {
     xhr.onreadystatechange = function () {
       $("#waitingdots").hide();
       if (xhr.status === 201) {
-        displayMessage("Success", "Twoje zamówienie zostało stworzone.");
         var response = JSON.parse(xhr.responseText);
         var action =
           InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
@@ -2085,20 +2148,22 @@ docReady(function () {
             Authorization: orgToken,
           },
           success: function (resultData) {
+            displayMessage("Success", "Twoje zamówienie zostało stworzone.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey
               );
-            }, 100);
+            }, 1000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
+            displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
           },
         });
       } else {
@@ -2186,9 +2251,6 @@ docReady(function () {
     xhr.send(formData);
   }
 
-  // UploadDocumentButton.addEventListener("click", (event) => {
-  //   FileUpload(false);
-  // });
 
   cancelButton.addEventListener("click", () => {
     const modal = document.getElementById("wronggtinsmodal");
@@ -2197,10 +2259,6 @@ docReady(function () {
     }
   });
 
-  // Call with custom header
-  $("#UploadButton").on("click", function () {
-    FileUpload(true);
-  });
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));

@@ -87,11 +87,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      organizationName +
-      "&clientId=" +
-      clientId
+    DomainName +
+    "/app/tenants/organization?name=" +
+    organizationName +
+    "&clientId=" +
+    clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -157,11 +157,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -379,29 +379,40 @@ docReady(function () {
   }
 
   function getUserRole() {
-    var request = new XMLHttpRequest();
-    let endpoint = new URL(InvokeURL + "users/" + userKey);
-    request.open("GET", endpoint, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-
-      if (request.status >= 200 && request.status < 400) {
-        function setCookieAndSession(cName, cValue, expirationSec) {
-          let date = new Date();
-          date.setTime(date.getTime() + expirationSec * 1000);
-          const expires = "expires=" + date.toUTCString();
-          document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+    return new Promise((resolve, reject) => {
+      var request = new XMLHttpRequest();
+      let endpoint = new URL(InvokeURL + "users/" + userKey);
+      request.open("GET", endpoint, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+          var data = JSON.parse(request.responseText);
+          function setCookieAndSession(cName, cValue, expirationSec) {
+            let date = new Date();
+            date.setTime(date.getTime() + expirationSec * 1000);
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+          }
+          setCookieAndSession("sprytnyUserRole", data.role, 72000);
+          if (data.role === "admin") {
+            $('a[data-w-tab="Policy"]').show();
+            $('a[data-w-tab="Integrations"]').show();
+            $('a[data-w-tab="Settings"]').show();
+          }
+          resolve(data.role); // Resolve with the user role
+        } else {
+          console.error("Error fetching user role. Status:", request.status);
+          reject("Error fetching user role"); // Reject if there's an error
         }
-        setCookieAndSession("sprytnyUserRole", data.role, 72000);
-      } else {
-        console.log("error");
-      }
-    };
-    request.send();
+      };
+      request.onerror = function () {
+        console.error("Request error:", request.status);
+        reject("Request error"); // Reject if there's a request error
+      };
+      request.send();
+    });
   }
 
-  let userRole = getCookie("sprytnyUserRole");
 
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
@@ -465,6 +476,16 @@ docReady(function () {
   }
 
   async function getUsers() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
     let url = new URL(InvokeURL + "users?perPage=30");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -584,6 +605,16 @@ docReady(function () {
   }
 
   async function getInvoices() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
     let url = new URL(
       InvokeURL + "tenants/" + organizationName + "/invoices?perPage=25"
     );
@@ -606,7 +637,7 @@ docReady(function () {
           scrollCollapse: true,
           destroy: true,
           orderMulti: true,
-          order: [[1, "desc"]],
+          order: [[3, "asc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak faktur",
@@ -648,15 +679,17 @@ docReady(function () {
             {
               orderable: true,
               data: "status",
-              width: "120px",
+              width: "128px",
               render: function (data) {
                 switch (data) {
                   case "draft":
-                    return '<span class="medium">Szkic</span>';
+                    return '<span class="neutral">Szkic</span>';
                   case "sent":
-                    return '<span class="positive">Wysłana</span>';
+                    return '<span class="noneexisting">Nie Zapłacono</span>';
                   case "paid":
-                    return '<span class="positive">Opłacona</span>';
+                    return '<span class="positive">Zapłacono</span>';
+                  case "overdue":
+                    return '<span class="positive">Po terminie</span>';
                   default:
                     return '<span class="neutral">Nieznany</span>';
                 }
@@ -671,7 +704,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "netPrice",
+              data: "netTotal",
               render: function (data) {
                 return new Intl.NumberFormat("pl-PL", {
                   style: "currency",
@@ -681,21 +714,15 @@ docReady(function () {
             },
             {
               orderable: false,
-              data: "paymentLink",
-              render: function (data) {
-                return data
-                  ? '<a href="' + data + '">Link do płatności</a>'
-                  : "-";
-              },
-            },
-            {
-              orderable: false,
-              data: "uuid",
-              width: "36px",
+              data: null,
               render: function (data, type, row) {
-                return `<a href="#" class="download-invoice" data-uuid="${data}" data-tenant="${organizationName}">
-                          <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64aebe6c6b74d731caa86950_download.svg' alt='Pobierz dokument'>
-                        </a>`;
+                const paymentLink = row.paymentLink
+                  ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                  : " ";
+                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}">Pobierz
+                                        <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
+                                      </a>`;
+                return `${paymentLink} ${downloadLink}`;
               },
             },
           ],
@@ -712,26 +739,52 @@ docReady(function () {
     e.preventDefault();
     const uuid = $(this).data("uuid");
     const tenant = $(this).data("tenant");
+    const number = $(this).data("number");
+
+    // Function to sanitize the file name
+    function sanitizeFilename(name) {
+      return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
+    }
+
+    const sanitizedOrganizationName = sanitizeFilename(tenant);
+    const sanitizedNumber = sanitizeFilename(number);
+    const filename = `${sanitizedOrganizationName}-${sanitizedNumber}.pdf`;
+
     const url = `${InvokeURL}tenants/${organizationName}/invoices/${uuid}?documentType=regular`;
+
+    // Show waiting screen
+    $("#waitingdots").show();
 
     fetch(url, {
       headers: {
         Authorization: orgToken,
+        Accept: "application/pdf"
       },
     })
-      .then((response) => response.blob())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.blob();
+      })
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
+        const a = document.createElement('a');
+        a.style.display = 'none';
         a.href = url;
-        a.download = `invoice_${uuid}.pdf`;
+        a.download = filename; // Use the sanitized file name here
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
       })
-      .catch((error) => console.error("Error downloading invoice:", error));
+      .catch((error) => console.error('Error downloading invoice:', error))
+      .finally(() => {
+        // Hide waiting screen
+        $("#waitingdots").hide();
+      });
   });
+
+
 
   $("#table_users_list").on("change", ".user-role-select", function () {
     var userId = $(this).data("user-id");
@@ -809,12 +862,12 @@ docReady(function () {
   );
 
   async function GetTenantBilling() {
-    while (!userRole && attempts < 5) {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
 
-    if (userRole !== "admin") {
+    if (getCookie("sprytnyUserRole") !== "admin") {
       console.log("Action not permitted for non-admin users.");
       return;
     }
@@ -842,9 +895,9 @@ docReady(function () {
 
     let url = new URL(
       InvokeURL +
-        "tenants/" +
-        document.querySelector("#organizationName").textContent +
-        "/billing"
+      "tenants/" +
+      getCookie("OrganizationName") +
+      "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1041,8 +1094,8 @@ docReady(function () {
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                  toParse.monthCostBreakdown.forecast.total +
-                  " zł" || "N/A";
+                toParse.monthCostBreakdown.forecast.total +
+                " zł" || "N/A";
               break;
 
             case "standard":
@@ -1057,11 +1110,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
+                  toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
+                  " - " +
+                  toParse.pricing.specialService.fee +
+                  " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -1074,14 +1127,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.line2,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
+                  toParse.address.town,
+                  toParse.address.postcode,
+                  toParse.address.line1,
+                  toParse.address.line2,
+                  toParse.address.country,
+                ]
+                  .filter((part) => part)
+                  .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1122,7 +1175,16 @@ docReady(function () {
     request.send();
   }
 
-  function getWholesalers() {
+  async function getWholesalers() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1484,12 +1546,12 @@ docReady(function () {
   async function getIntegrations() {
     let attempts = 0;
 
-    while (!userRole && attempts < 5) {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
 
-    if (userRole !== "admin") {
+    if (getCookie("sprytnyUserRole") !== "admin") {
       console.log("Action not permitted for non-admin users.");
       return;
     }
@@ -1593,7 +1655,7 @@ docReady(function () {
         var endpoint =
           InvokeURL +
           "tenants/" +
-          document.querySelector("#organizationName").textContent;
+          getCookie("OrganizationName");
 
         $.ajax({
           type: "DELETE",
@@ -1633,6 +1695,8 @@ docReady(function () {
               msg = "Not connect.\n Verify Network.";
             } else if (jqXHR.status === 403) {
               msg = "Użytkownik nie ma uprawnień do usunięcia organizacji.";
+            } else if (jqXHR.status === 409) {
+              msg = "Aby móc usunąć organizację, prosimy o uregulowanie zaległych faktur.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
@@ -1881,7 +1945,17 @@ docReady(function () {
     });
   };
 
-  function getPriceLists() {
+  async function getPriceLists() {
+
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
     let url = new URL(InvokeURL + "price-lists?perPage=1000");
     fetch(url, {
       headers: {
@@ -2137,238 +2211,238 @@ docReady(function () {
       });
   }
 
-  var tableDocuments = $("#table_documents").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top">rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 10,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rekordów",
-      loadingRecords: "<div class='spinner'</div>",
-      processing: "<div class='spinner'</div>",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-      aria: {
-        sortAscending: ": Sortowanie rosnące",
-        sortDescending: ": Sortowanie malejące",
-      },
-    },
-    ajax: function (data, callback, settings) {
-      $.ajaxSetup({
-        headers: {
-          Authorization: orgToken,
-        },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-      });
+  // var tableDocuments = $("#table_documents").DataTable({
+  //   pagingType: "full_numbers",
+  //   order: [],
+  //   dom: '<"top">rt<"bottom"lip>',
+  //   scrollY: "60vh",
+  //   scrollCollapse: true,
+  //   pageLength: 10,
+  //   language: {
+  //     emptyTable: "Brak danych do wyświetlenia",
+  //     info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+  //     infoEmpty: "Brak danych",
+  //     infoFiltered: "(z _MAX_ rezultatów)",
+  //     lengthMenu: "Pokaż _MENU_ rekordów",
+  //     loadingRecords: "<div class='spinner'</div>",
+  //     processing: "<div class='spinner'</div>",
+  //     search: "Szukaj:",
+  //     zeroRecords: "Brak pasujących rezultatów",
+  //     paginate: {
+  //       first: "<<",
+  //       last: ">>",
+  //       next: " >",
+  //       previous: "< ",
+  //     },
+  //     aria: {
+  //       sortAscending: ": Sortowanie rosnące",
+  //       sortDescending: ": Sortowanie malejące",
+  //     },
+  //   },
+  //   ajax: function (data, callback, settings) {
+  //     $.ajaxSetup({
+  //       headers: {
+  //         Authorization: orgToken,
+  //       },
+  //       beforeSend: function () {
+  //         $("#waitingdots").show();
+  //       },
+  //       complete: function () {
+  //         $("#waitingdots").hide();
+  //       },
+  //     });
 
-      var whichColumns = "";
-      var direction = "desc";
+  //     var whichColumns = "";
+  //     var direction = "desc";
 
-      if (data.order.length == 0) {
-        whichColumns = 4;
-      } else {
-        whichColumns = data.order[0]["column"];
-        direction = data.order[0]["dir"];
-      }
+  //     if (data.order.length == 0) {
+  //       whichColumns = 4;
+  //     } else {
+  //       whichColumns = data.order[0]["column"];
+  //       direction = data.order[0]["dir"];
+  //     }
 
-      switch (whichColumns) {
-        case 1:
-          whichColumns = "wholesalerkey:";
-          break;
-        case 2:
-          whichColumns = "type:";
-          break;
-        case 3:
-          whichColumns = "name:";
-          break;
-        case 4:
-          whichColumns = "created.at:";
-          break;
-        default:
-          whichColumns = "created.at:";
-      }
+  //     switch (whichColumns) {
+  //       case 1:
+  //         whichColumns = "wholesalerkey:";
+  //         break;
+  //       case 2:
+  //         whichColumns = "type:";
+  //         break;
+  //       case 3:
+  //         whichColumns = "name:";
+  //         break;
+  //       case 4:
+  //         whichColumns = "created.at:";
+  //         break;
+  //       default:
+  //         whichColumns = "created.at:";
+  //     }
 
-      var sort = "" + whichColumns + direction;
+  //     var sort = "" + whichColumns + direction;
 
-      $.get(
-        InvokeURL + "van/transactions",
-        {
-          sort: sort,
-          perPage: data.length,
-          page: (data.start + data.length) / data.length,
-        },
-        function (res) {
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        }
-      );
-    },
-    processing: true,
-    serverSide: true,
-    search: {
-      return: true,
-    },
-    columns: [
-      {
-        orderable: false,
-        data: null,
-        width: "36px",
-        defaultContent:
-          "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-      },
-      {
-        orderable: false,
-        visible: false,
-        data: "uuid",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "wholesalerKey",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "type",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "name",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "created.by",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "created.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.at",
-        render: function (data) {
-          if (data !== null) {
-            var utcDate = new Date(Date.parse(data));
-            return utcDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "modified.by",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "-";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: null,
-        defaultContent:
-          '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-      },
-    ],
-    initComplete: function (settings, json) {
-      var hasEntries = tableDocuments.data().any();
-      if (!hasEntries) {
-        $("#emptystatedocuments").show();
-        $("#documentscontainer").hide();
-      } else {
-        $("#emptystatedocuments").hide();
-        $("#documentscontainer").show();
-      }
-    },
-  });
+  //     $.get(
+  //       InvokeURL + "van/transactions",
+  //       {
+  //         sort: sort,
+  //         perPage: data.length,
+  //         page: (data.start + data.length) / data.length,
+  //       },
+  //       function (res) {
+  //         callback({
+  //           recordsTotal: res.total,
+  //           recordsFiltered: res.total,
+  //           data: res.items,
+  //         });
+  //       }
+  //     );
+  //   },
+  //   processing: true,
+  //   serverSide: true,
+  //   search: {
+  //     return: true,
+  //   },
+  //   columns: [
+  //     {
+  //       orderable: false,
+  //       data: null,
+  //       width: "36px",
+  //       defaultContent:
+  //         "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+  //     },
+  //     {
+  //       orderable: false,
+  //       visible: false,
+  //       data: "uuid",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "wholesalerKey",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "type",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "name",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "created.by",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: true,
+  //       data: "created.at",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleString("pl-PL", {
+  //             year: "numeric",
+  //             month: "2-digit",
+  //             day: "2-digit",
+  //             hour: "2-digit",
+  //             minute: "2-digit",
+  //             second: "2-digit",
+  //             hour12: false,
+  //           });
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "modified.at",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           var utcDate = new Date(Date.parse(data));
+  //           return utcDate.toLocaleString("pl-PL", {
+  //             year: "numeric",
+  //             month: "2-digit",
+  //             day: "2-digit",
+  //             hour: "2-digit",
+  //             minute: "2-digit",
+  //             second: "2-digit",
+  //             hour12: false,
+  //           });
+  //         }
+  //         if (data === null) {
+  //           return "";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: "modified.by",
+  //       render: function (data) {
+  //         if (data !== null) {
+  //           return data;
+  //         }
+  //         if (data === null) {
+  //           return "-";
+  //         }
+  //       },
+  //     },
+  //     {
+  //       orderable: false,
+  //       data: null,
+  //       defaultContent:
+  //         '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+  //     },
+  //   ],
+  //   initComplete: function (settings, json) {
+  //     var hasEntries = tableDocuments.data().any();
+  //     if (!hasEntries) {
+  //       $("#emptystatedocuments").show();
+  //       $("#documentscontainer").hide();
+  //     } else {
+  //       $("#emptystatedocuments").hide();
+  //       $("#documentscontainer").show();
+  //     }
+  //   },
+  // });
 
   ////tutaj//
 
@@ -2476,9 +2550,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        DomainName +
+        "/app/pricelists/pricelist?uuid=" +
+        rowData.uuid
       );
     }
   );
@@ -2815,15 +2889,26 @@ docReady(function () {
     );
   }
 
-  getUserRole();
+  getShops()
   LogoutNonUser();
-  getShops();
-  getUsers();
-  getInvoices();
-  getPriceLists();
-  getIntegrations();
-  getWholesalers();
-  LoadTippy();
+
+  getUserRole()
+    .then(() => {
+      return Promise.all([
+        getUsers(),
+        getInvoices(),
+        getPriceLists(),
+        getIntegrations(),
+        getWholesalers()
+      ]);
+    })
+    .then(() => {
+      LoadTippy();
+    })
+    .catch((error) => {
+      console.error('Error while fetching user role or subsequent data:', error);
+      // Handle error if necessary
+    });
 
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
