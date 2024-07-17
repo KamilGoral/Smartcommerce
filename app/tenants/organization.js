@@ -679,42 +679,98 @@ docReady(function () {
             {
               orderable: true,
               data: "number",
+              render: function (data, type, row) {
+                let mainContent = `<div>${row.number}</div>`;
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: true,
               data: "status",
               width: "128px",
-              render: function (data) {
-                switch (data) {
+              render: function (data, type, row) {
+                let mainContent = "";
+                switch (row.status) {
                   case "draft":
-                    return '<span class="neutral">Szkic</span>';
+                    mainContent = '<span class="neutral">Szkic</span>';
+                    break;
                   case "sent":
-                    return '<span class="noneexisting">Nie Zapłacono</span>';
+                    mainContent = '<span class="noneexisting">Nie Zapłacono</span>';
+                    break;
                   case "paid":
-                    return '<span class="positive">Zapłacono</span>';
+                    mainContent = '<span class="positive">Zapłacono</span>';
+                    break;
                   case "overdue":
-                    return '<span class="positive">Po terminie</span>';
+                    mainContent = '<span class="positive">Po terminie</span>';
+                    break;
                   default:
-                    return '<span class="neutral">Nieznany</span>';
+                    mainContent = '<span class="neutral">Nieznany</span>';
                 }
-              },
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    let status = "";
+                    switch (corrective.status) {
+                      case "draft":
+                        status = '<span class="neutral">Szkic</span>';
+                        break;
+                      case "sent":
+                        status = '<span class="noneexisting">Nie Zapłacono</span>';
+                        break;
+                      case "paid":
+                        status = '<span class="positive">Zapłacono</span>';
+                        break;
+                      case "overdue":
+                        status = '<span class="positive">Po terminie</span>';
+                        break;
+                      default:
+                        status = '<span class="neutral">Nieznany</span>';
+                    }
+                    return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: true,
               data: "paymentDueDate",
-              render: function (data) {
-                return new Date(data).toLocaleDateString("pl-PL");
-              },
+              render: function (data, type, row) {
+                let mainContent = new Date(row.paymentDueDate).toLocaleDateString("pl-PL");
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    return `<div style="margin-top: 5px;">Korekta: ${new Date(corrective.paymentDueDate).toLocaleDateString("pl-PL")}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: true,
               data: "netTotal",
-              render: function (data) {
-                return new Intl.NumberFormat("pl-PL", {
+              render: function (data, type, row) {
+                let mainContent = new Intl.NumberFormat("pl-PL", {
                   style: "currency",
                   currency: "PLN",
-                }).format(data);
-              },
+                }).format(row.netTotal);
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat("pl-PL", {
+                      style: "currency",
+                      currency: "PLN",
+                    }).format(corrective.netTotal)}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: false,
@@ -723,12 +779,25 @@ docReady(function () {
                 const paymentLink = row.paymentLink
                   ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : " ";
-                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}">Pobierz
+            
+                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">Pobierz
                                         <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
                                       </a>`;
-                return `${paymentLink} ${downloadLink}`;
-              },
-            },
+            
+                let correctiveLinks = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveLinks = row.correctiveInvoices.map(corrective => {
+                    return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="corrective">Pobierz Korektę
+                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
+                            </a>`;
+                  }).join(' ');
+                }
+            
+                return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
+              }
+            }
+            
+            
           ],
         });
         if (request.status == 401) {
@@ -744,49 +813,51 @@ docReady(function () {
     const uuid = $(this).data("uuid");
     const tenant = $(this).data("tenant");
     const number = $(this).data("number");
+    const documentType = $(this).data("document-type") || "regular"; // Default to "regular" if not specified
 
     // Function to sanitize the file name
     function sanitizeFilename(name) {
-      return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
+        return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
     }
 
     const sanitizedOrganizationName = sanitizeFilename(tenant);
     const sanitizedNumber = sanitizeFilename(number);
     const filename = `${sanitizedOrganizationName}-${sanitizedNumber}.pdf`;
 
-    const url = `${InvokeURL}tenants/${organizationName}/invoices/${uuid}?documentType=regular`;
+    const url = `${InvokeURL}tenants/${tenant}/invoices/${uuid}?documentType=${documentType}`;
 
     // Show waiting screen
     $("#waitingdots").show();
 
     fetch(url, {
-      headers: {
-        Authorization: orgToken,
-        Accept: "application/pdf"
-      },
+        headers: {
+            Authorization: orgToken,
+            Accept: "application/pdf"
+        },
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.blob();
-      })
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = filename; // Use the sanitized file name here
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => console.error('Error downloading invoice:', error))
-      .finally(() => {
-        // Hide waiting screen
-        $("#waitingdots").hide();
-      });
-  });
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.blob();
+        })
+        .then((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename; // Use the sanitized file name here
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => console.error('Error downloading invoice:', error))
+        .finally(() => {
+            // Hide waiting screen
+            $("#waitingdots").hide();
+        });
+});
+
 
 
 
