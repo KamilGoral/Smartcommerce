@@ -292,6 +292,7 @@ docReady(function () {
     let endpoint = new URL(InvokeURL + "shops/" + shopKey);
     request.open("GET", endpoint.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
 
@@ -421,6 +422,7 @@ docReady(function () {
         $.ajaxSetup({
           headers: {
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -608,6 +610,7 @@ docReady(function () {
       contentType: "application/json",
       headers: {
         Authorization: orgToken,
+        "Requested-By":"webflow-3-4",
       },
       success: function () {
         console.log("Order deleted successfully");
@@ -811,6 +814,7 @@ docReady(function () {
         $.ajaxSetup({
           headers: {
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -1204,6 +1208,7 @@ docReady(function () {
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
+          "Requested-By":"webflow-3-4",
         },
         beforeSend: function () {
           $("#waitingdots").show();
@@ -1482,6 +1487,7 @@ docReady(function () {
         $.ajaxSetup({
           headers: {
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -1714,6 +1720,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1779,6 +1786,7 @@ docReady(function () {
             Authorization: orgToken,
             Accept: "application/json",
             "Content-Type": "application/json",
+            "Requested-By":"webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -1797,6 +1805,7 @@ docReady(function () {
               dataType: "json",
               headers: {
                 Authorization: orgToken,
+                "Requested-By":"webflow-3-4",
               },
               beforeSend: function () {
                 $("#waitingdots").show();
@@ -1939,6 +1948,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2070,6 +2080,7 @@ docReady(function () {
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: orgToken,
+          "Requested-By":"webflow-3-4",
         },
         success: function (response) {
           displayMessage("Success", "Twoje zamówienie zostało stworzone.");
@@ -2146,6 +2157,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           success: function (resultData) {
             displayMessage("Success", "Twoje zamówienie zostało stworzone.");

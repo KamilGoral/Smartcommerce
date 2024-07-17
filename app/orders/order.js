@@ -445,6 +445,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: orgToken,
+        "Requested-By":"webflow-3-4",
       },
       processData: false,
       success: function (resultData) {
@@ -801,6 +802,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -1046,6 +1048,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: orgToken,
+        "Requested-By":"webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -1602,6 +1605,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           data: JSON.stringify(changesPayload),
           processData: false,
@@ -1773,6 +1777,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
@@ -1885,6 +1890,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var jsonek = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
@@ -2234,6 +2240,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -2274,6 +2281,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
 
@@ -2365,6 +2373,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         const productsData = JSON.parse(request.responseText);
@@ -2401,6 +2410,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -2478,6 +2488,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            "Requested-By":"webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2719,6 +2730,7 @@ docReady(function () {
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
+          "Requested-By":"webflow-3-4",
         },
         beforeSend: function () {
           $("#waitingdots").show();
@@ -3114,6 +3126,7 @@ docReady(function () {
         headers: {
           Accept: "application/zip",
           Authorization: orgToken,
+          "Requested-By":"webflow-3-4",
         },
       })
         .then((res) => {

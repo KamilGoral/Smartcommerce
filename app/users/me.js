@@ -284,6 +284,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: smartToken,
+            "Requested-By":"webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -424,6 +425,7 @@ docReady(function () {
       contentType: "application/json;charset=UTF-8",
       headers: {
         Authorization: smartToken,
+        "Requested-By":"webflow-3-4",
       },
       success: function () {
         window.location.reload();
@@ -441,6 +443,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", smartToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
 
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
@@ -550,6 +553,7 @@ docReady(function () {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          "Requested-By":"webflow-3-4",
         },
         data: JSON.stringify(data),
         success: function (resultData) {
@@ -598,6 +602,7 @@ docReady(function () {
       method: "GET",
       headers: {
         Authorization: smartToken,
+        "Requested-By":"webflow-3-4",
       },
     })
       .then((response) => {
