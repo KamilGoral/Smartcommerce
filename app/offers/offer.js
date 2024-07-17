@@ -306,7 +306,7 @@ docReady(function () {
       type: "GET",
       headers: {
         Authorization: orgToken,
-        "Requested-By":"webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show(); // Show the loading indicator
@@ -499,7 +499,7 @@ docReady(function () {
       type: "GET",
       headers: {
         Authorization: orgToken,
-        "Requested-By":"webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -1145,7 +1145,7 @@ docReady(function () {
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
-          "Requested-By":"webflow-3-4",
+          //"Requested-By": "webflow-3-4",
         },
         beforeSend: function () {
           $("#waitingdots").show();
@@ -1662,7 +1662,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {

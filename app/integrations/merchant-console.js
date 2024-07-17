@@ -546,7 +546,7 @@ docReady(function () {
                 Accept: "application/json",
                 "Content-Type": "application/json",
                 Authorization: orgToken,
-                "Requested-By":"webflow-3-4",
+                //"Requested-By": "webflow-3-4",
               },
               data: JSON.stringify([{ op: "remove", path: "/shopKey" }]),
               processData: false,
@@ -650,7 +650,7 @@ docReady(function () {
               Accept: "application/json",
               "Content-Type": "application/json",
               Authorization: orgToken,
-              "Requested-By":"webflow-3-4",
+              //"Requested-By": "webflow-3-4",
             },
             data: JSON.stringify(payload),
             processData: false,
@@ -750,7 +750,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -812,7 +812,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {

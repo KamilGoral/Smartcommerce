@@ -445,7 +445,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: orgToken,
-        "Requested-By":"webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       processData: false,
       success: function (resultData) {
@@ -1048,7 +1048,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: orgToken,
-        "Requested-By":"webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -1605,7 +1605,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(changesPayload),
           processData: false,
@@ -2410,7 +2410,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -2488,7 +2488,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2730,7 +2730,7 @@ docReady(function () {
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
-          "Requested-By":"webflow-3-4",
+          //"Requested-By": "webflow-3-4",
         },
         beforeSend: function () {
           $("#waitingdots").show();
@@ -3126,7 +3126,7 @@ docReady(function () {
         headers: {
           Accept: "application/zip",
           Authorization: orgToken,
-          "Requested-By":"webflow-3-4",
+          //"Requested-By": "webflow-3-4",
         },
       })
         .then((res) => {

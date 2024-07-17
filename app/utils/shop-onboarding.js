@@ -30,7 +30,7 @@
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: getCookie(getCookie("sprytnyNewOrganizationId")),
-          "Requested-By":"webflow-3-4",
+          //"Requested-By": "webflow-3-4",
         },
         data: JSON.stringify(data),
         success: function (resultData) {
@@ -320,7 +320,7 @@
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {

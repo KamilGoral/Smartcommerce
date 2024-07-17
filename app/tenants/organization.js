@@ -384,7 +384,7 @@ docReady(function () {
       let endpoint = new URL(InvokeURL + "users/" + userKey);
       request.open("GET", endpoint, true);
       request.setRequestHeader("Authorization", orgToken);
-      request.setRequestHeader("Requested-By", "webflow-3-4");
+      //request.setRequestHeader("Requested-By", "webflow-3-4");
       request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
           var data = JSON.parse(request.responseText);
@@ -420,7 +420,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -492,7 +492,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -624,7 +624,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -779,11 +779,11 @@ docReady(function () {
                 const paymentLink = row.paymentLink
                   ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : " ";
-            
+
                 const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">Pobierz
                                         <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
                                       </a>`;
-            
+
                 let correctiveLinks = "";
                 if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
                   correctiveLinks = row.correctiveInvoices.map(corrective => {
@@ -792,12 +792,12 @@ docReady(function () {
                             </a>`;
                   }).join(' ');
                 }
-            
+
                 return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
               }
             }
-            
-            
+
+
           ],
         });
         if (request.status == 401) {
@@ -817,7 +817,7 @@ docReady(function () {
 
     // Function to sanitize the file name
     function sanitizeFilename(name) {
-        return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
+      return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
     }
 
     const sanitizedOrganizationName = sanitizeFilename(tenant);
@@ -830,33 +830,33 @@ docReady(function () {
     $("#waitingdots").show();
 
     fetch(url, {
-        headers: {
-            Authorization: orgToken,
-            Accept: "application/pdf"
-        },
+      headers: {
+        Authorization: orgToken,
+        Accept: "application/pdf"
+      },
     })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.blob();
-        })
-        .then((blob) => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename; // Use the sanitized file name here
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch((error) => console.error('Error downloading invoice:', error))
-        .finally(() => {
-            // Hide waiting screen
-            $("#waitingdots").hide();
-        });
-});
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename; // Use the sanitized file name here
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => console.error('Error downloading invoice:', error))
+      .finally(() => {
+        // Hide waiting screen
+        $("#waitingdots").hide();
+      });
+  });
 
 
 
@@ -977,7 +977,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1265,7 +1265,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1639,7 +1639,7 @@ docReady(function () {
       const response = await fetch(url, {
         method: "GET",
         headers: { Authorization: orgToken },
-        "Requested-By": "webflow-3-4",
+        ////"Requested-By": "webflow-3-4",,
       });
 
       if (!response.ok) {
@@ -1705,7 +1705,7 @@ docReady(function () {
         InvokeURL + "integrations/" + integration.integrationKey + "/test"
       ),
       type: "GET",
-      headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+      headers: { Authorization: orgToken }, //"Requested-By": "webflow-3-4", },
       success: (response) =>
         updateIntegrationStatus($integrationStatus, `${response.status}`),
       error: () =>
@@ -1747,7 +1747,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1831,7 +1831,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1916,7 +1916,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1992,7 +1992,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2042,7 +2042,7 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
-        "Requested-By":"webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
     })
       .then((response) => {
@@ -2663,7 +2663,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
@@ -2710,7 +2710,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2767,7 +2767,7 @@ docReady(function () {
             Authorization: orgToken,
             Accept: "application/json",
             "Content-Type": "application/json",
-            "Requested-By":"webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -2816,7 +2816,7 @@ docReady(function () {
                 dataType: "json",
                 headers: {
                   Authorization: orgToken,
-                  "Requested-By":"webflow-3-4",
+                  //"Requested-By": "webflow-3-4",
                 },
                 beforeSend: function () {
                   $("#waitingdots").show();
