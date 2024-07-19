@@ -1281,7 +1281,7 @@ docReady(function () {
     request.send();
   }
 
-  async function getWholesalers(organizationName) {
+  async function getWholesalers() {
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -1312,14 +1312,13 @@ docReady(function () {
         };
 
         // Filter based on organizationName
-        console.log(getCookie("organizationName"));
-        console.log(wholesalerTenantMapping[getCookie("organizationName")]);
-        if (getCookie("organizationName") in wholesalerTenantMapping) {
-          console.log("organizationName");
+
+        if (getCookie("OrganizationName") in wholesalerTenantMapping) {
+          console.log("OrganizationName");
           toParse = toParse.filter(function (item) {
             return (
               item.wholesalerKey ===
-              wholesalerTenantMapping[getCookie("organizationName")]
+              wholesalerTenantMapping[getCookie("OrganizationName")]
             );
           });
         }
