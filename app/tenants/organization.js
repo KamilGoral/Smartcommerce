@@ -1312,9 +1312,11 @@ docReady(function () {
         };
 
         // Filter based on organizationName
+        console.log(organizationName);
+        console.log(wholesalerTenantMapping[organizationName]);
         if (organizationName in wholesalerTenantMapping) {
           console.log(organizationName);
-          var toParse = toParse.filter(function (item) {
+          toParse = toParse.filter(function (item) {
             return (
               item.wholesalerKey === wholesalerTenantMapping[organizationName]
             );
