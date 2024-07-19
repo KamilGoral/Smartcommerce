@@ -1308,6 +1308,7 @@ docReady(function () {
         // Define mapping of wholesalerKey to organizationName
         const wholesalerTenantMapping = {
           "abe-dystrybucja": "HurtowniaABE",
+          "abe-dystrybucja": "TesterskaOrganizacja",
         };
 
         // Filter based on organizationName
