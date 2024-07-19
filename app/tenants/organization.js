@@ -1312,13 +1312,14 @@ docReady(function () {
         };
 
         // Filter based on organizationName
-        console.log(organizationName);
-        console.log(wholesalerTenantMapping[organizationName]);
-        if (organizationName in wholesalerTenantMapping) {
-          console.log(organizationName);
+        console.log(getCookie("organizationName"));
+        console.log(wholesalerTenantMapping[getCookie("organizationName")]);
+        if (getCookie("organizationName") in wholesalerTenantMapping) {
+          console.log("organizationName");
           toParse = toParse.filter(function (item) {
             return (
-              item.wholesalerKey === wholesalerTenantMapping[organizationName]
+              item.wholesalerKey ===
+              wholesalerTenantMapping[getCookie("organizationName")]
             );
           });
         }
