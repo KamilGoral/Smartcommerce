@@ -113,7 +113,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: smartToken,
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       data: JSON.stringify(data),
       beforeSend: function () {
@@ -172,7 +172,7 @@ docReady(function () {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "Requested-By": "webflow-3-4",
+          //"Requested-By": "webflow-3-4",
         },
         data: JSON.stringify(data),
         success: function (resultData) {
@@ -216,7 +216,7 @@ docReady(function () {
       "Authorization",
       getCookie(getCookie("sprytnyNewOrganizationId"))
     );
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    // request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -435,7 +435,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: getCookie(getCookie("sprytnyNewOrganizationId")),
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       data: JSON.stringify(data),
       success: function (resultData) {

@@ -320,7 +320,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       data: JSON.stringify(data),
       success: function (resultData) {
@@ -385,7 +385,7 @@ docReady(function () {
       let endpoint = new URL(InvokeURL + "users/" + userKey);
       request.open("GET", endpoint, true);
       request.setRequestHeader("Authorization", orgToken);
-      request.setRequestHeader("Requested-By", "webflow-3-4");
+      // request.setRequestHeader("Requested-By", "webflow-3-4");
       request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
           var data = JSON.parse(request.responseText);
@@ -421,7 +421,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    // // request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -493,7 +493,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    // request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -625,7 +625,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    // request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -866,7 +866,7 @@ docReady(function () {
       headers: {
         Authorization: orgToken,
         Accept: "application/pdf",
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
     })
       .then((response) => {
@@ -910,7 +910,7 @@ docReady(function () {
       contentType: "application/json",
       headers: {
         Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       data: data,
       success: function (response) {
@@ -949,7 +949,7 @@ docReady(function () {
       contentType: "application/json", // Set the content type to application/json
       headers: {
         Authorization: orgToken, // Ensure you include the authorization header
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
       success: function (response) {
         console.log("User deleted successfully", response);
@@ -1007,7 +1007,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    // request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1296,7 +1296,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
+    // request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1698,7 +1698,7 @@ docReady(function () {
       const response = await fetch(url, {
         method: "GET",
         headers: { Authorization: orgToken },
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       });
 
       if (!response.ok) {
@@ -1803,7 +1803,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1888,7 +1888,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1973,7 +1973,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2049,7 +2049,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2098,7 +2098,7 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
+        //"Requested-By": "webflow-3-4",
       },
     })
       .then((response) => {
@@ -2719,7 +2719,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
@@ -2766,7 +2766,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2823,7 +2823,7 @@ docReady(function () {
             Authorization: orgToken,
             Accept: "application/json",
             "Content-Type": "application/json",
-            "Requested-By": "webflow-3-4",
+            //"Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -2872,7 +2872,7 @@ docReady(function () {
                 dataType: "json",
                 headers: {
                   Authorization: orgToken,
-                  "Requested-By": "webflow-3-4",
+                  //"Requested-By": "webflow-3-4",
                 },
                 beforeSend: function () {
                   $("#waitingdots").show();
@@ -3101,7 +3101,12 @@ docReady(function () {
         $.ajax({
           url: InvokeURL + "wholesalers/" + wholesalerKey,
           type: "PATCH",
-          contentType: "application/json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
+          },
           data: JSON.stringify(patchData),
           success: function (response) {
             console.log("Data updated successfully", response);
