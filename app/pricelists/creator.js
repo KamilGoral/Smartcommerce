@@ -603,6 +603,8 @@ docReady(function () {
               return "price";
             case "cena_netto":
               return "price";
+            case "cena netto za szt":
+              return "price";
             default:
               console.log("Sorry");
           }
