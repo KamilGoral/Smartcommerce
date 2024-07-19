@@ -299,6 +299,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -625,6 +626,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -717,6 +719,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(postData),
           success: function (resultData) {

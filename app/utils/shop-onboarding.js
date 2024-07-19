@@ -19,17 +19,18 @@
         url: action,
         cors: true,
         beforeSend: function () {
-          $("#waitingdots").show(); // Display loading indicator
+          $("#waitingdots").show();
         },
         complete: function () {
-          $("#waitingdots").hide(); // Hide loading indicator
+          $("#waitingdots").hide();
         },
         contentType: "application/json",
         dataType: "json",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: getCookie(getCookie("sprytnyNewOrganizationId")), // Make sure the 'orgToken' is defined and valid
+          Authorization: getCookie(getCookie("sprytnyNewOrganizationId")),
+          //"Requested-By": "webflow-3-4",
         },
         data: JSON.stringify(data),
         success: function (resultData) {
@@ -174,6 +175,7 @@
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
     request.open("GET", apiUrl.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       console.log(data);
@@ -318,6 +320,7 @@
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -361,6 +364,7 @@
               }
 
               request.setRequestHeader("Authorization", orgToken);
+              request.setRequestHeader("Requested-By","webflow-3-4");
               request.onload = function () {
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
@@ -518,6 +522,7 @@
       }
     }
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;

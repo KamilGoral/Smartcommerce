@@ -412,7 +412,9 @@ docReady(function () {
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
     request.open("GET", apiUrl.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
+      
       var data = JSON.parse(this.response);
       console.log(data);
       if (request.status >= 200 && request.status < 400) {
@@ -496,6 +498,7 @@ docReady(function () {
       }
     }
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -547,6 +550,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -608,7 +612,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(request.responseText);
@@ -759,6 +763,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -804,6 +809,7 @@ docReady(function () {
               }
 
               request.setRequestHeader("Authorization", orgToken);
+              request.setRequestHeader("Requested-By","webflow-3-4");
               request.onload = function () {
                 var data = JSON.parse(this.response);
                 var toParse = data.items;
@@ -978,6 +984,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1057,6 +1064,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1127,6 +1135,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {

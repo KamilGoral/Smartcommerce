@@ -384,6 +384,7 @@ docReady(function () {
       let endpoint = new URL(InvokeURL + "users/" + userKey);
       request.open("GET", endpoint, true);
       request.setRequestHeader("Authorization", orgToken);
+      //request.setRequestHeader("Requested-By", "webflow-3-4");
       request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
           var data = JSON.parse(request.responseText);
@@ -419,6 +420,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -490,6 +492,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -621,6 +624,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -675,42 +679,98 @@ docReady(function () {
             {
               orderable: true,
               data: "number",
+              render: function (data, type, row) {
+                let mainContent = `<div>${row.number}</div>`;
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: true,
               data: "status",
               width: "128px",
-              render: function (data) {
-                switch (data) {
+              render: function (data, type, row) {
+                let mainContent = "";
+                switch (row.status) {
                   case "draft":
-                    return '<span class="neutral">Szkic</span>';
+                    mainContent = '<span class="neutral">Szkic</span>';
+                    break;
                   case "sent":
-                    return '<span class="noneexisting">Nie Zapłacono</span>';
+                    mainContent = '<span class="noneexisting">Nie Zapłacono</span>';
+                    break;
                   case "paid":
-                    return '<span class="positive">Zapłacono</span>';
+                    mainContent = '<span class="positive">Zapłacono</span>';
+                    break;
                   case "overdue":
-                    return '<span class="positive">Po terminie</span>';
+                    mainContent = '<span class="positive">Po terminie</span>';
+                    break;
                   default:
-                    return '<span class="neutral">Nieznany</span>';
+                    mainContent = '<span class="neutral">Nieznany</span>';
                 }
-              },
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    let status = "";
+                    switch (corrective.status) {
+                      case "draft":
+                        status = '<span class="neutral">Szkic</span>';
+                        break;
+                      case "sent":
+                        status = '<span class="noneexisting">Nie Zapłacono</span>';
+                        break;
+                      case "paid":
+                        status = '<span class="positive">Zapłacono</span>';
+                        break;
+                      case "overdue":
+                        status = '<span class="positive">Po terminie</span>';
+                        break;
+                      default:
+                        status = '<span class="neutral">Nieznany</span>';
+                    }
+                    return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: true,
               data: "paymentDueDate",
-              render: function (data) {
-                return new Date(data).toLocaleDateString("pl-PL");
-              },
+              render: function (data, type, row) {
+                let mainContent = new Date(row.paymentDueDate).toLocaleDateString("pl-PL");
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    return `<div style="margin-top: 5px;">Korekta: ${new Date(corrective.paymentDueDate).toLocaleDateString("pl-PL")}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: true,
               data: "netTotal",
-              render: function (data) {
-                return new Intl.NumberFormat("pl-PL", {
+              render: function (data, type, row) {
+                let mainContent = new Intl.NumberFormat("pl-PL", {
                   style: "currency",
                   currency: "PLN",
-                }).format(data);
-              },
+                }).format(row.netTotal);
+                let correctiveContent = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveContent = row.correctiveInvoices.map(corrective => {
+                    return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat("pl-PL", {
+                      style: "currency",
+                      currency: "PLN",
+                    }).format(corrective.netTotal)}</div>`;
+                  }).join('');
+                }
+                return `${mainContent}${correctiveContent}`;
+              }
             },
             {
               orderable: false,
@@ -719,12 +779,25 @@ docReady(function () {
                 const paymentLink = row.paymentLink
                   ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
                   : " ";
-                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}">Pobierz
+
+                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">Pobierz
                                         <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
                                       </a>`;
-                return `${paymentLink} ${downloadLink}`;
-              },
-            },
+
+                let correctiveLinks = "";
+                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
+                  correctiveLinks = row.correctiveInvoices.map(corrective => {
+                    return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">Pobierz Korektę
+                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
+                            </a>`;
+                  }).join(' ');
+                }
+
+                return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
+              }
+            }
+
+
           ],
         });
         if (request.status == 401) {
@@ -740,6 +813,7 @@ docReady(function () {
     const uuid = $(this).data("uuid");
     const tenant = $(this).data("tenant");
     const number = $(this).data("number");
+    const documentType = $(this).data("document-type") || "regular"; // Default to "regular" if not specified
 
     // Function to sanitize the file name
     function sanitizeFilename(name) {
@@ -750,7 +824,7 @@ docReady(function () {
     const sanitizedNumber = sanitizeFilename(number);
     const filename = `${sanitizedOrganizationName}-${sanitizedNumber}.pdf`;
 
-    const url = `${InvokeURL}tenants/${organizationName}/invoices/${uuid}?documentType=regular`;
+    const url = `${InvokeURL}tenants/${tenant}/invoices/${uuid}?documentType=${documentType}`;
 
     // Show waiting screen
     $("#waitingdots").show();
@@ -783,6 +857,7 @@ docReady(function () {
         $("#waitingdots").hide();
       });
   });
+
 
 
 
@@ -902,6 +977,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1189,6 +1265,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
+    //request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1562,6 +1639,7 @@ docReady(function () {
       const response = await fetch(url, {
         method: "GET",
         headers: { Authorization: orgToken },
+        ////"Requested-By": "webflow-3-4",,
       });
 
       if (!response.ok) {
@@ -1627,7 +1705,7 @@ docReady(function () {
         InvokeURL + "integrations/" + integration.integrationKey + "/test"
       ),
       type: "GET",
-      headers: { Authorization: orgToken },
+      headers: { Authorization: orgToken }, //"Requested-By": "webflow-3-4", },
       success: (response) =>
         updateIntegrationStatus($integrationStatus, `${response.status}`),
       error: () =>
@@ -1669,6 +1747,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1752,6 +1831,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1836,6 +1916,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1911,6 +1992,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1960,6 +2042,7 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
+        //"Requested-By": "webflow-3-4",
       },
     })
       .then((response) => {
@@ -2580,6 +2663,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
@@ -2626,6 +2710,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2682,6 +2767,7 @@ docReady(function () {
             Authorization: orgToken,
             Accept: "application/json",
             "Content-Type": "application/json",
+            //"Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -2730,6 +2816,7 @@ docReady(function () {
                 dataType: "json",
                 headers: {
                   Authorization: orgToken,
+                  //"Requested-By": "webflow-3-4",
                 },
                 beforeSend: function () {
                   $("#waitingdots").show();

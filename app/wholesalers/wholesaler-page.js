@@ -118,6 +118,7 @@ docReady(function () {
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
     request.open("GET", apiUrl.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
@@ -165,6 +166,7 @@ docReady(function () {
     let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey + "/ftp");
     request.open("GET", apiUrl.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By","webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
@@ -218,6 +220,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -309,6 +312,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -401,6 +405,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
+            //"Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -578,6 +583,7 @@ docReady(function () {
             "x-amz-target":
               "AWSCognitoIdentityProviderService.UpdateUserAttributes",
             Authorization: smartToken,
+            //"Requested-By": "webflow-3-4",
           },
           cors: true,
           beforeSend: function () {
