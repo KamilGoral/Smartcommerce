@@ -1312,6 +1312,7 @@ docReady(function () {
         };
 
         // Filter based on organizationName
+        console.log(getCookie("OrganizationName"));
 
         if (getCookie("OrganizationName") in wholesalerTenantMapping) {
           console.log("OrganizationName");
