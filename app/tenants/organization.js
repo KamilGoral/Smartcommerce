@@ -1344,6 +1344,14 @@ docReady(function () {
           $("#alertMessage").show();
         }
 
+        console.log("Original toParse:", toParse);
+        console.log("OrganizationName:", getCookie("OrganizationName"));
+        console.log(
+          "Mapped value:",
+          wholesalerTenantMapping[getCookie("OrganizationName")]
+        );
+        console.log("Filtered toParse:", toParse);
+
         $("#table_wholesalers_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
