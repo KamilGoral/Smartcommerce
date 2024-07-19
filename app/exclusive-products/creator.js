@@ -126,11 +126,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -266,11 +266,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ExclusiveWizardBread = document.getElementById("ExclusiveWizardBread");
@@ -283,7 +283,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    //request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -643,7 +643,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            ////"Requested-By": "webflow-3-4",,
+            //"Requested-By": "webflow-3-4",,
           },
           data: JSON.stringify(postData),
           success: function (resultData) {
@@ -729,7 +729,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(postData),
           success: function (resultData) {
@@ -786,7 +786,7 @@ docReady(function () {
       url: url,
       headers: {
         Authorization: orgToken,
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -830,8 +830,9 @@ docReady(function () {
             const day = date.getDate();
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
-            return `${day < 10 ? "0" : ""}${day}.${month < 10 ? "0" : ""
-              }${month}.${year}`;
+            return `${day < 10 ? "0" : ""}${day}.${
+              month < 10 ? "0" : ""
+            }${month}.${year}`;
           };
 
           // Sprawdź czy spełnione są warunki

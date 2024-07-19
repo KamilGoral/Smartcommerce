@@ -87,11 +87,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    organizationName +
-    "&clientId=" +
-    clientId
+      DomainName +
+      "/app/tenants/organization?name=" +
+      organizationName +
+      "&clientId=" +
+      clientId
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -157,11 +157,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -320,6 +320,7 @@ docReady(function () {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
       },
       data: JSON.stringify(data),
       success: function (resultData) {
@@ -384,7 +385,7 @@ docReady(function () {
       let endpoint = new URL(InvokeURL + "users/" + userKey);
       request.open("GET", endpoint, true);
       request.setRequestHeader("Authorization", orgToken);
-      //request.setRequestHeader("Requested-By", "webflow-3-4");
+      request.setRequestHeader("Requested-By", "webflow-3-4");
       request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
           var data = JSON.parse(request.responseText);
@@ -392,7 +393,8 @@ docReady(function () {
             let date = new Date();
             date.setTime(date.getTime() + expirationSec * 1000);
             const expires = "expires=" + date.toUTCString();
-            document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+            document.cookie =
+              cName + "=" + cValue + "; " + expires + "; path=/";
           }
           setCookieAndSession("sprytnyUserRole", data.role, 72000);
           if (data.role === "admin") {
@@ -414,13 +416,12 @@ docReady(function () {
     });
   }
 
-
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    //request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -492,7 +493,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    //request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -624,7 +625,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    //request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       let dataItems =
         request.status >= 200 && request.status < 400
@@ -682,13 +683,18 @@ docReady(function () {
               render: function (data, type, row) {
                 let mainContent = `<div>${row.number}</div>`;
                 let correctiveContent = "";
-                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
-                  correctiveContent = row.correctiveInvoices.map(corrective => {
-                    return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
-                  }).join('');
+                if (
+                  row.correctiveInvoices &&
+                  row.correctiveInvoices.length > 0
+                ) {
+                  correctiveContent = row.correctiveInvoices
+                    .map((corrective) => {
+                      return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
+                    })
+                    .join("");
                 }
                 return `${mainContent}${correctiveContent}`;
-              }
+              },
             },
             {
               orderable: true,
@@ -701,7 +707,8 @@ docReady(function () {
                     mainContent = '<span class="neutral">Szkic</span>';
                     break;
                   case "sent":
-                    mainContent = '<span class="noneexisting">Nie Zapłacono</span>';
+                    mainContent =
+                      '<span class="noneexisting">Nie Zapłacono</span>';
                     break;
                   case "paid":
                     mainContent = '<span class="positive">Zapłacono</span>';
@@ -713,44 +720,59 @@ docReady(function () {
                     mainContent = '<span class="neutral">Nieznany</span>';
                 }
                 let correctiveContent = "";
-                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
-                  correctiveContent = row.correctiveInvoices.map(corrective => {
-                    let status = "";
-                    switch (corrective.status) {
-                      case "draft":
-                        status = '<span class="neutral">Szkic</span>';
-                        break;
-                      case "sent":
-                        status = '<span class="noneexisting">Nie Zapłacono</span>';
-                        break;
-                      case "paid":
-                        status = '<span class="positive">Zapłacono</span>';
-                        break;
-                      case "overdue":
-                        status = '<span class="positive">Po terminie</span>';
-                        break;
-                      default:
-                        status = '<span class="neutral">Nieznany</span>';
-                    }
-                    return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
-                  }).join('');
+                if (
+                  row.correctiveInvoices &&
+                  row.correctiveInvoices.length > 0
+                ) {
+                  correctiveContent = row.correctiveInvoices
+                    .map((corrective) => {
+                      let status = "";
+                      switch (corrective.status) {
+                        case "draft":
+                          status = '<span class="neutral">Szkic</span>';
+                          break;
+                        case "sent":
+                          status =
+                            '<span class="noneexisting">Nie Zapłacono</span>';
+                          break;
+                        case "paid":
+                          status = '<span class="positive">Zapłacono</span>';
+                          break;
+                        case "overdue":
+                          status = '<span class="positive">Po terminie</span>';
+                          break;
+                        default:
+                          status = '<span class="neutral">Nieznany</span>';
+                      }
+                      return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
+                    })
+                    .join("");
                 }
                 return `${mainContent}${correctiveContent}`;
-              }
+              },
             },
             {
               orderable: true,
               data: "paymentDueDate",
               render: function (data, type, row) {
-                let mainContent = new Date(row.paymentDueDate).toLocaleDateString("pl-PL");
+                let mainContent = new Date(
+                  row.paymentDueDate
+                ).toLocaleDateString("pl-PL");
                 let correctiveContent = "";
-                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
-                  correctiveContent = row.correctiveInvoices.map(corrective => {
-                    return `<div style="margin-top: 5px;">Korekta: ${new Date(corrective.paymentDueDate).toLocaleDateString("pl-PL")}</div>`;
-                  }).join('');
+                if (
+                  row.correctiveInvoices &&
+                  row.correctiveInvoices.length > 0
+                ) {
+                  correctiveContent = row.correctiveInvoices
+                    .map((corrective) => {
+                      return `<div style="margin-top: 5px;">Korekta: ${new Date(
+                        corrective.paymentDueDate
+                      ).toLocaleDateString("pl-PL")}</div>`;
+                    })
+                    .join("");
                 }
                 return `${mainContent}${correctiveContent}`;
-              }
+              },
             },
             {
               orderable: true,
@@ -761,16 +783,24 @@ docReady(function () {
                   currency: "PLN",
                 }).format(row.netTotal);
                 let correctiveContent = "";
-                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
-                  correctiveContent = row.correctiveInvoices.map(corrective => {
-                    return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat("pl-PL", {
-                      style: "currency",
-                      currency: "PLN",
-                    }).format(corrective.netTotal)}</div>`;
-                  }).join('');
+                if (
+                  row.correctiveInvoices &&
+                  row.correctiveInvoices.length > 0
+                ) {
+                  correctiveContent = row.correctiveInvoices
+                    .map((corrective) => {
+                      return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat(
+                        "pl-PL",
+                        {
+                          style: "currency",
+                          currency: "PLN",
+                        }
+                      ).format(corrective.netTotal)}</div>`;
+                    })
+                    .join("");
                 }
                 return `${mainContent}${correctiveContent}`;
-              }
+              },
             },
             {
               orderable: false,
@@ -785,19 +815,22 @@ docReady(function () {
                                       </a>`;
 
                 let correctiveLinks = "";
-                if (row.correctiveInvoices && row.correctiveInvoices.length > 0) {
-                  correctiveLinks = row.correctiveInvoices.map(corrective => {
-                    return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">Pobierz Korektę
+                if (
+                  row.correctiveInvoices &&
+                  row.correctiveInvoices.length > 0
+                ) {
+                  correctiveLinks = row.correctiveInvoices
+                    .map((corrective) => {
+                      return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">Pobierz Korektę
                               <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
                             </a>`;
-                  }).join(' ');
+                    })
+                    .join(" ");
                 }
 
                 return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
-              }
-            }
-
-
+              },
+            },
           ],
         });
         if (request.status == 401) {
@@ -817,7 +850,7 @@ docReady(function () {
 
     // Function to sanitize the file name
     function sanitizeFilename(name) {
-      return name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'unknown';
+      return name ? name.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "unknown";
     }
 
     const sanitizedOrganizationName = sanitizeFilename(tenant);
@@ -832,34 +865,32 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
-        Accept: "application/pdf"
+        Accept: "application/pdf",
+        "Requested-By": "webflow-3-4",
       },
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
+          throw new Error("Network response was not ok " + response.statusText);
         }
         return response.blob();
       })
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
+        const a = document.createElement("a");
+        a.style.display = "none";
         a.href = url;
         a.download = filename; // Use the sanitized file name here
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
       })
-      .catch((error) => console.error('Error downloading invoice:', error))
+      .catch((error) => console.error("Error downloading invoice:", error))
       .finally(() => {
         // Hide waiting screen
         $("#waitingdots").hide();
       });
   });
-
-
-
 
   $("#table_users_list").on("change", ".user-role-select", function () {
     var userId = $(this).data("user-id");
@@ -879,6 +910,7 @@ docReady(function () {
       contentType: "application/json",
       headers: {
         Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
       },
       data: data,
       success: function (response) {
@@ -917,6 +949,7 @@ docReady(function () {
       contentType: "application/json", // Set the content type to application/json
       headers: {
         Authorization: orgToken, // Ensure you include the authorization header
+        "Requested-By": "webflow-3-4",
       },
       success: function (response) {
         console.log("User deleted successfully", response);
@@ -969,15 +1002,12 @@ docReady(function () {
     }
 
     let url = new URL(
-      InvokeURL +
-      "tenants/" +
-      getCookie("OrganizationName") +
-      "/billing"
+      InvokeURL + "tenants/" + getCookie("OrganizationName") + "/billing"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    //request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1170,8 +1200,8 @@ docReady(function () {
             case "forecastTotal":
               element.textContent =
                 "Szacowana kwota faktury: " +
-                toParse.monthCostBreakdown.forecast.total +
-                " zł" || "N/A";
+                  toParse.monthCostBreakdown.forecast.total +
+                  " zł" || "N/A";
               break;
 
             case "standard":
@@ -1186,11 +1216,11 @@ docReady(function () {
               // Safely accessing specialService fee
               element.textContent =
                 toParse.pricing.specialService &&
-                  toParse.pricing.specialService.fee
+                toParse.pricing.specialService.fee
                   ? toParse.pricing.specialService.description +
-                  " - " +
-                  toParse.pricing.specialService.fee +
-                  " zł/miesięcznie"
+                    " - " +
+                    toParse.pricing.specialService.fee +
+                    " zł/miesięcznie"
                   : "N/A";
               break;
             case "name":
@@ -1203,14 +1233,14 @@ docReady(function () {
               // Łączenie wszystkich części adresu w jeden ciąg
               const addressParts = toParse.address
                 ? [
-                  toParse.address.town,
-                  toParse.address.postcode,
-                  toParse.address.line1,
-                  toParse.address.line2,
-                  toParse.address.country,
-                ]
-                  .filter((part) => part)
-                  .join(", ")
+                    toParse.address.town,
+                    toParse.address.postcode,
+                    toParse.address.line1,
+                    toParse.address.line2,
+                    toParse.address.country,
+                  ]
+                    .filter((part) => part)
+                    .join(", ")
                 : "N/A";
               element.textContent = addressParts;
               break;
@@ -1251,7 +1281,7 @@ docReady(function () {
     request.send();
   }
 
-  async function getWholesalers() {
+  async function getWholesalers(organizationName) {
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -1261,11 +1291,12 @@ docReady(function () {
       console.log("Action not permitted for non-admin users.");
       return;
     }
+
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    //request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         var data = JSON.parse(this.response);
@@ -1273,6 +1304,21 @@ docReady(function () {
         toParse.sort(function (a, b) {
           return b.enabled - a.enabled;
         });
+
+        // Define mapping of wholesalerKey to organizationName
+        const wholesalerTenantMapping = {
+          "abe-dystrybucja": "HurtowniaABE",
+        };
+
+        // Filter based on organizationName
+        if (organizationName in wholesalerTenantMapping) {
+          enabledWholesalers = enabledWholesalers.filter(function (item) {
+            return (
+              item.wholesalerKey === wholesalerTenantMapping[organizationName]
+            );
+          });
+        }
+
         // Filter to only include enabled wholesalers for the second table
         var enabledWholesalers = toParse.filter(function (item) {
           return item.enabled === true;
@@ -1639,7 +1685,7 @@ docReady(function () {
       const response = await fetch(url, {
         method: "GET",
         headers: { Authorization: orgToken },
-        ////"Requested-By": "webflow-3-4",,
+        "Requested-By": "webflow-3-4",
       });
 
       if (!response.ok) {
@@ -1705,7 +1751,7 @@ docReady(function () {
         InvokeURL + "integrations/" + integration.integrationKey + "/test"
       ),
       type: "GET",
-      headers: { Authorization: orgToken }, //"Requested-By": "webflow-3-4", },
+      headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
       success: (response) =>
         updateIntegrationStatus($integrationStatus, `${response.status}`),
       error: () =>
@@ -1730,10 +1776,7 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var endpoint =
-          InvokeURL +
-          "tenants/" +
-          getCookie("OrganizationName");
+        var endpoint = InvokeURL + "tenants/" + getCookie("OrganizationName");
 
         $.ajax({
           type: "DELETE",
@@ -1747,7 +1790,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1775,7 +1818,8 @@ docReady(function () {
             } else if (jqXHR.status === 403) {
               msg = "Użytkownik nie ma uprawnień do usunięcia organizacji.";
             } else if (jqXHR.status === 409) {
-              msg = "Aby móc usunąć organizację, prosimy o uregulowanie zaległych faktur.";
+              msg =
+                "Aby móc usunąć organizację, prosimy o uregulowanie zaległych faktur.";
             } else if (jqXHR.status === 500) {
               msg = "Internal Server Error [500].";
             } else if (exception === "parsererror") {
@@ -1831,7 +1875,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1916,7 +1960,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -1992,7 +2036,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2028,7 +2072,6 @@ docReady(function () {
   };
 
   async function getPriceLists() {
-
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -2042,7 +2085,7 @@ docReady(function () {
     fetch(url, {
       headers: {
         Authorization: orgToken,
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
     })
       .then((response) => {
@@ -2633,9 +2676,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -2663,7 +2706,7 @@ docReady(function () {
           },
           headers: {
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           success: function () {
             console.log("Rekord został pomyślnie usunięty.");
@@ -2710,7 +2753,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2767,7 +2810,7 @@ docReady(function () {
             Authorization: orgToken,
             Accept: "application/json",
             "Content-Type": "application/json",
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -2816,7 +2859,7 @@ docReady(function () {
                 dataType: "json",
                 headers: {
                   Authorization: orgToken,
-                  //"Requested-By": "webflow-3-4",
+                  "Requested-By": "webflow-3-4",
                 },
                 beforeSend: function () {
                   $("#waitingdots").show();
@@ -2976,7 +3019,7 @@ docReady(function () {
     );
   }
 
-  getShops()
+  getShops();
   LogoutNonUser();
 
   getUserRole()
@@ -2986,14 +3029,17 @@ docReady(function () {
         getInvoices(),
         getPriceLists(),
         getIntegrations(),
-        getWholesalers()
+        getWholesalers(),
       ]);
     })
     .then(() => {
       LoadTippy();
     })
     .catch((error) => {
-      console.error('Error while fetching user role or subsequent data:', error);
+      console.error(
+        "Error while fetching user role or subsequent data:",
+        error
+      );
       // Handle error if necessary
     });
 

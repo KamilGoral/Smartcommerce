@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +270,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -292,7 +292,7 @@ docReady(function () {
     let endpoint = new URL(InvokeURL + "shops/" + shopKey);
     request.open("GET", endpoint.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By","webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
 
@@ -314,10 +314,10 @@ docReady(function () {
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
           data.name +
-          " - " +
-          data.shopKey +
-          " | " +
-          data.merchantConsoleShopId || "N/A";
+            " - " +
+            data.shopKey +
+            " | " +
+            data.merchantConsoleShopId || "N/A";
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
@@ -422,7 +422,7 @@ docReady(function () {
         $.ajaxSetup({
           headers: {
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -610,7 +610,7 @@ docReady(function () {
       contentType: "application/json",
       headers: {
         Authorization: orgToken,
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
       success: function () {
         console.log("Order deleted successfully");
@@ -814,7 +814,7 @@ docReady(function () {
         $.ajaxSetup({
           headers: {
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -1139,11 +1139,11 @@ docReady(function () {
       if (clikedEl.getAttribute("status") == "ready") {
         window.location.replace(
           "https://" +
-          DomainName +
-          "/app/offers/offer?shopKey=" +
-          shopKey +
-          "&offerId=" +
-          clikedEl.getAttribute("offerId")
+            DomainName +
+            "/app/offers/offer?shopKey=" +
+            shopKey +
+            "&offerId=" +
+            clikedEl.getAttribute("offerId")
         );
       }
       if (clikedEl.getAttribute("status") == "incomplete") {
@@ -1208,7 +1208,7 @@ docReady(function () {
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
-          //"Requested-By": "webflow-3-4",
+          "Requested-By": "webflow-3-4",
         },
         beforeSend: function () {
           $("#waitingdots").show();
@@ -1447,9 +1447,9 @@ docReady(function () {
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
         "https://" +
-        DomainName +
-        "/app/pricelists/pricelist?uuid=" +
-        rowData.uuid
+          DomainName +
+          "/app/pricelists/pricelist?uuid=" +
+          rowData.uuid
       );
     }
   );
@@ -1487,7 +1487,7 @@ docReady(function () {
         $.ajaxSetup({
           headers: {
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -1720,7 +1720,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             if (typeof successCallback === "function") {
@@ -1786,7 +1786,7 @@ docReady(function () {
             Authorization: orgToken,
             Accept: "application/json",
             "Content-Type": "application/json",
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
             $("#waitingdots").show();
@@ -1805,7 +1805,7 @@ docReady(function () {
               dataType: "json",
               headers: {
                 Authorization: orgToken,
-                //"Requested-By": "webflow-3-4",
+                "Requested-By": "webflow-3-4",
               },
               beforeSend: function () {
                 $("#waitingdots").show();
@@ -1948,7 +1948,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -2005,11 +2005,10 @@ docReady(function () {
     });
   };
 
-
   // Function to handle tab switch
   $(".in-page-menu-link").on("click", function () {
     var $uploadButton = $("#UploadButton");
-    var isFile = $("#orderfile").get(0).files.length > 0
+    var isFile = $("#orderfile").get(0).files.length > 0;
 
     // Adjust UploadButton based on active tab
     if ($(this).attr("data-w-tab") === "Tab 2") {
@@ -2080,25 +2079,29 @@ docReady(function () {
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: orgToken,
-          //"Requested-By": "webflow-3-4",
+          "Requested-By": "webflow-3-4",
         },
         success: function (response) {
           displayMessage("Success", "Twoje zamówienie zostało stworzone.");
           window.setTimeout(function () {
             window.location.replace(
               "https://" +
-              DomainName +
-              "/app/orders/order?orderId=" +
-              response.orderId +
-              "&shopKey=" +
-              shopKey + "&data-w-tab=add"
+                DomainName +
+                "/app/orders/order?orderId=" +
+                response.orderId +
+                "&shopKey=" +
+                shopKey +
+                "&data-w-tab=add"
             );
           }, 1000);
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.log(jqXHR);
           console.log(errorThrown);
-          displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
+          displayMessage(
+            "Error",
+            "Oops! Coś poszło nie tak. Proszę spróbuj ponownie."
+          );
         },
       });
     }
@@ -2107,7 +2110,6 @@ docReady(function () {
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
     var myUploadedFiles = document.getElementById("orderfile").files;
-
 
     $("#waitingdots").show();
     var formData = new FormData();
@@ -2157,25 +2159,28 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           success: function (resultData) {
             displayMessage("Success", "Twoje zamówienie zostało stworzone.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  response.orderId +
+                  "&shopKey=" +
+                  shopKey
               );
             }, 1000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
             console.log(exception);
-            displayMessage("Error", "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.");
+            displayMessage(
+              "Error",
+              "Oops! Coś poszło nie tak. Proszę spróbuj ponownie."
+            );
           },
         });
       } else {
@@ -2263,14 +2268,12 @@ docReady(function () {
     xhr.send(formData);
   }
 
-
   cancelButton.addEventListener("click", () => {
     const modal = document.getElementById("wronggtinsmodal");
     if (modal) {
       modal.style.display = "none";
     }
   });
-
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));

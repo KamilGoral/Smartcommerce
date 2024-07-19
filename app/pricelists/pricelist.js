@@ -99,7 +99,7 @@ docReady(function () {
             "x-amz-target":
               "AWSCognitoIdentityProviderService.UpdateUserAttributes",
             Authorization: smartToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           cors: true,
           beforeSend: function () {
@@ -290,7 +290,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By","webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -319,7 +319,7 @@ docReady(function () {
       type: "GET",
       headers: {
         Authorization: orgToken,
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -513,7 +513,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {
@@ -589,7 +589,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
 
           success: function (resultData) {
