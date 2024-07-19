@@ -1313,7 +1313,8 @@ docReady(function () {
 
         // Filter based on organizationName
         if (organizationName in wholesalerTenantMapping) {
-          toParse = toParse.filter(function (item) {
+          console.log(organizationName);
+          var toParse = toParse.filter(function (item) {
             return (
               item.wholesalerKey === wholesalerTenantMapping[organizationName]
             );
