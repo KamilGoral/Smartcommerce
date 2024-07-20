@@ -764,7 +764,8 @@ docReady(function () {
                               '<span class="positive">Po terminie</span>';
                             break;
                           default:
-                            status = '<span class="neutral">Nieznany</span>';
+                            status =
+                              '<span class="noneexisting">Nieznany</span>';
                         }
                         return `<div style="margin-top: 5px;">${status}</div>`;
                       })
