@@ -609,6 +609,7 @@ docReady(function () {
   }
 
   async function getInvoices() {
+    let attempts = 0;
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -625,229 +626,249 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    // request.setRequestHeader("Requested-By", "webflow-3-4");
-    let dataItems =
-      request.status >= 200 && request.status < 400
-        ? JSON.parse(this.response).items
-        : [];
-    console.log(dataItems);
-    if (
-      request.status == 403 ||
-      (request.status >= 200 && request.status < 400)
-    ) {
-      if (dataItems.length === 0) {
-        console.log("empty");
-        document.getElementById("emptystateinvoices").style.display = "flex";
-        document.getElementById("invoicesstateinvoices").style.display = "none";
-      } else {
-        console.log("full");
-        document.getElementById("emptystateinvoices").style.display = "none";
-        document.getElementById("invoicesstateinvoices").style.display = "flex";
 
-        var tableInvoices = $("#table_invoices_list").DataTable({
-          pagingType: "full_numbers",
-          pageLength: 10,
-          scrollY: "60vh",
-          scrollCollapse: true,
-          destroy: true,
-          orderMulti: true,
-          order: [[3, "asc"]],
-          dom: '<"top">rt<"bottom"lip>',
-          language: {
-            emptyTable: "Brak faktur",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'></div>",
-            processing: "<div class='spinner'></div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          data: dataItems,
-          search: {
-            return: true,
-          },
-          columns: [
-            {
-              orderable: false,
-              data: null,
-              width: "20px",
-              defaultContent:
-                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" loading="lazy" >',
-            },
-            {
-              orderable: true,
-              data: "number",
-              render: function (data, type, row) {
-                let mainContent = `<div>${row.number}</div>`;
-                let correctiveContent = "";
-                if (
-                  row.correctiveInvoices &&
-                  row.correctiveInvoices.length > 0
-                ) {
-                  correctiveContent = row.correctiveInvoices
-                    .map((corrective) => {
-                      return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
-                    })
-                    .join("");
-                }
-                return `${mainContent}${correctiveContent}`;
-              },
-            },
-            {
-              orderable: true,
-              data: "status",
-              width: "128px",
-              render: function (data, type, row) {
-                let mainContent = "";
-                switch (row.status) {
-                  case "draft":
-                    mainContent = '<span class="neutral">Szkic</span>';
-                    break;
-                  case "sent":
-                    mainContent =
-                      '<span class="noneexisting">Nie Zapłacono</span>';
-                    break;
-                  case "paid":
-                    mainContent = '<span class="positive">Zapłacono</span>';
-                    break;
-                  case "overdue":
-                    mainContent = '<span class="positive">Po terminie</span>';
-                    break;
-                  default:
-                    mainContent = '<span class="neutral">Nieznany</span>';
-                }
-                let correctiveContent = "";
-                if (
-                  row.correctiveInvoices &&
-                  row.correctiveInvoices.length > 0
-                ) {
-                  correctiveContent = row.correctiveInvoices
-                    .map((corrective) => {
-                      let status = "";
-                      switch (corrective.status) {
-                        case "draft":
-                          status = '<span class="neutral">Szkic</span>';
-                          break;
-                        case "sent":
-                          status =
-                            '<span class="noneexisting">Nie Zapłacono</span>';
-                          break;
-                        case "paid":
-                          status = '<span class="positive">Zapłacono</span>';
-                          break;
-                        case "overdue":
-                          status = '<span class="positive">Po terminie</span>';
-                          break;
-                        default:
-                          status = '<span class="neutral">Nieznany</span>';
-                      }
-                      return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
-                    })
-                    .join("");
-                }
-                return `${mainContent}${correctiveContent}`;
-              },
-            },
-            {
-              orderable: true,
-              data: "paymentDueDate",
-              type: "date",
-              render: function (data, type, row) {
-                let mainContent = new Date(
-                  row.paymentDueDate
-                ).toLocaleDateString("pl-PL");
-                let correctiveContent = "";
-                if (
-                  row.correctiveInvoices &&
-                  row.correctiveInvoices.length > 0
-                ) {
-                  correctiveContent = row.correctiveInvoices
-                    .map((corrective) => {
-                      return `<div style="margin-top: 5px;">Korekta: ${new Date(
-                        corrective.paymentDueDate
-                      ).toLocaleDateString("pl-PL")}</div>`;
-                    })
-                    .join("");
-                }
-                return `${mainContent}${correctiveContent}`;
-              },
-            },
-            {
-              orderable: true,
-              data: "netTotal",
-              render: function (data, type, row) {
-                let mainContent = new Intl.NumberFormat("pl-PL", {
-                  style: "currency",
-                  currency: "PLN",
-                }).format(row.netTotal);
-                let correctiveContent = "";
-                if (
-                  row.correctiveInvoices &&
-                  row.correctiveInvoices.length > 0
-                ) {
-                  correctiveContent = row.correctiveInvoices
-                    .map((corrective) => {
-                      return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat(
-                        "pl-PL",
-                        {
-                          style: "currency",
-                          currency: "PLN",
-                        }
-                      ).format(corrective.netTotal)}</div>`;
-                    })
-                    .join("");
-                }
-                return `${mainContent}${correctiveContent}`;
-              },
-            },
-            {
-              orderable: false,
-              data: null,
-              render: function (data, type, row) {
-                const paymentLink = row.paymentLink
-                  ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
-                  : " ";
-
-                const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">Pobierz
-                                        <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
-                                      </a>`;
-
-                let correctiveLinks = "";
-                if (
-                  row.correctiveInvoices &&
-                  row.correctiveInvoices.length > 0
-                ) {
-                  correctiveLinks = row.correctiveInvoices
-                    .map((corrective) => {
-                      return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">Pobierz Korektę
-                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
-                            </a>`;
-                    })
-                    .join(" ");
-                }
-
-                return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
-              },
-            },
-          ],
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
+    request.onload = function () {
+      let dataItems = [];
+      if (request.status >= 200 && request.status < 400) {
+        try {
+          const response = JSON.parse(this.response);
+          dataItems = response.items || [];
+        } catch (error) {
+          console.error("Error parsing response:", error);
         }
       }
-    }
+
+      console.log(dataItems);
+
+      if (
+        request.status == 403 ||
+        (request.status >= 200 && request.status < 400)
+      ) {
+        if (dataItems.length === 0 || dataItems === "") {
+          console.log("empty");
+          document.getElementById("emptystateinvoices").style.display = "flex";
+          document.getElementById("invoicesstateinvoices").style.display =
+            "none";
+        } else {
+          console.log("full");
+          document.getElementById("emptystateinvoices").style.display = "none";
+          document.getElementById("invoicesstateinvoices").style.display =
+            "flex";
+
+          var tableInvoices = $("#table_invoices_list").DataTable({
+            pagingType: "full_numbers",
+            pageLength: 10,
+            scrollY: "60vh",
+            scrollCollapse: true,
+            destroy: true,
+            orderMulti: true,
+            order: [[3, "asc"]],
+            dom: '<"top">rt<"bottom"lip>',
+            language: {
+              emptyTable: "Brak faktur",
+              info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+              infoEmpty: "Brak danych",
+              infoFiltered: "(z _MAX_ rezultatów)",
+              lengthMenu: "Pokaż _MENU_ rekordów",
+              loadingRecords: "<div class='spinner'></div>",
+              processing: "<div class='spinner'></div>",
+              search: "Szukaj:",
+              zeroRecords: "Brak pasujących rezultatów",
+              paginate: {
+                first: "<<",
+                last: ">>",
+                next: " >",
+                previous: "< ",
+              },
+              aria: {
+                sortAscending: ": Sortowanie rosnące",
+                sortDescending: ": Sortowanie malejące",
+              },
+            },
+            data: dataItems,
+            search: {
+              return: true,
+            },
+            columns: [
+              {
+                orderable: false,
+                data: null,
+                width: "20px",
+                defaultContent:
+                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" loading="lazy" >',
+              },
+              {
+                orderable: true,
+                data: "number",
+                render: function (data, type, row) {
+                  let mainContent = `<div>${row.number}</div>`;
+                  let correctiveContent = "";
+                  if (
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
+                  ) {
+                    correctiveContent = row.correctiveInvoices
+                      .map((corrective) => {
+                        return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
+                      })
+                      .join("");
+                  }
+                  return `${mainContent}${correctiveContent}`;
+                },
+              },
+              {
+                orderable: true,
+                data: "status",
+                width: "128px",
+                render: function (data, type, row) {
+                  let mainContent = "";
+                  switch (row.status) {
+                    case "draft":
+                      mainContent = '<span class="neutral">Szkic</span>';
+                      break;
+                    case "sent":
+                      mainContent =
+                        '<span class="noneexisting">Nie Zapłacono</span>';
+                      break;
+                    case "paid":
+                      mainContent = '<span class="positive">Zapłacono</span>';
+                      break;
+                    case "overdue":
+                      mainContent = '<span class="positive">Po terminie</span>';
+                      break;
+                    default:
+                      mainContent = '<span class="neutral">Nieznany</span>';
+                  }
+                  let correctiveContent = "";
+                  if (
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
+                  ) {
+                    correctiveContent = row.correctiveInvoices
+                      .map((corrective) => {
+                        let status = "";
+                        switch (corrective.status) {
+                          case "draft":
+                            status = '<span class="neutral">Szkic</span>';
+                            break;
+                          case "sent":
+                            status =
+                              '<span class="noneexisting">Nie Zapłacono</span>';
+                            break;
+                          case "paid":
+                            status = '<span class="positive">Zapłacono</span>';
+                            break;
+                          case "overdue":
+                            status =
+                              '<span class="positive">Po terminie</span>';
+                            break;
+                          default:
+                            status = '<span class="neutral">Nieznany</span>';
+                        }
+                        return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
+                      })
+                      .join("");
+                  }
+                  return `${mainContent}${correctiveContent}`;
+                },
+              },
+              {
+                orderable: true,
+                data: "paymentDueDate",
+                type: "date",
+                render: function (data, type, row) {
+                  let mainContent = new Date(
+                    row.paymentDueDate
+                  ).toLocaleDateString("pl-PL");
+                  let correctiveContent = "";
+                  if (
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
+                  ) {
+                    correctiveContent = row.correctiveInvoices
+                      .map((corrective) => {
+                        return `<div style="margin-top: 5px;">Korekta: ${new Date(
+                          corrective.paymentDueDate
+                        ).toLocaleDateString("pl-PL")}</div>`;
+                      })
+                      .join("");
+                  }
+                  return `${mainContent}${correctiveContent}`;
+                },
+              },
+              {
+                orderable: true,
+                data: "netTotal",
+                render: function (data, type, row) {
+                  let mainContent = new Intl.NumberFormat("pl-PL", {
+                    style: "currency",
+                    currency: "PLN",
+                  }).format(row.netTotal);
+                  let correctiveContent = "";
+                  if (
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
+                  ) {
+                    correctiveContent = row.correctiveInvoices
+                      .map((corrective) => {
+                        return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat(
+                          "pl-PL",
+                          {
+                            style: "currency",
+                            currency: "PLN",
+                          }
+                        ).format(corrective.netTotal)}</div>`;
+                      })
+                      .join("");
+                  }
+                  return `${mainContent}${correctiveContent}`;
+                },
+              },
+              {
+                orderable: false,
+                data: null,
+                render: function (data, type, row) {
+                  const paymentLink = row.paymentLink
+                    ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                    : " ";
+
+                  const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">Pobierz
+                                          <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
+                                        </a>`;
+
+                  let correctiveLinks = "";
+                  if (
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
+                  ) {
+                    correctiveLinks = row.correctiveInvoices
+                      .map((corrective) => {
+                        return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">Pobierz Korektę
+                                <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
+                              </a>`;
+                      })
+                      .join(" ");
+                  }
+
+                  return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
+                },
+              },
+            ],
+          });
+        }
+      }
+
+      if (request.status == 401) {
+        console.log("Unauthorized");
+      }
+    };
+
+    request.onerror = function () {
+      console.error("Request failed");
+      document.getElementById("emptystateinvoices").style.display = "flex";
+      document.getElementById("invoicesstateinvoices").style.display = "none";
+    };
+
     request.send();
   }
 
