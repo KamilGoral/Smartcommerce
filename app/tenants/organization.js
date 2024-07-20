@@ -835,7 +835,7 @@ docReady(function () {
                     : " ";
 
                   const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">
-                                          <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz'>
+                                          <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz'>
                                         </a>`;
 
                   let correctiveLinks = "";
@@ -846,13 +846,13 @@ docReady(function () {
                     correctiveLinks = row.corrrectiveInvoices
                       .map((corrective) => {
                         return `<div style="font-style: italic;"><a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
-                                <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
+                                <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz Korektę'>
                               </a></div>`;
                       })
                       .join(" ");
                   }
 
-                  return `<div class="action-container">${paymentLink} ${downloadLink}</div> ${correctiveLinks}`;
+                  return `<div class="action-container">${downloadLink} ${paymentLink}</div> ${correctiveLinks}`;
                 },
               },
             ],
