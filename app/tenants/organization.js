@@ -709,7 +709,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;">${corrective.number}</div>`;
+                        return `<div style="margin-top: 5px;"> - ${corrective.number}</div>`;
                       })
                       .join("");
                   }
@@ -811,7 +811,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat(
+                        return `<div style="margin-top: 5px;">${new Intl.NumberFormat(
                           "pl-PL",
                           {
                             style: "currency",
@@ -829,9 +829,9 @@ docReady(function () {
                 data: null,
                 render: function (data, type, row) {
                   const paymentLink = row.paymentLink
-                    ? `<div class="action-container">
+                    ? `
                           <a href="${row.paymentLink}" target="_blank" class="buttonoutline editme w-button">Zapłać</a>
-                      </div>`
+                      `
                     : " ";
 
                   const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">
