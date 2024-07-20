@@ -709,7 +709,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;"> - ${corrective.number}</div>`;
+                        return `<div style="margin-top: 5px; font-style: italic;"> - ${corrective.number}</div>`;
                       })
                       .join("");
                   }
@@ -765,7 +765,7 @@ docReady(function () {
                           default:
                             status = '<span class="neutral">Nieznany</span>';
                         }
-                        return `<div style="margin-top: 5px;">${status}</div>`;
+                        return `<div style="margin-top: 5px; font-style: italic;">${status}</div>`;
                       })
                       .join("");
                   }
@@ -787,7 +787,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;">${new Date(
+                        return `<div style="margin-top: 5px; font-style: italic;">${new Date(
                           corrective.paymentDueDate
                         ).toLocaleDateString("pl-PL")}</div>`;
                       })
@@ -811,7 +811,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;">${new Intl.NumberFormat(
+                        return `<div style="margin-top: 5px; font-style: italic;">${new Intl.NumberFormat(
                           "pl-PL",
                           {
                             style: "currency",
@@ -845,9 +845,9 @@ docReady(function () {
                   ) {
                     correctiveLinks = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
+                        return `<div style="font-style: italic;"><a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
                                 <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
-                              </a>`;
+                              </a></div>`;
                       })
                       .join(" ");
                   }
