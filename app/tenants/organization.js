@@ -852,7 +852,7 @@ docReady(function () {
                       .join(" ");
                   }
 
-                  return `${paymentLink} ${downloadLink} ${correctiveLinks}`;
+                  return `<div class="action-container">${paymentLink} ${downloadLink}</div> ${correctiveLinks}`;
                 },
               },
             ],
