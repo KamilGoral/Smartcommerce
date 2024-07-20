@@ -842,7 +842,7 @@ docReady(function () {
                       <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                     </a>
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
-                      <span class="nonexisting" >Duplikat</span>
+                      <span class="noneexisting" >Duplikat</span>
                     </a>
                   `;
                   let correctiveLinks = "";
@@ -858,7 +858,7 @@ docReady(function () {
                       <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                     </a>
                             <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <span class="nonexisting">Duplikat</span>
+                              <span class="noneexisting">Duplikat</span>
                             </a>
                           </div>`;
                       })
