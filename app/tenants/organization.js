@@ -842,7 +842,7 @@ docReady(function () {
                       <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                     </a>
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
-                      <span class="noneexisting" >Duplikat</span>
+                      <span class="noneexisting" style="margin-left: 0.25rem;" >Duplikat</span>
                     </a>
                   `;
                   let correctiveLinks = "";
@@ -853,12 +853,12 @@ docReady(function () {
                     correctiveLinks = row.corrrectiveInvoices
                       .map((corrective) => {
                         return `
-                          <div style="font-style: italic;margin-top: 0.25rem;">
+                          <div style="margin-top: 0.25rem;">
                             <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
                       <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                     </a>
                             <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <span class="noneexisting">Duplikat</span>
+                              <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
                             </a>
                           </div>`;
                       })
