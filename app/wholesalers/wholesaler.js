@@ -393,7 +393,13 @@ docReady(function () {
         onlineOfferSupportFlow();
       } else if (request2.status >= 400) {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
-        LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
+        if (wholesalerKey === "lobo") {
+          LastStatusMessage.textContent =
+            "Prosimy skontaktować się z hurtownią Lobo przed rozpoczęciem integracji. Konieczne jest aktywowanie specjalnego modułu integracyjnego. Bez jego aktywacji dane do logowania nie będą zapisywane, a integracja nie będzie możliwa. Hurtownia Lobo zazwyczaj aktywuje moduł tego samego dnia.";
+        } else {
+          LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
+        }
+
         $("#Wholesaler-profile-Selector-box").hide();
         $("#Wholesaler-profile-Selector").removeAttr("required");
         $("#Wholesaler-profile-Selector")
