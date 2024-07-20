@@ -1311,11 +1311,7 @@ docReady(function () {
           TesterskaOrganizacja: "abe-dystrybucja",
         };
 
-        // Filter based on organizationName
-        console.log(getCookie("OrganizationName"));
-
         if (getCookie("OrganizationName") in wholesalerTenantMapping) {
-          console.log("OrganizationName");
           toParse = toParse.filter(function (item) {
             return (
               item.wholesalerKey ===
@@ -1343,14 +1339,6 @@ docReady(function () {
           setCookie("EcEnabled", "true", 7 * 24 * 60 * 60);
           $("#alertMessage").show();
         }
-
-        console.log("Original toParse:", toParse);
-        console.log("OrganizationName:", getCookie("OrganizationName"));
-        console.log(
-          "Mapped value:",
-          wholesalerTenantMapping[getCookie("OrganizationName")]
-        );
-        console.log("Filtered toParse:", toParse);
 
         $("#table_wholesalers_list").DataTable({
           data: toParse,
