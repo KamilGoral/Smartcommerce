@@ -829,7 +829,9 @@ docReady(function () {
                 data: null,
                 render: function (data, type, row) {
                   const paymentLink = row.paymentLink
-                    ? `<a href="${row.paymentLink}" target="_blank" style="margin-right: 1rem;">Zapłać teraz<img style="margin-left: 0.25rem;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" alt="Przejdź"></a>`
+                    ? `<div class="action-container">
+                          <a href="${row.paymentLink}" target="_blank" class="buttonoutline editme w-button">Przejdź</a>
+                      </div>`
                     : " ";
 
                   const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">
