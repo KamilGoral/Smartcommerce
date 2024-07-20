@@ -833,11 +833,14 @@ docReady(function () {
                           <a href="${row.paymentLink}" target="_blank"><img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d712e440500555e863d_paynow.svg' alt='Zapłać'></a>
                       `
                     : " ";
-
-                  const downloadLink = `<a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="original">
-                                          <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz'>
-                                        </a>`;
-
+                  const downloadLink = `
+                    <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
+                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
+                    </a>
+                    <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
+                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d71bfd5d5eafbaf650c_duplicate.svg' alt='Pobierz duplikat'>
+                    </a>
+                  `;
                   let correctiveLinks = "";
                   if (
                     row.corrrectiveInvoices &&
@@ -845,13 +848,18 @@ docReady(function () {
                   ) {
                     correctiveLinks = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="font-style: italic;margin-top: 0.25rem;"><a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
-                                <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz Korektę'>
-                              </a></div>`;
+                        return `
+                          <div style="font-style: italic;margin-top: 0.25rem;">
+                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="regular">
+                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz Korektę oryginał'>
+                            </a>
+                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
+                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d71bfd5d5eafbaf650c_duplicate.svg' alt='Pobierz Korektę duplikat'>
+                            </a>
+                          </div>`;
                       })
                       .join(" ");
                   }
-
                   return `<div class="action-container">${downloadLink} ${paymentLink}</div> ${correctiveLinks}`;
                 },
               },
