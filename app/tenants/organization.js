@@ -709,7 +709,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
+                        return `<div style="margin-top: 5px;">${corrective.number}</div>`;
                       })
                       .join("");
                   }
@@ -765,7 +765,7 @@ docReady(function () {
                           default:
                             status = '<span class="neutral">Nieznany</span>';
                         }
-                        return `<div style="margin-top: 5px;">Korekta: ${status}</div>`;
+                        return `<div style="margin-top: 5px;">${status}</div>`;
                       })
                       .join("");
                   }
@@ -787,7 +787,7 @@ docReady(function () {
                   ) {
                     correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="margin-top: 5px;">Korekta: ${new Date(
+                        return `<div style="margin-top: 5px;">${new Date(
                           corrective.paymentDueDate
                         ).toLocaleDateString("pl-PL")}</div>`;
                       })
