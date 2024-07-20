@@ -830,7 +830,7 @@ docReady(function () {
                 render: function (data, type, row) {
                   const paymentLink = row.paymentLink
                     ? `
-                          <a href="${row.paymentLink}" target="_blank" class="buttonoutline editme w-button">Zapłać</a>
+                          <a href="${row.paymentLink}" target="_blank"><img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d712e440500555e863d_paynow.svg' alt='Zapłać'></a>
                       `
                     : " ";
 
@@ -845,7 +845,7 @@ docReady(function () {
                   ) {
                     correctiveLinks = row.corrrectiveInvoices
                       .map((corrective) => {
-                        return `<div style="font-style: italic;"><a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
+                        return `<div style="font-style: italic;margin-top: 0.25rem;"><a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
                                 <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz Korektę'>
                               </a></div>`;
                       })
