@@ -635,7 +635,7 @@ docReady(function () {
       request.status == 403 ||
       (request.status >= 200 && request.status < 400)
     ) {
-      if (dataItems.length === 0) {
+      if (dataItems.total === 0) {
         document.getElementById("emptystateinvoices").style.display = "flex";
         document.getElementById("invoicesstateinvoices").style.display = "none";
       } else {
