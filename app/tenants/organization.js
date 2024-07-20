@@ -756,10 +756,6 @@ docReady(function () {
               data: "paymentDueDate",
               type: "date",
               render: function (data, type, row) {
-                if (type === "sort") {
-                  return new Date(row.paymentDueDate).getTime();
-                }
-
                 let mainContent = new Date(
                   row.paymentDueDate
                 ).toLocaleDateString("pl-PL");
