@@ -395,7 +395,7 @@ docReady(function () {
         var LastStatusMessage = document.getElementById("LastStatusMessage");
         if (wholesalerKey === "lobo") {
           LastStatusMessage.textContent =
-            "Zanim rozpoczniesz integrację, skontaktuj się z hurtownią Lobo, aby włączyli specjalny moduł. Zazwyczaj hurtowia aktywuje integrację tego samego dnia.";
+            "Zanim rozpoczniesz integrację, skontaktuj się z hurtownią Lobo, aby włączyli specjalny moduł.\nZazwyczaj hurtownia aktywuje integrację tego samego dnia.";
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         }
