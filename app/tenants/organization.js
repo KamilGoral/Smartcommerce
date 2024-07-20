@@ -826,6 +826,7 @@ docReady(function () {
               },
               {
                 orderable: false,
+                width: "156px",
                 data: null,
                 render: function (data, type, row) {
                   const paymentLink = row.paymentLink
@@ -854,7 +855,7 @@ docReady(function () {
                               <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz Korektę oryginał'>
                             </a>
                             <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d71bfd5d5eafbaf650c_duplicate.svg' alt='Pobierz Korektę duplikat'>
+                              <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d71bfd5d5eafbaf650c_duplicate.svg' alt='Pobierz Korektę duplikat'>
                             </a>
                           </div>`;
                       })
