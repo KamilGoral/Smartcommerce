@@ -1783,7 +1783,8 @@ docReady(function () {
         InvokeURL + "integrations/" + integration.integrationKey + "/test"
       ),
       type: "GET",
-      headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+      headers: { Authorization: orgToken },
+      // , "Requested-By": "webflow-3-4" },
       success: (response) =>
         updateIntegrationStatus($integrationStatus, `${response.status}`),
       error: () =>
