@@ -839,7 +839,7 @@ docReady(function () {
                     : " ";
                   const downloadLink = `
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
-                      <span class="nonexisting">Oryginał</span>
+                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                     </a>
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
                       <span class="nonexisting" >Duplikat</span>
@@ -854,11 +854,11 @@ docReady(function () {
                       .map((corrective) => {
                         return `
                           <div style="font-style: italic;margin-top: 0.25rem;">
-                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="regular">
-                              <span>Pobierz Korektę oryginał</span>
-                            </a>
+                            <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
+                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
+                    </a>
                             <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <span>Duplikat</span>
+                              <span class="nonexisting">Duplikat</span>
                             </a>
                           </div>`;
                       })
