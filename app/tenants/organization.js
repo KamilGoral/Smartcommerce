@@ -704,10 +704,10 @@ docReady(function () {
                   let mainContent = `<div>${row.number}</div>`;
                   let correctiveContent = "";
                   if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
+                    row.corrrectiveInvoices &&
+                    row.corrrectiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.correctiveInvoices
+                    correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
                         return `<div style="margin-top: 5px;">Korekta: ${corrective.number}</div>`;
                       })
@@ -741,10 +741,10 @@ docReady(function () {
                   }
                   let correctiveContent = "";
                   if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
+                    row.corrrectiveInvoices &&
+                    row.corrrectiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.correctiveInvoices
+                    correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
                         let status = "";
                         switch (corrective.status) {
@@ -782,10 +782,10 @@ docReady(function () {
                   ).toLocaleDateString("pl-PL");
                   let correctiveContent = "";
                   if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
+                    row.corrrectiveInvoices &&
+                    row.corrrectiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.correctiveInvoices
+                    correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
                         return `<div style="margin-top: 5px;">Korekta: ${new Date(
                           corrective.paymentDueDate
@@ -806,10 +806,10 @@ docReady(function () {
                   }).format(row.netTotal);
                   let correctiveContent = "";
                   if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
+                    row.corrrectiveInvoices &&
+                    row.corrrectiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.correctiveInvoices
+                    correctiveContent = row.corrrectiveInvoices
                       .map((corrective) => {
                         return `<div style="margin-top: 5px;">Korekta: ${new Intl.NumberFormat(
                           "pl-PL",
@@ -830,7 +830,7 @@ docReady(function () {
                 render: function (data, type, row) {
                   const paymentLink = row.paymentLink
                     ? `<div class="action-container">
-                          <a href="${row.paymentLink}" target="_blank" class="buttonoutline editme w-button">Przejdź</a>
+                          <a href="${row.paymentLink}" target="_blank" class="buttonoutline editme w-button">Zapłać</a>
                       </div>`
                     : " ";
 
@@ -840,10 +840,10 @@ docReady(function () {
 
                   let correctiveLinks = "";
                   if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
+                    row.corrrectiveInvoices &&
+                    row.corrrectiveInvoices.length > 0
                   ) {
-                    correctiveLinks = row.correctiveInvoices
+                    correctiveLinks = row.corrrectiveInvoices
                       .map((corrective) => {
                         return `<a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="original">
                                 <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg' alt='Pobierz Korektę'>
