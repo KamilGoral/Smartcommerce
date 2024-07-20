@@ -724,7 +724,7 @@ docReady(function () {
                   let mainContent = "";
                   switch (row.status) {
                     case "draft":
-                      mainContent = '<span class="neutral">Szkic</span>';
+                      mainContent = '<span class="noneexisting">Szkic</span>';
                       break;
                     case "sent":
                       mainContent =
@@ -737,7 +737,8 @@ docReady(function () {
                       mainContent = '<span class="positive">Po terminie</span>';
                       break;
                     default:
-                      mainContent = '<span class="neutral">Nieznany</span>';
+                      mainContent =
+                        '<span class="noneexisting">Nieznany</span>';
                   }
                   let correctiveContent = "";
                   if (
@@ -831,15 +832,17 @@ docReady(function () {
                 render: function (data, type, row) {
                   const paymentLink = row.paymentLink
                     ? `
-                          <a href="${row.paymentLink}" target="_blank"><img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d712e440500555e863d_paynow.svg' alt='Zapłać'></a>
+                        <a href="${row.paymentLink}" target="_blank" style="margin-left: 0.25rem;">
+                          <span class="positive" >Zapłać</span>
+                        </a>
                       `
                     : " ";
                   const downloadLink = `
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
-                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
+                      <span class="nonexisting">Oryginał</span>
                     </a>
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
-                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d71bfd5d5eafbaf650c_duplicate.svg' alt='Pobierz duplikat'>
+                      <span class="nonexisting" >Duplikat</span>
                     </a>
                   `;
                   let correctiveLinks = "";
@@ -852,10 +855,10 @@ docReady(function () {
                         return `
                           <div style="font-style: italic;margin-top: 0.25rem;">
                             <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="regular">
-                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz Korektę oryginał'>
+                              <span>Pobierz Korektę oryginał</span>
                             </a>
                             <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/669b7d71bfd5d5eafbaf650c_duplicate.svg' alt='Pobierz Korektę duplikat'>
+                              <span>Duplikat</span>
                             </a>
                           </div>`;
                       })
