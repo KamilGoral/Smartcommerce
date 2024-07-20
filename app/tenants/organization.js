@@ -630,12 +630,11 @@ docReady(function () {
       request.status >= 200 && request.status < 400
         ? JSON.parse(this.response).items
         : [];
-
+    console.log(dataItems);
     if (
       request.status == 403 ||
       (request.status >= 200 && request.status < 400)
     ) {
-      console.log(dataItems);
       if (dataItems.total === 0) {
         document.getElementById("emptystateinvoices").style.display = "flex";
         document.getElementById("invoicesstateinvoices").style.display = "none";
