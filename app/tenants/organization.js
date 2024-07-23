@@ -1398,22 +1398,6 @@ docReady(function () {
           }
         });
 
-        const wholesalerContainer3 = document.getElementById(
-          "WholesalerSelector-Exclusive-2"
-        );
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer3.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer3.appendChild(opt);
-          }
-        });
-
         // Filter to only include enabled wholesalers for the second table
         var enabledWholesalers = toParse.filter(function (item) {
           return item.enabled === true;
