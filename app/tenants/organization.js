@@ -1366,6 +1366,54 @@ docReady(function () {
           });
         }
 
+        // Code for exclusive
+
+        const wholesalerContainer = document.getElementById("wholesalerPicker");
+        var opt = document.createElement("option");
+        opt.value = null;
+        opt.innerHTML = "BLOKADA";
+        wholesalerContainer.appendChild(opt);
+        toParse.forEach((wholesaler) => {
+          if (wholesaler.enabled) {
+            var opt = document.createElement("option");
+            opt.value = wholesaler.wholesalerKey;
+            opt.innerHTML = wholesaler.name;
+            wholesalerContainer.appendChild(opt);
+          }
+        });
+
+        const wholesalerContainer2 = document.getElementById(
+          "WholesalerSelector-Exclusive-Edit"
+        );
+        var opt = document.createElement("option");
+        opt.value = null;
+        opt.innerHTML = "BLOKADA";
+        wholesalerContainer2.appendChild(opt);
+        toParse.forEach((wholesaler) => {
+          if (wholesaler.enabled) {
+            var opt = document.createElement("option");
+            opt.value = wholesaler.wholesalerKey;
+            opt.innerHTML = wholesaler.name;
+            wholesalerContainer2.appendChild(opt);
+          }
+        });
+
+        const wholesalerContainer3 = document.getElementById(
+          "WholesalerSelector-Exclusive-2"
+        );
+        var opt = document.createElement("option");
+        opt.value = null;
+        opt.innerHTML = "BLOKADA";
+        wholesalerContainer3.appendChild(opt);
+        toParse.forEach((wholesaler) => {
+          if (wholesaler.enabled) {
+            var opt = document.createElement("option");
+            opt.value = wholesaler.wholesalerKey;
+            opt.innerHTML = wholesaler.name;
+            wholesalerContainer3.appendChild(opt);
+          }
+        });
+
         // Filter to only include enabled wholesalers for the second table
         var enabledWholesalers = toParse.filter(function (item) {
           return item.enabled === true;
@@ -3830,69 +3878,6 @@ docReady(function () {
     },
   });
 
-  function getWholesalersSh() {
-    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    // request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
-        const wholesalerContainer = document.getElementById("wholesalerPicker");
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer.appendChild(opt);
-          }
-        });
-
-        const wholesalerContainer2 = document.getElementById(
-          "WholesalerSelector-Exclusive-Edit"
-        );
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer2.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer2.appendChild(opt);
-          }
-        });
-
-        const wholesalerContainer3 = document.getElementById(
-          "WholesalerSelector-Exclusive-2"
-        );
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer3.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer3.appendChild(opt);
-          }
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
-      }
-    };
-    request.send();
-  }
-
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -4109,7 +4094,6 @@ docReady(function () {
 
   makeWebflowFormAjaxSingleEdit($(formIdEditSingleExclusive));
   makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
-  getWholesalersSh();
 
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
