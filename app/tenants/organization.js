@@ -3564,7 +3564,7 @@ docReady(function () {
           recordsFiltered: res.total,
           data: res.items,
         });
-        if (res.total === 0) {
+        if (initialrecords === 0) {
           $("#emptystateexclusive").css("display", "flex");
           $("#fullstateexclusive").css("display", "none");
         } else {
