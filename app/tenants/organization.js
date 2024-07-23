@@ -3564,6 +3564,12 @@ docReady(function () {
         } else {
           $("#emptystateexclusive").css("display", "none");
           $("#fullstateexclusive").css("display", "flex");
+          setTimeout(function () {
+            // Your code to adjust DataTable columns
+            $.fn.dataTable
+              .tables({ visible: true, api: true })
+              .columns.adjust();
+          }, 400);
         }
       });
     },
