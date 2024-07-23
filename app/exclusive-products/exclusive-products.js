@@ -276,6 +276,7 @@ docReady(function () {
 
   const ExclusiveWizardBread = document.getElementById("ExclusiveResults");
   ExclusiveWizardBread.setAttribute("href", "" + window.location.href);
+
   var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
   var formIdEditSingleExclusive = "#wf-form-SingleExclusiveForm-Edit-2";
   var nowDateFull = new Date();
@@ -1095,29 +1096,6 @@ docReady(function () {
     request.send();
   }
 
-  function LoadTippy() {
-    $.getScript(
-      "https://unpkg.com/popper.js@1",
-      function (data, textStatus, jqxhr) {
-        $.getScript(
-          "https://unpkg.com/tippy.js@4",
-          function (data, textStatus, jqxhr) {
-            tippy(".tippy", {
-              // Add the class tippy to your element
-              theme: "light", // Dark or Light
-              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
-              duration: 250, // Duration of the Animation
-              arrow: true, // Add arrow to the tooltip
-              arrowType: "round", // Sharp, round or empty for none
-              delay: [0, 50], // Trigger delay in & out
-              maxWidth: 240, // Optional, max width settings
-            });
-          }
-        );
-      }
-    );
-  }
-
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -1331,12 +1309,11 @@ docReady(function () {
       tabela.clear().rows.add(res.items).draw();
     });
   }
-  postChangePassword($("#wf-form-Form-Change-Password"));
-  postEditUserProfile($("#wf-form-editProfile"));
+
   makeWebflowFormAjaxSingleEdit($(formIdEditSingleExclusive));
   makeWebflowFormAjaxSingle($(formIdCreateSingleExclusive));
   getWholesalersSh();
-  LoadTippy();
+
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
