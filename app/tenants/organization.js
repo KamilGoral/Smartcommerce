@@ -3558,6 +3558,13 @@ docReady(function () {
           recordsFiltered: res.total,
           data: res.items,
         });
+        if (res.total === 0) {
+          $("#emptystateexclusive").css("display", "flex");
+          $("#fullstateexclusive").css("display", "none");
+        } else {
+          $("#emptystateexclusive").css("display", "none");
+          $("#fullstateexclusive").css("display", "flex");
+        }
       });
     },
     processing: false,
