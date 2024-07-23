@@ -3427,6 +3427,8 @@ docReady(function () {
     })
     .datepicker("setDate", new Date(Date.now()));
 
+  var initialrecords = null;
+
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
     order: [],
@@ -3553,6 +3555,10 @@ docReady(function () {
         },
       });
       $.get(InvokeURL + "exclusive-products" + QStr, function (res) {
+        if (initialrecords === null) {
+          initialrecords = res.total;
+        }
+
         callback({
           recordsTotal: res.total,
           recordsFiltered: res.total,
