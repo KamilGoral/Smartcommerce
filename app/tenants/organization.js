@@ -1354,7 +1354,6 @@ docReady(function () {
         // Define mapping of wholesalerKey to organizationName
         const wholesalerTenantMapping = {
           HurtowniaABE: "abe-dystrybucja",
-          TesterskaOrganizacja: "abe-dystrybucja",
         };
 
         if (getCookie("OrganizationName") in wholesalerTenantMapping) {
