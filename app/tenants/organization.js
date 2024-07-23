@@ -3382,7 +3382,7 @@ docReady(function () {
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
     order: [],
-    dom: '<"top"fB>rt<"bottom"lip>',
+    dom: '<"top">rt<"bottom"lip>',
     scrollY: "60vh",
     scrollCollapse: true,
     pageLength: 25,
