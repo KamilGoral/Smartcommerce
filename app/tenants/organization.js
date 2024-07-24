@@ -3128,287 +3128,33 @@ docReady(function () {
   nowDateFull.setUTCHours(0, 0, 0, 0);
   var nowDate = nowDateFull.toISOString().split(".")[0] + "Z";
 
-  $("#startDate").datepicker({
-    dateFormat: "yy-mm-dd",
-    altFormat: "yy-mm-dd",
-    dayNames: [
-      "Niedziela",
-      "Poniedziałek",
-      "Wtorek",
-      "Środa",
-      "Czwartek",
-      "Piątek",
-      "Sobota",
-    ],
-    dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-    dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-    firstDay: 1,
-    monthNames: [
-      "Styczeń",
-      "Luty",
-      "Marzec",
-      "Kwiecień",
-      "Maj",
-      "Czerwiec",
-      "Lipiec",
-      "Sierpień",
-      "Wrzesień",
-      "Październik",
-      "Listopad",
-      "Grudzień",
-    ],
-    monthNamesShort: [
-      "Sty",
-      "Lut",
-      "Mar",
-      "Kwi",
-      "Maj",
-      "Cze",
-      "Lip",
-      "Sie",
-      "Wrz",
-      "Paź",
-      "Lis",
-      "Gru",
-    ],
-    defaultDate: 1,
-  });
-
-  $("#endDate").datepicker({
-    dateFormat: "yy-mm-dd",
-    altFormat: "yy-mm-dd",
-    dayNames: [
-      "Niedziela",
-      "Poniedziałek",
-      "Wtorek",
-      "Środa",
-      "Czwartek",
-      "Piątek",
-      "Sobota",
-    ],
-    dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-    dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-    firstDay: 1,
-    monthNames: [
-      "Styczeń",
-      "Luty",
-      "Marzec",
-      "Kwiecień",
-      "Maj",
-      "Czerwiec",
-      "Lipiec",
-      "Sierpień",
-      "Wrzesień",
-      "Październik",
-      "Listopad",
-      "Grudzień",
-    ],
-    monthNamesShort: [
-      "Sty",
-      "Lut",
-      "Mar",
-      "Kwi",
-      "Maj",
-      "Cze",
-      "Lip",
-      "Sie",
-      "Wrz",
-      "Paź",
-      "Lis",
-      "Gru",
-    ],
-    defaultDate: 1,
-  });
-
-  $("#startDate-Exclusive-Edit")
-    .datepicker({
+  function initializeDatePicker(selector, defaultDate = 1) {
+    $(selector).datepicker({
       dateFormat: "yy-mm-dd",
       altFormat: "yy-mm-dd",
-      dayNames: [
-        "Niedziela",
-        "Poniedziałek",
-        "Wtorek",
-        "Środa",
-        "Czwartek",
-        "Piątek",
-        "Sobota",
-      ],
-      dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-      dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
+      dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+      dayNamesShort: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
+      dayNamesMin: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
       firstDay: 1,
       monthNames: [
-        "Styczeń",
-        "Luty",
-        "Marzec",
-        "Kwiecień",
-        "Maj",
-        "Czerwiec",
-        "Lipiec",
-        "Sierpień",
-        "Wrzesień",
-        "Październik",
-        "Listopad",
-        "Grudzień",
+        "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
+        "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
       ],
-      monthNamesShort: [
-        "Sty",
-        "Lut",
-        "Mar",
-        "Kwi",
-        "Maj",
-        "Cze",
-        "Lip",
-        "Sie",
-        "Wrz",
-        "Paź",
-        "Lis",
-        "Gru",
-      ],
-      defaultDate: 1,
-    })
-    .datepicker("setDate", new Date(Date.now()));
+      monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+      defaultDate: defaultDate
+    });
+  }
+  
+  function setupDatePickers() {
+    initializeDatePicker("#startDate");
+    initializeDatePicker("#endDate");
+    initializeDatePicker("#startDate-Exclusive-Edit", new Date(Date.now()));
+    initializeDatePicker("#endDate-Exclusive-Edit", new Date(Date.now()));
+    initializeDatePicker("#startDate-Exclusive-2", new Date(Date.now()));
+    initializeDatePicker("#endDate-Exclusive-2", new Date(Date.now()));
+  }
 
-  $("#endDate-Exclusive-Edit").datepicker({
-    dateFormat: "yy-mm-dd",
-    altFormat: "yy-mm-dd",
-    dayNames: [
-      "Niedziela",
-      "Poniedziałek",
-      "Wtorek",
-      "Środa",
-      "Czwartek",
-      "Piątek",
-      "Sobota",
-    ],
-    dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-    dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-    firstDay: 1,
-    monthNames: [
-      "Styczeń",
-      "Luty",
-      "Marzec",
-      "Kwiecień",
-      "Maj",
-      "Czerwiec",
-      "Lipiec",
-      "Sierpień",
-      "Wrzesień",
-      "Październik",
-      "Listopad",
-      "Grudzień",
-    ],
-    monthNamesShort: [
-      "Sty",
-      "Lut",
-      "Mar",
-      "Kwi",
-      "Maj",
-      "Cze",
-      "Lip",
-      "Sie",
-      "Wrz",
-      "Paź",
-      "Lis",
-      "Gru",
-    ],
-    defaultDate: 1,
-  });
-
-  $("#startDate-Exclusive-2")
-    .datepicker({
-      dateFormat: "yy-mm-dd",
-      altFormat: "yy-mm-dd",
-      dayNames: [
-        "Niedziela",
-        "Poniedziałek",
-        "Wtorek",
-        "Środa",
-        "Czwartek",
-        "Piątek",
-        "Sobota",
-      ],
-      dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-      dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-      firstDay: 1,
-      monthNames: [
-        "Styczeń",
-        "Luty",
-        "Marzec",
-        "Kwiecień",
-        "Maj",
-        "Czerwiec",
-        "Lipiec",
-        "Sierpień",
-        "Wrzesień",
-        "Październik",
-        "Listopad",
-        "Grudzień",
-      ],
-      monthNamesShort: [
-        "Sty",
-        "Lut",
-        "Mar",
-        "Kwi",
-        "Maj",
-        "Cze",
-        "Lip",
-        "Sie",
-        "Wrz",
-        "Paź",
-        "Lis",
-        "Gru",
-      ],
-      defaultDate: 1,
-    })
-    .datepicker("setDate", new Date(Date.now()));
-
-  $("#endDate-Exclusive-2")
-    .datepicker({
-      dateFormat: "yy-mm-dd",
-      altFormat: "yy-mm-dd",
-      dayNames: [
-        "Niedziela",
-        "Poniedziałek",
-        "Wtorek",
-        "Środa",
-        "Czwartek",
-        "Piątek",
-        "Sobota",
-      ],
-      dayNamesShort: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-      dayNamesMin: ["Nd ", "Pn", "Wt ", "Śr ", "Cz", "Pt ", "Sb"],
-      firstDay: 1,
-      monthNames: [
-        "Styczeń",
-        "Luty",
-        "Marzec",
-        "Kwiecień",
-        "Maj",
-        "Czerwiec",
-        "Lipiec",
-        "Sierpień",
-        "Wrzesień",
-        "Październik",
-        "Listopad",
-        "Grudzień",
-      ],
-      monthNamesShort: [
-        "Sty",
-        "Lut",
-        "Mar",
-        "Kwi",
-        "Maj",
-        "Cze",
-        "Lip",
-        "Sie",
-        "Wrz",
-        "Paź",
-        "Lis",
-        "Gru",
-      ],
-      defaultDate: 1,
-    })
-    .datepicker("setDate", new Date(Date.now()));
+  setupDatePickers();
 
   var initialrecords = null;
 
