@@ -3901,7 +3901,7 @@ docReady(function () {
               gtin: $("#GTINInput").val(),
               name: "name1",
               wholesalerKey: wholesalerKeyPOST,
-              startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
+              startDate: $("#startDate-Exclusive-2").val() + "T00:00:00.00Z",
               endDate: "infinity",
             },
           ];
@@ -3911,8 +3911,8 @@ docReady(function () {
               gtin: $("#GTINInput").val(),
               name: "name1",
               wholesalerKey: wholesalerKeyPOST,
-              startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-              endDate: $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+              startDate: $("#startDate-Exclusive-2").val() + "T00:00:00.00Z",
+              endDate: $("#endDate-Exclusive-2").val() + "T00:00:00.00Z",
             },
           ];
         }
@@ -3987,7 +3987,7 @@ docReady(function () {
             {
               op: "replace",
               path: "/startDate",
-              value: $("#startDate-Exclusive-Edit").val() + "T00:00:01.00Z",
+              value: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
             },
             {
               op: "replace",
@@ -4005,12 +4005,12 @@ docReady(function () {
             {
               op: "replace",
               path: "/startDate",
-              value: $("#startDate-Exclusive-Edit").val() + "T00:00:01.00Z",
+              value: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
             },
             {
               op: "replace",
               path: "/endDate",
-              value: $("#endDate-Exclusive-Edit").val() + "T00:00:01.00Z",
+              value: $("#endDate-Exclusive-Edit").val() + "T00:00:00.00Z",
             },
             {
               op: "replace",
