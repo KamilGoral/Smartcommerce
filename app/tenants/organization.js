@@ -3970,109 +3970,113 @@ docReady(function () {
     });
   };
 
-  makeWebflowFormAjaxSingleEdit = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
+  makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var action =
-          InvokeURL + "exclusive-products/" + $("#exclusiveProductId").val();
+        event.preventDefault();
+  
+        var exclusiveProductId = $("#exclusiveProductId").val();
+        var action = InvokeURL + "exclusive-products/" + exclusiveProductId;
         var method = "PATCH";
-
-        if ($("#NeverSingleEdit").is(":checked")) {
-          var postData = [
-            {
-              op: "replace",
-              path: "/startDate",
-              value: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
-            },
-            {
-              op: "replace",
-              path: "/endDate",
-              value: "infinity",
-            },
-            {
-              op: "replace",
-              path: "/wholesalerKey",
-              value: $("#WholesalerSelector-Exclusive-Edit").val(),
-            },
-          ];
-        } else {
-          var postData = [
-            {
-              op: "replace",
-              path: "/startDate",
-              value: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
-            },
-            {
-              op: "replace",
-              path: "/endDate",
-              value: $("#endDate-Exclusive-Edit").val() + "T00:00:00.00Z",
-            },
-            {
-              op: "replace",
-              path: "/wholesalerKey",
-              value: $("#WholesalerSelector-Exclusive-Edit").val(),
-            },
-          ];
-        }
-
-        console.log(postData);
-
-        if ($("#WholesalerSelector-Exclusive-Edit").val() === "null") {
-          delete postData[0].wholesalerKey;
-          console.log("delete wholesalerKey");
-        }
-
+  
+        var newValues = {
+          startDate: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
+          endDate: $("#NeverSingleEdit").is(":checked")
+            ? "infinity"
+            : $("#endDate-Exclusive-Edit").val() + "T00:00:00.00Z",
+          wholesalerKey: $("#WholesalerSelector-Exclusive-Edit").val(),
+        };
+  
+        // Fetch current values
         $.ajax({
-          type: method,
+          type: "GET",
           url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
           headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            Accept: "application/json",
           },
-          data: JSON.stringify(postData),
-          success: function (resultData) {
-            console.log(resultData);
-            form.show();
-            displayMessage("Success", "Blokada została zmieniona.");
-            refreshTable();
+          success: function (currentValues) {
+            var postData = [];
+  
+            if (newValues.startDate !== currentValues.startDate) {
+              postData.push({
+                op: "replace",
+                path: "/startDate",
+                value: newValues.startDate,
+              });
+            }
+  
+            if (newValues.endDate !== currentValues.endDate) {
+              postData.push({
+                op: "replace",
+                path: "/endDate",
+                value: newValues.endDate,
+              });
+            }
+  
+            if (newValues.wholesalerKey !== currentValues.wholesalerKey && newValues.wholesalerKey !== "null") {
+              postData.push({
+                op: "replace",
+                path: "/wholesalerKey",
+                value: newValues.wholesalerKey,
+              });
+            }
+  
+            if (postData.length === 0) {
+              displayMessage("Error", "Nie wykryto zmian.");
+              return;
+            }
+  
+            // Send PATCH request
+            $.ajax({
+              type: method,
+              url: action,
+              cors: true,
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                $("#waitingdots").hide();
+              },
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+              },
+              data: JSON.stringify(postData),
+              success: function (resultData) {
+                console.log(resultData);
+                form.show();
+                displayMessage("Success", "Blokada została zmieniona.");
+                refreshTable();
+              },
+              error: function (jqXHR, exception) {
+                console.log(jqXHR);
+                var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+                var elements = document.getElementsByClassName("warningmessagetext");
+                for (var i = 0; i < elements.length; i++) {
+                  elements[i].textContent = msg;
+                }
+                form.show();
+                displayMessage("Error", msg);
+              },
+            });
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
-            console.log(jqXHR);
-            console.log(exception);
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
-            }
-            form.show();
+            var msg = "Failed to fetch current product data.\n" + JSON.parse(jqXHR.responseText).message;
             displayMessage("Error", msg);
-            return;
           },
         });
-        event.preventDefault();
+  
         return false;
       });
     });
   };
+  
 
   function refreshTable() {
     $.ajaxSetup({
