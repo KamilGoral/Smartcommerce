@@ -3998,8 +3998,10 @@ docReady(function () {
           },
           success: function (currentValues) {
             var postData = [];
+            var currentDate = new Date().toISOString();
   
-            if (newValues.startDate !== currentValues.startDate) {
+            // Only allow changing startDate if the current date is before the startDate
+            if (new Date(currentDate) < new Date(currentValues.startDate) && newValues.startDate !== currentValues.startDate) {
               postData.push({
                 op: "replace",
                 path: "/startDate",
@@ -4024,7 +4026,7 @@ docReady(function () {
             }
   
             if (postData.length === 0) {
-              displayMessage("Error", "Nie wykryto zmian.");
+              displayMessage("Info", "No changes detected.");
               return;
             }
   
@@ -4076,6 +4078,7 @@ docReady(function () {
       });
     });
   };
+  
   
 
   function refreshTable() {
