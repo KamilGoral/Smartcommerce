@@ -3524,17 +3524,14 @@ docReady(function () {
               //"Requested-By": "webflow-3-4",
             },
             success: function (resultData) {
-              console.log(resultData);
               table.row($(this).parents("tr")).remove().draw();
-              $("#deleteInline-Success").show();
-              $("#deleteInline-Success").fadeOut(4000);
+              displayMessage("Success", "Blokada została usunięta.");
             },
             error: function (jqXHR, exception) {
               console.log(jqXHR);
               console.log(jqXHR);
               console.log(exception);
-              $("#deleteInline-Fail").show();
-              $("#deleteInline-Fail").fadeOut(4000);
+              displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
               return;
             },
           });
