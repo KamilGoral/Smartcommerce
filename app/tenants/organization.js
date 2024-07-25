@@ -3003,7 +3003,7 @@ docReady(function () {
 
     // Address
     var newAddress = {
-      country: "PL", // Assuming the country is always Poland
+      // country: "PL", // Assuming the country is always Poland
       line1: $("#tenantAdressEdit").val(),
       line2: $("#tenantAdressEdit2").val(),
       town: $("#tenantTownEdit").val(),
