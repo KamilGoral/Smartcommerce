@@ -773,7 +773,7 @@ docReady(function () {
             }
 
             // Additional handling for split offer not found
-            var splitOfferRegex = /Offer does not exist/;
+            var splitOfferRegex = /Requested offer doesn't exist/;
             if (splitOfferRegex.test(response.message)) {
               displayMessage(
                 "Error",
