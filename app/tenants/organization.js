@@ -1395,10 +1395,6 @@ docReady(function () {
 
         const wholesalerContainerDocuments =
           document.getElementById("documentWholesaler");
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainerDocuments.appendChild(opt);
         toParse.forEach((wholesaler) => {
           if (wholesaler.enabled) {
             var opt = document.createElement("option");
@@ -2740,6 +2736,17 @@ docReady(function () {
 
   UploadDocumentButton.addEventListener("click", (event) => {
     DocumentFileUpload(false);
+    // Function to handle tab switch
+    var isFile = $("#documentfile").get(0).files.length > 0;
+    if (isFile) {
+      UploadDocumentButton.removeClass("disabledfornow")
+        .text("Kontynuuj")
+        .css({ opacity: 1, cursor: "pointer" });
+    } else {
+      UploadDocumentButton.addClass("disabledfornow")
+        .text("Najpierw wybierz plik dokumentu.")
+        .css({ opacity: 0.5, cursor: "default" });
+    }
   });
 
   // Call with custom header
