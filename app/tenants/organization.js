@@ -2732,7 +2732,7 @@ docReady(function () {
     reader.readAsArrayBuffer(documentFile);
   }
 
-  const UploadDocumentButton = document.getElementById("UploadDocumentButton");
+  const UploadDocumentButton = document.getElementById("DocumentButton");
   const UploadDocumentfile = document.getElementById("documentfile");
 
   UploadDocumentfile.addEventListener("click", (event) => {
