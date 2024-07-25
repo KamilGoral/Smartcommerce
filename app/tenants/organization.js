@@ -2675,8 +2675,6 @@ docReady(function () {
       `shopKey=${encodeURIComponent($("#documentShop").val())}&` +
       `wholesalerKey=${encodeURIComponent($("#documentWholesaler").val())}`;
 
-    console.log(queryParams);
-
     var action = InvokeURL + "van/transactions?" + queryParams;
     if (skipTypeCheck) {
       action += "&skipTypeCheck=true";
@@ -2691,7 +2689,7 @@ docReady(function () {
         $("#waitingdots").hide();
         if (xhr.status === 201) {
           var response = JSON.parse(xhr.responseText);
-          console.log(response);
+          displayMessage("Success", "Dokument został stworzony.");
         } else {
           var msg = "";
           try {
@@ -2714,11 +2712,7 @@ docReady(function () {
             msg = jsonResponse.message;
             $("#orderfile").val("");
           }
-          $(".warningmessagetext").text(msg);
-          $("#wf-form-failCreate-Document").show();
-          setTimeout(function () {
-            $("#wf-form-failCreate-Document").fadeOut(2000);
-          }, 10000);
+          displayMessage("Error", msg);
         }
       }
     };
