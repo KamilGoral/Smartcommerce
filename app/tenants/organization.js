@@ -2738,6 +2738,8 @@ docReady(function () {
   UploadDocumentButton.addEventListener("click", (event) => {
     if (UploadDocumentfile.files.length > 0) {
       DocumentFileUpload(true);
+    } else {
+      console.log("There is no file");
     }
   });
 
