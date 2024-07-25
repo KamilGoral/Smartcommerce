@@ -2736,7 +2736,6 @@ docReady(function () {
   const UploadDocumentfile = document.getElementById("documentfile");
 
   UploadDocumentfile.addEventListener("click", (event) => {
-    DocumentFileUpload(false);
     // Function to handle tab switch
     var isFile = $("#documentfile").get(0).files.length > 0;
     if (isFile) {
