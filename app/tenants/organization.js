@@ -2733,8 +2733,9 @@ docReady(function () {
   }
 
   const UploadDocumentButton = document.getElementById("UploadDocumentButton");
+  const UploadDocumentfile = document.getElementById("documentfile");
 
-  UploadDocumentButton.addEventListener("click", (event) => {
+  UploadDocumentfile.addEventListener("click", (event) => {
     DocumentFileUpload(false);
     // Function to handle tab switch
     var isFile = $("#documentfile").get(0).files.length > 0;
