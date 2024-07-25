@@ -2673,13 +2673,13 @@ docReady(function () {
       `name=${encodeURIComponent($("#documentName").val())}&` +
       `type=${encodeURIComponent($("#documentType").val())}&` +
       `shop=${encodeURIComponent($("#documentShop").val())}&` +
-      `wholesaler=${encodeURIComponent($("#documentWholesaler").val())}`;
+      `wholesalerKey=${encodeURIComponent($("#documentWholesaler").val())}`;
 
     console.log(queryParams);
 
     var action = InvokeURL + "van/transactions?" + queryParams;
     if (skipTypeCheck) {
-      action += "?skipTypeCheck=true";
+      action += "&skipTypeCheck=true";
     }
     xhr.open("POST", action, true);
     xhr.setRequestHeader("Accept", "application/json");
