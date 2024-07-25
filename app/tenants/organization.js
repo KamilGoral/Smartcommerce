@@ -2735,6 +2735,12 @@ docReady(function () {
   const documentButton = document.getElementById("documentButton");
   const UploadDocumentfile = document.getElementById("documentfile");
 
+  UploadDocumentButton.addEventListener("click", (event) => {
+    if (UploadDocumentfile.files.length > 0) {
+      DocumentFileUpload(true);
+    }
+  });
+
   UploadDocumentfile.addEventListener("change", (event) => {
     var isFile = UploadDocumentfile.files.length > 0;
     if (isFile) {
