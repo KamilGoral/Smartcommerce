@@ -2732,22 +2732,21 @@ docReady(function () {
     reader.readAsArrayBuffer(documentFile);
   }
 
-  const UploadDocumentButton = document.getElementById("documentButton");
+  const documentButton = document.getElementById("documentButton");
   const UploadDocumentfile = document.getElementById("documentfile");
 
-  UploadDocumentfile.addEventListener("click", (event) => {
-    // Function to handle tab switch
+  UploadDocumentfile.addEventListener("change", (event) => {
     var isFile = UploadDocumentfile.files.length > 0;
     if (isFile) {
-      UploadDocumentButton.classList.remove("disabledfornow");
-      UploadDocumentButton.textContent = "Kontynuuj";
-      UploadDocumentButton.style.opacity = 1;
-      UploadDocumentButton.style.cursor = "pointer";
+      documentButton.classList.remove("disabledfornow");
+      documentButton.textContent = "Kontynuuj";
+      documentButton.style.opacity = 1;
+      documentButton.style.cursor = "pointer";
     } else {
-      UploadDocumentButton.classList.add("disabledfornow");
-      UploadDocumentButton.textContent = "Najpierw wybierz plik dokumentu.";
-      UploadDocumentButton.style.opacity = 0.5;
-      UploadDocumentButton.style.cursor = "default";
+      documentButton.classList.add("disabledfornow");
+      documentButton.textContent = "Najpierw wybierz plik dokumentu.";
+      documentButton.style.opacity = 0.5;
+      documentButton.style.cursor = "default";
     }
   });
 
