@@ -2672,7 +2672,7 @@ docReady(function () {
     var queryParams =
       `name=${encodeURIComponent($("#documentName").val())}&` +
       `type=${encodeURIComponent($("#documentType").val())}&` +
-      `shop=${encodeURIComponent($("#documentShop").val())}&` +
+      `shopKey=${encodeURIComponent($("#documentShop").val())}&` +
       `wholesalerKey=${encodeURIComponent($("#documentWholesaler").val())}`;
 
     console.log(queryParams);
