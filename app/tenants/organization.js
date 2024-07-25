@@ -2737,15 +2737,17 @@ docReady(function () {
 
   UploadDocumentfile.addEventListener("click", (event) => {
     // Function to handle tab switch
-    var isFile = $("#documentfile").get(0).files.length > 0;
+    var isFile = UploadDocumentfile.files.length > 0;
     if (isFile) {
-      UploadDocumentButton.removeClass("disabledfornow")
-        .text("Kontynuuj")
-        .css({ opacity: 1, cursor: "pointer" });
+      UploadDocumentButton.classList.remove("disabledfornow");
+      UploadDocumentButton.textContent = "Kontynuuj";
+      UploadDocumentButton.style.opacity = 1;
+      UploadDocumentButton.style.cursor = "pointer";
     } else {
-      UploadDocumentButton.addClass("disabledfornow")
-        .text("Najpierw wybierz plik dokumentu.")
-        .css({ opacity: 0.5, cursor: "default" });
+      UploadDocumentButton.classList.add("disabledfornow");
+      UploadDocumentButton.textContent = "Najpierw wybierz plik dokumentu.";
+      UploadDocumentButton.style.opacity = 0.5;
+      UploadDocumentButton.style.cursor = "default";
     }
   });
 
