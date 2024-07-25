@@ -2416,240 +2416,215 @@ docReady(function () {
       });
   }
 
-  // var tableDocuments = $("#table_documents").DataTable({
-  //   pagingType: "full_numbers",
-  //   order: [],
-  //   dom: '<"top">rt<"bottom"lip>',
-  //   scrollY: "60vh",
-  //   scrollCollapse: true,
-  //   pageLength: 10,
-  //   language: {
-  //     emptyTable: "Brak danych do wyświetlenia",
-  //     info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-  //     infoEmpty: "Brak danych",
-  //     infoFiltered: "(z _MAX_ rezultatów)",
-  //     lengthMenu: "Pokaż _MENU_ rekordów",
-  //     loadingRecords: "<div class='spinner'</div>",
-  //     processing: "<div class='spinner'</div>",
-  //     search: "Szukaj:",
-  //     zeroRecords: "Brak pasujących rezultatów",
-  //     paginate: {
-  //       first: "<<",
-  //       last: ">>",
-  //       next: " >",
-  //       previous: "< ",
-  //     },
-  //     aria: {
-  //       sortAscending: ": Sortowanie rosnące",
-  //       sortDescending: ": Sortowanie malejące",
-  //     },
-  //   },
-  //   ajax: function (data, callback, settings) {
-  //     $.ajaxSetup({
-  //       headers: {
-  //         Authorization: orgToken,
-  //       },
-  //       beforeSend: function () {
-  //         $("#waitingdots").show();
-  //       },
-  //       complete: function () {
-  //         $("#waitingdots").hide();
-  //       },
-  //     });
+  function getDocuments() {
+    var tableDocuments = $("#table_documents").DataTable({
+      pagingType: "full_numbers",
+      order: [],
+      dom: '<"top">rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 10,
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rekordów",
+        loadingRecords: "<div class='spinner'></div>",
+        processing: "<div class='spinner'></div>",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
+        },
+      },
+      ajax: function (data, callback, settings) {
+        $.ajaxSetup({
+          headers: {
+            Authorization: orgToken,
+          },
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+        });
 
-  //     var whichColumns = "";
-  //     var direction = "desc";
+        var whichColumns = "";
+        var direction = "desc";
 
-  //     if (data.order.length == 0) {
-  //       whichColumns = 4;
-  //     } else {
-  //       whichColumns = data.order[0]["column"];
-  //       direction = data.order[0]["dir"];
-  //     }
+        if (data.order.length === 0) {
+          whichColumns = 4;
+        } else {
+          whichColumns = data.order[0]["column"];
+          direction = data.order[0]["dir"];
+        }
 
-  //     switch (whichColumns) {
-  //       case 1:
-  //         whichColumns = "wholesalerkey:";
-  //         break;
-  //       case 2:
-  //         whichColumns = "type:";
-  //         break;
-  //       case 3:
-  //         whichColumns = "name:";
-  //         break;
-  //       case 4:
-  //         whichColumns = "created.at:";
-  //         break;
-  //       default:
-  //         whichColumns = "created.at:";
-  //     }
+        switch (whichColumns) {
+          case 1:
+            whichColumns = "wholesalerkey:";
+            break;
+          case 2:
+            whichColumns = "type:";
+            break;
+          case 3:
+            whichColumns = "name:";
+            break;
+          case 4:
+            whichColumns = "created.at:";
+            break;
+          default:
+            whichColumns = "created.at:";
+        }
 
-  //     var sort = "" + whichColumns + direction;
+        var sort = "" + whichColumns + direction;
 
-  //     $.get(
-  //       InvokeURL + "van/transactions",
-  //       {
-  //         sort: sort,
-  //         perPage: data.length,
-  //         page: (data.start + data.length) / data.length,
-  //       },
-  //       function (res) {
-  //         callback({
-  //           recordsTotal: res.total,
-  //           recordsFiltered: res.total,
-  //           data: res.items,
-  //         });
-  //       }
-  //     );
-  //   },
-  //   processing: true,
-  //   serverSide: true,
-  //   search: {
-  //     return: true,
-  //   },
-  //   columns: [
-  //     {
-  //       orderable: false,
-  //       data: null,
-  //       width: "36px",
-  //       defaultContent:
-  //         "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-  //     },
-  //     {
-  //       orderable: false,
-  //       visible: false,
-  //       data: "uuid",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           return data;
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: "wholesalerKey",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           return data;
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: "type",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           return data;
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: "name",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           return data;
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: "created.by",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           return data;
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: true,
-  //       data: "created.at",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           var utcDate = new Date(Date.parse(data));
-  //           return utcDate.toLocaleString("pl-PL", {
-  //             year: "numeric",
-  //             month: "2-digit",
-  //             day: "2-digit",
-  //             hour: "2-digit",
-  //             minute: "2-digit",
-  //             second: "2-digit",
-  //             hour12: false,
-  //           });
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: "modified.at",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           var utcDate = new Date(Date.parse(data));
-  //           return utcDate.toLocaleString("pl-PL", {
-  //             year: "numeric",
-  //             month: "2-digit",
-  //             day: "2-digit",
-  //             hour: "2-digit",
-  //             minute: "2-digit",
-  //             second: "2-digit",
-  //             hour12: false,
-  //           });
-  //         }
-  //         if (data === null) {
-  //           return "";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: "modified.by",
-  //       render: function (data) {
-  //         if (data !== null) {
-  //           return data;
-  //         }
-  //         if (data === null) {
-  //           return "-";
-  //         }
-  //       },
-  //     },
-  //     {
-  //       orderable: false,
-  //       data: null,
-  //       defaultContent:
-  //         '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-  //     },
-  //   ],
-  //   initComplete: function (settings, json) {
-  //     var hasEntries = tableDocuments.data().any();
-  //     if (!hasEntries) {
-  //       $("#emptystatedocuments").show();
-  //       $("#documentscontainer").hide();
-  //     } else {
-  //       $("#emptystatedocuments").hide();
-  //       $("#documentscontainer").show();
-  //     }
-  //   },
-  // });
+        $.get(
+          InvokeURL + "van/transactions",
+          {
+            sort: sort,
+            perPage: data.length,
+            page: (data.start + data.length) / data.length,
+          },
+          function (res) {
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          }
+        );
+      },
+      processing: true,
+      serverSide: true,
+      search: {
+        return: true,
+      },
+      columns: [
+        {
+          orderable: false,
+          data: null,
+          width: "36px",
+          defaultContent:
+            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+        },
+        {
+          orderable: false,
+          visible: false,
+          data: "uuid",
+          render: function (data) {
+            return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          data: "wholesalerKey",
+          render: function (data) {
+            return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          data: "type",
+          render: function (data) {
+            return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          data: "name",
+          render: function (data) {
+            return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          data: "created.by",
+          render: function (data) {
+            return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: true,
+          data: "created.at",
+          render: function (data) {
+            if (data !== null) {
+              var utcDate = new Date(Date.parse(data));
+              return utcDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+            }
+            return "";
+          },
+        },
+        {
+          orderable: false,
+          data: "modified.at",
+          render: function (data) {
+            if (data !== null) {
+              var utcDate = new Date(Date.parse(data));
+              return utcDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+            }
+            return "";
+          },
+        },
+        {
+          orderable: false,
+          data: "modified.by",
+          render: function (data) {
+            return data !== null ? data : "-";
+          },
+        },
+        {
+          orderable: false,
+          data: null,
+          defaultContent:
+            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+        },
+      ],
+      initComplete: function (settings, json) {
+        var hasEntries = tableDocuments.data().any();
+        if (!hasEntries) {
+          $("#emptystatedocuments").show();
+          $("#documentscontainer").hide();
+        } else {
+          $("#emptystatedocuments").hide();
+          $("#documentscontainer").show();
+        }
+      },
+    });
+  }
 
-  ////tutaj//
+  if (organizationName === "TesterskaOrganizacja" || "Góral") {
+    getDocuments();
+    $("#documentTab").css("display", "flex");
+  } else {
+    $("#documentTab").css("display", "none");
+  }
+
+  //tutaj//
 
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
@@ -3132,19 +3107,50 @@ docReady(function () {
     $(selector).datepicker({
       dateFormat: "yy-mm-dd",
       altFormat: "yy-mm-dd",
-      dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+      dayNames: [
+        "Niedziela",
+        "Poniedziałek",
+        "Wtorek",
+        "Środa",
+        "Czwartek",
+        "Piątek",
+        "Sobota",
+      ],
       dayNamesShort: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
       dayNamesMin: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
       firstDay: 1,
       monthNames: [
-        "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
-        "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
+        "Styczeń",
+        "Luty",
+        "Marzec",
+        "Kwiecień",
+        "Maj",
+        "Czerwiec",
+        "Lipiec",
+        "Sierpień",
+        "Wrzesień",
+        "Październik",
+        "Listopad",
+        "Grudzień",
       ],
-      monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
-      defaultDate: defaultDate
+      monthNamesShort: [
+        "Sty",
+        "Lut",
+        "Mar",
+        "Kwi",
+        "Maj",
+        "Cze",
+        "Lip",
+        "Sie",
+        "Wrz",
+        "Paź",
+        "Lis",
+        "Gru",
+      ],
+      defaultDate: defaultDate,
     });
   }
-  
+
   function setupDatePickers() {
     initializeDatePicker("#startDate");
     initializeDatePicker("#endDate");
@@ -3531,7 +3537,10 @@ docReady(function () {
               console.log(jqXHR);
               console.log(jqXHR);
               console.log(exception);
-              displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
               return;
             },
           });
@@ -3713,16 +3722,20 @@ docReady(function () {
     });
   };
 
-  makeWebflowFormAjaxSingleEdit = function (forms, successCallback, errorCallback) {
+  makeWebflowFormAjaxSingleEdit = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
         event.preventDefault();
-  
+
         var exclusiveProductId = $("#exclusiveProductId").val();
         var action = InvokeURL + "exclusive-products/" + exclusiveProductId;
         var method = "PATCH";
-  
+
         var newValues = {
           startDate: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
           endDate: $("#NeverSingleEdit").is(":checked")
@@ -3730,7 +3743,7 @@ docReady(function () {
             : $("#endDate-Exclusive-Edit").val() + "T00:00:00.00Z",
           wholesalerKey: $("#WholesalerSelector-Exclusive-Edit").val(),
         };
-  
+
         // Fetch current values
         $.ajax({
           type: "GET",
@@ -3742,16 +3755,19 @@ docReady(function () {
           success: function (currentValues) {
             var postData = [];
             var currentDate = new Date().toISOString();
-  
+
             // Only allow changing startDate if the current date is before the startDate
-            if (new Date(currentDate) < new Date(currentValues.startDate) && newValues.startDate !== currentValues.startDate) {
+            if (
+              new Date(currentDate) < new Date(currentValues.startDate) &&
+              newValues.startDate !== currentValues.startDate
+            ) {
               postData.push({
                 op: "replace",
                 path: "/startDate",
                 value: newValues.startDate,
               });
             }
-  
+
             if (newValues.endDate !== currentValues.endDate) {
               postData.push({
                 op: "replace",
@@ -3759,20 +3775,23 @@ docReady(function () {
                 value: newValues.endDate,
               });
             }
-  
-            if (newValues.wholesalerKey !== currentValues.wholesalerKey && newValues.wholesalerKey !== "null") {
+
+            if (
+              newValues.wholesalerKey !== currentValues.wholesalerKey &&
+              newValues.wholesalerKey !== "null"
+            ) {
               postData.push({
                 op: "replace",
                 path: "/wholesalerKey",
                 value: newValues.wholesalerKey,
               });
             }
-  
+
             if (postData.length === 0) {
               displayMessage("Info", "No changes detected.");
               return;
             }
-  
+
             // Send PATCH request
             $.ajax({
               type: method,
@@ -3800,8 +3819,10 @@ docReady(function () {
               },
               error: function (jqXHR, exception) {
                 console.log(jqXHR);
-                var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-                var elements = document.getElementsByClassName("warningmessagetext");
+                var msg =
+                  "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+                var elements =
+                  document.getElementsByClassName("warningmessagetext");
                 for (var i = 0; i < elements.length; i++) {
                   elements[i].textContent = msg;
                 }
@@ -3812,17 +3833,17 @@ docReady(function () {
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
-            var msg = "Failed to fetch current product data.\n" + JSON.parse(jqXHR.responseText).message;
+            var msg =
+              "Failed to fetch current product data.\n" +
+              JSON.parse(jqXHR.responseText).message;
             displayMessage("Error", msg);
           },
         });
-  
+
         return false;
       });
     });
   };
-  
-  
 
   function refreshTable() {
     $.ajaxSetup({
