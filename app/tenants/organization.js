@@ -440,6 +440,16 @@ docReady(function () {
 
         const shopContainer = document.getElementById("Shops-Container");
 
+        // Code for documents
+
+        const shopContainerDocuments = document.getElementById("documentShop");
+        toParse.forEach((shop) => {
+          var opt = document.createElement("option");
+          opt.value = shop.shopKey;
+          opt.innerHTML = shop.shopKey;
+          shopContainerDocuments.appendChild(opt);
+        });
+
         toParse.forEach((shop) => {
           const style = document.getElementById("sampleRowShops");
           const row = style.cloneNode(true);
@@ -1378,6 +1388,23 @@ docReady(function () {
             opt.value = wholesaler.wholesalerKey;
             opt.innerHTML = wholesaler.name;
             wholesalerContainer.appendChild(opt);
+          }
+        });
+
+        // Code for documents
+
+        const wholesalerContainerDocuments =
+          document.getElementById("documentWholesaler");
+        var opt = document.createElement("option");
+        opt.value = null;
+        opt.innerHTML = "BLOKADA";
+        wholesalerContainerDocuments.appendChild(opt);
+        toParse.forEach((wholesaler) => {
+          if (wholesaler.enabled) {
+            var opt = document.createElement("option");
+            opt.value = wholesaler.wholesalerKey;
+            opt.innerHTML = wholesaler.name;
+            wholesalerContainerDocuments.appendChild(opt);
           }
         });
 
@@ -2618,6 +2645,7 @@ docReady(function () {
   }
 
   if (organizationName === "TesterskaOrganizacja" || "Góral") {
+    console.log("Organizacja: " + organizationName);
     getDocuments();
     $("#documentTab").css("display", "flex");
   } else {
