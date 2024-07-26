@@ -705,19 +705,15 @@ docReady(function () {
         }
       }
 
-      console.log(dataItems);
-
       if (
         request.status == 403 ||
         (request.status >= 200 && request.status < 400)
       ) {
         if (dataItems.length === 0 || dataItems === "") {
-          console.log("empty");
           document.getElementById("emptystateinvoices").style.display = "flex";
           document.getElementById("invoicesstateinvoices").style.display =
             "none";
         } else {
-          console.log("full");
           document.getElementById("emptystateinvoices").style.display = "none";
           document.getElementById("invoicesstateinvoices").style.display =
             "flex";
@@ -2702,6 +2698,8 @@ docReady(function () {
     console.log("Documents available");
     getDocuments();
     $('a[data-w-tab="Documents"]').show();
+  } else {
+    $('a[data-w-tab="Documents"]').hide();
   }
 
   //tutaj//
@@ -3168,7 +3166,6 @@ docReady(function () {
   }
 
   getShops();
-  $('a[data-w-tab="Documents"]').hide();
   LogoutNonUser();
 
   getUserRole()
