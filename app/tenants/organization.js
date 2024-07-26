@@ -430,25 +430,21 @@ docReady(function () {
     const urlParams = new URLSearchParams(window.location.search);
     const isSuspended = urlParams.get("suspended") === "true";
 
-    window.location.href = url;
-
-    // Wait for the page to load completely
-    window.addEventListener("load", function () {
-      if (isSuspended) {
-        document.querySelector('a[data-w-tab="Settings"]').click();
+    console.log("suspended");
+    if (isSuspended) {
+      document.querySelector('a[data-w-tab="Settings"]').click();
+      setTimeout(function () {
+        document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
         setTimeout(function () {
-          document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
-          setTimeout(function () {
-            document
-              .getElementById("invoicesstateinvoices")
-              .scrollIntoView({ behavior: "smooth" });
-            document
-              .getElementById("emptystateinvoices")
-              .scrollIntoView({ behavior: "smooth" });
-          }, 301);
+          document
+            .getElementById("invoicesstateinvoices")
+            .scrollIntoView({ behavior: "smooth" });
+          document
+            .getElementById("emptystateinvoices")
+            .scrollIntoView({ behavior: "smooth" });
         }, 301);
-      }
-    });
+      }, 301);
+    }
   }
 
   function getShops() {
