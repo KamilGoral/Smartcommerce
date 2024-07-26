@@ -523,9 +523,9 @@ docReady(function () {
     if (OrganizationStatus === "Suspended") {
       displayMessage(
         "Error",
-        "Nie możesz zalogować się do tej organizacji. Proszę najpierw uregulować zaległe faktury."
-      ); // Display message if suspended
-      return false; // Exit function after displaying message
+        "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
+      );
+      var redirectWithParameter = "?suspended=true"; // Display message if suspended
     }
 
     // Check if the organization's client ID is already stored as a cookie
@@ -573,7 +573,8 @@ docReady(function () {
             "https://" +
               DomainName +
               "/app/tenants/organization?clientId=" +
-              OrganizationclientId
+              OrganizationclientId +
+              redirectWithParameter
           );
         },
         error: function (jqXHR, exception) {
@@ -586,7 +587,8 @@ docReady(function () {
         "https://" +
           DomainName +
           "/app/tenants/organization?clientId=" +
-          OrganizationclientId
+          OrganizationclientId +
+          redirectWithParameter
       );
     }
     return false;

@@ -760,26 +760,10 @@ docReady(function () {
         }
         if (jqXHR.status === 404) {
           try {
-            var response = JSON.parse(jqXHR.responseText);
-
-            // Existing handling for order not found
-            var orderRegex =
-              /Order with given orderId \[.*\] does not exist for shop with key \[.*\]/;
-            if (orderRegex.test(response.message)) {
-              displayMessage(
-                "Error",
-                "Zamówienie nie istnieje. Za moment nastąpi przekierowanie"
-              );
-            }
-
-            // Additional handling for split offer not found
-            var splitOfferRegex = /Requested offer doesn't exist/;
-            if (splitOfferRegex.test(response.message)) {
-              displayMessage(
-                "Error",
-                "Brak oferty dla sklepu. Za moment nastąpi przekierowanie"
-              );
-            }
+            displayMessage(
+              "Error",
+              "Niestety, nie znaleziono oferty lub wybrano błędne zamówienie."
+            );
             window.setTimeout(function () {
               window.location.href =
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;

@@ -416,6 +416,41 @@ docReady(function () {
     });
   }
 
+  async function navigateToInvoiceStateInvoices() {
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSuspended = urlParams.get("suspended") === "true";
+
+    window.location.href = url;
+
+    // Wait for the page to load completely
+    window.addEventListener("load", function () {
+      if (isSuspended) {
+        document.querySelector('a[data-w-tab="Settings"]').click();
+        setTimeout(function () {
+          document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
+          setTimeout(function () {
+            document
+              .getElementById("invoicesstateinvoices")
+              .scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("emptystateinvoices")
+              .scrollIntoView({ behavior: "smooth" });
+          }, 301);
+        }, 301);
+      }
+    });
+  }
+
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
     let request = new XMLHttpRequest();
@@ -3119,6 +3154,7 @@ docReady(function () {
       return Promise.all([
         getUsers(),
         getInvoices(),
+        navigateToInvoiceStateInvoices(),
         getPriceLists(),
         getIntegrations(),
         getWholesalers(),
