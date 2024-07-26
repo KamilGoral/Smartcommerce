@@ -2676,6 +2676,7 @@ docReady(function () {
 
   if (organizationName === "TesterskaOrganizacja" || "Góral") {
     console.log("Organizacja: " + organizationName);
+    console.log("Documents available");
     getDocuments();
     $("#documentTab").css("display", "flex");
   } else {
@@ -3146,6 +3147,7 @@ docReady(function () {
   }
 
   getShops();
+  $('a[data-w-tab="Documents"]').hide();
   LogoutNonUser();
 
   getUserRole()
