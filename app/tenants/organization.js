@@ -427,7 +427,10 @@ docReady(function () {
 
     if (isSuspended) {
       if (getCookie("sprytnyUserRole") === "admin") {
-        console.log("suspended");
+        displayMessage(
+          "Error",
+          "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
+        );
         // Hide all other tabs except for "Settings"
         $('a[data-w-tab="Policy"]').hide();
         $('a[data-w-tab="Integrations"]').hide();
