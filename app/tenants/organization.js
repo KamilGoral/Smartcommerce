@@ -426,22 +426,32 @@ docReady(function () {
     const isSuspended = urlParams.get("suspended") === "true";
 
     if (isSuspended) {
-      console.log("suspended");
-      // Hide all other tabs except for "Settings"
-      $('a[data-w-tab="Policy"]').hide();
-      $('a[data-w-tab="Integrations"]').hide();
-      $('a[data-w-tab="Documents"]').hide();
-      $('a[data-w-tab="Settings"]').show();
+      if (getCookie("sprytnyUserRole") === "admin") {
+        console.log("suspended");
+        // Hide all other tabs except for "Settings"
+        $('a[data-w-tab="Policy"]').hide();
+        $('a[data-w-tab="Integrations"]').hide();
+        $('a[data-w-tab="Documents"]').hide();
+        $('a[data-w-tab="Settings"]').show();
 
-      document.querySelector('a[data-w-tab="Settings"]').click();
-      setTimeout(function () {
-        document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
+        document.querySelector('a[data-w-tab="Settings"]').click();
         setTimeout(function () {
-          document
-            .getElementById("invoicerow")
-            .scrollIntoView({ behavior: "smooth" });
+          document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
+          setTimeout(function () {
+            document
+              .getElementById("invoicerow")
+              .scrollIntoView({ behavior: "smooth" });
+          }, 501);
         }, 501);
-      }, 501);
+      } else {
+        displayMessage(
+          "Error",
+          "Organizacja zawieszona. Skontaktuj się z opiekunem organizacji"
+        );
+        window.setTimeout(function () {
+          window.location = "https://" + DomainName + "/app/users/me";
+        }, 3000);
+      }
     } else {
       $('a[data-w-tab="Policy"]').show();
       $('a[data-w-tab="Integrations"]').show();
