@@ -526,7 +526,7 @@ docReady(function () {
         "Error",
         "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
       );
-      redirectWithParameter = "?suspended=true"; // Display message if suspended
+      redirectWithParameter = "&suspended=true"; // Display message if suspended
     }
 
     // Check if the organization's client ID is already stored as a cookie
