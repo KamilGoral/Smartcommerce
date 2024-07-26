@@ -2692,14 +2692,14 @@ docReady(function () {
     });
   }
 
-  if (getCookie(organizationName) == "TesterskaOrganizacja") {
-    console.log("Organizacja: " + organizationName);
-    console.log("Documents available");
-    getDocuments();
-    $('a[data-w-tab="Documents"]').show();
-  } else {
-    // $('a[data-w-tab="Documents"]').hide();
-  }
+  // if (getCookie(organizationName) == "TesterskaOrganizacja") {
+  //   console.log("Organizacja: " + organizationName);
+  //   console.log("Documents available");
+  //   getDocuments();
+  //   $('a[data-w-tab="Documents"]').show();
+  // } else {
+  //   // $('a[data-w-tab="Documents"]').hide();
+  // }
 
   //tutaj//
 
