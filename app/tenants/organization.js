@@ -456,7 +456,6 @@ docReady(function () {
   function showAllTabs() {
     const tabsToShow = ["Policy", "Integrations", "Settings"];
     tabsToShow.forEach((tab) => $(`a[data-w-tab="${tab}"]`).show());
-    // $('a[data-w-tab="Documents"]').show(); // Uncomment if needed
   }
 
   function navigateToInvoiceRow() {
@@ -2693,14 +2692,14 @@ docReady(function () {
     });
   }
 
-  if (organizationName === "TesterskaOrganizacja" || "Góral") {
-    console.log("Organizacja: " + organizationName);
-    console.log("Documents available");
-    getDocuments();
-    $('a[data-w-tab="Documents"]').show();
-  } else {
-    $('a[data-w-tab="Documents"]').hide();
-  }
+  // if (organizationName === "TesterskaOrganizacja" || "Góral") {
+  //   console.log("Organizacja: " + organizationName);
+  //   console.log("Documents available");
+  //   getDocuments();
+  //   $('a[data-w-tab="Documents"]').show();
+  // } else {
+  //   $('a[data-w-tab="Documents"]').hide();
+  // }
 
   //tutaj//
 
