@@ -519,13 +519,14 @@ docReady(function () {
     var OrganizationStatus = this.getAttribute("OrganizationStatus");
     setCookie("OrganizationName", OrganizationName, 72000);
 
+    var redirectWithParameter = "";
     // Check organization status first
     if (OrganizationStatus === "Suspended") {
       displayMessage(
         "Error",
         "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
       );
-      var redirectWithParameter = "?suspended=true"; // Display message if suspended
+      redirectWithParameter = "?suspended=true"; // Display message if suspended
     }
 
     // Check if the organization's client ID is already stored as a cookie
