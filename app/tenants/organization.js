@@ -3157,7 +3157,10 @@ docReady(function () {
   LogoutNonUser();
 
   console.log("Checking organization name:", organizationName);
-  if (organizationName === "TesterskaOrganizacja") {
+  if (
+    organizationName === "TesterskaOrganizacja" ||
+    organizationName === "Góral"
+  ) {
     console.log("Organizacja: " + organizationName);
     console.log("Documents available");
     getDocuments();
