@@ -72,7 +72,6 @@ docReady(function () {
 
   var organizationName = getCookie("OrganizationName");
   $("#NewOrganizationName").val(organizationName);
-  setCookie("OrganizationName", organizationName, 7200);
   var formId = "#wf-form-NewOrganizationName";
   var formIdDelete = "#wf-form-DeleteOrganization";
   var formIdInvite = "#wf-form-Invite-User";
@@ -440,7 +439,7 @@ docReady(function () {
     } else {
       displayMessage(
         "Error",
-        "Organizacja zawieszona. Skontaktuj się z opiekunem Twojej organizacji"
+        "Organizacja została zawieszona. Prosimy o kontakt z opiekunem Twojej organizacji."
       );
       setTimeout(() => {
         window.location = `https://${DomainName}/app/users/me`;
