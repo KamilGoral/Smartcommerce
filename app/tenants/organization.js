@@ -2692,17 +2692,6 @@ docReady(function () {
     });
   }
 
-  // if (getCookie(organizationName) == "TesterskaOrganizacja") {
-  //   console.log("Organizacja: " + organizationName);
-  //   console.log("Documents available");
-  //   getDocuments();
-  //   $('a[data-w-tab="Documents"]').show();
-  // } else {
-  //   // $('a[data-w-tab="Documents"]').hide();
-  // }
-
-  //tutaj//
-
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
     var documentFile = document.getElementById("documentfile").files[0];
@@ -3166,6 +3155,17 @@ docReady(function () {
 
   getShops();
   LogoutNonUser();
+
+  var orgName = getCookie("organizationName");
+  console.log("Checking organization name:", orgName);
+  if (orgName === "TesterskaOrganizacja") {
+    console.log("Organizacja: " + orgName);
+    console.log("Documents available");
+    getDocuments();
+    $('a[data-w-tab="Documents"]').show();
+  } else {
+    $('a[data-w-tab="Documents"]').hide();
+  }
 
   getUserRole()
     .then(() => {
