@@ -425,8 +425,8 @@ docReady(function () {
     const urlParams = new URLSearchParams(window.location.search);
     const isSuspended = urlParams.get("suspended") === "true";
 
-    console.log("suspended");
     if (isSuspended) {
+      console.log("suspended");
       // Hide all other tabs except for "Settings"
       $('a[data-w-tab="Policy"]').hide();
       $('a[data-w-tab="Integrations"]').hide();
@@ -446,7 +446,7 @@ docReady(function () {
       $('a[data-w-tab="Policy"]').show();
       $('a[data-w-tab="Integrations"]').show();
       $('a[data-w-tab="Settings"]').show();
-      $('a[data-w-tab="Documents"]').show();
+      // $('a[data-w-tab="Documents"]').show();
     }
   }
 
