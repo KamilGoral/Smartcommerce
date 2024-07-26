@@ -432,6 +432,14 @@ docReady(function () {
 
     console.log("suspended");
     if (isSuspended) {
+      // Hide all other tabs except for "Settings"
+      const tabs = document.querySelectorAll(".in-page-menu-link");
+      tabs.forEach((tab) => {
+        if (tab.getAttribute("data-w-tab") !== "Settings") {
+          tab.style.display = "none";
+        }
+      });
+
       document.querySelector('a[data-w-tab="Settings"]').click();
       setTimeout(function () {
         document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
@@ -442,8 +450,8 @@ docReady(function () {
           document
             .getElementById("emptystateinvoices")
             .scrollIntoView({ behavior: "smooth" });
-        }, 301);
-      }, 301);
+        }, 501);
+      }, 501);
     }
   }
 
