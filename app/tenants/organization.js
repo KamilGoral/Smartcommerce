@@ -2692,7 +2692,7 @@ docReady(function () {
     });
   }
 
-  if (getCookie(organizationName) === "TesterskaOrganizacja") {
+  if (getCookie(organizationName) == "TesterskaOrganizacja") {
     console.log("Organizacja: " + organizationName);
     console.log("Documents available");
     getDocuments();
