@@ -412,55 +412,66 @@ docReady(function () {
   }
 
   async function navigateToInvoiceStateInvoices() {
-    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+    let attempts = 0;
+    const maxAttempts = 5;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSuspended = urlParams.get("suspended") === "true";
+
+    while (!getCookie("sprytnyUserRole") && attempts < maxAttempts) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
 
-    if (getCookie("sprytnyUserRole") !== "admin") {
-      console.log("Action not permitted for non-admin users.");
-      return;
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const isSuspended = urlParams.get("suspended") === "true";
-
     if (isSuspended) {
-      if (getCookie("sprytnyUserRole") === "admin") {
-        displayMessage(
-          "Error",
-          "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
-        );
-        // Hide all other tabs except for "Settings"
-        $('a[data-w-tab="Policy"]').hide();
-        $('a[data-w-tab="Integrations"]').hide();
-        $('a[data-w-tab="Documents"]').hide();
-        $('a[data-w-tab="Settings"]').show();
-
-        document.querySelector('a[data-w-tab="Settings"]').click();
-        setTimeout(function () {
-          document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
-          setTimeout(function () {
-            document
-              .getElementById("invoicerow")
-              .scrollIntoView({ behavior: "smooth" });
-          }, 501);
-        }, 501);
-      } else {
-        displayMessage(
-          "Error",
-          "Organizacja zawieszona. Skontaktuj się z opiekunem organizacji"
-        );
-        window.setTimeout(function () {
-          window.location = "https://" + DomainName + "/app/users/me";
-        }, 3000);
-      }
+      displaySuspendedMessage();
     } else {
-      $('a[data-w-tab="Policy"]').show();
-      $('a[data-w-tab="Integrations"]').show();
-      $('a[data-w-tab="Settings"]').show();
-      // $('a[data-w-tab="Documents"]').show();
+      showAllTabs();
     }
+  }
+
+  function displaySuspendedMessage() {
+    if (getCookie("sprytnyUserRole") === "admin") {
+      displayMessage(
+        "Error",
+        "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
+      );
+      hideTabsExceptSettings();
+      navigateToInvoiceRow();
+    } else {
+      displayMessage(
+        "Error",
+        "Organizacja zawieszona. Skontaktuj się z opiekunem Twojej organizacji"
+      );
+      setTimeout(() => {
+        window.location = `https://${DomainName}/app/users/me`;
+      }, 3000);
+    }
+  }
+
+  function hideTabsExceptSettings() {
+    const tabsToHide = ["Policy", "Integrations", "Documents"];
+    tabsToHide.forEach((tab) => $(`a[data-w-tab="${tab}"]`).hide());
+    $('a[data-w-tab="Settings"]').show();
+  }
+
+  function showAllTabs() {
+    const tabsToShow = ["Policy", "Integrations", "Settings"];
+    tabsToShow.forEach((tab) => $(`a[data-w-tab="${tab}"]`).show());
+    // $('a[data-w-tab="Documents"]').show(); // Uncomment if needed
+  }
+
+  function navigateToInvoiceRow() {
+    setTimeout(() => {
+      document.querySelector('a[data-w-tab="Settings"]').click();
+      setTimeout(() => {
+        document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
+        setTimeout(() => {
+          document
+            .getElementById("invoicerow")
+            .scrollIntoView({ behavior: "smooth" });
+        }, 501);
+      }, 501);
+    }, 501);
   }
 
   function getShops() {
