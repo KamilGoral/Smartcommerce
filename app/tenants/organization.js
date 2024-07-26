@@ -397,11 +397,6 @@ docReady(function () {
               cName + "=" + cValue + "; " + expires + "; path=/";
           }
           setCookieAndSession("sprytnyUserRole", data.role, 72000);
-          if (data.role === "admin") {
-            $('a[data-w-tab="Policy"]').show();
-            $('a[data-w-tab="Integrations"]').show();
-            $('a[data-w-tab="Settings"]').show();
-          }
           resolve(data.role); // Resolve with the user role
         } else {
           console.error("Error fetching user role. Status:", request.status);
@@ -445,13 +440,14 @@ docReady(function () {
         document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
         setTimeout(function () {
           document
-            .getElementById("invoicesstateinvoices")
-            .scrollIntoView({ behavior: "smooth" });
-          document
-            .getElementById("emptystateinvoices")
+            .getElementById("invoicerow")
             .scrollIntoView({ behavior: "smooth" });
         }, 501);
       }, 501);
+    } else {
+      $('a[data-w-tab="Policy"]').show();
+      $('a[data-w-tab="Integrations"]').show();
+      $('a[data-w-tab="Settings"]').show();
     }
   }
 
