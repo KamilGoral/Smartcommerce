@@ -1930,7 +1930,7 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var endpoint = InvokeURL + "tenants/" + getCookie("OrganizationName");
+        var endpoint = InvokeURL + "tenants/" + organizationName;
 
         $.ajax({
           type: "DELETE",
@@ -3156,10 +3156,9 @@ docReady(function () {
   getShops();
   LogoutNonUser();
 
-  var orgName = getCookie("organizationName");
-  console.log("Checking organization name:", orgName);
-  if (orgName === "TesterskaOrganizacja") {
-    console.log("Organizacja: " + orgName);
+  console.log("Checking organization name:", organizationName);
+  if (organizationName === "TesterskaOrganizacja") {
+    console.log("Organizacja: " + organizationName);
     console.log("Documents available");
     getDocuments();
     $('a[data-w-tab="Documents"]').show();
