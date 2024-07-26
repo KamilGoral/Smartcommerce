@@ -2701,9 +2701,7 @@ docReady(function () {
     console.log("Organizacja: " + organizationName);
     console.log("Documents available");
     getDocuments();
-    $("#documentTab").css("display", "flex");
-  } else {
-    $("#documentTab").css("display", "none");
+    $('a[data-w-tab="Documents"]').show();
   }
 
   //tutaj//
