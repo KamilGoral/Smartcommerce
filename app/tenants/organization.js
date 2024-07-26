@@ -2692,14 +2692,14 @@ docReady(function () {
     });
   }
 
-  // if (organizationName === "TesterskaOrganizacja" || "Góral") {
-  //   console.log("Organizacja: " + organizationName);
-  //   console.log("Documents available");
-  //   getDocuments();
-  //   $('a[data-w-tab="Documents"]').show();
-  // } else {
-  //   $('a[data-w-tab="Documents"]').hide();
-  // }
+  if (organizationName === "TesterskaOrganizacja" || "Góral") {
+    console.log("Organizacja: " + organizationName);
+    console.log("Documents available");
+    getDocuments();
+    $('a[data-w-tab="Documents"]').show();
+  } else {
+    // $('a[data-w-tab="Documents"]').hide();
+  }
 
   //tutaj//
 
