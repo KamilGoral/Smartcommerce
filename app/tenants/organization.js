@@ -428,12 +428,9 @@ docReady(function () {
     console.log("suspended");
     if (isSuspended) {
       // Hide all other tabs except for "Settings"
-      const tabs = document.querySelectorAll(".in-page-menu-link");
-      tabs.forEach((tab) => {
-        if (tab.getAttribute("data-w-tab") !== "Settings") {
-          tab.style.display = "none";
-        }
-      });
+      $('a[data-w-tab="Policy"]').hide();
+      $('a[data-w-tab="Integrations"]').hide();
+      $('a[data-w-tab="documentTab"]').hide();
 
       document.querySelector('a[data-w-tab="Settings"]').click();
       setTimeout(function () {
@@ -448,6 +445,7 @@ docReady(function () {
       $('a[data-w-tab="Policy"]').show();
       $('a[data-w-tab="Integrations"]').show();
       $('a[data-w-tab="Settings"]').show();
+      $('a[data-w-tab="documentTab"]').show();
     }
   }
 
