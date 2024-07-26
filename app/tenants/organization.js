@@ -430,7 +430,8 @@ docReady(function () {
       // Hide all other tabs except for "Settings"
       $('a[data-w-tab="Policy"]').hide();
       $('a[data-w-tab="Integrations"]').hide();
-      $('a[data-w-tab="documentTab"]').hide();
+      $('a[data-w-tab="Documents"]').hide();
+      $('a[data-w-tab="Settings"]').show();
 
       document.querySelector('a[data-w-tab="Settings"]').click();
       setTimeout(function () {
@@ -445,7 +446,7 @@ docReady(function () {
       $('a[data-w-tab="Policy"]').show();
       $('a[data-w-tab="Integrations"]').show();
       $('a[data-w-tab="Settings"]').show();
-      $('a[data-w-tab="documentTab"]').show();
+      $('a[data-w-tab="Documents"]').show();
     }
   }
 
