@@ -2499,6 +2499,7 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
+      searching: true,
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -2682,6 +2683,13 @@ docReady(function () {
           $("#emptystatedocuments").hide();
           $("#documentscontainer").show();
         }
+
+        $("#table_documents_filter input[type=search]").on(
+          "keyup",
+          function () {
+            tableDocuments.search(this.value).draw();
+          }
+        );
 
         // Filter table based on selected options
         $(".filterinput").on("change", function () {
