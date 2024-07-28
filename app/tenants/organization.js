@@ -2684,13 +2684,6 @@ docReady(function () {
           $("#documentscontainer").show();
         }
 
-        $("#table_documents_filter input[type=search]").on(
-          "keyup",
-          function () {
-            tableDocuments.search(this.value).draw();
-          }
-        );
-
         // Filter table based on selected options
         $(".filterinput").on("change", function () {
           tableDocuments.draw();
@@ -2752,6 +2745,10 @@ docReady(function () {
           }
         );
       },
+    });
+
+    $("#table_documents_filter input[type=search]").on("keyup", function () {
+      tableDocuments.search(this.value).draw();
     });
 
     function populateFilters(items) {
