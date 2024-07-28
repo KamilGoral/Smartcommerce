@@ -3260,10 +3260,7 @@ docReady(function () {
   LogoutNonUser();
 
   console.log("Checking organization name:", organizationName);
-  if (
-    organizationName === "TesterskaOrganizacja" ||
-    organizationName === "Góral"
-  ) {
+  if (DomainName === "sprytny01.webflow.io" || organizationName === "Góral") {
     console.log("Organizacja: " + organizationName);
     console.log("Documents available");
     getDocuments();
