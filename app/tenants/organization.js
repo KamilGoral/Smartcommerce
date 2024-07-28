@@ -2495,7 +2495,7 @@ docReady(function () {
     var tableDocuments = $("#table_documents").DataTable({
       pagingType: "full_numbers",
       order: [],
-      dom: '<"top">frt<"bottom"lip>',
+      dom: '<"top">rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
@@ -2745,10 +2745,6 @@ docReady(function () {
           }
         );
       },
-    });
-
-    $("#table_documents_filter input[type=search]").on("keyup", function () {
-      tableDocuments.search(this.value).draw();
     });
 
     function populateFilters(items) {
