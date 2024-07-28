@@ -2615,14 +2615,6 @@ docReady(function () {
         {
           orderable: true,
           type: "date",
-          data: "created.by",
-          render: function (data) {
-            return data !== null ? data : "";
-          },
-        },
-        {
-          orderable: true,
-          type: "date",
           data: "created.at",
           render: function (data) {
             if (data !== null) {
@@ -2638,6 +2630,14 @@ docReady(function () {
               });
             }
             return "";
+          },
+        },
+        {
+          orderable: true,
+          type: "date",
+          data: "created.by",
+          render: function (data) {
+            return data !== null ? data : "";
           },
         },
         {
