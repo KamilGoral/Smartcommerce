@@ -2495,7 +2495,7 @@ docReady(function () {
     var tableDocuments = $("#table_documents").DataTable({
       pagingType: "full_numbers",
       order: [],
-      dom: '<"top">rt<"bottom"lip>',
+      dom: '<"top">frt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
@@ -2540,6 +2540,9 @@ docReady(function () {
             page: 1,
           },
           function (res) {
+            // Populate filter options
+            populateFilters(res.items);
+
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
@@ -2598,10 +2601,13 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
           data: "shopKeys",
-          render: function (data) {
-            return data !== null ? data.join(", ") : "-";
+          render: function (data, type, row) {
+            if (data && data.length > 2) {
+              return `Sklepów: ${data.length}`;
+            } else {
+              return data ? data.join(", ") : "";
+            }
           },
         },
         {
@@ -2660,7 +2666,11 @@ docReady(function () {
           orderable: false,
           data: null,
           defaultContent:
-            '<div class="action-container"><img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit"></img><img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete"></img>";</div>',
+            '<div class="action-container">' +
+            '<img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">' +
+            '<img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">' +
+            '<img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg" action="download" alt="download">' +
+            "</div>",
         },
       ],
       initComplete: function (settings, json) {
@@ -2672,23 +2682,106 @@ docReady(function () {
           $("#emptystatedocuments").hide();
           $("#documentscontainer").show();
         }
+
+        // Filter table based on selected options
+        $(".filterinput").on("change", function () {
+          tableDocuments.draw();
+        });
+
+        // Custom filtering function for DataTable
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+          var wholesaler = $("#wholesalerPickerDocuments").val();
+          var documentType = $("#documentTypePicker").val();
+          var shop = $("#documentShopPicker").val();
+          var author = $("#documentAuthorPicker").val();
+
+          var wholesalerMatch = wholesaler ? data[2] == wholesaler : true; // Adjust index based on your columns
+          var documentTypeMatch = documentType ? data[3] == documentType : true; // Adjust index based on your columns
+          var shopMatch = shop ? data[5] && data[5].includes(shop) : true; // Adjust index based on your columns
+          var authorMatch = author ? data[6] == author : true; // Adjust index based on your columns
+
+          return (
+            wholesalerMatch && documentTypeMatch && shopMatch && authorMatch
+          );
+        });
+
+        // Clear all filters
+        $("#ClearAllButton").on("click", function (e) {
+          e.preventDefault();
+          $(".filterinput").val("").trigger("change");
+        });
+
+        // Event delegation for edit, delete, and download actions
+        $("#table_documents tbody").on(
+          "click",
+          'img[action="edit"]',
+          function () {
+            var data = tableDocuments.row($(this).parents("tr")).data();
+            // Implement your edit functionality here
+            console.log("Edit:", data);
+          }
+        );
+
+        $("#table_documents tbody").on(
+          "click",
+          'img[action="delete"]',
+          function () {
+            var data = tableDocuments.row($(this).parents("tr")).data();
+            // Implement your delete functionality here
+            console.log("Delete:", data);
+          }
+        );
+
+        $("#table_documents tbody").on(
+          "click",
+          'img[action="download"]',
+          function () {
+            var data = tableDocuments.row($(this).parents("tr")).data();
+            // Implement your download functionality here
+            console.log("Download:", data);
+            // Example: Redirect to the download URL
+            window.location.href = `/download/${data.uuid}`;
+          }
+        );
       },
     });
+
+    function populateFilters(items) {
+      var wholesalers = new Set();
+      var documentTypes = new Set();
+      var shops = new Set();
+      var authors = new Set();
+
+      items.forEach(function (item) {
+        wholesalers.add(item.wholesalerKey);
+        documentTypes.add(item.type);
+        if (item.shopKeys) {
+          item.shopKeys.forEach(function (shop) {
+            shops.add(shop);
+          });
+        }
+        authors.add(item.created.by);
+      });
+
+      wholesalers.forEach(function (wholesaler) {
+        $("#wholesalerPickerDocuments").append(
+          new Option(wholesaler, wholesaler)
+        );
+      });
+
+      documentTypes.forEach(function (type) {
+        $("#documentTypePicker").append(new Option(type, type));
+      });
+
+      shops.forEach(function (shop) {
+        $("#documentShopPicker").append(new Option(shop, shop));
+      });
+
+      authors.forEach(function (author) {
+        $("#documentAuthorPicker").append(new Option(author, author));
+      });
+    }
   }
-
-  // Event delegation for edit action
-  $("#table_documents tbody").on("click", 'img[action="edit"]', function () {
-    var data = table.row($(this).parents("tr")).data();
-    // Handle edit action
-    console.log("Edit action for:", data);
-  });
-
-  // Event delegation for delete action
-  $("#table_documents tbody").on("click", 'img[action="delete"]', function () {
-    var data = table.row($(this).parents("tr"));
-    // Handle delete action
-    console.log("Delete action for:", data);
-  });
 
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
