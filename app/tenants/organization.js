@@ -2574,14 +2574,14 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "wholesalerKey",
           render: function (data) {
             return data !== null ? data : "";
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "type",
           render: function (data) {
             switch (data) {
@@ -2595,7 +2595,7 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "name",
           render: function (data) {
             return data !== null ? data : "";
@@ -2603,6 +2603,7 @@ docReady(function () {
         },
         {
           data: "shopKeys",
+          orderable: true,
           render: function (data, type, row) {
             if (data && data.length > 2) {
               return `Sklepów: ${data.length}`;
@@ -2612,7 +2613,8 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
+          type: "date",
           data: "created.by",
           render: function (data) {
             return data !== null ? data : "";
@@ -2620,6 +2622,7 @@ docReady(function () {
         },
         {
           orderable: true,
+          type: "date",
           data: "created.at",
           render: function (data) {
             if (data !== null) {
@@ -2638,7 +2641,8 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
+          type: "date",
           data: "modified.at",
           render: function (data) {
             if (data !== null) {
@@ -2657,7 +2661,8 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
+          type: "date",
           data: "modified.by",
           render: function (data) {
             return data !== null ? data : "-";
