@@ -2673,9 +2673,9 @@ docReady(function () {
           data: null,
           defaultContent:
             '<div class="action-container">' +
-            '<img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">' +
-            '<img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">' +
-            '<img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg" action="download" alt="download">' +
+            '<img style="cursor: pointer;margin-right:4px;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">' +
+            '<img style="cursor: pointer;margin-right:4px;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">' +
+            '<img style="cursor: pointer;margin-right:4px;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg" action="download" alt="download">' +
             "</div>",
         },
       ],
