@@ -2769,8 +2769,16 @@ docReady(function () {
         );
       });
 
+      var documentTypeMapping = {
+        DESADV: "Dostawa",
+        INVOIC: "Faktura",
+        DEFAULT: "Inne",
+      };
+
       documentTypes.forEach(function (type) {
-        $("#documentTypePicker").append(new Option(type, type));
+        var displayName =
+          documentTypeMapping[type] || documentTypeMapping["DEFAULT"];
+        $("#documentTypePicker").append(new Option(displayName, type));
       });
 
       shops.forEach(function (shop) {
