@@ -2633,6 +2633,7 @@ docReady(function () {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
+                second: false,
                 hour12: false,
               });
             }
@@ -2652,6 +2653,7 @@ docReady(function () {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
+                second: false,
                 hour12: false,
               });
             }
