@@ -2533,41 +2533,11 @@ docReady(function () {
           },
         });
 
-        var whichColumns = "";
-        var direction = "desc";
-
-        if (data.order.length === 0) {
-          whichColumns = 4;
-        } else {
-          whichColumns = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-        }
-
-        switch (whichColumns) {
-          case 1:
-            whichColumns = "wholesalerkey:";
-            break;
-          case 2:
-            whichColumns = "type:";
-            break;
-          case 3:
-            whichColumns = "name:";
-            break;
-          case 4:
-            whichColumns = "created.at:";
-            break;
-          default:
-            whichColumns = "created.at:";
-        }
-
-        var sort = "" + whichColumns + direction;
-
         $.get(
           InvokeURL + "van/transactions",
           {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
+            perPage: 1000, // Fetch 1000 items
+            page: 1,
           },
           function (res) {
             callback({
@@ -2579,7 +2549,7 @@ docReady(function () {
         );
       },
       processing: true,
-      serverSide: true,
+      serverSide: false, // Perform sorting and searching client-side
       search: {
         return: true,
       },
@@ -2610,7 +2580,14 @@ docReady(function () {
           orderable: false,
           data: "type",
           render: function (data) {
-            return data !== null ? data : "";
+            switch (data) {
+              case "DESADV":
+                return "Dostawa";
+              case "INVOIC":
+                return "Faktura";
+              default:
+                return data;
+            }
           },
         },
         {
@@ -2618,6 +2595,13 @@ docReady(function () {
           data: "name",
           render: function (data) {
             return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          data: "shopKeys",
+          render: function (data) {
+            return data !== null ? data.join(", ") : "-";
           },
         },
         {
@@ -2676,7 +2660,7 @@ docReady(function () {
           orderable: false,
           data: null,
           defaultContent:
-            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+            '<div class="action-container"><img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit"></img><img style="cursor: pointer" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete"></img>";</div>',
         },
       ],
       initComplete: function (settings, json) {
@@ -2691,6 +2675,20 @@ docReady(function () {
       },
     });
   }
+
+  // Event delegation for edit action
+  $("#table_documents tbody").on("click", 'img[action="edit"]', function () {
+    var data = table.row($(this).parents("tr")).data();
+    // Handle edit action
+    console.log("Edit action for:", data);
+  });
+
+  // Event delegation for delete action
+  $("#table_documents tbody").on("click", 'img[action="delete"]', function () {
+    var data = table.row($(this).parents("tr"));
+    // Handle delete action
+    console.log("Delete action for:", data);
+  });
 
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
