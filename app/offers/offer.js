@@ -955,15 +955,15 @@ docReady(function () {
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td>
-            <td>${showRelated}</td>
             <td>${benefitHtml}</td>
+            <td>${showRelated}</td>    
         </tr>`;
       })
       .join("");
 
     return `
         <table>
-            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th><th>Bonus</th></tr>
+            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th></tr>
             ${toDisplayHtml}
         </table>
     `;
