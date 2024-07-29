@@ -932,6 +932,7 @@ docReady(function () {
 
         let benefitHtml = "-";
         if (item.promotion?.benefit?.types) {
+          console.log("promka");
           const benefitTypes = getBenefitIcons(item.promotion.benefit.types);
           const gratisInfo = item.promotion.benefit.gratis
             ? `, ${item.promotion.benefit.gratis.quantity}x at ${item.promotion.benefit.gratis.price}`
