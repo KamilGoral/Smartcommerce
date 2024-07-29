@@ -126,11 +126,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +270,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -289,11 +289,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/offers/offer?shopKey=" +
-      shopKey +
-      "&offerId=" +
-      offerId
+    DomainName +
+    "/app/offers/offer?shopKey=" +
+    shopKey +
+    "&offerId=" +
+    offerId
   );
 
   function getProductDetails(rowData) {
@@ -528,7 +528,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -542,7 +542,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -555,7 +555,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -568,7 +568,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -863,7 +863,7 @@ docReady(function () {
       "online offer": "E-hurt",
       wms: "PC-Market",
     };
-  
+
     const promotionMap = {
       "rigid bundle": {
         name: "Sztywny pakiet",
@@ -892,31 +892,31 @@ docReady(function () {
       },
       // Add more as needed
     };
-  
+
     function calculatePackage(promotion) {
       if (!promotion || !promotion.factors) return "-";
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors;
-  
+
       if (!quantityFactor) return "-";
-  
+
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-  
+
       return "-";
     }
-  
+
     function getBenefitIcons(types) {
       const iconMap = {
-        discount: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg", 
-        gratis: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg", 
-        "self-discount": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg", 
+        discount: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg",
+        gratis: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg",
+        "self-discount": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg",
         "self-gratis": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg",
       };
       return types.map(type => `<img src="${iconMap[type] || ""}" alt="${type}" />`).join(" ");
     }
-  
+
     const toDisplayHtml = arr
       .map((item) => {
         const promotion = promotionMap[item.promotion?.type];
@@ -924,21 +924,21 @@ docReady(function () {
         const promotionDescription = promotion
           ? promotion.description
           : "No promotion";
-  
+
         const showRelated =
           item.promotion && item.promotion.relatedGtins.length > 0
             ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
             : "-";
-  
+
         let benefitHtml = "-";
-        if (item.promotion?.benefit && item.promotion.benefit.types) {
+        if (item.promotion?.benefit?.types) {
           const benefitTypes = getBenefitIcons(item.promotion.benefit.types);
           const gratisInfo = item.promotion.benefit.gratis
             ? `, ${item.promotion.benefit.gratis.quantity}x at ${item.promotion.benefit.gratis.price}`
             : "";
           benefitHtml = benefitTypes + gratisInfo;
         }
-  
+
         return `<tr>
             <td>${item.wholesalerKey}</td>
             <td>${item.netPrice}</td>
@@ -947,11 +947,10 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
+            ${promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+          }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td>
@@ -960,7 +959,7 @@ docReady(function () {
         </tr>`;
       })
       .join("");
-  
+
     return `
         <table>
             <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th><th>Bonus</th></tr>
@@ -968,7 +967,7 @@ docReady(function () {
         </table>
     `;
   }
-  
+
 
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
