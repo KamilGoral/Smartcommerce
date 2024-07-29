@@ -931,10 +931,10 @@ docReady(function () {
             : "-";
   
         let benefitHtml = "-";
-        if (item.promotion?.benefit) {
+        if (item.promotion?.benefit && item.promotion.benefit.types) {
           const benefitTypes = getBenefitIcons(item.promotion.benefit.types);
           const gratisInfo = item.promotion.benefit.gratis
-            ? `, ${item.promotion.benefit.gratis.quantity}x po ${item.promotion.benefit.gratis.price}`
+            ? `, ${item.promotion.benefit.gratis.quantity}x at ${item.promotion.benefit.gratis.price}`
             : "";
           benefitHtml = benefitTypes + gratisInfo;
         }
@@ -963,7 +963,7 @@ docReady(function () {
   
     return `
         <table>
-            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th><th>Benefit</th></tr>
+            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th><th>Bonus</th></tr>
             ${toDisplayHtml}
         </table>
     `;
