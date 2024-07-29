@@ -907,14 +907,14 @@ docReady(function () {
       return "-";
     }
 
-    function getBenefitIcons(types) {
+    function getBenefitIcons(type) {
       const iconMap = {
         discount: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg",
         gratis: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg",
         "self-discount": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg",
         "self-gratis": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg",
       };
-      return types.map(type => `<img src="${iconMap[type] || ""}" alt="${type}" />`).join(" ");
+      return type.map(type => `<img src="${iconMap[type] || ""}" alt="${type}" />`).join(" ");
     }
 
     const toDisplayHtml = arr
@@ -931,13 +931,13 @@ docReady(function () {
             : "-";
 
         let benefitHtml = "-";
-        if (item.promotion?.benefit?.types) {
+        if (item.promotion?.benefit?.type) {
           console.log("promka");
-          const benefitTypes = getBenefitIcons(item.promotion.benefit.types);
+          const benefitType = getBenefitIcons(item.promotion.benefit.type);
           const gratisInfo = item.promotion.benefit.gratis
             ? `, ${item.promotion.benefit.gratis.quantity}x at ${item.promotion.benefit.gratis.price}`
             : "";
-          benefitHtml = benefitTypes + gratisInfo;
+          benefitHtml = benefitType + gratisInfo;
         }
 
         return `<tr>
