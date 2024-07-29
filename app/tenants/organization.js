@@ -72,7 +72,6 @@ docReady(function () {
 
   var organizationName = getCookie("OrganizationName");
   $("#NewOrganizationName").val(organizationName);
-  setCookie("OrganizationName", organizationName, 7200);
   var formId = "#wf-form-NewOrganizationName";
   var formIdDelete = "#wf-form-DeleteOrganization";
   var formIdInvite = "#wf-form-Invite-User";
@@ -397,11 +396,6 @@ docReady(function () {
               cName + "=" + cValue + "; " + expires + "; path=/";
           }
           setCookieAndSession("sprytnyUserRole", data.role, 72000);
-          if (data.role === "admin") {
-            $('a[data-w-tab="Policy"]').show();
-            $('a[data-w-tab="Integrations"]').show();
-            $('a[data-w-tab="Settings"]').show();
-          }
           resolve(data.role); // Resolve with the user role
         } else {
           console.error("Error fetching user role. Status:", request.status);
@@ -414,6 +408,68 @@ docReady(function () {
       };
       request.send();
     });
+  }
+
+  async function navigateToInvoiceStateInvoices() {
+    let attempts = 0;
+    const maxAttempts = 5;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSuspended = urlParams.get("suspended") === "true";
+
+    while (!getCookie("sprytnyUserRole") && attempts < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (isSuspended) {
+      displaySuspendedMessage();
+    } else {
+      showAllTabs();
+    }
+  }
+
+  function displaySuspendedMessage() {
+    if (getCookie("sprytnyUserRole") === "admin") {
+      displayMessage(
+        "Error",
+        "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
+      );
+      hideTabsExceptSettings();
+      navigateToInvoiceRow();
+    } else {
+      displayMessage(
+        "Error",
+        "Organizacja została zawieszona. Prosimy o kontakt z opiekunem Twojej organizacji."
+      );
+      setTimeout(() => {
+        window.location = `https://${DomainName}/app/users/me`;
+      }, 3000);
+    }
+  }
+
+  function hideTabsExceptSettings() {
+    const tabsToHide = ["Policy", "Integrations", "Documents"];
+    tabsToHide.forEach((tab) => $(`a[data-w-tab="${tab}"]`).hide());
+    $('a[data-w-tab="Settings"]').show();
+  }
+
+  function showAllTabs() {
+    const tabsToShow = ["Policy", "Integrations", "Settings"];
+    tabsToShow.forEach((tab) => $(`a[data-w-tab="${tab}"]`).show());
+  }
+
+  function navigateToInvoiceRow() {
+    setTimeout(() => {
+      document.querySelector('a[data-w-tab="Settings"]').click();
+      setTimeout(() => {
+        document.querySelector('a[data-w-tab="Tenant-Informations"]').click();
+        setTimeout(() => {
+          document
+            .getElementById("invoicerow")
+            .scrollIntoView({ behavior: "smooth" });
+        }, 501);
+      }, 501);
+    }, 501);
   }
 
   function getShops() {
@@ -648,19 +704,15 @@ docReady(function () {
         }
       }
 
-      console.log(dataItems);
-
       if (
         request.status == 403 ||
         (request.status >= 200 && request.status < 400)
       ) {
         if (dataItems.length === 0 || dataItems === "") {
-          console.log("empty");
           document.getElementById("emptystateinvoices").style.display = "flex";
           document.getElementById("invoicesstateinvoices").style.display =
             "none";
         } else {
-          console.log("full");
           document.getElementById("emptystateinvoices").style.display = "none";
           document.getElementById("invoicesstateinvoices").style.display =
             "flex";
@@ -1878,7 +1930,7 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var endpoint = InvokeURL + "tenants/" + getCookie("OrganizationName");
+        var endpoint = InvokeURL + "tenants/" + organizationName;
 
         $.ajax({
           type: "DELETE",
@@ -2447,6 +2499,7 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
+      searching: true,
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -2481,43 +2534,16 @@ docReady(function () {
           },
         });
 
-        var whichColumns = "";
-        var direction = "desc";
-
-        if (data.order.length === 0) {
-          whichColumns = 4;
-        } else {
-          whichColumns = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-        }
-
-        switch (whichColumns) {
-          case 1:
-            whichColumns = "wholesalerkey:";
-            break;
-          case 2:
-            whichColumns = "type:";
-            break;
-          case 3:
-            whichColumns = "name:";
-            break;
-          case 4:
-            whichColumns = "created.at:";
-            break;
-          default:
-            whichColumns = "created.at:";
-        }
-
-        var sort = "" + whichColumns + direction;
-
         $.get(
           InvokeURL + "van/transactions",
           {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
+            perPage: 1000, // Fetch 1000 items
+            page: 1,
           },
           function (res) {
+            // Populate filter options
+            populateFilters(res.items);
+
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
@@ -2527,7 +2553,7 @@ docReady(function () {
         );
       },
       processing: true,
-      serverSide: true,
+      serverSide: false, // Perform sorting and searching client-side
       search: {
         return: true,
       },
@@ -2548,35 +2574,47 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "wholesalerKey",
           render: function (data) {
             return data !== null ? data : "";
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "type",
           render: function (data) {
-            return data !== null ? data : "";
+            switch (data) {
+              case "DESADV":
+                return "Dostawa";
+              case "INVOIC":
+                return "Faktura";
+              default:
+                return data;
+            }
           },
         },
         {
-          orderable: false,
+          orderable: true,
           data: "name",
           render: function (data) {
             return data !== null ? data : "";
           },
         },
         {
-          orderable: false,
-          data: "created.by",
-          render: function (data) {
-            return data !== null ? data : "";
+          data: "shopKeys",
+          orderable: true,
+          render: function (data, type, row) {
+            if (data && data.length > 2) {
+              return `Sklepów: ${data.length}`;
+            } else {
+              return data ? data.join(", ") : "";
+            }
           },
         },
         {
           orderable: true,
+          type: "date",
           data: "created.at",
           render: function (data) {
             if (data !== null) {
@@ -2587,7 +2625,6 @@ docReady(function () {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
                 hour12: false,
               });
             }
@@ -2595,7 +2632,16 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
+          type: "date",
+          data: "created.by",
+          render: function (data) {
+            return data !== null ? data : "";
+          },
+        },
+        {
+          orderable: true,
+          type: "date",
           data: "modified.at",
           render: function (data) {
             if (data !== null) {
@@ -2606,7 +2652,6 @@ docReady(function () {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
                 hour12: false,
               });
             }
@@ -2614,7 +2659,8 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
+          orderable: true,
+          type: "date",
           data: "modified.by",
           render: function (data) {
             return data !== null ? data : "-";
@@ -2624,7 +2670,11 @@ docReady(function () {
           orderable: false,
           data: null,
           defaultContent:
-            '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+            '<div class="action-container">' +
+            '<img style="cursor: pointer;margin-right:4px;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">' +
+            '<img style="cursor: pointer;margin-right:4px;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">' +
+            '<img style="cursor: pointer;margin-right:4px;" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6693849fa8a89c4e5ead5615_download.svg" action="download" alt="download">' +
+            "</div>",
         },
       ],
       initComplete: function (settings, json) {
@@ -2636,19 +2686,114 @@ docReady(function () {
           $("#emptystatedocuments").hide();
           $("#documentscontainer").show();
         }
+
+        // Filter table based on selected options
+        $(".filterinput").on("change", function () {
+          tableDocuments.draw();
+        });
+
+        // Custom filtering function for DataTable
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+          var wholesaler = $("#wholesalerPickerDocuments").val();
+          var documentType = $("#documentTypePicker").val();
+          var shop = $("#documentShopPicker").val();
+          var author = $("#documentAuthorPicker").val();
+
+          var wholesalerMatch = wholesaler ? data[2] == wholesaler : true; // Adjust index based on your columns
+          var documentTypeMatch = documentType ? data[3] == documentType : true; // Adjust index based on your columns
+          var shopMatch = shop ? data[5] && data[5].includes(shop) : true; // Adjust index based on your columns
+          var authorMatch = author ? data[6] == author : true; // Adjust index based on your columns
+
+          return (
+            wholesalerMatch && documentTypeMatch && shopMatch && authorMatch
+          );
+        });
+
+        // Clear all filters
+        $("#ClearAllButton").on("click", function (e) {
+          e.preventDefault();
+          $(".filterinput").val("").trigger("change");
+        });
+
+        // Event delegation for edit, delete, and download actions
+        $("#table_documents tbody").on(
+          "click",
+          'img[action="edit"]',
+          function () {
+            var data = tableDocuments.row($(this).parents("tr")).data();
+            // Implement your edit functionality here
+            console.log("Edit:", data);
+          }
+        );
+
+        $("#table_documents tbody").on(
+          "click",
+          'img[action="delete"]',
+          function () {
+            var data = tableDocuments.row($(this).parents("tr")).data();
+            // Implement your delete functionality here
+            console.log("Delete:", data);
+          }
+        );
+
+        $("#table_documents tbody").on(
+          "click",
+          'img[action="download"]',
+          function () {
+            var data = tableDocuments.row($(this).parents("tr")).data();
+            // Implement your download functionality here
+            console.log("Download:", data);
+            // Example: Redirect to the download URL
+            window.location.href = `/download/${data.uuid}`;
+          }
+        );
       },
     });
-  }
 
-  if (organizationName === "TesterskaOrganizacja" || "Góral") {
-    console.log("Organizacja: " + organizationName);
-    getDocuments();
-    $("#documentTab").css("display", "flex");
-  } else {
-    $("#documentTab").css("display", "none");
-  }
+    function populateFilters(items) {
+      var wholesalers = new Set();
+      var documentTypes = new Set();
+      var shops = new Set();
+      var authors = new Set();
 
-  //tutaj//
+      items.forEach(function (item) {
+        wholesalers.add(item.wholesalerKey);
+        documentTypes.add(item.type);
+        if (item.shopKeys) {
+          item.shopKeys.forEach(function (shop) {
+            shops.add(shop);
+          });
+        }
+        authors.add(item.created.by);
+      });
+
+      wholesalers.forEach(function (wholesaler) {
+        $("#wholesalerPickerDocuments").append(
+          new Option(wholesaler, wholesaler)
+        );
+      });
+
+      var documentTypeMapping = {
+        DESADV: "Dostawa",
+        INVOIC: "Faktura",
+        DEFAULT: "Inne",
+      };
+
+      documentTypes.forEach(function (type) {
+        var displayName =
+          documentTypeMapping[type] || documentTypeMapping["DEFAULT"];
+        $("#documentTypePicker").append(new Option(displayName, type));
+      });
+
+      shops.forEach(function (shop) {
+        $("#documentShopPicker").append(new Option(shop, shop));
+      });
+
+      authors.forEach(function (author) {
+        $("#documentAuthorPicker").append(new Option(author, author));
+      });
+    }
+  }
 
   function DocumentFileUpload(skipTypeCheck) {
     var xhr = new XMLHttpRequest();
@@ -3114,11 +3259,22 @@ docReady(function () {
   getShops();
   LogoutNonUser();
 
+  console.log("Checking organization name:", organizationName);
+  if (DomainName === "sprytny01.webflow.io" || organizationName === "Góral") {
+    console.log("Organizacja: " + organizationName);
+    console.log("Documents available");
+    getDocuments();
+    $('a[data-w-tab="Documents"]').show();
+  } else {
+    $('a[data-w-tab="Documents"]').hide();
+  }
+
   getUserRole()
     .then(() => {
       return Promise.all([
         getUsers(),
         getInvoices(),
+        navigateToInvoiceStateInvoices(),
         getPriceLists(),
         getIntegrations(),
         getWholesalers(),
