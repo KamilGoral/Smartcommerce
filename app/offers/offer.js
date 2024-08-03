@@ -1571,7 +1571,7 @@ docReady(function () {
     const popupContent = document.getElementById("popupContent");
     var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
-    let output;
+    var output = "";
 
     for (var i = 0; i < values.length; i++) {
       output += "<p class='filterfont'>" + values[i] + "</p>";
