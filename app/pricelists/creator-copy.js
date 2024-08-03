@@ -407,16 +407,14 @@ docReady(function () {
             }
 
             displayMessage("Success", "Cennik został dodany.");
-            console.log(response);
-            console.log(response.data.items);
             var pricelistUrl =
               "https://" +
               DomainName +
               "/app/pricelists/pricelist?uuid=" +
-              response.data.items[0].uuid;
+              response.data[0].uuid;
             setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 3000);
+            }, 12000);
           })
           .catch(function (error) {
             console.log(error);
