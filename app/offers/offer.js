@@ -908,6 +908,7 @@ docReady(function () {
     }
 
     function getBenefitTextAndIcons(type) {
+      console.log(type);
       const iconMap = {
         discount:
           "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f42f794589e8672c6_discount.svg",
