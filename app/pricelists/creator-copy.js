@@ -349,8 +349,6 @@ docReady(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form3 = $(this);
-      console.log(form3);
-      form3.off("submit");
       form3.on("submit", function (event) {
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
@@ -445,6 +443,7 @@ docReady(function () {
             $("#waitingdots").hide();
           });
         event.preventDefault(); // Prevent default form submission
+        return false;
       });
     });
   };
