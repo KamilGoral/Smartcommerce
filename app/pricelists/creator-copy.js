@@ -352,8 +352,6 @@ docReady(function () {
       console.log(form3);
       form3.off("submit");
       form3.on("submit", function (event) {
-        event.preventDefault(); // Prevent default form submission
-
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -446,6 +444,7 @@ docReady(function () {
             }
             $("#waitingdots").hide();
           });
+        event.preventDefault(); // Prevent default form submission
       });
     });
   };
