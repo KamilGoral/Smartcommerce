@@ -350,6 +350,7 @@ docReady(function () {
     forms.each(function () {
       var form3 = $(this);
       console.log(form3);
+      form3.off("submit");
       form3.on("submit", function (event) {
         event.preventDefault(); // Prevent default form submission
 
