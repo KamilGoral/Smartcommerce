@@ -350,6 +350,8 @@ docReady(function () {
     forms.each(function () {
       var form3 = $(this);
       form3.on("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -384,6 +386,9 @@ docReady(function () {
 
         console.log("FormData prepared:", formData);
 
+        // Show loading animation
+        $("#waitingdots").show();
+
         axios
           .post(uploadEndpoint, formData, {
             headers: {
@@ -393,6 +398,9 @@ docReady(function () {
             },
           })
           .then(function (response) {
+            // Hide loading animation
+            $("#waitingdots").hide();
+
             if (typeof successCallback === "function") {
               var result = successCallback(response.data);
               console.log(result);
@@ -414,9 +422,12 @@ docReady(function () {
               response.data[0].uuid;
             setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 12000);
+            }, 3000);
           })
           .catch(function (error) {
+            // Hide loading animation
+            $("#waitingdots").hide();
+
             console.log(error);
             var msg = "";
             if (error.response) {
@@ -441,9 +452,8 @@ docReady(function () {
             if (typeof errorCallback === "function") {
               errorCallback(error);
             }
-            $("#waitingdots").hide();
           });
-        event.preventDefault(); // Prevent default form submission
+
         return false;
       });
     });
