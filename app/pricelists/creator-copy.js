@@ -348,9 +348,9 @@ docReady(function () {
 
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
-      var form = $(this);
-      console.log(form);
-      form.on("submit", async function (event) {
+      var form3 = $(this);
+      console.log(form3);
+      form3.on("submit", async function (event) {
         event.preventDefault(); // Prevent default form submission
 
         var wholesalerKey = $("#WholesalerSelector").val();
@@ -399,7 +399,7 @@ docReady(function () {
           if (typeof successCallback === "function") {
             var result = successCallback(response.data);
             if (!result) {
-              form.show();
+              form3.show();
               displayMessage(
                 "Error",
                 "Oops. Coś poszło nie tak, spróbuj ponownie."
