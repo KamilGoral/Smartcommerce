@@ -907,8 +907,7 @@ docReady(function () {
       return "-";
     }
 
-    function getBenefitTextAndIcons(type) {
-      console.log(type);
+    function getBenefitTextAndIcons(types) {
       const iconMap = {
         discount:
           "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f42f794589e8672c6_discount.svg",
@@ -923,22 +922,34 @@ docReady(function () {
       const benefitTexts = {
         discount:
           "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
-        gratis: "W ramach tej promocji otrzymasz inne produkty gratis",
+        gratis: "W ramach tej promocji otrzymasz inne produkty gratis.",
         "self-discount":
           "W ramach tej promocji otrzymasz ten produkt w obniżonej cenie.",
         "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
       };
 
-      const icon = iconMap[type] || "";
-      const text = benefitTexts[type] || "Brak informacji o promocji";
-
-      return { icon, text };
+      if (Array.isArray(types)) {
+        return types.map((type) => {
+          const icon = iconMap[type] || "";
+          const text = benefitTexts[type] || "Brak informacji o promocji";
+          return { icon, text };
+        });
+      } else {
+        const icon = iconMap[types] || "";
+        const text = benefitTexts[types] || "Brak informacji o promocji";
+        return [{ icon, text }];
+      }
     }
 
     function getBenefitDetails(benefit) {
       if (!benefit) return "-";
-      const { icon, text } = getBenefitTextAndIcons(benefit.type);
-      let details = `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`;
+      const benefits = getBenefitTextAndIcons(benefit.type);
+      let details = benefits
+        .map(
+          ({ icon, text }) =>
+            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`
+        )
+        .join(" ");
       if (benefit.gratis) {
         details += `: ${benefit.gratis.quantity}x za ${benefit.gratis.price} zł`;
       }
