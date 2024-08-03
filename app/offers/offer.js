@@ -306,7 +306,7 @@ docReady(function () {
       type: "GET",
       headers: {
         Authorization: orgToken,
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show(); // Show the loading indicator
@@ -363,7 +363,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    // request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
 
@@ -499,7 +499,7 @@ docReady(function () {
       type: "GET",
       headers: {
         Authorization: orgToken,
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
         $("#waitingdots").show();
@@ -1145,7 +1145,7 @@ docReady(function () {
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
-          //"Requested-By": "webflow-3-4",
+          "Requested-By": "webflow-3-4",
         },
         beforeSend: function () {
           $("#waitingdots").show();
@@ -1595,7 +1595,7 @@ docReady(function () {
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    // request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
       var data = JSON.parse(this.response);
       var toParse = data.items;
@@ -1662,7 +1662,7 @@ docReady(function () {
             Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: orgToken,
-            //"Requested-By": "webflow-3-4",
+            "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(data),
           success: function (resultData) {

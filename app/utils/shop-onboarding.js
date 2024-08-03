@@ -30,7 +30,7 @@ if (shopButton) {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: getCookie(getCookie("sprytnyNewOrganizationId")),
-        //"Requested-By": "webflow-3-4",
+        "Requested-By": "webflow-3-4",
       },
       data: JSON.stringify(data),
       success: function (resultData) {
@@ -172,7 +172,7 @@ function getWholesaler() {
   let apiUrl = new URL(InvokeURL + "wholesalers/" + wholesalerKey);
   request.open("GET", apiUrl.toString(), true);
   request.setRequestHeader("Authorization", orgToken);
-  // request.setRequestHeader("Requested-By", "webflow-3-4");
+  request.setRequestHeader("Requested-By", "webflow-3-4");
   request.onload = function () {
     var data = JSON.parse(this.response);
     console.log(data);
@@ -311,7 +311,7 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: orgToken,
-          //"Requested-By": "webflow-3-4",
+          "Requested-By": "webflow-3-4",
         },
         data: JSON.stringify(data),
         success: function (resultData) {
@@ -355,7 +355,7 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
             }
 
             request.setRequestHeader("Authorization", orgToken);
-            // request.setRequestHeader("Requested-By", "webflow-3-4");
+            request.setRequestHeader("Requested-By", "webflow-3-4");
             request.onload = function () {
               var data = JSON.parse(this.response);
               var toParse = data.items;
@@ -512,7 +512,7 @@ function getProfile() {
     }
   }
   request.setRequestHeader("Authorization", orgToken);
-  // request.setRequestHeader("Requested-By", "webflow-3-4");
+  request.setRequestHeader("Requested-By", "webflow-3-4");
   request.onload = function () {
     var data = JSON.parse(this.response);
     var toParse = data.items;
