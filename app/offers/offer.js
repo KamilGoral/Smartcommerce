@@ -126,11 +126,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -270,11 +270,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -289,11 +289,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/offers/offer?shopKey=" +
-    shopKey +
-    "&offerId=" +
-    offerId
+      DomainName +
+      "/app/offers/offer?shopKey=" +
+      shopKey +
+      "&offerId=" +
+      offerId
   );
 
   function getProductDetails(rowData) {
@@ -528,7 +528,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -542,7 +542,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -555,7 +555,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -568,7 +568,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -907,14 +907,39 @@ docReady(function () {
       return "-";
     }
 
-    function getBenefitIcons(type) {
+    function getBenefitTextAndIcons(type) {
       const iconMap = {
-        discount: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg",
-        gratis: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg",
-        "self-discount": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63bec6a82ba7e232e9508a20_snippets.svg",
-        "self-gratis": "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66a7dec95fa244bcfd87afb5_gratis%20icon.svg",
+        discount:
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f42f794589e8672c6_discount.svg",
+        gratis:
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fdb314702dd02c146_gratis.svg",
+        "self-discount":
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f4b8335a91b6fc74a_self-discount.svg",
+        "self-gratis":
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fcb35781959d04e2e_self-gratis.svg",
       };
-      return type.map(type => `<img src="${iconMap[type] || ""}" alt="${type}" />`).join(" ");
+
+      const benefitTexts = {
+        discount: "Obniżona cena",
+        gratis: "Produkt gratis",
+        "self-discount": "Zniżka na zakup własny",
+        "self-gratis": "Gratis przy zakupie własnym",
+      };
+
+      const icon = iconMap[type] || "";
+      const text = benefitTexts[type] || "Brak informacji o promocji";
+
+      return { icon, text };
+    }
+
+    function getBenefitDetails(benefit) {
+      if (!benefit) return "-";
+      const { icon, text } = getBenefitTextAndIcons(benefit.type);
+      let details = `<img src="${icon}" alt="${text}" /> ${text}`;
+      if (benefit.gratis) {
+        details += `: ${benefit.gratis.quantity}x za ${benefit.gratis.price} zł`;
+      }
+      return details;
     }
 
     const toDisplayHtml = arr
@@ -923,22 +948,14 @@ docReady(function () {
         const promotionType = promotion ? promotion.name : "-";
         const promotionDescription = promotion
           ? promotion.description
-          : "No promotion";
+          : "Brak promocji";
 
         const showRelated =
           item.promotion && item.promotion.relatedGtins.length > 0
             ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
             : "-";
 
-        let benefitHtml = "-";
-        if (item.promotion?.benefit?.type) {
-          console.log("promka");
-          const benefitType = getBenefitIcons(item.promotion.benefit.type);
-          const gratisInfo = item.promotion.benefit.gratis
-            ? `, ${item.promotion.benefit.gratis.quantity}x at ${item.promotion.benefit.gratis.price}`
-            : "";
-          benefitHtml = benefitType + gratisInfo;
-        }
+        const benefitHtml = getBenefitDetails(item.promotion?.benefit);
 
         return `<tr>
             <td>${item.wholesalerKey}</td>
@@ -948,10 +965,11 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${promotion
-            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-            : "<td>-</td>"
-          }
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td>
@@ -968,7 +986,6 @@ docReady(function () {
         </table>
     `;
   }
-
 
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
