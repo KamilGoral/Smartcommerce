@@ -3318,7 +3318,7 @@ docReady(function () {
       return;
     }
 
-    let output;
+    var output = "";
     if (Array.isArray(input)) {
       output = "<td>" + input.join("<br>") + "</td>";
     } else {
