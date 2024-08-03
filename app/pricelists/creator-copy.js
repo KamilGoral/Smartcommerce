@@ -276,7 +276,6 @@ docReady(function () {
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
   NewpriceListIdBread.setAttribute("href", "" + window.location.href);
-  var formIdCreatePricing = "#wf-form-NewPricingList";
 
   function getWholesalersSh() {
     let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
@@ -350,7 +349,8 @@ docReady(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
-      form.on("submit", async function (event) {
+      form.on("submit", function (event) {
+        event.preventDefault();
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -360,18 +360,16 @@ docReady(function () {
           return false;
         }
 
-        const formData = new FormData();
         var uploadEndpoint = InvokeURL + "price-lists";
-
-        // Dodaj plik
-        const uploadedFile = document.getElementById("csv-file").files[0];
+        var uploadedFile = document.getElementById("csv-file").files[0];
         if (!uploadedFile) {
           displayMessage("Error", "Nie wybrano pliku. Proszę wybrać plik CSV.");
           return false;
         }
+
+        const formData = new FormData();
         formData.append("file", uploadedFile, "input.csv");
 
-        // Przygotuj dane JSON
         const jsonData = {
           wholesalerKey: wholesalerKey,
           shopKeys: $("#shopKeys").val(),
@@ -379,46 +377,80 @@ docReady(function () {
           endDate: $("#endDate").val() + "T23:59:59.00Z",
         };
 
-        // Dodaj dane JSON jako osobną część formularza bez filename
         formData.append(
           "json",
-          new Blob([JSON.stringify(jsonData)], {
-            type: "application/json",
-          })
+          new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
 
-        console.log(formData);
-
-        try {
-          const response = await axios.post(uploadEndpoint, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
-          });
-
-          // success
-          displayMessage("Success", "Cennik został dodany.");
-          var pricelistUrl =
-            "https://" +
-            DomainName +
-            "/app/pricelists/pricelist?uuid=" +
-            response.data.uuid; // Poprawiono uzyskanie uuid
-          window.setTimeout(function () {
-            window.location.href = pricelistUrl;
-          }, 3000);
-        } catch (error) {
-          // error
-          displayMessage("Error", error.message); // Poprawiono wyświetlanie błędów
-          $("#waitingdots").hide();
-        }
-        event.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: uploadEndpoint,
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (typeof successCallback === "function") {
+              var result = successCallback(response);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                return;
+              }
+            }
+            displayMessage("Success", "Cennik został dodany.");
+            var pricelistUrl =
+              "https://" +
+              DomainName +
+              "/app/pricelists/pricelist?uuid=" +
+              response.uuid;
+            setTimeout(function () {
+              window.location.href = pricelistUrl;
+            }, 3000);
+          },
+          error: function (jqXHR, exception) {
+            console.log(jqXHR);
+            console.log(exception);
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status == 403) {
+              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+            } else if (jqXHR.status == 400) {
+              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
+            } else if (jqXHR.status == 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseJSON.message;
+            }
+            form.show();
+            displayMessage("Error", msg);
+          },
+        });
       });
     });
   };
 
-  makeWebflowFormAjax($(formIdCreatePricing));
+  makeWebflowFormAjax($("#wf-form-NewPricingList"));
   getShops();
   getWholesalersSh();
   postChangePassword($("#wf-form-Form-Change-Password"));
