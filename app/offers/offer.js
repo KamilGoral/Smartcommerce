@@ -935,7 +935,7 @@ docReady(function () {
     function getBenefitDetails(benefit) {
       if (!benefit) return "-";
       const { icon, text } = getBenefitTextAndIcons(benefit.type);
-      let details = `<img src="${icon}" alt="${text}" /> ${text}`;
+      let details = `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`;
       if (benefit.gratis) {
         details += `: ${benefit.gratis.quantity}x za ${benefit.gratis.price} zł`;
       }
