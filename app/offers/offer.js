@@ -920,10 +920,12 @@ docReady(function () {
       };
 
       const benefitTexts = {
-        discount: "Obniżona cena",
-        gratis: "Produkt gratis",
-        "self-discount": "Zniżka na zakup własny",
-        "self-gratis": "Gratis przy zakupie własnym",
+        discount:
+          "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
+        gratis: "W ramach tej promocji otrzymasz inne produkty gratis",
+        "self-discount":
+          "W ramach tej promocji otrzymasz ten produkt w obniżonej cenie.",
+        "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
       };
 
       const icon = iconMap[type] || "";
