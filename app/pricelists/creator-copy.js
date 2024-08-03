@@ -350,7 +350,7 @@ docReady(function () {
     forms.each(function () {
       var form3 = $(this);
       console.log(form3);
-      form3.on("submit", async function (event) {
+      form3.on("submit", function (event) {
         event.preventDefault(); // Prevent default form submission
 
         var wholesalerKey = $("#WholesalerSelector").val();
@@ -387,63 +387,64 @@ docReady(function () {
 
         console.log("FormData prepared:", formData);
 
-        try {
-          const response = await axios.post(uploadEndpoint, formData, {
+        axios
+          .post(uploadEndpoint, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
               Authorization: orgToken,
               "Requested-By": "webflow-3-4",
             },
-          });
-
-          if (typeof successCallback === "function") {
-            var result = successCallback(response.data);
-            if (!result) {
-              form3.show();
-              displayMessage(
-                "Error",
-                "Oops. Coś poszło nie tak, spróbuj ponownie."
-              );
-              return;
+          })
+          .then(function (response) {
+            if (typeof successCallback === "function") {
+              var result = successCallback(response.data);
+              if (!result) {
+                form3.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                return;
+              }
             }
-          }
 
-          displayMessage("Success", "Cennik został dodany.");
-          var pricelistUrl =
-            "https://" +
-            DomainName +
-            "/app/pricelists/pricelist?uuid=" +
-            response.data.uuid;
-          setTimeout(function () {
-            window.location.href = pricelistUrl;
-          }, 3000);
-        } catch (error) {
-          console.log(error);
-          var msg = "";
-          if (error.response) {
-            if (error.response.status === 0) {
-              msg = "Not connect.\n Verify Network.";
-            } else if (error.response.status == 403) {
-              msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
-            } else if (error.response.status == 400) {
-              msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
-            } else if (error.response.status == 500) {
-              msg = "Internal Server Error [500].";
+            displayMessage("Success", "Cennik został dodany.");
+            var pricelistUrl =
+              "https://" +
+              DomainName +
+              "/app/pricelists/pricelist?uuid=" +
+              response.data.uuid;
+            setTimeout(function () {
+              window.location.href = pricelistUrl;
+            }, 3000);
+          })
+          .catch(function (error) {
+            console.log(error);
+            var msg = "";
+            if (error.response) {
+              if (error.response.status === 0) {
+                msg = "Not connect.\n Verify Network.";
+              } else if (error.response.status == 403) {
+                msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+              } else if (error.response.status == 400) {
+                msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
+              } else if (error.response.status == 500) {
+                msg = "Internal Server Error [500].";
+              } else {
+                msg = error.response.data.message;
+              }
+            } else if (error.request) {
+              msg = "No response from the server.";
             } else {
-              msg = error.response.data.message;
+              msg = error.message;
             }
-          } else if (error.request) {
-            msg = "No response from the server.";
-          } else {
-            msg = error.message;
-          }
 
-          displayMessage("Error", msg);
-          if (typeof errorCallback === "function") {
-            errorCallback(error);
-          }
-          $("#waitingdots").hide();
-        }
+            displayMessage("Error", msg);
+            if (typeof errorCallback === "function") {
+              errorCallback(error);
+            }
+            $("#waitingdots").hide();
+          });
       });
     });
   };
