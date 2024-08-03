@@ -395,6 +395,7 @@ docReady(function () {
           .then(function (response) {
             if (typeof successCallback === "function") {
               var result = successCallback(response.data);
+              console.log(result);
               if (!result) {
                 form3.show();
                 displayMessage(
@@ -406,6 +407,7 @@ docReady(function () {
             }
 
             displayMessage("Success", "Cennik został dodany.");
+            console.log(response);
             var pricelistUrl =
               "https://" +
               DomainName +
