@@ -389,6 +389,8 @@ docReady(function () {
           })
         );
 
+        console.log(FormData);
+
         try {
           const response = await axios.post(uploadEndpoint, formData, {
             headers: {
