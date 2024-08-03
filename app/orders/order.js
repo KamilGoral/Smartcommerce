@@ -892,18 +892,69 @@ docReady(function () {
       return "-";
     }
 
+    function getBenefitTextAndIcons(types) {
+      const iconMap = {
+        discount:
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f42f794589e8672c6_discount.svg",
+        gratis:
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fdb314702dd02c146_gratis.svg",
+        "self-discount":
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f4b8335a91b6fc74a_self-discount.svg",
+        "self-gratis":
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fcb35781959d04e2e_self-gratis.svg",
+      };
+
+      const benefitTexts = {
+        discount:
+          "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
+        gratis: "W ramach tej promocji otrzymasz inne produkty gratis.",
+        "self-discount":
+          "W ramach tej promocji otrzymasz ten produkt w obniżonej cenie.",
+        "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
+      };
+
+      if (Array.isArray(types)) {
+        return types.map((type) => {
+          const icon = iconMap[type] || "";
+          const text = benefitTexts[type] || "Brak informacji o promocji";
+          return { icon, text };
+        });
+      } else {
+        const icon = iconMap[types] || "";
+        const text = benefitTexts[types] || "Brak informacji o promocji";
+        return [{ icon, text }];
+      }
+    }
+
+    function getBenefitDetails(benefit) {
+      if (!benefit) return "-";
+      const benefits = getBenefitTextAndIcons(benefit.type);
+      let details = benefits
+        .map(
+          ({ icon, text }) =>
+            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`
+        )
+        .join(" ");
+      if (benefit.gratis) {
+        details += `: ${benefit.gratis.quantity}x za ${benefit.gratis.price} zł`;
+      }
+      return details;
+    }
+
     const toDisplayHtml = arr
       .map((item) => {
         const promotion = promotionMap[item.promotion?.type];
         const promotionType = promotion ? promotion.name : "-";
         const promotionDescription = promotion
           ? promotion.description
-          : "No promotion";
+          : "Brak promocji";
 
         const showRelated =
           item.promotion && item.promotion.relatedGtins.length > 0
-            ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class ="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
+            ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
             : "-";
+
+        const benefitHtml = getBenefitDetails(item.promotion?.benefit);
 
         return `<tr>
             <td>${item.wholesalerKey}</td>
@@ -920,15 +971,16 @@ docReady(function () {
             }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
-            <td>${calculatePackage(item.promotion)}</td> 
-            <td>${showRelated}</td>
+            <td>${calculatePackage(item.promotion)}</td>
+            <td>${benefitHtml}</td>
+            <td>${showRelated}</td>    
         </tr>`;
       })
       .join("");
 
     return `
         <table>
-            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Powiązane</th></tr>
+            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th></tr>
             ${toDisplayHtml}
         </table>
     `;
