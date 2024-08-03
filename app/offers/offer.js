@@ -1574,7 +1574,7 @@ docReady(function () {
     let output;
 
     for (var i = 0; i < values.length; i++) {
-      output += "<p>" + values[i] + "</p>";
+      output += "<p class='filterfont'>" + values[i] + "</p>";
     }
 
     popupContent.innerHTML = output;
