@@ -349,6 +349,7 @@ docReady(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+      console.log(form);
       form.on("submit", async function (event) {
         event.preventDefault(); // Prevent default form submission
 
