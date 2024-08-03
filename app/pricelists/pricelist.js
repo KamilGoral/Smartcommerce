@@ -273,7 +273,6 @@ docReady(function () {
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   const priceListIdBread = document.getElementById("priceListIdBread");
   priceListIdBread.setAttribute("href", window.location.href);
-  const priceListIdBreadBig = document.getElementById("priceListIdBreadBig");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
     "href",

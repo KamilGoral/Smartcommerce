@@ -422,7 +422,7 @@ docReady(function () {
               response.data[0].uuid;
             setTimeout(function () {
               window.location.href = pricelistUrl;
-            }, 3000);
+            }, 1500);
           })
           .catch(function (error) {
             // Hide loading animation
