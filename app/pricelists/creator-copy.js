@@ -349,8 +349,9 @@ docReady(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
-      form.on("submit", function (event) {
-        event.preventDefault();
+      form.on("submit", async function (event) {
+        event.preventDefault(); // Prevent default form submission
+
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -360,7 +361,6 @@ docReady(function () {
           return false;
         }
 
-        var uploadEndpoint = InvokeURL + "price-lists";
         var uploadedFile = document.getElementById("csv-file").files[0];
         if (!uploadedFile) {
           displayMessage("Error", "Nie wybrano pliku. Proszę wybrać plik CSV.");
@@ -382,70 +382,67 @@ docReady(function () {
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
 
-        $.ajax({
-          type: "POST",
-          url: uploadEndpoint,
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function (response) {
-            if (typeof successCallback === "function") {
-              var result = successCallback(response);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                return;
-              }
+        var uploadEndpoint = InvokeURL + "price-lists";
+
+        console.log("FormData prepared:", formData);
+
+        try {
+          const response = await axios.post(uploadEndpoint, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+          });
+
+          if (typeof successCallback === "function") {
+            var result = successCallback(response.data);
+            if (!result) {
+              form.show();
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
+              return;
             }
-            displayMessage("Success", "Cennik został dodany.");
-            var pricelistUrl =
-              "https://" +
-              DomainName +
-              "/app/pricelists/pricelist?uuid=" +
-              response.uuid;
-            setTimeout(function () {
-              window.location.href = pricelistUrl;
-            }, 3000);
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            if (jqXHR.status === 0) {
+          }
+
+          displayMessage("Success", "Cennik został dodany.");
+          var pricelistUrl =
+            "https://" +
+            DomainName +
+            "/app/pricelists/pricelist?uuid=" +
+            response.data.uuid;
+          setTimeout(function () {
+            window.location.href = pricelistUrl;
+          }, 3000);
+        } catch (error) {
+          console.log(error);
+          var msg = "";
+          if (error.response) {
+            if (error.response.status === 0) {
               msg = "Not connect.\n Verify Network.";
-            } else if (jqXHR.status == 403) {
+            } else if (error.response.status == 403) {
               msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
-            } else if (jqXHR.status == 400) {
+            } else if (error.response.status == 400) {
               msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
-            } else if (jqXHR.status == 500) {
+            } else if (error.response.status == 500) {
               msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-              msg = "Time out error.";
-            } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
             } else {
-              msg = "" + jqXHR.responseJSON.message;
+              msg = error.response.data.message;
             }
-            form.show();
-            displayMessage("Error", msg);
-          },
-        });
+          } else if (error.request) {
+            msg = "No response from the server.";
+          } else {
+            msg = error.message;
+          }
+
+          displayMessage("Error", msg);
+          if (typeof errorCallback === "function") {
+            errorCallback(error);
+          }
+          $("#waitingdots").hide();
+        }
       });
     });
   };
