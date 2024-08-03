@@ -371,6 +371,10 @@ docReady(function () {
 
         // Dodaj plik
         const uploadedFile = document.getElementById("csv-file").files[0];
+        if (!uploadedFile) {
+          displayMessage("Error", "Nie wybrano pliku. Proszę wybrać plik CSV.");
+          return false;
+        }
         formData.append("file", uploadedFile, "input.csv");
 
         // Przygotuj dane JSON
@@ -389,7 +393,7 @@ docReady(function () {
           })
         );
 
-        console.log(FormData);
+        console.log(formData);
 
         try {
           const response = await axios.post(uploadEndpoint, formData, {
