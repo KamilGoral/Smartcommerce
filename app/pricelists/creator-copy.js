@@ -351,12 +351,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", async function (event) {
-        // Dodano async tutaj
-        event.preventDefault();
-
-        // Hide previous error message, if any
-        $("#Create-Pricelist-Fail").stop(true, true).hide();
-
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -419,6 +413,7 @@ docReady(function () {
           displayMessage("Error", error.message); // Poprawiono wyświetlanie błędów
           $("#waitingdots").hide();
         }
+        event.preventDefault();
       });
     });
   };
