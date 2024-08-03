@@ -443,6 +443,7 @@ docReady(function () {
           }
           $("#waitingdots").hide();
         }
+        event.preventDefault(); // Prevent default form submission
       });
     });
   };
