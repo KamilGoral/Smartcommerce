@@ -1009,29 +1009,22 @@ docReady(function () {
           orderable: false,
           data: null,
           render: function (data) {
-            if (data !== null) {
-              if (data.offers[0].status == "ready") {
-                return '<span class="positive">Gotowa</span>';
-              }
-              if (data.offers[0].status == "error") {
-                return '<span class="negative">Problem</span>';
-              }
-              if (data.offers[0].status == "in progress") {
-                return '<span class="informative">W trakcie</span>';
-              }
-              if (data.offers[0].status == "incomplete") {
-                return '<span class="medium">Niekompletna</span>';
-              }
-              if (data.offers[0].status == "batching") {
-                return '<span class="informative">W kolejce</span>';
-              }
-              if (data.offers[0].status == "forced") {
-                return '<span class="informative">W kolejce</span>';
-              }
+            const statusMap = {
+              "ready": '<span class="positive">Gotowa</span>',
+              "error": '<span class="negative">Problem</span>',
+              "incomplete": '<span class="medium">Niekompletna</span>',
+              "in progress": '<span class="informative">W trakcie</span>',    
+              "batching": '<span class="informative">W kolejce</span>',
+              "forced": '<span class="informative">W kolejce</span>',
+            };
+        
+            if (data && data.offers && data.offers[0]) {
+              return statusMap[data.offers[0].status] || "-";
             }
             return "-";
           },
-        },
+        }
+        
         {
           orderable: false,
           data: null,
