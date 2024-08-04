@@ -1010,21 +1010,20 @@ docReady(function () {
           data: null,
           render: function (data) {
             const statusMap = {
-              "ready": '<span class="positive">Gotowa</span>',
-              "error": '<span class="negative">Problem</span>',
-              "incomplete": '<span class="medium">Niekompletna</span>',
-              "in progress": '<span class="informative">W trakcie</span>',    
-              "batching": '<span class="informative">W kolejce</span>',
-              "forced": '<span class="informative">W kolejce</span>',
+              ready: '<span class="positive">Gotowa</span>',
+              error: '<span class="negative">Problem</span>',
+              "in progress": '<span class="informative">W trakcie</span>',
+              incomplete: '<span class="medium">Niekompletna</span>',
+              batching: '<span class="informative">W kolejce</span>',
+              forced: '<span class="informative">W kolejce</span>',
             };
-        
             if (data && data.offers && data.offers[0]) {
               return statusMap[data.offers[0].status] || "-";
             }
             return "-";
           },
-        }
-        
+        },
+
         {
           orderable: false,
           data: null,
