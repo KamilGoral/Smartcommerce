@@ -3263,10 +3263,7 @@ docReady(function () {
   });
 
   $("#spl_table").on("focusout", "input", function () {
-    // Get the right table
-    // Change amount of product
     var table = $("#spl_table").DataTable();
-
     let newValue = $(this).val();
     var initialValue = $(this).data("initialValue");
 
@@ -3274,25 +3271,31 @@ docReady(function () {
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
+
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity) || quantity < 0) {
-          quantity = 0; // If so, change the value to 0
-        } else {
+          quantity = 0; // If invalid, change the value to 0
+        }
+
+        if (isValidGTIN(data.gtin)) {
           if (quantity !== null) {
             var product = {
               op: "replace",
               path: "/" + data.gtin + "/quantity",
               value: quantity,
             };
-          } else {
-            var product = {
-              op: "remove",
-              path: "/" + data.gtin,
-            };
+            addObject(changesPayload, product);
           }
+        } else {
+          // GTIN is invalid; only remove it
+          var product = {
+            op: "remove",
+            path: "/" + data.gtin,
+          };
+          addObject(changesPayload, product);
         }
-        addObject(changesPayload, product);
+
         // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
@@ -3301,6 +3304,11 @@ docReady(function () {
       }
     }
   });
+
+  // Function to validate GTIN format (example implementation)
+  function isValidGTIN(gtin) {
+    return /^[0-9]{8,14}$/.test(gtin); // Adjust regex as needed
+  }
 
   $("#spl_table").on("focusin", "select", function () {
     // Store the current value when the select element is focused
