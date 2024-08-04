@@ -766,10 +766,10 @@ docReady(function () {
                   let mainContent = `<div>${row.number}</div>`;
                   let correctiveContent = "";
                   if (
-                    row.corrrectiveInvoices &&
-                    row.corrrectiveInvoices.length > 0
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.corrrectiveInvoices
+                    correctiveContent = row.correctiveInvoices
                       .map((corrective) => {
                         return `<div style="margin-top: 5px; font-style: italic;"> - ${corrective.number}</div>`;
                       })
@@ -804,10 +804,10 @@ docReady(function () {
                   }
                   let correctiveContent = "";
                   if (
-                    row.corrrectiveInvoices &&
-                    row.corrrectiveInvoices.length > 0
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.corrrectiveInvoices
+                    correctiveContent = row.correctiveInvoices
                       .map((corrective) => {
                         let status = "";
                         switch (corrective.status) {
@@ -846,10 +846,10 @@ docReady(function () {
                   ).toLocaleDateString("pl-PL");
                   let correctiveContent = "";
                   if (
-                    row.corrrectiveInvoices &&
-                    row.corrrectiveInvoices.length > 0
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.corrrectiveInvoices
+                    correctiveContent = row.correctiveInvoices
                       .map((corrective) => {
                         return `<div style="margin-top: 5px; font-style: italic;">${new Date(
                           corrective.paymentDueDate
@@ -870,10 +870,10 @@ docReady(function () {
                   }).format(row.netTotal);
                   let correctiveContent = "";
                   if (
-                    row.corrrectiveInvoices &&
-                    row.corrrectiveInvoices.length > 0
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
                   ) {
-                    correctiveContent = row.corrrectiveInvoices
+                    correctiveContent = row.correctiveInvoices
                       .map((corrective) => {
                         return `<div style="margin-top: 5px; font-style: italic;">${new Intl.NumberFormat(
                           "pl-PL",
@@ -893,40 +893,54 @@ docReady(function () {
                 width: "156px",
                 data: null,
                 render: function (data, type, row) {
-                  const paymentLink = row.paymentLink
-                    ? `
+                  const paymentLink =
+                    row.status !== "paid" && row.paymentLink
+                      ? `
                         <a href="${row.paymentLink}" target="_blank" style="margin-left: 0.25rem;">
-                          <span class="positive" >Zapłać</span>
+                          <span class="positive">Zapłać</span>
                         </a>
                       `
-                    : " ";
+                      : " ";
+
                   const downloadLink = `
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
                       <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                     </a>
                     <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
-                      <span class="noneexisting" style="margin-left: 0.25rem;" >Duplikat</span>
+                      <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
                     </a>
                   `;
+
                   let correctiveLinks = "";
                   if (
-                    row.corrrectiveInvoices &&
-                    row.corrrectiveInvoices.length > 0
+                    row.correctiveInvoices &&
+                    row.correctiveInvoices.length > 0
                   ) {
-                    correctiveLinks = row.corrrectiveInvoices
+                    correctiveLinks = row.correctiveInvoices
                       .map((corrective) => {
+                        const correctivePaymentLink =
+                          corrective.status !== "paid" && corrective.paymentLink
+                            ? `
+                              <a href="${corrective.paymentLink}" target="_blank" style="margin-left: 0.25rem;">
+                                <span class="positive">Zapłać</span>
+                              </a>
+                            `
+                            : " ";
+
                         return `
                           <div style="margin-top: 0.25rem;">
-                            <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
-                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
-                    </a>
-                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <span class="noneexisting">Duplikat</span>
+                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="regular">
+                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                             </a>
+                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
+                              <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
+                            </a>
+                            ${correctivePaymentLink}
                           </div>`;
                       })
                       .join(" ");
                   }
+
                   return `<div class="action-container">${downloadLink} ${paymentLink}</div> ${correctiveLinks}`;
                 },
               },
