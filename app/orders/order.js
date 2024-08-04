@@ -3305,9 +3305,10 @@ docReady(function () {
     }
   });
 
-  // Function to validate GTIN format (example implementation)
+  // Function to validate GTIN format (checks if GTIN contains '?')
   function isValidGTIN(gtin) {
-    return /^[0-9]{8,14}$/.test(gtin); // Adjust regex as needed
+    // GTIN is considered valid if it does not contain '?'
+    return !gtin.includes("?");
   }
 
   $("#spl_table").on("focusin", "select", function () {
