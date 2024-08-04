@@ -1017,7 +1017,7 @@ docReady(function () {
                 return '<span class="negative">Problem</span>';
               }
               if (data.offers[0].status == "in progress") {
-                return '<span class="medium">W trakcie</span>';
+                return '<span class="informative">W trakcie</span>';
               }
               if (data.offers[0].status == "incomplete") {
                 return '<span class="medium">Niekompletna</span>';

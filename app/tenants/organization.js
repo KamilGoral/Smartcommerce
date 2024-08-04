@@ -4177,15 +4177,17 @@ docReady(function () {
     $input.val(value).attr("value", value).data("initialValue", value);
   }
 
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      console.log("Adjusting");
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-    }, 400);
-  });
+  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
+    function () {
+      setTimeout(function () {
+        console.log("Adjusting");
+        $.fn.dataTable
+          .tables({
+            visible: true,
+            api: true,
+          })
+          .columns.adjust();
+      }, 600);
+    }
+  );
 });
