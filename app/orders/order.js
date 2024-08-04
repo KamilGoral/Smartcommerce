@@ -3266,11 +3266,11 @@ docReady(function () {
     var table = $("#spl_table").DataTable();
     let newValue = $(this).val();
     var initialValue = $(this).data("initialValue");
+    var $input = $(this);
 
     // Check if the value has changed
     if (newValue !== initialValue) {
-      $(this).attr("value", newValue);
-      var data = table.row($(this).parents("tr")).data();
+      var data = table.row($input.parents("tr")).data();
 
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
@@ -3287,18 +3287,17 @@ docReady(function () {
             };
             addObject(changesPayload, product);
           }
+          // Emulate changes for the user
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
         } else {
-          // GTIN is invalid; only remove it
-          var product = {
-            op: "remove",
-            path: "/" + data.gtin,
-          };
-          addObject(changesPayload, product);
+          // GTIN is invalid; revert value and show an error message
+          $input.val(initialValue); // Revert to initial value
+          displayMessage(
+            "Error",
+            "Produkt z niepoprawnym kodem GTIN może zostać tylko usunięty z zamówienia."
+          );
         }
-
-        // Emulate changes for the user
-        $("#waitingdots").show(1).delay(150).hide(1);
-        checkChangesPayload();
       } else {
         console.log("GTIN is null");
       }
