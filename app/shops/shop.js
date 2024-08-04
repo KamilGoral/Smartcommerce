@@ -1023,10 +1023,10 @@ docReady(function () {
                 return '<span class="medium">Niekompletna</span>';
               }
               if (data.offers[0].status == "batching") {
-                return '<span class="medium">W kolejce</span>';
+                return '<span class="informative">W kolejce</span>';
               }
               if (data.offers[0].status == "forced") {
-                return '<span class="medium">W kolejce</span>';
+                return '<span class="informative">W kolejce</span>';
               }
             }
             return "-";
