@@ -419,7 +419,7 @@ docReady(function () {
               "https://" +
               DomainName +
               "/app/pricelists/pricelist?uuid=" +
-              response.data[0].uuid;
+              response.data.items[0].uuid;
             setTimeout(function () {
               window.location.href = pricelistUrl;
             }, 1500);
