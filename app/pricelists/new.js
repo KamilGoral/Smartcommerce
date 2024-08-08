@@ -393,8 +393,7 @@ docReady(function () {
           // Default case will now use text/plain
         }
   
-        // Append the file with the determined or default MIME type
-        formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
+        
   
         // JSON data should be of type application/json
         const jsonData = {
@@ -408,6 +407,9 @@ docReady(function () {
           "json",
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
+
+        // Append the file with the determined or default MIME type
+        formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
   
         var uploadEndpoint = InvokeURL + "price-lists";
   
@@ -463,7 +465,7 @@ docReady(function () {
               } else if (error.response.status == 403) {
                 msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
               } else if (error.response.status == 400) {
-                msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
+                msg = error.message;
               } else if (error.response.status == 500) {
                 msg = "Internal Server Error [500].";
               } else {
