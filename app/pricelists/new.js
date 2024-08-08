@@ -363,7 +363,10 @@ docReady(function () {
 
         var uploadedFile = document.getElementById("csv-file").files[0];
         if (!uploadedFile) {
-          displayMessage("Error", "Nie wybrano pliku. Proszę wybrać plik CSV.");
+          displayMessage(
+            "Error",
+            "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
+          );
           return false;
         }
 
