@@ -351,7 +351,7 @@ docReady(function () {
       var form3 = $(this);
       form3.on("submit", function (event) {
         event.preventDefault(); // Prevent default form submission
-
+  
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -360,7 +360,7 @@ docReady(function () {
           );
           return false;
         }
-
+  
         var uploadedFile = document.getElementById("csv-file").files[0];
         if (!uploadedFile) {
           displayMessage(
@@ -369,29 +369,53 @@ docReady(function () {
           );
           return false;
         }
-
+  
         const formData = new FormData();
-        formData.append("file", uploadedFile, "input.csv");
-
+  
+        // Determine the MIME type based on file extension, default to text/plain
+        var fileType = "text/plain";  // Default MIME type
+        var fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
+  
+        switch (fileExtension) {
+          case "csv":
+            fileType = "text/csv";
+            break;
+          case "xlsx":
+            fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            break;
+          case "ods":
+            fileType = "application/vnd.oasis.opendocument.spreadsheet";
+            break;
+          case "txt":
+          case "edi":
+            fileType = "text/plain";
+            break;
+          // Default case will now use text/plain
+        }
+  
+        // Append the file with the determined or default MIME type
+        formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
+  
+        // JSON data should be of type application/json
         const jsonData = {
           wholesalerKey: wholesalerKey,
           shopKeys: $("#shopKeys").val(),
           startDate: $("#startDate").val() + "T00:00:01.00Z",
           endDate: $("#endDate").val() + "T23:59:59.00Z",
         };
-
+  
         formData.append(
           "json",
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
-
+  
         var uploadEndpoint = InvokeURL + "price-lists";
-
+  
         console.log("FormData prepared:", formData);
-
+  
         // Show loading animation
         $("#waitingdots").show();
-
+  
         axios
           .post(uploadEndpoint, formData, {
             headers: {
@@ -403,7 +427,7 @@ docReady(function () {
           .then(function (response) {
             // Hide loading animation
             $("#waitingdots").hide();
-
+  
             if (typeof successCallback === "function") {
               var result = successCallback(response.data);
               console.log(result);
@@ -416,7 +440,7 @@ docReady(function () {
                 return;
               }
             }
-
+  
             displayMessage("Success", "Cennik został dodany.");
             var pricelistUrl =
               "https://" +
@@ -430,7 +454,7 @@ docReady(function () {
           .catch(function (error) {
             // Hide loading animation
             $("#waitingdots").hide();
-
+  
             console.log(error);
             var msg = "";
             if (error.response) {
@@ -450,17 +474,18 @@ docReady(function () {
             } else {
               msg = error.message;
             }
-
+  
             displayMessage("Error", msg);
             if (typeof errorCallback === "function") {
               errorCallback(error);
             }
           });
-
+  
         return false;
       });
     });
   };
+  
 
   makeWebflowFormAjax($("#wf-form-NewPricingList"));
   getShops();
