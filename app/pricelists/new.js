@@ -381,7 +381,7 @@ docReady(function () {
   
           // Change button role to submit and add a class to indicate a file is selected
           button.classList.add('file-selected');
-          button.textContent = 'Wyślij cennik: ' + fileName;
+          button.textContent = 'Submit';
         });
       });
   
@@ -394,6 +394,7 @@ docReady(function () {
             "Error",
             "Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
           );
+          resetForm();
           return false;
         }
   
@@ -411,6 +412,7 @@ docReady(function () {
             "Error",
             "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
           );
+          resetForm();
           return false;
         }
   
@@ -481,6 +483,7 @@ docReady(function () {
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
+                resetForm();
                 return;
               }
             }
@@ -520,6 +523,7 @@ docReady(function () {
             }
   
             displayMessage("Error", msg);
+            resetForm();
             if (typeof errorCallback === "function") {
               errorCallback(error);
             }
@@ -527,8 +531,22 @@ docReady(function () {
   
         return false;
       });
+  
+      function resetForm() {
+        // Reset the form fields
+        form3[0].reset();
+  
+        // Reset the file upload button to its original state
+        uploadButtons.forEach(button => {
+          button.classList.remove('file-selected');
+          button.textContent = 'Upload File'; // Original button text, adjust as needed
+          button.querySelector('div').textContent = ''; // Clear any file name text
+        });
+      }
     });
   };
+  
+  
   
   
   
