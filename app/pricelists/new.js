@@ -421,6 +421,7 @@ docReady(function () {
         // Determine the MIME type based on file extension, default to text/plain
         var fileType = "text/plain";  // Default MIME type
         var fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
+        console.log(fileExtension);
 
         switch (fileExtension) {
           case "csv":
@@ -510,7 +511,7 @@ docReady(function () {
               } else if (error.response.status == 403) {
                 msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
               } else if (error.response.status == 400) {
-                msg = error.message;
+                msg = error.response.message;
               } else if (error.response.status == 500) {
                 msg = "Internal Server Error [500].";
               } else {
