@@ -350,195 +350,197 @@ docReady(function () {
     forms.each(function () {
       var form3 = $(this);
 
-      // Find all elements with the 'ms-code-file_uploader' attribute
+      // Find all elements with the 'file_uploader' attribute
       const uploadButtons = document.querySelectorAll('[file_uploader]');
 
       uploadButtons.forEach(button => {
-        // Create a hidden file input element
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.style.display = 'none'; // Hide the file input
-        fileInput.name = button.getAttribute('file_uploader'); // Set name to the value of the attribute
+          // Create a hidden file input element
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.style.display = 'none'; // Hide the file input
+          fileInput.name = button.getAttribute('file_uploader'); // Set name to the value of the attribute
 
-        // Append the file input to the body (or wherever appropriate)
-        document.body.appendChild(fileInput);
+          // Append the file input to the body (or wherever appropriate)
+          document.body.appendChild(fileInput);
 
-        // When the button is clicked, trigger the file input if the file is not selected
-        button.addEventListener('click', function (e) {
-          if (!button.classList.contains('file-selected')) {
-            e.preventDefault(); // Prevent any default button actions if file not selected yet
-            fileInput.click();
-          } else {
-            // If file is selected, submit the form
-            form3.submit();
-          }
-        });
+          // When the button is clicked, trigger the file input if the file is not selected
+          button.addEventListener('click', function (e) {
+              if (!button.classList.contains('file-selected')) {
+                  e.preventDefault(); // Prevent any default button actions if file not selected yet
+                  fileInput.click();
+              } else {
+                  // If file is selected, submit the form
+                  form3.submit();
+              }
+          });
 
-        // When a file is selected, update the button text with the file name
-        fileInput.addEventListener('change', function () {
-          const fileName = fileInput.files[0].name; // Get the file name
-          // Update the button's inner HTML with the file name and the icon
-          button.innerHTML = `
-    Wyslij cennik: ${fileName}
-    <div class="icon-embed-xsmall w-embed">
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-            <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-        </svg>
-    </div>
-`;
+          // When a file is selected, update the button text with the file name
+          fileInput.addEventListener('change', function () {
+              const fileName = fileInput.files[0].name; // Get the file name
 
-          // Change the button role to submit and add a class to indicate a file is selected
-          button.classList.add('file-selected');
-        });
+              // Update the button's inner HTML with the file name and the icon
+              button.innerHTML = `
+                  Wyslij cennik: ${fileName}
+                  <div class="icon-embed-xsmall w-embed">
+                      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                          <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                      </svg>
+                  </div>
+              `;
+
+              // Change the button role to submit and add a class to indicate a file is selected
+              button.classList.add('file-selected');
+          });
       });
 
       form3.on("submit", function (event) {
-        event.preventDefault(); // Prevent default form submission
+          event.preventDefault(); // Prevent default form submission
 
-        var wholesalerKey = $("#WholesalerSelector").val();
-        if (!wholesalerKey) {
-          displayMessage(
-            "Error",
-            "Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
-          );
-          resetForm();
-          return false;
-        }
-
-        // Retrieve the selected file from the dynamically created input
-        let uploadedFile = null;
-        uploadButtons.forEach(button => {
-          const fileInput = document.querySelector(`input[name='${button.getAttribute('file_uploader')}']`);
-          if (fileInput && fileInput.files.length > 0) {
-            uploadedFile = fileInput.files[0];
-          }
-        });
-
-        if (!uploadedFile) {
-          displayMessage(
-            "Error",
-            "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
-          );
-          resetForm();
-          return false;
-        }
-
-        const formData = new FormData();
-
-        // Determine the MIME type based on file extension, default to text/plain
-        var fileType = "text/plain";  // Default MIME type
-        var fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
-        console.log(fileExtension);
-
-        switch (fileExtension) {
-          case "csv":
-            fileType = "text/csv";
-            break;
-          case "xlsx":
-            fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            break;
-          case "ods":
-            fileType = "application/vnd.oasis.opendocument.spreadsheet";
-            break;
-          case "txt":
-          case "edi":
-            fileType = "text/plain";
-            break;
-          // Default case will now use text/plain
-        }
-
-        // JSON data should be of type application/json
-        const jsonData = {
-          wholesalerKey: wholesalerKey,
-          shopKeys: $("#shopKeys").val(),
-          startDate: $("#startDate").val() + "T00:00:01.00Z",
-          endDate: $("#endDate").val() + "T23:59:59.00Z",
-        };
-
-        formData.append(
-          "json",
-          new Blob([JSON.stringify(jsonData)], { type: "application/json" })
-        );
-
-        // Append the file with the determined or default MIME type
-        formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
-
-        var uploadEndpoint = InvokeURL + "price-lists";
-
-        console.log("FormData prepared:", formData);
-
-        // Show loading animation
-        $("#waitingdots").show();
-
-        axios
-          .post(uploadEndpoint, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
-          })
-          .then(function (response) {
-            // Hide loading animation
-            $("#waitingdots").hide();
-
-            if (typeof successCallback === "function") {
-              var result = successCallback(response.data);
-              console.log(result);
-              if (!result) {
-                form3.show();
-                displayMessage(
+          var wholesalerKey = $("#WholesalerSelector").val();
+          if (!wholesalerKey) {
+              displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                resetForm();
-                return;
+                  "Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
+              );
+              resetForm();
+              return false;
+          }
+
+          // Retrieve the selected file from the dynamically created input
+          let uploadedFile = null;
+          uploadButtons.forEach(button => {
+              const fileInput = document.querySelector(`input[name='${button.getAttribute('file_uploader')}']`);
+              if (fileInput && fileInput.files.length > 0) {
+                  uploadedFile = fileInput.files[0];
               }
-            }
-
-            displayMessage("Success", "Cennik został dodany.");
-            var pricelistUrl =
-              "https://" +
-              DomainName +
-              "/app/pricelists/pricelist?uuid=" +
-              response.data.items[0].uuid;
-            setTimeout(function () {
-              window.location.href = pricelistUrl;
-            }, 1500);
-          })
-          .catch(function (error) {
-            // Hide loading animation
-            $("#waitingdots").hide();
-
-            console.log(error);
-            var msg = "";
-            if (error.response) {
-              if (error.response.status === 0) {
-                msg = "Not connect.\n Verify Network.";
-              } else if (error.response.status == 403) {
-                msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
-              } else if (error.response.status == 400) {
-                msg = error.response.message;
-              } else if (error.response.status == 500) {
-                msg = "Internal Server Error [500].";
-              } else {
-                msg = error.response.data.message;
-              }
-            } else if (error.request) {
-              msg = "No response from the server.";
-            } else {
-              msg = error.message;
-            }
-
-            displayMessage("Error", msg);
-            resetForm();
-            if (typeof errorCallback === "function") {
-              errorCallback(error);
-            }
           });
 
-        return false;
+          if (!uploadedFile) {
+              displayMessage(
+                  "Error",
+                  "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
+              );
+              resetForm();
+              return false;
+          }
+
+          const formData = new FormData();
+
+          // Determine the MIME type based on file extension, default to text/plain
+          var fileType = "text/plain";  // Default MIME type
+          var fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
+          console.log(fileExtension);
+
+          switch (fileExtension) {
+              case "csv":
+                  fileType = "text/csv";
+                  break;
+              case "xlsx":
+                  fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                  break;
+              case "ods":
+                  fileType = "application/vnd.oasis.opendocument.spreadsheet";
+                  break;
+              case "txt":
+              case "edi":
+                  fileType = "text/plain";
+                  break;
+              // Default case will now use text/plain
+          }
+
+          // JSON data should be of type application/json
+          const jsonData = {
+              wholesalerKey: wholesalerKey,
+              shopKeys: $("#shopKeys").val(),
+              startDate: $("#startDate").val() + "T00:00:01.00Z",
+              endDate: $("#endDate").val() + "T23:59:59.00Z",
+          };
+
+          formData.append(
+              "json",
+              new Blob([JSON.stringify(jsonData)], { type: "application/json" })
+          );
+
+          // Append the file with the determined or default MIME type
+          formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
+
+          var uploadEndpoint = InvokeURL + "price-lists";
+
+          console.log("FormData prepared:", formData);
+
+          // Show loading animation
+          $("#waitingdots").show();
+
+          axios
+              .post(uploadEndpoint, formData, {
+                  headers: {
+                      "Content-Type": "multipart/form-data",
+                      Authorization: orgToken,
+                      "Requested-By": "webflow-3-4",
+                  },
+              })
+              .then(function (response) {
+                  // Hide loading animation
+                  $("#waitingdots").hide();
+
+                  if (typeof successCallback === "function") {
+                      var result = successCallback(response.data);
+                      console.log(result);
+                      if (!result) {
+                          form3.show();
+                          displayMessage(
+                              "Error",
+                              "Oops. Coś poszło nie tak, spróbuj ponownie."
+                          );
+                          resetForm();
+                          return;
+                      }
+                  }
+
+                  displayMessage("Success", "Cennik został dodany.");
+                  var pricelistUrl =
+                      "https://" +
+                      DomainName +
+                      "/app/pricelists/pricelist?uuid=" +
+                      response.data.items[0].uuid;
+                  setTimeout(function () {
+                      window.location.href = pricelistUrl;
+                  }, 1500);
+              })
+              .catch(function (error) {
+                  // Hide loading animation
+                  $("#waitingdots").hide();
+
+                  console.log(error);
+                  var msg = "";
+                  if (error.response) {
+                      if (error.response.status === 0) {
+                          msg = "Not connect.\n Verify Network.";
+                      } else if (error.response.status == 403) {
+                          msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+                      } else if (error.response.status == 400) {
+                          msg = error.response.message;
+                      } else if (error.response.status == 500) {
+                          msg = "Internal Server Error [500].";
+                      } else {
+                          msg = error.response.data.message;
+                      }
+                  } else if (error.request) {
+                      msg = "No response from the server.";
+                  } else {
+                      msg = error.message;
+                  }
+
+                  displayMessage("Error", msg);
+                  resetForm();
+                  if (typeof errorCallback === "function") {
+                      errorCallback(error);
+                  }
+              });
+
+          return false;
       });
+
 
       function resetForm() {
         // Reset the form fields
