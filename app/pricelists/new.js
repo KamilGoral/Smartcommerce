@@ -543,20 +543,26 @@ docReady(function () {
       function resetForm() {
         // Reset the form fields
         form3[0].reset();
-
+    
         // Reset the file upload button to its original state
         uploadButtons.forEach(button => {
-          button.classList.remove('file-selected');
-
-          // Reset the button's inner HTML to its original state
-          button.innerHTML = `
-            <a file_uploader="cv" href="#" class="button-21 is-icon w-inline-block"><div>Dodaj plik cennik</div><div class="icon-embed-xsmall w-embed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256"><path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path></svg></div></a>
-          `;
-
-          // Optionally, reset any other attributes or states
-          button.disabled = false; // If you had disabled the button during submission
+            button.classList.remove('file-selected');
+    
+            // Clear the button's content
+            button.innerHTML = '';
+    
+            // Set the button's inner HTML to its original state
+            button.innerHTML = `
+                <div>Dodaj plik cennik</div>
+                <div class="icon-embed-xsmall w-embed">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                        <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                    </svg>
+                </div>
+            `;
         });
-      }
+    }
+    
 
     });
   };
