@@ -363,11 +363,14 @@ docReady(function () {
         // Append the file input to the body (or wherever appropriate)
         document.body.appendChild(fileInput);
   
-        // When the button is clicked, trigger the file input
+        // When the button is clicked, trigger the file input if the file is not selected
         button.addEventListener('click', function (e) {
           if (!button.classList.contains('file-selected')) {
             e.preventDefault(); // Prevent any default button actions if file not selected yet
             fileInput.click();
+          } else {
+            // If file is selected, submit the form
+            form3.submit();
           }
         });
   
@@ -526,6 +529,7 @@ docReady(function () {
       });
     });
   };
+  
   
   
 
