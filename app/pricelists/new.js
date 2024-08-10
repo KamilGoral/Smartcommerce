@@ -381,7 +381,7 @@ docReady(function () {
   
           // Change button role to submit and add a class to indicate a file is selected
           button.classList.add('file-selected');
-          button.textContent = 'Submit';
+          button.textContent = 'Wyślij cennik: ' + fileName;
         });
       });
   
