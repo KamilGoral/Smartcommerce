@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -267,11 +267,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -349,20 +349,20 @@ docReady(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form3 = $(this);
-  
+
       // Find all elements with the 'ms-code-file_uploader' attribute
       const uploadButtons = document.querySelectorAll('[file_uploader]');
-  
+
       uploadButtons.forEach(button => {
         // Create a hidden file input element
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.style.display = 'none'; // Hide the file input
         fileInput.name = button.getAttribute('file_uploader'); // Set name to the value of the attribute
-  
+
         // Append the file input to the body (or wherever appropriate)
         document.body.appendChild(fileInput);
-  
+
         // When the button is clicked, trigger the file input if the file is not selected
         button.addEventListener('click', function (e) {
           if (!button.classList.contains('file-selected')) {
@@ -373,21 +373,21 @@ docReady(function () {
             form3.submit();
           }
         });
-  
+
         // When a file is selected, update the button text with the file name
         fileInput.addEventListener('change', function () {
           const fileName = fileInput.files[0].name; // Get the file name
           button.querySelector('div').textContent = fileName; // Update the button's text
-  
+
           // Change button role to submit and add a class to indicate a file is selected
           button.classList.add('file-selected');
           button.textContent = 'Wyslij cennik: ' + fileName;
         });
       });
-  
+
       form3.on("submit", function (event) {
         event.preventDefault(); // Prevent default form submission
-  
+
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
           displayMessage(
@@ -397,7 +397,7 @@ docReady(function () {
           resetForm();
           return false;
         }
-  
+
         // Retrieve the selected file from the dynamically created input
         let uploadedFile = null;
         uploadButtons.forEach(button => {
@@ -406,7 +406,7 @@ docReady(function () {
             uploadedFile = fileInput.files[0];
           }
         });
-  
+
         if (!uploadedFile) {
           displayMessage(
             "Error",
@@ -415,13 +415,13 @@ docReady(function () {
           resetForm();
           return false;
         }
-  
+
         const formData = new FormData();
-  
+
         // Determine the MIME type based on file extension, default to text/plain
         var fileType = "text/plain";  // Default MIME type
         var fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
-  
+
         switch (fileExtension) {
           case "csv":
             fileType = "text/csv";
@@ -438,7 +438,7 @@ docReady(function () {
             break;
           // Default case will now use text/plain
         }
-  
+
         // JSON data should be of type application/json
         const jsonData = {
           wholesalerKey: wholesalerKey,
@@ -446,22 +446,22 @@ docReady(function () {
           startDate: $("#startDate").val() + "T00:00:01.00Z",
           endDate: $("#endDate").val() + "T23:59:59.00Z",
         };
-  
+
         formData.append(
           "json",
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
-  
+
         // Append the file with the determined or default MIME type
         formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
-  
+
         var uploadEndpoint = InvokeURL + "price-lists";
-  
+
         console.log("FormData prepared:", formData);
-  
+
         // Show loading animation
         $("#waitingdots").show();
-  
+
         axios
           .post(uploadEndpoint, formData, {
             headers: {
@@ -473,7 +473,7 @@ docReady(function () {
           .then(function (response) {
             // Hide loading animation
             $("#waitingdots").hide();
-  
+
             if (typeof successCallback === "function") {
               var result = successCallback(response.data);
               console.log(result);
@@ -487,7 +487,7 @@ docReady(function () {
                 return;
               }
             }
-  
+
             displayMessage("Success", "Cennik został dodany.");
             var pricelistUrl =
               "https://" +
@@ -501,7 +501,7 @@ docReady(function () {
           .catch(function (error) {
             // Hide loading animation
             $("#waitingdots").hide();
-  
+
             console.log(error);
             var msg = "";
             if (error.response) {
@@ -521,35 +521,42 @@ docReady(function () {
             } else {
               msg = error.message;
             }
-  
+
             displayMessage("Error", msg);
             resetForm();
             if (typeof errorCallback === "function") {
               errorCallback(error);
             }
           });
-  
+
         return false;
       });
-  
+
       function resetForm() {
         // Reset the form fields
         form3[0].reset();
-  
+
         // Reset the file upload button to its original state
         uploadButtons.forEach(button => {
           button.classList.remove('file-selected');
-          button.textContent = 'Upload File'; // Original button text, adjust as needed
-          button.querySelector('div').textContent = ''; // Clear any file name text
+
+          // Reset the button's inner HTML to its original state
+          button.innerHTML = `
+            <div><a file_uploader="cv" href="#" class="button-21 is-icon w-inline-block"><div>Dodaj cennik</div><div class="icon-embed-xsmall w-embed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256"><path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path></svg></div></a></div>
+          `;
+
+          // Optionally, reset any other attributes or states
+          button.disabled = false; // If you had disabled the button during submission
         });
       }
+
     });
   };
-  
-  
-  
-  
-  
+
+
+
+
+
 
   makeWebflowFormAjax($("#wf-form-NewPricingList"));
   getShops();
