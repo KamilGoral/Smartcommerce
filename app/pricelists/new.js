@@ -349,6 +349,39 @@ docReady(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form3 = $(this);
+  
+      // Find all elements with the 'ms-code-file_uploader' attribute
+      const uploadButtons = document.querySelectorAll('[file_uploader]');
+  
+      uploadButtons.forEach(button => {
+        // Create a hidden file input element
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.style.display = 'none'; // Hide the file input
+        fileInput.name = button.getAttribute('file_uploader'); // Set name to the value of the attribute
+  
+        // Append the file input to the body (or wherever appropriate)
+        document.body.appendChild(fileInput);
+  
+        // When the button is clicked, trigger the file input
+        button.addEventListener('click', function (e) {
+          if (!button.classList.contains('file-selected')) {
+            e.preventDefault(); // Prevent any default button actions if file not selected yet
+            fileInput.click();
+          }
+        });
+  
+        // When a file is selected, update the button text with the file name
+        fileInput.addEventListener('change', function () {
+          const fileName = fileInput.files[0].name; // Get the file name
+          button.querySelector('div').textContent = fileName; // Update the button's text
+  
+          // Change button role to submit and add a class to indicate a file is selected
+          button.classList.add('file-selected');
+          button.textContent = 'Submit';
+        });
+      });
+  
       form3.on("submit", function (event) {
         event.preventDefault(); // Prevent default form submission
   
@@ -361,7 +394,15 @@ docReady(function () {
           return false;
         }
   
-        var uploadedFile = document.getElementById("csv-file").files[0];
+        // Retrieve the selected file from the dynamically created input
+        let uploadedFile = null;
+        uploadButtons.forEach(button => {
+          const fileInput = document.querySelector(`input[name='${button.getAttribute('file_uploader')}']`);
+          if (fileInput && fileInput.files.length > 0) {
+            uploadedFile = fileInput.files[0];
+          }
+        });
+  
         if (!uploadedFile) {
           displayMessage(
             "Error",
@@ -393,8 +434,6 @@ docReady(function () {
           // Default case will now use text/plain
         }
   
-        
-  
         // JSON data should be of type application/json
         const jsonData = {
           wholesalerKey: wholesalerKey,
@@ -407,7 +446,7 @@ docReady(function () {
           "json",
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
-
+  
         // Append the file with the determined or default MIME type
         formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
   
@@ -487,6 +526,7 @@ docReady(function () {
       });
     });
   };
+  
   
 
   makeWebflowFormAjax($("#wf-form-NewPricingList"));
