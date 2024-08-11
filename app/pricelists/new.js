@@ -415,14 +415,24 @@ docReady(function () {
               }
           });
 
-          if (!uploadedFile) {
-              displayMessage(
-                  "Error",
-                  "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
-              );
-              resetForm();
-              return false;
-          }
+          // Check if the file size exceeds 10 MB (10 * 1024 * 1024 bytes)
+          if (uploadedFile && uploadedFile.size > 10 * 1024 * 1024) {
+            displayMessage(
+                "Error",
+                "Plik cennika jest za duży. Maksymalny rozmiar to 10 MB."
+            );
+            resetForm();
+            return false;
+        }
+
+        if (!uploadedFile) {
+            displayMessage(
+                "Error",
+                "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
+            );
+            resetForm();
+            return false;
+        }
 
           const formData = new FormData();
 
