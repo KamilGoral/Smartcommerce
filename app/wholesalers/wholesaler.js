@@ -312,6 +312,7 @@ docReady(function () {
       "etqa",
       "biologistic",
       "elleena",
+      "slod-hurt",
     ];
 
     if (validWholesalerKeys.includes(wholesalerKey)) {

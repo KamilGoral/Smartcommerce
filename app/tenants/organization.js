@@ -1427,19 +1427,19 @@ docReady(function () {
           return b.enabled - a.enabled;
         });
 
-        // Define mapping of wholesalerKey to organizationName
-        const wholesalerTenantMapping = {
-          HurtowniaABE: "abe-dystrybucja",
-        };
+        // Code for wh testing // Define mapping of wholesalerKey to organizationName
+        // const wholesalerTenantMapping = {
+        //   HurtowniaABE: "abe-dystrybucja",
+        // };
 
-        if (getCookie("OrganizationName") in wholesalerTenantMapping) {
-          toParse = toParse.filter(function (item) {
-            return (
-              item.wholesalerKey ===
-              wholesalerTenantMapping[getCookie("OrganizationName")]
-            );
-          });
-        }
+        // if (getCookie("OrganizationName") in wholesalerTenantMapping) {
+        //   toParse = toParse.filter(function (item) {
+        //     return (
+        //       item.wholesalerKey ===
+        //       wholesalerTenantMapping[getCookie("OrganizationName")]
+        //     );
+        //   });
+        // }
 
         // Code for exclusive
 
