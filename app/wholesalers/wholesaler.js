@@ -321,6 +321,12 @@ docReady(function () {
       $("#CompanyDivEdit").hide();
     }
 
+    if (wholesalerKey === "slod-hurt") {
+      document.getElementById("LastStatusMessage").textContent =
+        "Trwają prace nad integracją z tym dostawcą...";
+      $("#login-credentials-container").css("display", "none");
+    }
+
     let url2 = new URL(
       InvokeURL +
         "shops/" +
