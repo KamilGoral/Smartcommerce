@@ -397,6 +397,10 @@ docReady(function () {
         if (wholesalerKey === "lobo") {
           LastStatusMessage.innerHTML =
             "Zanim rozpoczniesz integrację, skontaktuj się z hurtownią Lobo, aby uzyskać możliwośc automatycznej wymiany danych.<br>Zazwyczaj hurtownia aktywuje integrację jeszcze tego samego dnia.";
+        }
+        if (wholesalerKey === "slod-hurt") {
+          LastStatusMessage.textContent =
+            "Trwają prace nad integracją z tym dostawcą...";
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         }
