@@ -33,6 +33,14 @@ docReady(function () {
     $("#alertMessage").show();
   }
 
+  // Sprawdzenie, czy obecna data jest przed zadaną oraz czy organizationName nie jest równe "slodhurt"
+  if (organizationName !== "slodhurt") {
+    const alertMessage = document.getElementById("alertMessage");
+    if (alertMessage) {
+      alertMessage.style.display = "flex";
+    }
+  }
+
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
@@ -1427,19 +1435,19 @@ docReady(function () {
           return b.enabled - a.enabled;
         });
 
-        // Code for wh testing // Define mapping of wholesalerKey to organizationName
-        // const wholesalerTenantMapping = {
-        //   HurtowniaABE: "abe-dystrybucja",
-        // };
+        // Define mapping of wholesalerKey to organizationName
+        const wholesalerTenantMapping = {
+          Slodhurt: "slod-hurt",
+        };
 
-        // if (getCookie("OrganizationName") in wholesalerTenantMapping) {
-        //   toParse = toParse.filter(function (item) {
-        //     return (
-        //       item.wholesalerKey ===
-        //       wholesalerTenantMapping[getCookie("OrganizationName")]
-        //     );
-        //   });
-        // }
+        if (getCookie("OrganizationName") in wholesalerTenantMapping) {
+          toParse = toParse.filter(function (item) {
+            return (
+              item.wholesalerKey ===
+              wholesalerTenantMapping[getCookie("OrganizationName")]
+            );
+          });
+        }
 
         // Code for exclusive
 
