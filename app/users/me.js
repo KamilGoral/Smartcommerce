@@ -616,15 +616,35 @@ docReady(function () {
       })
       .then((data) => {
         const { items: toParse, total } = data;
+        const orgContainer = document.getElementById("Organization-Container");
+        let hasOnboarding = false;
 
+        // Check if any organization has status 'onboarding'
+        if (total > 0) {
+          toParse.forEach((organization) => {
+            if (organization.status.toLowerCase() === "onboarding") {
+              hasOnboarding = true;
+            }
+          });
+        }
+
+        // Show or hide createOrgButton based on the onboarding status and total organizations
+        if (total === 0 || !hasOnboarding) {
+          createOrgButton.style.display = "flex";
+          createOrgButton.style.pointerEvents = "auto";
+          createOrgButton.style.opacity = "1";
+        } else {
+          createOrgButton.style.display = "flex";
+          createOrgButton.style.pointerEvents = "none";
+          createOrgButton.style.opacity = "0.5";
+        }
+
+        // Hide starting images if more than 4 organizations
         if (total >= 4) {
           $("img[id^='startingImage']").hide();
         }
 
         if (total > 0) {
-          const orgContainer = document.getElementById(
-            "Organization-Container"
-          );
           toParse.forEach((organization) => {
             const template = document.getElementById("samplerow");
             const row = template.cloneNode(true);
@@ -640,10 +660,10 @@ docReady(function () {
             const statusInfo =
               statusMap[organization.status.toLowerCase()] ||
               statusMap["onboarding"]; // Default to onboarding if not matched
-            // Update organization specific attributes
+
+            // Update organization-specific attributes
             row.querySelector("#tenantName").textContent =
               organization.name || "Brak";
-            // Apply color and text
             row.querySelector("#statusWraper").style.backgroundColor =
               statusInfo.color;
             row.querySelector("#tenantStatus").textContent = statusInfo.text;
@@ -657,19 +677,9 @@ docReady(function () {
             // Append row to the container
             orgContainer.appendChild(row);
 
-            // If the organization is onboarding, remove click actions
-            if (organization.status.toLowerCase() === "onboarding") {
-              createOrgButton.style.pointerEvents = "none"; // Disable pointer events
-              createOrgButton.style.opacity = "0.5"; // Set opacity to 50%
-              createOrgButton.style.display = "flex";
-              row.addEventListener("click", LoginIntoOrganization, false);
-            } else {
-              row.addEventListener("click", LoginIntoOrganization, false);
-            }
+            // Handle click events based on organization status
+            row.addEventListener("click", LoginIntoOrganization, false);
           });
-        } else if (total === 0) {
-          createOrgButton.style.display = "flex";
-          // document.getElementById("emptystateorganization").style.display = "none";
         }
       })
       .catch((error) => {
