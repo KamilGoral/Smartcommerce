@@ -1494,13 +1494,14 @@ docReady(function () {
           }
         });
 
-        // Filter to only include enabled wholesalers for the second table
         var enabledWholesalers = toParse.filter(function (item) {
           return item.enabled === true;
         });
 
+        // List of target wholesaler keys
         var targetWholesalerKeys = ["eurocash", "eurocash-serwis"];
 
+        // Check if any target wholesaler is present among the enabled wholesalers
         var isAnyTargetWholesalerPresent = targetWholesalerKeys.some(function (
           key
         ) {
@@ -1510,9 +1511,17 @@ docReady(function () {
         });
 
         if (isAnyTargetWholesalerPresent) {
-          setCookie("EcEnabled", "true", 7 * 24 * 60 * 60);
+          // Set a cookie and show the alert message
+          setCookie("EcEnabled", "true", 7 * 24 * 60 * 60); // Setting cookie for 7 days
           $("#alertMessage").show();
         }
+
+        // Debugging output to verify the process
+        console.log("Enabled Wholesalers:", enabledWholesalers);
+        console.log(
+          "Is any target wholesaler present?",
+          isAnyTargetWholesalerPresent
+        );
 
         $("#table_wholesalers_list").DataTable({
           data: toParse,
