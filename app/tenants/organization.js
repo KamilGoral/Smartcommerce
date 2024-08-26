@@ -34,7 +34,7 @@ docReady(function () {
   }
 
   // Sprawdzenie, czy obecna data jest przed zadaną oraz czy organizationName nie jest równe "slodhurt"
-  if (organizationName !== "slodhurt") {
+  if (organizationName !== "Slodhurt") {
     const alertMessage = document.getElementById("alertMessage");
     if (alertMessage) {
       alertMessage.style.display = "flex";
