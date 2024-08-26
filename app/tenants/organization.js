@@ -1510,7 +1510,7 @@ docReady(function () {
           });
         });
 
-        if (isAnyTargetWholesalerPresent) {
+        if (isAnyTargetWholesalerPresent === true) {
           // Set a cookie and show the alert message
           setCookie("EcEnabled", "true", 7 * 24 * 60 * 60); // Setting cookie for 7 days
           $("#alertMessage").show();
