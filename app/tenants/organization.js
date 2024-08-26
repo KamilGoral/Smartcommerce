@@ -33,14 +33,6 @@ docReady(function () {
     $("#alertMessage").show();
   }
 
-  // Sprawdzenie, czy obecna data jest przed zadaną oraz czy organizationName nie jest równe "slodhurt"
-  if (organizationName !== "Slodhurt") {
-    const alertMessage = document.getElementById("alertMessage");
-    if (alertMessage) {
-      alertMessage.style.display = "flex";
-    }
-  }
-
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
@@ -1512,6 +1504,7 @@ docReady(function () {
 
         if (isAnyTargetWholesalerPresent === true) {
           // Set a cookie and show the alert message
+          console.log("Showing alert message");
           setCookie("EcEnabled", "true", 7 * 24 * 60 * 60); // Setting cookie for 7 days
           $("#alertMessage").show();
         }
