@@ -393,14 +393,19 @@ docReady(function () {
         firstMessage;
         onlineOfferSupportFlow();
       } else if (request2.status >= 400) {
-        var LastStatusMessage = document.getElementById("LastStatusMessage");
-        if (wholesalerKey === "lobo") {
-          LastStatusMessage.innerHTML =
-            "Zanim rozpoczniesz integrację, skontaktuj się z hurtownią Lobo, aby uzyskać możliwośc automatycznej wymiany danych.<br>Zazwyczaj hurtownia aktywuje integrację jeszcze tego samego dnia.";
-        }
-        if (wholesalerKey === "slod-hurt") {
-          LastStatusMessage.textContent =
-            "Trwają prace nad integracją z tym dostawcą...";
+        const LastStatusMessage = document.getElementById("LastStatusMessage");
+
+        const customMessages = {
+          lobo: `Zanim rozpoczniesz integrację, skontaktuj się z hurtownią Lobo, aby uzyskać możliwość automatycznej wymiany danych.<br>Zazwyczaj hurtownia aktywuje integrację jeszcze tego samego dnia.`,
+          "slod-hurt": "Trwają prace nad integracją z tym dostawcą...",
+          "sobik-nabial":
+            "Integracja z e-hurtownią Sobik-Nabiał jest obecnie niedostępna. W celu dalszego korzystania z usług, prosimy o skorzystanie z wersji Sobik-Nabiał Sellitem.",
+          "sobik-suchy":
+            "Integracja z e-hurtownią Sobik-Suchy jest obecnie niedostępna. W celu dalszego korzystania z usług, prosimy o skorzystanie z wersji Sobik-Suchy Sellitem.",
+        };
+
+        if (customMessages[wholesalerKey]) {
+          LastStatusMessage.innerHTML = messages[wholesalerKey];
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         }
@@ -1239,9 +1244,17 @@ docReady(function () {
 
   ///custom code for slod-hurt
 
-  if (wholesalerKey === "slod-hurt") {
+  const customMessages = {
+    "slod-hurt": "Trwają prace nad integracją z tym dostawcą...",
+    "sobik-nabial":
+      "Integracja z e-hurtownią Sobik-Nabiał jest obecnie niedostępna. W celu dalszego korzystania z usług, prosimy o skorzystanie z wersji Sobik-Nabiał Sellitem.",
+    "sobik-suchy":
+      "Integracja z e-hurtownią Sobik-Suchy jest obecnie niedostępna. W celu dalszego korzystania z usług, prosimy o skorzystanie z wersji Sobik-Suchy Sellitem.",
+  };
+
+  if (customMessages[wholesalerKey]) {
     document.getElementById("LastStatusMessage").textContent =
-      "Trwają prace nad integracją z tym dostawcą...";
+      messages[wholesalerKey];
     $("#login-credentials-container").css("display", "none");
   }
 });
