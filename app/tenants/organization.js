@@ -1430,6 +1430,7 @@ docReady(function () {
         // Define mapping of wholesalerKey to organizationName
         const wholesalerTenantMapping = {
           Slodhurt: "slod-hurt",
+          HurtowniaTEDI: "kd-tedi",
         };
 
         if (getCookie("OrganizationName") in wholesalerTenantMapping) {
