@@ -229,7 +229,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#wf-form-Create-wholesaler-done", container);
         var failBlock = $("#wf-form-Create-wholesaler-fail", container);
-        var action = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
+        var baseAction = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "POST";
 
         // Prepare data object
@@ -239,12 +239,15 @@ docReady(function () {
 
         // Check if the 'notifyWholesalerCreate' checkbox is visible, enabled, and checked
         var notifyWholesalerCheckbox = $("#notifyWholesalerCreate");
+        var action = baseAction; // Initialize action with base URL
+
         if (
           notifyWholesalerCheckbox.is(":visible") && // Check visibility
           !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
           notifyWholesalerCheckbox.is(":checked") // Check if checked
         ) {
-          data.notifyWholesaler = true; // Add the notification flag only if the checkbox is visible, enabled, and checked
+          // Append notifyWholesaler parameter to the URL if necessary
+          action += "?notifyWholesaler=true";
         }
 
         $.ajax({
@@ -335,12 +338,12 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#wf-form-Reset-password-done", container);
         var failBlock = $("#wf-form-Reset-password-fail", container);
-        var action =
+        var baseAction =
           InvokeURL + "wholesalers/" + wholesalerKey + "/ftp/reset-password";
         var method = "GET";
 
-        // Prepare data object
-        var data = {};
+        // Initialize action URL
+        var action = baseAction;
 
         // Check if the 'notifyWholesalerReset' checkbox is visible, enabled, and checked
         var notifyWholesalerCheckbox = $("#notifyWholesalerReset");
@@ -349,7 +352,8 @@ docReady(function () {
           !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
           notifyWholesalerCheckbox.is(":checked") // Check if checked
         ) {
-          data.notifyWholesaler = true; // Add the notification flag only if the checkbox is visible, enabled, and checked
+          // Append notifyWholesaler parameter to the URL if necessary
+          action += "?notifyWholesaler=true";
         }
 
         $.ajax({
@@ -370,7 +374,6 @@ docReady(function () {
             Authorization: orgToken,
             "Requested-By": "webflow-3-4",
           },
-          data: data, // Send the data object, possibly containing the notifyWholesaler flag
           success: function (resultData) {
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
@@ -440,11 +443,11 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var action = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
+        var baseAction = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "DELETE";
 
-        // Prepare data object
-        var data = {};
+        // Initialize action URL
+        var action = baseAction;
 
         // Check if the 'notifyWholesalerDelete' checkbox is visible, enabled, and checked
         var notifyWholesalerCheckbox = $("#notifyWholesalerDelete");
@@ -453,7 +456,8 @@ docReady(function () {
           !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
           notifyWholesalerCheckbox.is(":checked") // Check if checked
         ) {
-          data.notifyWholesaler = true; // Add the notification flag only if the checkbox is visible, enabled, and checked
+          // Append notifyWholesaler parameter to the URL if necessary
+          action += "?notifyWholesaler=true";
         }
 
         $.ajax({
@@ -468,7 +472,6 @@ docReady(function () {
           },
           contentType: "application/json",
           dataType: "json",
-          data: JSON.stringify(data), // Convert data object to JSON string
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
