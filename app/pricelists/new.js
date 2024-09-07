@@ -127,11 +127,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -267,11 +267,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const NewpriceListIdBread = document.getElementById("NewpriceListIdBread");
@@ -351,238 +351,272 @@ docReady(function () {
       var form3 = $(this);
 
       // Find all elements with the 'file_uploader' attribute
-      const uploadButtons = document.querySelectorAll('[file_uploader]');
+      const uploadButtons = document.querySelectorAll("[file_uploader]");
 
-      uploadButtons.forEach(button => {
-          // Create a hidden file input element
-          const fileInput = document.createElement('input');
-          fileInput.type = 'file';
-          fileInput.style.display = 'none'; // Hide the file input
-          fileInput.name = button.getAttribute('file_uploader'); // Set name to the value of the attribute
+      uploadButtons.forEach((button) => {
+        // Create a hidden file input element
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.style.display = "none"; // Hide the file input
+        fileInput.name = button.getAttribute("file_uploader"); // Set name to the value of the attribute
 
-          // Append the file input to the body (or wherever appropriate)
-          document.body.appendChild(fileInput);
+        // Append the file input to the body (or wherever appropriate)
+        document.body.appendChild(fileInput);
 
-          // When the button is clicked, trigger the file input if the file is not selected
-          button.addEventListener('click', function (e) {
-              if (!button.classList.contains('file-selected')) {
-                  e.preventDefault(); // Prevent any default button actions if file not selected yet
-                  fileInput.click();
-              } else {
-                  // If file is selected, submit the form
-                  form3.submit();
-              }
-          });
+        // Create and hide the delete file button initially
+        const deleteFileButton = document.getElementById("deleteFileButton");
+        deleteFileButton.style.display = "none";
 
-          // When a file is selected, update the button text with the file name
-          fileInput.addEventListener('change', function () {
-              const fileName = fileInput.files[0].name; // Get the file name
+        // When the button is clicked, trigger the file input if the file is not selected
+        button.addEventListener("click", function (e) {
+          if (!button.classList.contains("file-selected")) {
+            e.preventDefault(); // Prevent any default button actions if file not selected yet
+            fileInput.click();
+          } else {
+            // If file is selected, submit the form
+            form3.submit();
+          }
+        });
 
-              // Update the button's inner HTML with the file name and the icon
-              button.innerHTML = `
-                  Wyslij cennik: ${fileName}
-                  <div class="icon-embed-xsmall w-embed">
-                      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                          <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                      </svg>
-                  </div>
-              `;
+        // When a file is selected, update the button text with the file name
+        fileInput.addEventListener("change", function () {
+          if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name; // Get the file name
 
-              // Change the button role to submit and add a class to indicate a file is selected
-              button.classList.add('file-selected');
-          });
+            // Update the button's inner HTML with the file name and the icon
+            button.innerHTML = `
+              Wyslij cennik: ${fileName}
+              <div class="icon-embed-xsmall w-embed">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                      <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                  </svg>
+              </div>
+            `;
+
+            // Show the delete button
+            deleteFileButton.style.display = "block";
+
+            // Change the button role to submit and add a class to indicate a file is selected
+            button.classList.add("file-selected");
+          }
+        });
+
+        // Add event listener to delete button
+        deleteFileButton.addEventListener("click", function (e) {
+          e.preventDefault(); // Prevent default behavior
+
+          // Clear the selected file
+          fileInput.value = "";
+          button.classList.remove("file-selected");
+
+          // Reset button text
+          button.innerHTML = `
+            <div>Dodaj plik cennika</div>
+            <div class="icon-embed-xsmall w-embed">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                </svg>
+            </div>
+          `;
+
+          // Hide the delete button
+          deleteFileButton.style.display = "none";
+        });
       });
 
       form3.on("submit", function (event) {
-          event.preventDefault(); // Prevent default form submission
+        event.preventDefault(); // Prevent default form submission
 
-          var wholesalerKey = $("#WholesalerSelector").val();
-          if (!wholesalerKey) {
-              displayMessage(
-                  "Error",
-                  "Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
-              );
-              resetForm();
-              return false;
+        var wholesalerKey = $("#WholesalerSelector").val();
+        if (!wholesalerKey) {
+          displayMessage(
+            "Error",
+            "Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
+          );
+          resetForm();
+          return false;
+        }
+
+        // Retrieve the selected file from the dynamically created input
+        let uploadedFile = null;
+        uploadButtons.forEach((button) => {
+          const fileInput = document.querySelector(
+            `input[name='${button.getAttribute("file_uploader")}']`
+          );
+          if (fileInput && fileInput.files.length > 0) {
+            uploadedFile = fileInput.files[0];
           }
+        });
 
-          // Retrieve the selected file from the dynamically created input
-          let uploadedFile = null;
-          uploadButtons.forEach(button => {
-              const fileInput = document.querySelector(`input[name='${button.getAttribute('file_uploader')}']`);
-              if (fileInput && fileInput.files.length > 0) {
-                  uploadedFile = fileInput.files[0];
-              }
-          });
-
-          // Check if the file size exceeds 10 MB (10 * 1024 * 1024 bytes)
-          if (uploadedFile && uploadedFile.size > 10 * 1024 * 1024) {
-            displayMessage(
-                "Error",
-                "Plik cennika jest za duży. Maksymalny rozmiar to 10 MB."
-            );
-            resetForm();
-            return false;
+        // Check if the file size exceeds 10 MB (10 * 1024 * 1024 bytes)
+        if (uploadedFile && uploadedFile.size > 10 * 1024 * 1024) {
+          displayMessage(
+            "Error",
+            "Plik cennika jest za duży. Maksymalny rozmiar to 10 MB."
+          );
+          resetForm();
+          return false;
         }
 
         if (!uploadedFile) {
-            displayMessage(
-                "Error",
-                "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
-            );
-            resetForm();
-            return false;
+          displayMessage(
+            "Error",
+            "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
+          );
+          resetForm();
+          return false;
         }
 
-          const formData = new FormData();
+        const formData = new FormData();
 
-          // Determine the MIME type based on file extension, default to text/plain
-          var fileType = "text/plain";  // Default MIME type
-          var fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
-          console.log(fileExtension);
+        // Determine the MIME type based on file extension, default to text/plain
+        var fileType = "text/plain"; // Default MIME type
+        var fileExtension = uploadedFile.name.split(".").pop().toLowerCase();
+        console.log(fileExtension);
 
-          switch (fileExtension) {
-              case "csv":
-                  fileType = "text/csv";
-                  break;
-              case "xlsx":
-                  fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                  break;
-              case "ods":
-                  fileType = "application/vnd.oasis.opendocument.spreadsheet";
-                  break;
-              case "txt":
-              case "edi":
-                  fileType = "text/plain";
-                  break;
-              // Default case will now use text/plain
-          }
+        switch (fileExtension) {
+          case "csv":
+            fileType = "text/csv";
+            break;
+          case "xlsx":
+            fileType =
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            break;
+          case "ods":
+            fileType = "application/vnd.oasis.opendocument.spreadsheet";
+            break;
+          case "txt":
+          case "edi":
+            fileType = "text/plain";
+            break;
+          // Default case will now use text/plain
+        }
 
-          // JSON data should be of type application/json
-          const jsonData = {
-              wholesalerKey: wholesalerKey,
-              shopKeys: $("#shopKeys").val(),
-              startDate: $("#startDate").val() + "T00:00:01.00Z",
-              endDate: $("#endDate").val() + "T23:59:59.00Z",
-          };
+        // JSON data should be of type application/json
+        const jsonData = {
+          wholesalerKey: wholesalerKey,
+          shopKeys: $("#shopKeys").val(),
+          startDate: $("#startDate").val() + "T00:00:01.00Z",
+          endDate: $("#endDate").val() + "T23:59:59.00Z",
+        };
 
-          formData.append(
-              "json",
-              new Blob([JSON.stringify(jsonData)], { type: "application/json" })
-          );
+        formData.append(
+          "json",
+          new Blob([JSON.stringify(jsonData)], { type: "application/json" })
+        );
 
-          // Append the file with the determined or default MIME type
-          formData.append("file", new Blob([uploadedFile], { type: fileType }), uploadedFile.name);
+        // Append the file with the determined or default MIME type
+        formData.append(
+          "file",
+          new Blob([uploadedFile], { type: fileType }),
+          uploadedFile.name
+        );
 
-          var uploadEndpoint = InvokeURL + "price-lists";
+        var uploadEndpoint = InvokeURL + "price-lists";
 
-          console.log("FormData prepared:", formData);
+        console.log("FormData prepared:", formData);
 
-          // Show loading animation
-          $("#waitingdots").show();
+        // Show loading animation
+        $("#waitingdots").show();
 
-          axios
-              .post(uploadEndpoint, formData, {
-                  headers: {
-                      "Content-Type": "multipart/form-data",
-                      Authorization: orgToken,
-                      "Requested-By": "webflow-3-4",
-                  },
-              })
-              .then(function (response) {
-                  // Hide loading animation
-                  $("#waitingdots").hide();
+        axios
+          .post(uploadEndpoint, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+          })
+          .then(function (response) {
+            // Hide loading animation
+            $("#waitingdots").hide();
 
-                  if (typeof successCallback === "function") {
-                      var result = successCallback(response.data);
-                      console.log(result);
-                      if (!result) {
-                          form3.show();
-                          displayMessage(
-                              "Error",
-                              "Oops. Coś poszło nie tak, spróbuj ponownie."
-                          );
-                          resetForm();
-                          return;
-                      }
-                  }
+            if (typeof successCallback === "function") {
+              var result = successCallback(response.data);
+              console.log(result);
+              if (!result) {
+                form3.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                resetForm();
+                return;
+              }
+            }
 
-                  displayMessage("Success", "Cennik został dodany.");
-                  var pricelistUrl =
-                      "https://" +
-                      DomainName +
-                      "/app/pricelists/pricelist?uuid=" +
-                      response.data.items[0].uuid;
-                  setTimeout(function () {
-                      window.location.href = pricelistUrl;
-                  }, 1500);
-              })
-              .catch(function (error) {
-                  // Hide loading animation
-                  $("#waitingdots").hide();
+            displayMessage("Success", "Cennik został dodany.");
+            var pricelistUrl =
+              "https://" +
+              DomainName +
+              "/app/pricelists/pricelist?uuid=" +
+              response.data.items[0].uuid;
+            setTimeout(function () {
+              window.location.href = pricelistUrl;
+            }, 1500);
+          })
+          .catch(function (error) {
+            // Hide loading animation
+            $("#waitingdots").hide();
 
-                  console.log(error);
-                  var msg = "";
-                  if (error.response) {
-                      if (error.response.status === 0) {
-                          msg = "Not connect.\n Verify Network.";
-                      } else if (error.response.status == 403) {
-                          msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
-                      } else if (error.response.status == 400) {
-                          msg = error.response.message;
-                      } else if (error.response.status == 500) {
-                          msg = "Internal Server Error [500].";
-                      } else {
-                          msg = error.response.data.message;
-                      }
-                  } else if (error.request) {
-                      msg = "No response from the server.";
-                  } else {
-                      msg = error.response.message;
-                  }
+            console.log(error);
+            var msg = "";
+            if (error.response) {
+              if (error.response.status === 0) {
+                msg = "Not connect.\n Verify Network.";
+              } else if (error.response.status == 403) {
+                msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
+              } else if (error.response.status == 400) {
+                msg = error.response.message;
+              } else if (error.response.status == 500) {
+                msg = "Internal Server Error [500].";
+              } else {
+                msg = error.response.data.message;
+              }
+            } else if (error.request) {
+              msg = "No response from the server.";
+            } else {
+              msg = error.response.message;
+            }
 
-                  displayMessage("Error", msg);
-                  resetForm();
-                  if (typeof errorCallback === "function") {
-                      errorCallback(error);
-                  }
-              });
+            displayMessage("Error", msg);
+            resetForm();
+            if (typeof errorCallback === "function") {
+              errorCallback(error);
+            }
+          });
 
-          return false;
+        return false;
       });
-
 
       function resetForm() {
         // Reset the form fields
         form3[0].reset();
-    
-        // Reset the file upload button to its original state
-        uploadButtons.forEach(button => {
-            button.classList.remove('file-selected');
-    
-            // Clear the button's content
-            button.innerHTML = '';
-    
-            // Set the button's inner HTML to its original state
-            button.innerHTML = `
-                <div>Dodaj plik cennika</div>
-                <div class="icon-embed-xsmall w-embed">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                        <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                    </svg>
-                </div>
-            `;
-        });
-    }
-    
 
+        // Reset the file upload button to its original state
+        uploadButtons.forEach((button) => {
+          button.classList.remove("file-selected");
+
+          // Clear the button's content
+          button.innerHTML = "";
+
+          // Set the button's inner HTML to its original state
+          button.innerHTML = `
+            <div>Dodaj plik cennika</div>
+            <div class="icon-embed-xsmall w-embed">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                </svg>
+            </div>
+          `;
+
+          // Hide the delete button
+          const deleteFileButton = document.getElementById("deleteFileButton");
+          deleteFileButton.style.display = "none";
+        });
+      }
     });
   };
-
-
-
-
-
 
   makeWebflowFormAjax($("#wf-form-NewPricingList"));
   getShops();

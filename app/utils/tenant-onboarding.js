@@ -54,14 +54,12 @@ docReady(function () {
     var button = $("#activateWholesalersButton");
     var buttonText = $(".button-20", button);
 
-    if (activeWholesalerCount >= 3) {
+    if (activeWholesalerCount >= 1) {
       button.removeClass("disabled");
       buttonText.text("Przejdź dalej");
     } else {
       button.addClass("disabled");
-      buttonText.text(
-        "Aktywuj jeszcze " + (3 - activeWholesalerCount) + " dostawców."
-      );
+      buttonText.text("Wybierz dostawców z listy.");
     }
   }
 
