@@ -143,22 +143,33 @@ docReady(function () {
           $("#loginButton").hide();
         }
 
+        const vanElements = document.querySelectorAll('[vanfunction="true"]');
         // Check if vanMember is true
         if (data.vanMember) {
-          // Find all elements with the attribute vanfunction="true"
-          const vanElements = document.querySelectorAll('[vanfunction="true"]');
-
-          // Iterate through each of these elements
+          // Show elements and enable/check checkboxes
           vanElements.forEach(function (element) {
-            // Make the element visible
             element.style.display = "flex";
-
-            // Find the checkbox within this element
             const checkbox = element.querySelector('input[type="checkbox"]');
 
             // Check if the checkbox exists and set it as checked
             if (checkbox) {
               checkbox.checked = true;
+              checkbox.disabled = false; // Enable the checkbox
+            }
+          });
+        } else {
+          // Hide elements and disable/uncheck checkboxes
+          vanElements.forEach(function (element) {
+            // Hide the element
+            element.style.display = "none";
+
+            // Find the checkbox within this element
+            const checkbox = element.querySelector('input[type="checkbox"]');
+
+            // Check if the checkbox exists and set it as unchecked and disabled
+            if (checkbox) {
+              checkbox.checked = false;
+              checkbox.disabled = true; // Disable the checkbox
             }
           });
         }
