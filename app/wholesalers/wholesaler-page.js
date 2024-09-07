@@ -91,8 +91,8 @@ docReady(function () {
   var ClientID = getCookieNameByValue(orgToken);
   var OrganizationName = getCookie("OrganizationName");
   var formIdNewServer = "#wf-form-Create-server";
-  var formIdDeleteServer = "#wf-form-Delete-server";
-  var formIdResetPassword = "#wf-form-Reset-password";
+  var formIdDeleteServer = "#wf-form-Delete-Ftp";
+  var formIdResetPassword = "#wf-form-Reset-Password";
 
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
@@ -141,6 +141,26 @@ docReady(function () {
           $("#Iehurt").addClass("enabled");
         } else {
           $("#loginButton").hide();
+        }
+
+        // Check if vanMember is true
+        if (data.vanMember) {
+          // Find all elements with the attribute vanfunction="true"
+          const vanElements = document.querySelectorAll('[vanfunction="true"]');
+
+          // Iterate through each of these elements
+          vanElements.forEach(function (element) {
+            // Make the element visible
+            element.style.display = "flex";
+
+            // Find the checkbox within this element
+            const checkbox = element.querySelector('input[type="checkbox"]');
+
+            // Check if the checkbox exists and set it as checked
+            if (checkbox) {
+              checkbox.checked = true;
+            }
+          });
         }
 
         if (data.enabled) {
@@ -201,9 +221,21 @@ docReady(function () {
         var action = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "POST";
 
+        // Prepare data object
         var data = {
           username: $("#Wholesaler-Login").val(),
         };
+
+        // Check if the 'notifyWholesalerCreate' checkbox is visible, enabled, and checked
+        var notifyWholesalerCheckbox = $("#notifyWholesalerCreate");
+        if (
+          notifyWholesalerCheckbox.is(":visible") && // Check visibility
+          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
+          notifyWholesalerCheckbox.is(":checked") // Check if checked
+        ) {
+          data.notifyWholesaler = true; // Add the notification flag only if the checkbox is visible, enabled, and checked
+        }
+
         $.ajax({
           type: method,
           url: action,
@@ -296,6 +328,19 @@ docReady(function () {
           InvokeURL + "wholesalers/" + wholesalerKey + "/ftp/reset-password";
         var method = "GET";
 
+        // Prepare data object
+        var data = {};
+
+        // Check if the 'notifyWholesalerReset' checkbox is visible, enabled, and checked
+        var notifyWholesalerCheckbox = $("#notifyWholesalerReset");
+        if (
+          notifyWholesalerCheckbox.is(":visible") && // Check visibility
+          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
+          notifyWholesalerCheckbox.is(":checked") // Check if checked
+        ) {
+          data.notifyWholesaler = true; // Add the notification flag only if the checkbox is visible, enabled, and checked
+        }
+
         $.ajax({
           type: method,
           url: action,
@@ -314,6 +359,7 @@ docReady(function () {
             Authorization: orgToken,
             "Requested-By": "webflow-3-4",
           },
+          data: data, // Send the data object, possibly containing the notifyWholesaler flag
           success: function (resultData) {
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
@@ -326,7 +372,7 @@ docReady(function () {
             }
             form.hide();
             $(".successmessagetext").text(
-              "Gotowe! Hasło zostało zresetowane ! Nowe hasło to: " +
+              "Gotowe! Hasło zostało zresetowane! Nowe hasło to: " +
                 resultData.credentials.password +
                 ". Za moment strona zostanie odświeżona"
             );
@@ -386,7 +432,18 @@ docReady(function () {
         var action = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "DELETE";
 
-        var data = [];
+        // Prepare data object
+        var data = {};
+
+        // Check if the 'notifyWholesalerDelete' checkbox is visible, enabled, and checked
+        var notifyWholesalerCheckbox = $("#notifyWholesalerDelete");
+        if (
+          notifyWholesalerCheckbox.is(":visible") && // Check visibility
+          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
+          notifyWholesalerCheckbox.is(":checked") // Check if checked
+        ) {
+          data.notifyWholesaler = true; // Add the notification flag only if the checkbox is visible, enabled, and checked
+        }
 
         $.ajax({
           type: method,
@@ -400,7 +457,7 @@ docReady(function () {
           },
           contentType: "application/json",
           dataType: "json",
-          data: JSON.stringify(data),
+          data: JSON.stringify(data), // Convert data object to JSON string
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
