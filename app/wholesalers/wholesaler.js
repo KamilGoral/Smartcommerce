@@ -114,11 +114,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -278,11 +278,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -323,11 +323,11 @@ docReady(function () {
 
     let url2 = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -407,7 +407,12 @@ docReady(function () {
         };
 
         if (customMessages[wholesalerKey]) {
-          LastStatusMessage.innerHTML = customMessages[wholesalerKey];
+          if (wholesalerKey === "lobo") {
+            LastStatusMessage.innerHTML = customMessages[wholesalerKey];
+          } else {
+            LastStatusMessage.innerHTML = customMessages[wholesalerKey];
+            $("#login-credentials-container").hide();
+          }
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         }
@@ -495,11 +500,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/profiles"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -558,11 +563,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/status-history?sort=createDate:asc&perPage=30"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -621,9 +626,9 @@ docReady(function () {
   function getWholesalerButtons(wholesalerKey) {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
 
     let request = new XMLHttpRequest();
@@ -805,11 +810,11 @@ docReady(function () {
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               let url = new URL(
                 InvokeURL +
-                  "shops/" +
-                  shopKey +
-                  "/wholesalers/" +
-                  wholesalerKey +
-                  "/online-offer/profiles"
+                "shops/" +
+                shopKey +
+                "/wholesalers/" +
+                wholesalerKey +
+                "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -923,7 +928,7 @@ docReady(function () {
               case 403:
                 msg =
                   jqXHR.responseJSON.message ==
-                  "User is not an administrator of this tenant"
+                    "User is not an administrator of this tenant"
                     ? "Nie masz uprawnień do tej czynności"
                     : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
                 break;
@@ -940,10 +945,10 @@ docReady(function () {
                   exception === "parsererror"
                     ? "Nie udało się odczytać danych"
                     : exception === "timeout"
-                    ? "Przekroczony czas oczekiwania"
-                    : exception === "abort"
-                    ? "Twoje żądanie zostało zaniechane"
-                    : jqXHR.responseJSON.message;
+                      ? "Przekroczony czas oczekiwania"
+                      : exception === "abort"
+                        ? "Twoje żądanie zostało zaniechane"
+                        : jqXHR.responseJSON.message;
                 break;
             }
             displayMessage("Error", msg);
