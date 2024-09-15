@@ -407,7 +407,7 @@ docReady(function () {
         };
 
         if (customMessages[wholesalerKey]) {
-          LastStatusMessage.innerHTML = messages[wholesalerKey];
+          LastStatusMessage.innerHTML = customMessages[wholesalerKey];
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
         }
