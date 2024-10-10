@@ -28,9 +28,9 @@ docReady(function () {
     $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
   };
 
-  var ecEnabledValue = getCookie("EcEnabled");
-  if (ecEnabledValue === "true") {
-    $("#alertMessage").hide();
+  var testOrganization = getCookie("1ncd2tpuj3fa8bki26cc8u0m4v");
+  if (testOrganization === "true") {
+    $("#alertMessage").show();
   }
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();

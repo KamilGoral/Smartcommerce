@@ -21,9 +21,9 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-  var ecEnabledValue = getCookie("EcEnabled");
-  if (ecEnabledValue === "true") {
-    $("#alertMessage").hide();
+  var testOrganization = getCookie("1ncd2tpuj3fa8bki26cc8u0m4v");
+  if (testOrganization === "true") {
+    $("#alertMessage").show();
   }
 
   function getCookieNameByValue(searchValue) {
