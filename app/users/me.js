@@ -23,7 +23,7 @@ docReady(function () {
 
   var ecEnabledValue = getCookie("EcEnabled");
   if (ecEnabledValue === "true") {
-    $("#alertMessage").show();
+    $("#alertMessage").hide();
   }
 
   function getCookieNameByValue(searchValue) {
