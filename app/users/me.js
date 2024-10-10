@@ -21,8 +21,8 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-  var testOrganization = getCookie("1ncd2tpuj3fa8bki26cc8u0m4v");
-  if (testOrganization === "true") {
+  var testOrganization = getCookie("OrganizationName");
+  if (testOrganization === "Goral") {
     $("#alertMessage").show();
   }
 
