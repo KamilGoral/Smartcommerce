@@ -31,7 +31,7 @@ docReady(function () {
 
   var testOrganization = getCookie("OrganizationName");
   if (testOrganization === "Goral") {
-    $("#alertMessage").hide();
+    $("#alertMessage").show();
   }
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
