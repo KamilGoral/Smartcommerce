@@ -23,7 +23,7 @@ docReady(function () {
 
   var testOrganization = getCookie("OrganizationName");
   if (testOrganization === "Goral") {
-    $("#alertMessage").show();
+    $("#alertMessage").hide();
   }
 
   function getCookieNameByValue(searchValue) {

@@ -31,7 +31,7 @@ docReady(function () {
   var testOrganization = getCookie("OrganizationName");
   console.log(testOrganization);
   if (testOrganization === "Goral") {
-    $("#alertMessage").show();
+    $("#alertMessage").hide();
     console.log(testOrganization === "Goral");
   }
 
