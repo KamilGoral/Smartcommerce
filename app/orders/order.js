@@ -1103,6 +1103,21 @@ docReady(function () {
         saveToSessionStorage(resultProducts);
         updateTableInputsFromSessionStorage(orderId);
 
+        // Randomize prices if organization is "Goral"
+        if (getCookie("OrganizationName") === "Goral") {
+          resultProducts.items.forEach(function (item) {
+            var randomMultiplier = Math.random() * (1.2 - 0.8) + 0.8;
+            if (item.asks) {
+              item.asks.forEach(function (ask) {
+                ask.netPrice = (ask.netPrice * randomMultiplier).toFixed(2);
+                ask.netNetPrice = (ask.netNetPrice * randomMultiplier).toFixed(
+                  2
+                );
+              });
+            }
+          });
+        }
+
         $("#splitted-products").show();
 
         var table = $("#spl_table").DataTable({
@@ -2778,6 +2793,19 @@ docReady(function () {
       $.get(
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
         function (res) {
+          if (getCookie("OrganizationName") === "Goral") {
+            res.items.forEach(function (item) {
+              var randomMultiplier = Math.random() * (1.2 - 0.8) + 0.8;
+              if (item.asks) {
+                item.asks.forEach(function (ask) {
+                  ask.netPrice = (ask.netPrice * randomMultiplier).toFixed(2);
+                  ask.netNetPrice = (
+                    ask.netNetPrice * randomMultiplier
+                  ).toFixed(2);
+                });
+              }
+            });
+          }
           callback({
             recordsTotal: res.total,
             recordsFiltered: res.total,
