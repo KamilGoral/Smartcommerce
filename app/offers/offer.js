@@ -1211,7 +1211,7 @@ docReady(function () {
         function (res) {
           if (getCookie("OrganizationName") === "Goral") {
             res.items.forEach(function (item) {
-              var randomMultiplier = Math.random() * (1.2 - 0.8) + 0.8;
+              // // var randomMultiplier = Math.random() * (1.2 - 0.8) + 0.8;var randomMultiplier = 1
               if (item.asks) {
                 item.asks.forEach(function (ask) {
                   ask.netPrice = (ask.netPrice * randomMultiplier).toFixed(2);
