@@ -28,8 +28,8 @@ docReady(function () {
     $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
   };
 
-  var testOrganization = getCookie("1ncd2tpuj3fa8bki26cc8u0m4v");
-  if (testOrganization === "true") {
+  var testOrganization = getCookie("OrganizationName");
+  if (testOrganization === "Goral") {
     $("#alertMessage").show();
   }
 
@@ -1490,32 +1490,6 @@ docReady(function () {
         var enabledWholesalers = toParse.filter(function (item) {
           return item.enabled === true;
         });
-
-        // List of target wholesaler keys
-        var targetWholesalerKeys = ["eurocash", "eurocash-serwis"];
-
-        // Check if any target wholesaler is present among the enabled wholesalers
-        var isAnyTargetWholesalerPresent = targetWholesalerKeys.some(function (
-          key
-        ) {
-          return enabledWholesalers.some(function (item) {
-            return item.wholesalerKey === key;
-          });
-        });
-
-        if (isAnyTargetWholesalerPresent === true) {
-          // Set a cookie and show the alert message
-          console.log("Showing alert message");
-          setCookie("EcEnabled", "true", 7 * 24 * 60 * 60); // Setting cookie for 7 days
-          $("#alertMessage").show();
-        }
-
-        // Debugging output to verify the process
-        console.log("Enabled Wholesalers:", enabledWholesalers);
-        console.log(
-          "Is any target wholesaler present?",
-          isAnyTargetWholesalerPresent
-        );
 
         $("#table_wholesalers_list").DataTable({
           data: toParse,
