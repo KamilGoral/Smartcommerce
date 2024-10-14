@@ -30,10 +30,6 @@ docReady(function () {
 
   var testOrganization = getCookie("OrganizationName");
   console.log(testOrganization);
-  if (testOrganization === "Goral") {
-    $("#alertMessage").show();
-    console.log(testOrganization === "Goral");
-  }
 
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();

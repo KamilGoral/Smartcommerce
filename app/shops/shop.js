@@ -28,11 +28,6 @@ docReady(function () {
     $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
   };
 
-  var testOrganization = getCookie("OrganizationName");
-  if (testOrganization === "Goral") {
-    $("#alertMessage").show();
-  }
-
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);

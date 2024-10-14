@@ -21,11 +21,6 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
-  var testOrganization = getCookie("OrganizationName");
-  if (testOrganization === "Goral") {
-    $("#alertMessage").show();
-  }
-
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
