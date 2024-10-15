@@ -2046,7 +2046,6 @@ docReady(function () {
       // Logic for "Stwórz z oferty" tab
       var action = InvokeURL + "shops/" + shopKey + "/orders";
       action += "?ignoreEmptyGtin=true";
-
       data = [];
 
       $.ajax({
@@ -2069,18 +2068,62 @@ docReady(function () {
           "Requested-By": "webflow-3-4",
         },
         success: function (response) {
-          displayMessage("Success", "Twoje zamówienie zostało stworzone.");
-          window.setTimeout(function () {
-            window.location.replace(
-              "https://" +
-                DomainName +
-                "/app/orders/order?orderId=" +
-                response.orderId +
-                "&shopKey=" +
-                shopKey +
-                "&data-w-tab=add"
-            );
-          }, 1000);
+          // PATCH request to update the created order
+          var patchAction =
+            InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+          var patchData = [
+            {
+              op: "add",
+              path: "/name",
+              value: $("#OrderName").val(),
+            },
+          ];
+
+          $.ajax({
+            type: "PATCH",
+            url: patchAction,
+            cors: true,
+            beforeSend: function () {
+              $("#waitingdots").show();
+            },
+            complete: function () {
+              $("#waitingdots").hide();
+            },
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(patchData),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+            success: function () {
+              displayMessage(
+                "Success",
+                "Twoje zamówienie zostało stworzone i zaktualizowane."
+              );
+              window.setTimeout(function () {
+                window.location.replace(
+                  "https://" +
+                    DomainName +
+                    "/app/orders/order?orderId=" +
+                    response.orderId +
+                    "&shopKey=" +
+                    shopKey +
+                    "&data-w-tab=add"
+                );
+              }, 1000);
+            },
+            error: function (jqXHR, exception) {
+              console.log(jqXHR);
+              console.log(exception);
+              displayMessage(
+                "Error",
+                "Oops! Coś poszło nie tak podczas aktualizacji zamówienia. Proszę spróbuj ponownie."
+              );
+            },
+          });
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.log(jqXHR);
