@@ -758,7 +758,7 @@ docReady(function () {
           try {
             displayMessage(
               "Error",
-              "Niestety, nie znaleziono oferty lub wybrano błędne zamówienie."
+              "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
             );
             window.setTimeout(function () {
               window.location.href =
