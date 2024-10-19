@@ -448,7 +448,6 @@ docReady(function () {
             "Error",
             "Plik cennika jest za duży. Maksymalny rozmiar to 10 MB."
           );
-          clearFileInput();
           resetButton();
           return false;
         }
@@ -497,6 +496,7 @@ docReady(function () {
 
         // Sprawdzenie, czy lista sklepów jest pusta
         if (!jsonData.shopKeys || jsonData.shopKeys.length === 0) {
+          console.log(jsonData);
           displayMessage("Error", "Błąd: Lista Sklepów jest pusta.");
           return false;
         }
@@ -511,6 +511,7 @@ docReady(function () {
 
         // Sprawdzenie, czy startDate i endDate są >= dzisiejszej dacie
         if (startDate < today || endDate < today) {
+          console.log(jsonData);
           displayMessage(
             "Error",
             "Błąd: Data początkowa lub końcowa jest wcześniejsza niż dzisiejsza data."
@@ -558,7 +559,6 @@ docReady(function () {
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
-                clearFileInput();
                 resetButton();
                 return;
               }
@@ -599,7 +599,6 @@ docReady(function () {
             }
 
             displayMessage("Error", msg);
-            clearFileInput();
             resetButton();
             if (typeof errorCallback === "function") {
               errorCallback(error);
@@ -608,19 +607,6 @@ docReady(function () {
 
         return false;
       });
-
-      function clearFileInput() {
-        const fileInputs = document.querySelectorAll('input[type="file"]');
-        fileInputs.forEach((input) => {
-          input.value = ""; // Usuń zawartość pliku
-          // Usuń klasę wizualizującą wybranie pliku, jeśli to konieczne
-          const uploadButton = input
-            .closest(".upload-container")
-            .querySelector(".upload-button");
-          uploadButton.classList.remove("file-selected");
-          uploadButton.innerHTML = "Dodaj plik cennika"; // Resetuj tekst przycisku
-        });
-      }
 
       function resetButton(button) {
         // Reset button text
