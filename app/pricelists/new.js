@@ -497,7 +497,7 @@ docReady(function () {
 
         // Sprawdzenie, czy lista sklepów jest pusta
         if (!jsonData.shopKeys || jsonData.shopKeys.length === 0) {
-          displayError("Błąd: Lista Sklepów jest pusta.");
+          displayMessage("Error", "Błąd: Lista Sklepów jest pusta.");
           return false;
         }
 
@@ -511,7 +511,8 @@ docReady(function () {
 
         // Sprawdzenie, czy startDate i endDate są >= dzisiejszej dacie
         if (startDate < today || endDate < today) {
-          displayError(
+          displayMessage(
+            "Error",
             "Błąd: Data początkowa lub końcowa jest wcześniejsza niż dzisiejsza data."
           );
           return false;
