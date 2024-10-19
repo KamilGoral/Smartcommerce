@@ -487,16 +487,25 @@ docReady(function () {
           // Default case will now use text/plain
         }
 
-        // JSON data should be of type application/json
-        const jsonData = {
-          wholesalerKey: wholesalerKey,
-          shopKeys: $("#shopKeys").val(),
-          startDate: $("#startDate").val() + "T00:00:01.00Z",
-          endDate: $("#endDate").val() + "T23:59:59.00Z",
-        };
-
+        // Sprawdzenie, czy lista sklepów jest pusta
         if (!jsonData.shopKeys || jsonData.shopKeys.length === 0) {
           displayError("Błąd: Lista Sklepów jest pusta.");
+          return false;
+        }
+
+        // Pobranie aktualnej daty
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Ustawienie godziny na 00:00:00.000
+
+        // Konwersja stringów na obiekty Date
+        const startDate = new Date(jsonData.startDate);
+        const endDate = new Date(jsonData.endDate);
+
+        // Sprawdzenie, czy startDate i endDate są >= dzisiejszej dacie
+        if (startDate < today || endDate < today) {
+          displayError(
+            "Błąd: Data początkowa lub końcowa jest wcześniejsza niż dzisiejsza data."
+          );
           return false;
         }
 
