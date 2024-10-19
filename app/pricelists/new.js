@@ -495,6 +495,11 @@ docReady(function () {
           endDate: $("#endDate").val() + "T23:59:59.00Z",
         };
 
+        if (!jsonData.shopKeys || jsonData.shopKeys.length === 0) {
+          displayError("Błąd: Lista Sklepów jest pusta.");
+          return false;
+        }
+
         formData.append(
           "json",
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
