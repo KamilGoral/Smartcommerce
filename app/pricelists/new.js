@@ -428,7 +428,6 @@ docReady(function () {
             "Error",
             "Nie wybrano dostawcy. Proszę wybrać dostawcę z listy."
           );
-          resetForm();
           return false;
         }
 
@@ -449,7 +448,8 @@ docReady(function () {
             "Error",
             "Plik cennika jest za duży. Maksymalny rozmiar to 10 MB."
           );
-          resetForm();
+          clearFileInput();
+          resetButton();
           return false;
         }
 
@@ -458,7 +458,7 @@ docReady(function () {
             "Error",
             "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
           );
-          resetForm();
+          resetButton();
           return false;
         }
 
@@ -486,6 +486,14 @@ docReady(function () {
             break;
           // Default case will now use text/plain
         }
+
+        // JSON data should be of type application/json
+        const jsonData = {
+          wholesalerKey: wholesalerKey,
+          shopKeys: $("#shopKeys").val(),
+          startDate: $("#startDate").val() + "T00:00:00.000Z",
+          endDate: $("#endDate").val() + "T23:59:59.999Z",
+        };
 
         // Sprawdzenie, czy lista sklepów jest pusta
         if (!jsonData.shopKeys || jsonData.shopKeys.length === 0) {
@@ -549,7 +557,8 @@ docReady(function () {
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
-                resetForm();
+                clearFileInput();
+                resetButton();
                 return;
               }
             }
@@ -589,7 +598,8 @@ docReady(function () {
             }
 
             displayMessage("Error", msg);
-            resetForm();
+            clearFileInput();
+            resetButton();
             if (typeof errorCallback === "function") {
               errorCallback(error);
             }
@@ -598,31 +608,32 @@ docReady(function () {
         return false;
       });
 
-      function resetForm() {
-        // Reset the form fields
-        form3[0].reset();
+      function clearFileInput() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach((input) => {
+          input.value = ""; // Usuń zawartość pliku
+          // Usuń klasę wizualizującą wybranie pliku, jeśli to konieczne
+          const uploadButton = input
+            .closest(".upload-container")
+            .querySelector(".upload-button");
+          uploadButton.classList.remove("file-selected");
+          uploadButton.innerHTML = "Dodaj plik cennika"; // Resetuj tekst przycisku
+        });
+      }
 
-        // Reset the file upload button to its original state
-        uploadButtons.forEach((button) => {
-          button.classList.remove("file-selected");
-
-          // Clear the button's content
-          button.innerHTML = "";
-
-          // Set the button's inner HTML to its original state
-          button.innerHTML = `
+      function resetButton(button) {
+        // Reset button text
+        button.innerHTML = `
             <div>Dodaj plik cennika</div>
             <div class="icon-embed-xsmall w-embed">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
                     <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
                 </svg>
             </div>
-          `;
-
-          // Hide the delete button
-          const deleteFileButton = document.getElementById("deleteFileButton");
-          deleteFileButton.style.display = "none";
-        });
+        `;
+        // Hide the delete button
+        const deleteFileButton = document.getElementById("deleteFileButton");
+        deleteFileButton.style.display = "none";
       }
     });
   };
