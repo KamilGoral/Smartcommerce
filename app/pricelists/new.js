@@ -501,54 +501,54 @@ docReady(function () {
           return false;
         }
 
-        // Funkcja sprawdzająca, czy string jest w formacie daty "YYYY-MM-DD"
-        function isValidDateString(dateString) {
-          // Sprawdzenie, czy string pasuje do formatu YYYY-MM-DD
-          const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+        // // Funkcja sprawdzająca, czy string jest w formacie daty "YYYY-MM-DD"
+        // function isValidDateString(dateString) {
+        //   // Sprawdzenie, czy string pasuje do formatu YYYY-MM-DD
+        //   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-          if (!datePattern.test(dateString)) {
-            return false;
-          }
+        //   if (!datePattern.test(dateString)) {
+        //     return false;
+        //   }
 
-          // Konwersja do obiektu Date i sprawdzenie, czy jest prawidłowa
-          const date = new Date(dateString);
-          return date instanceof Date && !isNaN(date);
-        }
+        //   // Konwersja do obiektu Date i sprawdzenie, czy jest prawidłowa
+        //   const date = new Date(dateString);
+        //   return date instanceof Date && !isNaN(date);
+        // }
 
-        // Sprawdzenie, czy startDate i endDate nie są puste oraz są poprawne
-        if (!jsonData.startDate || !isValidDateString(jsonData.startDate)) {
-          displayMessage(
-            "Error",
-            "Błąd: Niepoprawny format daty początkowej. Proszę wprowadzić datę w formacie YYYY-MM-DD."
-          );
-          return false;
-        }
+        // // Sprawdzenie, czy startDate i endDate nie są puste oraz są poprawne
+        // if (!jsonData.startDate || !isValidDateString(jsonData.startDate)) {
+        //   displayMessage(
+        //     "Error",
+        //     "Błąd: Niepoprawny format daty początkowej. Proszę wprowadzić datę w formacie YYYY-MM-DD."
+        //   );
+        //   return false;
+        // }
 
-        if (!jsonData.endDate || !isValidDateString(jsonData.endDate)) {
-          displayMessage(
-            "Error",
-            "Błąd: Niepoprawny format daty końcowej. Proszę wprowadzić datę w formacie YYYY-MM-DD."
-          );
-          return false;
-        }
+        // if (!jsonData.endDate || !isValidDateString(jsonData.endDate)) {
+        //   displayMessage(
+        //     "Error",
+        //     "Błąd: Niepoprawny format daty końcowej. Proszę wprowadzić datę w formacie YYYY-MM-DD."
+        //   );
+        //   return false;
+        // }
 
-        // Konwersja stringów na obiekty Date
-        const startDate = new Date(jsonData.startDate);
-        const endDate = new Date(jsonData.endDate);
+        // // Konwersja stringów na obiekty Date
+        // const startDate = new Date(jsonData.startDate);
+        // const endDate = new Date(jsonData.endDate);
 
-        // Pobranie aktualnej daty
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Ustawienie godziny na 00:00:00.000
+        // // Pobranie aktualnej daty
+        // const today = new Date();
+        // today.setHours(0, 0, 0, 0); // Ustawienie godziny na 00:00:00.000
 
-        // Sprawdzenie, czy startDate i endDate są >= dzisiejszej dacie
-        if (startDate < today || endDate < today) {
-          console.log(jsonData);
-          displayMessage(
-            "Error",
-            "Błąd: Data początkowa lub końcowa jest wcześniejsza niż dzisiejsza data."
-          );
-          return false;
-        }
+        // // Sprawdzenie, czy startDate i endDate są >= dzisiejszej dacie
+        // if (startDate < today || endDate < today) {
+        //   console.log(jsonData);
+        //   displayMessage(
+        //     "Error",
+        //     "Błąd: Data początkowa lub końcowa jest wcześniejsza niż dzisiejsza data."
+        //   );
+        //   return false;
+        // }
 
         formData.append(
           "json",
