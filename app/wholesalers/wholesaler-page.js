@@ -341,17 +341,6 @@ docReady(function () {
         // Initialize action URL
         var action = baseAction;
 
-        // Check if the 'notifyWholesalerReset' checkbox is visible, enabled, and checked
-        var notifyWholesalerCheckbox = $("#notifyWholesalerReset");
-        if (
-          notifyWholesalerCheckbox.is(":visible") && // Check visibility
-          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
-          notifyWholesalerCheckbox.is(":checked") // Check if checked
-        ) {
-          // Append notifyWholesaler parameter to the URL if necessary
-          action += "?notifyWholesaler=true";
-        }
-
         $.ajax({
           type: method,
           url: action,
@@ -444,17 +433,6 @@ docReady(function () {
 
         // Initialize action URL
         var action = baseAction;
-
-        // Check if the 'notifyWholesalerDelete' checkbox is visible, enabled, and checked
-        var notifyWholesalerCheckbox = $("#notifyWholesalerDelete");
-        if (
-          notifyWholesalerCheckbox.is(":visible") && // Check visibility
-          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
-          notifyWholesalerCheckbox.is(":checked") // Check if checked
-        ) {
-          // Append notifyWholesaler parameter to the URL if necessary
-          action += "?notifyWholesaler=true";
-        }
 
         $.ajax({
           type: method,
