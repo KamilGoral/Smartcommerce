@@ -259,7 +259,7 @@ docReady(function () {
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
   var formIdEdit = "#wf-form-CredentialsFormEdit";
-  var formIdNewWh = "#wf-form-Create-wholesaler";
+  var formCustomerIdForm = "wf-form-customerId;";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-LogisticMinimumForm";
   const Iehurt = document.getElementById("Iehurt");
@@ -645,6 +645,12 @@ docReady(function () {
 
         if (logisticMinimum !== null) {
           $("#logisticMinimumEdit").val(logisticMinimum).change();
+        }
+
+        var customerId = foundWholesaler.customerId;
+
+        if (customerId !== null) {
+          $("#customerId").val(customerId).change();
         }
 
         if (
@@ -1044,6 +1050,87 @@ docReady(function () {
     });
   };
 
+  editCustomerId = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var action =
+          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
+
+        var method = "PATCH";
+
+        if (parseInt($("#customerId").val()) > 0) {
+          var data = [
+            {
+              op: "add",
+              path: "/customerId",
+              value: parseInt($("#customerId").val()),
+            },
+          ];
+        } else {
+          var data = [
+            {
+              op: "remove",
+              path: "/customerId",
+            },
+          ];
+        }
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                console.log(e);
+                return;
+              }
+            }
+            form.show();
+            displayMessage(
+              "Success",
+              "Identyfikator klienta dla dostawcy został zmieniony"
+            );
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
+            console.log(e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   makeWebflowFormAjaxDeleteWh = function (
     forms,
     successCallback,
@@ -1242,6 +1329,7 @@ docReady(function () {
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
+  editCustomerId($(formCustomerIdForm));
   makeWebflowFormAjaxNewWh($(formIdNewWh));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
