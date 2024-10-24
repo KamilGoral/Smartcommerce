@@ -259,7 +259,7 @@ docReady(function () {
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
   var formIdEdit = "#wf-form-CredentialsFormEdit";
-  var formCustomerIdForm = "wf-form-customerId;";
+  var formCustomerIdForm = "wf-form-customerId";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-LogisticMinimumForm";
   const Iehurt = document.getElementById("Iehurt");
