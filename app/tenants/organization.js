@@ -684,9 +684,7 @@ docReady(function () {
       return;
     }
 
-    let url = new URL(
-      InvokeURL + "tenants/" + organizationName + "/invoices?perPage=25"
-    );
+    let url = new URL(InvokeURL + "/billing/invoices?perPage=25");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -977,7 +975,7 @@ docReady(function () {
     const sanitizedNumber = sanitizeFilename(number);
     const filename = `${sanitizedOrganizationName}-${sanitizedNumber}.pdf`;
 
-    const url = `${InvokeURL}tenants/${tenant}/invoices/${uuid}?documentType=${documentType}`;
+    const url = `${InvokeURL}billing/invoices/${uuid}?documentType=${documentType}`;
 
     // Show waiting screen
     $("#waitingdots").show();
@@ -3033,7 +3031,7 @@ docReady(function () {
       form.on("submit", function (event) {
         event.preventDefault();
         const organizationName = $("#organizationName").text();
-        const url = `${InvokeURL}tenants/${organizationName}/billing`;
+        const url = `${InvokeURL}/billing`;
         $.ajax({
           type: "GET",
           url: url,
