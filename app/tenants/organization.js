@@ -1119,9 +1119,7 @@ docReady(function () {
       }, 150); // Delay the execution by 150 milliseconds
     }
 
-    let url = new URL(
-      InvokeURL + "tenants/" + getCookie("OrganizationName") + "/billing"
-    );
+    let url = new URL(InvokeURL + "/billing");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
