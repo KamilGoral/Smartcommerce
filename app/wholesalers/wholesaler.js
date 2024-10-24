@@ -1054,27 +1054,42 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
+        var customerIdValue = $("#customerId").val().trim();
+
+        // Walidacja numeru customerId - musi być liczbą o długości od 4 do 12 cyfr.
+        if (!/^\d{4,12}$/.test(customerIdValue)) {
+          displayMessage(
+            "Error",
+            "Identyfikator klienta musi składać się z 4 do 12 cyfr."
+          );
+          return false;
+        }
+
         var action =
           InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
 
         var method = "PATCH";
 
-        if (parseInt($("#customerId").val()) > 0) {
-          var data = [
+        var data;
+        if (parseInt(customerIdValue) > 0) {
+          data = [
             {
               op: "add",
               path: "/customerId",
-              value: parseInt($("#customerId").val()),
+              value: parseInt(customerIdValue),
             },
           ];
         } else {
-          var data = [
+          data = [
             {
               op: "remove",
               path: "/customerId",
             },
           ];
         }
+
         $.ajax({
           type: method,
           url: action,
@@ -1125,7 +1140,7 @@ docReady(function () {
             console.log(e);
           },
         });
-        event.preventDefault();
+
         return false;
       });
     });
