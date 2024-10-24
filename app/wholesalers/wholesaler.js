@@ -397,7 +397,6 @@ docReady(function () {
             "Skontaktuj się z Twoim opiekunem lub wyślij e-mail na kontakt@sprytnykupiec.pl w celu rozpoczęcia integracji",
           "eurocash-serwis":
             "Skontaktuj się z Twoim opiekunem lub wyślij e-mail na kontakt@sprytnykupiec.pl w celu rozpoczęcia integracji",
-          "slod-hurt": "Trwają prace nad integracją z tym dostawcą...",
           "sobik-nabial":
             "Integracja z e-hurtownią Sobik-Nabiał jest obecnie niedostępna. W celu dalszego korzystania z usług, prosimy o skorzystanie z wersji Sobik-Nabiał Sellitem.",
           "sobik-suchy":
@@ -1350,10 +1349,7 @@ docReady(function () {
   postEditUserProfile($("#wf-form-editProfile"));
   $("#waitingdots").hide();
 
-  ///custom code for slod-hurt
-
   const customMessages = {
-    "slod-hurt": "Trwają prace nad integracją z tym dostawcą...",
     "sobik-nabial":
       "Integracja z e-hurtownią Sobik-Nabiał jest obecnie niedostępna. W celu dalszego korzystania z usług, prosimy o skorzystanie z wersji Sobik-Nabiał Sellitem.",
     "sobik-suchy":
