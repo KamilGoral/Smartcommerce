@@ -1078,7 +1078,7 @@ docReady(function () {
             {
               op: "add",
               path: "/customerId",
-              value: parseInt(customerIdValue),
+              value: parseInt(customerIdValue).toString(),
             },
           ];
         } else {
