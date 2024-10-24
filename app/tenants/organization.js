@@ -2221,7 +2221,7 @@ docReady(function () {
     });
   };
 
-  async function getPriceLists() {
+  async function getPricats() {
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -2231,7 +2231,7 @@ docReady(function () {
       console.log("Action not permitted for non-admin users.");
       return;
     }
-    let url = new URL(InvokeURL + "price-lists?perPage=1000");
+    let url = new URL(InvokeURL + "van/pricats?perPage=1000");
     fetch(url, {
       headers: {
         Authorization: orgToken,
@@ -3271,7 +3271,7 @@ docReady(function () {
         getUsers(),
         getInvoices(),
         navigateToInvoiceStateInvoices(),
-        getPriceLists(),
+        getPricats(),
         getIntegrations(),
         getWholesalers(),
       ]);
