@@ -600,7 +600,7 @@ docReady(function () {
             var pricelistUrl =
               "https://" +
               DomainName +
-              "/app/van/pricats/" +
+              "/app/pricelists/pricelist?uuid=" +
               response.data.items[0].uuid;
             setTimeout(function () {
               window.location.href = pricelistUrl;
