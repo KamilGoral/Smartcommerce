@@ -562,7 +562,7 @@ docReady(function () {
           uploadedFile.name
         );
 
-        var uploadEndpoint = InvokeURL + "van/pricats";
+        var uploadEndpoint = InvokeURL + "van/transactions?type=PRICAT";
 
         console.log("FormData prepared:", formData);
 
