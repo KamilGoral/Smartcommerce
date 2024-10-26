@@ -597,6 +597,7 @@ docReady(function () {
             }
 
             displayMessage("Success", "Cennik został dodany.");
+            console.log(response);
             var pricelistUrl =
               "https://" +
               DomainName +
