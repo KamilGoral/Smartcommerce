@@ -354,10 +354,12 @@ docReady(function () {
 
         // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");
+
         const shopArray = data.shops.map((shop) => shop.key);
 
-        // Dodanie logowania, aby sprawdzić wartości shopArray
+        // Dodanie logowania, aby sprawdzić wartości
         console.log("Dostępne klucze sklepów:", shopArray);
+        console.log(select.options);
 
         for (const option of select.options) {
           const value = option.value;
