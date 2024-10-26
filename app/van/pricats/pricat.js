@@ -322,6 +322,7 @@ docReady(function () {
         $("#waitingdots").hide();
       },
       success: function (data) {
+        // Wyświetlanie podstawowych informacji o cenach
         const wholesalerKey = document.getElementById("wholesalerKey");
         const createdBy = document.getElementById("createdBy");
         const createDate = document.getElementById("createDate");
@@ -330,7 +331,6 @@ docReady(function () {
         );
         const startDate = document.getElementById("startDate");
         const endDate = document.getElementById("endDate");
-        shopKeysStart = data.shopKeys;
 
         function ToHumanTime(data) {
           var offset = new Date().getTimezoneOffset();
@@ -342,6 +342,7 @@ docReady(function () {
           var humanTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
           return humanTime;
         }
+
         wholesalerKey.textContent = data.wholesalerKey;
         createdBy.textContent = data.created.by;
         createDate.textContent = ToHumanTime(data.created.at);
@@ -351,10 +352,14 @@ docReady(function () {
         endDate.textContent = ToHumanTime(data.endDate);
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
+        // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");
-        const shopArray = data.shops.map((shop) => shop.key); // Zbieramy tylko klucze sklepów
+        const shopArray = data.shops.map((shop) => shop.key);
 
-        for (const option of document.querySelectorAll("#shopKeys option")) {
+        // Dodanie logowania, aby sprawdzić wartości shopArray
+        console.log("Dostępne klucze sklepów:", shopArray);
+
+        for (const option of select.options) {
           const value = option.value;
           if (shopArray.includes(value)) {
             option.setAttribute("selected", "selected");
@@ -363,7 +368,8 @@ docReady(function () {
           }
         }
 
-        $("option").mousedown(function (e) {
+        // Ustawienie interakcji opcji z myszką
+        $("#shopKeys option").mousedown(function (e) {
           e.preventDefault();
           $(this).prop("selected", !$(this).prop("selected"));
           return false;
