@@ -308,9 +308,8 @@ docReady(function () {
 
   function getPriceList() {
     getShops();
-
     $.ajax({
-      url: `${InvokeURL}price-lists/${priceListId}`,
+      url: `${InvokeURL}van/pricats/${priceListId}`,
       type: "GET",
       headers: {
         Authorization: orgToken,
@@ -454,7 +453,7 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var action = InvokeURL + "price-lists/" + priceListId;
+        var action = `${InvokeURL}van/pricats/${priceListId}`;
         var method = "PATCH";
         var data = [
           {
@@ -559,13 +558,7 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-
-        if (shopKey) {
-          var action =
-            InvokeURL + "shops/" + shopKey + "/price-lists/" + priceListId;
-        } else {
-          var action = InvokeURL + "price-lists/" + priceListId;
-        }
+        var action = `${InvokeURL}van/pricats/${priceListId}`;
         var method = "DELETE";
 
         $.ajax({
@@ -631,6 +624,7 @@ docReady(function () {
   makeWebflowFormAjaxEditPriceList($(formIdEditPriceList));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
+
   getPriceList();
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
