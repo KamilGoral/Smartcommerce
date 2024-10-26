@@ -492,6 +492,7 @@ docReady(function () {
           shopKeys: $("#shopKeys").val(),
           startDate: $("#startDate").val() + "T00:00:00.000Z",
           endDate: $("#endDate").val() + "T23:59:59.999Z",
+          type: "PRICAT",
         };
 
         // Sprawdzenie, czy lista sklepów jest pusta
@@ -562,7 +563,7 @@ docReady(function () {
           uploadedFile.name
         );
 
-        var uploadEndpoint = InvokeURL + "van/transactions?type=PRICAT";
+        var uploadEndpoint = InvokeURL + "van/transactions";
 
         console.log("FormData prepared:", formData);
 
