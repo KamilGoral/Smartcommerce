@@ -352,10 +352,11 @@ docReady(function () {
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
         const select = document.getElementById("shopKeys");
-        var ShopArray = data.shopKeys;
+        const shopArray = data.shops.map((shop) => shop.key); // Zbieramy tylko klucze sklepów
+
         for (const option of document.querySelectorAll("#shopKeys option")) {
           const value = option.value;
-          if (ShopArray.indexOf(value) !== -1) {
+          if (shopArray.includes(value)) {
             option.setAttribute("selected", "selected");
           } else {
             option.removeAttribute("selected");
@@ -366,59 +367,6 @@ docReady(function () {
           e.preventDefault();
           $(this).prop("selected", !$(this).prop("selected"));
           return false;
-        });
-
-        var myValidProducts = data.products;
-
-        $(document).ready(function () {
-          var tables = $.fn.dataTable.fnTables(true);
-
-          $(tables).each(function () {
-            $(this).dataTable().fnDestroy();
-          });
-
-          var validproductsTable = $("#pricelistproducts").DataTable({
-            pagingType: "full_numbers",
-            order: [],
-            dom: '<"top"f>rt<"bottom"lip>',
-            scrollY: "60vh",
-            scrollCollapse: true,
-            pageLength: 10,
-            language: {
-              emptyTable: "Brak danych do wyświetlenia",
-              info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-              infoEmpty: "Brak danych",
-              infoFiltered: "(z _MAX_ rezultatów)",
-              lengthMenu: "Pokaż _MENU_ rekordów",
-              loadingRecords: "<div class='spinner'</div>",
-              processing: "<div class='spinner'</div>",
-              search: "Szukaj:",
-              zeroRecords: "Brak pasujących rezultatów",
-              paginate: {
-                first: "<<",
-                last: ">>",
-                next: " >",
-                previous: "< ",
-              },
-              aria: {
-                sortAscending: ": Sortowanie rosnące",
-                sortDescending: ": Sortowanie malejące",
-              },
-            },
-            data: myValidProducts,
-            paging: true,
-            autoWidth: true,
-            columns: [
-              { data: "gtin" },
-              { data: "name" },
-              {
-                orderable: false,
-                data: "countryDistributorName",
-                defaultContent: "-",
-              },
-              { data: "price" },
-            ],
-          });
         });
       },
       error: function (jqXHR, exception) {
@@ -443,6 +391,116 @@ docReady(function () {
       },
     });
   }
+
+  function getPriceListProducts() {
+    // Definiowanie URL API dla pobrania listy produktów
+    const apiUrl = `${InvokeURL}van/pricats/${priceListId}/products`;
+
+    // Opcje zapytania AJAX
+    $.ajax({
+      url: apiUrl,
+      method: "GET",
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      success: function (data) {
+        // Po pomyślnym pobraniu danych inicjujemy lub aktualizujemy tabelę
+        initializeProductTable(data);
+      },
+      error: function (error) {
+        console.error("Wystąpił błąd podczas pobierania danych: ", error);
+      },
+    });
+  }
+
+  // Funkcja inicjalizująca lub odświeżająca DataTable
+  function initializeProductTable(data) {
+    // Pobranie dostępnych produktów z odpowiedzi API
+    var myValidProducts = data.items;
+
+    // Jeśli DataTable już istnieje, niszczymy ją, aby odświeżyć dane
+    if ($.fn.DataTable.isDataTable("#pricelistproducts")) {
+      $("#pricelistproducts")
+        .DataTable()
+        .clear()
+        .rows.add(myValidProducts)
+        .draw();
+      return;
+    }
+
+    // Inicjalizacja DataTable
+    $("#pricelistproducts").DataTable({
+      pagingType: "full_numbers",
+      order: [[0, "asc"]], // domyślne sortowanie po pierwszej kolumnie
+      dom: '<"top"f>rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 10,
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rekordów",
+        loadingRecords: "<div class='spinner'></div>",
+        processing: "<div class='spinner'></div>",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
+        },
+      },
+      data: myValidProducts,
+      paging: true,
+      autoWidth: true,
+      columns: [
+        { data: "gtin", title: "GTIN" },
+        { data: "name", title: "Nazwa", defaultContent: "-" },
+        {
+          data: "countryDistributorName",
+          title: "Dystrybutor",
+          defaultContent: "-",
+          orderable: false,
+        },
+        { data: "price", title: "Cena", defaultContent: "-" },
+        {
+          data: "promotion",
+          title: "Promocja",
+          defaultContent: "-",
+          render: function (data) {
+            return data ? `${data.type} (threshold: ${data.threshold})` : "-";
+          },
+        },
+        {
+          data: "restricted",
+          title: "Ograniczony",
+          render: function (data) {
+            return data ? "Tak" : "Nie";
+          },
+        },
+        {
+          data: "invalid",
+          title: "Nieprawidłowy",
+          render: function (data) {
+            return data ? "Tak" : "Nie";
+          },
+        },
+      ],
+    });
+  }
+
+  // Wywołaj funkcję po załadowaniu dokumentu
+  $(document).ready(function () {
+    getPriceListProducts();
+  });
 
   makeWebflowFormAjaxEditPriceList = function (
     forms,
