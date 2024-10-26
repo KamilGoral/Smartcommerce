@@ -562,7 +562,7 @@ docReady(function () {
           uploadedFile.name
         );
 
-        var uploadEndpoint = InvokeURL + "price-lists";
+        var uploadEndpoint = InvokeURL + "van/pricats";
 
         console.log("FormData prepared:", formData);
 
@@ -599,7 +599,7 @@ docReady(function () {
             var pricelistUrl =
               "https://" +
               DomainName +
-              "/app/pricelists/pricelist?uuid=" +
+              "/app/van/pricats/" +
               response.data.items[0].uuid;
             setTimeout(function () {
               window.location.href = pricelistUrl;
