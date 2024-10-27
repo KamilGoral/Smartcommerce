@@ -463,16 +463,30 @@ docReady(function () {
           "Requested-By": "webflow-3-4",
         },
         data: function (d) {
+          // Trim whitespace from search input
+          let searchBox = d.search.value.trim();
+          let QStr = "";
+
+          // Check if searchBox is a numeric GTIN or a name
+          if (/^\d+$/.test(searchBox)) {
+            // If searchBox is numeric, treat it as a GTIN
+            QStr += `&gtin=${searchBox}`;
+          } else if (searchBox) {
+            // If searchBox is non-numeric, treat it as a name search with 'like' filter
+            QStr += `&name=like:${searchBox}`;
+          }
+
+          // Return DataTables parameters along with search-specific query parameters
           return {
             perPage: d.length, // Number of records per page
-            page: d.start / d.length + 1, // Calculate page number
+            page: Math.floor(d.start / d.length) + 1, // Calculate page number
             valid: "true", // Additional filters
             restricted: "false", // Additional filters
-            field: d.columns[d.order[0].column].data, // Sort field
-            dir: d.order[0].dir, // Sort direction
-            search: d.search.value, // Global search term
+            sort: `${d.columns[d.order[0].column].data}:${d.order[0].dir}`, // Sort field and direction
+            QStr, // Append constructed search query parameters
           };
         },
+
         dataSrc: function (json) {
           json.recordsTotal = json.total;
           json.recordsFiltered = json.total;
