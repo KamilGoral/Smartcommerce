@@ -463,9 +463,8 @@ docReady(function () {
         url: `https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/van/pricats/${priceListId}/products`,
         type: "GET",
         headers: {
-          Accept: "application/json",
-          // Dodaj nagłówek autoryzacyjny, jeśli jest wymagany
-          Authorization: "Bearer YOUR_ACCESS_TOKEN",
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
         },
         data: function (d) {
           // Mapowanie parametrów DataTables na parametry API
@@ -515,20 +514,6 @@ docReady(function () {
             return data ? `${data.type} (threshold: ${data.threshold})` : "-";
           },
         },
-        // {
-        //   data: "restricted",
-        //   title: "Ograniczony",
-        //   render: function (data) {
-        //     return data ? "Tak" : "Nie";
-        //   },
-        // },
-        // {
-        //   data: "invalid",
-        //   title: "Nieprawidłowy",
-        //   render: function (data) {
-        //     return data ? "Tak" : "Nie";
-        //   },
-        // },
       ],
     });
   }
