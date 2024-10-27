@@ -2904,10 +2904,7 @@ docReady(function () {
       var table = $("#table_pricelists_list").DataTable();
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
-        "https://" +
-          DomainName +
-          "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+        "https://" + DomainName + "/app/van/pricats?uuid=" + rowData.uuid
       );
     }
   );
@@ -2922,7 +2919,7 @@ docReady(function () {
       var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
 
       if (confirmDelete) {
-        var endpoint = InvokeURL + "price-lists/" + rowData.uuid;
+        var endpoint = InvokeURL + "/van/transactions/" + rowData.uuid;
 
         $.ajax({
           type: "DELETE",
