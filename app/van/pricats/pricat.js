@@ -1,5 +1,17 @@
 console.log("Script Loaded v4");
 
+// Helper function to execute code when the DOM is fully loaded
+function docReady(fn) {
+  if (
+    document.readyState === "complete" ||
+    document.readyState === "interactive"
+  ) {
+    setTimeout(fn, 1); // Execute after 1 ms delay if DOM is ready
+  } else {
+    document.addEventListener("DOMContentLoaded", fn);
+  }
+}
+
 // Helper Functions
 function getCookie(name) {
   const value = `; ${document.cookie}`;
