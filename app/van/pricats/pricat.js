@@ -518,16 +518,6 @@ docReady(function () {
     });
   }
 
-  // Wywołanie funkcji po załadowaniu dokumentu
-  $(document).ready(function () {
-    initializeProductTable(priceListId);
-  });
-
-  // Wywołaj funkcję po załadowaniu dokumentu
-  $(document).ready(function () {
-    getPriceListProducts();
-  });
-
   makeWebflowFormAjaxEditPriceList = function (
     forms,
     successCallback,
@@ -709,8 +699,9 @@ docReady(function () {
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
-  getPriceList();
   $(document).ready(function ($) {
+    getPriceList();
+    initializeProductTable(priceListId);
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
