@@ -423,29 +423,56 @@ docReady(function () {
   }
 
   function initializeProductTable(priceListId) {
-    // Sprawdzenie, czy tabela już istnieje, i jej zniszczenie, aby odświeżyć dane
     if ($.fn.DataTable.isDataTable("#pricelistproducts")) {
       $("#pricelistproducts").DataTable().destroy();
     }
 
-    // Inicjalizacja DataTable z obsługą po stronie serwera
     $("#pricelistproducts").DataTable({
       serverSide: true,
       processing: true,
       pagingType: "full_numbers",
-      order: [[1, "asc"]], // domyślne sortowanie po GTIN
-      dom: '<"top"f>rt<"bottom"lip>',
+      order: [[0, "asc"]],
+      dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
-      pageLength: 10,
+      pageLength: 25,
+      buttons: [
+        {
+          text: '<img src="expand-all-icon.svg" alt="expand-all">',
+          titleAttr: "Expand All",
+          action: function (e, dt, node, config) {
+            dt.rows().every(function () {
+              const row = this;
+              if (!row.child.isShown()) {
+                row.child(format(row.data())).show();
+                $(row.node()).addClass("shown");
+              }
+            });
+          },
+        },
+        {
+          text: '<img src="collapse-all-icon.svg" alt="collapse-all">',
+          titleAttr: "Collapse All",
+          action: function (e, dt, node, config) {
+            dt.rows().every(function () {
+              const row = this;
+              if (row.child.isShown()) {
+                row.child.hide();
+                $(row.node()).removeClass("shown");
+              }
+            });
+          },
+        },
+        // Additional buttons for export if needed
+      ],
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
         infoEmpty: "Brak danych",
         infoFiltered: "(z _MAX_ rezultatów)",
         lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'></div>",
-        processing: "<div class='spinner'></div>",
+        loadingRecords: "<div class='spinner'</div>",
+        processing: "<div class='spinner'</div>",
         search: "Szukaj:",
         zeroRecords: "Brak pasujących rezultatów",
         paginate: {
@@ -467,23 +494,33 @@ docReady(function () {
           "Requested-By": "webflow-3-4",
         },
         data: function (d) {
-          // Mapowanie parametrów DataTables na parametry API
-          return {
-            perPage: d.length, // Liczba wyników na stronę
-            page: d.start / d.length + 1, // Oblicz numer strony
-            valid: "true", // Filtr na przykład dla valid
-            restricted: "false", // Filtr dla restricted
-            field: d.columns[d.order[0].column].data, // Kolumna do sortowania
-            dir: d.order[0].dir, // Kierunek sortowania
-          };
+          let queryParams = `?perPage=${d.length}&page=${
+            d.start / d.length + 1
+          }`;
+
+          // Handle search query
+          const searchValue = d.search.value.trim();
+          if (searchValue) {
+            queryParams += searchValue.match(/^\d+$/)
+              ? `&gtin=${encodeURIComponent(searchValue)}`
+              : `&name=like:${encodeURIComponent(searchValue)}`;
+          }
+
+          // Add sorting column and direction if specified
+          if (d.order.length > 0) {
+            const orderColumn = d.columns[d.order[0].column].data;
+            const orderDirection = d.order[0].dir;
+            queryParams += `&sort=${orderColumn}:${orderDirection}`;
+          }
+
+          return queryParams;
         },
         dataSrc: function (json) {
-          // DataTables oczekuje total i data, mapujemy odpowiednio z "total" i "items"
           return json.items || [];
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.error(
-            "Wystąpił błąd podczas pobierania danych: ",
+            "Error fetching product data:",
             textStatus,
             errorThrown
           );
@@ -491,18 +528,17 @@ docReady(function () {
       },
       columns: [
         { data: "gtin", title: "GTIN" },
-        { data: "name", title: "Nazwa", defaultContent: "-" },
+        { data: "name", title: "Name", defaultContent: "-" },
         {
           data: "countryDistributorName",
-          title: "Dystrybutor",
+          title: "Distributor",
           defaultContent: "-",
           orderable: false,
         },
         {
-          title: "Cena",
+          title: "Price",
           defaultContent: "-",
           render: function (data, type, row) {
-            // Pobieramy wartość `netPrice` z pierwszego elementu w `asks`, jeśli istnieje
             return row.asks && row.asks[0] && row.asks[0].netPrice
               ? row.asks[0].netPrice
               : "-";
@@ -510,13 +546,26 @@ docReady(function () {
         },
         {
           data: "promotion",
-          title: "Promocja",
+          title: "Promotion",
           defaultContent: "-",
           render: function (data) {
             return data ? `${data.type} (threshold: ${data.threshold})` : "-";
           },
         },
       ],
+      initComplete: function (settings, json) {
+        // Custom filter for column search inputs
+        $("#table_id_filter input")
+          .unbind()
+          .bind("input", function (e) {
+            const api = settings.oInstance.api();
+            api.search(this.value).draw();
+          });
+      },
+      drawCallback: function (settings) {
+        // Example draw callback for additional post-draw manipulations
+        console.log("Table redrawn with new data");
+      },
     });
   }
 
