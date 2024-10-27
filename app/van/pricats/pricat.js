@@ -357,10 +357,6 @@ docReady(function () {
 
         const shopArray = data.shops.map((shop) => shop.key);
 
-        // Dodanie logowania, aby sprawdzić wartości
-        console.log("Dostępne klucze sklepów:", shopArray);
-        console.log(select.options);
-
         for (const option of select.options) {
           const value = option.value;
           if (shopArray.includes(value)) {
@@ -467,18 +463,19 @@ docReady(function () {
           "Requested-By": "webflow-3-4",
         },
         data: function (d) {
-          console.log(d);
-          // Mapowanie parametrów DataTables na parametry API
           return {
-            perPage: d.length, // Liczba wyników na stronę
-            page: d.start / d.length + 1, // Oblicz numer strony
-            valid: "true", // Filtr na przykład dla valid
-            restricted: "false", // Filtr dla restricted
-            field: d.columns[d.order[0].column].data, // Kolumna do sortowania
-            dir: d.order[0].dir, // Kierunek sortowania
+            perPage: d.length, // Number of records per page
+            page: d.start / d.length + 1, // Calculate page number
+            valid: "true", // Additional filters
+            restricted: "false", // Additional filters
+            field: d.columns[d.order[0].column].data, // Sort field
+            dir: d.order[0].dir, // Sort direction
+            search: d.search.value, // Global search term
           };
         },
         dataSrc: function (json) {
+          json.recordsTotal = json.total;
+          json.recordsFiltered = json.total;
           console.log("API Response:", json);
           return json.items || [];
         },
