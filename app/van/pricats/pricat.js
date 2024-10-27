@@ -422,25 +422,18 @@ docReady(function () {
     });
   }
 
-  // Funkcja inicjalizująca lub odświeżająca DataTable
-  function initializeProductTable(data) {
-    // Pobranie dostępnych produktów z odpowiedzi API
-    var myValidProducts = data.items;
-
-    // Jeśli DataTable już istnieje, niszczymy ją, aby odświeżyć dane
+  function initializeProductTable(priceListId) {
+    // Sprawdzenie, czy tabela już istnieje, i jej zniszczenie, aby odświeżyć dane
     if ($.fn.DataTable.isDataTable("#pricelistproducts")) {
-      $("#pricelistproducts")
-        .DataTable()
-        .clear()
-        .rows.add(myValidProducts)
-        .draw();
-      return;
+      $("#pricelistproducts").DataTable().destroy();
     }
 
-    // Inicjalizacja DataTable
+    // Inicjalizacja DataTable z obsługą po stronie serwera
     $("#pricelistproducts").DataTable({
+      serverSide: true,
+      processing: true,
       pagingType: "full_numbers",
-      order: [[0, "asc"]], // domyślne sortowanie po pierwszej kolumnie
+      order: [[0, "asc"]], // domyślne sortowanie po GTIN
       dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
@@ -466,9 +459,37 @@ docReady(function () {
           sortDescending: ": Sortowanie malejące",
         },
       },
-      data: myValidProducts,
-      paging: true,
-      autoWidth: true,
+      ajax: {
+        url: `https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/van/pricats/${priceListId}/products`,
+        type: "GET",
+        headers: {
+          Accept: "application/json",
+          // Dodaj nagłówek autoryzacyjny, jeśli jest wymagany
+          Authorization: "Bearer YOUR_ACCESS_TOKEN",
+        },
+        data: function (d) {
+          // Mapowanie parametrów DataTables na parametry API
+          return {
+            perPage: d.length, // Liczba wyników na stronę
+            page: d.start / d.length + 1, // Oblicz numer strony
+            valid: "true", // Filtr na przykład dla valid
+            restricted: "false", // Filtr dla restricted
+            field: d.columns[d.order[0].column].data, // Kolumna do sortowania
+            dir: d.order[0].dir, // Kierunek sortowania
+          };
+        },
+        dataSrc: function (json) {
+          // DataTables oczekuje total i data, mapujemy odpowiednio z "total" i "items"
+          return json.items || [];
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error(
+            "Wystąpił błąd podczas pobierania danych: ",
+            textStatus,
+            errorThrown
+          );
+        },
+      },
       columns: [
         { data: "gtin", title: "GTIN" },
         { data: "name", title: "Nazwa", defaultContent: "-" },
@@ -478,7 +499,14 @@ docReady(function () {
           defaultContent: "-",
           orderable: false,
         },
-        { data: "netPrice", title: "Cena", defaultContent: "-" },
+        {
+          data: "price",
+          title: "Cena",
+          defaultContent: "-",
+          render: function (data, type, row) {
+            return data ? data : "-";
+          },
+        },
         {
           data: "promotion",
           title: "Promocja",
@@ -487,9 +515,28 @@ docReady(function () {
             return data ? `${data.type} (threshold: ${data.threshold})` : "-";
           },
         },
+        // {
+        //   data: "restricted",
+        //   title: "Ograniczony",
+        //   render: function (data) {
+        //     return data ? "Tak" : "Nie";
+        //   },
+        // },
+        // {
+        //   data: "invalid",
+        //   title: "Nieprawidłowy",
+        //   render: function (data) {
+        //     return data ? "Tak" : "Nie";
+        //   },
+        // },
       ],
     });
   }
+
+  // Wywołanie funkcji po załadowaniu dokumentu
+  $(document).ready(function () {
+    initializeProductTable(priceListId);
+  });
 
   // Wywołaj funkcję po załadowaniu dokumentu
   $(document).ready(function () {
