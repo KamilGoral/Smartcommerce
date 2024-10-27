@@ -424,6 +424,18 @@ docReady(function () {
       $("#pricelistproducts").DataTable().destroy();
     }
 
+    $.ajaxSetup({
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+    });
     // Inicjalizacja DataTable z obsługą po stronie serwera
     $("#pricelistproducts").DataTable({
       serverSide: true,
@@ -455,6 +467,7 @@ docReady(function () {
           sortDescending: ": Sortowanie malejące",
         },
       },
+
       ajax: {
         url: `https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/van/pricats/${priceListId}/products`,
         type: "GET",
