@@ -465,15 +465,15 @@ docReady(function () {
         data: function (d) {
           // Trim whitespace from search input
           let searchBox = d.search.value.trim();
-          let QStr = "";
+          let searchParams = {};
 
           // Check if searchBox is a numeric GTIN or a name
           if (/^\d+$/.test(searchBox)) {
             // If searchBox is numeric, treat it as a GTIN
-            QStr += `&gtin=${searchBox}`;
+            searchParams.gtin = searchBox;
           } else if (searchBox) {
             // If searchBox is non-numeric, treat it as a name search with 'like' filter
-            QStr += `&name=like:${searchBox}`;
+            searchParams.name = `like:${searchBox}`;
           }
 
           // Return DataTables parameters along with search-specific query parameters
@@ -483,7 +483,7 @@ docReady(function () {
             valid: "true", // Additional filters
             restricted: "false", // Additional filters
             sort: `${d.columns[d.order[0].column].data}:${d.order[0].dir}`, // Sort field and direction
-            QStr, // Append constructed search query parameters
+            ...searchParams, // Spread search parameters directly into the object
           };
         },
 
