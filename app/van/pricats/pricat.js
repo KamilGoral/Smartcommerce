@@ -446,6 +446,7 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
+      searchDelay: 1000, // Delay to prevent search on each keystroke
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -541,6 +542,15 @@ docReady(function () {
         },
       ],
     });
+    // Attach keypress event listener for the search input
+    $("#pricelistproducts_filter input")
+      .off("input")
+      .on("keypress", function (e) {
+        if (e.which === 13) {
+          // Enter key is pressed
+          table.search(this.value).draw(); // Trigger search manually
+        }
+      });
   }
 
   // Wywołanie funkcji po załadowaniu dokumentu
