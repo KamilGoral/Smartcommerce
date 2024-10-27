@@ -494,29 +494,22 @@ docReady(function () {
           "Requested-By": "webflow-3-4",
         },
         data: function (d) {
-          let queryParams = `?perPage=${d.length}&page=${
-            d.start / d.length + 1
-          }`;
-
-          // Handle search query
-          const searchValue = d.search.value.trim();
-          if (searchValue) {
-            queryParams += searchValue.match(/^\d+$/)
-              ? `&gtin=${encodeURIComponent(searchValue)}`
-              : `&name=like:${encodeURIComponent(searchValue)}`;
-          }
-
-          // Add sorting column and direction if specified
-          if (d.order.length > 0) {
-            const orderColumn = d.columns[d.order[0].column].data;
-            const orderDirection = d.order[0].dir;
-            queryParams += `&sort=${orderColumn}:${orderDirection}`;
-          }
-
-          return queryParams;
+          // Generate query string based on pagination and sorting parameters
+          return {
+            perPage: d.length,
+            page: d.start / d.length + 1,
+            field: d.columns[d.order[0].column].data,
+            dir: d.order[0].dir,
+          };
         },
         dataSrc: function (json) {
-          return json.items || [];
+          // Check if json has the expected structure
+          if (json && json.items && json.total) {
+            return json.items;
+          } else {
+            console.error("Unexpected response format:", json);
+            return [];
+          }
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.error(
