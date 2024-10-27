@@ -499,11 +499,13 @@ docReady(function () {
           orderable: false,
         },
         {
-          data: "price",
           title: "Cena",
           defaultContent: "-",
           render: function (data, type, row) {
-            return data ? data : "-";
+            // Pobieramy wartość `netPrice` z pierwszego elementu w `asks`, jeśli istnieje
+            return row.asks && row.asks[0] && row.asks[0].netPrice
+              ? row.asks[0].netPrice
+              : "-";
           },
         },
         {
