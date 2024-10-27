@@ -446,7 +446,7 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
-      searchDelay: 1000, // Delay to prevent search on each keystroke
+      searchDelay: 3000, // Delay to prevent search on each keystroke
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
