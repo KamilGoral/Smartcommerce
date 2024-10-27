@@ -411,6 +411,37 @@ docReady(function () {
       pagingType: "full_numbers",
       order: [[0, "asc"]],
       dom: '<"top"fB>rt<"bottom"lip>',
+      buttons: [
+        {
+          text: '<img src="expand-all-icon.svg" alt="expand-all">',
+          titleAttr: "Expand All",
+          action: function (e, dt, node, config) {
+            dt.rows().every(function () {
+              const row = this;
+              if (!row.child.isShown()) {
+                row.child(format(row.data())).show();
+                $(row.node()).addClass("shown");
+              }
+            });
+          },
+        },
+        {
+          text: '<img src="collapse-all-icon.svg" alt="collapse-all">',
+          titleAttr: "Collapse All",
+          action: function (e, dt, node, config) {
+            dt.rows().every(function () {
+              const row = this;
+              if (row.child.isShown()) {
+                row.child.hide();
+                $(row.node()).removeClass("shown");
+              }
+            });
+          },
+        },
+        { extend: "print", text: "Print" },
+        { extend: "copyHtml5", text: "Copy" },
+        { extend: "excelHtml5", text: "Excel" },
+      ],
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 25,
