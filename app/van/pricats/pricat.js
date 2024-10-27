@@ -478,27 +478,13 @@ docReady(function () {
           defaultContent: "-",
           orderable: false,
         },
-        { data: "price", title: "Cena", defaultContent: "-" },
+        { data: "netPrice", title: "Cena", defaultContent: "-" },
         {
           data: "promotion",
           title: "Promocja",
           defaultContent: "-",
           render: function (data) {
             return data ? `${data.type} (threshold: ${data.threshold})` : "-";
-          },
-        },
-        {
-          data: "restricted",
-          title: "Ograniczony",
-          render: function (data) {
-            return data ? "Tak" : "Nie";
-          },
-        },
-        {
-          data: "invalid",
-          title: "Nieprawidłowy",
-          render: function (data) {
-            return data ? "Tak" : "Nie";
           },
         },
       ],
