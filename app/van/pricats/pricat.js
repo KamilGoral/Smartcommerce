@@ -467,6 +467,7 @@ docReady(function () {
           "Requested-By": "webflow-3-4",
         },
         data: function (d) {
+          console.log(d);
           // Mapowanie parametrów DataTables na parametry API
           return {
             perPage: d.length, // Liczba wyników na stronę
@@ -478,7 +479,7 @@ docReady(function () {
           };
         },
         dataSrc: function (json) {
-          // DataTables oczekuje total i data, mapujemy odpowiednio z "total" i "items"
+          console.log("API Response:", json);
           return json.items || [];
         },
         error: function (jqXHR, textStatus, errorThrown) {
