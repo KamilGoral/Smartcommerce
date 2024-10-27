@@ -400,28 +400,6 @@ docReady(function () {
     });
   }
 
-  function getPriceListProducts() {
-    // Definiowanie URL API dla pobrania listy produktów
-    const apiUrl = `${InvokeURL}van/pricats/${priceListId}/products`;
-
-    // Opcje zapytania AJAX
-    $.ajax({
-      url: apiUrl,
-      method: "GET",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      success: function (data) {
-        // Po pomyślnym pobraniu danych inicjujemy lub aktualizujemy tabelę
-        initializeProductTable(data);
-      },
-      error: function (error) {
-        console.error("Wystąpił błąd podczas pobierania danych: ", error);
-      },
-    });
-  }
-
   function initializeProductTable(priceListId) {
     if ($.fn.DataTable.isDataTable("#pricelistproducts")) {
       $("#pricelistproducts").DataTable().destroy();
@@ -436,35 +414,6 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 25,
-      buttons: [
-        {
-          text: '<img src="expand-all-icon.svg" alt="expand-all">',
-          titleAttr: "Expand All",
-          action: function (e, dt, node, config) {
-            dt.rows().every(function () {
-              const row = this;
-              if (!row.child.isShown()) {
-                row.child(format(row.data())).show();
-                $(row.node()).addClass("shown");
-              }
-            });
-          },
-        },
-        {
-          text: '<img src="collapse-all-icon.svg" alt="collapse-all">',
-          titleAttr: "Collapse All",
-          action: function (e, dt, node, config) {
-            dt.rows().every(function () {
-              const row = this;
-              if (row.child.isShown()) {
-                row.child.hide();
-                $(row.node()).removeClass("shown");
-              }
-            });
-          },
-        },
-        // Additional buttons for export if needed
-      ],
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
