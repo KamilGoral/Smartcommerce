@@ -433,7 +433,7 @@ docReady(function () {
       serverSide: true,
       processing: true,
       pagingType: "full_numbers",
-      order: [[0, "asc"]], // domyślne sortowanie po GTIN
+      order: [[1, "asc"]], // domyślne sortowanie po GTIN
       dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
