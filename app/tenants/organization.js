@@ -2398,10 +2398,14 @@ docReady(function () {
                   const shopKeys = data.map((shop) => shop.key).join(", ");
 
                   // Return HTML for cell with hover tooltip
-                  return `<span class="tippy" data-tippy-content="Sklepy: ${shopKeys}">${shopCount}</span>`;
+                  if ((shopCount = 1)) {
+                    return `<span class="tippy noneexisting" data-tippy-content="Sklep: ${shopKeys}">${shopCount}</span>`;
+                  } else {
+                    return `<span class="tippy noneexisting" data-tippy-content="Sklepy: ${shopKeys}">${shopCount}</span>`;
+                  }
                 } else {
                   // Display 0 if no shops
-                  return `<span class="tippy" data-tippy-content="Brak sklepów">0</span>`;
+                  return `<span class="tippy noneexisting" data-tippy-content="Brak sklepów">0</span>`;
                 }
               },
             },
@@ -4174,6 +4178,7 @@ docReady(function () {
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
       setTimeout(function () {
+        LoadTippy();
         console.log("Adjusting");
         $.fn.dataTable
           .tables({
