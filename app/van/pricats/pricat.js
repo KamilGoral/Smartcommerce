@@ -619,28 +619,28 @@ docReady(function () {
           },
         ];
 
-        function symmetricDifference(a1, a2) {
-          var result = [];
-          for (var i = 0; i < a1.length; i++) {
-            if (a2.indexOf(a1[i]) === -1) {
-              data.push({
-                op: "remove",
-                path: "/shopKeys/" + a1[i],
-              });
-            }
-          }
-          for (i = 0; i < a2.length; i++) {
-            if (a1.indexOf(a2[i]) === -1) {
-              data.push({
-                op: "add",
-                path: "/shopKeys/-",
-                value: a2[i],
-              });
-            }
-          }
-        }
+        // function symmetricDifference(a1, a2) {
+        //   var result = [];
+        //   for (var i = 0; i < a1.length; i++) {
+        //     if (a2.indexOf(a1[i]) === -1) {
+        //       data.push({
+        //         op: "remove",
+        //         path: "/shopKeys/" + a1[i],
+        //       });
+        //     }
+        //   }
+        //   for (i = 0; i < a2.length; i++) {
+        //     if (a1.indexOf(a2[i]) === -1) {
+        //       data.push({
+        //         op: "add",
+        //         path: "/shopKeys/-",
+        //         value: a2[i],
+        //       });
+        //     }
+        //   }
+        // }
 
-        symmetricDifference(shopKeysStart, $("#shopKeys").val());
+        // symmetricDifference(shopKeysStart, $("#shopKeys").val());
 
         $.ajax({
           type: method,
