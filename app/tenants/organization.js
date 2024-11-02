@@ -2389,13 +2389,31 @@ docReady(function () {
             {
               orderable: true,
               data: "startDate",
-              type: "date",
               render: function (data) {
                 if (data !== null) {
                   var utcDate = new Date(Date.parse(data));
                   return utcDate.toLocaleDateString("pl-PL");
                 }
                 return "";
+              },
+            },
+            {
+              orderable: false,
+              data: "shops",
+              render: function (data) {
+                if (data && data.length > 0) {
+                  // Get number of shops
+                  const shopCount = data.length;
+
+                  // Join shop keys for the tooltip
+                  const shopKeys = data.map((shop) => shop.key).join(", ");
+
+                  // Return HTML for cell with hover tooltip
+                  return `<span title="Sklepy: ${shopKeys}">${shopCount}</span>`;
+                } else {
+                  // Display 0 if no shops
+                  return `<span title="Brak sklepów">0</span>`;
+                }
               },
             },
             {
