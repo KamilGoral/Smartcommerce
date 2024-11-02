@@ -704,7 +704,7 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var action = `${InvokeURL}van/pricats/${priceListId}`;
+        var action = `${InvokeURL}/van/transactions/${priceListId}`;
         var method = "DELETE";
 
         $.ajax({
@@ -745,7 +745,12 @@ docReady(function () {
             displayMessage("Success", "Cennik został usunięty.");
             window.setTimeout(function () {
               window.location.replace(
-                "https://" + DomainName + "/app/users/me-old"
+                "https://" +
+                  DomainName +
+                  "/app/tenants/organization?name=" +
+                  OrganizationName +
+                  "&clientId=" +
+                  ClientID
               );
             }, 2000);
           },
