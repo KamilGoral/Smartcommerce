@@ -2409,10 +2409,10 @@ docReady(function () {
                   const shopKeys = data.map((shop) => shop.key).join(", ");
 
                   // Return HTML for cell with hover tooltip
-                  return `<span data-tippy-content="Sklepy: ${shopKeys}">${shopCount}</span>`;
+                  return `<span class="tippy" data-tippy-content="Sklepy: ${shopKeys}">${shopCount}</span>`;
                 } else {
                   // Display 0 if no shops
-                  return `<span data-tippy-content="Brak sklepów">0</span>`;
+                  return `<span class="tippy" data-tippy-content="Brak sklepów">0</span>`;
                 }
               },
             },
