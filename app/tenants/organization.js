@@ -4178,7 +4178,6 @@ docReady(function () {
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
       setTimeout(function () {
-        LoadTippy();
         console.log("Adjusting");
         $.fn.dataTable
           .tables({
