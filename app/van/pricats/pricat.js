@@ -531,31 +531,52 @@ docReady(function () {
       });
   }
 
-  // Function to download the product list as a CSV file
+  // Function to download the product list as a CSV file with enhanced logic
   function downloadProductCsv(priceListId) {
-    const csvUrl = `https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/van/pricats/${priceListId}/products`;
-
-    $.ajax({
-      url: csvUrl,
-      method: "GET",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-        Accept: "text/csv",
-      },
-      success: function (data) {
-        // Create a downloadable link for the CSV data
-        const blob = new Blob([data], { type: "text/csv" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `product_list_${priceListId}.csv`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-      },
-      error: function (error) {
-        console.error("Wystąpił błąd podczas pobierania pliku CSV: ", error);
-      },
+    const csvUrl = `${InvokeURL}van/pricats/${priceListId}/products`;
+    const anchor = document.createElement("a");
+    document.body.appendChild(anchor);
+    const headers = new Headers({
+      Authorization: orgToken,
+      "Requested-By": "webflow-3-4",
+      Accept: "text/csv",
     });
+    $("#waitingdots").show();
+    let headersResponse = [];
+
+    fetch(csvUrl, { headers })
+      .then((res) => {
+        res.headers.forEach((value, key) =>
+          headersResponse.push(`${key}: ${value}`)
+        );
+        return res.blob();
+      })
+      .then((blob) => {
+        $("#waitingdots").hide();
+        const objectUrl = URL.createObjectURL(blob);
+
+        // Extract filename from headers
+        const filenameHeader = headersResponse.find((header) =>
+          header.toLowerCase().includes("content-disposition")
+        );
+        let fileName = "product_list.csv"; // default filename
+        if (filenameHeader && filenameHeader.includes("filename=")) {
+          fileName = filenameHeader.split("filename=")[1].replace(/"/g, "");
+        }
+
+        // Set download attributes and initiate download
+        anchor.href = objectUrl;
+        anchor.download = fileName;
+        anchor.click();
+        URL.revokeObjectURL(objectUrl);
+      })
+      .catch((error) => {
+        $("#waitingdots").hide();
+        console.error("Error fetching the CSV file:", error);
+      })
+      .finally(() => {
+        document.body.removeChild(anchor);
+      });
   }
 
   // Bind the CSV download function to the button click
