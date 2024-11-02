@@ -396,28 +396,6 @@ docReady(function () {
     });
   }
 
-  function getPriceListProducts() {
-    // Definiowanie URL API dla pobrania listy produktów
-    const apiUrl = `${InvokeURL}van/pricats/${priceListId}/products`;
-
-    // Opcje zapytania AJAX
-    $.ajax({
-      url: apiUrl,
-      method: "GET",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      success: function (data) {
-        // Po pomyślnym pobraniu danych inicjujemy lub aktualizujemy tabelę
-        initializeProductTable(data);
-      },
-      error: function (error) {
-        console.error("Wystąpił błąd podczas pobierania danych: ", error);
-      },
-    });
-  }
-
   function initializeProductTable(priceListId) {
     // Sprawdzenie, czy tabela już istnieje, i jej zniszczenie, aby odświeżyć dane
     if ($.fn.DataTable.isDataTable("#pricelistproducts")) {
@@ -582,6 +560,7 @@ docReady(function () {
 
   // Bind the CSV download function to the button click
   $("#downloadCsvBtn").on("click", function () {
+    console.log("Downloadgin file");
     downloadProductCsv(priceListId);
   });
 
