@@ -306,6 +306,14 @@ docReady(function () {
     request.send();
   }
 
+  // Funkcja sprawdzająca, czy edycja jest dozwolona na podstawie dat
+  function isEditable(startDate, endDate) {
+    const currentTime = new Date();
+    return (
+      currentTime >= new Date(startDate) && currentTime <= new Date(endDate)
+    );
+  }
+
   function getPriceList() {
     getShops();
     $.ajax({
@@ -331,6 +339,12 @@ docReady(function () {
         );
         const startDate = document.getElementById("startDate");
         const endDate = document.getElementById("endDate");
+        const canEdit = isEditable(startDate, endDate);
+
+        if (!canEdit) {
+          $("#wf-form-UpdatePriceList").hide(); // Ukryj formularz
+          $("#startDate, #endDate, #shopKeys").prop("disabled", true); // Wyłącz edytowalne pola
+        }
 
         function ToHumanTime(data) {
           var offset = new Date().getTimezoneOffset();
