@@ -503,19 +503,24 @@ docReady(function () {
           orderable: false,
         },
         {
-          data: "price",
+          // Access netPrice inside the asks array
+          data: "asks",
           title: "Cena",
           defaultContent: "-",
-          render: function (data, type, row) {
-            return data ? data : "-";
+          render: function (data) {
+            return data && data[0] && data[0].netPrice ? data[0].netPrice : "-";
           },
         },
         {
-          data: "promotion",
+          // Check promotion in the asks array
+          data: "asks",
           title: "Promocja",
           defaultContent: "-",
           render: function (data) {
-            return data ? `${data.type} (threshold: ${data.threshold})` : "-";
+            if (data && data[0] && data[0].promotion) {
+              return `${data[0].promotion.type} (threshold: ${data[0].promotion.threshold})`;
+            }
+            return "-";
           },
         },
       ],
