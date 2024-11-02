@@ -419,6 +419,43 @@ docReady(function () {
   }
 
   function initializeProductTable(priceListId) {
+    // Add the CSV download button
+    if (!$("#downloadCsvBtn").length) {
+      $("#pricelistproducts_wrapper .top").prepend(
+        `<button id="downloadCsvBtn" class="btn btn-primary" style="margin-right: 10px;">Pobierz jako CSV</button>`
+      );
+
+      // Add click event to download the CSV file
+      $("#downloadCsvBtn").on("click", function () {
+        const csvUrl = `https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/van/pricats/${priceListId}/products`;
+
+        // Perform a GET request with Accept: text/csv
+        $.ajax({
+          url: csvUrl,
+          method: "GET",
+          headers: {
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+            Accept: "text/csv",
+          },
+          success: function (data) {
+            // Create a downloadable link for the CSV data
+            const blob = new Blob([data], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `product_list_${priceListId}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+          },
+          error: function (error) {
+            console.error(
+              "Wystąpił błąd podczas pobierania pliku CSV: ",
+              error
+            );
+          },
+        });
+      });
+    }
     // Sprawdzenie, czy tabela już istnieje, i jej zniszczenie, aby odświeżyć dane
     if ($.fn.DataTable.isDataTable("#pricelistproducts")) {
       $("#pricelistproducts").DataTable().destroy();
