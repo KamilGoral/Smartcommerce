@@ -2387,17 +2387,6 @@ docReady(function () {
               },
             },
             {
-              orderable: true,
-              data: "startDate",
-              render: function (data) {
-                if (data !== null) {
-                  var utcDate = new Date(Date.parse(data));
-                  return utcDate.toLocaleDateString("pl-PL");
-                }
-                return "";
-              },
-            },
-            {
               orderable: false,
               data: "shops",
               render: function (data) {
@@ -2414,6 +2403,17 @@ docReady(function () {
                   // Display 0 if no shops
                   return `<span class="tippy" data-tippy-content="Brak sklepów">0</span>`;
                 }
+              },
+            },
+            {
+              orderable: true,
+              data: "startDate",
+              render: function (data) {
+                if (data !== null) {
+                  var utcDate = new Date(Date.parse(data));
+                  return utcDate.toLocaleDateString("pl-PL");
+                }
+                return "";
               },
             },
             {
