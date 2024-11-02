@@ -2398,7 +2398,7 @@ docReady(function () {
                   const shopKeys = data.map((shop) => shop.key).join(", ");
 
                   // Return HTML for cell with hover tooltip
-                  if ((shopCount = 1)) {
+                  if (data.length == 1) {
                     return `<span class="tippy noneexisting" data-tippy-content="Sklep: ${shopKeys}">${shopCount}</span>`;
                   } else {
                     return `<span class="tippy noneexisting" data-tippy-content="Sklepy: ${shopKeys}">${shopCount}</span>`;
