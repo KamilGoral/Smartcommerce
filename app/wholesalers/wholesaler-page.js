@@ -369,12 +369,11 @@ docReady(function () {
                 return;
               }
             }
+            $("#resetPasswordModal").hide();
             form.hide();
-            $(".successmessagetext").text(
-              "Gotowe! Hasło zostało zresetowane! Nowe hasło to: " +
+            displayMessage("Success", "Gotowe! Hasło zostało zresetowane! Nowe hasło to: " +
                 resultData.credentials.password +
-                ". Za moment strona zostanie odświeżona"
-            );
+                ". Za moment strona zostanie odświeżona");
 
             const ftpUsername = document.getElementById("ftpUsername");
             ftpUsername.textContent = resultData.credentials.username;
@@ -406,7 +405,7 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseJSON.message;
             }
-            $(".warningmessagetext").text(msg);
+            displayMessage("Error",msg)
             form.show();
             doneBlock.hide();
             failBlock.show();
