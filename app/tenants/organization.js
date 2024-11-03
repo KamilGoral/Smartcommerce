@@ -2391,24 +2391,34 @@ docReady(function () {
               data: "shops",
               render: function (data) {
                 if (data && data.length > 0) {
-                  // Get number of shops
-                  const shopCount = data.length;
-
-                  // Join shop keys for the tooltip
-                  const shopKeys = data.map((shop) => shop.key).join(", ");
-
-                  // Return HTML for cell with hover tooltip
-                  if (data.length == 1) {
-                    return `<span class="tippy noneexisting" data-tippy-content="Sklep: ${shopKeys}">${shopCount}</span>`;
-                  } else {
-                    return `<span class="tippy noneexisting" data-tippy-content="Sklepy: ${shopKeys}">${shopCount}</span>`;
-                  }
+                  // Tłumaczenie statusów na polski
+                  const translateStatus = (status) => {
+                    switch (status) {
+                      case 'success':
+                        return 'Sukces';
+                      case 'error':
+                        return 'Błąd';
+                      case 'waiting':
+                        return 'Oczekujący';
+                      case 'in progress':
+                        return 'W trakcie';
+                      default:
+                        return 'Brak danych';
+                    }
+                  };
+            
+                  // Mapuje sklepy do formatu "Sklep - Stan po polsku"
+                  const shopDetails = data.map((shop) => `${shop.key} - ${translateStatus(shop.status)}`).join(", ");
+            
+                  // Liczba sklepów i detale w tooltipie
+                  return `<span class="tippy nonexisting" data-tippy-content="${shopDetails}">${data.length} sklep(ów)</span>`;
                 } else {
-                  // Display 0 if no shops
-                  return `<span class="tippy noneexisting" data-tippy-content="Brak sklepów">0</span>`;
+                  // Wyświetla 0, jeśli nie ma sklepów
+                  return `<span class="tippy nonexisting" data-tippy-content="Brak sklepów">0 sklepów</span>`;
                 }
               },
             },
+            
             {
               orderable: true,
               data: "startDate",
