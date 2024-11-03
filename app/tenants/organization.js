@@ -2420,14 +2420,14 @@ docReady(function () {
                   // Renderuje inne dane dla pojedynczego sklepu
                   if (data.length === 1) {
                     var pricatStatus = translateStatus(data[0].status);
-                    return `<span class="${statusClass}" data-tippy-content="${shopDetails}">${pricatStatus}</span>`;
+                    return `<span class="${statusClass}" data-tippy-content="${pricatStatus}">${data[0].key}</span>`;
                   }
             
                   // Liczba sklepów i detale w tooltipie dla wielu sklepów
                   return `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${data.length}</span>`;
                 } else {
                   // Wyświetla 0, jeśli nie ma sklepów
-                  return `<span class="tippy noneexisting" data-tippy-content="Brak sklepów">0</span>`;
+                  return `<span class="tippy noneexisting">Brak</span>`;
                 }
               },
             },
