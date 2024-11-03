@@ -626,7 +626,8 @@ docReady(function () {
 
         var logisticMinimum = foundWholesaler.logisticMinimum;
 
-        var additionalFields = foundWholesaler.connections.onlineOffer.requiresExtraField
+        var additionalFields = foundWholesaler.connections.onlineOffer?.requiresExtraField || null;
+
     
         if (additionalFields) {
           $("#CompanyDivEdit").show();
