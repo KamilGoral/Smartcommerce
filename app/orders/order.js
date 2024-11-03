@@ -1033,8 +1033,6 @@ docReady(function () {
           }>${wholesalerName}</option>`;
         });
       } else {
-        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony  / Pomiń</option>`;
-        selectHTML += `<option value="remove" selected style="font-weight: bold">Anuluj mój wybór</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
