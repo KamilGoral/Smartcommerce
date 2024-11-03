@@ -375,15 +375,30 @@ docReady(function () {
           'in progress': 'W trakcie'
         }[status] || 'Brak danych');
         
-        // Mapuje sklepy do formatu "Sklep - Stan po polsku"
+        const getStatusClass = (status) => ({
+          success: 'positive',
+          error: 'negative',
+          waiting: 'medium',
+          'in progress': 'medium'
+        }[status] || 'noneexisting');
+        
+        // Determine the appropriate class based on the status of shops
+        const statusClass = data.shops && data.shops.length === 1 
+          ? getStatusClass(data.shops[0].status) 
+          : (new Set(data.shops?.map(shop => getStatusClass(shop.status))).size === 1
+              ? getStatusClass(data.shops[0].status)
+              : 'noneexisting');
+        
+        // Map shops to "Shop - Status" format in Polish
         const shopDetails = data.shops?.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ") || "Brak sklepów";
         
-        // Ustawia zawartość HTML w zależności od liczby sklepów
+        // Set the HTML content based on the number of shops
         document.getElementById('pricatStatus').innerHTML = data.shops?.length === 1
-          ? `<span class="tippy noneexisting">${translateStatus(data.shops[0].status)}</span>`
-          : `<span class="tippy noneexisting" data-tippy-content="${shopDetails}">
+          ? `<span class="${statusClass}">${translateStatus(data.shops[0].status)}</span>`
+          : `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">
               ${data.shops?.length || 0}
             </span>`;
+        
         
         
 
