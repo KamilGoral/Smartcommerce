@@ -998,10 +998,10 @@ docReady(function () {
           '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else if (selectedWholesalerKey == "unassigned") {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
-        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
+        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
-        selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony</option>`;
+        selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
@@ -1031,7 +1031,7 @@ docReady(function () {
           }>${wholesalerName}</option>`;
         });
       } else {
-        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
+        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony  / Pomiń</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
@@ -3376,40 +3376,65 @@ docReady(function () {
     // Get the right table
     // Change wholesaler of product
     var table = $("#spl_table").DataTable();
-
+  
     var newValue = $(this).val();
     var initialValue = $(this).data("initialValue");
-
+  
     // Check if the value has changed
     if (newValue !== initialValue) {
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
-
-      if (data.gtin !== null && newValue === "remove") {
-        var product = {
-          op: "remove",
-          path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-        };
-        addObject(changesPayload, product);
-        // Emulate changes for user
-        $("#waitingdots").show(1).delay(150).hide(1);
-        checkChangesPayload();
-      } else if (data.gtin !== null && newValue) {
-        var product = {
-          op: "replace",
-          path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-          value: newValue,
-        };
-
-        addObject(changesPayload, product);
-        // Emulate changes for user
-        $("#waitingdots").show(1).delay(150).hide(1);
-        checkChangesPayload();
+  
+      if (data.gtin !== null) {
+        if (newValue === "remove") {
+          var product = {
+            op: "remove",
+            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
+          };
+          addObject(changesPayload, product);
+          // Emulate changes for user
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
+        } else if (newValue === "unassigned" || newValue === "disabled") {
+          // Handle unassigned or disabled case by setting active to false
+          var product = {
+            op: "replace",
+            path: "/" + data.gtin + "/active",
+            value: false,
+          };
+          addObject(changesPayload, product);
+          // Emulate changes for user
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
+        } else if (newValue === "enabled") {
+          // Enable the product by setting active to true and assign wholesalerKey if needed
+          var activeProduct = {
+            op: "replace",
+            path: "/" + data.gtin + "/active",
+            value: true,
+          };
+          addObject(changesPayload, activeProduct);
+  
+          // Optionally, assign wholesalerKey if not "remove" or "unassigned"
+          var product = {
+            op: "replace",
+            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
+            value: newValue,
+          };
+          addObject(changesPayload, product);
+  
+          // Emulate changes for user
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
+        } else {
+          console.log("Invalid option selected");
+        }
       } else {
         console.log("GTIN is null");
       }
     }
   });
+  
 
   $("#table_id tbody").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");
