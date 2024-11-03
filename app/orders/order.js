@@ -1030,7 +1030,6 @@ docReady(function () {
           }>${wholesalerName}</option>`;
         });
       } else {
-        Dodawanie nieprzydzielone górze listy wyboru ( tymczasowo on hold)
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
       }
 
