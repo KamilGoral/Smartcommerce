@@ -369,9 +369,9 @@ docReady(function () {
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
         const translateStatus = (status) => ({
-          success: 'Sukces',
+          success: 'Gotowa',
           error: 'Błąd',
-          waiting: 'Oczekujący',
+          waiting: 'Oczekująca',
           'in progress': 'W trakcie'
         }[status] || 'Brak danych');
         

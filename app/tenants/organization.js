@@ -2392,33 +2392,39 @@ docReady(function () {
               render: function (data) {
                 if (data && data.length > 0) {
                   // Tłumaczenie statusów na polski
-                  const translateStatus = (status) => {
-                    switch (status) {
-                      case 'success':
-                        return 'Sukces';
-                      case 'error':
-                        return 'Błąd';
-                      case 'waiting':
-                        return 'Oczekujący';
-                      case 'in progress':
-                        return 'W trakcie';
-                      default:
-                        return 'Brak danych';
-                    }
-                  };
+                  const translateStatus = (status) => ({
+                    success: 'Sukces',
+                    error: 'Błąd',
+                    waiting: 'Oczekujący',
+                    'in progress': 'W trakcie'
+                  }[status] || 'Brak danych');
+            
+                  // Mapowanie statusów do klas CSS
+                  const getStatusClass = (status) => ({
+                    success: 'positive',
+                    error: 'negative',
+                    waiting: 'medium',
+                    'in progress': 'medium'
+                  }[status] || 'noneexisting');
+            
+                  // Określa klasę dla elementu w zależności od statusu sklepów
+                  const statusClass = data.length === 1 
+                    ? getStatusClass(data[0].status) 
+                    : (new Set(data.map(shop => getStatusClass(shop.status))).size === 1
+                        ? getStatusClass(data[0].status)
+                        : 'noneexisting');
             
                   // Mapuje sklepy do formatu "Sklep - Stan po polsku"
-                  const shopDetails = data.map((shop) => `${shop.key} - ${translateStatus(shop.status)}`).join(", ");
+                  const shopDetails = data.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ");
             
                   // Liczba sklepów i detale w tooltipie
-                  return `<span class="tippy noneexisting" data-tippy-content="${shopDetails}">${data.length}</span>`;
+                  return `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${data.length}</span>`;
                 } else {
                   // Wyświetla 0, jeśli nie ma sklepów
                   return `<span class="tippy noneexisting" data-tippy-content="Brak sklepów">0</span>`;
                 }
               },
-            },
-            
+            }, 
             {
               orderable: true,
               data: "startDate",
