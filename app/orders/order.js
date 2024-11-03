@@ -999,11 +999,11 @@ docReady(function () {
       } else if (selectedWholesalerKey == "unassigned") {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="remove" selected style="font-weight: bold">Usuń mój wybór</option>`;
+        selectHTML += `<option value="cancel" selected style="font-weight: bold">Usuń mój wybór</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="remove" selected style="font-weight: bold">Usuń mój wybór</option>`;
+        selectHTML += `<option value="cancel" selected style="font-weight: bold">Usuń mój wybór</option>`;
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
@@ -1034,7 +1034,7 @@ docReady(function () {
         });
       } else {
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony  / Pomiń</option>`;
-        selectHTML += `<option value="remove" selected style="font-weight: bold">Usuń mój wybór</option>`;
+        selectHTML += `<option value="cancel" selected style="font-weight: bold">Usuń mój wybór</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
@@ -1056,7 +1056,7 @@ docReady(function () {
       // Conditionally adding "Usuń przypisanie" option
       if (assignmentSource !== "best match") {
         selectHTML +=
-          "<option value='remove' style='font-weight: bold'>Usuń przypisanie</option>";
+          "<option value='cancel' style='font-weight: bold'>Usuń przypisanie</option>";
       }
 
       return selectHTML;
@@ -3291,7 +3291,7 @@ docReady(function () {
           console.log("Payload added for removal:", product);
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
-        } else if (newValue === "unassigned" || newValue === "disabled") {
+        } else if (newValue === "unassigned") {
           console.log("Option 'unassigned' or 'disabled' selected. Disabling product.");
           var product = {
             op: "replace",
@@ -3437,7 +3437,7 @@ docReady(function () {
           // Emulate changes for user
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
-        } else if (newValue === "unassigned" || newValue === "disabled") {
+        } else if (newValue === "unassigned") {
           // Handle unassigned or disabled case by setting active to false
           var product = {
             op: "replace",
@@ -3448,7 +3448,7 @@ docReady(function () {
           // Emulate changes for user
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
-        } else if (newValue === "enabled") {
+        } else if (newValue === "cancel") {
           // Enable the product by setting active to true and assign wholesalerKey if needed
           var activeProduct = {
             op: "replace",
@@ -3456,7 +3456,8 @@ docReady(function () {
             value: true,
           };
           addObject(changesPayload, activeProduct);
-  
+
+        } else {
           // Optionally, assign wholesalerKey if not "remove" or "unassigned"
           var product = {
             op: "replace",
@@ -3464,12 +3465,9 @@ docReady(function () {
             value: newValue,
           };
           addObject(changesPayload, product);
-  
           // Emulate changes for user
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
-        } else {
-          console.log("Invalid option selected");
         }
       } else {
         console.log("GTIN is null");
