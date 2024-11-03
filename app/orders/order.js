@@ -999,11 +999,11 @@ docReady(function () {
       } else if (selectedWholesalerKey == "unassigned") {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="cancel" selected style="font-weight: bold">Usuń mój wybór</option>`;
+        selectHTML += `<option value="cancel" selected style="font-weight: bold">Anuluj mój wybór</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="cancel" selected style="font-weight: bold">Usuń mój wybór</option>`;
+        selectHTML += `<option value="cancel" selected style="font-weight: bold">Anuluj mój wybór</option>`;
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
@@ -1034,7 +1034,7 @@ docReady(function () {
         });
       } else {
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony  / Pomiń</option>`;
-        selectHTML += `<option value="cancel" selected style="font-weight: bold">Usuń mój wybór</option>`;
+        selectHTML += `<option value="cancel" selected style="font-weight: bold">Anuluj mój wybór</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
@@ -1052,12 +1052,6 @@ docReady(function () {
           } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
-
-      // Conditionally adding "Usuń przypisanie" option
-      if (assignmentSource !== "best match") {
-        selectHTML +=
-          "<option value='cancel' style='font-weight: bold'>Usuń przypisanie</option>";
-      }
 
       return selectHTML;
     } else {
