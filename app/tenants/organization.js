@@ -2393,9 +2393,9 @@ docReady(function () {
                 if (data && data.length > 0) {
                   // Tłumaczenie statusów na polski
                   const translateStatus = (status) => ({
-                    success: 'Sukces',
+                    success: 'Gotowa',
                     error: 'Błąd',
-                    waiting: 'Oczekujący',
+                    waiting: 'Oczekująca',
                     'in progress': 'W trakcie'
                   }[status] || 'Brak danych');
             
@@ -2419,7 +2419,8 @@ docReady(function () {
             
                   // Renderuje inne dane dla pojedynczego sklepu
                   if (data.length === 1) {
-                    return `<span class="${statusClass}" data-tippy-content="${shopDetails}">${data[0].status}</span>`;
+                    var pricatStatus = translateStatus(data[0].status);
+                    return `<span class="${statusClass}" data-tippy-content="${shopDetails}">${pricatStatus}</span>`;
                   }
             
                   // Liczba sklepów i detale w tooltipie dla wielu sklepów
