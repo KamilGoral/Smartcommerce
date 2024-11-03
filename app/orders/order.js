@@ -3261,47 +3261,81 @@ docReady(function () {
     $(this).data("initialValue", $(this).val());
   });
 
-  $("#spl_table").on("focusout", "input", function () {
+  $("#spl_table").on("focusout", "select", function () {
+    console.log("Focusout event triggered on select element");
+  
+    // Get the right table
     var table = $("#spl_table").DataTable();
-    let newValue = $(this).val();
+    var newValue = $(this).val();
     var initialValue = $(this).data("initialValue");
-    var $input = $(this);
-
+  
+    console.log("New value selected:", newValue);
+    console.log("Initial value:", initialValue);
+  
     // Check if the value has changed
     if (newValue !== initialValue) {
-      var data = table.row($input.parents("tr")).data();
-
+      $(this).attr("value", newValue);
+      var data = table.row($(this).parents("tr")).data();
+      console.log("Row data:", data);
+  
       if (data.gtin !== null) {
-        let quantity = parseInt(newValue);
-        if (isNaN(quantity) || quantity < 0) {
-          quantity = 0; // If invalid, change the value to 0
-        }
-
-        if (isValidGTIN(data.gtin)) {
-          if (quantity !== null) {
-            var product = {
-              op: "replace",
-              path: "/" + data.gtin + "/quantity",
-              value: quantity,
-            };
-            addObject(changesPayload, product);
-          }
-          // Emulate changes for the user
+        if (newValue === "remove") {
+          console.log("Option 'remove' selected. Preparing payload to remove wholesaler key.");
+          var product = {
+            op: "remove",
+            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
+          };
+          addObject(changesPayload, product);
+  
+          // Emulate changes for user
+          console.log("Payload added for removal:", product);
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
+        } else if (newValue === "unassigned" || newValue === "disabled") {
+          console.log("Option 'unassigned' or 'disabled' selected. Disabling product.");
+          var product = {
+            op: "replace",
+            path: "/" + data.gtin + "/active",
+            value: false,
+          };
+          addObject(changesPayload, product);
+  
+          // Emulate changes for user
+          console.log("Payload added for disabling:", product);
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
+        } else if (newValue === "enabled") {
+          console.log("Option 'enabled' selected. Enabling product.");
+          var activeProduct = {
+            op: "replace",
+            path: "/" + data.gtin + "/active",
+            value: true,
+          };
+          addObject(changesPayload, activeProduct);
+  
+          var product = {
+            op: "replace",
+            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
+            value: newValue,
+          };
+          addObject(changesPayload, product);
+  
+          // Emulate changes for user
+          console.log("Payload added for enabling:", activeProduct);
+          console.log("Payload added for assigning wholesalerKey:", product);
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
         } else {
-          // GTIN is invalid; revert value and show an error message
-          $input.val(initialValue); // Revert to initial value
-          displayMessage(
-            "Error",
-            "Produkt z niepoprawnym kodem GTIN może zostać tylko usunięty z zamówienia."
-          );
+          console.log("Invalid option selected:", newValue);
         }
       } else {
-        console.log("GTIN is null");
+        console.log("GTIN is null, cannot proceed.");
       }
+    } else {
+      console.log("No change in value, no action taken.");
     }
   });
+  
 
   // Function to validate GTIN format (checks if GTIN contains '?')
   function isValidGTIN(gtin) {
