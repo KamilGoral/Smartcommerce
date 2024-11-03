@@ -378,17 +378,17 @@ docReady(function () {
         // Mapuje sklepy do formatu "Sklep - Stan po polsku"
         const shopDetails = data.shops?.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ") || "Brak sklepów";
         
-        // Ustawia liczbę sklepów i detale w tooltipie
-        document.getElementById('pricatStatus').innerHTML = `
-          <span class="tippy noneexisting" data-tippy-content="${shopDetails}">
-            ${data.shops?.length || 0}
-          </span>
-        `;
+        // Ustawia zawartość HTML w zależności od liczby sklepów
+        document.getElementById('pricatStatus').innerHTML = data.shops?.length === 1
+          ? `<span class="tippy noneexisting">${translateStatus(data.shops[0].status)}</span>`
+          : `<span class="tippy noneexisting" data-tippy-content="${shopDetails}">
+              ${data.shops?.length || 0}
+            </span>`;
+        
         
 
         // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");
-
         const shopArray = data.shops.map((shop) => shop.key);
 
         for (const option of select.options) {
