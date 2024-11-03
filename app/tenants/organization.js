@@ -3317,8 +3317,6 @@ docReady(function () {
     .then(() => {
       setTimeout(function () {
         LoadTippy();
-          .tables({ visible: true, api: true })
-          .columns.adjust();
       }, 1000);
     })
     .catch((error) => {
