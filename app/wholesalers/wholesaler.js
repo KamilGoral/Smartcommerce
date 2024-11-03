@@ -301,22 +301,6 @@ docReady(function () {
     $("#Wholesaler-profile-Selector-box").hide();
     $("#status-container").hide();
 
-    const validWholesalerKeys = [
-      "mirex",
-      "smakosz",
-      "abe-dystrybucja",
-      "etqa",
-      "biologistic",
-      "elleena",
-      "slod-hurt",
-    ];
-
-    if (validWholesalerKeys.includes(wholesalerKey)) {
-      $("#CompanyDivEdit").show();
-    } else {
-      $("#CompanyDivEdit").hide();
-    }
-
     let url2 = new URL(
       InvokeURL +
         "shops/" +
@@ -641,6 +625,14 @@ docReady(function () {
         });
 
         var logisticMinimum = foundWholesaler.logisticMinimum;
+
+        var additionalFields = foundWholesaler.connections.onlineOffer.requiresExtraField
+    
+        if (additionalFields) {
+          $("#CompanyDivEdit").show();
+        } else {
+          $("#CompanyDivEdit").hide();
+        }
 
         if (logisticMinimum !== null) {
           $("#logisticMinimumEdit").val(logisticMinimum).change();
