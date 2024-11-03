@@ -295,7 +295,7 @@ docReady(function () {
         toParse.forEach((shop) => {
           var opt = document.createElement("option");
           opt.value = shop.shopKey;
-          opt.innerHTML = shop.name +;
+          opt.innerHTML = shop.name;
           shopKeysContainer.appendChild(opt);
         });
         if (request.status == 401) {
