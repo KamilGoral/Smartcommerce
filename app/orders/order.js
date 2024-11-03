@@ -3313,6 +3313,13 @@ docReady(function () {
           };
           addObject(changesPayload, activeProduct);
   
+          // Emulate changes for user
+          console.log("Payload added for enabling:", activeProduct);
+          $("#waitingdots").show(1).delay(150).hide(1);
+          checkChangesPayload();
+        } else {
+          // Any other value is considered a wholesaler key assignment
+          console.log("Assigning new wholesalerKey:", newValue);
           var product = {
             op: "replace",
             path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
@@ -3321,12 +3328,9 @@ docReady(function () {
           addObject(changesPayload, product);
   
           // Emulate changes for user
-          console.log("Payload added for enabling:", activeProduct);
           console.log("Payload added for assigning wholesalerKey:", product);
           $("#waitingdots").show(1).delay(150).hide(1);
           checkChangesPayload();
-        } else {
-          console.log("Invalid option selected:", newValue);
         }
       } else {
         console.log("GTIN is null, cannot proceed.");
@@ -3335,6 +3339,7 @@ docReady(function () {
       console.log("No change in value, no action taken.");
     }
   });
+  
   
 
   // Function to validate GTIN format (checks if GTIN contains '?')
