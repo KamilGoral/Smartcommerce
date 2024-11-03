@@ -999,9 +999,11 @@ docReady(function () {
       } else if (selectedWholesalerKey == "unassigned") {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
+        selectHTML += `<option value="remove" selected style="font-weight: bold">Usuń mój wybór</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
+        selectHTML += `<option value="remove" selected style="font-weight: bold">Usuń mój wybór</option>`;
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
@@ -1032,6 +1034,7 @@ docReady(function () {
         });
       } else {
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony  / Pomiń</option>`;
+        selectHTML += `<option value="remove" selected style="font-weight: bold">Usuń mój wybór</option>`;
       }
 
       // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
