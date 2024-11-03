@@ -295,7 +295,7 @@ docReady(function () {
         toParse.forEach((shop) => {
           var opt = document.createElement("option");
           opt.value = shop.shopKey;
-          opt.innerHTML = shop.name;
+          opt.innerHTML = shop.name +;
           shopKeysContainer.appendChild(opt);
         });
         if (request.status == 401) {
@@ -313,6 +313,34 @@ docReady(function () {
       currentTime >= new Date(startDate) && currentTime <= new Date(endDate)
     );
   }
+
+  // Function to translate status to Polish
+function translateStatus(status) {
+  switch (status) {
+    case 'success':
+      return 'Sukces';
+    case 'error':
+      return 'Błąd';
+    case 'waiting':
+      return 'Oczekujący';
+    case 'in progress':
+      return 'W trakcie';
+    default:
+      return 'Brak danych';
+  }
+}
+
+// Generate a description of the PRICAT item, including shop status
+function generatePricatDescription(data) {
+  if (data.shops && data.shops.length > 0) {
+    const details = data.shops.map((shop) => `Sklep ${shop.key} - ${translateStatus(shop.status)}`).join(", ");
+    return `<p>Status dla ${data.name}: ${details}</p>`;
+  } else {
+    return `<p>Status dla ${data.name}: Brak sklepów</p>`;
+  }
+}
+
+
 
   function getPriceList() {
     getShops();
@@ -340,6 +368,7 @@ docReady(function () {
         const startDate = document.getElementById("startDate");
         const endDate = document.getElementById("endDate");
         const canEdit = isEditable(startDate, endDate);
+        
 
         if (!canEdit) {
           $("#wf-form-UpdatePriceList").hide(); // Ukryj formularz
@@ -365,6 +394,8 @@ docReady(function () {
         $("#startDate").datepicker("setDate", new Date(data.startDate));
         endDate.textContent = ToHumanTime(data.endDate);
         $("#endDate").datepicker("setDate", new Date(data.endDate));
+        // Using the function to set the HTML content
+        document.getElementById('pricatStatus').innerHTML = generatePricatDescription(data.shops);
 
         // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");

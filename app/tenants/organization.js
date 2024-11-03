@@ -2411,10 +2411,10 @@ docReady(function () {
                   const shopDetails = data.map((shop) => `${shop.key} - ${translateStatus(shop.status)}`).join(", ");
             
                   // Liczba sklepów i detale w tooltipie
-                  return `<span class="tippy nonexisting" data-tippy-content="${shopDetails}">${data.length} sklep(ów)</span>`;
+                  return `<span class="tippy noneexisting" data-tippy-content="${shopDetails}">${data.length}</span>`;
                 } else {
                   // Wyświetla 0, jeśli nie ma sklepów
-                  return `<span class="tippy nonexisting" data-tippy-content="Brak sklepów">0 sklepów</span>`;
+                  return `<span class="tippy noneexisting" data-tippy-content="Brak sklepów">0</span>`;
                 }
               },
             },
