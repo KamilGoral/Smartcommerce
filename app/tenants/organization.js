@@ -2419,7 +2419,7 @@ docReady(function () {
             
                   // Renderuje inne dane dla pojedynczego sklepu
                   if (data.length === 1) {
-                    return `<span class="${statusClass}">${data[0].key}</span>`;
+                    return `<span class="${statusClass}">${shopDetails}</span>`;
                   }
             
                   // Liczba sklepów i detale w tooltipie dla wielu sklepów
