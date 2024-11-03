@@ -314,33 +314,6 @@ docReady(function () {
     );
   }
 
-  // Function to translate status to Polish
-function translateStatus(status) {
-  switch (status) {
-    case 'success':
-      return 'Sukces';
-    case 'error':
-      return 'Błąd';
-    case 'waiting':
-      return 'Oczekujący';
-    case 'in progress':
-      return 'W trakcie';
-    default:
-      return 'Brak danych';
-  }
-}
-
-// Generate a description of the PRICAT item, including shop status
-function generatePricatDescription(data) {
-  if (data.shops && data.shops.length > 0) {
-    const details = data.shops.map((shop) => `Sklep ${shop.key} - ${translateStatus(shop.status)}`).join(", ");
-    return `<p>Status dla ${data.name}: ${details}</p>`;
-  } else {
-    return `<p>Status dla ${data.name}: Brak sklepów</p>`;
-  }
-}
-
-
 
   function getPriceList() {
     getShops();
@@ -394,8 +367,24 @@ function generatePricatDescription(data) {
         $("#startDate").datepicker("setDate", new Date(data.startDate));
         endDate.textContent = ToHumanTime(data.endDate);
         $("#endDate").datepicker("setDate", new Date(data.endDate));
-        // Using the function to set the HTML content
-        document.getElementById('pricatStatus').innerHTML = generatePricatDescription(data.shops);
+
+        const translateStatus = (status) => ({
+          success: 'Sukces',
+          error: 'Błąd',
+          waiting: 'Oczekujący',
+          'in progress': 'W trakcie'
+        }[status] || 'Brak danych');
+        
+        // Mapuje sklepy do formatu "Sklep - Stan po polsku"
+        const shopDetails = data.shops?.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ") || "Brak sklepów";
+        
+        // Ustawia liczbę sklepów i detale w tooltipie
+        document.getElementById('pricatStatus').innerHTML = `
+          <span class="tippy noneexisting" data-tippy-content="${shopDetails}">
+            ${data.shops?.length || 0}
+          </span>
+        `;
+        
 
         // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");
