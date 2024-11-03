@@ -2417,14 +2417,20 @@ docReady(function () {
                   // Mapuje sklepy do formatu "Sklep - Stan po polsku"
                   const shopDetails = data.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ");
             
-                  // Liczba sklepów i detale w tooltipie
+                  // Renderuje inne dane dla pojedynczego sklepu
+                  if (data.length === 1) {
+                    return `<span class="${statusClass}">${data[0].key}</span>`;
+                  }
+            
+                  // Liczba sklepów i detale w tooltipie dla wielu sklepów
                   return `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${data.length}</span>`;
                 } else {
                   // Wyświetla 0, jeśli nie ma sklepów
                   return `<span class="tippy noneexisting" data-tippy-content="Brak sklepów">0</span>`;
                 }
               },
-            }, 
+            },
+            
             {
               orderable: true,
               data: "startDate",
