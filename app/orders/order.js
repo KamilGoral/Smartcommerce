@@ -1001,6 +1001,7 @@ docReady(function () {
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony</option>`;
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
+        selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony</option>`;
       }
 
       // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
