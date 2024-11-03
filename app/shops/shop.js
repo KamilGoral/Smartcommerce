@@ -2101,7 +2101,7 @@ docReady(function () {
             success: function () {
               displayMessage(
                 "Success",
-                "Twoje zamówienie zostało stworzone i zaktualizowane."
+                "Twoje zamówienie zostało stworzone."
               );
               window.setTimeout(function () {
                 window.location.replace(
