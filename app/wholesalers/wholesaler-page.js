@@ -384,7 +384,7 @@ docReady(function () {
             failBlock.hide();
             window.setTimeout(function () {
               location.reload();
-            }, 10000);
+            }, 15000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
