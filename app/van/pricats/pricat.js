@@ -667,18 +667,27 @@ docReady(function () {
         var container = form.parent();
         var action = `${InvokeURL}van/pricats/${priceListId}`;
         var method = "PATCH";
-        var data = [
-          {
+        const editPermissions = isEditable(
+          $("#startDate").val(),
+          $("#endDate").val(),
+          isFtp
+        );
+
+        var data = [];
+        if (editPermissions.canEditStartDate) {
+          data.push({
             op: "replace",
             path: "/startDate",
             value: $("#startDate").val() + "T00:00:01.00Z",
-          },
-          {
+          });
+        }
+        if (editPermissions.canEditEndDate) {
+          data.push({
             op: "replace",
             path: "/endDate",
             value: $("#endDate").val() + "T23:59:59.00Z",
-          },
-        ];
+          });
+        }
 
         // function symmetricDifference(a1, a2) {
         //   var result = [];
