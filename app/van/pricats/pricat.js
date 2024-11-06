@@ -396,10 +396,34 @@ docReady(function () {
         const pricatStatus = document.getElementById("pricatStatus");
 
         // Extract shop keys and statuses from the nested structure
-        const shopsData = data.shops.map((shop) => ({
-          key: shop.key,
-          status: shop.status || "No Status", // Default to "No Status" if status is null
-        }));
+        const shopsData = data.shops.map((shop) => {
+          let statusText = shop.status || "No Status";
+          let statusClass = "";
+
+          // Translate and style status
+          switch (statusText) {
+            case "waiting":
+              statusText = "Oczekujący";
+              statusClass = "neutral";
+              break;
+            case "ready":
+              statusText = "Gotowa";
+              statusClass = "positive";
+              break;
+            case "error":
+              statusText = "Błąd";
+              statusClass = "negative";
+              break;
+            default:
+              statusClass = ""; // No specific class for undefined statuses
+          }
+
+          return {
+            key: shop.key,
+            status: statusText,
+            statusClass: statusClass,
+          };
+        });
 
         // Clear existing options if needed
         select.innerHTML = "";
@@ -417,18 +441,24 @@ docReady(function () {
         if (shopsData.length > 5) {
           // Merge into a single tooltip if more than 5 shops
           const tooltipContent = shopsData
-            .map((shop) => `${shop.key}-${shop.status}`)
+            .map(
+              (shop) =>
+                `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
+            )
             .join(", ");
           pricatStatus.textContent = `${shopsData.length} shops with statuses`;
           pricatStatus.classList.add("tippy"); // Add class for tooltip
 
-          // Set the tooltip content
+          // Set the tooltip content with HTML
           pricatStatus.setAttribute("data-tippy-content", tooltipContent);
-          tippy(pricatStatus); // Initialize tooltip using Tippy.js
+          tippy(pricatStatus, { allowHTML: true }); // Enable HTML content in tooltip
         } else {
-          // Display each shop's status directly if 5 or fewer shops
-          pricatStatus.textContent = shopsData
-            .map((shop) => `${shop.key} - ${shop.status}`)
+          // Display each shop's status directly if 5 or fewer shops, with styling
+          pricatStatus.innerHTML = shopsData
+            .map(
+              (shop) =>
+                `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
+            )
             .join(", ");
         }
 
