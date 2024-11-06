@@ -394,9 +394,6 @@ docReady(function () {
         // Check boxes for shops that are in the response
         // Extract keys from response shops
         const shopKeys = data.shops.map((shop) => shop.key);
-
-        // Set selected options in #shopKeys and #shopKeys-2 by using .val()
-        $("#shopKeys").val(shopKeys).trigger("change");
       },
       error: function (jqXHR, exception) {
         let msg =
@@ -431,35 +428,6 @@ docReady(function () {
           isFtp
         );
         const data = setupFormData(editPermissions);
-
-        // Zarządzanie zmianami w `shopKeys`
-
-        function symmetricDifference(initialKeys, newKeys) {
-          const data = [];
-
-          // Znajdź sklepy do usunięcia (istnieją w initialKeys, ale nie w newKeys)
-          initialKeys.forEach((key) => {
-            if (!newKeys.includes(key)) {
-              data.push({ op: "remove", path: `/shopKeys/${key}` });
-            }
-          });
-
-          // Znajdź sklepy do dodania (istnieją w newKeys, ale nie w initialKeys)
-          newKeys.forEach((key) => {
-            if (!initialKeys.includes(key)) {
-              data.push({ op: "add", path: "/shopKeys/-", value: key });
-            }
-          });
-
-          return data;
-        }
-
-        const shopKeysStart = "ye";
-        const shopKeys = $("#shopKeys").val(); // Pobierz aktualnie wybrane klucze
-        const shopKeysDiff = symmetricDifference(shopKeysStart, shopKeys);
-
-        // Dodaj operacje na `shopKeys` do `data`
-        data.push(...shopKeysDiff);
 
         $.ajax({
           type: "PATCH",
