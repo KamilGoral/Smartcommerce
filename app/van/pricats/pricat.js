@@ -368,6 +368,7 @@ docReady(function () {
           data.created.by.includes("FTP") || data.modified.by.includes("FTP");
         document.getElementById("pricatFTP").textContent = isFtp;
         const editPermissions = isEditable(data.startDate, data.endDate, isFtp);
+        $("#shopKeys").prop("disabled", true);
 
         if (!editPermissions.canEditStartDate)
           $("#startDate").prop("disabled", true);
