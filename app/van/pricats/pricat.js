@@ -397,6 +397,26 @@ docReady(function () {
           data.endDate
         );
         $("#endDate").datepicker("setDate", new Date(data.endDate));
+
+        // Check boxes for shops that are in the response
+        const shopKeys = data.shops.map((shop) => shop.key); // Extract keys from response shops
+        $("#shopKeys option").each(function () {
+          const option = $(this);
+          if (shopKeys.includes(option.val())) {
+            option.prop("selected", true); // Select the option if it's in the response
+          } else {
+            option.prop("selected", false);
+          }
+        });
+        // Check boxes for shops that are in the response
+        $("#shopKeys-2 option").each(function () {
+          const option = $(this);
+          if (shopKeys.includes(option.val())) {
+            option.prop("selected", true); // Select the option if it's in the response
+          } else {
+            option.prop("selected", false);
+          }
+        });
       },
       error: function (jqXHR, exception) {
         let msg =
