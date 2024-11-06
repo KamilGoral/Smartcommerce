@@ -341,6 +341,8 @@ docReady(function () {
           );
         }
 
+        const isFtp = checkIfFtp(data);
+
         function isEditable(startDate, endDate, isFtp) {
           const currentTime = new Date();
           const start = new Date(startDate);
