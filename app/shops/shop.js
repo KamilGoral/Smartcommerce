@@ -2187,7 +2187,6 @@ docReady(function () {
           data: JSON.stringify(data),
           headers: {
             Accept: "application/json",
-            "Content-Type": "application/json",
             Authorization: orgToken,
             "Requested-By": "webflow-3-4",
           },
