@@ -608,7 +608,7 @@ docReady(function () {
       },
 
       ajax: {
-        url: `https://${DomainName}/van/pricats/${priceListId}/products`,
+        url: `${InvokeURL}van/pricats/${priceListId}/products`,
         type: "GET",
         headers: {
           Authorization: orgToken,
