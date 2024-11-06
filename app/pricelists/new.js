@@ -420,7 +420,7 @@ docReady(function () {
       });
 
       form3.on("submit", function (event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
 
         var wholesalerKey = $("#WholesalerSelector").val();
         if (!wholesalerKey) {
@@ -431,7 +431,6 @@ docReady(function () {
           return false;
         }
 
-        // Retrieve the selected file from the dynamically created input
         let uploadedFile = null;
         uploadButtons.forEach((button) => {
           const fileInput = document.querySelector(
@@ -442,16 +441,6 @@ docReady(function () {
           }
         });
 
-        // Check if the file size exceeds 10 MB (10 * 1024 * 1024 bytes)
-        if (uploadedFile && uploadedFile.size > 10 * 1024 * 1024) {
-          displayMessage(
-            "Error",
-            "Plik cennika jest za duży. Maksymalny rozmiar to 10 MB."
-          );
-          resetButton();
-          return false;
-        }
-
         if (!uploadedFile) {
           displayMessage(
             "Error",
@@ -461,32 +450,6 @@ docReady(function () {
           return false;
         }
 
-        const formData = new FormData();
-
-        // Determine the MIME type based on file extension, default to text/plain
-        var fileType = "text/plain"; // Default MIME type
-        var fileExtension = uploadedFile.name.split(".").pop().toLowerCase();
-        console.log(fileExtension);
-
-        switch (fileExtension) {
-          case "csv":
-            fileType = "text/csv";
-            break;
-          case "xlsx":
-            fileType =
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            break;
-          case "ods":
-            fileType = "application/vnd.oasis.opendocument.spreadsheet";
-            break;
-          case "txt":
-          case "edi":
-            fileType = "text/plain";
-            break;
-          // Default case will now use text/plain
-        }
-
-        // JSON data should be of type application/json
         const jsonData = {
           wholesalerKey: wholesalerKey,
           shopKeys: $("#shopKeys").val(),
@@ -495,68 +458,11 @@ docReady(function () {
           type: "PRICAT",
         };
 
-        // Sprawdzenie, czy lista sklepów jest pusta
-        if (!jsonData.shopKeys || jsonData.shopKeys.length === 0) {
-          console.log(jsonData);
-          displayMessage("Error", "Błąd: Lista Sklepów jest pusta.");
-          return false;
-        }
-
-        // // Funkcja sprawdzająca, czy string jest w formacie daty "YYYY-MM-DD"
-        // function isValidDateString(dateString) {
-        //   // Sprawdzenie, czy string pasuje do formatu YYYY-MM-DD
-        //   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-
-        //   if (!datePattern.test(dateString)) {
-        //     return false;
-        //   }
-
-        //   // Konwersja do obiektu Date i sprawdzenie, czy jest prawidłowa
-        //   const date = new Date(dateString);
-        //   return date instanceof Date && !isNaN(date);
-        // }
-
-        // // Sprawdzenie, czy startDate i endDate nie są puste oraz są poprawne
-        // if (!jsonData.startDate || !isValidDateString(jsonData.startDate)) {
-        //   displayMessage(
-        //     "Error",
-        //     "Błąd: Niepoprawny format daty początkowej. Proszę wprowadzić datę w formacie YYYY-MM-DD."
-        //   );
-        //   return false;
-        // }
-
-        // if (!jsonData.endDate || !isValidDateString(jsonData.endDate)) {
-        //   displayMessage(
-        //     "Error",
-        //     "Błąd: Niepoprawny format daty końcowej. Proszę wprowadzić datę w formacie YYYY-MM-DD."
-        //   );
-        //   return false;
-        // }
-
-        // // Konwersja stringów na obiekty Date
-        // const startDate = new Date(jsonData.startDate);
-        // const endDate = new Date(jsonData.endDate);
-
-        // // Pobranie aktualnej daty
-        // const today = new Date();
-        // today.setHours(0, 0, 0, 0); // Ustawienie godziny na 00:00:00.000
-
-        // // Sprawdzenie, czy startDate i endDate są >= dzisiejszej dacie
-        // if (startDate < today || endDate < today) {
-        //   console.log(jsonData);
-        //   displayMessage(
-        //     "Error",
-        //     "Błąd: Data początkowa lub końcowa jest wcześniejsza niż dzisiejsza data."
-        //   );
-        //   return false;
-        // }
-
+        const formData = new FormData();
         formData.append(
           "json",
           new Blob([JSON.stringify(jsonData)], { type: "application/json" })
         );
-
-        // Append the file with the determined or default MIME type
         formData.append(
           "file",
           new Blob([uploadedFile], { type: fileType }),
@@ -564,80 +470,82 @@ docReady(function () {
         );
 
         var uploadEndpoint = InvokeURL + "van/transactions";
-
-        console.log("FormData prepared:", formData);
-
-        // Show loading animation
         $("#waitingdots").show();
 
-        axios
-          .post(uploadEndpoint, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
-          })
-          .then(function (response) {
-            // Hide loading animation
-            $("#waitingdots").hide();
+        function sendRequest(formData) {
+          axios
+            .post(uploadEndpoint, formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+            })
+            .then(function (response) {
+              $("#waitingdots").hide();
+              if (typeof successCallback === "function") {
+                var result = successCallback(response.data);
+                if (!result) {
+                  form3.show();
+                  displayMessage(
+                    "Error",
+                    "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  );
+                  resetButton();
+                  return;
+                }
+              }
+              displayMessage("Success", "Cennik został dodany.");
+              var pricelistUrl =
+                "https://" +
+                DomainName +
+                "/app/van/pricats/pricat?uuid=" +
+                response.data.items[0].uuid;
+              setTimeout(function () {
+                window.location.href = pricelistUrl;
+              }, 1500);
+            })
+            .catch(function (error) {
+              $("#waitingdots").hide();
 
-            if (typeof successCallback === "function") {
-              var result = successCallback(response.data);
-              console.log(result);
-              if (!result) {
-                form3.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+              var msg = "";
+              if (
+                error.response &&
+                error.response.status === 400 &&
+                error.response.data.message.includes("StartDate and EndDate")
+              ) {
+                // Retry without startDate and endDate
+                delete jsonData.startDate;
+                delete jsonData.endDate;
+
+                const retryFormData = new FormData();
+                retryFormData.append(
+                  "json",
+                  new Blob([JSON.stringify(jsonData)], {
+                    type: "application/json",
+                  })
                 );
-                resetButton();
-                return;
-              }
-            }
+                retryFormData.append(
+                  "file",
+                  new Blob([uploadedFile], { type: fileType }),
+                  uploadedFile.name
+                );
 
-            displayMessage("Success", "Cennik został dodany.");
-            console.log(response);
-            var pricelistUrl =
-              "https://" +
-              DomainName +
-              "/app/van/pricats/pricat?uuid=" +
-              response.data.items[0].uuid;
-            setTimeout(function () {
-              window.location.href = pricelistUrl;
-            }, 1500);
-          })
-          .catch(function (error) {
-            // Hide loading animation
-            $("#waitingdots").hide();
-
-            console.log(error);
-            var msg = "";
-            if (error.response) {
-              if (error.response.status === 0) {
-                msg = "Not connect.\n Verify Network.";
-              } else if (error.response.status == 403) {
-                msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
-              } else if (error.response.status == 400) {
-                msg = error.response.message;
-              } else if (error.response.status == 500) {
-                msg = "Internal Server Error [500].";
+                sendRequest(retryFormData); // Retry the request
               } else {
-                msg = error.response.data.message;
+                msg = error.response
+                  ? error.response.data.message
+                  : error.message;
+                displayMessage("Error", msg);
+                resetButton();
+                if (typeof errorCallback === "function") {
+                  errorCallback(error);
+                }
               }
-            } else if (error.request) {
-              msg = "No response from the server.";
-            } else {
-              msg = error.response.message;
-            }
+            });
+        }
 
-            displayMessage("Error", msg);
-            resetButton();
-            if (typeof errorCallback === "function") {
-              errorCallback(error);
-            }
-          });
-
+        sendRequest(formData); // Initial request
         return false;
       });
 
