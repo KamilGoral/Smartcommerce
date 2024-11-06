@@ -368,8 +368,6 @@ docReady(function () {
           data.created.by.includes("FTP") || data.modified.by.includes("FTP");
         document.getElementById("pricatFTP").textContent = isFtp;
         const editPermissions = isEditable(data.startDate, data.endDate, isFtp);
-        $("#shopKeys").prop("disabled", true);
-
         if (!editPermissions.canEditStartDate)
           $("#startDate").prop("disabled", true);
         if (!editPermissions.canEditEndDate)
@@ -437,6 +435,7 @@ docReady(function () {
         });
 
         console.log(shopKeysSet);
+        $("#shopKeys").prop("disabled", true);
 
         // Display statuses in the pricatStatus element or use tooltip if needed
         if (shopsData.length > 5) {
