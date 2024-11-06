@@ -391,9 +391,29 @@ docReady(function () {
         );
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
-        // Check boxes for shops that are in the response
-        // Extract keys from response shops
-        const shopKeys = data.shops.map((shop) => shop.key);
+        const select = document.getElementById("shopKeys");
+
+        // Extract shop keys from the nested structure
+        const shopKeysArray = data.shops.map((shop) => shop.key);
+
+        // Clear existing options if needed
+        select.innerHTML = "";
+
+        // Dynamically populate options and set selected attribute
+        shopKeysArray.forEach((shopKey) => {
+          const option = document.createElement("option");
+          option.value = shopKey;
+          option.textContent = shopKey;
+          option.selected = true; // Mark as selected if it exists in shopKeysArray
+          select.appendChild(option);
+        });
+
+        // Toggle selection on mousedown
+        $(select).on("mousedown", "option", function (e) {
+          e.preventDefault();
+          $(this).prop("selected", !$(this).prop("selected"));
+          return false;
+        });
       },
       error: function (jqXHR, exception) {
         let msg =
