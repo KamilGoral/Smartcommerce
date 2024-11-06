@@ -667,6 +667,20 @@ docReady(function () {
         var container = form.parent();
         var action = `${InvokeURL}van/pricats/${priceListId}`;
         var method = "PATCH";
+
+        // Sprawdzanie edytowalności dat
+        const isEditable = (startDate, endDate, isFtp) => {
+          const now = new Date();
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+
+          if (now < start)
+            return { canEditStartDate: true, canEditEndDate: true };
+          if (now >= start && now <= end)
+            return { canEditStartDate: isFtp, canEditEndDate: true };
+          return { canEditStartDate: false, canEditEndDate: false };
+        };
+
         const editPermissions = isEditable(
           $("#startDate").val(),
           $("#endDate").val(),
