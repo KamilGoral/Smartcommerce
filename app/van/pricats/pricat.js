@@ -399,24 +399,12 @@ docReady(function () {
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
         // Check boxes for shops that are in the response
-        const shopKeys = data.shops.map((shop) => shop.key); // Extract keys from response shops
-        $("#shopKeys option").each(function () {
-          const option = $(this);
-          if (shopKeys.includes(option.val())) {
-            option.prop("selected", true); // Select the option if it's in the response
-          } else {
-            option.prop("selected", false);
-          }
-        });
-        // Check boxes for shops that are in the response
-        $("#shopKeys-2 option").each(function () {
-          const option = $(this);
-          if (shopKeys.includes(option.val())) {
-            option.prop("selected", true); // Select the option if it's in the response
-          } else {
-            option.prop("selected", false);
-          }
-        });
+        // Extract keys from response shops
+        const shopKeys = data.shops.map((shop) => shop.key);
+
+        // Set selected options in #shopKeys and #shopKeys-2 by using .val()
+        $("#shopKeys").val(shopKeys).trigger("change");
+        $("#shopKeys-2").val(shopKeys).trigger("change");
       },
       error: function (jqXHR, exception) {
         let msg =
