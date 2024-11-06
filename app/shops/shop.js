@@ -2265,6 +2265,7 @@ docReady(function () {
 
     // Logowanie przed wysłaniem formData
     console.log("Wysyłanie formData...");
+    console.log(formData);
     xhr.send(formData);
   }
 
