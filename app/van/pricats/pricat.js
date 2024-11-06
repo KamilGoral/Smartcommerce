@@ -436,6 +436,8 @@ docReady(function () {
           option.selected = shopKeysSet.has(option.value);
         });
 
+        console.log(shopKeysSet);
+
         // Display statuses in the pricatStatus element or use tooltip if needed
         if (shopsData.length > 5) {
           // Merge into a single tooltip if more than 5 shops
