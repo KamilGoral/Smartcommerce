@@ -664,32 +664,44 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        var container = form.parent();
         var action = `${InvokeURL}van/pricats/${priceListId}`;
         var method = "PATCH";
-
-        // Pobierz wartości startDate i endDate
-        const startDate = $("#startDate").val();
-        const endDate = $("#endDate").val();
-
-        // Ustal, które pola mogą być edytowane
-        const editPermissions = isEditable(startDate, endDate, isFtp);
-
-        // Budowanie danych do wysłania tylko dla edytowalnych pól
-        var data = [];
-        if (editPermissions.canEditStartDate) {
-          data.push({
+        var data = [
+          {
             op: "replace",
             path: "/startDate",
-            value: startDate + "T00:00:01.00Z",
-          });
-        }
-        if (editPermissions.canEditEndDate) {
-          data.push({
+            value: $("#startDate").val() + "T00:00:01.00Z",
+          },
+          {
             op: "replace",
             path: "/endDate",
-            value: endDate + "T23:59:59.00Z",
-          });
-        }
+            value: $("#endDate").val() + "T23:59:59.00Z",
+          },
+        ];
+
+        // function symmetricDifference(a1, a2) {
+        //   var result = [];
+        //   for (var i = 0; i < a1.length; i++) {
+        //     if (a2.indexOf(a1[i]) === -1) {
+        //       data.push({
+        //         op: "remove",
+        //         path: "/shopKeys/" + a1[i],
+        //       });
+        //     }
+        //   }
+        //   for (i = 0; i < a2.length; i++) {
+        //     if (a1.indexOf(a2[i]) === -1) {
+        //       data.push({
+        //         op: "add",
+        //         path: "/shopKeys/-",
+        //         value: a2[i],
+        //       });
+        //     }
+        //   }
+        // }
+
+        // symmetricDifference(shopKeysStart, $("#shopKeys").val());
 
         $.ajax({
           type: method,
@@ -714,13 +726,14 @@ docReady(function () {
             console.log(resultData);
 
             if (typeof successCallback === "function") {
-              const result = successCallback(resultData);
+              result = successCallback(resultData);
               if (!result) {
                 form.show();
                 displayMessage(
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
+                console.log(e);
                 return;
               }
             }
