@@ -306,6 +306,48 @@ docReady(function () {
     request.send();
   }
 
+  // Funkcja sprawdzająca edytowalność dat
+  const isEditable = (startDate, endDate, isFtp) => {
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (now < start) return { canEditStartDate: true, canEditEndDate: true };
+    if (now >= start && now <= end)
+      return { canEditStartDate: isFtp, canEditEndDate: true };
+    return { canEditStartDate: false, canEditEndDate: false };
+  };
+
+  // Funkcja konwertująca datę na czytelny format
+  const toHumanTime = (dateStr) => {
+    const offset = new Date().getTimezoneOffset();
+    return new Date(Date.parse(dateStr) - offset * 60 * 1000)
+      .toISOString()
+      .replace("T", " ")
+      .slice(0, -4);
+  };
+
+  // Funkcja przygotowująca dane do wysyłki w AJAX
+  const setupFormData = (editPermissions) => {
+    const data = [];
+    if (editPermissions.canEditStartDate) {
+      data.push({
+        op: "replace",
+        path: "/startDate",
+        value: $("#startDate").val() + "T00:00:01.00Z",
+      });
+    }
+    if (editPermissions.canEditEndDate) {
+      data.push({
+        op: "replace",
+        path: "/endDate",
+        value: $("#endDate").val() + "T23:59:59.00Z",
+      });
+    }
+    return data;
+  };
+
+  // Zaktualizowana funkcja getPriceList
   function getPriceList() {
     getShops();
     $.ajax({
@@ -322,130 +364,109 @@ docReady(function () {
         $("#waitingdots").hide();
       },
       success: function (data) {
-        // Wyświetlanie podstawowych informacji o cenach
-        const wholesalerKey = document.getElementById("wholesalerKey");
-        const createdBy = document.getElementById("createdBy");
-        const createDate = document.getElementById("createDate");
-        const lastModificationDate = document.getElementById(
-          "lastModificationDate"
-        );
-        const startDateElem = document.getElementById("startDate");
-        const endDateElem = document.getElementById("endDate");
-
         const isFtp =
           data.created.by.includes("FTP") || data.modified.by.includes("FTP");
-        console.log("Czy cennik pochodzi z FTP:", isFtp);
-
-        // Sprawdzanie edytowalności dat
-        const isEditable = (startDate, endDate, isFtp) => {
-          const now = new Date();
-          const start = new Date(startDate);
-          const end = new Date(endDate);
-
-          if (now < start)
-            return { canEditStartDate: true, canEditEndDate: true };
-          if (now >= start && now <= end)
-            return { canEditStartDate: isFtp, canEditEndDate: true };
-          return { canEditStartDate: false, canEditEndDate: false };
-        };
-
+        document.getElementById("pricatFTP").textContent = isFtp;
         const editPermissions = isEditable(data.startDate, data.endDate, isFtp);
-        console.log("Uprawnienia do edycji:", editPermissions);
 
         if (!editPermissions.canEditStartDate)
           $("#startDate").prop("disabled", true);
         if (!editPermissions.canEditEndDate)
           $("#endDate").prop("disabled", true);
 
-        const toHumanTime = (dateStr) => {
-          const offset = new Date().getTimezoneOffset();
-          return new Date(Date.parse(dateStr) - offset * 60 * 1000)
-            .toISOString()
-            .replace("T", " ")
-            .slice(0, -4);
-        };
-
-        wholesalerKey.textContent = data.wholesalerKey;
-        createdBy.textContent = data.created.by;
-        createDate.textContent = toHumanTime(data.created.at);
-        lastModificationDate.textContent = toHumanTime(data.modified.at);
-        startDateElem.textContent = toHumanTime(data.startDate);
+        document.getElementById("wholesalerKey").textContent =
+          data.wholesalerKey;
+        document.getElementById("createdBy").textContent = data.created.by;
+        document.getElementById("createDate").textContent = toHumanTime(
+          data.created.at
+        );
+        document.getElementById("lastModificationDate").textContent =
+          toHumanTime(data.modified.at);
+        document.getElementById("startDate").textContent = toHumanTime(
+          data.startDate
+        );
         $("#startDate").datepicker("setDate", new Date(data.startDate));
-        endDateElem.textContent = toHumanTime(data.endDate);
+        document.getElementById("endDate").textContent = toHumanTime(
+          data.endDate
+        );
         $("#endDate").datepicker("setDate", new Date(data.endDate));
-
-        const translateStatus = (status) =>
-          ({
-            success: "Gotowa",
-            error: "Błąd",
-            waiting: "Oczekująca",
-            "in progress": "W trakcie",
-          }[status] || "Brak danych");
-
-        const getStatusClass = (status) =>
-          ({
-            success: "positive",
-            error: "negative",
-            waiting: "medium",
-            "in progress": "medium",
-          }[status] || "noneexisting");
-
-        const statusClass =
-          data.shops.length === 1
-            ? getStatusClass(data.shops[0].status)
-            : new Set(data.shops.map((shop) => getStatusClass(shop.status)))
-                .size === 1
-            ? getStatusClass(data.shops[0].status)
-            : "noneexisting";
-
-        const shopDetails =
-          data.shops
-            .map((shop) => `${shop.key} - ${translateStatus(shop.status)}`)
-            .join(", ") || "Brak sklepów";
-
-        document.getElementById("pricatStatus").innerHTML =
-          data.shops.length === 1
-            ? `<span class="${statusClass}">${translateStatus(
-                data.shops[0].status
-              )}</span>`
-            : `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${
-                data.shops.length || 0
-              }</span>`;
-
-        const select = document.getElementById("shopKeys");
-        const shopKeys = data.shops.map((shop) => shop.key);
-
-        Array.from(select.options).forEach((option) => {
-          option.selected = shopKeys.includes(option.value);
-        });
-
-        $("#shopKeys option").mousedown(function (e) {
-          e.preventDefault();
-          $(this).prop("selected", !$(this).prop("selected"));
-        });
       },
       error: function (jqXHR, exception) {
-        console.log(jqXHR);
-        console.log(exception);
-        let msg;
-
-        if (jqXHR.status === 504) {
-          msg = "Przekroczono limit czasu żądania.";
-        } else {
-          try {
-            msg =
-              "Błąd.\n" +
-              translateErrorMessage(JSON.parse(jqXHR.responseText).message);
-          } catch (e) {
-            msg = "Błąd: Wystąpił nieoczekiwany błąd.";
-          }
-        }
-
+        let msg =
+          jqXHR.status === 504
+            ? "Przekroczono limit czasu żądania."
+            : "Błąd: Wystąpił nieoczekiwany błąd.";
         displayMessage("Error", msg);
         $("#waitingdots").hide();
       },
     });
   }
+
+  // Zaktualizowana funkcja makeWebflowFormAjaxEditPriceList
+  makeWebflowFormAjaxEditPriceList = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        // Get the text content from the element with ID "pricatFTP"
+        const pricatFTPText = document
+          .getElementById("pricatFTP")
+          .textContent.trim();
+
+        // Convert the text to a boolean
+        const isFtp = pricatFTPText.toLowerCase() === "true";
+        const editPermissions = isEditable(
+          $("#startDate").val(),
+          $("#endDate").val(),
+          isFtp
+        );
+        const data = setupFormData(editPermissions);
+
+        $.ajax({
+          type: "PATCH",
+          url: `${InvokeURL}van/pricats/${priceListId}`,
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (
+              typeof successCallback === "function" &&
+              !successCallback(resultData)
+            ) {
+              form.show();
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
+              return;
+            }
+            displayMessage("Success", "Cennik został zmieniony.");
+            setTimeout(
+              () => window.location.replace(window.location.href),
+              1000
+            );
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") errorCallback(e);
+            form.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
   // Funkcja do tłumaczenia wiadomości błędu, jeśli jest potrzebna
   function translateErrorMessage(message) {
@@ -656,134 +677,6 @@ docReady(function () {
     initializeProductTable(priceListId);
   });
 
-  makeWebflowFormAjaxEditPriceList = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var container = form.parent();
-        var action = `${InvokeURL}van/pricats/${priceListId}`;
-        var method = "PATCH";
-
-        // Sprawdzanie edytowalności dat
-        const isEditable = (startDate, endDate, isFtp) => {
-          const now = new Date();
-          const start = new Date(startDate);
-          const end = new Date(endDate);
-
-          if (now < start)
-            return { canEditStartDate: true, canEditEndDate: true };
-          if (now >= start && now <= end)
-            return { canEditStartDate: isFtp, canEditEndDate: true };
-          return { canEditStartDate: false, canEditEndDate: false };
-        };
-
-        const editPermissions = isEditable(
-          $("#startDate").val(),
-          $("#endDate").val(),
-          isFtp
-        );
-
-        var data = [];
-        if (editPermissions.canEditStartDate) {
-          data.push({
-            op: "replace",
-            path: "/startDate",
-            value: $("#startDate").val() + "T00:00:01.00Z",
-          });
-        }
-        if (editPermissions.canEditEndDate) {
-          data.push({
-            op: "replace",
-            path: "/endDate",
-            value: $("#endDate").val() + "T23:59:59.00Z",
-          });
-        }
-
-        // function symmetricDifference(a1, a2) {
-        //   var result = [];
-        //   for (var i = 0; i < a1.length; i++) {
-        //     if (a2.indexOf(a1[i]) === -1) {
-        //       data.push({
-        //         op: "remove",
-        //         path: "/shopKeys/" + a1[i],
-        //       });
-        //     }
-        //   }
-        //   for (i = 0; i < a2.length; i++) {
-        //     if (a1.indexOf(a2[i]) === -1) {
-        //       data.push({
-        //         op: "add",
-        //         path: "/shopKeys/-",
-        //         value: a2[i],
-        //       });
-        //     }
-        //   }
-        // }
-
-        // symmetricDifference(shopKeysStart, $("#shopKeys").val());
-
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            console.log(resultData);
-
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                console.log(e);
-                return;
-              }
-            }
-
-            displayMessage("Success", "Cennik został zmieniony.");
-            window.setTimeout(function () {
-              window.location.replace(window.location.href);
-            }, 1000);
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            displayMessage(
-              "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
-            );
-            console.log(e);
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
-
   makeWebflowFormAjaxDeletePriceList = function (
     forms,
     successCallback,
@@ -859,6 +752,7 @@ docReady(function () {
       });
     });
   };
+
   function LoadTippy() {
     $.getScript(
       "https://unpkg.com/popper.js@1",
