@@ -358,9 +358,6 @@ docReady(function () {
           }
         }
 
-        // Przykład użycia z odpowiedzią API:
-        const isFtp = checkIfFtp(responseData);
-
         const editPermissions = isEditable(startDate, endDate, isFtp);
 
         if (!editPermissions.canEditStartDate) {
