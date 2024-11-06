@@ -608,7 +608,7 @@ docReady(function () {
       },
 
       ajax: {
-        url: `https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/van/pricats/${priceListId}/products`,
+        url: `https://${DomainName}/van/pricats/${priceListId}/products`,
         type: "GET",
         headers: {
           Authorization: orgToken,
