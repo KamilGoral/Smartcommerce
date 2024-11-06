@@ -306,8 +306,6 @@ docReady(function () {
     request.send();
   }
 
-  // Funkcja sprawdzająca, czy edycja jest dozwolona na podstawie dat
-
   function getPriceList() {
     getShops();
     $.ajax({
@@ -384,6 +382,14 @@ docReady(function () {
             "in progress": "W trakcie",
           }[status] || "Brak danych");
 
+        const getStatusClass = (status) =>
+          ({
+            success: "positive",
+            error: "negative",
+            waiting: "medium",
+            "in progress": "medium",
+          }[status] || "noneexisting");
+
         const statusClass =
           data.shops.length === 1
             ? getStatusClass(data.shops[0].status)
@@ -418,11 +424,10 @@ docReady(function () {
           $(this).prop("selected", !$(this).prop("selected"));
         });
       },
-
       error: function (jqXHR, exception) {
         console.log(jqXHR);
         console.log(exception);
-        var msg;
+        let msg;
 
         if (jqXHR.status === 504) {
           msg = "Przekroczono limit czasu żądania.";
@@ -440,6 +445,16 @@ docReady(function () {
         $("#waitingdots").hide();
       },
     });
+  }
+
+  // Funkcja do tłumaczenia wiadomości błędu, jeśli jest potrzebna
+  function translateErrorMessage(message) {
+    const errorTranslations = {
+      "Timeout exceeded": "Przekroczono limit czasu",
+      "Unauthorized access": "Nieautoryzowany dostęp",
+      // Dodaj inne tłumaczenia błędów, jeśli są potrzebne
+    };
+    return errorTranslations[message] || message;
   }
 
   function initializeProductTable(priceListId) {
