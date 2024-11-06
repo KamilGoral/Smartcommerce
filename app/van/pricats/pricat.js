@@ -292,11 +292,13 @@ docReady(function () {
 
       if (request.status >= 200 && request.status < 400) {
         const shopKeysContainer = document.getElementById("shopKeys");
+        const shopKeysContainer2 = document.getElementById("shopKeys-2");
         toParse.forEach((shop) => {
           var opt = document.createElement("option");
           opt.value = shop.shopKey;
           opt.innerHTML = shop.name;
           shopKeysContainer.appendChild(opt);
+          shopKeysContainer2.appendChild(opt);
         });
         if (request.status == 401) {
           console.log("Unauthorized");
@@ -424,6 +426,35 @@ docReady(function () {
           isFtp
         );
         const data = setupFormData(editPermissions);
+
+        // Zarządzanie zmianami w `shopKeys`
+
+        function symmetricDifference(initialKeys, newKeys) {
+          const data = [];
+
+          // Znajdź sklepy do usunięcia (istnieją w initialKeys, ale nie w newKeys)
+          initialKeys.forEach((key) => {
+            if (!newKeys.includes(key)) {
+              data.push({ op: "remove", path: `/shopKeys/${key}` });
+            }
+          });
+
+          // Znajdź sklepy do dodania (istnieją w newKeys, ale nie w initialKeys)
+          newKeys.forEach((key) => {
+            if (!initialKeys.includes(key)) {
+              data.push({ op: "add", path: "/shopKeys/-", value: key });
+            }
+          });
+
+          return data;
+        }
+
+        const shopKeysStart = $("#shopKeys-2").val();
+        const shopKeys = $("#shopKeys").val(); // Pobierz aktualnie wybrane klucze
+        const shopKeysDiff = symmetricDifference(shopKeysStart, shopKeys);
+
+        // Dodaj operacje na `shopKeys` do `data`
+        data.push(...shopKeysDiff);
 
         $.ajax({
           type: "PATCH",
