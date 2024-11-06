@@ -331,62 +331,49 @@ docReady(function () {
         const lastModificationDate = document.getElementById(
           "lastModificationDate"
         );
-        const startDate = document.getElementById("startDate");
-        const endDate = document.getElementById("endDate");
+        const startDateElem = document.getElementById("startDate");
+        const endDateElem = document.getElementById("endDate");
 
-        function checkIfFtp(data) {
-          // Sprawdza, czy autor zawiera tekst "FTP" i zwraca true, jeśli tak
-          return (
-            data.created.by.includes("FTP") || data.modified.by.includes("FTP")
-          );
-        }
+        const isFtp =
+          data.created.by.includes("FTP") || data.modified.by.includes("FTP");
+        console.log("Czy cennik pochodzi z FTP:", isFtp);
 
-        const isFtp = checkIfFtp(data);
-
-        function isEditable(startDate, endDate, isFtp) {
-          const currentTime = new Date();
+        // Sprawdzanie edytowalności dat
+        const isEditable = (startDate, endDate, isFtp) => {
+          const now = new Date();
           const start = new Date(startDate);
           const end = new Date(endDate);
 
-          if (currentTime < start) {
-            // Cennik w przyszłości - można edytować zarówno startDate, jak i endDate
+          if (now < start)
             return { canEditStartDate: true, canEditEndDate: true };
-          } else if (currentTime >= start && currentTime <= end) {
-            // Trwający cennik - można edytować tylko endDate
+          if (now >= start && now <= end)
             return { canEditStartDate: isFtp, canEditEndDate: true };
-          } else {
-            // Przestarzały cennik - nie można edytować dat
-            return { canEditStartDate: false, canEditEndDate: false };
-          }
-        }
+          return { canEditStartDate: false, canEditEndDate: false };
+        };
 
-        const editPermissions = isEditable(startDate, endDate, isFtp);
+        const editPermissions = isEditable(data.startDate, data.endDate, isFtp);
+        console.log("Uprawnienia do edycji:", editPermissions);
 
-        if (!editPermissions.canEditStartDate) {
+        if (!editPermissions.canEditStartDate)
           $("#startDate").prop("disabled", true);
-        }
-        if (!editPermissions.canEditEndDate) {
+        if (!editPermissions.canEditEndDate)
           $("#endDate").prop("disabled", true);
-        }
 
-        function ToHumanTime(data) {
-          var offset = new Date().getTimezoneOffset();
-          var localeTime = new Date(
-            Date.parse(data) - offset * 60 * 1000
-          ).toISOString();
-          var creationDate = localeTime.split("T");
-          var creationTime = creationDate[1].split("Z");
-          var humanTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
-          return humanTime;
-        }
+        const toHumanTime = (dateStr) => {
+          const offset = new Date().getTimezoneOffset();
+          return new Date(Date.parse(dateStr) - offset * 60 * 1000)
+            .toISOString()
+            .replace("T", " ")
+            .slice(0, -4);
+        };
 
         wholesalerKey.textContent = data.wholesalerKey;
         createdBy.textContent = data.created.by;
-        createDate.textContent = ToHumanTime(data.created.at);
-        lastModificationDate.textContent = ToHumanTime(data.modified.at);
-        startDate.textContent = ToHumanTime(data.startDate);
+        createDate.textContent = toHumanTime(data.created.at);
+        lastModificationDate.textContent = toHumanTime(data.modified.at);
+        startDateElem.textContent = toHumanTime(data.startDate);
         $("#startDate").datepicker("setDate", new Date(data.startDate));
-        endDate.textContent = ToHumanTime(data.endDate);
+        endDateElem.textContent = toHumanTime(data.endDate);
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
         const translateStatus = (status) =>
@@ -397,59 +384,41 @@ docReady(function () {
             "in progress": "W trakcie",
           }[status] || "Brak danych");
 
-        const getStatusClass = (status) =>
-          ({
-            success: "positive",
-            error: "negative",
-            waiting: "medium",
-            "in progress": "medium",
-          }[status] || "noneexisting");
-
-        // Determine the appropriate class based on the status of shops
         const statusClass =
-          data.shops && data.shops.length === 1
+          data.shops.length === 1
             ? getStatusClass(data.shops[0].status)
-            : new Set(data.shops?.map((shop) => getStatusClass(shop.status)))
+            : new Set(data.shops.map((shop) => getStatusClass(shop.status)))
                 .size === 1
             ? getStatusClass(data.shops[0].status)
             : "noneexisting";
 
-        // Map shops to "Shop - Status" format in Polish
         const shopDetails =
           data.shops
-            ?.map((shop) => `${shop.key} - ${translateStatus(shop.status)}`)
+            .map((shop) => `${shop.key} - ${translateStatus(shop.status)}`)
             .join(", ") || "Brak sklepów";
 
-        // Set the HTML content based on the number of shops
         document.getElementById("pricatStatus").innerHTML =
-          data.shops?.length === 1
+          data.shops.length === 1
             ? `<span class="${statusClass}">${translateStatus(
                 data.shops[0].status
               )}</span>`
-            : `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">
-              ${data.shops?.length || 0}
-            </span>`;
+            : `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${
+                data.shops.length || 0
+              }</span>`;
 
-        // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");
-        const shopArray = data.shops.map((shop) => shop.key);
+        const shopKeys = data.shops.map((shop) => shop.key);
 
-        for (const option of select.options) {
-          const value = option.value;
-          if (shopArray.includes(value)) {
-            option.setAttribute("selected", "selected");
-          } else {
-            option.removeAttribute("selected");
-          }
-        }
+        Array.from(select.options).forEach((option) => {
+          option.selected = shopKeys.includes(option.value);
+        });
 
-        // Ustawienie interakcji opcji z myszką
         $("#shopKeys option").mousedown(function (e) {
           e.preventDefault();
           $(this).prop("selected", !$(this).prop("selected"));
-          return false;
         });
       },
+
       error: function (jqXHR, exception) {
         console.log(jqXHR);
         console.log(exception);
