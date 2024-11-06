@@ -292,12 +292,17 @@ docReady(function () {
 
       if (request.status >= 200 && request.status < 400) {
         const shopKeysContainer = document.getElementById("shopKeys");
-        const shopKeysContainer2 = document.getElementById("shopKeys-2");
         toParse.forEach((shop) => {
           var opt = document.createElement("option");
           opt.value = shop.shopKey;
           opt.innerHTML = shop.name;
           shopKeysContainer.appendChild(opt);
+        });
+        const shopKeysContainer2 = document.getElementById("shopKeys-2");
+        toParse.forEach((shop) => {
+          var opt = document.createElement("option");
+          opt.value = shop.shopKey;
+          opt.innerHTML = shop.name;
           shopKeysContainer2.appendChild(opt);
         });
         if (request.status == 401) {
