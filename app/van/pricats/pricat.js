@@ -425,16 +425,15 @@ docReady(function () {
           };
         });
 
-        // Clear existing options if needed
-        select.innerHTML = "";
+        // Populate the select element by selecting only the existing options that match keys in shopsData
+        const select2 = document.getElementById("shopKeys");
 
-        // Populate the select element with shop keys only (without status)
-        shopsData.forEach((shop) => {
-          const option = document.createElement("option");
-          option.value = shop.key;
-          option.textContent = shop.key;
-          option.selected = true;
-          select.appendChild(option);
+        // Create a Set of shop keys for faster lookup
+        const shopKeysSet = new Set(shopsData.map((shop) => shop.key));
+
+        // Loop through existing options and select those that match keys in shopsData
+        Array.from(select2.options).forEach((option) => {
+          option.selected = shopKeysSet.has(option.value);
         });
 
         // Display statuses in the pricatStatus element or use tooltip if needed
