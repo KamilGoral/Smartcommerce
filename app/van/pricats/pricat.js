@@ -392,21 +392,44 @@ docReady(function () {
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
         const select = document.getElementById("shopKeys");
+        const pricatStatus = document.getElementById("pricatStatus");
 
-        // Extract shop keys from the nested structure
-        const shopKeysArray = data.shops.map((shop) => shop.key);
+        // Extract shop keys and statuses from the nested structure
+        const shopsData = data.shops.map((shop) => ({
+          key: shop.key,
+          status: shop.status || "No Status", // Default to "No Status" if status is null
+        }));
 
         // Clear existing options if needed
         select.innerHTML = "";
 
-        // Dynamically populate options and set selected attribute
-        shopKeysArray.forEach((shopKey) => {
+        // Populate the select element with shop keys only (without status)
+        shopsData.forEach((shop) => {
           const option = document.createElement("option");
-          option.value = shopKey;
-          option.textContent = shopKey;
-          option.selected = true; // Mark as selected if it exists in shopKeysArray
+          option.value = shop.key;
+          option.textContent = shop.key;
+          option.selected = true;
           select.appendChild(option);
         });
+
+        // Display statuses in the pricatStatus element or use tooltip if needed
+        if (shopsData.length > 5) {
+          // Merge into a single tooltip if more than 5 shops
+          const tooltipContent = shopsData
+            .map((shop) => `${shop.key}-${shop.status}`)
+            .join(", ");
+          pricatStatus.textContent = `${shopsData.length} shops with statuses`;
+          pricatStatus.classList.add("tippy"); // Add class for tooltip
+
+          // Set the tooltip content
+          pricatStatus.setAttribute("data-tippy-content", tooltipContent);
+          tippy(pricatStatus); // Initialize tooltip using Tippy.js
+        } else {
+          // Display each shop's status directly if 5 or fewer shops
+          pricatStatus.textContent = shopsData
+            .map((shop) => `${shop.key} - ${shop.status}`)
+            .join(", ");
+        }
 
         // Toggle selection on mousedown
         $(select).on("mousedown", "option", function (e) {
