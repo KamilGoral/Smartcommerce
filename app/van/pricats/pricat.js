@@ -298,13 +298,6 @@ docReady(function () {
           opt.innerHTML = shop.name;
           shopKeysContainer.appendChild(opt);
         });
-        const shopKeysContainer2 = document.getElementById("shopKeys-2");
-        toParse.forEach((shop) => {
-          var opt = document.createElement("option");
-          opt.value = shop.shopKey;
-          opt.innerHTML = shop.name;
-          shopKeysContainer2.appendChild(opt);
-        });
         if (request.status == 401) {
           console.log("Unauthorized");
         }
@@ -404,7 +397,6 @@ docReady(function () {
 
         // Set selected options in #shopKeys and #shopKeys-2 by using .val()
         $("#shopKeys").val(shopKeys).trigger("change");
-        $("#shopKeys-2").val(shopKeys).trigger("change");
       },
       error: function (jqXHR, exception) {
         let msg =
@@ -462,7 +454,7 @@ docReady(function () {
           return data;
         }
 
-        const shopKeysStart = $("#shopKeys-2").val();
+        const shopKeysStart = "ye";
         const shopKeys = $("#shopKeys").val(); // Pobierz aktualnie wybrane klucze
         const shopKeysDiff = symmetricDifference(shopKeysStart, shopKeys);
 
