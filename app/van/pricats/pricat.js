@@ -307,13 +307,6 @@ docReady(function () {
   }
 
   // Funkcja sprawdzająca, czy edycja jest dozwolona na podstawie dat
-  function isEditable(startDate, endDate) {
-    const currentTime = new Date();
-    return (
-      currentTime >= new Date(startDate) && currentTime <= new Date(endDate)
-    );
-  }
-
 
   function getPriceList() {
     getShops();
@@ -340,12 +333,41 @@ docReady(function () {
         );
         const startDate = document.getElementById("startDate");
         const endDate = document.getElementById("endDate");
-        const canEdit = isEditable(startDate, endDate);
-        
 
-        if (!canEdit) {
-          $("#wf-form-UpdatePriceList").hide(); // Ukryj formularz
-          $("#startDate, #endDate, #shopKeys").prop("disabled", true); // Wyłącz edytowalne pola
+        function checkIfFtp(data) {
+          // Sprawdza, czy autor zawiera tekst "FTP" i zwraca true, jeśli tak
+          return (
+            data.created.by.includes("FTP") || data.modified.by.includes("FTP")
+          );
+        }
+
+        function isEditable(startDate, endDate, isFtp) {
+          const currentTime = new Date();
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+
+          if (currentTime < start) {
+            // Cennik w przyszłości - można edytować zarówno startDate, jak i endDate
+            return { canEditStartDate: true, canEditEndDate: true };
+          } else if (currentTime >= start && currentTime <= end) {
+            // Trwający cennik - można edytować tylko endDate
+            return { canEditStartDate: isFtp, canEditEndDate: true };
+          } else {
+            // Przestarzały cennik - nie można edytować dat
+            return { canEditStartDate: false, canEditEndDate: false };
+          }
+        }
+
+        // Przykład użycia z odpowiedzią API:
+        const isFtp = checkIfFtp(responseData);
+
+        const editPermissions = isEditable(startDate, endDate, isFtp);
+
+        if (!editPermissions.canEditStartDate) {
+          $("#startDate").prop("disabled", true);
+        }
+        if (!editPermissions.canEditEndDate) {
+          $("#endDate").prop("disabled", true);
         }
 
         function ToHumanTime(data) {
@@ -368,39 +390,46 @@ docReady(function () {
         endDate.textContent = ToHumanTime(data.endDate);
         $("#endDate").datepicker("setDate", new Date(data.endDate));
 
-        const translateStatus = (status) => ({
-          success: 'Gotowa',
-          error: 'Błąd',
-          waiting: 'Oczekująca',
-          'in progress': 'W trakcie'
-        }[status] || 'Brak danych');
-        
-        const getStatusClass = (status) => ({
-          success: 'positive',
-          error: 'negative',
-          waiting: 'medium',
-          'in progress': 'medium'
-        }[status] || 'noneexisting');
-        
+        const translateStatus = (status) =>
+          ({
+            success: "Gotowa",
+            error: "Błąd",
+            waiting: "Oczekująca",
+            "in progress": "W trakcie",
+          }[status] || "Brak danych");
+
+        const getStatusClass = (status) =>
+          ({
+            success: "positive",
+            error: "negative",
+            waiting: "medium",
+            "in progress": "medium",
+          }[status] || "noneexisting");
+
         // Determine the appropriate class based on the status of shops
-        const statusClass = data.shops && data.shops.length === 1 
-          ? getStatusClass(data.shops[0].status) 
-          : (new Set(data.shops?.map(shop => getStatusClass(shop.status))).size === 1
-              ? getStatusClass(data.shops[0].status)
-              : 'noneexisting');
-        
+        const statusClass =
+          data.shops && data.shops.length === 1
+            ? getStatusClass(data.shops[0].status)
+            : new Set(data.shops?.map((shop) => getStatusClass(shop.status)))
+                .size === 1
+            ? getStatusClass(data.shops[0].status)
+            : "noneexisting";
+
         // Map shops to "Shop - Status" format in Polish
-        const shopDetails = data.shops?.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ") || "Brak sklepów";
-        
+        const shopDetails =
+          data.shops
+            ?.map((shop) => `${shop.key} - ${translateStatus(shop.status)}`)
+            .join(", ") || "Brak sklepów";
+
         // Set the HTML content based on the number of shops
-        document.getElementById('pricatStatus').innerHTML = data.shops?.length === 1
-          ? `<span class="${statusClass}">${translateStatus(data.shops[0].status)}</span>`
-          : `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">
+        document.getElementById("pricatStatus").innerHTML =
+          data.shops?.length === 1
+            ? `<span class="${statusClass}">${translateStatus(
+                data.shops[0].status
+              )}</span>`
+            : `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">
               ${data.shops?.length || 0}
             </span>`;
-        
-        
-        
 
         // Zaznaczenie odpowiednich opcji w polu select
         const select = document.getElementById("shopKeys");
@@ -846,7 +875,6 @@ docReady(function () {
       }
     );
   }
-
 
   makeWebflowFormAjaxDeletePriceList($(formIdDeletePriceList));
   makeWebflowFormAjaxEditPriceList($(formIdEditPriceList));
