@@ -493,6 +493,37 @@ docReady(function () {
         var uploadEndpoint = InvokeURL + "van/transactions";
         $("#waitingdots").show();
 
+        // Funkcja, która mapuje komunikaty błędów z API na bardziej przyjazne dla użytkownika
+        function getFriendlyErrorMessage(error) {
+          if (error.response) {
+            switch (error.response.status) {
+              case 400:
+                if (
+                  error.response.data.message.includes("StartDate and EndDate")
+                ) {
+                  return "Błąd: Nie można używać StartDate i EndDate w obu częściach formularza. Usuń jedną z dat i spróbuj ponownie.";
+                }
+                return "Błąd: Niepoprawne dane. Sprawdź, czy wszystkie pola są wypełnione prawidłowo.";
+              case 403:
+                return "Brak uprawnień: Nie masz dostępu do wykonania tej operacji.";
+              case 404:
+                return "Nie znaleziono: Nie udało się odnaleźć zasobu. Sprawdź swoje dane.";
+              case 500:
+                return "Błąd serwera: Wystąpił problem z serwerem. Spróbuj ponownie później.";
+              default:
+                return (
+                  error.response.data.message ||
+                  "Wystąpił nieznany błąd. Spróbuj ponownie później."
+                );
+            }
+          } else if (error.request) {
+            return "Błąd sieci: Serwer nie odpowiada. Sprawdź swoje połączenie internetowe i spróbuj ponownie.";
+          } else {
+            return "Wystąpił nieoczekiwany błąd: " + error.message;
+          }
+        }
+
+        // Zmodyfikowana funkcja `sendRequest` z użyciem `getFriendlyErrorMessage`
         function sendRequest(formData) {
           axios
             .post(uploadEndpoint, formData, {
@@ -529,7 +560,6 @@ docReady(function () {
             .catch(function (error) {
               $("#waitingdots").hide();
 
-              var msg = "";
               if (
                 error.response &&
                 error.response.status === 400 &&
@@ -554,10 +584,8 @@ docReady(function () {
 
                 sendRequest(retryFormData); // Retry the request
               } else {
-                msg = error.response
-                  ? error.response.data.message
-                  : error.message;
-                displayMessage("Error", msg);
+                const friendlyMessage = getFriendlyErrorMessage(error);
+                displayMessage("Error", friendlyMessage);
                 resetButton();
                 if (typeof errorCallback === "function") {
                   errorCallback(error);
