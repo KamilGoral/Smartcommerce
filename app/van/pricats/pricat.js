@@ -683,6 +683,20 @@ docReady(function () {
             return "-";
           },
         },
+        {
+          // Check promotion in the asks array
+          data: "messages",
+          title: "Wiadomość",
+          defaultContent: "-",
+          render: function (data) {
+            // Check if there are messages
+            if (Array.isArray(data) && data.length > 0) {
+              // Join messages with a line break or other separator
+              return data.map((message) => `<div>${message}</div>`).join("");
+            }
+            return ""; // Return empty if no messages
+          },
+        },
       ],
     });
     // Attach keypress event listener for the search input
