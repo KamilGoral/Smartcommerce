@@ -450,6 +450,27 @@ docReady(function () {
           return false;
         }
 
+        // Determine the MIME type based on file extension, default to text/plain
+        let fileType = "text/plain"; // Default MIME type
+        const fileExtension = uploadedFile.name.split(".").pop().toLowerCase();
+
+        switch (fileExtension) {
+          case "csv":
+            fileType = "text/csv";
+            break;
+          case "xlsx":
+            fileType =
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            break;
+          case "ods":
+            fileType = "application/vnd.oasis.opendocument.spreadsheet";
+            break;
+          case "txt":
+          case "edi":
+            fileType = "text/plain";
+            break;
+        }
+
         const jsonData = {
           wholesalerKey: wholesalerKey,
           shopKeys: $("#shopKeys").val(),
