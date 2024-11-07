@@ -3708,8 +3708,22 @@ docReady(function () {
         table.draw();
       });
 
-      $("#gtinName").on("change", function () {
-        table.draw();
+      let typingTimer;
+      const typingDelay = 3000; // 3 seconds
+
+      $("#gtinName").on("input", function () {
+        clearTimeout(typingTimer); // Clear the timer if the user is still typing
+        typingTimer = setTimeout(function () {
+          table.draw(); // Redraw the table after 3 seconds of inactivity
+        }, typingDelay);
+      });
+
+      // Also trigger table draw if the user presses Enter
+      $("#gtinName").on("keypress", function (e) {
+        if (e.key === "Enter") {
+          clearTimeout(typingTimer); // Clear any pending timer
+          table.draw(); // Draw table immediately on Enter
+        }
       });
 
       $("#startDate")
