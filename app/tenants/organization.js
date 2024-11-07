@@ -2392,37 +2392,45 @@ docReady(function () {
               render: function (data) {
                 if (data && data.length > 0) {
                   // Tłumaczenie statusów na polski
-                  const translateStatus = (status) => ({
-                    success: 'Gotowa',
-                    error: 'Błąd',
-                    waiting: 'Oczekująca',
-                    'in progress': 'W trakcie'
-                  }[status] || 'Brak danych');
-            
+                  const translateStatus = (status) =>
+                    ({
+                      success: "Gotowa",
+                      error: "Błąd",
+                      waiting: "Oczekująca",
+                      "in progress": "W trakcie",
+                    }[status] || "Brak danych");
+
                   // Mapowanie statusów do klas CSS
-                  const getStatusClass = (status) => ({
-                    success: 'positive',
-                    error: 'negative',
-                    waiting: 'medium',
-                    'in progress': 'medium'
-                  }[status] || 'noneexisting');
-            
+                  const getStatusClass = (status) =>
+                    ({
+                      success: "positive",
+                      error: "negative",
+                      waiting: "medium",
+                      "in progress": "medium",
+                    }[status] || "noneexisting");
+
                   // Określa klasę dla elementu w zależności od statusu sklepów
-                  const statusClass = data.length === 1 
-                    ? getStatusClass(data[0].status) 
-                    : (new Set(data.map(shop => getStatusClass(shop.status))).size === 1
-                        ? getStatusClass(data[0].status)
-                        : 'noneexisting');
-            
+                  const statusClass =
+                    data.length === 1
+                      ? getStatusClass(data[0].status)
+                      : new Set(data.map((shop) => getStatusClass(shop.status)))
+                          .size === 1
+                      ? getStatusClass(data[0].status)
+                      : "noneexisting";
+
                   // Mapuje sklepy do formatu "Sklep - Stan po polsku"
-                  const shopDetails = data.map(shop => `${shop.key} - ${translateStatus(shop.status)}`).join(", ");
-            
+                  const shopDetails = data
+                    .map(
+                      (shop) => `${shop.key} - ${translateStatus(shop.status)}`
+                    )
+                    .join(", ");
+
                   // Renderuje inne dane dla pojedynczego sklepu
                   if (data.length === 1) {
                     var pricatStatus = translateStatus(data[0].status);
                     return `<span class="${statusClass}" data-tippy-content="${pricatStatus}">${data[0].key}</span>`;
                   }
-            
+
                   // Liczba sklepów i detale w tooltipie dla wielu sklepów
                   return `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${data.length}</span>`;
                 } else {
@@ -2431,7 +2439,7 @@ docReady(function () {
                 }
               },
             },
-            
+
             {
               orderable: true,
               data: "startDate",
@@ -2485,7 +2493,7 @@ docReady(function () {
                 elementId: "wholesalerKeyIndicator",
               },
               { column: 3, name: "Status", elementId: "statusIndicator" },
-              { column: 7, name: "Autor", elementId: "authorIndicator" },
+              { column: 8, name: "Autor", elementId: "authorIndicator" },
             ];
 
             filtersToAdd.forEach((filter) => {
