@@ -3708,6 +3708,10 @@ docReady(function () {
         table.draw();
       });
 
+      $("#gtinName").on("change", function () {
+        table.draw();
+      });
+
       $("#startDate")
         .datepicker({
           onSelect: function (dateText) {
