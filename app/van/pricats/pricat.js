@@ -404,6 +404,10 @@ docReady(function () {
               statusText = "Oczekujący";
               statusClass = "neutral";
               break;
+            case "in progress":
+              statusText = "W trakcie";
+              statusClass = "positive";
+              break;
             case "ready":
               statusText = "Gotowa";
               statusClass = "positive";
