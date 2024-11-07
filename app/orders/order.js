@@ -789,45 +789,46 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const OffersSelector = document.getElementById("offerId");
         toParse.forEach((offer) => {
-          var opt = document.createElement("option");
-          opt.value = offer.offerId;
+          // Check if createDate is not null
+          if (offer.createDate) {
+            var opt = document.createElement("option");
+            opt.value = offer.offerId;
 
-          var offset = new Date().getTimezoneOffset();
-          var localeTime = new Date(
-            Date.parse(offer.createDate) - offset * 60 * 1000
-          ).toISOString();
-          var creationDate = localeTime.split("T");
-          var creationTime = creationDate[1].split("Z");
-          var statusText = "";
+            var offset = new Date().getTimezoneOffset();
+            var localeTime = new Date(
+              Date.parse(offer.createDate) - offset * 60 * 1000
+            ).toISOString();
+            var creationDate = localeTime.split("T");
+            var creationTime = creationDate[1].split("Z");
+            var statusText = "";
 
-          if (offer.status !== null) {
-            if (offer.status == "ready") {
-              statusText = "Gotowa";
+            if (offer.status !== null) {
+              if (offer.status === "ready") {
+                statusText = "Gotowa";
+              } else if (offer.status === "error") {
+                statusText = "Problem";
+              } else if (offer.status === "in progress") {
+                statusText = "W trakcie";
+              } else if (offer.status === "incomplete") {
+                statusText = "Niekompletna";
+              } else if (
+                offer.status === "batching" ||
+                offer.status === "forced"
+              ) {
+                statusText = "W kolejce";
+              }
             }
-            if (offer.status == "error") {
-              statusText = "Problem";
-            }
-            if (offer.status == "in progress") {
-              statusText = "W trakcie";
-            }
-            if (offer.status == "incomplete") {
-              statusText = "Niekompletna";
-            }
-            if (offer.status == "batching") {
-              statusText = "W kolejce";
-            }
-            if (offer.status == "forced") {
-              statusText = "W kolejce";
-            }
+
+            opt.textContent =
+              creationDate[0] +
+              " " +
+              creationTime[0].slice(0, -4) +
+              " " +
+              statusText;
+            OffersSelector.appendChild(opt);
+          } else {
+            console.log("Skipping offer with missing createDate:", offer);
           }
-
-          opt.textContent =
-            creationDate[0] +
-            " " +
-            creationTime[0].slice(0, -4) +
-            " " +
-            statusText;
-          OffersSelector.appendChild(opt);
         });
         if (request.status == 401) {
           console.log("Unauthorized");
@@ -2481,12 +2482,10 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        var organization = sessionStorage.getItem("OrganizationName");
-        var organizationId = sessionStorage.getItem("OrganizationclientId");
         var oldname = document.getElementById("new-name");
 
         var data = {
-          organization: organization,
+          organization: OrganizationName,
           organizationId: organizationId,
           data: {
             gtin: $("#gtin").val(),
