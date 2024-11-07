@@ -3431,7 +3431,7 @@ docReady(function () {
         "&page=" +
         (data.start + data.length) / data.length;
 
-      let searchBox = $("#gtinName").value.trim(); // This will remove whitespace from both ends
+      let searchBox = $("#gtinName").val().trim(); // This will remove whitespace from both ends
 
       if (/^\d+$/.test(searchBox)) {
         /// this need to be changed to gtin
