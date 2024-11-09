@@ -1876,158 +1876,108 @@ docReady(function () {
 
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
-    var myUploadedFiles = document.getElementById("orderfile").files;
-
-    $("#waitingdots").show();
     var formData = new FormData();
+    var myUploadedFiles = document.getElementById("orderfile").files;
+    var action =
+      InvokeURL +
+      "shops/" +
+      shopKey +
+      "/orders" +
+      (ignoreGTINs ? "?ignoreEmptyGtin=true" : "");
+
     for (var i = 0; i < myUploadedFiles.length; i++) {
       formData.append("file", myUploadedFiles[i]);
     }
     formData.append("name", $("#OrderName").val());
-    var action = InvokeURL + "shops/" + shopKey + "/orders";
-    // Add custom header if ignoreGTINs is true
-    if (ignoreGTINs) {
-      action += "?ignoreEmptyGtin=true";
-    }
 
+    $("#waitingdots").show();
     xhr.open("POST", action);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
 
     xhr.onreadystatechange = function () {
-      $("#waitingdots").hide();
-      if (xhr.status === 201) {
-        var response = JSON.parse(xhr.responseText);
-        var action =
-          InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-        var method = "PATCH";
-        var data = [
-          {
-            op: "add",
-            path: "/name",
-            value: $("#OrderName").val(),
-          },
-        ];
-
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          data: JSON.stringify(data),
-          headers: {
-            Accept: "application/json",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          success: function (resultData) {
-            displayMessage("Success", "Twoje zamówienie zostało stworzone.");
-            window.setTimeout(function () {
-              window.location.replace(
-                "https://" +
-                  DomainName +
-                  "/app/orders/order?orderId=" +
-                  response.orderId +
-                  "&shopKey=" +
-                  shopKey
-              );
-            }, 1000);
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            displayMessage(
-              "Error",
-              "Oops! Coś poszło nie tak. Proszę spróbuj ponownie."
-            );
-          },
-        });
-      } else {
-        jsonResponse = JSON.parse(xhr.responseText);
-        console.log(xhr);
-        var msg = "";
-        if (xhr.status === 0) {
-          msg = "Not connect.\n Verify Network.";
-        } else if (xhr.status === 400) {
-          msg = jsonResponse.message;
-
-          // Extract the file name from the message
-          const fileNameMatch = msg.match(/Incorrect file \[(.*?)\]/);
-          const fileName = fileNameMatch ? fileNameMatch[1] : "Nieznany plik";
-
-          // Use regular expression to find the product list string after "Missing GTIN code for products"
-          const match = msg.match(/Missing GTIN code for products \[(.*?)\]/);
-          if (match && match[1]) {
-            // Extract the product list string
-            const productListString = match[1];
-
-            // Split the string into an array of product-price pairs
-            const products = productListString.split(", ");
-
-            function createTable(products, fileName) {
-              const table = document.createElement("table");
-              table.style.border = "1px solid black";
-              table.style.borderCollapse = "collapse";
-
-              // Add additional header row for file name
-              const fileHeaderRow = document.createElement("tr");
-              const fileHeaderCell = document.createElement("th");
-              fileHeaderCell.setAttribute("colspan", "2");
-              fileHeaderCell.textContent = `${fileName}`;
-              fileHeaderRow.appendChild(fileHeaderCell);
-              table.appendChild(fileHeaderRow);
-
-              // Add table header for products
-              const headerRow = document.createElement("tr");
-              const header = document.createElement("th");
-              header.textContent = "Produkt";
-              header.style.border = "1px solid black";
-              headerRow.appendChild(header);
-              table.appendChild(headerRow);
-
-              // Add rows for each product
-              products.forEach((product) => {
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.textContent = product;
-                cell.style.border = "1px solid black";
-                row.appendChild(cell);
-                table.appendChild(row);
-              });
-
-              return table;
-            }
-
-            // Clear existing content and append the new table to the element with ID 'messageText'
-            $("#messageText").empty().append(createTable(products, fileName));
-            $("#orderuploadmodal").hide();
-            $("#wronggtinsmodal").css("display", "flex");
-            // Do not clear the file input in case of 400 error
-          } else {
-            // Handle cases where the product list is not found
-            displayMessage("Error", "Niepoprawny plik zamówienia: " + fileName);
-          }
-        } else if (xhr.status === 403) {
-          msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-        } else if (xhr.status === 500) {
-          msg = "Internal Server Error [500].";
-          $("#orderfile").val("");
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        $("#waitingdots").hide();
+        if (xhr.status === 201) {
+          handleSuccess(xhr);
         } else {
-          msg = jsonResponse.message;
-          $("#orderfile").val("");
+          handleError(xhr);
         }
-        displayMessage("Error", msg);
       }
-      // Existing logic for handling the response
     };
+
     xhr.send(formData);
+  }
+
+  function handleSuccess(xhr) {
+    var response = JSON.parse(xhr.responseText);
+    var orderUrl =
+      InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
+    updateOrderName(orderUrl, $("#OrderName").val());
+  }
+
+  function updateOrderName(url, newName) {
+    $.ajax({
+      type: "PATCH",
+      url: url,
+      contentType: "application/json",
+      dataType: "json",
+      data: JSON.stringify([{ op: "add", path: "/name", value: newName }]),
+      headers: {
+        Accept: "application/json",
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function () {
+        displayMessage("Success", "Twoje zamówienie zostało stworzone.");
+        setTimeout(function () {
+          window.location.replace(
+            "https://" +
+              DomainName +
+              "/app/orders/order?orderId=" +
+              response.orderId +
+              "&shopKey=" +
+              shopKey
+          );
+        }, 1000);
+      },
+      error: function (jqXHR, textStatus) {
+        console.log(jqXHR);
+        console.log(textStatus);
+        displayMessage(
+          "Error",
+          "Oops! Coś poszło nie tak. Proszę spróbuj ponownie."
+        );
+      },
+    });
+  }
+
+  function handleError(xhr) {
+    var jsonResponse;
+    try {
+      jsonResponse = JSON.parse(xhr.responseText);
+    } catch (e) {
+      displayMessage("Error", "Nie można przetłumaczyć odpowiedzi serwera.");
+      return;
+    }
+
+    var errorMessage =
+      jsonResponse.message ||
+      "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+
+    // Custom handling for unsupported file format
+    if (errorMessage.includes("Unsupported file format")) {
+      var fileName = errorMessage.match(/\[([^\]]+)\]/)[1]; // Extracts filename within brackets
+      errorMessage = "Nieobsługiwany format dla pliku: " + fileName;
+    }
+
+    displayMessage("Error", errorMessage);
   }
 
   cancelButton.addEventListener("click", () => {
