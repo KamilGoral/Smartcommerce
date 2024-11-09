@@ -893,6 +893,10 @@ docReady(function () {
       $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
       console.log("Adjusting");
     }, 4000);
-    LoadTippy();
+    setTimeout(function () {
+      // Your code to adjust DataTable columns
+      LoadTippy();
+      console.log("Tippy activate");
+    }, 6000);
   });
 });
