@@ -2012,7 +2012,6 @@ docReady(function () {
             // Do not clear the file input in case of 400 error
           } else {
             // Handle cases where the product list is not found
-            console.error("Product list not found in the message.");
             displayMessage("Error", "Niepoprawny plik zamówienia: " + fileName);
           }
         } else if (xhr.status === 403) {
@@ -2024,11 +2023,7 @@ docReady(function () {
           msg = jsonResponse.message;
           $("#orderfile").val("");
         }
-        $(".warningmessagetext").text(msg);
-        $("#wf-form-failCreate-Order").show();
-        setTimeout(function () {
-          $("#wf-form-failCreate-Order").fadeOut(2000);
-        }, 10000);
+        displayMessage("Error", msg);
       }
       // Existing logic for handling the response
     };
