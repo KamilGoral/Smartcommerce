@@ -402,13 +402,13 @@ docReady(function () {
           switch (statusText) {
             case "waiting":
               statusText = "Oczekujący";
-              statusClass = "neutral";
+              statusClass = "medium";
               break;
             case "in progress":
               statusText = "W trakcie";
-              statusClass = "positive";
+              statusClass = "informative";
               break;
-            case "ready":
+            case "success":
               statusText = "Gotowa";
               statusClass = "positive";
               break;
@@ -461,7 +461,7 @@ docReady(function () {
           pricatStatus.innerHTML = shopsData
             .map(
               (shop) =>
-                `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
+                `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`
             )
             .join(", ");
         }

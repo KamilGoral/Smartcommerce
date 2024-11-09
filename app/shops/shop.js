@@ -640,7 +640,7 @@ docReady(function () {
           return '<span class="medium">Niekompletna</span>';
         case "batching":
         case "forced":
-          return '<span class="medium">W kolejce</span>';
+          return '<span class="informative">W kolejce</span>';
         default:
           return "-";
       }

@@ -453,6 +453,7 @@ docReady(function () {
         // Determine the MIME type based on file extension, default to text/plain
         let fileType = "text/plain"; // Default MIME type
         const fileExtension = uploadedFile.name.split(".").pop().toLowerCase();
+        console.log(fileExtension);
 
         switch (fileExtension) {
           case "csv":
@@ -470,6 +471,8 @@ docReady(function () {
             fileType = "text/plain";
             break;
         }
+
+        console.log(fileExtension);
 
         const jsonData = {
           wholesalerKey: wholesalerKey,
@@ -489,6 +492,8 @@ docReady(function () {
           new Blob([uploadedFile], { type: fileType }),
           uploadedFile.name
         );
+
+        console.log(formData);
 
         var uploadEndpoint = InvokeURL + "van/transactions";
         $("#waitingdots").show();
