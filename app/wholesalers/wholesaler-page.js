@@ -332,8 +332,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var doneBlock = $("#wf-form-Reset-password-done", container);
-        var failBlock = $("#wf-form-Reset-password-fail", container);
+        var doneBlock = $("#wf-form-reset-password-done", container);
+        var failBlock = $("#wf-form-reset-password-fail", container);
         var baseAction =
           InvokeURL + "wholesalers/" + wholesalerKey + "/ftp/reset-password";
         var method = "GET";
@@ -369,6 +369,7 @@ docReady(function () {
                 return;
               }
             }
+            form.hide();
             const resetpasswordtext =
               document.getElementById("resetpasswordtext");
             resetpasswordtext.textContent =
