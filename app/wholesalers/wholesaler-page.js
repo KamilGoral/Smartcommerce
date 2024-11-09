@@ -379,7 +379,6 @@ docReady(function () {
             ftpUsername.textContent = resultData.credentials.username;
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
-
             $("#wf-form-reset-wholesaler-done").css("display", "block");
             doneBlock.show();
             failBlock.hide();

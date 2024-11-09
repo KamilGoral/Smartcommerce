@@ -1914,6 +1914,16 @@ docReady(function () {
     var orderUrl =
       InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
     updateOrderName(orderUrl, $("#OrderName").val());
+    setTimeout(function () {
+      window.location.replace(
+        "https://" +
+          DomainName +
+          "/app/orders/order?orderId=" +
+          response.orderId +
+          "&shopKey=" +
+          shopKey
+      );
+    }, 1000);
   }
 
   function updateOrderName(url, newName) {
