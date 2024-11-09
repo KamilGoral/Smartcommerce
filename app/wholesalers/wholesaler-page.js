@@ -369,22 +369,17 @@ docReady(function () {
                 return;
               }
             }
-            $("#resetPasswordModal").hide();
-            form.hide();
-            displayMessage("Success", "Gotowe! Hasło zostało zresetowane! Nowe hasło to: " +
-                resultData.credentials.password +
-                ". Za moment strona zostanie odświeżona");
+            const resetpasswordtext =
+              document.getElementById("resetpasswordtext");
+            resetpasswordtext.textContent =
+              "Nowe hasło to: " + resultData.credentials.password;
 
             const ftpUsername = document.getElementById("ftpUsername");
             ftpUsername.textContent = resultData.credentials.username;
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
-
             doneBlock.show();
             failBlock.hide();
-            window.setTimeout(function () {
-              location.reload();
-            }, 15000);
           },
           error: function (jqXHR, exception) {
             console.log(jqXHR);
@@ -405,7 +400,7 @@ docReady(function () {
             } else {
               msg = "" + jqXHR.responseJSON.message;
             }
-            displayMessage("Error",msg)
+            displayMessage("Error", msg);
             form.show();
             doneBlock.hide();
             failBlock.show();
