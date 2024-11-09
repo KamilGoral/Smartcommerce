@@ -2013,6 +2013,7 @@ docReady(function () {
           } else {
             // Handle cases where the product list is not found
             console.error("Product list not found in the message.");
+            displayMessage("Error", "Niepoprawny plik zamówienia: " + fileName);
           }
         } else if (xhr.status === 403) {
           msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
