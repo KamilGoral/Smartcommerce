@@ -89,13 +89,35 @@ docReady(function () {
   $("#tenantButton").click(function () {
     var name = $("#tenantName").val();
     var taxId = $("#tenantTaxId").val();
+    var isValid = true; // Flaga do monitorowania walidacji
 
-    if (!name || !taxId) {
-      // Handle missing input
-      displayWarningMessage("Proszę wypełnić wszystkie pola.");
-      return;
+    // Walidacja pola tenantName
+    if (!name) {
+      displayWarningMessage("Proszę wypełnić pole nazwy.");
+      isValid = false;
+    } else if (name.length < 3 || name.length > 32) {
+      displayWarningMessage("Nazwa musi mieć od 3 do 32 znaków.");
+      isValid = false;
+    } else if (!/^([A-Za-z0-9]+-)*[A-Za-z0-9]+$/.test(name)) {
+      displayWarningMessage(
+        "Nazwa może zawierać tylko znaki alfanumeryczne oraz myślniki, bez myślnika na początku i końcu."
+      );
+      isValid = false;
     }
 
+    // Walidacja pola tenantTaxId
+    if (!taxId) {
+      displayWarningMessage("Proszę wypełnić pole NIP.");
+      isValid = false;
+    } else if (taxId.length !== 10 || !/^[0-9]{10}$/.test(taxId)) {
+      displayWarningMessage("NIP musi składać się dokładnie z 10 cyfr.");
+      isValid = false;
+    }
+
+    // Jeśli walidacja nie przeszła, zakończ
+    if (!isValid) return;
+
+    // Jeśli walidacja przeszła, kontynuuj proces wysyłki
     var action = InvokeURL + "tenants";
     var data = {
       name: name,
@@ -132,7 +154,7 @@ docReady(function () {
         LoginIntoOrganization();
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        // Display error message on the current slide
+        // Wyświetl komunikat błędu na aktualnym slajdzie
         var errorMsg =
           "Błąd: " +
           (jqXHR.responseJSON && jqXHR.responseJSON.message
