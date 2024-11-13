@@ -370,12 +370,15 @@ docReady(function () {
               }
             }
             form.hide();
+            const ftpUsernameVal = document.getElementById("ftpUsername").textContent;
+
             const resetpasswordtext =
               document.getElementById("resetpasswordtext");
-            resetpasswordtext.textContent =
-              "Nowe hasło to: " + resultData.credentials.password;
+              resetpasswordtext.innerHTML =
+              "Login: " + ftpUsernameVal + "<br />";
+              resetpasswordtext.innerHTML +=
+              "Hasło: " + resultData.credentials.password + "<br />";
 
-            const ftpUsername = document.getElementById("ftpUsername");
             ftpUsername.textContent = resultData.credentials.username;
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");

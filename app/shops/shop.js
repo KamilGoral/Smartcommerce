@@ -1971,24 +1971,31 @@ docReady(function () {
   function handleError(xhr) {
     var jsonResponse;
     try {
-      jsonResponse = JSON.parse(xhr.responseText);
+        jsonResponse = JSON.parse(xhr.responseText);
     } catch (e) {
-      displayMessage("Error", "Nie można przetłumaczyć odpowiedzi serwera.");
-      return;
+        displayMessage("Error", "Nie można przetłumaczyć odpowiedzi serwera.");
+        return;
     }
 
     var errorMessage =
-      jsonResponse.message ||
-      "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+        jsonResponse.message ||
+        "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
 
     // Custom handling for unsupported file format
     if (errorMessage.includes("Unsupported file format")) {
-      var fileName = errorMessage.match(/\[([^\]]+)\]/)[1]; // Extracts filename within brackets
-      errorMessage = "Nieobsługiwany format dla pliku: " + fileName;
+        var fileName = errorMessage.match(/\[([^\]]+)\]/)[1]; // Extracts filename within brackets
+        errorMessage = "Nieobsługiwany format dla pliku: " + fileName;
+    }
+
+    // Custom handling for GTIN code length error
+    if (errorMessage.includes("GTIN code is too long")) {
+        var fileName = errorMessage.match(/\[([^\]]+)\]/)[1]; // Extracts filename within brackets
+        errorMessage = "Nieprawidłowy plik [" + fileName + "]. Kod GTIN jest zbyt długi (maks. 14 znaków) dla niektórych produktów.";
     }
 
     displayMessage("Error", errorMessage);
-  }
+}
+
 
   cancelButton.addEventListener("click", () => {
     const modal = document.getElementById("wronggtinsmodal");
