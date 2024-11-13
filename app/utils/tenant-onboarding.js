@@ -28,9 +28,13 @@ docReady(function () {
     document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
   }
 
-  function displayWarningMessage(message) {
-    $(".warningmessagetext").text(message);
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   function getCookieNameByValue(searchValue) {
     const cookies = document.cookie.split("; ");
@@ -93,13 +97,14 @@ docReady(function () {
 
     // Walidacja pola tenantName
     if (!name) {
-      displayWarningMessage("Proszę wypełnić pole nazwy.");
+      displayMessage("Error", "Proszę wypełnić pole nazwy.");
       isValid = false;
     } else if (name.length < 3 || name.length > 32) {
-      displayWarningMessage("Nazwa musi mieć od 3 do 32 znaków.");
+      displayMessage("Error", "Nazwa musi mieć od 3 do 32 znaków.");
       isValid = false;
     } else if (!/^([A-Za-z0-9]+-)*[A-Za-z0-9]+$/.test(name)) {
-      displayWarningMessage(
+      displayMessage(
+        "Error",
         "Nazwa może zawierać tylko znaki alfanumeryczne oraz myślniki, bez myślnika na początku i końcu."
       );
       isValid = false;
@@ -107,10 +112,10 @@ docReady(function () {
 
     // Walidacja pola tenantTaxId
     if (!taxId) {
-      displayWarningMessage("Proszę wypełnić pole NIP.");
+      displayMessage("Error", "Proszę wypełnić pole NIP.");
       isValid = false;
     } else if (taxId.length !== 10 || !/^[0-9]{10}$/.test(taxId)) {
-      displayWarningMessage("NIP musi składać się dokładnie z 10 cyfr.");
+      displayMessage("Error", "NIP musi składać się dokładnie z 10 cyfr.");
       isValid = false;
     }
 
@@ -160,7 +165,7 @@ docReady(function () {
           (jqXHR.responseJSON && jqXHR.responseJSON.message
             ? jqXHR.responseJSON.message
             : textStatus);
-        displayWarningMessage(errorMsg);
+        displayMessage("Error", errorMsg);
       },
     });
   });
@@ -524,8 +529,7 @@ docReady(function () {
         if (typeof onErrorCallback === "function") {
           onErrorCallback();
         }
-
-        $(".warningmessagetext").text(msg);
+        displayMessage("Error", msg);
         form.show();
         doneBlock.hide();
         failBlock.show();
