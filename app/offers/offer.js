@@ -1570,7 +1570,10 @@ docReady(function () {
     var output = "";
 
     for (var i = 0; i < values.length; i++) {
-      output += "<p class='filterfont'>" + values[i] + "</p>";
+      output +=
+        "<p class='text-size-tiny text-color-grey offerstatus nomargin'>" +
+        values[i] +
+        "</p>";
       if ((i + 1) % 5 === 0) {
         output += "<br>";
       }
