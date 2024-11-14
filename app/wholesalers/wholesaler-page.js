@@ -240,7 +240,7 @@ docReady(function () {
 
         // Check if the 'notifyWholesalerCreate' checkbox is visible, enabled, and checked
         var notifyWholesalerCheckbox = $("#notifyWholesalerCreate");
-        var action = baseAction; // Initialize action with base URL
+        var action = baseAction;
 
         if (
           notifyWholesalerCheckbox.is(":visible") &&
@@ -250,9 +250,81 @@ docReady(function () {
           action += "?notifyWholesaler=true";
         }
 
+        // Define the updateStatus function locally
+        function updateStatus(wholesalerKey, onErrorCallback) {
+          var data = [
+            {
+              op: "replace",
+              path: "/enabled",
+              value: true,
+            },
+          ];
+
+          $.ajax({
+            type: "PATCH",
+            url: InvokeURL + "wholesalers/" + wholesalerKey,
+            cors: true,
+            beforeSend: function () {
+              $("#waitingdots").show();
+            },
+            complete: function () {
+              $("#waitingdots").hide();
+            },
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+            data: JSON.stringify(data),
+            success: function (resultData) {
+              if (typeof successCallback === "function") {
+                result = successCallback(resultData);
+                if (!result) {
+                  displayMessage(
+                    "Error",
+                    "Nie udało się zmienić statusu. Spróbuj ponownie."
+                  );
+                  return;
+                }
+              }
+            },
+            error: function (jqXHR, exception) {
+              var msg = "";
+              if (jqXHR.status === 0) {
+                msg = "Nie masz połączenia z internetem.";
+              } else if (jqXHR.status == 404) {
+                msg = "Nie znaleziono strony";
+              } else if (jqXHR.status == 403) {
+                msg = "Nie masz uprawnień do tej czynności";
+              } else if (jqXHR.status == 409) {
+                msg =
+                  "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
+              } else if (jqXHR.status == 500) {
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+              } else if (exception === "parsererror") {
+                msg = "Nie udało się odczytać danych";
+              } else if (exception === "timeout") {
+                msg = "Przekroczony czas oczekiwania";
+              } else if (exception === "abort") {
+                msg = "Twoje żądanie zostało zaniechane";
+              } else {
+                msg = "" + jqXHR.responseJSON.message;
+              }
+              displayMessage("Error", msg);
+              if (onErrorCallback) {
+                onErrorCallback(msg);
+              }
+            },
+          });
+        }
+
         // Check if the #Iftp element has the "enabled" class
         if (!$("#Iftp").hasClass("enabled")) {
-          // Send request to activate the wholesaler first
+          // Activate the wholesaler first if not enabled
           updateStatus(wholesalerKey, function (error) {
             if (error) {
               failBlock.show();
@@ -323,8 +395,6 @@ docReady(function () {
               failBlock.hide();
             },
             error: function (jqXHR, exception) {
-              console.log(jqXHR);
-              console.log(exception);
               var msg = "";
               if (jqXHR.status === 0) {
                 msg = "Not connect.\n Verify Network.";
