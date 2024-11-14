@@ -3345,7 +3345,7 @@ docReady(function () {
     })
     .then(() => {
       setTimeout(function () {
-        LoadTippy();
+        loadTippy();
       }, 1000);
     })
     .catch((error) => {

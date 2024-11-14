@@ -916,7 +916,7 @@ docReady(function () {
     }, 4000);
     setTimeout(function () {
       // Your code to adjust DataTable columns
-      LoadTippy();
+      loadTippy();
       console.log("Tippy activate");
     }, 6000);
   });

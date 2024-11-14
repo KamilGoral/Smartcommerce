@@ -797,5 +797,5 @@ docReady(function () {
   getInvitations();
   getOrganizations();
   getUser();
-  LoadTippy();
+  loadTippy();
 });

@@ -585,5 +585,5 @@ docReady(function () {
 
   loadTippy();
 
-  LoadTippy();
+  loadTippy();
 });

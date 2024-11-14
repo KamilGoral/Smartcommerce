@@ -910,7 +910,7 @@ docReady(function () {
   getWholesalersSh();
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
-  LoadTippy();
+  loadTippy();
 
   $(document).ready(function () {
     $.fn.dataTable.ext.errMode = () =>

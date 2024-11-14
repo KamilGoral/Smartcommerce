@@ -3242,7 +3242,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
-      LoadTippy();
+      loadTippy();
     }
   });
 
@@ -3530,7 +3530,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
-      LoadTippy();
+      loadTippy();
     }
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
@@ -3757,7 +3757,7 @@ docReady(function () {
   // DataTables initialization and event handling
   $("table.dataTable").on("init.dt xhr.dt page.dt", function () {
     $(this).DataTable().columns.adjust();
-    LoadTippy();
+    loadTippy();
   });
 
   $(document).ready(function ($) {

@@ -1558,7 +1558,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
-      LoadTippy();
+      loadTippy();
     }
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
@@ -1758,7 +1758,7 @@ docReady(function () {
 
   $("table.dataTable").on("init.dt xhr.dt", function () {
     $(this).DataTable().columns.adjust();
-    LoadTippy();
+    loadTippy();
   });
 
   $("table.dataTable").on("page.dt", function () {

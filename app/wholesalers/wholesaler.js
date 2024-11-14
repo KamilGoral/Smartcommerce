@@ -599,7 +599,7 @@ docReady(function () {
         console.log("here");
       }
       //loadTippyContent need to be there//
-      LoadTippy();
+      loadTippy();
     };
     request.send();
   }
