@@ -546,7 +546,9 @@ docReady(function () {
       const script = document.createElement("script");
       script.src =
         "https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js";
-      script.onload = resolve;
+      script.onload = () => {
+        resolve();
+      };
       script.onerror = reject;
       document.body.appendChild(script);
     });
@@ -557,15 +559,20 @@ docReady(function () {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          tippy(entry.target, {
-            theme: "light",
-            animation: "scale",
-            duration: [250, 250],
-            arrow: true,
-            delay: [0, 50],
-            maxWidth: 240,
-          });
-          observer.unobserve(entry.target);
+          // Check if tippy is available before using it
+          if (typeof tippy !== "undefined") {
+            tippy(entry.target, {
+              theme: "light",
+              animation: "scale",
+              duration: [250, 250],
+              arrow: true,
+              delay: [0, 50],
+              maxWidth: 240,
+            });
+            observer.unobserve(entry.target);
+          } else {
+            console.error("Tippy.js did not load correctly.");
+          }
         }
       });
     });
