@@ -760,12 +760,9 @@ docReady(function () {
 
   function initializeTippyTooltips() {
     const elements = document.querySelectorAll("[data-tippy-content]");
-
-    // Set up the IntersectionObserver for lazy loading
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          // Initialize tippy for the element that becomes visible
           tippy(entry.target, {
             theme: "light",
             animation: "scale",
@@ -774,18 +771,14 @@ docReady(function () {
             delay: [0, 50],
             maxWidth: 240,
           });
-
-          // Unobserve the element after initializing tippy to prevent re-initializing
           observer.unobserve(entry.target);
         }
       });
     });
 
-    // Observe each tippy element
     elements.forEach((element) => observer.observe(element));
   }
 
-  // Load tippy.js script and initialize tooltips after it’s loaded
   function loadTippy() {
     loadTippyScript()
       .then(() => {
@@ -796,7 +789,6 @@ docReady(function () {
       });
   }
 
-  // Call the loadTippy function to start the process
   loadTippy();
 
   postChangePassword($("#wf-form-Form-Change-Password"));
