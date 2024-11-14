@@ -598,6 +598,4 @@ docReady(function () {
 
   // Initialize tooltips on page load
   initializeSimpleTooltips();
-
-  initializeSimpleTooltips();
 });

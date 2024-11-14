@@ -3753,6 +3753,61 @@ docReady(function () {
   getWholesalersSh();
   fetchDataFromEndpoint();
 
+  function initializeSimpleTooltips() {
+    // CSS styling for tooltip
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .newtippy {
+      position: absolute;
+      background-color: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+  `;
+    document.head.appendChild(style);
+
+    const elements = document.querySelectorAll("[data-tippy-content]");
+
+    elements.forEach((element) => {
+      element.addEventListener("mouseenter", (event) => {
+        const tooltipText = element.getAttribute("data-tippy-content");
+        if (!tooltipText) return;
+
+        // Create tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.className = "newtippy";
+        tooltip.textContent = tooltipText;
+        document.body.appendChild(tooltip);
+
+        // Position tooltip
+        const rect = element.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+        tooltip.style.top = `${
+          rect.top + window.scrollY - tooltip.offsetHeight - 5
+        }px`;
+        tooltip.style.opacity = "1";
+
+        // Center tooltip
+        tooltip.style.left = `${
+          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+        }px`;
+
+        // Mouseleave event to remove tooltip
+        element.addEventListener("mouseleave", () => {
+          tooltip.style.opacity = "0";
+          setTimeout(() => tooltip.remove(), 200); // Delay for fade-out effect
+        });
+      });
+    });
+  }
+
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
   postChangePassword($("#wf-form-Form-Change-Password"));

@@ -1571,6 +1571,9 @@ docReady(function () {
 
     for (var i = 0; i < values.length; i++) {
       output += "<p class='filterfont'>" + values[i] + "</p>";
+      if ((i + 1) % 5 === 0) {
+        output += "<br>";
+      }
     }
 
     popupContent.innerHTML = output;
@@ -1607,38 +1610,6 @@ docReady(function () {
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
-  var tippyLoaded = false;
-
-  function LoadTippy() {
-    if (tippyLoaded) {
-      applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
-      return;
-    }
-
-    $.getScript("https://unpkg.com/popper.js@1", function () {
-      $.getScript("https://unpkg.com/tippy.js@4", function () {
-        tippyLoaded = true;
-        applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
-      });
-    });
-  }
-
-  function applyTippyTooltips() {
-    tippy(".tippy:not([data-tippy-initialized])", {
-      theme: "light",
-      animation: "scale",
-      duration: 250,
-      arrow: true,
-      allowHTML: true,
-      arrowType: "round",
-      delay: [0, 50],
-      maxWidth: 240,
-      onShow(instance) {
-        instance.reference.setAttribute("data-tippy-initialized", "true");
-      },
-    });
-  }
-
   function getWholesalersSh() {
     let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
     let request = new XMLHttpRequest();
@@ -1666,6 +1637,61 @@ docReady(function () {
       }
     };
     request.send();
+  }
+
+  function initializeSimpleTooltips() {
+    // CSS styling for tooltip
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .newtippy {
+      position: absolute;
+      background-color: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+  `;
+    document.head.appendChild(style);
+
+    const elements = document.querySelectorAll("[data-tippy-content]");
+
+    elements.forEach((element) => {
+      element.addEventListener("mouseenter", (event) => {
+        const tooltipText = element.getAttribute("data-tippy-content");
+        if (!tooltipText) return;
+
+        // Create tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.className = "newtippy";
+        tooltip.textContent = tooltipText;
+        document.body.appendChild(tooltip);
+
+        // Position tooltip
+        const rect = element.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+        tooltip.style.top = `${
+          rect.top + window.scrollY - tooltip.offsetHeight - 5
+        }px`;
+        tooltip.style.opacity = "1";
+
+        // Center tooltip
+        tooltip.style.left = `${
+          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+        }px`;
+
+        // Mouseleave event to remove tooltip
+        element.addEventListener("mouseleave", () => {
+          tooltip.style.opacity = "0";
+          setTimeout(() => tooltip.remove(), 200); // Delay for fade-out effect
+        });
+      });
+    });
   }
 
   getOfferStatus();
