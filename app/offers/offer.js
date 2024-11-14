@@ -1570,12 +1570,18 @@ docReady(function () {
     var output = "";
 
     for (var i = 0; i < values.length; i++) {
-      output +=
-        "<p class='text-size-tiny text-color-grey offerstatus nomargin'>" +
-        values[i] +
-        "</p>";
-      if ((i + 1) % 5 === 0) {
-        output += "<br>";
+      // Start a new row every 5 items
+      if (i % 5 === 0) {
+        output +=
+          "<p class='text-size-tiny text-color-grey offerstatus nomargin'>";
+      }
+
+      // Add code with a space after it
+      output += values[i] + " ";
+
+      // Close the row after 5 items or at the end
+      if ((i + 1) % 5 === 0 || i === values.length - 1) {
+        output += "</p>";
       }
     }
 
