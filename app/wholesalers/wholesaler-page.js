@@ -293,11 +293,10 @@ docReady(function () {
             $("#credentials").show();
             $("#createserver").hide();
 
-            if ($("#whVan").text() === "Tak") {
-              $("#successvan").css("display", "flex");
-            } else {
-              doneBlock.show();
-            }
+            const isVan = $("#whVan").text() === "Tak";
+            $("#successvan").css("display", isVan ? "flex" : "none");
+            $("#successnovan").css("display", isVan ? "none" : "flex");
+            doneBlock.show();
 
             failBlock.hide();
           },
@@ -394,11 +393,10 @@ docReady(function () {
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
 
-            if ($("#whVan").text() === "Tak") {
-              $("#successvanreset").css("display", "flex");
-            } else {
-              doneBlock.show();
-            }
+            doneBlock.show();
+            const isVan = $("#whVan").text() === "Tak";
+            $("#successvanreset").css("display", isVan ? "flex" : "none");
+            $("#successnovanreset").css("display", isVan ? "none" : "flex");
 
             failBlock.hide();
           },
