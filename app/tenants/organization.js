@@ -3277,32 +3277,35 @@ docReady(function () {
 
   function LoadTippy() {
     // Load tippy.js once via AJAX
-    $.getScript("https://unpkg.com/tippy.js@6", function () {
-      const elements = document.querySelectorAll("[data-tippy-content]");
+    $.getScript(
+      "https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js",
+      function () {
+        const elements = document.querySelectorAll("[data-tippy-content]");
 
-      // Set up the IntersectionObserver for lazy loading
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Initialize tippy for the element that becomes visible
-            tippy(entry.target, {
-              theme: "light",
-              animation: "scale",
-              duration: [250, 250],
-              arrow: true,
-              delay: [0, 50],
-              maxWidth: 240,
-            });
+        // Set up the IntersectionObserver for lazy loading
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              // Initialize tippy for the element that becomes visible
+              tippy(entry.target, {
+                theme: "light",
+                animation: "scale",
+                duration: [250, 250],
+                arrow: true,
+                delay: [0, 50],
+                maxWidth: 240,
+              });
 
-            // Unobserve the element after initializing tippy to prevent re-initializing
-            observer.unobserve(entry.target);
-          }
+              // Unobserve the element after initializing tippy to prevent re-initializing
+              observer.unobserve(entry.target);
+            }
+          });
         });
-      });
 
-      // Observe each tippy element
-      elements.forEach((element) => observer.observe(element));
-    });
+        // Observe each tippy element
+        elements.forEach((element) => observer.observe(element));
+      }
+    );
   }
 
   getShops();
