@@ -851,23 +851,16 @@ docReady(function () {
 
   function LoadTippy() {
     $.getScript(
-      "https://unpkg.com/popper.js@1",
+      "https://unpkg.com/tippy.js@6",
       function (data, textStatus, jqxhr) {
-        $.getScript(
-          "https://unpkg.com/tippy.js@4",
-          function (data, textStatus, jqxhr) {
-            tippy(".tippy", {
-              // Add the class tippy to your element
-              theme: "light", // Dark or Light
-              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
-              duration: 250, // Duration of the Animation
-              arrow: true, // Add arrow to the tooltip
-              arrowType: "round", // Sharp, round or empty for none
-              delay: [0, 50], // Trigger delay in & out
-              maxWidth: 240, // Optional, max width settings
-            });
-          }
-        );
+        tippy(".tippy", {
+          theme: "light", // Opcje: 'light' lub 'dark'
+          animation: "scale", // Opcje: 'scale', 'shift-away', 'shift-toward', 'perspective'
+          duration: [250, 250], // Czas trwania animacji (otwarcie i zamknięcie)
+          arrow: true, // Dodaje strzałkę
+          delay: [0, 50], // Opóźnienie przy włączeniu i wyłączeniu
+          maxWidth: 240, // Maksymalna szerokość tooltipa
+        });
       }
     );
   }
