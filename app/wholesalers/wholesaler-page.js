@@ -266,7 +266,9 @@ docReady(function () {
               $("#waitingdots").show();
             },
             complete: function () {
-              $("#waitingdots").hide();
+              setTimeout(function () {
+                $("#waitingdots").hide();
+              }, 2000); // Ukryj element po 2 sekundach (2000 ms)
             },
             contentType: "application/json",
             dataType: "json",
@@ -281,9 +283,6 @@ docReady(function () {
               if (jqXHR.status === 200) {
                 // Jeśli updateStatus zwrócił 200, wywołaj żądanie utworzenia serwera
                 sendCreateServerRequest();
-                setTimeout(function () {
-                  $("#waitingdots").hide();
-                }, 2000); // Ukryj element po 2 sekundach (2000 ms)
               } else {
                 displayMessage(
                   "Error",
