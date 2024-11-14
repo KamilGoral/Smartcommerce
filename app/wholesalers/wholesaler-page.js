@@ -128,6 +128,7 @@ docReady(function () {
         const whState = document.getElementById("whState");
         const whPostcode = document.getElementById("whPostcode");
         const whLogo = document.getElementById("whLogo");
+        const whVan = document.getElementById("whVan");
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
         wholesalerName.textContent = data.company;
@@ -142,6 +143,8 @@ docReady(function () {
         const vanElements = document.querySelectorAll('[vanfunction="true"]');
         // Check if vanMember is true
         if (data.vanMember) {
+          whVan.textContent = "Tak";
+
           // Show elements and enable/check checkboxes
           vanElements.forEach(function (element) {
             element.style.display = "flex";
@@ -155,6 +158,7 @@ docReady(function () {
           });
         } else {
           // Hide elements and disable/uncheck checkboxes
+          whVan.textContent = "Nie";
           vanElements.forEach(function (element) {
             // Hide the element
             element.style.display = "none";
@@ -276,11 +280,12 @@ docReady(function () {
               }
             }
             form.hide();
-            const credentialsbox = document.getElementById("credentialsbox");
-            credentialsbox.innerHTML =
-              "Login: " + resultData.credentials.username + "<br />";
-            credentialsbox.innerHTML +=
-              "Hasło: " + resultData.credentials.password + "<br />";
+            const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
+
+            document.getElementById("credentialsbox").innerHTML =
+              credentialsHTML;
+            document.getElementById("credentialsvan").innerHTML =
+              credentialsHTML;
 
             const ftpUsername = document.getElementById("ftpUsername");
             ftpUsername.textContent = resultData.credentials.username;
@@ -288,7 +293,12 @@ docReady(function () {
             $("#credentials").show();
             $("#createserver").hide();
 
-            doneBlock.show();
+            if ($("#whVan").text() === "TAK") {
+              $("#successvan").css("display", "flex");
+            } else {
+              doneBlock.show();
+            }
+
             failBlock.hide();
           },
           error: function (jqXHR, exception) {
@@ -370,19 +380,26 @@ docReady(function () {
               }
             }
             form.hide();
-            const ftpUsernameVal = document.getElementById("ftpUsername").textContent;
+            const ftpUsernameVal =
+              document.getElementById("ftpUsername").textContent;
 
-            const resetpasswordtext =
-              document.getElementById("resetpasswordtext");
-              resetpasswordtext.innerHTML =
-              "Login: " + ftpUsernameVal + "<br />";
-              resetpasswordtext.innerHTML +=
-              "Hasło: " + resultData.credentials.password + "<br />";
+            const credentialsHTML = `Login: ${ftpUsernameVal}<br />Hasło: ${resultData.credentials.password}<br />`;
+
+            document.getElementById("resetpasswordtext").innerHTML =
+              credentialsHTML;
+            document.getElementById("credentialsvanreset").innerHTML =
+              credentialsHTML;
 
             ftpUsername.textContent = resultData.credentials.username;
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
-            $("#wf-form-reset-wholesaler-done").css("display", "block");
+
+            if ($("#whVan").text() === "TAK") {
+              $("#successvanreset").css("display", "flex");
+            } else {
+              $("#wf-form-reset-wholesaler-done").css("display", "block");
+            }
+
             doneBlock.show();
             failBlock.hide();
           },
