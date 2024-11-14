@@ -1229,37 +1229,32 @@ docReady(function () {
       script.src =
         "https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js";
       script.onload = () => {
+        console.log("Tippy.js loaded successfully");
         resolve();
       };
-      script.onerror = reject;
+      script.onerror = () => {
+        console.error("Failed to load Tippy.js");
+        reject();
+      };
       document.body.appendChild(script);
     });
   }
 
   function initializeTippyTooltips() {
-    const elements = document.querySelectorAll("[data-tippy-content]");
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Check if tippy is available before using it
-          if (typeof tippy !== "undefined") {
-            tippy(entry.target, {
-              theme: "light",
-              animation: "scale",
-              duration: [250, 250],
-              arrow: true,
-              delay: [0, 50],
-              maxWidth: 240,
-            });
-            observer.unobserve(entry.target);
-          } else {
-            console.error("Tippy.js did not load correctly.");
-          }
-        }
+    // Ensure Tippy is available before initializing
+    if (typeof tippy !== "undefined") {
+      // Initialize tooltips on all elements with data-tippy-content
+      tippy("[data-tippy-content]", {
+        theme: "light",
+        animation: "scale",
+        duration: [250, 250],
+        arrow: true,
+        delay: [0, 50],
+        maxWidth: 240,
       });
-    });
-
-    elements.forEach((element) => observer.observe(element));
+    } else {
+      console.error("Tippy is not defined");
+    }
   }
 
   function loadTippy() {
@@ -1268,10 +1263,11 @@ docReady(function () {
         initializeTippyTooltips();
       })
       .catch((error) => {
-        console.error("Failed to load tippy.js:", error);
+        console.error("Failed to initialize Tippy tooltips:", error);
       });
   }
 
+  // Run the load and initialize process
   loadTippy();
 
   //onlineOfferSupport//
