@@ -3359,7 +3359,7 @@ docReady(function () {
     })
     .then(() => {
       setTimeout(function () {
-        loadTippy();
+        initializeSimpleTooltips();
       }, 1000);
     })
     .catch((error) => {

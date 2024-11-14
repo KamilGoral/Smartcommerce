@@ -811,5 +811,4 @@ docReady(function () {
   getInvitations();
   getOrganizations();
   getUser();
-  loadTippy();
 });

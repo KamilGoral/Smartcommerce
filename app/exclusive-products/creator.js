@@ -924,7 +924,7 @@ docReady(function () {
   getWholesalersSh();
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
-  loadTippy();
+  initializeSimpleTooltips();
 
   $(document).ready(function () {
     $.fn.dataTable.ext.errMode = () =>

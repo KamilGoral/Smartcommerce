@@ -930,7 +930,7 @@ docReady(function () {
     }, 4000);
     setTimeout(function () {
       // Your code to adjust DataTable columns
-      loadTippy();
+      initializeSimpleTooltips();
       console.log("Tippy activate");
     }, 6000);
   });
