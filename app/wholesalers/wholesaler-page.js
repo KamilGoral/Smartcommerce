@@ -293,7 +293,7 @@ docReady(function () {
             $("#credentials").show();
             $("#createserver").hide();
 
-            if ($("#whVan").text() === "TAK") {
+            if ($("#whVan").text() === "Tak") {
               $("#successvan").css("display", "flex");
             } else {
               doneBlock.show();
@@ -394,13 +394,12 @@ docReady(function () {
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
 
-            if ($("#whVan").text() === "TAK") {
+            if ($("#whVan").text() === "Tak") {
               $("#successvanreset").css("display", "flex");
             } else {
-              $("#wf-form-reset-wholesaler-done").css("display", "block");
+              doneBlock.show();
             }
 
-            doneBlock.show();
             failBlock.hide();
           },
           error: function (jqXHR, exception) {
