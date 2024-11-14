@@ -852,7 +852,7 @@ docReady(function () {
   function LoadTippy() {
     // Load tippy.js once via AJAX
     $.getScript(
-      "https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js",
+      "https://cdn.prod.website-files.com/6041108bece36760b4e14016/6735fee7962ab9f83886d5ee_tippy.txt",
       function () {
         const elements = document.querySelectorAll("[data-tippy-content]");
 
