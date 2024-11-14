@@ -176,6 +176,8 @@ docReady(function () {
 
         if (data.enabled) {
           getFTP();
+        } else {
+          $("#createserver").show();
         }
 
         whTaxId.textContent = data.taxId;
@@ -202,7 +204,6 @@ docReady(function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         const ftpUsername = document.getElementById("ftpUsername");
-
         ftpUsername.textContent = data.credentials.username;
         $("#Iftp").addClass("enabled");
         $("#credentials").show();
@@ -242,90 +243,113 @@ docReady(function () {
         var action = baseAction; // Initialize action with base URL
 
         if (
-          notifyWholesalerCheckbox.is(":visible") && // Check visibility
-          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
-          notifyWholesalerCheckbox.is(":checked") // Check if checked
+          notifyWholesalerCheckbox.is(":visible") &&
+          !notifyWholesalerCheckbox.is(":disabled") &&
+          notifyWholesalerCheckbox.is(":checked")
         ) {
-          // Append notifyWholesaler parameter to the URL if necessary
           action += "?notifyWholesaler=true";
         }
 
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                return;
+        // Check if the #Iftp element has the "enabled" class
+        if (!$("#Iftp").hasClass("enabled")) {
+          // Send request to activate the wholesaler first
+          updateStatus(wholesalerKey, function (error) {
+            if (error) {
+              failBlock.show();
+              $(".warningmessagetext").text(
+                "Nie udało się aktywować dostawcy."
+              );
+              return;
+            }
+
+            // Now proceed to create the server
+            sendCreateServerRequest();
+          });
+        } else {
+          // If already enabled, proceed directly to create the server
+          sendCreateServerRequest();
+        }
+
+        // Function to handle the server creation request
+        function sendCreateServerRequest() {
+          $.ajax({
+            type: method,
+            url: action,
+            cors: true,
+            beforeSend: function () {
+              $("#waitingdots").show();
+            },
+            complete: function () {
+              $("#waitingdots").hide();
+            },
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+            data: JSON.stringify(data),
+            success: function (resultData) {
+              if (typeof successCallback === "function") {
+                result = successCallback(resultData);
+                if (!result) {
+                  form.show();
+                  doneBlock.hide();
+                  failBlock.show();
+                  return;
+                }
               }
-            }
-            form.hide();
-            const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
+              form.hide();
+              const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
 
-            document.getElementById("credentialsbox").innerHTML =
-              credentialsHTML;
-            document.getElementById("credentialsvan").innerHTML =
-              credentialsHTML;
+              document.getElementById("credentialsbox").innerHTML =
+                credentialsHTML;
+              document.getElementById("credentialsvan").innerHTML =
+                credentialsHTML;
 
-            const ftpUsername = document.getElementById("ftpUsername");
-            ftpUsername.textContent = resultData.credentials.username;
-            $("#Iftp").addClass("enabled");
-            $("#credentials").show();
-            $("#createserver").hide();
+              const ftpUsername = document.getElementById("ftpUsername");
+              ftpUsername.textContent = resultData.credentials.username;
+              $("#Iftp").addClass("enabled");
+              $("#credentials").show();
+              $("#createserver").hide();
 
-            const isVan = $("#whVan").text() === "Tak";
-            $("#successvan").css("display", isVan ? "flex" : "none");
-            $("#successnovan").css("display", isVan ? "none" : "flex");
-            doneBlock.show();
+              const isVan = $("#whVan").text() === "Tak";
+              $("#successvan").css("display", isVan ? "flex" : "none");
+              $("#successnovan").css("display", isVan ? "none" : "flex");
+              doneBlock.show();
 
-            failBlock.hide();
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
-            } else if (jqXHR.status === 403) {
-              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-            } else if (jqXHR.status === 500) {
-              msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-              msg = "Time out error.";
-            } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
-            } else {
-              msg = "" + jqXHR.responseJSON.message;
-            }
-            $(".warningmessagetext").text(msg);
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(5000);
-          },
-        });
+              failBlock.hide();
+            },
+            error: function (jqXHR, exception) {
+              console.log(jqXHR);
+              console.log(exception);
+              var msg = "";
+              if (jqXHR.status === 0) {
+                msg = "Not connect.\n Verify Network.";
+              } else if (jqXHR.status === 403) {
+                msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+              } else if (jqXHR.status === 500) {
+                msg = "Internal Server Error [500].";
+              } else if (exception === "parsererror") {
+                msg = "Requested JSON parse failed.";
+              } else if (exception === "timeout") {
+                msg = "Time out error.";
+              } else if (exception === "abort") {
+                msg = "Ajax request aborted.";
+              } else {
+                msg = "" + jqXHR.responseJSON.message;
+              }
+              $(".warningmessagetext").text(msg);
+              form.show();
+              doneBlock.hide();
+              failBlock.show();
+              failBlock.fadeOut(5000);
+            },
+          });
+        }
+
         event.preventDefault();
         return false;
       });
