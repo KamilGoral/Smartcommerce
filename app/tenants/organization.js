@@ -3279,7 +3279,7 @@ docReady(function () {
     // CSS styling for tooltip
     const style = document.createElement("style");
     style.innerHTML = `
-    .tippy {
+    .newtippy {
       position: absolute;
       background-color: #333;
       color: #fff;
@@ -3304,7 +3304,7 @@ docReady(function () {
 
         // Create tooltip element
         const tooltip = document.createElement("div");
-        tooltip.className = "tippy";
+        tooltip.className = "newtippy";
         tooltip.textContent = tooltipText;
         document.body.appendChild(tooltip);
 
