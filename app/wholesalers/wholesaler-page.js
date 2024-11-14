@@ -233,12 +233,10 @@ docReady(function () {
         var baseAction = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "POST";
 
-        // Prepare data object
         var data = {
           username: $("#Wholesaler-Login").val(),
         };
 
-        // Check if the 'notifyWholesalerCreate' checkbox is visible, enabled, and checked
         var notifyWholesalerCheckbox = $("#notifyWholesalerCreate");
         var action = baseAction;
 
@@ -279,16 +277,15 @@ docReady(function () {
               "Requested-By": "webflow-3-4",
             },
             data: JSON.stringify(data),
-            success: function (resultData) {
-              if (typeof successCallback === "function") {
-                result = successCallback(resultData);
-                if (!result) {
-                  displayMessage(
-                    "Error",
-                    "Nie udało się zmienić statusu. Spróbuj ponownie."
-                  );
-                  return;
-                }
+            success: function (resultData, textStatus, jqXHR) {
+              if (jqXHR.status === 200) {
+                // Jeśli updateStatus zwrócił 200, wywołaj żądanie utworzenia serwera
+                sendCreateServerRequest();
+              } else {
+                displayMessage(
+                  "Error",
+                  "Nie udało się zmienić statusu. Spróbuj ponownie."
+                );
               }
             },
             error: function (jqXHR, exception) {
@@ -333,9 +330,6 @@ docReady(function () {
               );
               return;
             }
-
-            // Now proceed to create the server
-            sendCreateServerRequest();
           });
         } else {
           // If already enabled, proceed directly to create the server
