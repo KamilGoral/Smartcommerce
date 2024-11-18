@@ -397,6 +397,8 @@ docReady(function () {
                 msg = "Not connect.\n Verify Network.";
               } else if (jqXHR.status === 403) {
                 msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+              } else if (jqXHR.status === 409) {
+                msg = "Ta nazwa użytkownika jest zajęta. Spróbuj inną.";
               } else if (jqXHR.status === 500) {
                 msg = "Internal Server Error [500].";
               } else if (exception === "parsererror") {
