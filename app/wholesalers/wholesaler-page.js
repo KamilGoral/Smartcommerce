@@ -175,6 +175,7 @@ docReady(function () {
         }
 
         if (data.enabled) {
+          $("#enabled").addClass("enabled");
           getFTP();
         } else {
           $("#createserver").show();
@@ -322,7 +323,7 @@ docReady(function () {
         }
 
         // Check if the #Iftp element has the "enabled" class
-        if (!$("#Iftp").hasClass("enabled")) {
+        if (!$("#enabled").hasClass("enabled")) {
           // Activate the wholesaler first if not enabled
           updateStatus(wholesalerKey, function (error) {
             if (error) {
