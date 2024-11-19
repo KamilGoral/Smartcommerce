@@ -1096,6 +1096,7 @@ docReady(function () {
         updateTableInputsFromSessionStorage(orderId);
 
         $("#splitted-products").show();
+        initializeSimpleTooltips();
 
         var table = $("#spl_table").DataTable({
           order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
