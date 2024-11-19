@@ -535,7 +535,7 @@ docReady(function () {
         $("#splitedwhcontainer").show();
         var table = $("#table_splited_wh").DataTable({
           pagingType: "full_numbers",
-          pageLength: 10,
+          pageLength: 25,
           destroy: true,
           orderMulti: true,
           order: [[3, "desc"]],
