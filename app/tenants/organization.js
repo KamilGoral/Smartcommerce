@@ -4264,7 +4264,7 @@ docReady(function () {
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
-      setTimeout(function () {
+      function adjustTable() {
         console.log("Adjusting");
         $.fn.dataTable
           .tables({
@@ -4272,7 +4272,20 @@ docReady(function () {
             api: true,
           })
           .columns.adjust();
-      }, 600);
+      }
+
+      function checkAndAdjustTable() {
+        if (
+          $(".dataTables_scrollHeadInner table").width() <
+          $(".dataTables_scrollHead").width()
+        ) {
+          console.log("Header squished, readjusting");
+          adjustTable();
+          setTimeout(checkAndAdjustTable, 200);
+        }
+      }
+
+      checkAndAdjustTable();
     }
   );
 });
