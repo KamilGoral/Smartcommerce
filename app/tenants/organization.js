@@ -4264,28 +4264,19 @@ docReady(function () {
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
-      function adjustTable() {
-        console.log("Adjusting");
-        $.fn.dataTable
-          .tables({
-            visible: true,
-            api: true,
-          })
-          .columns.adjust();
-      }
+      const delays = [301, 401, 501];
 
-      function checkAndAdjustTable() {
-        if (
-          $(".dataTables_scrollHeadInner table").width() <
-          $(".dataTables_scrollHead").width()
-        ) {
-          console.log("Header squished, readjusting");
-          adjustTable();
-          setTimeout(checkAndAdjustTable, 301);
-        }
-      }
-
-      checkAndAdjustTable();
+      delays.forEach((delay) => {
+        setTimeout(function () {
+          console.log(`Adjusting after ${delay}ms`);
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
+        }, delay);
+      });
     }
   );
 });
