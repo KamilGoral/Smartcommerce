@@ -3628,16 +3628,22 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-    }, 300);
-  });
+  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
+    function () {
+      const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(function () {
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
+        }, delay);
+      });
+    }
+  );
 
   var elements = document.getElementsByClassName("splitbutton");
   for (var i = 0; i < elements.length; i++) {
