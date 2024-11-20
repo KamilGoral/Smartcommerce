@@ -992,26 +992,37 @@ docReady(function () {
     const wholesalersData = JSON.parse(
       sessionStorage.getItem("wholesalersData")
     );
+
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
+
+      // Handle disabled state
       if (isDisabled == 1) {
         selectHTML =
           '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else if (selectedWholesalerKey == "unassigned") {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+
+        // Add "Anuluj mój wybór" only if assignmentSource is "order"
+        if (assignmentSource === "order") {
+          selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+        }
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+
+        // Add "Anuluj mój wybór" only if assignmentSource is "order"
+        if (assignmentSource === "order") {
+          selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+        }
       }
 
-      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
+      // Sort suppliers by 'netPrice' if jsonData is not null
       if (jsonData !== null && jsonData.length > 0) {
         jsonData.sort((a, b) => a.netPrice - b.netPrice);
 
-        // Usuwanie powtarzających się pozycji dostawców z jsonData
+        // Remove duplicate suppliers in jsonData
         jsonData = jsonData.filter((item, index, self) => {
           return (
             index ===
@@ -1019,7 +1030,7 @@ docReady(function () {
           );
         });
 
-        // Dodawanie dostawców z JSON na górze listy wyboru
+        // Add suppliers from jsonData to the top of the select list
         jsonData.forEach((item) => {
           const wholesaler = wholesalersData.find(
             (wholesaler) => wholesaler.wholesalerKey === item.wholesalerKey
@@ -1033,10 +1044,9 @@ docReady(function () {
               : ""
           }>${wholesalerName}</option>`;
         });
-      } else {
       }
 
-      // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
+      // Add remaining suppliers from sessionStorage to the select list
       wholesalersData.forEach((wholesaler) => {
         if (
           !jsonData ||
@@ -1048,7 +1058,7 @@ docReady(function () {
             wholesaler.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          } style="background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
