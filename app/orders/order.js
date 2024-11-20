@@ -3294,7 +3294,7 @@ docReady(function () {
     // Process based on newValue
     switch (newValue) {
       case "remove":
-        if (data.active === "false") {
+        if (data.active === false) {
           console.log(
             "Option 'remove' selected for inactive product. Enabling product."
           );
