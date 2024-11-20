@@ -4264,7 +4264,7 @@ docReady(function () {
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
-      const delays = [401, 451, 901];
+      const delays = [201, 251, 901];
 
       delays.forEach((delay) => {
         setTimeout(function () {
