@@ -3419,6 +3419,12 @@ docReady(function () {
     $(this).data("initialValue", $(this).val());
   });
 
+  $("#spl_table").on("keypress", "input", function (e) {
+    if (e.key === "Enter") {
+      $(this).blur(); // Simulate focusout when Enter key is pressed
+    }
+  });
+
   $("#spl_table").on("focusout", "input", function () {
     // Get the right table
     // Change amount of product
