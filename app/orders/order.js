@@ -3257,81 +3257,78 @@ docReady(function () {
 
     // Get the right table
     var table = $("#spl_table").DataTable();
-    var newValue = $(this).val();
-    var initialValue = $(this).data("initialValue");
+    var $select = $(this);
+    var newValue = $select.val();
+    var initialValue = $select.data("initialValue");
 
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
     // Check if the value has changed
-    if (newValue !== initialValue) {
-      $(this).attr("value", newValue);
-      var data = table.row($(this).parents("tr")).data();
-      console.log("Row data:", data);
-
-      if (data.gtin !== null) {
-        if (newValue === "remove") {
-          console.log(
-            "Option 'remove' selected. Preparing payload to remove wholesaler key."
-          );
-          var product = {
-            op: "remove",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-          };
-          addObject(changesPayload, product);
-
-          // Emulate changes for user
-          console.log("Payload added for removal:", product);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "unassigned") {
-          console.log(
-            "Option 'unassigned' or 'disabled' selected. Disabling product."
-          );
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: false,
-          };
-          addObject(changesPayload, product);
-
-          // Emulate changes for user
-          console.log("Payload added for disabling:", product);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "enabled") {
-          console.log("Option 'enabled' selected. Enabling product.");
-          var activeProduct = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: true,
-          };
-          addObject(changesPayload, activeProduct);
-
-          // Emulate changes for user
-          console.log("Payload added for enabling:", activeProduct);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else {
-          // Any other value is considered a wholesaler key assignment
-          console.log("Assigning new wholesalerKey:", newValue);
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-            value: newValue,
-          };
-          addObject(changesPayload, product);
-
-          // Emulate changes for user
-          console.log("Payload added for assigning wholesalerKey:", product);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        }
-      } else {
-        console.log("GTIN is null, cannot proceed.");
-      }
-    } else {
+    if (newValue === initialValue) {
       console.log("No change in value, no action taken.");
+      return;
+    }
+
+    $select.attr("value", newValue); // Update the value
+    var data = table.row($select.parents("tr")).data();
+    console.log("Row data:", data);
+
+    if (!data?.gtin) {
+      console.log("GTIN is null, cannot proceed.");
+      return;
+    }
+
+    const addChange = (op, path, value) => {
+      const change = { op, path };
+      if (value !== undefined) change.value = value;
+      addObject(changesPayload, change);
+      console.log("Payload added:", change);
+    };
+
+    const emulateChangeForUser = () => {
+      $("#waitingdots").show(1).delay(150).hide(1);
+      checkChangesPayload();
+    };
+
+    // Process based on newValue
+    switch (newValue) {
+      case "remove":
+        if (data.active === "false") {
+          console.log(
+            "Option 'remove' selected for inactive product. Enabling product."
+          );
+          addChange("replace", `/${data.gtin}/active`, true);
+        } else {
+          console.log("Option 'remove' selected. Removing wholesaler key.");
+          addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
+        }
+        emulateChangeForUser();
+        break;
+
+      case "unassigned":
+        console.log(
+          "Option 'unassigned' or 'disabled' selected. Disabling product."
+        );
+        addChange("replace", `/${data.gtin}/active`, false);
+        emulateChangeForUser();
+        break;
+
+      case "enabled":
+        console.log("Option 'enabled' selected. Enabling product.");
+        addChange("replace", `/${data.gtin}/active`, true);
+        emulateChangeForUser();
+        break;
+
+      default:
+        console.log("Assigning new wholesalerKey:", newValue);
+        addChange(
+          "replace",
+          `/${data.gtin}/rigidAssignment/wholesalerKey`,
+          newValue
+        );
+        emulateChangeForUser();
+        break;
     }
   });
 
@@ -3344,66 +3341,6 @@ docReady(function () {
   $("#spl_table").on("focusin", "select", function () {
     // Store the current value when the select element is focused
     $(this).data("initialValue", $(this).val());
-  });
-
-  $("#spl_table").on("focusout", "select", function () {
-    const table = $("#spl_table").DataTable();
-    const $select = $(this);
-    const newValue = $select.val();
-    const initialValue = $select.data("initialValue");
-
-    // Only process if the value has changed
-    if (newValue === initialValue) return;
-
-    $select.attr("value", newValue); // Update the value
-    const rowData = table.row($select.parents("tr")).data();
-
-    if (!rowData?.gtin) {
-      console.warn("GTIN is null or undefined.");
-      return;
-    }
-
-    // Define common operations
-    const addChange = (op, path, value) => {
-      const change = { op, path };
-      if (value !== undefined) change.value = value;
-      addObject(changesPayload, change);
-    };
-
-    const emulateChangeForUser = () => {
-      $("#waitingdots").show(1).delay(150).hide(1);
-      checkChangesPayload();
-    };
-
-    // Process based on newValue
-    switch (newValue) {
-      case "remove":
-        if (rowData.active === "false") {
-          // Enable the product by setting active to true
-          addChange("replace", `/${rowData.gtin}/active`, true);
-        } else {
-          // Remove the wholesaler key
-          addChange("remove", `/${rowData.gtin}/rigidAssignment/wholesalerKey`);
-        }
-        emulateChangeForUser();
-        break;
-
-      case "unassigned":
-        // Disable the product by setting active to false
-        addChange("replace", `/${rowData.gtin}/active`, false);
-        emulateChangeForUser();
-        break;
-
-      default:
-        // Assign a new wholesaler key
-        addChange(
-          "replace",
-          `/${rowData.gtin}/rigidAssignment/wholesalerKey`,
-          newValue
-        );
-        emulateChangeForUser();
-        break;
-    }
   });
 
   $("#spl_table").on("click", "img.showdata", function () {
