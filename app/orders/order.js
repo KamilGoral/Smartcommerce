@@ -3347,62 +3347,62 @@ docReady(function () {
   });
 
   $("#spl_table").on("focusout", "select", function () {
-    // Get the right table
-    // Change wholesaler of product
-    var table = $("#spl_table").DataTable();
+    const table = $("#spl_table").DataTable();
+    const $select = $(this);
+    const newValue = $select.val();
+    const initialValue = $select.data("initialValue");
 
-    var newValue = $(this).val();
-    var initialValue = $(this).data("initialValue");
+    // Only process if the value has changed
+    if (newValue === initialValue) return;
 
-    // Check if the value has changed
-    if (newValue !== initialValue) {
-      $(this).attr("value", newValue);
-      var data = table.row($(this).parents("tr")).data();
+    $select.attr("value", newValue); // Update the value
+    const rowData = table.row($select.parents("tr")).data();
 
-      if (data.gtin !== null) {
-        if (newValue === "remove") {
-          var product = {
-            op: "remove",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-          };
-          addObject(changesPayload, product);
-          // Emulate changes for user
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "unassigned") {
-          // Handle unassigned or disabled case by setting active to false
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: false,
-          };
-          addObject(changesPayload, product);
-          // Emulate changes for user
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "remove") {
-          // Enable the product by setting active to true and assign wholesalerKey if needed
-          var activeProduct = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: true,
-          };
-          addObject(changesPayload, activeProduct);
+    if (!rowData?.gtin) {
+      console.warn("GTIN is null or undefined.");
+      return;
+    }
+
+    // Define common operations
+    const addChange = (op, path, value) => {
+      const change = { op, path };
+      if (value !== undefined) change.value = value;
+      addObject(changesPayload, change);
+    };
+
+    const emulateChangeForUser = () => {
+      $("#waitingdots").show(1).delay(150).hide(1);
+      checkChangesPayload();
+    };
+
+    // Process based on newValue
+    switch (newValue) {
+      case "remove":
+        if (rowData.active === "false") {
+          // Enable the product by setting active to true
+          addChange("replace", `/${rowData.gtin}/active`, true);
         } else {
-          // Optionally, assign wholesalerKey if not "remove" or "unassigned"
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-            value: newValue,
-          };
-          addObject(changesPayload, product);
-          // Emulate changes for user
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
+          // Remove the wholesaler key
+          addChange("remove", `/${rowData.gtin}/rigidAssignment/wholesalerKey`);
         }
-      } else {
-        console.log("GTIN is null");
-      }
+        emulateChangeForUser();
+        break;
+
+      case "unassigned":
+        // Disable the product by setting active to false
+        addChange("replace", `/${rowData.gtin}/active`, false);
+        emulateChangeForUser();
+        break;
+
+      default:
+        // Assign a new wholesaler key
+        addChange(
+          "replace",
+          `/${rowData.gtin}/rigidAssignment/wholesalerKey`,
+          newValue
+        );
+        emulateChangeForUser();
+        break;
     }
   });
 
