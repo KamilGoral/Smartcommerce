@@ -4281,7 +4281,7 @@ docReady(function () {
         ) {
           console.log("Header squished, readjusting");
           adjustTable();
-          setTimeout(checkAndAdjustTable, 200);
+          setTimeout(checkAndAdjustTable, 301);
         }
       }
 
