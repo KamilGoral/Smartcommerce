@@ -4264,11 +4264,10 @@ docReady(function () {
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
-      const delays = [301, 401, 501];
+      const delays = [401, 451, 901];
 
       delays.forEach((delay) => {
         setTimeout(function () {
-          console.log(`Adjusting after ${delay}ms`);
           $.fn.dataTable
             .tables({
               visible: true,
