@@ -671,6 +671,7 @@ docReady(function () {
           data: "asks",
           title: "Cena",
           defaultContent: "-",
+          orderable: false,
           render: function (data) {
             return data && data[0] && data[0].netPrice ? data[0].netPrice : "-";
           },
@@ -680,6 +681,7 @@ docReady(function () {
           data: "asks",
           title: "Promocja",
           defaultContent: "-",
+          orderable: false,
           render: function (data) {
             if (data && data[0] && data[0].promotion) {
               return `${data[0].promotion.type} (threshold: ${data[0].promotion.threshold})`;
@@ -692,6 +694,7 @@ docReady(function () {
           data: "messages",
           title: "Wiadomość",
           defaultContent: "-",
+          orderable: false,
           render: function (data) {
             // Check if there are messages
             if (Array.isArray(data) && data.length > 0) {
