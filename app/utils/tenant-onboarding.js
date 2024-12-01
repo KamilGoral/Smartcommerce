@@ -28,9 +28,13 @@ docReady(function () {
     document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
   }
 
-  function displayWarningMessage(message) {
-    $(".warningmessagetext").text(message);
-  }
+  const displayMessage = (type, message) => {
+    $("#Message-Container").show().delay(5000).fadeOut("slow");
+    if (message) {
+      $(`#${type}-Message-Text`).text(message);
+    }
+    $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
+  };
 
   function getCookieNameByValue(searchValue) {
     const cookies = document.cookie.split("; ");
@@ -89,13 +93,36 @@ docReady(function () {
   $("#tenantButton").click(function () {
     var name = $("#tenantName").val();
     var taxId = $("#tenantTaxId").val();
+    var isValid = true; // Flaga do monitorowania walidacji
 
-    if (!name || !taxId) {
-      // Handle missing input
-      displayWarningMessage("Proszę wypełnić wszystkie pola.");
-      return;
+    // Walidacja pola tenantName
+    if (!name) {
+      displayMessage("Error", "Proszę wypełnić pole nazwy.");
+      isValid = false;
+    } else if (name.length < 3 || name.length > 32) {
+      displayMessage("Error", "Nazwa musi mieć od 3 do 32 znaków.");
+      isValid = false;
+    } else if (!/^([A-Za-z0-9]+-)*[A-Za-z0-9]+$/.test(name)) {
+      displayMessage(
+        "Error",
+        "Nazwa może zawierać tylko znaki alfanumeryczne oraz myślniki, bez myślnika na początku i końcu."
+      );
+      isValid = false;
     }
 
+    // Walidacja pola tenantTaxId
+    if (!taxId) {
+      displayMessage("Error", "Proszę wypełnić pole NIP.");
+      isValid = false;
+    } else if (taxId.length !== 10 || !/^[0-9]{10}$/.test(taxId)) {
+      displayMessage("Error", "NIP musi składać się dokładnie z 10 cyfr.");
+      isValid = false;
+    }
+
+    // Jeśli walidacja nie przeszła, zakończ
+    if (!isValid) return;
+
+    // Jeśli walidacja przeszła, kontynuuj proces wysyłki
     var action = InvokeURL + "tenants";
     var data = {
       name: name,
@@ -132,13 +159,13 @@ docReady(function () {
         LoginIntoOrganization();
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        // Display error message on the current slide
+        // Wyświetl komunikat błędu na aktualnym slajdzie
         var errorMsg =
           "Błąd: " +
           (jqXHR.responseJSON && jqXHR.responseJSON.message
             ? jqXHR.responseJSON.message
             : textStatus);
-        displayWarningMessage(errorMsg);
+        displayMessage("Error", errorMsg);
       },
     });
   });
@@ -502,8 +529,7 @@ docReady(function () {
         if (typeof onErrorCallback === "function") {
           onErrorCallback();
         }
-
-        $(".warningmessagetext").text(msg);
+        displayMessage("Error", msg);
         form.show();
         doneBlock.hide();
         failBlock.show();
@@ -515,28 +541,61 @@ docReady(function () {
     });
   }
 
-  function LoadTippy() {
-    $.getScript(
-      "https://unpkg.com/popper.js@1",
-      function (data, textStatus, jqxhr) {
-        $.getScript(
-          "https://unpkg.com/tippy.js@4",
-          function (data, textStatus, jqxhr) {
-            tippy(".tippy", {
-              // Add the class tippy to your element
-              theme: "light", // Dark or Light
-              animation: "scale", // Options, shift-away, shift-toward, scale, persepctive
-              duration: 250, // Duration of the Animation
-              arrow: true, // Add arrow to the tooltip
-              arrowType: "round", // Sharp, round or empty for none
-              delay: [0, 50], // Trigger delay in & out
-              maxWidth: 240, // Optional, max width settings
-            });
-          }
-        );
-      }
-    );
+  function initializeSimpleTooltips() {
+    // CSS styling for tooltip
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .newtippy {
+      position: absolute;
+      background-color: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+  `;
+    document.head.appendChild(style);
+
+    const elements = document.querySelectorAll("[data-tippy-content]");
+
+    elements.forEach((element) => {
+      element.addEventListener("mouseenter", (event) => {
+        const tooltipText = element.getAttribute("data-tippy-content");
+        if (!tooltipText) return;
+
+        // Create tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.className = "newtippy";
+        tooltip.textContent = tooltipText;
+        document.body.appendChild(tooltip);
+
+        // Position tooltip
+        const rect = element.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+        tooltip.style.top = `${
+          rect.top + window.scrollY - tooltip.offsetHeight - 5
+        }px`;
+        tooltip.style.opacity = "1";
+
+        // Center tooltip
+        tooltip.style.left = `${
+          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+        }px`;
+
+        // Mouseleave event to remove tooltip
+        element.addEventListener("mouseleave", () => {
+          tooltip.style.opacity = "0";
+          setTimeout(() => tooltip.remove(), 200); // Delay for fade-out effect
+        });
+      });
+    });
   }
 
-  LoadTippy();
+  // Initialize tooltips on page load
+  initializeSimpleTooltips();
 });

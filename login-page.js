@@ -154,7 +154,8 @@ docReady(function () {
             console.log(exception);
             var msg = "";
             if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
+              msg =
+                "Nie udało się zalogować. Upewnij się, że masz stabilne połączenie z internetem, korzystasz z aktualnej przeglądarki i wyłącz ewentualne blokery (np. VPN, zapory). Jeśli problem nie ustępuje, spróbuj użyć innej przeglądarki.";
             } else if (jqXHR.status == 403) {
               msg = "Użytkownik nie ma uprawnień do tworzenia organizacji.";
             } else if (jqXHR.status == 500) {

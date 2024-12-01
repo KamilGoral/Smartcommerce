@@ -535,7 +535,7 @@ docReady(function () {
         $("#splitedwhcontainer").show();
         var table = $("#table_splited_wh").DataTable({
           pagingType: "full_numbers",
-          pageLength: 10,
+          pageLength: 25,
           destroy: true,
           orderMulti: true,
           order: [[3, "desc"]],
@@ -643,7 +643,7 @@ docReady(function () {
                   if (data === "agra") {
                     return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
                   } else if (data === "mirex") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
+                    return '<div class="div-block-20" style="min-width: 100px">  <img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg"    loading="lazy"    fileformat="text/plain"    class="filedownloadicon"  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg"    loading="lazy"    fileformat="text/csv"    class="filedownloadicon"    data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy."  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg"    loading="lazy"    fileformat="application/pdf"    class="filedownloadicon"  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg"    loading="lazy"    fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"    class="filedownloadicon"  /></div>';
                   } else {
                     return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
                   }
@@ -992,26 +992,37 @@ docReady(function () {
     const wholesalersData = JSON.parse(
       sessionStorage.getItem("wholesalersData")
     );
+
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
+
+      // Handle disabled state
       if (isDisabled == 1) {
         selectHTML =
           '<select style="width: 120px;" class="wholesalerSelect" disabled>';
       } else if (selectedWholesalerKey == "unassigned") {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+
+        // Add "Anuluj mój wybór" only if assignmentSource is "order"
+        if (assignmentSource === "order") {
+          selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+        }
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
         selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-        selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+
+        // Add "Anuluj mój wybór" only if assignmentSource is "order"
+        if (assignmentSource === "order") {
+          selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
+        }
       }
 
-      // Sortowanie dostawców z JSON na podstawie klucza 'netPrice', jeśli jsonData nie jest równy null
+      // Sort suppliers by 'netPrice' if jsonData is not null
       if (jsonData !== null && jsonData.length > 0) {
         jsonData.sort((a, b) => a.netPrice - b.netPrice);
 
-        // Usuwanie powtarzających się pozycji dostawców z jsonData
+        // Remove duplicate suppliers in jsonData
         jsonData = jsonData.filter((item, index, self) => {
           return (
             index ===
@@ -1019,7 +1030,7 @@ docReady(function () {
           );
         });
 
-        // Dodawanie dostawców z JSON na górze listy wyboru
+        // Add suppliers from jsonData to the top of the select list
         jsonData.forEach((item) => {
           const wholesaler = wholesalersData.find(
             (wholesaler) => wholesaler.wholesalerKey === item.wholesalerKey
@@ -1033,10 +1044,9 @@ docReady(function () {
               : ""
           }>${wholesalerName}</option>`;
         });
-      } else {
       }
 
-      // Dodawanie pozostałych dostawców z sessionStorage do listy wyboru
+      // Add remaining suppliers from sessionStorage to the select list
       wholesalersData.forEach((wholesaler) => {
         if (
           !jsonData ||
@@ -1048,7 +1058,7 @@ docReady(function () {
             wholesaler.wholesalerKey === selectedWholesalerKey
               ? ' selected style="font-weight: bold"'
               : ""
-          } style = "background-color: #EBECF0;">${wholesaler.name}</option>`;
+          } style="background-color: #EBECF0;">${wholesaler.name}</option>`;
         }
       });
 
@@ -1096,6 +1106,7 @@ docReady(function () {
         updateTableInputsFromSessionStorage(orderId);
 
         $("#splitted-products").show();
+        initializeSimpleTooltips();
 
         var table = $("#spl_table").DataTable({
           order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
@@ -3242,7 +3253,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
-      LoadTippy();
+      initializeSimpleTooltips();
     }
   });
 
@@ -3256,81 +3267,78 @@ docReady(function () {
 
     // Get the right table
     var table = $("#spl_table").DataTable();
-    var newValue = $(this).val();
-    var initialValue = $(this).data("initialValue");
+    var $select = $(this);
+    var newValue = $select.val();
+    var initialValue = $select.data("initialValue");
 
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
     // Check if the value has changed
-    if (newValue !== initialValue) {
-      $(this).attr("value", newValue);
-      var data = table.row($(this).parents("tr")).data();
-      console.log("Row data:", data);
-
-      if (data.gtin !== null) {
-        if (newValue === "remove") {
-          console.log(
-            "Option 'remove' selected. Preparing payload to remove wholesaler key."
-          );
-          var product = {
-            op: "remove",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-          };
-          addObject(changesPayload, product);
-
-          // Emulate changes for user
-          console.log("Payload added for removal:", product);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "unassigned") {
-          console.log(
-            "Option 'unassigned' or 'disabled' selected. Disabling product."
-          );
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: false,
-          };
-          addObject(changesPayload, product);
-
-          // Emulate changes for user
-          console.log("Payload added for disabling:", product);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "enabled") {
-          console.log("Option 'enabled' selected. Enabling product.");
-          var activeProduct = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: true,
-          };
-          addObject(changesPayload, activeProduct);
-
-          // Emulate changes for user
-          console.log("Payload added for enabling:", activeProduct);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else {
-          // Any other value is considered a wholesaler key assignment
-          console.log("Assigning new wholesalerKey:", newValue);
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-            value: newValue,
-          };
-          addObject(changesPayload, product);
-
-          // Emulate changes for user
-          console.log("Payload added for assigning wholesalerKey:", product);
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        }
-      } else {
-        console.log("GTIN is null, cannot proceed.");
-      }
-    } else {
+    if (newValue === initialValue) {
       console.log("No change in value, no action taken.");
+      return;
+    }
+
+    $select.attr("value", newValue); // Update the value
+    var data = table.row($select.parents("tr")).data();
+    console.log("Row data:", data);
+
+    if (!data?.gtin) {
+      console.log("GTIN is null, cannot proceed.");
+      return;
+    }
+
+    const addChange = (op, path, value) => {
+      const change = { op, path };
+      if (value !== undefined) change.value = value;
+      addObject(changesPayload, change);
+      console.log("Payload added:", change);
+    };
+
+    const emulateChangeForUser = () => {
+      $("#waitingdots").show(1).delay(150).hide(1);
+      checkChangesPayload();
+    };
+
+    // Process based on newValue
+    switch (newValue) {
+      case "remove":
+        if (data.active === false) {
+          console.log(
+            "Option 'remove' selected for inactive product. Enabling product."
+          );
+          addChange("replace", `/${data.gtin}/active`, true);
+        } else {
+          console.log("Option 'remove' selected. Removing wholesaler key.");
+          addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
+        }
+        emulateChangeForUser();
+        break;
+
+      case "unassigned":
+        console.log(
+          "Option 'unassigned' or 'disabled' selected. Disabling product."
+        );
+        addChange("replace", `/${data.gtin}/active`, false);
+        emulateChangeForUser();
+        break;
+
+      case "enabled":
+        console.log("Option 'enabled' selected. Enabling product.");
+        addChange("replace", `/${data.gtin}/active`, true);
+        emulateChangeForUser();
+        break;
+
+      default:
+        console.log("Assigning new wholesalerKey:", newValue);
+        addChange(
+          "replace",
+          `/${data.gtin}/rigidAssignment/wholesalerKey`,
+          newValue
+        );
+        emulateChangeForUser();
+        break;
     }
   });
 
@@ -3343,66 +3351,6 @@ docReady(function () {
   $("#spl_table").on("focusin", "select", function () {
     // Store the current value when the select element is focused
     $(this).data("initialValue", $(this).val());
-  });
-
-  $("#spl_table").on("focusout", "select", function () {
-    // Get the right table
-    // Change wholesaler of product
-    var table = $("#spl_table").DataTable();
-
-    var newValue = $(this).val();
-    var initialValue = $(this).data("initialValue");
-
-    // Check if the value has changed
-    if (newValue !== initialValue) {
-      $(this).attr("value", newValue);
-      var data = table.row($(this).parents("tr")).data();
-
-      if (data.gtin !== null) {
-        if (newValue === "remove") {
-          var product = {
-            op: "remove",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-          };
-          addObject(changesPayload, product);
-          // Emulate changes for user
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "unassigned") {
-          // Handle unassigned or disabled case by setting active to false
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: false,
-          };
-          addObject(changesPayload, product);
-          // Emulate changes for user
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        } else if (newValue === "remove") {
-          // Enable the product by setting active to true and assign wholesalerKey if needed
-          var activeProduct = {
-            op: "replace",
-            path: "/" + data.gtin + "/active",
-            value: true,
-          };
-          addObject(changesPayload, activeProduct);
-        } else {
-          // Optionally, assign wholesalerKey if not "remove" or "unassigned"
-          var product = {
-            op: "replace",
-            path: "/" + data.gtin + "/rigidAssignment/wholesalerKey",
-            value: newValue,
-          };
-          addObject(changesPayload, product);
-          // Emulate changes for user
-          $("#waitingdots").show(1).delay(150).hide(1);
-          checkChangesPayload();
-        }
-      } else {
-        console.log("GTIN is null");
-      }
-    }
   });
 
   $("#spl_table").on("click", "img.showdata", function () {
@@ -3471,6 +3419,12 @@ docReady(function () {
     $(this).data("initialValue", $(this).val());
   });
 
+  $("#spl_table").on("keypress", "input", function (e) {
+    if (e.key === "Enter") {
+      $(this).blur(); // Simulate focusout when Enter key is pressed
+    }
+  });
+
   $("#spl_table").on("focusout", "input", function () {
     // Get the right table
     // Change amount of product
@@ -3530,7 +3484,7 @@ docReady(function () {
     } else {
       row.child(format(row.data())).show();
       tr.addClass("shown");
-      LoadTippy();
+      initializeSimpleTooltips();
     }
   });
   $("#table_id tbody").on("click", "img.showdata", function () {
@@ -3539,9 +3493,22 @@ docReady(function () {
     const popupContent = document.getElementById("popupContent");
     var input = dataToDisplay.attr("data-content");
     var values = input.split(",");
+    var output = "";
 
     for (var i = 0; i < values.length; i++) {
-      output += "<p>" + values[i] + "</p>";
+      // Start a new row every 5 items
+      if (i % 5 === 0) {
+        output +=
+          "<p class='text-size-tiny text-color-grey offerstatus nomargin'>";
+      }
+
+      // Add code with a space after it
+      output += values[i] + " ";
+
+      // Close the row after 5 items or at the end
+      if ((i + 1) % 5 === 0 || i === values.length - 1) {
+        output += "</p>";
+      }
     }
 
     popupContent.innerHTML = output;
@@ -3579,6 +3546,12 @@ docReady(function () {
   $("#table_id").on("focusin", "input", function () {
     // Store the current value when the input element is focused
     $(this).data("initialValue", $(this).val());
+  });
+
+  $("#table_id").on("keypress", "input", function (e) {
+    if (e.key === "Enter") {
+      $(this).blur(); // Simulate focusout when Enter key is pressed
+    }
   });
 
   $("#table_id").on("focusout", "input", function () {
@@ -3667,16 +3640,22 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  $('div[role="tablist"]').click(function () {
-    setTimeout(function () {
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust();
-    }, 300);
-  });
+  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
+    function () {
+      const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(function () {
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
+        }, delay);
+      });
+    }
+  );
 
   var elements = document.getElementsByClassName("splitbutton");
   for (var i = 0; i < elements.length; i++) {
@@ -3749,15 +3728,70 @@ docReady(function () {
   getWholesalersSh();
   fetchDataFromEndpoint();
 
+  function initializeSimpleTooltips() {
+    // CSS styling for tooltip
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .newtippy {
+      position: absolute;
+      background-color: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+  `;
+    document.head.appendChild(style);
+
+    const elements = document.querySelectorAll("[data-tippy-content]");
+
+    elements.forEach((element) => {
+      element.addEventListener("mouseenter", (event) => {
+        const tooltipText = element.getAttribute("data-tippy-content");
+        if (!tooltipText) return;
+
+        // Create tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.className = "newtippy";
+        tooltip.textContent = tooltipText;
+        document.body.appendChild(tooltip);
+
+        // Position tooltip
+        const rect = element.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+        tooltip.style.top = `${
+          rect.top + window.scrollY - tooltip.offsetHeight - 5
+        }px`;
+        tooltip.style.opacity = "1";
+
+        // Center tooltip
+        tooltip.style.left = `${
+          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+        }px`;
+
+        // Mouseleave event to remove tooltip
+        element.addEventListener("mouseleave", () => {
+          tooltip.style.opacity = "0";
+          setTimeout(() => tooltip.remove(), 200); // Delay for fade-out effect
+        });
+      });
+    });
+  }
+
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
   // DataTables initialization and event handling
-  $("table.dataTable").on("init.dt xhr.dt page.dt", function () {
+  $("table.dataTable").on("init.dt xhr.dt page.dt draw.dt", function () {
     $(this).DataTable().columns.adjust();
-    LoadTippy();
+    initializeSimpleTooltips();
   });
 
   $(document).ready(function ($) {

@@ -128,6 +128,7 @@ docReady(function () {
         const whState = document.getElementById("whState");
         const whPostcode = document.getElementById("whPostcode");
         const whLogo = document.getElementById("whLogo");
+        const whVan = document.getElementById("whVan");
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
         wholesalerName.textContent = data.company;
@@ -142,6 +143,8 @@ docReady(function () {
         const vanElements = document.querySelectorAll('[vanfunction="true"]');
         // Check if vanMember is true
         if (data.vanMember) {
+          whVan.textContent = "Tak";
+
           // Show elements and enable/check checkboxes
           vanElements.forEach(function (element) {
             element.style.display = "flex";
@@ -155,6 +158,7 @@ docReady(function () {
           });
         } else {
           // Hide elements and disable/uncheck checkboxes
+          whVan.textContent = "Nie";
           vanElements.forEach(function (element) {
             // Hide the element
             element.style.display = "none";
@@ -171,7 +175,10 @@ docReady(function () {
         }
 
         if (data.enabled) {
+          $("#enabled").addClass("enabled");
           getFTP();
+        } else {
+          $("#createserver").show();
         }
 
         whTaxId.textContent = data.taxId;
@@ -198,7 +205,6 @@ docReady(function () {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         const ftpUsername = document.getElementById("ftpUsername");
-
         ftpUsername.textContent = data.credentials.username;
         $("#Iftp").addClass("enabled");
         $("#credentials").show();
@@ -228,95 +234,191 @@ docReady(function () {
         var baseAction = InvokeURL + "wholesalers/" + wholesalerKey + "/ftp";
         var method = "POST";
 
-        // Prepare data object
         var data = {
           username: $("#Wholesaler-Login").val(),
         };
 
-        // Check if the 'notifyWholesalerCreate' checkbox is visible, enabled, and checked
         var notifyWholesalerCheckbox = $("#notifyWholesalerCreate");
-        var action = baseAction; // Initialize action with base URL
+        var action = baseAction;
 
         if (
-          notifyWholesalerCheckbox.is(":visible") && // Check visibility
-          !notifyWholesalerCheckbox.is(":disabled") && // Check if enabled
-          notifyWholesalerCheckbox.is(":checked") // Check if checked
+          notifyWholesalerCheckbox.is(":visible") &&
+          !notifyWholesalerCheckbox.is(":disabled") &&
+          notifyWholesalerCheckbox.is(":checked")
         ) {
-          // Append notifyWholesaler parameter to the URL if necessary
           action += "?notifyWholesaler=true";
         }
 
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                doneBlock.hide();
-                failBlock.show();
-                return;
+        // Define the updateStatus function locally
+        function updateStatus(wholesalerKey, onErrorCallback) {
+          var data = [
+            {
+              op: "replace",
+              path: "/enabled",
+              value: true,
+            },
+          ];
+
+          $.ajax({
+            type: "PATCH",
+            url: InvokeURL + "wholesalers/" + wholesalerKey,
+            cors: true,
+            beforeSend: function () {
+              $("#waitingdots").show();
+            },
+            complete: function () {
+              setTimeout(function () {
+                $("#waitingdots").hide();
+              }, 2000); // Ukryj element po 2 sekundach (2000 ms)
+            },
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+            data: JSON.stringify(data),
+            success: function (resultData, textStatus, jqXHR) {
+              if (jqXHR.status === 200) {
+                // Jeśli updateStatus zwrócił 200, wywołaj żądanie utworzenia serwera
+                sendCreateServerRequest();
+              } else {
+                displayMessage(
+                  "Error",
+                  "Nie udało się zmienić statusu. Spróbuj ponownie."
+                );
               }
-            }
-            form.hide();
-            const credentialsbox = document.getElementById("credentialsbox");
-            credentialsbox.innerHTML =
-              "Login: " + resultData.credentials.username + "<br />";
-            credentialsbox.innerHTML +=
-              "Hasło: " + resultData.credentials.password + "<br />";
+            },
+            error: function (jqXHR, exception) {
+              var msg = "";
+              if (jqXHR.status === 0) {
+                msg = "Nie masz połączenia z internetem.";
+              } else if (jqXHR.status == 404) {
+                msg = "Nie znaleziono strony";
+              } else if (jqXHR.status == 403) {
+                msg = "Nie masz uprawnień do tej czynności";
+              } else if (jqXHR.status == 409) {
+                msg =
+                  "Nie można usunąć dostawcy. Jeden ze sklepów wciąż korzysta z jego usług.";
+              } else if (jqXHR.status == 500) {
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+              } else if (exception === "parsererror") {
+                msg = "Nie udało się odczytać danych";
+              } else if (exception === "timeout") {
+                msg = "Przekroczony czas oczekiwania";
+              } else if (exception === "abort") {
+                msg = "Twoje żądanie zostało zaniechane";
+              } else {
+                msg = "" + jqXHR.responseJSON.message;
+              }
+              displayMessage("Error", msg);
+              if (onErrorCallback) {
+                onErrorCallback(msg);
+              }
+            },
+          });
+        }
 
-            const ftpUsername = document.getElementById("ftpUsername");
-            ftpUsername.textContent = resultData.credentials.username;
-            $("#Iftp").addClass("enabled");
-            $("#credentials").show();
-            $("#createserver").hide();
-
-            doneBlock.show();
-            failBlock.hide();
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-            if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
-            } else if (jqXHR.status === 403) {
-              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-            } else if (jqXHR.status === 500) {
-              msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-              msg = "Time out error.";
-            } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
-            } else {
-              msg = "" + jqXHR.responseJSON.message;
+        // Check if the #Iftp element has the "enabled" class
+        if (!$("#enabled").hasClass("enabled")) {
+          // Activate the wholesaler first if not enabled
+          updateStatus(wholesalerKey, function (error) {
+            if (error) {
+              failBlock.show();
+              $(".warningmessagetext").text(
+                "Nie udało się aktywować dostawcy."
+              );
+              return;
             }
-            $(".warningmessagetext").text(msg);
-            form.show();
-            doneBlock.hide();
-            failBlock.show();
-            failBlock.fadeOut(5000);
-          },
-        });
+          });
+        } else {
+          // If already enabled, proceed directly to create the server
+          sendCreateServerRequest();
+        }
+
+        // Function to handle the server creation request
+        function sendCreateServerRequest() {
+          $.ajax({
+            type: method,
+            url: action,
+            cors: true,
+            beforeSend: function () {
+              $("#waitingdots").show();
+            },
+            complete: function () {
+              $("#waitingdots").hide();
+            },
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+            data: JSON.stringify(data),
+            success: function (resultData) {
+              if (typeof successCallback === "function") {
+                result = successCallback(resultData);
+                if (!result) {
+                  form.show();
+                  doneBlock.hide();
+                  failBlock.show();
+                  return;
+                }
+              }
+              form.hide();
+              const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
+
+              document.getElementById("credentialsbox").innerHTML =
+                credentialsHTML;
+              document.getElementById("credentialsvan").innerHTML =
+                credentialsHTML;
+
+              const ftpUsername = document.getElementById("ftpUsername");
+              ftpUsername.textContent = resultData.credentials.username;
+              $("#Iftp").addClass("enabled");
+              $("#credentials").show();
+              $("#createserver").hide();
+
+              const isVan = $("#whVan").text() === "Tak";
+              $("#successvan").css("display", isVan ? "flex" : "none");
+              $("#successnovan").css("display", isVan ? "none" : "flex");
+              doneBlock.show();
+
+              failBlock.hide();
+            },
+            error: function (jqXHR, exception) {
+              var msg = "";
+              if (jqXHR.status === 0) {
+                msg = "Not connect.\n Verify Network.";
+              } else if (jqXHR.status === 403) {
+                msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+              } else if (jqXHR.status === 409) {
+                msg = "Ta nazwa użytkownika jest zajęta. Spróbuj inną.";
+              } else if (jqXHR.status === 500) {
+                msg = "Internal Server Error [500].";
+              } else if (exception === "parsererror") {
+                msg = "Requested JSON parse failed.";
+              } else if (exception === "timeout") {
+                msg = "Time out error.";
+              } else if (exception === "abort") {
+                msg = "Ajax request aborted.";
+              } else {
+                msg = "" + jqXHR.responseJSON.message;
+              }
+              $(".warningmessagetext").text(msg);
+              form.show();
+              doneBlock.hide();
+              failBlock.show();
+              failBlock.fadeOut(5000);
+            },
+          });
+        }
+
         event.preventDefault();
         return false;
       });
@@ -370,20 +472,25 @@ docReady(function () {
               }
             }
             form.hide();
-            const ftpUsernameVal = document.getElementById("ftpUsername").textContent;
+            const ftpUsernameVal =
+              document.getElementById("ftpUsername").textContent;
 
-            const resetpasswordtext =
-              document.getElementById("resetpasswordtext");
-              resetpasswordtext.innerHTML =
-              "Login: " + ftpUsernameVal + "<br />";
-              resetpasswordtext.innerHTML +=
-              "Hasło: " + resultData.credentials.password + "<br />";
+            const credentialsHTML = `Login: ${ftpUsernameVal}<br />Hasło: ${resultData.credentials.password}<br />`;
+
+            document.getElementById("resetpasswordtext").innerHTML =
+              credentialsHTML;
+            document.getElementById("credentialsvanreset").innerHTML =
+              credentialsHTML;
 
             ftpUsername.textContent = resultData.credentials.username;
             $("#Iftp").addClass("enabled");
             $("#credentials").removeClass("hide");
-            $("#wf-form-reset-wholesaler-done").css("display", "block");
+
             doneBlock.show();
+            const isVan = $("#whVan").text() === "Tak";
+            $("#successvanreset").css("display", isVan ? "flex" : "none");
+            $("#successnovanreset").css("display", isVan ? "none" : "flex");
+
             failBlock.hide();
           },
           error: function (jqXHR, exception) {
