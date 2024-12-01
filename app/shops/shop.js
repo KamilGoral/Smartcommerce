@@ -1182,7 +1182,7 @@ docReady(function () {
     var tablevendors = $("#table_wholesalers").DataTable({
       pagingType: "full_numbers",
       order: [],
-      dom: '<"top">frt<"bottom"lip>',
+      dom: '<"top">rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 50,
