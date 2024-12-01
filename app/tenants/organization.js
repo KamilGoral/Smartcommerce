@@ -1056,7 +1056,7 @@ docReady(function () {
     }
 
     // Confirm deletion
-    if (!confirm("Are you sure you want to delete this user?")) {
+    if (!confirm("Czyt na pewno chcesz usunąć tego użytkownika?")) {
       return;
     }
 
