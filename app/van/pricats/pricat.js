@@ -671,6 +671,7 @@ docReady(function () {
           data: "asks",
           title: "Cena",
           defaultContent: "-",
+          orderable: false,
           render: function (data) {
             return data && data[0] && data[0].netPrice ? data[0].netPrice : "-";
           },
@@ -680,6 +681,7 @@ docReady(function () {
           data: "asks",
           title: "Promocja",
           defaultContent: "-",
+          orderable: false,
           render: function (data) {
             if (data && data[0] && data[0].promotion) {
               return `${data[0].promotion.type} (threshold: ${data[0].promotion.threshold})`;
@@ -688,19 +690,20 @@ docReady(function () {
           },
         },
         {
-          // Check promotion in the asks array
-          data: "messages",
+          data: "asks",
           title: "Wiadomość",
           defaultContent: "-",
+          orderable: false,
           render: function (data) {
-            // Check if there are messages
-            if (Array.isArray(data) && data.length > 0) {
-              // Join messages with a line break or other separator
-              return data.map((message) => `<div>${message}</div>`).join("");
+            // Sprawdź, czy są jakieś wiadomości w pierwszym elemencie tablicy asks
+            if (data && data.length > 0 && data[0].messages && data[0].messages.length > 0) {
+              // Połącz wszystkie wiadomości w jedną listę z odpowiednimi znacznikami HTML
+              return data[0].messages.map(message => `<div>${message}</div>`).join("");
             }
-            return ""; // Return empty if no messages
+            return ""; // Zwróć pusty ciąg, jeśli nie ma wiadomości
           },
         },
+        
       ],
     });
     // Attach keypress event listener for the search input
