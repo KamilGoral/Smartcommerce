@@ -684,7 +684,7 @@ docReady(function () {
       return;
     }
 
-    let url = new URL(InvokeURL + "/billing/invoices?perPage=25");
+    let url = new URL(InvokeURL + "billing/invoices?perPage=25");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -1119,7 +1119,7 @@ docReady(function () {
       }, 150); // Delay the execution by 150 milliseconds
     }
 
-    let url = new URL(InvokeURL + "/billing");
+    let url = new URL(InvokeURL + "billing");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -3079,7 +3079,7 @@ docReady(function () {
       form.on("submit", function (event) {
         event.preventDefault();
         const organizationName = $("#organizationName").text();
-        const url = `${InvokeURL}/billing`;
+        const url = `${InvokeURL}billing`;
         $.ajax({
           type: "GET",
           url: url,
