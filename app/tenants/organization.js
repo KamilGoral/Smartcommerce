@@ -64,7 +64,7 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var clientId = new URL(location.href).searchParams.get("clientId");
   var orgToken = getCookie(clientId);
-  setCookie("sprytnyToken", orgToken, 7200);
+  setCookie("sprytnyToken", orgToken, 72000);
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
 
