@@ -549,8 +549,7 @@ docReady(function () {
     keysToRemove.forEach((key) => {
       operations.push({
         op: "remove",
-        path: "/shopKeys/-", // Use the key directly
-        value: key,
+        path: `/shopKeys/${key}`, // Use the key directly
       });
     });
 
