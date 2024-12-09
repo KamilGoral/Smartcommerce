@@ -543,7 +543,7 @@ docReady(function () {
     keysToAdd.forEach((key) => {
       operations.push({
         op: "add",
-        path: "/shopKeys/-",
+        path: "/shopKeys/-", // Add to the end of the list
         value: key,
       });
     });
@@ -552,7 +552,8 @@ docReady(function () {
     keysToRemove.forEach((key) => {
       operations.push({
         op: "remove",
-        path: `/shopKeys/${initialShopKeys.indexOf(key)}`, // Path is the index of the key
+        path: "/shopKeys/-", // Use the key directly
+        value: key,
       });
     });
 
