@@ -598,6 +598,16 @@ docReady(function () {
               row.classList.add("warning");
             }
 
+            // Dodatkowa logika dla "In progress"
+            if (item.status === "In progress") {
+              const LastStatusMessage =
+                document.getElementById("LastStatusMessage");
+              if (LastStatusMessage) {
+                LastStatusMessage.textContent =
+                  "Twoja oferta właśnie jest tworzona! Proszę czekaj.";
+              }
+            }
+
             statusContainer.appendChild(row);
           }
         });
