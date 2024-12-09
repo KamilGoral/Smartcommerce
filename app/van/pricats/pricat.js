@@ -281,29 +281,50 @@ docReady(function () {
   );
 
   function getShops() {
-    let url = new URL(InvokeURL + "shops");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
+    return new Promise((resolve, reject) => {
+      let url = new URL(InvokeURL + "shops");
+      let request = new XMLHttpRequest();
 
-      if (request.status >= 200 && request.status < 400) {
-        const shopKeysContainer = document.getElementById("shopKeys");
-        toParse.forEach((shop) => {
-          var opt = document.createElement("option");
-          opt.value = shop.shopKey;
-          opt.innerHTML = shop.name;
-          shopKeysContainer.appendChild(opt);
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
+      request.open("GET", url, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
+
+      request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+          try {
+            var data = JSON.parse(this.response);
+            var toParse = data.items;
+
+            const shopKeysContainer = document.getElementById("shopKeys");
+            // Clear existing options
+            shopKeysContainer.innerHTML = "";
+
+            // Populate dropdown with shop keys and names
+            toParse.forEach((shop) => {
+              var opt = document.createElement("option");
+              opt.value = shop.shopKey;
+              opt.innerHTML = shop.name;
+              shopKeysContainer.appendChild(opt);
+            });
+
+            resolve(); // Resolve the promise on success
+          } catch (error) {
+            reject("Error parsing response data"); // Reject if parsing fails
+          }
+        } else if (request.status === 401) {
+          console.error("Unauthorized");
+          reject("Unauthorized access");
+        } else {
+          reject(`Request failed with status: ${request.status}`);
         }
-      }
-    };
-    request.send();
+      };
+
+      request.onerror = function () {
+        reject("Network error occurred"); // Reject the promise on network error
+      };
+
+      request.send();
+    });
   }
 
   // Funkcja sprawdzająca edytowalność dat
@@ -347,141 +368,124 @@ docReady(function () {
     return data;
   };
 
-  // Zaktualizowana funkcja getPriceList
-  function getPriceList() {
-    getShops();
-    $.ajax({
-      url: `${InvokeURL}van/pricats/${priceListId}`,
-      type: "GET",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      beforeSend: function () {
-        $("#waitingdots").show();
-      },
-      complete: function () {
-        $("#waitingdots").hide();
-      },
-      success: function (data) {
-        const isFtp =
-          data.created.by.includes("FTP") || data.modified.by.includes("FTP");
-        document.getElementById("pricatFTP").textContent = isFtp;
-        const editPermissions = isEditable(data.startDate, data.endDate, isFtp);
-        if (!editPermissions.canEditStartDate)
-          $("#startDate").prop("disabled", true);
-        if (!editPermissions.canEditEndDate)
-          $("#endDate").prop("disabled", true);
+  async function getPriceList() {
+    try {
+      // Poczekaj na zakończenie getShops
+      await getShops();
 
-        document.getElementById("wholesalerKey").textContent =
-          data.wholesalerKey;
-        document.getElementById("createdBy").textContent = data.created.by;
-        document.getElementById("createDate").textContent = toHumanTime(
-          data.created.at
-        );
-        document.getElementById("lastModificationDate").textContent =
-          toHumanTime(data.modified.at);
-        document.getElementById("startDate").textContent = toHumanTime(
-          data.startDate
-        );
-        $("#startDate").datepicker("setDate", new Date(data.startDate));
-        document.getElementById("endDate").textContent = toHumanTime(
-          data.endDate
-        );
-        $("#endDate").datepicker("setDate", new Date(data.endDate));
+      // Wykonaj żądanie AJAX po zakończeniu getShops
+      $.ajax({
+        url: `${InvokeURL}van/pricats/${priceListId}`,
+        type: "GET",
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        success: function (data) {
+          const isFtp =
+            data.created.by.includes("FTP") || data.modified.by.includes("FTP");
+          document.getElementById("pricatFTP").textContent = isFtp;
 
-        const select = document.getElementById("shopKeys");
-        const pricatStatus = document.getElementById("pricatStatus");
+          const editPermissions = isEditable(
+            data.startDate,
+            data.endDate,
+            isFtp
+          );
+          if (!editPermissions.canEditStartDate)
+            $("#startDate").prop("disabled", true);
+          if (!editPermissions.canEditEndDate)
+            $("#endDate").prop("disabled", true);
 
-        // Extract shop keys and statuses from the nested structure
-        const shopsData = data.shops.map((shop) => {
-          let statusText = shop.status || "No Status";
-          let statusClass = "";
+          document.getElementById("wholesalerKey").textContent =
+            data.wholesalerKey;
+          document.getElementById("createdBy").textContent = data.created.by;
+          document.getElementById("createDate").textContent = toHumanTime(
+            data.created.at
+          );
+          document.getElementById("lastModificationDate").textContent =
+            toHumanTime(data.modified.at);
+          document.getElementById("startDate").textContent = toHumanTime(
+            data.startDate
+          );
+          $("#startDate").datepicker("setDate", new Date(data.startDate));
+          document.getElementById("endDate").textContent = toHumanTime(
+            data.endDate
+          );
+          $("#endDate").datepicker("setDate", new Date(data.endDate));
 
-          // Translate and style status
-          switch (statusText) {
-            case "waiting":
-              statusText = "Oczekujący";
-              statusClass = "medium";
-              break;
-            case "in progress":
-              statusText = "W trakcie";
-              statusClass = "informative";
-              break;
-            case "success":
-              statusText = "Gotowa";
-              statusClass = "positive";
-              break;
-            case "error":
-              statusText = "Błąd";
-              statusClass = "negative";
-              break;
-            default:
-              statusClass = ""; // No specific class for undefined statuses
+          const pricatStatus = document.getElementById("pricatStatus");
+
+          // Przetwarzanie danych sklepów
+          const shopsData = data.shops.map((shop) => {
+            let statusText = shop.status || "No Status";
+            let statusClass = "";
+
+            switch (statusText) {
+              case "waiting":
+                statusText = "Oczekujący";
+                statusClass = "medium";
+                break;
+              case "in progress":
+                statusText = "W trakcie";
+                statusClass = "informative";
+                break;
+              case "success":
+                statusText = "Gotowa";
+                statusClass = "positive";
+                break;
+              case "error":
+                statusText = "Błąd";
+                statusClass = "negative";
+                break;
+            }
+
+            return {
+              key: shop.key,
+              status: statusText,
+              statusClass: statusClass,
+            };
+          });
+
+          // Wyświetlanie statusów
+          if (shopsData.length > 5) {
+            const tooltipContent = shopsData
+              .map(
+                (shop) =>
+                  `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
+              )
+              .join(", ");
+            pricatStatus.textContent = `${shopsData.length} shops with statuses`;
+            pricatStatus.classList.add("tippy");
+            pricatStatus.setAttribute("data-tippy-content", tooltipContent);
+            tippy(pricatStatus, { allowHTML: true });
+          } else {
+            pricatStatus.innerHTML = shopsData
+              .map(
+                (shop) =>
+                  `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`
+              )
+              .join(", ");
           }
-
-          return {
-            key: shop.key,
-            status: statusText,
-            statusClass: statusClass,
-          };
-        });
-
-        // Populate the select element by selecting only the existing options that match keys in shopsData
-        const select2 = document.getElementById("shopKeys");
-
-        // Create a Set of shop keys for faster lookup
-        const shopKeysSet = new Set(shopsData.map((shop) => shop.key));
-
-        // Loop through existing options and select those that match keys in shopsData
-        Array.from(select2.options).forEach((option) => {
-          option.selected = shopKeysSet.has(option.value);
-        });
-
-        console.log(shopKeysSet);
-        $("#shopKeys").prop("disabled", true);
-
-        // Display statuses in the pricatStatus element or use tooltip if needed
-        if (shopsData.length > 5) {
-          // Merge into a single tooltip if more than 5 shops
-          const tooltipContent = shopsData
-            .map(
-              (shop) =>
-                `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
-            )
-            .join(", ");
-          pricatStatus.textContent = `${shopsData.length} shops with statuses`;
-          pricatStatus.classList.add("tippy"); // Add class for tooltip
-
-          // Set the tooltip content with HTML
-          pricatStatus.setAttribute("data-tippy-content", tooltipContent);
-          tippy(pricatStatus, { allowHTML: true }); // Enable HTML content in tooltip
-        } else {
-          // Display each shop's status directly if 5 or fewer shops, with styling
-          pricatStatus.innerHTML = shopsData
-            .map(
-              (shop) =>
-                `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`
-            )
-            .join(", ");
-        }
-
-        // Toggle selection on mousedown
-        $(select).on("mousedown", "option", function (e) {
-          e.preventDefault();
-          $(this).prop("selected", !$(this).prop("selected"));
-          return false;
-        });
-      },
-      error: function (jqXHR, exception) {
-        let msg =
-          jqXHR.status === 504
-            ? "Przekroczono limit czasu żądania."
-            : "Błąd: Wystąpił nieoczekiwany błąd.";
-        displayMessage("Error", msg);
-        $("#waitingdots").hide();
-      },
-    });
+        },
+        error: function (jqXHR) {
+          let msg =
+            jqXHR.status === 504
+              ? "Przekroczono limit czasu żądania."
+              : "Błąd: Wystąpił nieoczekiwany błąd.";
+          displayMessage("Error", msg);
+          $("#waitingdots").hide();
+        },
+      });
+    } catch (error) {
+      console.error("An error occurred while fetching price list:", error);
+      displayMessage("Error", "Nie udało się pobrać listy sklepów.");
+    }
   }
 
   // Zaktualizowana funkcja makeWebflowFormAjaxEditPriceList
@@ -549,16 +553,6 @@ docReady(function () {
       });
     });
   };
-
-  // Funkcja do tłumaczenia wiadomości błędu, jeśli jest potrzebna
-  function translateErrorMessage(message) {
-    const errorTranslations = {
-      "Timeout exceeded": "Przekroczono limit czasu",
-      "Unauthorized access": "Nieautoryzowany dostęp",
-      // Dodaj inne tłumaczenia błędów, jeśli są potrzebne
-    };
-    return errorTranslations[message] || message;
-  }
 
   function initializeProductTable(priceListId) {
     // Sprawdzenie, czy tabela już istnieje, i jej zniszczenie, aby odświeżyć dane
@@ -696,14 +690,20 @@ docReady(function () {
           orderable: false,
           render: function (data) {
             // Sprawdź, czy są jakieś wiadomości w pierwszym elemencie tablicy asks
-            if (data && data.length > 0 && data[0].messages && data[0].messages.length > 0) {
+            if (
+              data &&
+              data.length > 0 &&
+              data[0].messages &&
+              data[0].messages.length > 0
+            ) {
               // Połącz wszystkie wiadomości w jedną listę z odpowiednimi znacznikami HTML
-              return data[0].messages.map(message => `<div>${message}</div>`).join("");
+              return data[0].messages
+                .map((message) => `<div>${message}</div>`)
+                .join("");
             }
             return ""; // Zwróć pusty ciąg, jeśli nie ma wiadomości
           },
         },
-        
       ],
     });
     // Attach keypress event listener for the search input
