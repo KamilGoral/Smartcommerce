@@ -359,13 +359,17 @@ docReady(function () {
   // Funkcja przygotowująca dane do wysyłki w AJAX
   const setupFormData = (editPermissions) => {
     const data = [];
-    if (editPermissions.canEditStartDate) {
+
+    // Include startDate only if it can be edited
+    if (editPermissions.canEditStartDate && !$("#startDate").prop("disabled")) {
       data.push({
         op: "replace",
         path: "/startDate",
         value: $("#startDate").val() + "T00:00:01.00Z",
       });
     }
+
+    // Include endDate only if it can be edited
     if (editPermissions.canEditEndDate) {
       data.push({
         op: "replace",
@@ -373,6 +377,7 @@ docReady(function () {
         value: $("#endDate").val() + "T23:59:59.00Z",
       });
     }
+
     return data;
   };
 
@@ -396,23 +401,31 @@ docReady(function () {
           $("#waitingdots").hide();
         },
         success: function (data) {
+          // Set the global pricatId variable
+          pricatId = data.id;
+
           // Extract and store the initial shop keys
           initialShopKeys = data.shops.map((shop) => shop.key);
-          console.log("Initial shop keys set:", initialShopKeys);
 
           const isFtp =
             data.created.by.includes("FTP") || data.modified.by.includes("FTP");
           document.getElementById("pricatFTP").textContent = isFtp;
+
+          // Check if the price list is ongoing
+          const isOngoing =
+            new Date(data.startDate) <= new Date() &&
+            new Date(data.endDate) >= new Date();
+
+          // Disable start date editing if the price list is ongoing
+          if (isOngoing) {
+            $("#startDate").prop("disabled", true);
+          }
 
           const editPermissions = isEditable(
             data.startDate,
             data.endDate,
             isFtp
           );
-          if (!editPermissions.canEditStartDate)
-            $("#startDate").prop("disabled", true);
-          if (!editPermissions.canEditEndDate)
-            $("#endDate").prop("disabled", true);
 
           document.getElementById("wholesalerKey").textContent =
             data.wholesalerKey;
@@ -439,7 +452,6 @@ docReady(function () {
             let statusText = shop.status || "No Status";
             let statusClass = "";
 
-            // Translate and style status
             switch (statusText) {
               case "waiting":
                 statusText = "Oczekujący";
@@ -497,13 +509,6 @@ docReady(function () {
               )
               .join(", ");
           }
-
-          // Toggle selection on mousedown
-          $(select).on("mousedown", "option", function (e) {
-            e.preventDefault();
-            $(this).prop("selected", !$(this).prop("selected"));
-            return false;
-          });
         },
         error: function (jqXHR, exception) {
           let msg =
@@ -518,8 +523,6 @@ docReady(function () {
       console.error("An error occurred:", error);
     }
   }
-
-  //siema
 
   function prepareShopKeysUpdate(updatedShopKeys, priceListId) {
     const operations = [];
