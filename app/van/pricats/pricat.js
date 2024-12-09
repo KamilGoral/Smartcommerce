@@ -880,6 +880,13 @@ docReady(function () {
     downloadProductCsv(priceListId);
   });
 
+  // Toggle selection on mousedown
+  $("#shopKeys").on("mousedown", "option", function (e) {
+    e.preventDefault();
+    $(this).prop("selected", !$(this).prop("selected"));
+    return false;
+  });
+
   // Wywołanie funkcji po załadowaniu dokumentu
   $(document).ready(function () {
     initializeProductTable(priceListId);
