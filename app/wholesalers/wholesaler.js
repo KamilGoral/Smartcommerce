@@ -589,6 +589,14 @@ docReady(function () {
               firstCreateDate + " Niekompletna"
             );
           }
+          if (item.status === "In progress") {
+            row.classList.add("warning");
+            row.classList.add("tippy");
+            row.setAttribute(
+              "data-tippy-content",
+              firstCreateDate + " W trakcie"
+            );
+          }
           if (item.status === "Succeeded") {
             row.classList.add("tippy");
             row.setAttribute("data-tippy-content", firstCreateDate + " Sukces");
