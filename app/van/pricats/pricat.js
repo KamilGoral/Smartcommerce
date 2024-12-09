@@ -401,9 +401,6 @@ docReady(function () {
           $("#waitingdots").hide();
         },
         success: function (data) {
-          // Set the global pricatId variable
-          pricatId = data.id;
-
           // Extract and store the initial shop keys
           initialShopKeys = data.shops.map((shop) => shop.key);
 
@@ -609,12 +606,15 @@ docReady(function () {
             document.getElementById("shopKeys").selectedOptions
           ).map((option) => option.value);
 
-          const operations = prepareShopKeysUpdate(updatedShopKeys, pricatId);
+          const operations = prepareShopKeysUpdate(
+            updatedShopKeys,
+            priceListId
+          );
 
           // Perform the PATCH request for shop key updates if there are changes
           if (operations.length > 0) {
             const shopKeyPatchResponse = await $.ajax({
-              url: `${InvokeURL}van/transactions/${pricatId}`,
+              url: `${InvokeURL}van/transactions/${priceListId}`,
               type: "PATCH",
               headers: {
                 Authorization: orgToken,
