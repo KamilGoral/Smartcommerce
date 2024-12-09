@@ -285,11 +285,17 @@ docReady(function () {
       let url = new URL(InvokeURL + "shops");
       let request = new XMLHttpRequest();
 
+      // Show the waiting dots before the request starts
+      $("#waitingdots").show();
+
       request.open("GET", url, true);
       request.setRequestHeader("Authorization", orgToken);
       request.setRequestHeader("Requested-By", "webflow-3-4");
 
       request.onload = function () {
+        // Hide the waiting dots once the request is complete
+        $("#waitingdots").hide();
+
         if (request.status >= 200 && request.status < 400) {
           try {
             var data = JSON.parse(this.response);
@@ -320,6 +326,8 @@ docReady(function () {
       };
 
       request.onerror = function () {
+        // Hide the waiting dots on error
+        $("#waitingdots").hide();
         reject("Network error occurred"); // Reject the promise on network error
       };
 
