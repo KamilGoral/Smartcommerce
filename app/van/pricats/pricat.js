@@ -560,26 +560,6 @@ docReady(function () {
     return operations;
   }
 
-  function fireUpdateRequest(operations, priceListId) {
-    $.ajax({
-      url: `${InvokeURL}van/transactions/${priceListId}`,
-      type: "PATCH",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-        "Content-Type": "application/json-patch+json",
-      },
-      data: JSON.stringify(operations),
-      success: function (response) {
-        console.log("Update successful:", response);
-      },
-      error: function (jqXHR, exception) {
-        console.error("Error updating shop keys:", jqXHR, exception);
-      },
-    });
-  }
-
-  // Zaktualizowana funkcja makeWebflowFormAjaxEditPriceList
   makeWebflowFormAjaxEditPriceList = function (
     forms,
     successCallback,
@@ -589,7 +569,9 @@ docReady(function () {
       var form = $(this);
 
       form.on("submit", async function (event) {
-        event.preventDefault(); // Prevent default form submission behavior
+        // Prevent default form submission behavior
+        event.preventDefault();
+        event.stopImmediatePropagation(); // Stop further event propagation
 
         // Extract and convert "pricatFTP" to a boolean
         const pricatFTPText = document
@@ -676,7 +658,7 @@ docReady(function () {
           );
         }
 
-        return false;
+        return false; // Ensure no further actions are triggered
       });
     });
   };
