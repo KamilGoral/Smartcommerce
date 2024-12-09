@@ -618,7 +618,7 @@ docReady(function () {
               headers: {
                 Authorization: orgToken,
                 "Requested-By": "webflow-3-4",
-                "Content-Type": "application/json-patch+json",
+                "Content-Type": "application/json",
               },
               data: JSON.stringify(operations),
             });
