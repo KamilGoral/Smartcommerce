@@ -559,49 +559,47 @@ docReady(function () {
       var toParse = data.items;
       console.log(toParse);
       const statusContainer = document.getElementById("StatusContainer");
+      function getStatusLabel(status) {
+        switch (status) {
+          case "Failed":
+            return "Problem";
+          case "Incomplete":
+            return "Niekompletna";
+          case "In progress":
+            return "W trakcie";
+          case "Succeeded":
+            return "Sukces";
+          default:
+            return "";
+        }
+      }
 
       if (request.status >= 200 && request.status < 400 && data.total > 0) {
         toParse.forEach((item) => {
-          const style = document.getElementById("sampleStatus");
-          const row = style.cloneNode(true);
-          row.style.display = "block";
-          var firstCreateDate = "";
-          var offset = new Date().getTimezoneOffset();
-          var localeTime = new Date(
-            Date.parse(item.createDate) - offset * 60 * 1000
-          ).toISOString();
-          var creationDate = localeTime.split("T");
-          firstCreateDate = creationDate[0];
+          if (item.status !== null) {
+            const style = document.getElementById("sampleStatus");
+            const row = style.cloneNode(true);
+            row.style.display = "block";
 
-          if (item.status === "Failed") {
-            row.classList.add("fail");
+            const offset = new Date().getTimezoneOffset();
+            const localeTime = new Date(
+              Date.parse(item.createDate) - offset * 60 * 1000
+            ).toISOString();
+            const firstCreateDate = localeTime.split("T")[0];
+
             row.classList.add("tippy");
             row.setAttribute(
               "data-tippy-content",
-              firstCreateDate + " Problem"
+              `${firstCreateDate} ${getStatusLabel(item.status)}`
             );
+
+            if (item.status === "Failed") row.classList.add("fail");
+            if (item.status === "Incomplete" || item.status === "In progress") {
+              row.classList.add("warning");
+            }
+
+            statusContainer.appendChild(row);
           }
-          if (item.status === "Incomplete") {
-            row.classList.add("warning");
-            row.classList.add("tippy");
-            row.setAttribute(
-              "data-tippy-content",
-              firstCreateDate + " Niekompletna"
-            );
-          }
-          if (item.status === "In progress") {
-            row.classList.add("warning");
-            row.classList.add("tippy");
-            row.setAttribute(
-              "data-tippy-content",
-              firstCreateDate + " W trakcie"
-            );
-          }
-          if (item.status === "Succeeded") {
-            row.classList.add("tippy");
-            row.setAttribute("data-tippy-content", firstCreateDate + " Sukces");
-          }
-          statusContainer.appendChild(row);
         });
       } else {
         console.log("here");
