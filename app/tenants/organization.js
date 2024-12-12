@@ -1815,64 +1815,6 @@ docReady(function () {
     request.send();
   }
 
-  async function monitorSearchChanges() {
-    const searchInput = document.querySelector(
-      "input[type='search'][aria-controls='table_wholesalers_list']"
-    );
-    const resultsInfo = document.querySelector("#table_wholesalers_list_info");
-
-    if (!searchInput || !resultsInfo) {
-      console.error("Nie znaleziono elementów do monitorowania.");
-      return false;
-    }
-
-    console.log("Rozpoczęto monitorowanie pola wyszukiwania.");
-
-    let previousInfoContent = resultsInfo.textContent;
-    let attempts = 0;
-    let maxAttempts = 3;
-
-    return new Promise((resolve) => {
-      const listener = () => {
-        const searchValue = searchInput.value;
-        const currentInfoContent = resultsInfo.textContent;
-
-        console.log(
-          `Wprowadzono: "${searchValue}" (${searchValue.length} znaków)`
-        );
-
-        if (searchValue.length >= 3) {
-          if (currentInfoContent !== previousInfoContent) {
-            console.log("Zawartość wyników uległa zmianie.");
-            resolve(true); // Zwróć true, gdy zawartość się zmieni
-            searchInput.removeEventListener("input", listener); // Usuń listener
-          } else {
-            console.warn("Zawartość wyników NIE zmieniła się.");
-            attempts++;
-            if (attempts >= maxAttempts) {
-              console.warn("Nie udało się zmienić wyników po 3 próbach.");
-              resolve(false); // Zwróć false po 3 nieudanych próbach
-              searchInput.removeEventListener("input", listener); // Usuń listener
-            }
-          }
-          previousInfoContent = currentInfoContent; // Zaktualizuj poprzedni stan
-        } else {
-          console.log("Za mało znaków w polu wyszukiwania.");
-        }
-      };
-
-      searchInput.addEventListener("input", listener);
-    });
-  }
-
-  monitorSearchChanges().then((result) => {
-    if (result) {
-      console.log("Tabela poprawnie zareagowała na wyszukiwanie.");
-    } else {
-      console.log("Tabela nie zareagowała na wyszukiwanie po 3 próbach.");
-    }
-  });
-
   async function getIntegrations() {
     let attempts = 0;
 
