@@ -1429,6 +1429,7 @@ docReady(function () {
         const wholesalerTenantMapping = {
           Slodhurt: "slod-hurt",
           HurtowniaTEDI: "kd-tedi",
+          HurtowniaMerkury: "merkury",
         };
 
         if (getCookie("OrganizationName") in wholesalerTenantMapping) {
