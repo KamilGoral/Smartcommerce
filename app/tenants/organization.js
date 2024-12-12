@@ -3105,6 +3105,9 @@ docReady(function () {
         const organizationName = $("#organizationName").text();
 
         const url = `${InvokeURL}billing`;
+        const actionTwo = `${InvokeURL}tenants/${organizationName}`;
+
+        // Pobierz aktualne dane billingowe
         $.ajax({
           type: "GET",
           url: url,
@@ -3148,13 +3151,39 @@ docReady(function () {
                     "Success",
                     "Dane billingowe zostały zaktualizowane."
                   );
+
+                  // Jeśli billing się udał i taxId zmieniony, wykonaj drugi PATCH na actionTwo
                   if (taxIdChanged) {
-                    // Jeśli billing się udał i taxId zmieniony, wykonaj drugi PATCH
-                    patchTaxId(organizationName, newTaxId, function () {
-                      displayMessage(
-                        "Success",
-                        "Numer NIP został zaktualizowany."
-                      );
+                    $.ajax({
+                      type: "PATCH",
+                      url: actionTwo,
+                      data: JSON.stringify([
+                        { op: "replace", path: "/taxId", value: newTaxId },
+                      ]),
+                      contentType: "application/json",
+                      dataType: "json",
+                      headers: {
+                        Authorization: orgToken,
+                        "Requested-By": "webflow-3-4",
+                      },
+                      beforeSend: function () {
+                        $("#waitingdots").show();
+                      },
+                      complete: function () {
+                        $("#waitingdots").hide();
+                      },
+                      success: function () {
+                        displayMessage(
+                          "Success",
+                          "Numer NIP został zaktualizowany."
+                        );
+                      },
+                      error: function () {
+                        displayMessage(
+                          "Error",
+                          "Nie udało się zaktualizować numeru NIP."
+                        );
+                      },
                     });
                   }
                 },
@@ -3166,13 +3195,7 @@ docReady(function () {
                 },
               });
             } else {
-              displayMessage("Info", "Brak zmian do zapisania.");
-              if (taxIdChanged) {
-                // W przypadku, gdy dane billingowe się nie zmieniły, ale zmiana taxId jest konieczna
-                patchTaxId(organizationName, newTaxId, function () {
-                  displayMessage("Success", "Numer NIP został zaktualizowany.");
-                });
-              }
+              displayMessage("Success", "Brak zmian do zapisania.");
             }
           },
           error: function () {
