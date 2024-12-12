@@ -1481,7 +1481,7 @@ docReady(function () {
       const enabledWholesalers = data.filter((item) => item.enabled);
 
       $("#table_wholesalers_list").DataTable({
-        data: toParse,
+        data: data,
         pagingType: "full_numbers",
         order: [],
         dom: '<"top">frt<"bottom"lip>',
@@ -1772,16 +1772,14 @@ docReady(function () {
     );
 
     function addToSecondTable(data) {
-      var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
+      const tableBonus = $("#table_wholesalers_list_bonus").DataTable();
       tableBonus.row.add(data).draw();
     }
 
     function removeFromSecondTable(wholesalerKey) {
-      var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
-      var rowIndex = tableBonus
-        .rows(function (idx, data, node) {
-          return data.wholesalerKey === wholesalerKey;
-        })
+      const tableBonus = $("#table_wholesalers_list_bonus").DataTable();
+      const rowIndex = tableBonus
+        .rows((idx, data, node) => data.wholesalerKey === wholesalerKey)
         .indexes();
       tableBonus.row(rowIndex).remove().draw();
     }
