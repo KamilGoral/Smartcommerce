@@ -1792,57 +1792,6 @@ docReady(function () {
             }
           }
         );
-        $("#table_wholesalers_list input[type='search']").on(
-          "input",
-          function () {
-            const table = $("#table_wholesalers_list").DataTable(); // Pobranie instancji tabeli
-            const searchValue = $(this).val();
-
-            // Monitoruj tylko, gdy wpisano co najmniej 3 znaki
-            if (searchValue.length < 3) {
-              console.log(
-                "Wpisano mniej niż 3 znaki. Funkcja nie jest aktywna."
-              );
-              return;
-            }
-
-            console.log(`Wyszukiwanie rozpoczęte: "${searchValue}"`);
-            let previousLength = table
-              .rows({ search: "applied" })
-              .data().length;
-
-            // Poczekaj chwilę, aby upewnić się, że DataTable zakończyło filtrowanie
-            setTimeout(async () => {
-              let currentLength = table
-                .rows({ search: "applied" })
-                .data().length;
-
-              console.log(`Poprzednia liczba wyników: ${previousLength}`);
-              console.log(`Aktualna liczba wyników: ${currentLength}`);
-
-              // Jeśli liczba wierszy się nie zmniejszy, ponownie zainicjalizuj tabelę
-              if (currentLength === previousLength) {
-                console.warn(
-                  `Tabela nie zareagowała na wyszukiwanie. Reinicjalizacja przez getWholesalers...`
-                );
-
-                table.destroy(); // Zniszcz starą instancję DataTable
-                console.log("Tabela została zniszczona.");
-
-                // Wywołaj funkcję ponownej inicjalizacji
-                await getWholesalers();
-                console.log(
-                  "Tabela została ponownie zainicjalizowana przez getWholesalers."
-                );
-              } else {
-                console.log("Tabela poprawnie zareagowała na wyszukiwanie.");
-                // Wyłącz monitorowanie pola input
-                $("#table_wholesalers_list input[type='search']").off("input");
-                console.log("Pole input zostało zwolnione z monitorowania.");
-              }
-            }, 300); // Czas oczekiwania na zakończenie filtrowania
-          }
-        );
         function addToSecondTable(data) {
           var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
           tableBonus.row.add(data).draw();
