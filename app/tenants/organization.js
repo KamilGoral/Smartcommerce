@@ -1663,8 +1663,6 @@ docReady(function () {
             },
           ],
           initComplete: function () {
-            console.log("Tabela została w pełni zainicjalizowana");
-
             // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
             $(
               'input[type="search"][aria-controls="table_wholesalers_list"]'
@@ -1772,8 +1770,6 @@ docReady(function () {
             },
           ],
           initComplete: function () {
-            console.log("Tabela została w pełni zainicjalizowana");
-
             // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
             $(
               'input[type="search"][aria-controls="table_wholesalers_list_bonus"]'
@@ -3219,14 +3215,20 @@ docReady(function () {
 
     // Compare each property to see if any part of the address has changed
     var addressChanged = false;
-    for (var key in newAddress) {
-      if (
-        newAddress[key] !==
-        (currentData.address[key] === null ? null : currentData.address[key])
-      ) {
-        addressChanged = true;
-        break;
+
+    if (currentData.address) {
+      for (var key in newAddress) {
+        if (
+          newAddress[key] !==
+          (currentData.address[key] === null ? null : currentData.address[key])
+        ) {
+          addressChanged = true;
+          break;
+        }
       }
+    } else {
+      // Jeśli address w currentData jest null, każde nowe dane są zmianą
+      addressChanged = true;
     }
 
     if (addressChanged || taxIdChanged) {
@@ -3279,7 +3281,11 @@ docReady(function () {
       }
     }
 
-    return patchData;
+    return {
+      patchData,
+      taxIdChanged,
+      newTaxId,
+    };
   }
 
   function initializeSimpleTooltips() {
