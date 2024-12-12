@@ -1492,6 +1492,7 @@ docReady(function () {
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
+          deferRender: true, // specjalne opoznienie
           pageLength: 100,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
@@ -1665,6 +1666,7 @@ docReady(function () {
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
+          deferRender: true,
           pageLength: 100,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
