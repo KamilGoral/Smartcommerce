@@ -1413,8 +1413,12 @@ docReady(function () {
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
+    request.onreadystatechange = function () {
+      if (
+        request.readyState === 4 &&
+        request.status >= 200 &&
+        request.status < 400
+      ) {
         var data = JSON.parse(this.response);
         var toParse = data.items;
         toParse.sort(function (a, b) {
@@ -1808,7 +1812,7 @@ docReady(function () {
         }
       }
 
-      if (request.status == 401) {
+      if (request.readyState === 4 && request.status == 401) {
         console.log("Unauthorized");
       }
     };
