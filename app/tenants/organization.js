@@ -1661,6 +1661,16 @@ docReady(function () {
               },
             },
           ],
+          initComplete: function () {
+            console.log("Tabela została w pełni zainicjalizowana");
+
+            // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
+            $(
+              'input[type="search"][aria-controls="table_wholesalers_list"]'
+            ).on("keyup", (e) => {
+              this.api().search(e.target.value).draw();
+            });
+          },
         });
         $("#table_wholesalers_list_bonus").DataTable({
           data: enabledWholesalers,
@@ -1760,6 +1770,16 @@ docReady(function () {
               },
             },
           ],
+          initComplete: function () {
+            console.log("Tabela została w pełni zainicjalizowana");
+
+            // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
+            $(
+              'input[type="search"][aria-controls="table_wholesalers_list_bonus"]'
+            ).on("keyup", (e) => {
+              this.api().search(e.target.value).draw();
+            });
+          },
         });
         $("#table_wholesalers_list").on(
           "change",
