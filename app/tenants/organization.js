@@ -1517,6 +1517,7 @@ docReady(function () {
           columns: [
             {
               orderable: false,
+              searchable: false,
               data: "image",
               width: "36px",
               height: "36px",
@@ -1599,6 +1600,7 @@ docReady(function () {
             },
             {
               orderable: true,
+              searchable: false,
               data: "connections.retroactive",
               width: "108px",
               visible: true,
@@ -1688,6 +1690,7 @@ docReady(function () {
           columns: [
             {
               orderable: false,
+              searchable: false,
               data: "image",
               width: "36px",
               height: "36px",
