@@ -1398,6 +1398,32 @@ docReady(function () {
   }
 
   async function getWholesalers() {
+    const ORGANIZATION_NAME = getCookie("OrganizationName");
+    const STORAGE_KEY = `wholesalers_${ORGANIZATION_NAME}`;
+    const EXPIRY_KEY = `${STORAGE_KEY}_expiry`;
+
+    function isLocalStorageValid() {
+      const expiry = localStorage.getItem(EXPIRY_KEY);
+      return expiry && new Date().getTime() < parseInt(expiry, 10);
+    }
+
+    function saveToLocalStorage(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const expiryTime = new Date().getTime() + 4 * 60 * 60 * 1000; // 4 hours
+      localStorage.setItem(EXPIRY_KEY, expiryTime);
+    }
+
+    function clearLocalStorage() {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(EXPIRY_KEY);
+    }
+
+    function loadFromLocalStorage() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    }
+
+    let attempts = 0;
+
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -1408,411 +1434,357 @@ docReady(function () {
       return;
     }
 
-    let url = new URL(InvokeURL + "wholesalers?perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(this.response);
-        var toParse = data.items;
-        toParse.sort(function (a, b) {
-          return b.enabled - a.enabled;
-        });
+    if (isLocalStorageValid()) {
+      const cachedData = loadFromLocalStorage();
+      populateTable(cachedData);
+      return;
+    }
 
-        // Define mapping of wholesalerKey to organizationName
+    try {
+      const url = new URL(InvokeURL + "wholesalers?perPage=1000");
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const wholesalers = data.items.sort((a, b) => b.enabled - a.enabled);
+
         const wholesalerTenantMapping = {
           Slodhurt: "slod-hurt",
           HurtowniaTEDI: "kd-tedi",
         };
 
-        if (getCookie("OrganizationName") in wholesalerTenantMapping) {
-          toParse = toParse.filter(function (item) {
-            return (
-              item.wholesalerKey ===
-              wholesalerTenantMapping[getCookie("OrganizationName")]
-            );
-          });
-        }
+        const filteredWholesalers =
+          getCookie("OrganizationName") in wholesalerTenantMapping
+            ? wholesalers.filter(
+                (item) =>
+                  item.wholesalerKey ===
+                  wholesalerTenantMapping[ORGANIZATION_NAME]
+              )
+            : wholesalers;
 
-        // Code for exclusive
+        saveToLocalStorage(filteredWholesalers);
+        populateTable(filteredWholesalers);
+      } else {
+        console.error("Failed to fetch wholesalers. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching wholesalers:", error);
+    }
 
-        const wholesalerContainer = document.getElementById("wholesalerPicker");
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer.appendChild(opt);
-          }
-        });
+    function populateTable(data) {
+      const enabledWholesalers = data.filter((item) => item.enabled);
 
-        // Code for documents
-
-        const wholesalerContainerDocuments =
-          document.getElementById("documentWholesaler");
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainerDocuments.appendChild(opt);
-          }
-        });
-
-        const wholesalerContainer2 = document.getElementById(
-          "WholesalerSelector-Exclusive-Edit"
-        );
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer2.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer2.appendChild(opt);
-          }
-        });
-
-        var enabledWholesalers = toParse.filter(function (item) {
-          return item.enabled === true;
-        });
-
-        $("#table_wholesalers_list").DataTable({
-          data: toParse,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 100,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
+      $("#table_wholesalers_list").DataTable({
+        data: toParse,
+        pagingType: "full_numbers",
+        order: [],
+        dom: '<"top">frt<"bottom"lip>',
+        scrollY: "60vh",
+        scrollCollapse: true,
+        pageLength: 100,
+        language: {
+          emptyTable: "Brak danych do wyświetlenia",
+          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+          infoEmpty: "Brak danych",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
+          loadingRecords: "<div class='spinner'</div>",
+          processing: "<div class='spinner'</div>",
+          search: "Szukaj:",
+          zeroRecords: "Brak pasujących rezultatów",
+          paginate: {
+            first: "<<",
+            last: ">>",
+            next: " >",
+            previous: "< ",
+          },
+          aria: {
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
+          },
+        },
+        columns: [
+          {
+            orderable: false,
+            searchable: false,
+            data: "image",
+            width: "36px",
+            height: "36px",
+            render: function (data) {
+              if (data !== null) {
+                return (
+                  "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
+                  data +
+                  "' alt='logo'></img></div>"
+                );
+              }
+              if (data === null) {
+                return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
+              }
             },
           },
-          columns: [
-            {
-              orderable: false,
-              searchable: false,
-              data: "image",
-              width: "36px",
-              height: "36px",
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
-                    data +
-                    "' alt='logo'></img></div>"
-                  );
-                }
-                if (data === null) {
-                  return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
-                }
-              },
+          {
+            orderable: true,
+            data: "name",
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
             },
-            {
-              orderable: true,
-              data: "name",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
+          },
+          {
+            orderable: true,
+            data: "taxId",
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
             },
-            {
-              orderable: true,
-              data: "taxId",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
+          },
+          {
+            orderable: true,
+            data: "address",
+            visible: false,
+            render: function (data) {
+              if (data !== null) {
+                return (
+                  data.state &&
+                  data.state[0].toUpperCase() + data.state.slice(1)
+                );
+              }
+              if (data === null) {
+                return "";
+              }
             },
-            {
-              orderable: true,
-              data: "address",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    data.state &&
-                    data.state[0].toUpperCase() + data.state.slice(1)
-                  );
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
+          },
+          {
+            orderable: false,
+            data: "wholesalerKey",
+            visible: false,
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
             },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
+          },
+          {
+            orderable: true,
+            data: "platformUrl",
+            render: function (data) {
+              if (data !== null) {
+                return '<spann class="positive">Tak</spann>';
+              } else {
+                return '<spann class="negative">Nie</spann>';
+              }
             },
-            {
-              orderable: true,
-              data: "platformUrl",
-              render: function (data) {
-                if (data !== null) {
+          },
+          {
+            orderable: true,
+            searchable: false,
+            data: "connections.retroactive",
+            width: "108px",
+            visible: true,
+            render: function (data) {
+              if (data !== null) {
+                if (data.enabled) {
                   return '<spann class="positive">Tak</spann>';
                 } else {
                   return '<spann class="negative">Nie</spann>';
                 }
-              },
-            },
-            {
-              orderable: true,
-              searchable: false,
-              data: "connections.retroactive",
-              width: "108px",
-              visible: true,
-              render: function (data) {
-                if (data !== null) {
-                  if (data.enabled) {
-                    return '<spann class="positive">Tak</spann>';
-                  } else {
-                    return '<spann class="negative">Nie</spann>';
-                  }
-                } else {
-                  return '<spann class="negative">Nie</spann>';
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "enabled",
-              render: function (data, type, row) {
-                if (type === "display") {
-                  if (data) {
-                    return (
-                      '<label class="switchCss"><input type="checkbox" checked class="editor-active"  wholesalerKey="' +
-                      row["wholesalerKey"] +
-                      '"><span class="slider round"></span></label>'
-                    );
-                  } else {
-                    return (
-                      '<label class="switchCss"><input type="checkbox" class="editor-active" wholesalerKey="' +
-                      row["wholesalerKey"] +
-                      '"><span class="slider round"></span></label>'
-                    );
-                  }
-                }
-                return data;
-              },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              render: function (data) {
-                if (data !== null) {
-                  return (
-                    '<div class="action-container"><a href="https://' +
-                    DomainName +
-                    "/app/wholesalers/wholesaler-page?wholesalerKey=" +
-                    data +
-                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
-                  );
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-          ],
-        });
-        $("#table_wholesalers_list_bonus").DataTable({
-          data: enabledWholesalers,
-          pagingType: "full_numbers",
-          order: [],
-          dom: '<"top">frt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 100,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
+              } else {
+                return '<spann class="negative">Nie</spann>';
+              }
             },
           },
-          columns: [
-            {
-              orderable: false,
-              searchable: false,
-              data: "image",
-              width: "36px",
-              height: "36px",
-              render: function (data) {
-                if (data !== null) {
+          {
+            orderable: true,
+            data: "enabled",
+            render: function (data, type, row) {
+              if (type === "display") {
+                if (data) {
                   return (
-                    "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
-                    data +
-                    "' alt='logo'></img></div>"
+                    '<label class="switchCss"><input type="checkbox" checked class="editor-active"  wholesalerKey="' +
+                    row["wholesalerKey"] +
+                    '"><span class="slider round"></span></label>'
+                  );
+                } else {
+                  return (
+                    '<label class="switchCss"><input type="checkbox" class="editor-active" wholesalerKey="' +
+                    row["wholesalerKey"] +
+                    '"><span class="slider round"></span></label>'
                   );
                 }
-                if (data === null) {
-                  return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
-                }
-              },
+              }
+              return data;
             },
-            {
-              orderable: true,
-              data: "name",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "taxId",
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              visible: false,
-              render: function (data) {
-                if (data !== null) {
-                  return data;
-                }
-                if (data === null) {
-                  return "";
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: "preferentialBonus",
-              render: function (data, type, row) {
+          },
+          {
+            orderable: false,
+            data: "wholesalerKey",
+            render: function (data) {
+              if (data !== null) {
                 return (
-                  '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
+                  '<div class="action-container"><a href="https://' +
+                  DomainName +
+                  "/app/wholesalers/wholesaler-page?wholesalerKey=" +
                   data +
-                  '">'
+                  '"class="buttonoutline editme w-button">Przejdź</a></div>'
                 );
-              },
+              }
+              if (data === null) {
+                return "";
+              }
             },
-          ],
-        });
-        $("#table_wholesalers_list").on(
-          "change",
-          "input.editor-active",
-          function () {
-            var checkbox = this; // Reference to the checkbox
-            var isChecked = checkbox.checked; // Current state
-            var row = $("#table_wholesalers_list")
-              .DataTable()
-              .row($(this).closest("tr")); // Get the DataTable row
-            var data = row.data(); // Get row data
-
-            var onErrorCallback = function () {
-              // Revert checkbox state if there's an error
-              $(checkbox).prop("checked", !isChecked);
-            };
-
-            if (isChecked) {
-              updateStatus(
-                true,
-                checkbox.getAttribute("wholesalerKey"),
-                onErrorCallback
+          },
+        ],
+      });
+      $("#table_wholesalers_list_bonus").DataTable({
+        data: enabledWholesalers,
+        pagingType: "full_numbers",
+        order: [],
+        dom: '<"top">frt<"bottom"lip>',
+        scrollY: "60vh",
+        scrollCollapse: true,
+        pageLength: 100,
+        language: {
+          emptyTable: "Brak danych do wyświetlenia",
+          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+          infoEmpty: "Brak danych",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
+          loadingRecords: "<div class='spinner'</div>",
+          processing: "<div class='spinner'</div>",
+          search: "Szukaj:",
+          zeroRecords: "Brak pasujących rezultatów",
+          paginate: {
+            first: "<<",
+            last: ">>",
+            next: " >",
+            previous: "< ",
+          },
+          aria: {
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
+          },
+        },
+        columns: [
+          {
+            orderable: false,
+            searchable: false,
+            data: "image",
+            width: "36px",
+            height: "36px",
+            render: function (data) {
+              if (data !== null) {
+                return (
+                  "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
+                  data +
+                  "' alt='logo'></img></div>"
+                );
+              }
+              if (data === null) {
+                return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
+              }
+            },
+          },
+          {
+            orderable: true,
+            data: "name",
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
+            },
+          },
+          {
+            orderable: true,
+            data: "taxId",
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
+            },
+          },
+          {
+            orderable: false,
+            data: "wholesalerKey",
+            visible: false,
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
+            },
+          },
+          {
+            orderable: false,
+            data: "preferentialBonus",
+            render: function (data, type, row) {
+              return (
+                '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
+                data +
+                '">'
               );
-              // Add to the second table if enabled
-              addToSecondTable(data);
-            } else {
-              updateStatus(
-                false,
-                checkbox.getAttribute("wholesalerKey"),
-                onErrorCallback
-              );
-              // Remove from the second table if disabled
-              removeFromSecondTable(data.wholesalerKey);
-            }
-          }
-        );
-        function addToSecondTable(data) {
-          var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
-          tableBonus.row.add(data).draw();
+            },
+          },
+        ],
+      });
+    }
+
+    $("#table_wholesalers_list").on(
+      "change",
+      "input.editor-active",
+      function () {
+        const isChecked = this.checked;
+        const wholesalerKey = this.getAttribute("wholesalerKey");
+
+        if (isChecked) {
+          addToSecondTable(wholesalerKey);
+        } else {
+          removeFromSecondTable(wholesalerKey);
         }
 
-        function removeFromSecondTable(wholesalerKey) {
-          var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
-          var rowIndex = tableBonus
-            .rows(function (idx, data, node) {
-              return data.wholesalerKey === wholesalerKey;
-            })
-            .indexes();
-          tableBonus.row(rowIndex).remove().draw();
-        }
+        clearLocalStorage();
       }
+    );
 
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    };
-    request.send();
+    function addToSecondTable(data) {
+      var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
+      tableBonus.row.add(data).draw();
+    }
+
+    function removeFromSecondTable(wholesalerKey) {
+      var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
+      var rowIndex = tableBonus
+        .rows(function (idx, data, node) {
+          return data.wholesalerKey === wholesalerKey;
+        })
+        .indexes();
+      tableBonus.row(rowIndex).remove().draw();
+    }
   }
 
   async function getIntegrations() {
