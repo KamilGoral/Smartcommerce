@@ -1399,27 +1399,65 @@ docReady(function () {
 
   async function getWholesalers() {
     const ORGANIZATION_NAME = getCookie("OrganizationName");
-    const STORAGE_KEY = `wholesalers_${ORGANIZATION_NAME}`;
-    const EXPIRY_KEY = `${STORAGE_KEY}_expiry`;
 
-    function isLocalStorageValid() {
-      const expiry = localStorage.getItem(EXPIRY_KEY);
-      return expiry && new Date().getTime() < parseInt(expiry, 10);
+    async function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("WholesalersDB", 1);
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains("wholesalers")) {
+            db.createObjectStore("wholesalers", { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = (event) => resolve(event.target.result);
+        request.onerror = (event) => reject(event.target.error);
+      });
     }
 
-    function saveToLocalStorage(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      const expiryTime = new Date().getTime() + 4 * 60 * 60 * 1000; // 4 hours
-      localStorage.setItem(EXPIRY_KEY, expiryTime);
+    async function saveToIndexedDB(db, key, data) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction("wholesalers", "readwrite");
+        const store = transaction.objectStore("wholesalers");
+        store.put({ id: key, data: data, timestamp: new Date().getTime() });
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = (event) => reject(event.target.error);
+      });
     }
 
-    function clearLocalStorage() {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(EXPIRY_KEY);
+    async function loadFromIndexedDB(db, key) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction("wholesalers", "readonly");
+        const store = transaction.objectStore("wholesalers");
+        const request = store.get(key);
+
+        request.onsuccess = (event) => resolve(event.target.result);
+        request.onerror = (event) => reject(event.target.error);
+      });
     }
 
-    function loadFromLocalStorage() {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    async function clearIndexedDB(db, key) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction("wholesalers", "readwrite");
+        const store = transaction.objectStore("wholesalers");
+        const request = store.delete(key);
+
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject(event.target.error);
+      });
+    }
+
+    async function isIndexedDBValid(db, key) {
+      const record = await loadFromIndexedDB(db, key);
+      if (
+        record &&
+        new Date().getTime() - record.timestamp < 4 * 60 * 60 * 1000
+      ) {
+        return record.data;
+      }
+      return null;
     }
 
     let attempts = 0;
@@ -1434,8 +1472,10 @@ docReady(function () {
       return;
     }
 
-    if (isLocalStorageValid()) {
-      const cachedData = loadFromLocalStorage();
+    const db = await openDatabase();
+    const cachedData = await isIndexedDBValid(db, ORGANIZATION_NAME);
+
+    if (cachedData) {
       populateTable(cachedData);
       return;
     }
@@ -1468,7 +1508,7 @@ docReady(function () {
               )
             : wholesalers;
 
-        saveToLocalStorage(filteredWholesalers);
+        await saveToIndexedDB(db, ORGANIZATION_NAME, filteredWholesalers);
         populateTable(filteredWholesalers);
       } else {
         console.error("Failed to fetch wholesalers. Status:", response.status);
@@ -1653,105 +1693,6 @@ docReady(function () {
           },
         ],
       });
-      $("#table_wholesalers_list_bonus").DataTable({
-        data: enabledWholesalers,
-        pagingType: "full_numbers",
-        order: [],
-        dom: '<"top">frt<"bottom"lip>',
-        scrollY: "60vh",
-        scrollCollapse: true,
-        pageLength: 100,
-        language: {
-          emptyTable: "Brak danych do wyświetlenia",
-          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-          infoEmpty: "Brak danych",
-          infoFiltered: "(z _MAX_ rezultatów)",
-          lengthMenu: "Pokaż _MENU_ rekordów",
-          loadingRecords: "<div class='spinner'</div>",
-          processing: "<div class='spinner'</div>",
-          search: "Szukaj:",
-          zeroRecords: "Brak pasujących rezultatów",
-          paginate: {
-            first: "<<",
-            last: ">>",
-            next: " >",
-            previous: "< ",
-          },
-          aria: {
-            sortAscending: ": Sortowanie rosnące",
-            sortDescending: ": Sortowanie malejące",
-          },
-        },
-        columns: [
-          {
-            orderable: false,
-            searchable: false,
-            data: "image",
-            width: "36px",
-            height: "36px",
-            render: function (data) {
-              if (data !== null) {
-                return (
-                  "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
-                  data +
-                  "' alt='logo'></img></div>"
-                );
-              }
-              if (data === null) {
-                return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
-              }
-            },
-          },
-          {
-            orderable: true,
-            data: "name",
-            render: function (data) {
-              if (data !== null) {
-                return data;
-              }
-              if (data === null) {
-                return "";
-              }
-            },
-          },
-          {
-            orderable: true,
-            data: "taxId",
-            render: function (data) {
-              if (data !== null) {
-                return data;
-              }
-              if (data === null) {
-                return "";
-              }
-            },
-          },
-          {
-            orderable: false,
-            data: "wholesalerKey",
-            visible: false,
-            render: function (data) {
-              if (data !== null) {
-                return data;
-              }
-              if (data === null) {
-                return "";
-              }
-            },
-          },
-          {
-            orderable: false,
-            data: "preferentialBonus",
-            render: function (data, type, row) {
-              return (
-                '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
-                data +
-                '">'
-              );
-            },
-          },
-        ],
-      });
     }
 
     $("#table_wholesalers_list").on(
@@ -1767,7 +1708,7 @@ docReady(function () {
           removeFromSecondTable(wholesalerKey);
         }
 
-        clearLocalStorage();
+        clearIndexedDB(db, ORGANIZATION_NAME);
       }
     );
 
