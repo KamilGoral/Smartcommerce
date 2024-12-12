@@ -1527,6 +1527,7 @@ docReady(function () {
         dom: '<"top">frt<"bottom"lip>',
         scrollY: "60vh",
         scrollCollapse: true,
+        search: true,
         pageLength: 100,
         language: {
           emptyTable: "Brak danych do wyświetlenia",
@@ -1571,6 +1572,7 @@ docReady(function () {
           },
           {
             orderable: true,
+            searchable: true,
             data: "name",
             render: function (data) {
               if (data !== null) {
@@ -1583,6 +1585,7 @@ docReady(function () {
           },
           {
             orderable: true,
+            searchable: true,
             data: "taxId",
             render: function (data) {
               if (data !== null) {
@@ -1595,6 +1598,7 @@ docReady(function () {
           },
           {
             orderable: true,
+            searchable: true,
             data: "address",
             visible: false,
             render: function (data) {
@@ -1611,6 +1615,7 @@ docReady(function () {
           },
           {
             orderable: false,
+            searchable: false,
             data: "wholesalerKey",
             visible: false,
             render: function (data) {
@@ -1624,6 +1629,7 @@ docReady(function () {
           },
           {
             orderable: true,
+            searchable: true,
             data: "platformUrl",
             render: function (data) {
               if (data !== null) {
@@ -1653,6 +1659,7 @@ docReady(function () {
           },
           {
             orderable: true,
+            searchable: false,
             data: "enabled",
             render: function (data, type, row) {
               if (type === "display") {
@@ -1675,6 +1682,7 @@ docReady(function () {
           },
           {
             orderable: false,
+            searchable: false,
             data: "wholesalerKey",
             render: function (data) {
               if (data !== null) {
@@ -1689,6 +1697,110 @@ docReady(function () {
               if (data === null) {
                 return "";
               }
+            },
+          },
+        ],
+      });
+      $("#table_wholesalers_list_bonus").DataTable({
+        data: enabledWholesalers,
+        pagingType: "full_numbers",
+        order: [],
+        dom: '<"top">frt<"bottom"lip>',
+        scrollY: "60vh",
+        search: true,
+        scrollCollapse: true,
+        pageLength: 100,
+        language: {
+          emptyTable: "Brak danych do wyświetlenia",
+          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+          infoEmpty: "Brak danych",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
+          loadingRecords: "<div class='spinner'</div>",
+          processing: "<div class='spinner'</div>",
+          search: "Szukaj:",
+          zeroRecords: "Brak pasujących rezultatów",
+          paginate: {
+            first: "<<",
+            last: ">>",
+            next: " >",
+            previous: "< ",
+          },
+          aria: {
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
+          },
+        },
+        columns: [
+          {
+            orderable: false,
+            searchable: false,
+            data: "image",
+            width: "36px",
+            height: "36px",
+            render: function (data) {
+              if (data !== null) {
+                return (
+                  "<div style='height:36px width: 36px' class='details-container2'><img src='data:image/png;base64," +
+                  data +
+                  "' alt='logo'></img></div>"
+                );
+              }
+              if (data === null) {
+                return "<div style='height:36px width: 36px' class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='wholesaler'></img></div>";
+              }
+            },
+          },
+          {
+            orderable: true,
+            searchable: true,
+            data: "name",
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
+            },
+          },
+          {
+            orderable: true,
+            searchable: true,
+            data: "taxId",
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
+            },
+          },
+          {
+            orderable: false,
+            searchable: false,
+            data: "wholesalerKey",
+            visible: false,
+            render: function (data) {
+              if (data !== null) {
+                return data;
+              }
+              if (data === null) {
+                return "";
+              }
+            },
+          },
+          {
+            orderable: false,
+            searchable: false,
+            data: "preferentialBonus",
+            render: function (data, type, row) {
+              return (
+                '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
+                data +
+                '">'
+              );
             },
           },
         ],
