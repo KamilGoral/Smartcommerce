@@ -3107,6 +3107,7 @@ docReady(function () {
       form.on("submit", function (event) {
         event.preventDefault();
         const organizationName = $("#organizationName").text();
+
         const url = `${InvokeURL}billing`;
         $.ajax({
           type: "GET",
@@ -3116,7 +3117,6 @@ docReady(function () {
           headers: {
             Authorization: orgToken,
             Accept: "application/json",
-            "Content-Type": "application/json",
             "Requested-By": "webflow-3-4",
           },
           beforeSend: function () {
@@ -3126,38 +3126,11 @@ docReady(function () {
             $("#waitingdots").hide();
           },
           success: function (currentData) {
-            const patchData = preparePatchData(currentData);
-            console.log(patchData);
-
-            // Additional checks for required fields
-            const newActivityKind = $("#tenantActivityKind").val();
-            if (newActivityKind === "self_employed") {
-              const newFirstName = $("#firstName").val();
-              const newLastName = $("#lastName").val();
-              if (!newFirstName || !newLastName) {
-                displayMessage(
-                  "Error",
-                  "Pola Imię i Nazwisko są wymagane przy zmianie rodzaju działalności"
-                );
-                return;
-              }
-            }
-
-            if (patchData.some((patch) => patch.path === "/taxId")) {
-              if (
-                !patchData.some((patch) => patch.path === "/companyName") ||
-                !patchData.some((patch) => patch.path === "/address")
-              ) {
-                displayMessage(
-                  "Error",
-                  "Jeśli zmieniasz NIP, proszę podać również nazwę firmy oraz adres."
-                );
-                return;
-              }
-            }
+            const { patchData, taxIdChanged, newTaxId } =
+              preparePatchData(currentData);
 
             if (patchData.length > 0) {
-              // Send PATCH request only if there are changes
+              // Wykonaj pierwsze PATCH dla billingowych danych
               $.ajax({
                 type: "PATCH",
                 url: url,
@@ -3175,39 +3148,45 @@ docReady(function () {
                   $("#waitingdots").hide();
                 },
                 success: function (resultData) {
-                  if (typeof successCallback === "function") {
-                    successCallback(resultData);
+                  displayMessage(
+                    "Success",
+                    "Dane billingowe zostały zaktualizowane."
+                  );
+                  if (taxIdChanged) {
+                    // Jeśli billing się udał i taxId zmieniony, wykonaj drugi PATCH
+                    patchTaxId(organizationName, newTaxId, function () {
+                      displayMessage(
+                        "Success",
+                        "Numer NIP został zaktualizowany."
+                      );
+                    });
                   }
-                  displayMessage("Success", "Dane zostały zaktualizowane.");
                 },
                 error: function () {
-                  if (typeof errorCallback === "function") {
-                    errorCallback();
-                  }
                   displayMessage(
                     "Error",
-                    "Oops. Coś poszło nie tak, spróbuj ponownie."
+                    "Nie udało się zaktualizować danych billingowych."
                   );
                 },
               });
             } else {
-              if (typeof successCallback === "function") {
-                successCallback(currentData);
+              displayMessage("Info", "Brak zmian do zapisania.");
+              if (taxIdChanged) {
+                // W przypadku, gdy dane billingowe się nie zmieniły, ale zmiana taxId jest konieczna
+                patchTaxId(organizationName, newTaxId, function () {
+                  displayMessage("Success", "Numer NIP został zaktualizowany.");
+                });
               }
-              displayMessage("Success", "Dane zostały zaktualizowane.");
             }
           },
           error: function () {
-            if (typeof errorCallback === "function") {
-              errorCallback();
-            }
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Nie udało się pobrać aktualnych danych. Spróbuj ponownie."
             );
           },
         });
-        return false; // Prevent the form from submitting normally
+        return false; // Zapobiega normalnemu przesłaniu formularza
       });
     });
   };
