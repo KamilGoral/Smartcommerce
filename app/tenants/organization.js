@@ -1520,6 +1520,15 @@ docReady(function () {
     function populateTable(data) {
       const enabledWholesalers = data.filter((item) => item.enabled);
 
+      console.log("Data passed to DataTable:", data);
+
+      if ($.fn.dataTable.isDataTable("#table_wholesalers_list")) {
+        $("#table_wholesalers_list").DataTable().destroy();
+      }
+      if ($.fn.dataTable.isDataTable("#table_wholesalers_list_bonus")) {
+        $("#table_wholesalers_list_bonus").DataTable().destroy();
+      }
+
       $("#table_wholesalers_list").DataTable({
         data: data,
         pagingType: "full_numbers",
