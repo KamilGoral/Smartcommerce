@@ -201,7 +201,8 @@ docReady(function () {
             } else if (jqXHR.status == 400) {
               msg = "Twoje dotychczasowe hasło jest inne. Spróbuj ponownie.";
             } else if (jqXHR.status == 500) {
-              msg = "Internal Server Error [500].";
+              msg =
+                "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
             } else if (exception === "parsererror") {
               msg = "Requested JSON parse failed.";
             } else if (exception === "timeout") {
@@ -950,7 +951,7 @@ docReady(function () {
                 break;
               case 500:
                 msg =
-                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net [500].";
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
                 break;
               default:
                 msg =
