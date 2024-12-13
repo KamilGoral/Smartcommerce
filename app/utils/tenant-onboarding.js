@@ -63,7 +63,7 @@ docReady(function () {
       buttonText.text("Przejdź dalej");
     } else {
       button.addClass("disabled");
-      buttonText.text("Wybierz dostawców z listy.");
+      buttonText.text("Wybierz dostawcę z listy.");
     }
   }
 
@@ -73,7 +73,7 @@ docReady(function () {
 
   // Handle click event for the activate wholesalers button
   $("#activateWholesalersButton").click(function (event) {
-    if (activeWholesalerCount >= 3) {
+    if (activeWholesalerCount >= 1) {
       $("#forwardButton").click();
     } else {
       event.preventDefault();
