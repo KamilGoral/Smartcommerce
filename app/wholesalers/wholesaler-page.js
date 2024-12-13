@@ -145,6 +145,18 @@ docReady(function () {
         if (data.vanMember) {
           whVan.textContent = "Tak";
 
+          // Ustaw klasy dla SmartVAN
+          document.querySelector(".smartVanWholesaler").classList.add("flex");
+          document
+            .querySelector(".smartVanWholesaler")
+            .classList.remove("none");
+
+          // Ukryj standardowego hurtownika
+          document.querySelector(".standardWholesaler").classList.add("none");
+          document
+            .querySelector(".standardWholesaler")
+            .classList.remove("flex");
+
           // Show elements and enable/check checkboxes
           vanElements.forEach(function (element) {
             element.style.display = "flex";
@@ -159,6 +171,19 @@ docReady(function () {
         } else {
           // Hide elements and disable/uncheck checkboxes
           whVan.textContent = "Nie";
+
+          // Ustaw klasy dla SmartVAN
+          document.querySelector(".smartVanWholesaler").classList.add("none");
+          document
+            .querySelector(".smartVanWholesaler")
+            .classList.remove("flex");
+
+          // Ukryj standardowego hurtownika
+          document.querySelector(".standardWholesaler").classList.add("flex");
+          document
+            .querySelector(".standardWholesaler")
+            .classList.remove("none");
+
           vanElements.forEach(function (element) {
             // Hide the element
             element.style.display = "none";
