@@ -1542,13 +1542,15 @@ docReady(function () {
             {
               orderable: true,
               data: "name",
-              render: function (data) {
+              render: function (data, type, row) {
                 if (data !== null) {
+                  // Sprawdzenie, czy vanMember jest true
+                  if (row.vanMember) {
+                    return `${data} <span class="positive" style="margin-left: 8px;">SmartVan</span>`;
+                  }
                   return data;
                 }
-                if (data === null) {
-                  return "";
-                }
+                return ""; // Jeśli data jest null
               },
             },
             {
