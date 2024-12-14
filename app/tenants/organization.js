@@ -1546,7 +1546,7 @@ docReady(function () {
                 if (data !== null) {
                   // Sprawdzenie, czy vanMember jest true
                   if (row.vanMember) {
-                    return `${data} <span class="newtippy" data-tippy-content="Aktywuj dostawcę, a integracja rozpocznie się automatycznie" style="margin-left: 8px;">SmartVan</span>`;
+                    return `${data} <div class="positive newtippy" data-tippy-content="Aktywuj dostawcę, a integracja rozpocznie się automatycznie" style="margin-left: 8px;">SmartVan</div>`;
                   }
                   return data;
                 }
