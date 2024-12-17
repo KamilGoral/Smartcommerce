@@ -1003,7 +1003,7 @@ docReady(function () {
   ];
 
   // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
-  if (organization === "PSS-Podwawelska") {
+  if (OrganizationName === "PSS-Podwawelska") {
     lengthMenuOptions[0].push(5000);  // Dodaj wartość backendową
     lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
   }
