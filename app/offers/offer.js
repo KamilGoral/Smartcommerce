@@ -999,6 +999,7 @@ docReady(function () {
 
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
+    lengthMenu: [25, 50, 100, 500, 1000],
     order: [],
     dom: '<"top"fB>rt<"bottom"lip>',
     buttons: [
