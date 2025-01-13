@@ -490,21 +490,37 @@ docReady(function () {
             const tooltipContent = shopsData
               .map(
                 (shop) =>
-                  `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
+                  `<span class="${sanitizeHTML(
+                    shop.statusClass
+                  )}">${sanitizeHTML(shop.key)} - ${sanitizeHTML(
+                    shop.status
+                  )}</span>`
               )
               .join(", ");
             pricatStatus.textContent = ` ${shopsData.length} Sklepów`;
             pricatStatus.classList.add("tippy");
 
+            // Set sanitized content for tooltip
             pricatStatus.setAttribute("data-tippy-content", tooltipContent);
+
+            // Initialize Tippy with HTML rendering enabled
             tippy(pricatStatus, { allowHTML: true });
           } else {
             pricatStatus.innerHTML = shopsData
               .map(
                 (shop) =>
-                  `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`
+                  `<span class="${sanitizeHTML(
+                    shop.statusClass
+                  )} tippy" data-tippy-content="${sanitizeHTML(
+                    shop.status
+                  )}">${sanitizeHTML(shop.key)}</span>`
               )
               .join(", ");
+
+            // Initialize Tippy for each element with tooltips in the smaller list
+            tippy(".tippy", {
+              allowHTML: true,
+            });
           }
         },
         error: function (jqXHR, exception) {
