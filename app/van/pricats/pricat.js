@@ -490,11 +490,7 @@ docReady(function () {
             const tooltipContent = shopsData
               .map(
                 (shop) =>
-                  `<span class="${sanitizeHTML(
-                    shop.statusClass
-                  )}">${sanitizeHTML(shop.key)} - ${sanitizeHTML(
-                    shop.status
-                  )}</span>`
+                  `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
               )
               .join(", ");
             pricatStatus.textContent = ` ${shopsData.length} Sklepów`;
@@ -509,11 +505,7 @@ docReady(function () {
             pricatStatus.innerHTML = shopsData
               .map(
                 (shop) =>
-                  `<span class="${sanitizeHTML(
-                    shop.statusClass
-                  )} tippy" data-tippy-content="${sanitizeHTML(
-                    shop.status
-                  )}">${sanitizeHTML(shop.key)}</span>`
+                  `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`
               )
               .join(", ");
 
