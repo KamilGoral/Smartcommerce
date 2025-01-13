@@ -122,11 +122,11 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -266,11 +266,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -285,11 +285,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/offers/offer?shopKey=" +
-      shopKey +
-      "&offerId=" +
-      offerId
+    DomainName +
+    "/app/offers/offer?shopKey=" +
+    shopKey +
+    "&offerId=" +
+    offerId
   );
 
   function getProductDetails(rowData) {
@@ -524,7 +524,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -538,7 +538,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -551,7 +551,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
+            7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -564,7 +564,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
+              100
             ).toFixed(2)
           ) +
           "%)";
@@ -975,11 +975,10 @@ docReady(function () {
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
+            ${promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+          }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td>
@@ -997,8 +996,21 @@ docReady(function () {
     `;
   }
 
+  // Domyślne opcje dla lengthMenu
+  var lengthMenuOptions = [
+    [25, 50, 100], // Backendowe wartości
+    [25, 50, 100]  // Wyświetlane etykiety
+  ];
+
+  // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
+  if (OrganizationName === "PSS-Podwawelska") {
+    lengthMenuOptions[0].push(5000);  // Dodaj wartość backendową
+    lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
+  }
+
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
+    lengthMenu: lengthMenuOptions,
     order: [],
     dom: '<"top"fB>rt<"bottom"lip>',
     buttons: [
@@ -1684,15 +1696,13 @@ docReady(function () {
         // Position tooltip
         const rect = element.getBoundingClientRect();
         tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
-        tooltip.style.top = `${
-          rect.top + window.scrollY - tooltip.offsetHeight - 5
-        }px`;
+        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5
+          }px`;
         tooltip.style.opacity = "1";
 
         // Center tooltip
-        tooltip.style.left = `${
-          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
-        }px`;
+        tooltip.style.left = `${parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+          }px`;
 
         // Mouseleave event to remove tooltip
         element.addEventListener("mouseleave", () => {
