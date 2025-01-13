@@ -282,7 +282,7 @@ docReady(function () {
 
   function getShops() {
     return new Promise((resolve, reject) => {
-      let url = new URL(InvokeURL + "shops");
+      let url = new URL(InvokeURL + "shops?perPage=1000");
       let request = new XMLHttpRequest();
 
       // Show the waiting dots before the request starts
