@@ -493,7 +493,7 @@ docReady(function () {
                   `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
               )
               .join(", ");
-            pricatStatus.textContent = `${shopsData.length} shops with statuses`;
+            pricatStatus.textContent = ` ${shopsData.length} Sklepów`;
             pricatStatus.classList.add("tippy");
 
             pricatStatus.setAttribute("data-tippy-content", tooltipContent);
