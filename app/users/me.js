@@ -685,68 +685,72 @@ docReady(function () {
 
   function getUser() {
     var datatosend = {
-      AccessToken: accessToken,
+        AccessToken: accessToken,
     };
     let url = "https://cognito-idp.us-east-1.amazonaws.com/";
     let request = new XMLHttpRequest();
     request.open("POST", url, true);
     request.setRequestHeader("Content-Type", "application/x-amz-json-1.1");
     request.setRequestHeader(
-      "x-amz-target",
-      "AWSCognitoIdentityProviderService.GetUser"
+        "x-amz-target",
+        "AWSCognitoIdentityProviderService.GetUser"
     );
     request.onload = function () {
-      var UserInfo = JSON.parse(this.response);
-      console.log(UserInfo);
-      if (request.status >= 200 && request.status < 400) {
-        const username = document.getElementById("firstNameUser");
-        username.value = UserInfo.UserAttributes[2].Value;
-        const userfamilyname = document.getElementById("lastNameUser");
-        userfamilyname.value = UserInfo.UserAttributes[3].Value;
+        if (request.status >= 200 && request.status < 400) {
+            var UserInfo = JSON.parse(this.response);
 
-        emailElement.textContent = UserInfo.UserAttributes[4].Value;
-        var emailadress = document.getElementById("emailadressUser");
-        emailadress.value = UserInfo.UserAttributes[4].Value;
+            // Helper function to get attribute value by name
+            function getAttributeValue(attributes, name) {
+                const attribute = attributes.find(attr => attr.Name === name);
+                return attribute ? attribute.Value : null;
+            }
 
-        setCookie(
-          "SpytnyUserAttributes",
-          "username:" +
-            UserInfo.UserAttributes[2].Value +
-            "|familyname:" +
-            UserInfo.UserAttributes[3].Value +
-            "|email:" +
-            UserInfo.UserAttributes[4].Value,
-          72000
-        );
+            const firstName = getAttributeValue(UserInfo.UserAttributes, "name");
+            const lastName = getAttributeValue(UserInfo.UserAttributes, "family_name");
+            const email = getAttributeValue(UserInfo.UserAttributes, "email");
 
-        welcomeMessage.textContent =
-          "Witaj, " +
-          UserInfo.UserAttributes[2].Value +
-          " " +
-          UserInfo.UserAttributes[3].Value +
-          "!";
+            const username = document.getElementById("firstNameUser");
+            if (username) username.value = firstName;
 
-        setCookie("sprytnyUser", UserInfo.UserAttributes[4].Value, 72000);
-        setCookie("sprytnyUsername", UserInfo.Username, 72000);
-      } else if (request.status === 401) {
-        console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
-      } else {
-        console.log(
-          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            UserInfo.message
-        );
-        displayMessage("Error", UserInfo.message);
-      }
+            const userfamilyname = document.getElementById("lastNameUser");
+            if (userfamilyname) userfamilyname.value = lastName;
+
+            const emailElement = document.getElementById("emailadressUser");
+            if (emailElement) emailElement.value = email;
+
+            setCookie(
+                "SpytnyUserAttributes",
+                `username:${firstName}|familyname:${lastName}|email:${email}`,
+                72000
+            );
+
+            const welcomeMessage = document.getElementById("welcomeMessage");
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Witaj, ${firstName} ${lastName}!`;
+            }
+
+            setCookie("sprytnyUser", email, 72000);
+            setCookie("sprytnyUsername", UserInfo.Username, 72000);
+
+        } else if (request.status === 401) {
+            console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
+        } else {
+            console.log(
+                "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
+                request.status +
+                " " +
+                UserInfo.message
+            );
+            displayMessage("Error", UserInfo.message);
+        }
     };
 
     request.onerror = function () {
-      console.log("Wystąpił błąd podczas wysyłania żądania.");
+        console.log("Wystąpił błąd podczas wysyłania żądania.");
     };
 
     request.send(JSON.stringify(datatosend));
-  }
+}
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
