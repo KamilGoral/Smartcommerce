@@ -727,9 +727,9 @@ docReady(function () {
                 72000
             );
 
-            const welcomeMessage = document.getElementById("welcomeMessage");
+            const welcomeMessage = document.getElementById("WelcomeMessage");
             if (welcomeMessage) {
-                welcomeMessage.textContent = `Witaj, ${firstName} ${lastName}!`;
+                welcomeMessage.textContent = `Witaj, ${firstName}!`;
             }
 
             setCookie("sprytnyUser", email, 72000);
