@@ -697,6 +697,7 @@ docReady(function () {
     );
     request.onload = function () {
       var UserInfo = JSON.parse(this.response);
+      console.log(UserInfo);
       if (request.status >= 200 && request.status < 400) {
         const username = document.getElementById("firstNameUser");
         username.value = UserInfo.UserAttributes[2].Value;
