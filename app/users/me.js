@@ -742,9 +742,9 @@ docReady(function () {
                 "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
                 request.status +
                 " " +
-                UserInfo.message
+                request.message
             );
-            displayMessage("Error", UserInfo.message);
+            displayMessage("Error", request.message);
         }
     };
 
