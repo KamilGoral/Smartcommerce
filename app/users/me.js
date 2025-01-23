@@ -698,6 +698,7 @@ docReady(function () {
     request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
             var UserInfo = JSON.parse(this.response);
+            console.log(UserInfo);
 
             // Helper function to get attribute value by name
             function getAttributeValue(attributes, name) {
@@ -717,6 +718,8 @@ docReady(function () {
 
             const emailElement = document.getElementById("emailadressUser");
             if (emailElement) emailElement.value = email;
+
+            console.log(firstName,lastName);
 
             setCookie(
                 "SpytnyUserAttributes",
