@@ -725,7 +725,9 @@ docReady(function () {
             const lastName = getAttributeValue(UserInfo.UserAttributes, "family_name");
             const email = getAttributeValue(UserInfo.UserAttributes, "email");
             const phoneNumber = getAttributeValue(UserInfo.UserAttributes, "phone_number");
-            const trimmedPhoneNumber = phoneNumber.slice(3); // Trim the first 3 characters (+48)
+
+            // Check if phoneNumber exists before slicing
+            const trimmedPhoneNumber = phoneNumber ? phoneNumber.slice(3) : ""; // Trim the first 3 characters (+48) if phoneNumber exists
 
             const username = document.getElementById("firstNameUser");
             if (username) username.value = firstName;
@@ -738,7 +740,6 @@ docReady(function () {
 
             const phoneElement = document.getElementById("phoneNumber");
             if (phoneElement) phoneElement.value = trimmedPhoneNumber;
-
 
             setCookie(
                 "SpytnyUserAttributes",
@@ -773,7 +774,6 @@ docReady(function () {
 
     request.send(JSON.stringify(datatosend));
 }
-
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
     const style = document.createElement("style");
