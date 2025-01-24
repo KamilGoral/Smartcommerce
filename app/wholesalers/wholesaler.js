@@ -47,6 +47,21 @@ docReady(function () {
     return result;
   }
 
+  var smartToken = getCookie("sprytnycookie");
+  var accessToken = smartToken.split("Bearer ")[1];
+  const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
+  const username = document.getElementById("firstNameUser");
+  username.value = attributes["username"];
+  const userfamilyname = document.getElementById("lastNameUser");
+  userfamilyname.value = attributes["familyname"];
+  const emailElement = document.getElementById("useremail");
+  const emailadress = document.getElementById("emailadressUser");
+  emailElement.textContent = attributes["email"];
+  emailadress.value = attributes["email"];
+  const phoneNumberElement = document.getElementById("phoneNumber");
+  phoneNumberElement.value = attributes["phonenumber"];
+
+
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
         var form = $(this);
@@ -240,18 +255,6 @@ docReady(function () {
       });
     });
   };
-
-  var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
-  const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
-  const username = document.getElementById("firstNameUser");
-  username.value = attributes["username"];
-  const userfamilyname = document.getElementById("lastNameUser");
-  userfamilyname.value = attributes["familyname"];
-  const emailElement = document.getElementById("useremail");
-  const emailadress = document.getElementById("emailadressUser");
-  emailElement.textContent = attributes["email"];
-  emailadress.value = attributes["email"];
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies

@@ -58,6 +58,8 @@ docReady(function () {
   const emailadress = document.getElementById("emailadressUser");
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
+  const phoneNumberElement = document.getElementById("phoneNumber");
+  phoneNumberElement.value = attributes["phonenumber"];
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies

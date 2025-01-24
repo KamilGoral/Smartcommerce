@@ -59,6 +59,8 @@ docReady(function () {
   const emailadress = document.getElementById("emailadressUser");
   emailElement.textContent = attributes["email"];
   emailadress.value = attributes["email"];
+  const phoneNumberElement = document.getElementById("phoneNumber");
+  phoneNumberElement.value = attributes["phonenumber"];
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
