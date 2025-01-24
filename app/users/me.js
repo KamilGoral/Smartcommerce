@@ -141,7 +141,9 @@ docReady(function () {
                 "|familyname:" +
                 lastNameUser +
                 "|email:" +
-                emailadressUser,
+                emailadressUser +
+                "|phonenumber:" +
+                phoneNumber,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -714,6 +716,7 @@ docReady(function () {
             const firstName = getAttributeValue(UserInfo.UserAttributes, "name");
             const lastName = getAttributeValue(UserInfo.UserAttributes, "family_name");
             const email = getAttributeValue(UserInfo.UserAttributes, "email");
+            const phoneNumber = getAttributeValue(UserInfo.UserAttributes, "phone_number");
 
             const username = document.getElementById("firstNameUser");
             if (username) username.value = firstName;
@@ -724,11 +727,13 @@ docReady(function () {
             const emailElement = document.getElementById("emailadressUser");
             if (emailElement) emailElement.value = email;
 
-            console.log(firstName,lastName);
+            const phoneElement = document.getElementById("phoneNumber");
+            if (phoneElement) phoneElement.value = phoneNumber;
+
 
             setCookie(
                 "SpytnyUserAttributes",
-                `username:${firstName}|familyname:${lastName}|email:${email}`,
+                `username:${firstName}|familyname:${lastName}|email:${email}|phonenumber:${phoneNumber}`,
                 72000
             );
 
