@@ -61,102 +61,120 @@ docReady(function () {
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        const firstNameUser = $("#firstNameUser").val();
-        const lastNameUser = $("#lastNameUser").val();
-        const emailadressUser = $("#emailadressUser").val();
+        var form = $(this);
+        form.on("submit", function (event) {
+            const firstNameUser = $("#firstNameUser").val();
+            const lastNameUser = $("#lastNameUser").val();
+            const emailadressUser = $("#emailadressUser").val();
+            const phoneNumber = $("#phoneNumber").val();
+            const phoneNumberPrefixWithPrefix = phoneNumber ? "+48" + phoneNumber : ""; // Only add prefix if phoneNumber is not empty
 
-        const datatosend = {
-          AccessToken: accessToken,
-          UserAttributes: [
-            {
-              Name: "name",
-              Value: firstNameUser,
-            },
-            {
-              Name: "family_name",
-              Value: lastNameUser,
-            },
-            // {
-            //   Name: "email",
-            //   Value: emailadressUser,
-            // },
-          ],
-        };
+            // Get the existing phone number from the cookie
+            const existingUserAttributes = getCookie("SpytnyUserAttributes");
+            let existingPhoneNumber = null;
+            if (existingUserAttributes) {
+                const attributes = existingUserAttributes.split("|");
+                const phoneNumberAttribute = attributes.find(attr => attr.startsWith("phonenumber:"));
+                if (phoneNumberAttribute) {
+                    existingPhoneNumber = phoneNumberAttribute.split(":")[1];
+                }
+            }
 
-        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+            // Prepare the data to send
+            const datatosend = {
+                AccessToken: accessToken,
+                UserAttributes: [
+                    {
+                        Name: "name",
+                        Value: firstNameUser,
+                    },
+                    {
+                        Name: "family_name",
+                        Value: lastNameUser,
+                    },
+                ],
+            };
 
-        $.ajax({
-          type: "POST",
-          url: url,
-          headers: {
-            "Content-Type": "application/x-amz-json-1.1",
-            "x-amz-target":
-              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
-            Authorization: smartToken,
-          },
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          data: JSON.stringify(datatosend),
-          dataType: "json",
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                console.log(e);
-                return;
-              }
+            // Add phone_number attribute only if phoneNumber is not empty
+            if (phoneNumber) {
+                datatosend.UserAttributes.push({
+                    Name: "phone_number",
+                    Value: phoneNumberPrefixWithPrefix,
+                });
             }
-            form.show();
-            setCookie(
-              "SpytnyUserAttributes",
-              "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser,
-              720000
-            );
-            displayMessage("Success", "Twoje dane zostały zmienione");
-            const welcomeMessage = document.getElementById("welcomeMessage");
-            if (welcomeMessage) {
-              welcomeMessage.textContent =
-                "Witaj, " + firstNameUser + " " + lastNameUser + "!";
-            } else {
-              console.log(
-                "Element 'welcomeMessage' nie został znaleziony. Pomijam ustawienie powitania."
-              );
+
+            // If the user wants to delete the phone number (empty field) and it previously existed
+            if (!phoneNumber && existingPhoneNumber) {
+                datatosend.UserAttributes.push({
+                    Name: "phone_number",
+                    Value: "", // Sending an empty value to delete the phone number
+                });
             }
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            displayMessage(
-              "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
-            );
-            console.log(e);
-          },
+
+            const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    "Content-Type": "application/x-amz-json-1.1",
+                    "x-amz-target": "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+                    Authorization: smartToken,
+                },
+                cors: true,
+                beforeSend: function () {
+                    $("#waitingdots").show();
+                },
+                complete: function () {
+                    $("#waitingdots").hide();
+                },
+                data: JSON.stringify(datatosend),
+                dataType: "json",
+                success: function (resultData) {
+                    if (typeof successCallback === "function") {
+                        result = successCallback(resultData);
+                        if (!result) {
+                            form.show();
+                            displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
+                            console.log(e);
+                            return;
+                        }
+                    }
+                    form.show();
+                    setCookie(
+                        "SpytnyUserAttributes",
+                        "username:" +
+                            firstNameUser +
+                            "|familyname:" +
+                            lastNameUser +
+                            "|email:" +
+                            emailadressUser +
+                            "|phonenumber:" +
+                            phoneNumber,
+                        720000
+                    );
+                    displayMessage("Success", "Twoje dane zostały zmienione");
+                    const welcomeMessage = document.getElementById("welcomeMessage");
+                    if (welcomeMessage) {
+                        welcomeMessage.textContent = "Witaj, " + firstNameUser + " " + lastNameUser + "!";
+                    } else {
+                        console.log("Witaj");
+                    }
+                },
+                error: function (e) {
+                    if (typeof errorCallback === "function") {
+                        errorCallback(e);
+                    }
+                    form.show();
+                    displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
+                    console.log(e);
+                },
+            });
+            event.preventDefault();
+            return false;
         });
-        event.preventDefault();
-        return false;
-      });
     });
-  };
+};
 
   postChangePassword = function (forms, successCallback, errorCallback) {
     forms.each(function () {
