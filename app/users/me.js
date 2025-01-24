@@ -76,6 +76,7 @@ docReady(function () {
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
+        const phoneNumber = $("#phoneNumber").val();
 
         const datatosend = {
           AccessToken: accessToken,
@@ -88,6 +89,10 @@ docReady(function () {
               Name: "family_name",
               Value: lastNameUser,
             },
+            {
+              Name: "phone_number",
+              Value: phoneNumber,
+            }
             // {
             //   Name: "email",
             //   Value: emailadressUser,
@@ -146,7 +151,7 @@ docReady(function () {
                 "Witaj, " + firstNameUser + " " + lastNameUser + "!";
             } else {
               console.log(
-                "Element 'welcomeMessage' nie został znaleziony. Pomijam ustawienie powitania."
+                "Witaj"
               );
             }
           },
