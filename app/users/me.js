@@ -77,6 +77,8 @@ docReady(function () {
         const lastNameUser = $("#lastNameUser").val();
         const emailadressUser = $("#emailadressUser").val();
         const phoneNumber = $("#phoneNumber").val();
+        const phoneNumberPrefixWithPrefix  = "+48"+ phoneNumber; // "+4853535353"
+        
 
         const datatosend = {
           AccessToken: accessToken,
@@ -91,7 +93,7 @@ docReady(function () {
             },
             {
               Name: "phone_number",
-              Value: phoneNumber,
+              Value: phoneNumberPrefixWithPrefix,
             }
             // {
             //   Name: "email",
@@ -717,6 +719,7 @@ docReady(function () {
             const lastName = getAttributeValue(UserInfo.UserAttributes, "family_name");
             const email = getAttributeValue(UserInfo.UserAttributes, "email");
             const phoneNumber = getAttributeValue(UserInfo.UserAttributes, "phone_number");
+            const trimmedPhoneNumber = phoneNumber.slice(3); // Trim the first 3 characters (+48)
 
             const username = document.getElementById("firstNameUser");
             if (username) username.value = firstName;
@@ -728,12 +731,12 @@ docReady(function () {
             if (emailElement) emailElement.value = email;
 
             const phoneElement = document.getElementById("phoneNumber");
-            if (phoneElement) phoneElement.value = phoneNumber;
+            if (phoneElement) phoneElement.value = trimmedPhoneNumber;
 
 
             setCookie(
                 "SpytnyUserAttributes",
-                `username:${firstName}|familyname:${lastName}|email:${email}|phonenumber:${phoneNumber}`,
+                `username:${firstName}|familyname:${lastName}|email:${email}|phonenumber:${trimmedPhoneNumber}`,
                 72000
             );
 
