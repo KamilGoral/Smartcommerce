@@ -102,13 +102,16 @@ docReady(function () {
                         Name: "family_name",
                         Value: lastNameUser,
                     },
-                    // Only include phone_number if phoneNumber is not empty
-                    ...(phoneNumber && {
-                        Name: "phone_number",
-                        Value: phoneNumberPrefixWithPrefix,
-                    }),
                 ],
             };
+
+            // Add phone_number attribute only if phoneNumber is not empty
+            if (phoneNumber) {
+                datatosend.UserAttributes.push({
+                    Name: "phone_number",
+                    Value: phoneNumberPrefixWithPrefix,
+                });
+            }
 
             // If the user wants to delete the phone number (empty field) and it previously existed
             if (!phoneNumber && existingPhoneNumber) {
