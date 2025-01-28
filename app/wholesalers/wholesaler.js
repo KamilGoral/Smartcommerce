@@ -368,7 +368,7 @@ docReady(function () {
             creationDate[0] + " " + creationTime[0].slice(0, -4);
 
           if (firstData.status === "Succeeded") {
-            firstStatus = "Suckes";
+            firstStatus = "Sukces";
             var LastStatusMessage =
               document.getElementById("LastStatusMessage");
 
