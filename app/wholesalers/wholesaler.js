@@ -1098,51 +1098,39 @@ docReady(function () {
       form.on("submit", function (event) {
         event.preventDefault();
 
+        var action =
+          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
+
+        var method = "PATCH";
         var customerIdValue = $("#customerId").val().trim();
 
-        // Obsługa pustego pola - usuwanie customerId
-        if (customerIdValue === "") {
-          sendAjaxRequest(
-            [
-              {
-                op: "remove",
-                path: "/customerId",
-              },
-            ],
-            successCallback,
-            errorCallback
-          );
-          return;
-        }
+        var data;
 
-        // Walidacja numeru customerId
-        if (!/^\d{4,12}$/.test(customerIdValue)) {
+        if (customerIdValue === "") {
+          // Usuwanie customerId, gdy pole jest puste
+          data = [
+            {
+              op: "remove",
+              path: "/customerId",
+            },
+          ];
+        } else if (/^\d{4,12}$/.test(customerIdValue)) {
+          // Dodawanie/zmiana customerId, gdy wartość spełnia walidację
+          data = [
+            {
+              op: "add",
+              path: "/customerId",
+              value: customerIdValue,
+            },
+          ];
+        } else {
+          // Błąd walidacji
           displayMessage(
             "Error",
             "Identyfikator klienta musi składać się z od 4 do 12 cyfr."
           );
           return false;
         }
-
-        // Tworzenie żądania dodania lub edycji customerId
-        sendAjaxRequest(
-          [
-            {
-              op: "add",
-              path: "/customerId",
-              value: customerIdValue,
-            },
-          ],
-          successCallback,
-          errorCallback
-        );
-      });
-
-      // Funkcja wysyłania zapytań AJAX
-      function sendAjaxRequest(data, successCallback, errorCallback) {
-        var action =
-          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
-        var method = "PATCH";
 
         $.ajax({
           type: method,
@@ -1164,27 +1152,29 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            form.show(); // Formularz pozostaje widoczny
             if (typeof successCallback === "function") {
               var result = successCallback(resultData);
               if (!result) {
+                form.show();
                 displayMessage(
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
+                console.log(e);
                 return;
               }
             }
+            form.show();
             displayMessage(
               "Success",
               "Identyfikator klienta dla dostawcy został zmieniony."
             );
           },
           error: function (e) {
-            form.show(); // Formularz pozostaje widoczny w przypadku błędu
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
+            form.show();
             displayMessage(
               "Error",
               "Oops. Coś poszło nie tak, spróbuj ponownie."
@@ -1192,10 +1182,9 @@ docReady(function () {
             console.error(e);
           },
         });
-      }
 
-      // Upewnij się, że formularz zawsze pozostaje widoczny po zakończeniu akcji
-      form.show();
+        return false;
+      });
     });
   };
 
