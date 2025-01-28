@@ -1095,28 +1095,27 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
 
-      // Zablokowanie domyślnego zachowania Webflow dla formularzy
-      form.removeClass("wf-form");
-
       form.on("submit", function (event) {
         event.preventDefault();
 
         var customerIdValue = $("#customerId").val().trim();
 
-        // Jeśli pole jest puste, usuwamy customerId
+        // Obsługa pustego pola - usuwanie customerId
         if (customerIdValue === "") {
-          var data = [
-            {
-              op: "remove",
-              path: "/customerId",
-            },
-          ];
-
-          sendAjaxRequest(data);
+          sendAjaxRequest(
+            [
+              {
+                op: "remove",
+                path: "/customerId",
+              },
+            ],
+            successCallback,
+            errorCallback
+          );
           return;
         }
 
-        // Walidacja numeru customerId - musi być liczbą o długości od 4 do 12 cyfr.
+        // Walidacja numeru customerId
         if (!/^\d{4,12}$/.test(customerIdValue)) {
           displayMessage(
             "Error",
@@ -1125,19 +1124,22 @@ docReady(function () {
           return false;
         }
 
-        // Jeśli walidacja przeszła, tworzymy żądanie zmiany lub dodania customerId
-        var data = [
-          {
-            op: "add",
-            path: "/customerId",
-            value: customerIdValue,
-          },
-        ];
-
-        sendAjaxRequest(data);
+        // Tworzenie żądania dodania lub edycji customerId
+        sendAjaxRequest(
+          [
+            {
+              op: "add",
+              path: "/customerId",
+              value: customerIdValue,
+            },
+          ],
+          successCallback,
+          errorCallback
+        );
       });
 
-      function sendAjaxRequest(data) {
+      // Funkcja wysyłania zapytań AJAX
+      function sendAjaxRequest(data, successCallback, errorCallback) {
         var action =
           InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
         var method = "PATCH";
@@ -1162,9 +1164,7 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            // Zapewnienie widoczności formularza po sukcesie
-            form.show();
-
+            form.show(); // Formularz pozostaje widoczny
             if (typeof successCallback === "function") {
               var result = successCallback(resultData);
               if (!result) {
@@ -1175,16 +1175,13 @@ docReady(function () {
                 return;
               }
             }
-
             displayMessage(
               "Success",
               "Identyfikator klienta dla dostawcy został zmieniony."
             );
           },
           error: function (e) {
-            // Zapewnienie widoczności formularza w przypadku błędu
-            form.show();
-
+            form.show(); // Formularz pozostaje widoczny w przypadku błędu
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
@@ -1196,6 +1193,9 @@ docReady(function () {
           },
         });
       }
+
+      // Upewnij się, że formularz zawsze pozostaje widoczny po zakończeniu akcji
+      form.show();
     });
   };
 
