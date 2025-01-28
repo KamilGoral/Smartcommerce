@@ -1067,37 +1067,44 @@ docReady(function () {
 
         var customerIdValue = $("#customerId").val().trim();
 
-        // Walidacja numeru customerId - musi być liczbą o długości od 4 do 12 cyfr.
-        if (!/^\d{4,12}$/.test(customerIdValue)) {
-          displayMessage(
-            "Error",
-            "Identyfikator klienta musi składać się z 4 do 12 cyfr."
-          );
-          return false;
-        }
-
-        var action =
-          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
-
-        var method = "PATCH";
-
-        var data;
-        if (parseInt(customerIdValue) > 0) {
-          data = [
-            {
-              op: "add",
-              path: "/customerId",
-              value: parseInt(customerIdValue).toString(),
-            },
-          ];
-        } else {
-          data = [
+        // Jeśli pole jest puste, usuwamy customerId
+        if (customerIdValue === "") {
+          var data = [
             {
               op: "remove",
               path: "/customerId",
             },
           ];
+
+          sendAjaxRequest(data);
+          return;
         }
+
+        // Walidacja numeru customerId - musi być liczbą o długości od 4 do 12 cyfr.
+        if (!/^\d{4,12}$/.test(customerIdValue)) {
+          displayMessage(
+            "Error",
+            "Identyfikator klienta musi składać się z od 4 do 12 cyfr."
+          );
+          return false;
+        }
+
+        // Jeśli walidacja przeszła, tworzymy żądanie zmiany lub dodania customerId
+        var data = [
+          {
+            op: "add",
+            path: "/customerId",
+            value: customerIdValue,
+          },
+        ];
+
+        sendAjaxRequest(data);
+      });
+
+      function sendAjaxRequest(data) {
+        var action =
+          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
+        var method = "PATCH";
 
         $.ajax({
           type: method,
@@ -1120,21 +1127,20 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             if (typeof successCallback === "function") {
-              result = successCallback(resultData);
+              var result = successCallback(resultData);
               if (!result) {
                 form.show();
                 displayMessage(
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
-                console.log(e);
                 return;
               }
             }
             form.show();
             displayMessage(
               "Success",
-              "Identyfikator klienta dla dostawcy został zmieniony"
+              "Identyfikator klienta dla dostawcy został zmieniony."
             );
           },
           error: function (e) {
@@ -1146,12 +1152,10 @@ docReady(function () {
               "Error",
               "Oops. Coś poszło nie tak, spróbuj ponownie."
             );
-            console.log(e);
+            console.error(e);
           },
         });
-
-        return false;
-      });
+      }
     });
   };
 
