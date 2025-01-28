@@ -1094,6 +1094,10 @@ docReady(function () {
   editCustomerId = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+
+      // Zablokowanie domyślnego zachowania Webflow dla formularzy
+      form.removeClass("wf-form");
+
       form.on("submit", function (event) {
         event.preventDefault();
 
@@ -1158,6 +1162,9 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
+            // Zapewnienie widoczności formularza po sukcesie
+            form.show();
+
             if (typeof successCallback === "function") {
               var result = successCallback(resultData);
               if (!result) {
@@ -1168,12 +1175,16 @@ docReady(function () {
                 return;
               }
             }
+
             displayMessage(
               "Success",
               "Identyfikator klienta dla dostawcy został zmieniony."
             );
           },
           error: function (e) {
+            // Zapewnienie widoczności formularza w przypadku błędu
+            form.show();
+
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
