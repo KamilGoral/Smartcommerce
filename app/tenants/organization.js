@@ -1529,6 +1529,7 @@ docReady(function () {
         });
 
         $("#table_wholesalers_list").DataTable({
+          destroy: true, // Zapobiega duplikatom tabeli
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -1713,6 +1714,7 @@ docReady(function () {
         });
 
         $("#table_wholesalers_list_bonus").DataTable({
+          destroy: true, // Zapobiega duplikatom tabeli
           data: enabledWholesalers,
           pagingType: "full_numbers",
           order: [],
