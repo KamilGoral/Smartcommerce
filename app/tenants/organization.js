@@ -1455,9 +1455,6 @@ docReady(function () {
         request.status >= 200 &&
         request.status < 400
       ) {
-        // ukryj ladowanie
-        $("waitingdots").hide();
-
         var data = JSON.parse(this.response);
         var toParse = data.items;
         toParse.sort(function (a, b) {
@@ -1712,6 +1709,12 @@ docReady(function () {
             });
           },
         });
+
+        // Ukrycie loadera dopiero po pełnym wyrenderowaniu tabeli
+        $("#table_wholesalers_list").on("draw.dt", function () {
+          $("#waitingdots").hide();
+        });
+
         $("#table_wholesalers_list_bonus").DataTable({
           data: enabledWholesalers,
           pagingType: "full_numbers",
