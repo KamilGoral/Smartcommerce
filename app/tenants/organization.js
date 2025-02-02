@@ -1871,16 +1871,14 @@ docReady(function () {
     request.send();
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const policyLink = document.querySelector('a[data-w-tab="Policy"]');
+  const policyLink = document.querySelector('a[data-w-tab="Policy"]');
 
-    if (policyLink) {
-      policyLink.addEventListener("click", async function (event) {
-        // Uruchomienie funkcji pobierającej hurtownie
-        await getWholesalers();
-      });
-    }
-  });
+  if (policyLink) {
+    policyLink.addEventListener("click", async function () {
+      await getWholesalers();
+      console.log("Getting wH");
+    });
+  }
 
   async function getIntegrations() {
     let attempts = 0;
