@@ -1441,9 +1441,6 @@ docReady(function () {
       return;
     }
 
-    // Pokaz ladowanie
-    $("waitingdots").show();
-
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
