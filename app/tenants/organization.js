@@ -1452,6 +1452,11 @@ docReady(function () {
         request.status >= 200 &&
         request.status < 400
       ) {
+        // Ukrycie loadera dopiero po 1sek
+        setTimeout(function () {
+          $("#waitingdots").hide();
+        }, 1000); // 1000 milliseconds = 1 second
+
         var data = JSON.parse(this.response);
         var toParse = data.items;
         toParse.sort(function (a, b) {
@@ -1707,13 +1712,6 @@ docReady(function () {
           },
         });
 
-        // Ukrycie loadera dopiero po pełnym wyrenderowaniu tabeli
-        $("#table_wholesalers_list").on("draw.dt", function () {
-          setTimeout(function () {
-            $("#waitingdots").hide();
-          }, 1000); // 1000 milliseconds = 1 second
-        });
-
         $("#table_wholesalers_list_bonus").DataTable({
           data: enabledWholesalers,
           pagingType: "full_numbers",
@@ -1820,12 +1818,6 @@ docReady(function () {
               this.api().search(e.target.value).draw();
             });
           },
-        });
-
-        $("#table_wholesalers_list_bonus").on("draw.dt", function () {
-          setTimeout(function () {
-            $("#waitingdots").hide();
-          }, 1000); // 1000 milliseconds = 1 second
         });
 
         $("#table_wholesalers_list").on(
