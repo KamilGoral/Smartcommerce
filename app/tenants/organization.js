@@ -1819,6 +1819,11 @@ docReady(function () {
             });
           },
         });
+
+        $("#table_wholesalers_list_bonus").on("draw.dt", function () {
+          $("#waitingdots").hide();
+        });
+
         $("#table_wholesalers_list").on(
           "change",
           "input.editor-active",
@@ -1854,6 +1859,7 @@ docReady(function () {
             }
           }
         );
+
         function addToSecondTable(data) {
           var tableBonus = $("#table_wholesalers_list_bonus").DataTable();
           tableBonus.row.add(data).draw();
@@ -1872,6 +1878,7 @@ docReady(function () {
 
       if (request.readyState === 4 && request.status == 401) {
         console.log("Unauthorized");
+        $("#waitingdots").hide();
       }
     };
     request.send();
