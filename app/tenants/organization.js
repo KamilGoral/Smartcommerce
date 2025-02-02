@@ -1709,7 +1709,9 @@ docReady(function () {
 
         // Ukrycie loadera dopiero po pełnym wyrenderowaniu tabeli
         $("#table_wholesalers_list").on("draw.dt", function () {
-          $("#waitingdots").hide();
+          setTimeout(function () {
+            $("#waitingdots").hide();
+          }, 1000); // 1000 milliseconds = 1 second
         });
 
         $("#table_wholesalers_list_bonus").DataTable({
@@ -1821,7 +1823,9 @@ docReady(function () {
         });
 
         $("#table_wholesalers_list_bonus").on("draw.dt", function () {
-          $("#waitingdots").hide();
+          setTimeout(function () {
+            $("#waitingdots").hide();
+          }, 1000); // 1000 milliseconds = 1 second
         });
 
         $("#table_wholesalers_list").on(
