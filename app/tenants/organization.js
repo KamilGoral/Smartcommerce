@@ -1441,6 +1441,9 @@ docReady(function () {
       return;
     }
 
+    // Pokaz ladowanie
+    $("waitingdots").show();
+
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -1452,6 +1455,9 @@ docReady(function () {
         request.status >= 200 &&
         request.status < 400
       ) {
+        // ukryj ladowanie
+        $("waitingdots").hide();
+
         var data = JSON.parse(this.response);
         var toParse = data.items;
         toParse.sort(function (a, b) {
