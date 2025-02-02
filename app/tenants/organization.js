@@ -1884,6 +1884,7 @@ docReady(function () {
 
   if (policyLink) {
     policyLink.addEventListener("click", async function () {
+      $("#waitingdots").show();
       await getWholesalers();
       console.log("Getting wH");
     });
