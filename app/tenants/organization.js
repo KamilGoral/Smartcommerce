@@ -505,26 +505,44 @@ docReady(function () {
 
   function setupSearch() {
     const searchInput = document.getElementById("search-shops");
+    if (!searchInput) return;
 
+    let debounceTimer;
     searchInput.addEventListener("input", function () {
-      const searchTerm = searchInput.value.toLowerCase();
-      const shopContainer = document.getElementById("Shops-Container");
-      const shopRows = shopContainer.querySelectorAll("[shopdata]");
+      console.log("Search input changed:", searchInput.value);
+      clearTimeout(debounceTimer);
 
-      shopRows.forEach((row) => {
-        const shopName = row
-          .querySelector("[shopdata='shopName']")
-          .textContent.toLowerCase();
-        const shopKey = row
-          .querySelector("[shopdata='shopKey']")
-          .textContent.toLowerCase();
+      if (searchInput.value.length < 3 && searchInput.value.length > 0) {
+        console.log("Waiting for more keystrokes...");
+        return;
+      }
 
-        if (shopName.includes(searchTerm) || shopKey.includes(searchTerm)) {
-          row.style.display = "flex"; // Show the row if it matches the search term
-        } else {
-          row.style.display = "none"; // Hide the row if it doesn't match the search term
+      debounceTimer = setTimeout(() => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const shopContainer = document.getElementById("Shops-Container");
+        if (!shopContainer) return;
+
+        console.log("Filtering shops for term:", searchTerm);
+        const shopRows = shopContainer.children;
+
+        for (let row of shopRows) {
+          const shopNameElement = row.querySelector("[shopdata='shopName']");
+          const shopKeyElement = row.querySelector("[shopdata='shopKey']");
+
+          if (shopNameElement && shopKeyElement) {
+            const shopName = shopNameElement.textContent.toLowerCase();
+            const shopKey = shopKeyElement.textContent.toLowerCase();
+
+            if (shopName.includes(searchTerm) || shopKey.includes(searchTerm)) {
+              row.style.display = "flex";
+              console.log("Showing shop:", shopName);
+            } else {
+              row.style.display = "none";
+              console.log("Hiding shop:", shopName);
+            }
+          }
         }
-      });
+      }, 300); // Debounce to delay execution
     });
   }
 
