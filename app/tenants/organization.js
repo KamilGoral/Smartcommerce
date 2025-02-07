@@ -546,7 +546,7 @@ docReady(function () {
             }
           }
         }
-      }, 100); // Debounce to delay execution
+      }, 1); // Debounce to delay execution
     });
   }
 
