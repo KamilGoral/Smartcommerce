@@ -503,8 +503,11 @@ docReady(function () {
     }, 501);
   }
 
-  function setupSearch() {
-    const searchInput = document.getElementById("search-shops");
+  function setupShopSearch() {
+    const searchContainer = document.getElementById("search-shops");
+    if (!searchContainer) return;
+
+    const searchInput = searchContainer.querySelector("input[type='search']");
     if (!searchInput) return;
 
     let debounceTimer;
