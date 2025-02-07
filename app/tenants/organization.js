@@ -503,6 +503,31 @@ docReady(function () {
     }, 501);
   }
 
+  function setupSearch() {
+    const searchInput = document.getElementById("search-shops");
+
+    searchInput.addEventListener("input", function () {
+      const searchTerm = searchInput.value.toLowerCase();
+      const shopContainer = document.getElementById("Shops-Container");
+      const shopRows = shopContainer.querySelectorAll("[shopdata]");
+
+      shopRows.forEach((row) => {
+        const shopName = row
+          .querySelector("[shopdata='shopName']")
+          .textContent.toLowerCase();
+        const shopKey = row
+          .querySelector("[shopdata='shopKey']")
+          .textContent.toLowerCase();
+
+        if (shopName.includes(searchTerm) || shopKey.includes(searchTerm)) {
+          row.style.display = "flex"; // Show the row if it matches the search term
+        } else {
+          row.style.display = "none"; // Hide the row if it doesn't match the search term
+        }
+      });
+    });
+  }
+
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=20");
     let request = new XMLHttpRequest();
@@ -553,6 +578,9 @@ docReady(function () {
 
           shopContainer.appendChild(row);
         });
+
+        // Call the search setup function after shops are loaded
+        setupSearch();
 
         if (data.total === 0) {
           const tablecontentshops =
