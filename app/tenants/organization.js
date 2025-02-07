@@ -529,6 +529,11 @@ docReady(function () {
         const shopRows = shopContainer.children;
 
         for (let row of shopRows) {
+          if (row.id === "sampleRowShops") {
+            row.style.display = "none";
+            continue;
+          }
+
           const shopNameElement = row.querySelector("[shopdata='shopName']");
           const shopKeyElement = row.querySelector("[shopdata='shopKey']");
 
