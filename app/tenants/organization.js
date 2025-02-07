@@ -512,11 +512,9 @@ docReady(function () {
 
     let debounceTimer;
     searchInput.addEventListener("input", function () {
-      console.log("Search input changed:", searchInput.value);
       clearTimeout(debounceTimer);
 
-      if (searchInput.value.length < 3 && searchInput.value.length > 0) {
-        console.log("Waiting for more keystrokes...");
+      if (searchInput.value.length < 2 && searchInput.value.length > 0) {
         return;
       }
 
@@ -543,10 +541,8 @@ docReady(function () {
 
             if (shopName.includes(searchTerm) || shopKey.includes(searchTerm)) {
               row.style.display = "flex";
-              console.log("Showing shop:", shopName);
             } else {
               row.style.display = "none";
-              console.log("Hiding shop:", shopName);
             }
           }
         }
