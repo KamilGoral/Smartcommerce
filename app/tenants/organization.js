@@ -601,7 +601,7 @@ docReady(function () {
         });
 
         // Call the search setup function after shops are loaded
-        setupSearch();
+        setupShopSearch();
 
         if (data.total === 0) {
           const tablecontentshops =
