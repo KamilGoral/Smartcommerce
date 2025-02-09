@@ -1374,7 +1374,7 @@ docReady(function () {
             orderable: true,
             data: "connections.onlineOffer",
             width: "72px",
-            type: "custom-offer-status-pre", // custom sorting function
+            orderDataType: "custom-offer-status-pre", // Inline custom sorting function
             render: function (data) {
               if (data) {
                 if (data.enabled && data.active) {
