@@ -1226,6 +1226,20 @@ docReady(function () {
           return 5;
       }
     };
+    // Miganie funkcja przywroc
+    var styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = `
+            @keyframes tourDot {
+              0%   { box-shadow: 0 0 0 0px ${color}; }
+              80% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+              100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+            }
+            .tooltip-dot {
+              animation: tourDot 2.0s ease-out infinite;
+            }
+          `;
+    document.head.appendChild(styleSheet);
 
     // Fetch all data initially
     $.ajaxSetup({
@@ -1249,6 +1263,22 @@ docReady(function () {
       },
       function (res) {
         initializeDataTable(res.items);
+
+        // Check if any wholesaler has the status "Przywróć"
+        var hasPrzywroc = res.items.some(function (wholesaler) {
+          return (
+            wholesaler.connections.onlineOffer &&
+            wholesaler.connections.onlineOffer.enabled &&
+            wholesaler.connections.onlineOffer.status === "Przywróć"
+          );
+        });
+
+        // If a wholesaler with "Przywróć" is found, show the dot
+        if (hasPrzywroc) {
+          document.querySelectorAll(".tooltip-dot").forEach(function (dot) {
+            dot.classList.remove("hidden");
+          });
+        }
       }
     );
 
