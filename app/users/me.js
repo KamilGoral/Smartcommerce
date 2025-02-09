@@ -674,6 +674,9 @@ docReady(function () {
             const template = document.getElementById("samplerow");
             const row = template.cloneNode(true);
 
+            // Usuń atrybuty ID z klonowanych wierszy, aby uniknąć duplikatów
+            row.removeAttribute("id");
+
             const statusMap = {
               onboarding: { color: "#fff1b8", text: "W trakcie weryfikacji" },
               problem: { color: "#ffd666", text: "Problem" },
