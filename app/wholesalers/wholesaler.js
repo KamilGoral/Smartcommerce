@@ -637,7 +637,7 @@ docReady(function () {
                 document.getElementById("LastStatusMessage");
               if (LastStatusMessage) {
                 LastStatusMessage.textContent =
-                  "Twoja oferta właśnie jest tworzona! Proszę czekaj.";
+                  "Twoja oferta właśnie jest tworzona! Możesz integrować kolejnych dostawców.";
               }
             }
 

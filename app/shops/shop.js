@@ -1219,9 +1219,9 @@ docReady(function () {
         case "Tak":
           return 2;
         case "Dodaj":
-          return 3;
-        case "Brak":
           return 4;
+        case "Brak":
+          return 3;
         default:
           return 5;
       }
