@@ -658,7 +658,7 @@ docReady(function () {
           destroy: true,
           orderMulti: true,
           order: [[3, "desc"]],
-          dom: '<"top">rt<"bottom"lip>',
+          dom: '<"top">frt<"bottom"lip>',
           language: {
             emptyTable: "Nie posiadasz odpowiednich uprawnień",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -804,7 +804,7 @@ docReady(function () {
             destroy: true,
             orderMulti: true,
             order: [[3, "asc"]],
-            dom: '<"top">rt<"bottom"lip>',
+            dom: '<"top">frt<"bottom"lip>',
             language: {
               emptyTable: "Brak faktur",
               info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
