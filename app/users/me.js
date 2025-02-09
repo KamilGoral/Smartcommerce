@@ -757,7 +757,7 @@ docReady(function () {
               organizationNameElement.textContent.toLowerCase();
 
             if (organizationName.includes(searchTerm)) {
-              row.style.display = "";
+              row.style.display = "flex";
             } else {
               row.style.display = "none";
             }
