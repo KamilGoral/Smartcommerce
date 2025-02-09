@@ -1231,9 +1231,9 @@ docReady(function () {
     styleSheet.type = "text/css";
     styleSheet.innerText = `
             @keyframes tourDot {
-              0%   { box-shadow: 0 0 0 0px ${color}; }
-              80% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
-              100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+              0%   { box-shadow: 0 0 0 0px; }
+              80% { box-shadow: 0 0 0 36px; }
+              100% { box-shadow: 0 0 0 36px; }
             }
             .tooltip-dot {
               animation: tourDot 2.0s ease-out infinite;
