@@ -1211,6 +1211,22 @@ docReady(function () {
   );
 
   function getWholesalers() {
+    // Niestandardowa funkcja sortowania
+    $.fn.dataTable.ext.type.order["custom-offer-status-pre"] = function (data) {
+      switch (data) {
+        case "Przywróć":
+          return 1;
+        case "Tak":
+          return 2;
+        case "Dodaj":
+          return 3;
+        case "Brak":
+          return 4;
+        default:
+          return 5;
+      }
+    };
+
     // Fetch all data initially
     $.ajaxSetup({
       headers: {
@@ -1343,6 +1359,7 @@ docReady(function () {
             orderable: true,
             data: "connections.onlineOffer",
             width: "72px",
+            type: "custom-offer-status", // custom sorting function
             render: function (data) {
               if (data) {
                 if (data.enabled && data.active) {
