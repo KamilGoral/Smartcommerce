@@ -1211,244 +1211,185 @@ docReady(function () {
   );
 
   function getWholesalers() {
-    var tablevendors = $("#table_wholesalers").DataTable({
-      pagingType: "full_numbers",
-      order: [],
-      dom: '<"top">frt<"bottom"lip>',
-      scrollY: "60vh",
-      scrollCollapse: true,
-      pageLength: 50,
-      language: {
-        emptyTable: "Brak danych",
-        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-        infoEmpty: "Brak danych",
-        infoFiltered: "(z _MAX_ rezultatów)",
-        lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'</div>",
-        processing: "<div class='spinner'</div>",
-        search: "Szukaj:",
-        zeroRecords: "Brak pasujących rezultatów",
-        paginate: {
-          first: "<<",
-          last: ">>",
-          next: " >",
-          previous: "< ",
-        },
-        aria: {
-          sortAscending: ": Sortowanie rosnące",
-          sortDescending: ": Sortowanie malejące",
-        },
+    // Fetch all data initially
+    $.ajaxSetup({
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
       },
-      ajax: function (data, callback, settings) {
-        $.ajaxSetup({
-          headers: {
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-        });
-
-        var whichColumns = "";
-        var direction = "desc";
-
-        if (data.order.length == 0) {
-          whichColumns = 2;
-        } else {
-          whichColumns = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-        }
-
-        switch (whichColumns) {
-          case 2:
-            whichColumns = "wholesalerKey:";
-            break;
-          case 5:
-            whichColumns = "connections.ftp.enabled:";
-            break;
-          case 7:
-            whichColumns = "connections.onlineOffer.enabled:";
-            break;
-          case 4:
-            whichColumns = "connections.retroactive.enabled:";
-            break;
-          default:
-            whichColumns = "wholesalerKey:";
-        }
-
-        var sort = "" + whichColumns + direction;
-
-        $.get(
-          InvokeURL + "shops/" + shopKey + "/wholesalers",
-          {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
-          },
-          function (res) {
-            callback({
-              recordsTotal: res.total,
-              recordsFiltered: res.total,
-              data: res.items,
-            });
-          }
-        );
+      beforeSend: function () {
+        $("#waitingdots").show();
       },
-      processing: true,
-      serverSide: true,
-      search: {
-        return: true,
-      },
-      columns: [
-        {
-          orderable: false,
-          data: null,
-          width: "36px",
-          defaultContent:
-            "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
-        },
-        {
-          orderable: true,
-          data: "wholesalerKey",
-          visible: false,
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            } else {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "name",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            } else {
-              return "";
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "logisticMinimum",
-          width: "108px",
-          render: function (data) {
-            if (data !== null) {
-              return data;
-            } else {
-              return "-";
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "connections.retroactive",
-          width: "108px",
-          visible: true,
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="negative">Nie</spann>';
-              }
-            } else {
-              return '<spann class="negative">Nie</spann>';
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "connections.ftp",
-          width: "72px",
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="medium">Dodaj</spann>';
-              }
-            } else {
-              return '<spann class="negative">Nie</spann>';
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "connections.wms",
-          visible: false,
-          width: "72px",
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled) {
-                return '<spann class="positive">Tak</spann>';
-              } else {
-                return '<spann class="noneexisting">Brak</spann>';
-              }
-            } else {
-              return '<spann class="noneexisting">Brak</spann>';
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "connections.onlineOffer",
-          width: "72px",
-          render: function (data) {
-            if (data !== null) {
-              if (data.enabled == true && data.active == true) {
-                return '<spann class="positive">Tak</spann>';
-              } else if (data.enabled == false && data.active == false) {
-                return '<spann class="medium">Dodaj</spann>';
-              } else if (data.enabled == true && data.active == false) {
-                return '<spann class="improve">Przywróć</spann>';
-              } else if (data.enabled == false && data.active == true) {
-                return '<spann class="medium">Dodaj</spann>';
-              }
-            } else {
-              return '<spann class="noneexisting">Brak</spann>';
-            }
-          },
-        },
-        {
-          orderable: false,
-          data: "wholesalerKey",
-          width: "72px",
-          render: function (data, type, row, meta) {
-            // Using render function to dynamically generate the anchor tag
-            return (
-              '<div class="action-container"><a href="https://' +
-              DomainName +
-              "/app/wholesalers/wholesaler?shopKey=" +
-              shopKey +
-              "&wholesalerKey=" +
-              data +
-              '" class="buttonoutline editme w-button">Przejdź</a></div>'
-            );
-          },
-        },
-      ],
-      drawCallback: function (settings) {
-        toggleEmptyState();
+      complete: function () {
+        $("#waitingdots").hide();
       },
     });
-    function toggleEmptyState() {
-      // Check if the table has any entries
-      var hasEntries = tablevendors.data().any();
-      // If the table is empty, show the custom empty state div
-      // Otherwise, hide it
-      if (!hasEntries) {
-        $("#emptystatevendors").show();
-        $("#vendorscontainer").hide();
-      } else {
-        $("#emptystatevendors").hide();
-        $("#vendorscontainer").show();
+
+    $.get(
+      InvokeURL + "shops/" + shopKey + "/wholesalers",
+      {
+        perPage: 1000, // Fetch all records (adjust as needed)
+        page: 1,
+      },
+      function (res) {
+        initializeDataTable(res.items);
+      }
+    );
+
+    function initializeDataTable(data) {
+      var tablevendors = $("#table_wholesalers").DataTable({
+        pagingType: "full_numbers",
+        order: [],
+        dom: '<"top">frt<"bottom"lip>',
+        scrollY: "60vh",
+        scrollCollapse: true,
+        pageLength: 50,
+        language: {
+          emptyTable: "Brak danych",
+          info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+          infoEmpty: "Brak danych",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
+          loadingRecords: "<div class='spinner'></div>",
+          processing: "<div class='spinner'></div>",
+          search: "Szukaj:",
+          zeroRecords: "Brak pasujących rezultatów",
+          paginate: {
+            first: "<<",
+            last: ">>",
+            next: " >",
+            previous: "< ",
+          },
+          aria: {
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
+          },
+        },
+        data: data, // Pass the fetched data here
+        processing: true,
+        search: {
+          return: true,
+        },
+        columns: [
+          {
+            orderable: false,
+            data: null,
+            width: "36px",
+            defaultContent:
+              "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg' alt='offer'></img></div>",
+          },
+          {
+            orderable: true,
+            data: "wholesalerKey",
+            visible: false,
+            render: function (data) {
+              return data || "";
+            },
+          },
+          {
+            orderable: true,
+            data: "name",
+            render: function (data) {
+              return data || "";
+            },
+          },
+          {
+            orderable: false,
+            data: "logisticMinimum",
+            width: "108px",
+            render: function (data) {
+              return data || "-";
+            },
+          },
+          {
+            orderable: true,
+            data: "connections.retroactive",
+            width: "108px",
+            visible: true,
+            render: function (data) {
+              if (data && data.enabled) {
+                return '<span class="positive">Tak</span>';
+              } else {
+                return '<span class="negative">Nie</span>';
+              }
+            },
+          },
+          {
+            orderable: true,
+            data: "connections.ftp",
+            width: "72px",
+            render: function (data) {
+              if (data && data.enabled) {
+                return '<span class="positive">Tak</span>';
+              } else {
+                return '<span class="medium">Dodaj</span>';
+              }
+            },
+          },
+          {
+            orderable: false,
+            data: "connections.wms",
+            visible: false,
+            width: "72px",
+            render: function (data) {
+              if (data && data.enabled) {
+                return '<span class="positive">Tak</span>';
+              } else {
+                return '<span class="noneexisting">Brak</span>';
+              }
+            },
+          },
+          {
+            orderable: true,
+            data: "connections.onlineOffer",
+            width: "72px",
+            render: function (data) {
+              if (data) {
+                if (data.enabled && data.active) {
+                  return '<span class="positive">Tak</span>';
+                } else if (!data.enabled && !data.active) {
+                  return '<span class="medium">Dodaj</span>';
+                } else if (data.enabled && !data.active) {
+                  return '<span class="improve">Przywróć</span>';
+                } else if (!data.enabled && data.active) {
+                  return '<span class="medium">Dodaj</span>';
+                }
+              } else {
+                return '<span class="noneexisting">Brak</span>';
+              }
+            },
+          },
+          {
+            orderable: false,
+            data: "wholesalerKey",
+            width: "72px",
+            render: function (data, type, row, meta) {
+              return (
+                '<div class="action-container"><a href="https://' +
+                DomainName +
+                "/app/wholesalers/wholesaler?shopKey=" +
+                shopKey +
+                "&wholesalerKey=" +
+                data +
+                '" class="buttonoutline editme w-button">Przejdź</a></div>'
+              );
+            },
+          },
+        ],
+        drawCallback: function (settings) {
+          toggleEmptyState();
+        },
+      });
+
+      function toggleEmptyState() {
+        var hasEntries = tablevendors.data().any();
+        if (!hasEntries) {
+          $("#emptystatevendors").show();
+          $("#vendorscontainer").hide();
+        } else {
+          $("#emptystatevendors").hide();
+          $("#vendorscontainer").show();
+        }
       }
     }
   }
