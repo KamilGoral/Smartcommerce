@@ -1424,7 +1424,10 @@ docReady(function () {
           },
         ],
         drawCallback: function (settings) {
-          toggleEmptyState();
+          // Ensure `tablevendors` is defined before calling `data()`
+          if (tablevendors && tablevendors.data) {
+            toggleEmptyState(tablevendors);
+          }
         },
       });
 
