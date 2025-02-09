@@ -687,8 +687,9 @@ docReady(function () {
               statusMap["onboarding"]; // Default to onboarding if not matched
 
             // Update organization-specific attributes
-            row.querySelector("#tenantName").textContent =
-              organization.name || "Brak";
+            row.querySelector(
+              "[organizationData='organizationName']"
+            ).textContent = organization.name || "Brak";
             row.querySelector("#statusWraper").style.backgroundColor =
               statusInfo.color;
             row.querySelector("#tenantStatus").textContent = statusInfo.text;
@@ -744,7 +745,9 @@ docReady(function () {
             continue;
           }
 
-          const organizationNameElement = row.querySelector("#tenantName");
+          const organizationNameElement = row.querySelector(
+            "[organizationData='organizationName']"
+          );
 
           if (organizationNameElement) {
             const organizationName =
