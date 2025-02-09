@@ -1213,6 +1213,7 @@ docReady(function () {
   function getWholesalers() {
     // Niestandardowa funkcja sortowania
     $.fn.dataTable.ext.type.order["custom-offer-status-pre"] = function (data) {
+      console.log(data); // Zaloguj dane
       switch (data) {
         case "Przywróć":
           return 1;
