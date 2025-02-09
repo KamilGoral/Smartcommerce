@@ -1359,7 +1359,7 @@ docReady(function () {
             orderable: true,
             data: "connections.onlineOffer",
             width: "72px",
-            type: "custom-offer-status", // custom sorting function
+            type: "custom-offer-status-pre", // custom sorting function
             render: function (data) {
               if (data) {
                 if (data.enabled && data.active) {
