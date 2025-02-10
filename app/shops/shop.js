@@ -1374,6 +1374,7 @@ docReady(function () {
             orderable: true,
             data: "connections.onlineOffer",
             width: "72px",
+            orderDataType: "dom-data-order",
             render: function (data, type, row) {
               let sortValue = 4; // Domyślnie "Brak"
 
