@@ -1374,21 +1374,26 @@ docReady(function () {
             orderable: true,
             data: "connections.onlineOffer",
             width: "72px",
-            orderDataType: "custom-offer-status-pre", // Inline custom sorting function
-            render: function (data) {
+            render: function (data, type, row) {
+              let sortValue = 4; // Domyślnie "Brak"
+
               if (data) {
                 if (data.enabled && data.active) {
-                  return '<span class="positive">Tak</span>';
+                  sortValue = 3; // "Tak"
+                  return '<span class="positive" data-order="3">Tak</span>';
                 } else if (!data.enabled && !data.active) {
-                  return '<span class="medium">Dodaj</span>';
+                  sortValue = 2; // "Dodaj"
+                  return '<span class="medium" data-order="2">Dodaj</span>';
                 } else if (data.enabled && !data.active) {
-                  return '<span class="improve">Przywróć</span>';
+                  sortValue = 1; // "Przywróć"
+                  return '<span class="improve" data-order="1">Przywróć</span>';
                 } else if (!data.enabled && data.active) {
-                  return '<span class="medium">Dodaj</span>';
+                  sortValue = 2; // "Dodaj"
+                  return '<span class="medium" data-order="2">Dodaj</span>';
                 }
-              } else {
-                return '<span class="noneexisting">Brak</span>';
               }
+
+              return '<span class="noneexisting" data-order="4">Brak</span>';
             },
           },
           {
@@ -1426,26 +1431,6 @@ docReady(function () {
           $("#vendorscontainer").show();
         }
       }
-
-      // Niestandardowa funkcja sortowania
-      $.fn.dataTable.ext.type.order["custom-offer-status-pre"] = function (
-        data
-      ) {
-        console.log(data); // Zaloguj dane
-        console.log("Sortuje");
-        switch (data) {
-          case "Przywróć":
-            return 1;
-          case "Tak":
-            return 3;
-          case "Dodaj":
-            return 2;
-          case "Brak":
-            return 4;
-          default:
-            return 5;
-        }
-      };
     }
   }
 
