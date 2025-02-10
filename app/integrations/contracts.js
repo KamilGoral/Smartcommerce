@@ -401,6 +401,13 @@ docReady(function () {
               }
             }
             form.show();
+
+            // Zmiana statusu integracji na aktywny
+            $("#integrationStatus")
+              .addClass("integrationstatus")
+              .css("color", "green")
+              .text("Aktywny");
+
             displayMessage(
               "Success",
               "Tabela kontraktów została zintegrowana."
@@ -468,20 +475,17 @@ docReady(function () {
               }
             }
             form.show();
+
+            // Zmiana statusu integracji
+            $("#integrationStatus")
+              .removeClass("integrationstatus")
+              .css("color", "")
+              .text("Nieaktywny");
+
             displayMessage(
               "Success",
               "Integracja z tabelą kontraków zostałą usunięta."
             );
-            window.setTimeout(function () {
-              window.location.replace(
-                "https://" +
-                  DomainName +
-                  "/app/tenants/organization?name=" +
-                  OrganizationName +
-                  "&clientId=" +
-                  OrganizationClientId
-              );
-            }, 2000);
           },
           error: function (e) {
             // call custom callback
