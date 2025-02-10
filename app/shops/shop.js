@@ -1254,7 +1254,7 @@ docReady(function () {
           return (
             wholesaler.connections.onlineOffer &&
             wholesaler.connections.onlineOffer.enabled &&
-            !wholesaler.connections.onlineOffer.active
+            wholesaler.connections.onlineOffer.active
           );
         });
 
