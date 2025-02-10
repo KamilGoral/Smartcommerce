@@ -1435,6 +1435,15 @@ docReady(function () {
             toggleEmptyState(tablevendors);
           }
         },
+        rowCallback: function (row, data) {
+          if (
+            data.wholesaler.connections.onlineOffer &&
+            data.wholesaler.connections.onlineOffer.enabled &&
+            !data.wholesaler.connections.onlineOffer.active
+          ) {
+            $("td", row).css("background-color", "#FFFAE6");
+          }
+        },
       });
 
       function toggleEmptyState() {
