@@ -1437,9 +1437,9 @@ docReady(function () {
           case "Przywróć":
             return 1;
           case "Tak":
-            return 2;
-          case "Dodaj":
             return 3;
+          case "Dodaj":
+            return 2;
           case "Brak":
             return 4;
           default:
