@@ -1270,7 +1270,7 @@ docReady(function () {
     function initializeDataTable(data) {
       var tablevendors = $("#table_wholesalers").DataTable({
         pagingType: "full_numbers",
-        order: [[7, "desc"]],
+        order: [[7, "asc"]],
         dom: '<"top">frt<"bottom"lip>',
         scrollY: "60vh",
         scrollCollapse: true,
