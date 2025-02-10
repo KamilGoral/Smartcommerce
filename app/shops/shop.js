@@ -1374,27 +1374,32 @@ docReady(function () {
             orderable: true,
             data: "connections.onlineOffer",
             width: "72px",
-            orderDataType: "dom-data-order",
             render: function (data, type, row) {
               let sortValue = 4; // Domyślnie "Brak"
+              let text = "Brak";
+              let className = "noneexisting";
 
               if (data) {
                 if (data.enabled && data.active) {
                   sortValue = 3; // "Tak"
-                  return '<span class="positive" data-order="3">Tak</span>';
+                  text = "Tak";
+                  className = "positive";
                 } else if (!data.enabled && !data.active) {
                   sortValue = 2; // "Dodaj"
-                  return '<span class="medium" data-order="2">Dodaj</span>';
+                  text = "Dodaj";
+                  className = "medium";
                 } else if (data.enabled && !data.active) {
                   sortValue = 1; // "Przywróć"
-                  return '<span class="improve" data-order="1">Przywróć</span>';
+                  text = "Przywróć";
+                  className = "improve";
                 } else if (!data.enabled && data.active) {
                   sortValue = 2; // "Dodaj"
-                  return '<span class="medium" data-order="2">Dodaj</span>';
+                  text = "Dodaj";
+                  className = "medium";
                 }
               }
 
-              return '<span class="noneexisting" data-order="4">Brak</span>';
+              return `<span class="${className}"><span style="display:none">${sortValue}</span>${text}</span>`;
             },
           },
           {
