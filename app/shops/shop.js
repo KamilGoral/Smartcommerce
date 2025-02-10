@@ -1437,9 +1437,10 @@ docReady(function () {
         },
         rowCallback: function (row, data) {
           if (
-            data.wholesaler.connections.onlineOffer &&
-            data.wholesaler.connections.onlineOffer.enabled &&
-            !data.wholesaler.connections.onlineOffer.active
+            data.connections &&
+            data.connections.onlineOffer &&
+            data.connections.onlineOffer.enabled &&
+            !data.connections.onlineOffer.active
           ) {
             $("td", row).css("background-color", "#FFFAE6");
           }
