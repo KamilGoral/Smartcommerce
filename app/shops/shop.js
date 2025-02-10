@@ -1211,19 +1211,27 @@ docReady(function () {
   );
 
   function getWholesalers() {
-    // Miganie funkcja przywroc
+    // Usuń stare style, aby uniknąć ich nakładania się
+    document
+      .querySelectorAll("style[data-tooltip-style]")
+      .forEach((style) => style.remove());
+
+    // Dodaj nowe style dla efektu migania
     var styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
+    styleSheet.setAttribute("data-tooltip-style", "true");
     styleSheet.innerText = `
-            @keyframes tourDot {
-              0%   { box-shadow: 0 0 0 0px; }
-              80% { box-shadow: 0 0 0 36px; }
-              100% { box-shadow: 0 0 0 36px; }
-            }
-            .tooltip-dot {
-              animation: tourDot 2.0s ease-out infinite;
-            }
-          `;
+        @keyframes tourDot {
+            0%   { box-shadow: 0 0 0 0px rgba(255, 165, 0, 0.8); }
+            80% { box-shadow: 0 0 0 36px rgba(255, 165, 0, 0); }
+            100% { box-shadow: 0 0 0 36px rgba(255, 165, 0, 0); }
+        }
+        .tooltip-dot {
+            animation: tourDot 2.0s ease-out infinite;
+            background-color: rgb(255, 165, 0);
+            border-color: rgb(255, 165, 0);
+        }
+    `;
     document.head.appendChild(styleSheet);
 
     // Fetch all data initially
@@ -1254,14 +1262,16 @@ docReady(function () {
           return (
             wholesaler.connections.onlineOffer &&
             wholesaler.connections.onlineOffer.enabled &&
-            wholesaler.connections.onlineOffer.active
+            !wholesaler.connections.onlineOffer.active
           );
         });
 
-        // If a wholesaler with "Przywróć" is found, show the dot
+        // If a wholesaler with "Przywróć" is found, show the dot and apply styles
         if (hasPrzywroc) {
           document.querySelectorAll(".tooltip-dot").forEach(function (dot) {
             dot.classList.remove("hidden");
+            dot.style.backgroundColor = "rgb(255, 165, 0)";
+            dot.style.borderColor = "rgb(255, 165, 0)";
           });
         }
       }
