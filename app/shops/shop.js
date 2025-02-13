@@ -1460,6 +1460,27 @@ docReady(function () {
     }
   }
 
+  $("#table_wholesalers").on("click", "tbody tr", function (event) {
+    // Zapobiegaj przekierowaniu, jeśli kliknięto link
+    if ($(event.target).is("a")) {
+      return;
+    }
+
+    var table = $("#table_wholesalers").DataTable();
+    var rowData = table.row($(this)).data();
+
+    if (rowData && rowData.wholesalerKey) {
+      window.location.replace(
+        "https://" +
+          DomainName +
+          "/app/wholesalers/wholesaler?shopKey=" +
+          shopKey +
+          "&wholesalerKey=" +
+          rowData.wholesalerKey
+      );
+    }
+  });
+
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
