@@ -60,123 +60,136 @@ docReady(function () {
   emailadress.value = attributes["email"];
   const phoneNumberElement = document.getElementById("phoneNumber");
   phoneNumberElement.value = attributes["phonenumber"];
+  let userRole = getCookie("sprytnyUserRole");
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
-        var form = $(this);
-        form.on("submit", function (event) {
-            const firstNameUser = $("#firstNameUser").val();
-            const lastNameUser = $("#lastNameUser").val();
-            const emailadressUser = $("#emailadressUser").val();
-            const phoneNumber = $("#phoneNumber").val();
-            const phoneNumberPrefixWithPrefix = phoneNumber ? "+48" + phoneNumber : ""; // Only add prefix if phoneNumber is not empty
+      var form = $(this);
+      form.on("submit", function (event) {
+        const firstNameUser = $("#firstNameUser").val();
+        const lastNameUser = $("#lastNameUser").val();
+        const emailadressUser = $("#emailadressUser").val();
+        const phoneNumber = $("#phoneNumber").val();
+        const phoneNumberPrefixWithPrefix = phoneNumber
+          ? "+48" + phoneNumber
+          : ""; // Only add prefix if phoneNumber is not empty
 
-            // Get the existing phone number from the cookie
-            const existingUserAttributes = getCookie("SpytnyUserAttributes");
-            let existingPhoneNumber = null;
-            if (existingUserAttributes) {
-                const attributes = existingUserAttributes.split("|");
-                const phoneNumberAttribute = attributes.find(attr => attr.startsWith("phonenumber:"));
-                if (phoneNumberAttribute) {
-                    existingPhoneNumber = phoneNumberAttribute.split(":")[1];
-                }
+        // Get the existing phone number from the cookie
+        const existingUserAttributes = getCookie("SpytnyUserAttributes");
+        let existingPhoneNumber = null;
+        if (existingUserAttributes) {
+          const attributes = existingUserAttributes.split("|");
+          const phoneNumberAttribute = attributes.find((attr) =>
+            attr.startsWith("phonenumber:")
+          );
+          if (phoneNumberAttribute) {
+            existingPhoneNumber = phoneNumberAttribute.split(":")[1];
+          }
+        }
+
+        // Prepare the data to send
+        const datatosend = {
+          AccessToken: accessToken,
+          UserAttributes: [
+            {
+              Name: "name",
+              Value: firstNameUser,
+            },
+            {
+              Name: "family_name",
+              Value: lastNameUser,
+            },
+          ],
+        };
+
+        // Add phone_number attribute only if phoneNumber is not empty
+        if (phoneNumber) {
+          datatosend.UserAttributes.push({
+            Name: "phone_number",
+            Value: phoneNumberPrefixWithPrefix,
+          });
+        }
+
+        // If the user wants to delete the phone number (empty field) and it previously existed
+        if (!phoneNumber && existingPhoneNumber) {
+          datatosend.UserAttributes.push({
+            Name: "phone_number",
+            Value: "", // Sending an empty value to delete the phone number
+          });
+        }
+
+        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "x-amz-target":
+              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+            Authorization: smartToken,
+          },
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          data: JSON.stringify(datatosend),
+          dataType: "json",
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                console.log(e);
+                return;
+              }
             }
-
-            // Prepare the data to send
-            const datatosend = {
-                AccessToken: accessToken,
-                UserAttributes: [
-                    {
-                        Name: "name",
-                        Value: firstNameUser,
-                    },
-                    {
-                        Name: "family_name",
-                        Value: lastNameUser,
-                    },
-                ],
-            };
-
-            // Add phone_number attribute only if phoneNumber is not empty
-            if (phoneNumber) {
-                datatosend.UserAttributes.push({
-                    Name: "phone_number",
-                    Value: phoneNumberPrefixWithPrefix,
-                });
+            form.show();
+            setCookie(
+              "SpytnyUserAttributes",
+              "username:" +
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser +
+                "|phonenumber:" +
+                phoneNumber,
+              720000
+            );
+            displayMessage("Success", "Twoje dane zostały zmienione");
+            const welcomeMessage = document.getElementById("welcomeMessage");
+            if (welcomeMessage) {
+              welcomeMessage.textContent =
+                "Witaj, " + firstNameUser + " " + lastNameUser + "!";
+            } else {
+              console.log("Witaj");
             }
-
-            // If the user wants to delete the phone number (empty field) and it previously existed
-            if (!phoneNumber && existingPhoneNumber) {
-                datatosend.UserAttributes.push({
-                    Name: "phone_number",
-                    Value: "", // Sending an empty value to delete the phone number
-                });
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
             }
-
-            const url = "https://cognito-idp.us-east-1.amazonaws.com/";
-
-            $.ajax({
-                type: "POST",
-                url: url,
-                headers: {
-                    "Content-Type": "application/x-amz-json-1.1",
-                    "x-amz-target": "AWSCognitoIdentityProviderService.UpdateUserAttributes",
-                    Authorization: smartToken,
-                },
-                cors: true,
-                beforeSend: function () {
-                    $("#waitingdots").show();
-                },
-                complete: function () {
-                    $("#waitingdots").hide();
-                },
-                data: JSON.stringify(datatosend),
-                dataType: "json",
-                success: function (resultData) {
-                    if (typeof successCallback === "function") {
-                        result = successCallback(resultData);
-                        if (!result) {
-                            form.show();
-                            displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
-                            console.log(e);
-                            return;
-                        }
-                    }
-                    form.show();
-                    setCookie(
-                        "SpytnyUserAttributes",
-                        "username:" +
-                            firstNameUser +
-                            "|familyname:" +
-                            lastNameUser +
-                            "|email:" +
-                            emailadressUser +
-                            "|phonenumber:" +
-                            phoneNumber,
-                        720000
-                    );
-                    displayMessage("Success", "Twoje dane zostały zmienione");
-                    const welcomeMessage = document.getElementById("welcomeMessage");
-                    if (welcomeMessage) {
-                        welcomeMessage.textContent = "Witaj, " + firstNameUser + " " + lastNameUser + "!";
-                    } else {
-                        console.log("Witaj");
-                    }
-                },
-                error: function (e) {
-                    if (typeof errorCallback === "function") {
-                        errorCallback(e);
-                    }
-                    form.show();
-                    displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
-                    console.log(e);
-                },
-            });
-            event.preventDefault();
-            return false;
+            form.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
+            console.log(e);
+          },
         });
+        event.preventDefault();
+        return false;
+      });
     });
-};
+  };
 
   postChangePassword = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -286,11 +299,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopNameBread");
@@ -305,11 +318,11 @@ docReady(function () {
   OfferIDBread.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/offers/offer?shopKey=" +
-    shopKey +
-    "&offerId=" +
-    offerId
+      DomainName +
+      "/app/offers/offer?shopKey=" +
+      shopKey +
+      "&offerId=" +
+      offerId
   );
 
   function getProductDetails(rowData) {
@@ -544,7 +557,7 @@ docReady(function () {
               ((dataToChart.retailPrice[0] -
                 dataToChart.retailPrice.slice(-1)[0]) /
                 dataToChart.retailPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -558,7 +571,7 @@ docReady(function () {
               ((dataToChart.standardPrice[0] -
                 dataToChart.standardPrice.slice(-1)[0]) /
                 dataToChart.standardPrice.slice(-1)[0]) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -571,7 +584,7 @@ docReady(function () {
           Math.round(
             (rowData.stock.value /
               dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-            7
+              7
           )
         );
         const pSales90 = document.getElementById("pSales90");
@@ -584,7 +597,7 @@ docReady(function () {
               ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
                 dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-              100
+                100
             ).toFixed(2)
           ) +
           "%)";
@@ -990,15 +1003,17 @@ docReady(function () {
         return `<tr>
             <td>${item.wholesalerKey}</td>
             <td>${item.netPrice}</td>
-            <td>${item.netNetPrice ?? "-"}</td>
+            <td>${item.netPrice}</td>
+            <td>${userRole === "admin" ? item.netNetPrice ?? "-" : "-"}</td>
             <td>${item.set ?? "-"}</td>
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
             <td>${item.stock ?? "-"}</td>
-            ${promotion
-            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-            : "<td>-</td>"
-          }
+            ${
+              promotion
+                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+                : "<td>-</td>"
+            }
             <td>${item.promotion?.threshold ?? "-"}</td>
             <td>${item.promotion?.cap ?? "-"}</td>
             <td>${calculatePackage(item.promotion)}</td>
@@ -1019,12 +1034,12 @@ docReady(function () {
   // Domyślne opcje dla lengthMenu
   var lengthMenuOptions = [
     [25, 50, 100], // Backendowe wartości
-    [25, 50, 100]  // Wyświetlane etykiety
+    [25, 50, 100], // Wyświetlane etykiety
   ];
 
   // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
   if (OrganizationName === "PSS-Podwawelska") {
-    lengthMenuOptions[0].push(5000);  // Dodaj wartość backendową
+    lengthMenuOptions[0].push(5000); // Dodaj wartość backendową
     lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
   }
 
@@ -1716,13 +1731,15 @@ docReady(function () {
         // Position tooltip
         const rect = element.getBoundingClientRect();
         tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
-        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5
-          }px`;
+        tooltip.style.top = `${
+          rect.top + window.scrollY - tooltip.offsetHeight - 5
+        }px`;
         tooltip.style.opacity = "1";
 
         // Center tooltip
-        tooltip.style.left = `${parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
-          }px`;
+        tooltip.style.left = `${
+          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+        }px`;
 
         // Mouseleave event to remove tooltip
         element.addEventListener("mouseleave", () => {
