@@ -1003,8 +1003,7 @@ docReady(function () {
         return `<tr>
             <td>${item.wholesalerKey}</td>
             <td>${item.netPrice}</td>
-            <td>${item.netPrice}</td>
-             <td">${
+             <td>${
                getCookie("sprytnyUserRole") === "admin"
                  ? item.netNetPrice ?? "-"
                  : "-"
