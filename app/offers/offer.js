@@ -60,7 +60,7 @@ docReady(function () {
   emailadress.value = attributes["email"];
   const phoneNumberElement = document.getElementById("phoneNumber");
   phoneNumberElement.value = attributes["phonenumber"];
-  let userRole = getCookie("sprytnyUserRole");
+  const userRole = getCookie("sprytnyUserRole");
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1004,7 +1004,11 @@ docReady(function () {
             <td>${item.wholesalerKey}</td>
             <td>${item.netPrice}</td>
             <td>${item.netPrice}</td>
-            <td>${userRole === "admin" ? item.netNetPrice ?? "-" : "-"}</td>
+             <td">${
+               getCookie("sprytnyUserRole") === "admin"
+                 ? item.netNetPrice ?? "-"
+                 : "-"
+             }</td>
             <td>${item.set ?? "-"}</td>
             <td>${sourceMap[item.source] || "-"}</td>
             <td>${item.originated ?? "-"}</td>
