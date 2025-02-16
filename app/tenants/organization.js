@@ -4328,76 +4328,70 @@ docReady(function () {
           username: $("#Wholesaler-Login").val(),
         };
 
-        // If already enabled, proceed directly to create the server
-        sendCreateServerRequest();
-
-        // Function to handle the server creation request
-        function sendCreateServerRequest() {
-          $.ajax({
-            type: method,
-            url: action,
-            cors: true,
-            beforeSend: function () {
-              $("#waitingdots").show();
-            },
-            complete: function () {
-              $("#waitingdots").hide();
-            },
-            contentType: "application/json",
-            dataType: "json",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
-            data: JSON.stringify(data),
-            success: function (resultData) {
-              if (typeof successCallback === "function") {
-                result = successCallback(resultData);
-                if (!result) {
-                  form.show();
-                  doneBlock.hide();
-                  failBlock.show();
-                  return;
-                }
+        $.ajax({
+          type: method,
+          url: baseAction,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                doneBlock.hide();
+                failBlock.show();
+                return;
               }
-              form.hide();
-              const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
+            }
+            form.hide();
+            const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
 
-              document.getElementById("credentialsvan").innerHTML =
-                credentialsHTML;
+            document.getElementById("credentialsvan").innerHTML =
+              credentialsHTML;
 
-              doneBlock.show();
-              failBlock.hide();
-            },
-            error: function (jqXHR, exception) {
-              var msg = "";
-              if (jqXHR.status === 0) {
-                msg = "Not connect.\n Verify Network.";
-              } else if (jqXHR.status === 403) {
-                msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-              } else if (jqXHR.status === 409) {
-                msg = "Ta nazwa użytkownika jest zajęta. Spróbuj inną.";
-              } else if (jqXHR.status === 500) {
-                msg = "Internal Server Error [500].";
-              } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-              } else if (exception === "timeout") {
-                msg = "Time out error.";
-              } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-              } else {
-                msg = "" + jqXHR.responseJSON.message;
-              }
-              $(".warningmessagetext").text(msg);
-              form.show();
-              doneBlock.hide();
-              failBlock.show();
-              failBlock.fadeOut(5000);
-            },
-          });
-        }
+            doneBlock.show();
+            failBlock.hide();
+          },
+          error: function (jqXHR, exception) {
+            var msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Not connect.\n Verify Network.";
+            } else if (jqXHR.status === 403) {
+              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
+            } else if (jqXHR.status === 409) {
+              msg = "Ta nazwa użytkownika jest zajęta. Spróbuj inną.";
+            } else if (jqXHR.status === 500) {
+              msg = "Internal Server Error [500].";
+            } else if (exception === "parsererror") {
+              msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+              msg = "Time out error.";
+            } else if (exception === "abort") {
+              msg = "Ajax request aborted.";
+            } else {
+              msg = "" + jqXHR.responseJSON.message;
+            }
+            $(".warningmessagetext").text(msg);
+            form.show();
+            doneBlock.hide();
+            failBlock.show();
+            failBlock.fadeOut(5000);
+          },
+        });
 
         event.preventDefault();
         return false;
