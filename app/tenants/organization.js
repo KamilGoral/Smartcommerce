@@ -4316,7 +4316,7 @@ docReady(function () {
         var container = form.parent();
         var doneBlock = $("#wf-form-Create-wholesaler-done", container);
         var failBlock = $("#wf-form-Create-wholesaler-fail", container);
-        var wholesalerKey = $("#Wholesaler-Login").val().split(".")[1];
+        var wholesalerKey = $("#Wholesaler-Login-2").val().split(".")[1];
         var baseAction =
           InvokeURL +
           "wholesalers/" +
