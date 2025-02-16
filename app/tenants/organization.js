@@ -322,7 +322,12 @@ docReady(function () {
     return true;
   }
 
-  function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {
+  function updateStatus(
+    changeOfStatus,
+    wholesalerKey,
+    onErrorCallback,
+    isVanMember
+  ) {
     console.log("starting Updating function");
     var form = $("#wf-form-WholesalerChangeStatusForm ");
     var container = form.parent();
@@ -369,6 +374,9 @@ docReady(function () {
           }
         }
         displayMessage("Success", "Status dostawcy został zmieniony.");
+        if (isVanMember && changeOfStatus) {
+          $("#smartVanDialog").show();
+        }
       },
       error: function (jqXHR, exception) {
         console.log("błąd");
@@ -1685,8 +1693,8 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
-              data: "vanMember",
+              orderable: true,
+              data: "c",
               visible: false,
               render: function (data) {
                 if (data === true) {
@@ -1906,7 +1914,8 @@ docReady(function () {
               updateStatus(
                 true,
                 checkbox.getAttribute("wholesalerKey"),
-                onErrorCallback
+                onErrorCallback,
+                data.vanMember
               );
               // Add to the second table if enabled
               addToSecondTable(data);
@@ -1914,7 +1923,8 @@ docReady(function () {
               updateStatus(
                 false,
                 checkbox.getAttribute("wholesalerKey"),
-                onErrorCallback
+                onErrorCallback,
+                data.vanMember
               );
               // Remove from the second table if disabled
               removeFromSecondTable(data.wholesalerKey);
