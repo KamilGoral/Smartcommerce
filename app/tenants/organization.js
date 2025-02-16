@@ -375,7 +375,7 @@ docReady(function () {
         }
         displayMessage("Success", "Status dostawcy został zmieniony.");
         if (isVanMember && changeOfStatus) {
-          $("#smartVanDialog").show();
+          $("#smartVanDialog").css("display", "flex");
         }
       },
       error: function (jqXHR, exception) {
