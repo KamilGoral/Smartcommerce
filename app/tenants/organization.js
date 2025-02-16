@@ -4313,10 +4313,13 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
         var container = form.parent();
         var doneBlock = $("#wf-form-Create-wholesaler-done", container);
         var failBlock = $("#wf-form-Create-wholesaler-fail", container);
-        var wholesalerKey = $("#Wholesaler-Login-2").val().split(".")[1];
+        var wholesalerInput = $("#Wholesaler-Login-2");
+        var wholesalerKey = wholesalerInput.val().split(".")[1];
         var baseAction =
           InvokeURL +
           "wholesalers/" +
@@ -4325,7 +4328,7 @@ docReady(function () {
         var method = "POST";
 
         var data = {
-          username: $("#Wholesaler-Login-2").val(),
+          username: wholesalerInput.val(),
         };
 
         $.ajax({
@@ -4357,14 +4360,22 @@ docReady(function () {
                 return;
               }
             }
+
             form.hide();
             const credentialsHTML = `Login: ${resultData.credentials.username}<br />Hasło: ${resultData.credentials.password}<br />`;
-
             document.getElementById("credentialsvan").innerHTML =
               credentialsHTML;
 
             doneBlock.show();
             failBlock.hide();
+
+            // Resetowanie formularza do stanu początkowego
+            form.trigger("reset");
+            setTimeout(function () {
+              form.show();
+              doneBlock.hide();
+              failBlock.hide();
+            }, 5000);
           },
           error: function (jqXHR, exception) {
             var msg = "";
@@ -4390,10 +4401,17 @@ docReady(function () {
             doneBlock.hide();
             failBlock.show();
             failBlock.fadeOut(5000);
+
+            // Resetowanie formularza do stanu początkowego w przypadku błędu
+            setTimeout(function () {
+              form.trigger("reset");
+              form.show();
+              doneBlock.hide();
+              failBlock.hide();
+            }, 5000);
           },
         });
 
-        event.preventDefault();
         return false;
       });
     });
