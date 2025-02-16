@@ -1685,6 +1685,19 @@ docReady(function () {
               },
             },
             {
+              orderable: false,
+              data: "vanMember",
+              visible: false,
+              render: function (data) {
+                if (data === true) {
+                  return '<span class="positive">Tak</span>';
+                } else if (data === false) {
+                  return '<span class="negative">Nie</span>';
+                }
+                return "";
+              },
+            },
+            {
               orderable: true,
               data: "platformUrl",
               render: function (data) {
