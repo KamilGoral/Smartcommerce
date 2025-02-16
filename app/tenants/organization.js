@@ -4325,7 +4325,7 @@ docReady(function () {
         var method = "POST";
 
         var data = {
-          username: $("#Wholesaler-Login").val(),
+          username: $("#Wholesaler-Login-2").val(),
         };
 
         $.ajax({
