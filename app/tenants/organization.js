@@ -376,6 +376,9 @@ docReady(function () {
         displayMessage("Success", "Status dostawcy został zmieniony.");
         if (isVanMember && changeOfStatus) {
           $("#smartVanDialog").css("display", "flex");
+          $("#Wholesaler-Login-2")
+            .prop("disabled", true)
+            .val(organizationName + "." + wholesalerKey);
         }
       },
       error: function (jqXHR, exception) {
