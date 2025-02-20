@@ -664,6 +664,7 @@ docReady(function () {
     // conditional for EC and ECS
     if ((wholesalerKey = "eurocash" || "eurocash-serwis")) {
       $("#editCustomerId").show();
+      console.log("EC or ECS");
     }
 
     let request = new XMLHttpRequest();
