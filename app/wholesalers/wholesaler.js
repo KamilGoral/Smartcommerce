@@ -458,6 +458,18 @@ docReady(function () {
           $("#status-container").show();
         }
 
+        // conditional for EC and ECS
+        if (
+          data.wholesalerKey === "eurocash" ||
+          data.wholesalerKey === "eurocash-serwis"
+        ) {
+          $("#editCustomerId").show();
+          console.log("EC or ECS");
+        } else {
+          $("#editCustomerId").hide();
+          console.log("Not EC or ECS");
+        }
+
         const wholesalerName = document.getElementById("WholesalerName");
         const whPlatformUrl = document.getElementById("whPlatformUrl");
         const whTaxId = document.getElementById("whTaxId");
@@ -660,12 +672,6 @@ docReady(function () {
         shopKey +
         "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
-
-    // conditional for EC and ECS
-    if ((wholesalerKey = "eurocash" || "eurocash-serwis")) {
-      $("#editCustomerId").show();
-      console.log("EC or ECS");
-    }
 
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
