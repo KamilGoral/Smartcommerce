@@ -4328,7 +4328,7 @@ docReady(function () {
         var method = "POST";
 
         var data = {
-          username: wholesalerInput.val(),
+          username: wholesalerInput.val().toLowerCase(),
         };
 
         $.ajax({

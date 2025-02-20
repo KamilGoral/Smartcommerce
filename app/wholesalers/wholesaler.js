@@ -661,6 +661,11 @@ docReady(function () {
         "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
 
+    // conditional for EC and ECS
+    if ((wholesalerKey = "eurocash" || "eurocash-serwis")) {
+      $("#editCustomerId").show();
+    }
+
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
