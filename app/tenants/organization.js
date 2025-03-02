@@ -1233,6 +1233,14 @@ docReady(function () {
 
         if (hasRequiredKeys) {
           console.log("All is good");
+          function setCookieAndSession(cName, cValue, expirationSec) {
+            let date = new Date();
+            date.setTime(date.getTime() + expirationSec * 1000);
+            const expires = "expires=" + date.toUTCString();
+            document.cookie =
+              cName + "=" + cValue + "; " + expires + "; path=/";
+          }
+          setCookieAndSession("sprytnyOrganizationTaxId", data.taxId, 72000);
         } else {
           // Initial check and setup event listeners
 
@@ -1521,23 +1529,19 @@ docReady(function () {
 
         var data = JSON.parse(this.response);
         var toParse = data.items;
+
+        // Sortowanie według 'enabled'
         toParse.sort(function (a, b) {
           return b.enabled - a.enabled;
         });
 
-        // Define mapping of wholesalerKey to organizationName
-        const wholesalerTenantMapping = {
-          Slodhurt: "slod-hurt",
-          HurtowniaTEDI: "kd-tedi",
-          HurtowniaMerkury: "merkury",
-        };
+        // Filtracja na podstawie taxId
+        const organizationTaxId = getCookie("sprytnyOrganizationTaxId");
 
-        if (getCookie("OrganizationName") in wholesalerTenantMapping) {
+        // Filtruj dane, jeśli taxId z ciasteczka pasuje do taxId w danych
+        if (organizationTaxId) {
           toParse = toParse.filter(function (item) {
-            return (
-              item.wholesalerKey ===
-              wholesalerTenantMapping[getCookie("OrganizationName")]
-            );
+            return item.taxId === organizationTaxId;
           });
         }
 
