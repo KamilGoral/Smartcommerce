@@ -1535,14 +1535,21 @@ docReady(function () {
           return b.enabled - a.enabled;
         });
 
-        // Filtracja na podstawie taxId
+        // Filtracja, aby pokazać tylko rekordy z odpowiednim taxId
         const organizationTaxId = getCookie("sprytnyOrganizationTaxId");
 
-        // Filtruj dane, jeśli taxId z ciasteczka pasuje do taxId w danych
+        // Sprawdzenie, czy taxId organizacji znajduje się w którymkolwiek z rekordów odpowiedzi
         if (organizationTaxId) {
-          toParse = toParse.filter(function (item) {
-            return item.taxId === organizationTaxId;
+          const found = toParse.some(function (item) {
+            return item.taxId === organizationTaxId; // Sprawdza, czy którykolwiek element ma matching taxId
           });
+
+          if (found) {
+            // Jeśli znalazło, pokaż tylko rekordy z matching taxId
+            toParse = toParse.filter(function (item) {
+              return item.taxId === organizationTaxId;
+            });
+          }
         }
 
         // Code for exclusive
