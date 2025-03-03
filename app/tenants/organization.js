@@ -1535,22 +1535,22 @@ docReady(function () {
           return b.enabled - a.enabled;
         });
 
-        // Filtracja, aby pokazać tylko rekordy z odpowiednim taxId
-        const organizationTaxId = getCookie("sprytnyOrganizationTaxId");
+        // // Filtracja, aby pokazać tylko rekordy z odpowiednim taxId
+        // const organizationTaxId = getCookie("sprytnyOrganizationTaxId");
 
-        // Sprawdzenie, czy taxId organizacji znajduje się w którymkolwiek z rekordów odpowiedzi
-        if (organizationTaxId) {
-          const found = toParse.some(function (item) {
-            return item.taxId === organizationTaxId; // Sprawdza, czy którykolwiek element ma matching taxId
-          });
+        // // Sprawdzenie, czy taxId organizacji znajduje się w którymkolwiek z rekordów odpowiedzi
+        // if (organizationTaxId) {
+        //   const found = toParse.some(function (item) {
+        //     return item.taxId === organizationTaxId; // Sprawdza, czy którykolwiek element ma matching taxId
+        //   });
 
-          if (found) {
-            // Jeśli znalazło, pokaż tylko rekordy z matching taxId
-            toParse = toParse.filter(function (item) {
-              return item.taxId === organizationTaxId;
-            });
-          }
-        }
+        //   if (found) {
+        //     // Jeśli znalazło, pokaż tylko rekordy z matching taxId
+        //     toParse = toParse.filter(function (item) {
+        //       return item.taxId === organizationTaxId;
+        //     });
+        //   }
+        // }
 
         // Code for exclusive
 
