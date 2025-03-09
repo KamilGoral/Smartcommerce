@@ -154,13 +154,13 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser +
-                "|phonenumber:" +
-                phoneNumber,
+              firstNameUser +
+              "|familyname:" +
+              lastNameUser +
+              "|email:" +
+              emailadressUser +
+              "|phonenumber:" +
+              phoneNumber,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -267,7 +267,7 @@ docReady(function () {
     });
   };
 
-  
+
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
@@ -309,11 +309,11 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-      DomainName +
-      "/app/tenants/organization?name=" +
-      OrganizationName +
-      "&clientId=" +
-      ClientID
+    DomainName +
+    "/app/tenants/organization?name=" +
+    OrganizationName +
+    "&clientId=" +
+    ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
@@ -347,11 +347,11 @@ docReady(function () {
 
     let url2 = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -481,13 +481,33 @@ docReady(function () {
           console.log("Not EC or ECS");
         }
 
-        const wholesalerName = document.getElementById("WholesalerName");
-        const whPlatformUrl = document.getElementById("whPlatformUrl");
-        const whTaxId = document.getElementById("whTaxId");
+        const wholesalerName = document.querySelector('[wholesalerdata="name"]');
+        wholesalerName.textContent = data.company;
+
+        // Kod dla platformUrl
+        const whPlatformUrl = document.querySelector('[wholesalerdata="platformUrl"]');
+        const platformUrlText = whPlatformUrl.querySelector('#platformUrl-text');
+        const platformUrlLink = whPlatformUrl.querySelector('#platformUrl-link');
+
+        // Wstaw tekst URL i ustaw href w linku
+        platformUrlText.textContent = data.platformUrl;
+        platformUrlLink.href = data.platformUrl;
+
+
+        // Znajdź elementy
+        const whWebsite = document.querySelector('[wholesalerdata="website"]');
+        const websiteText = whWebsite.querySelector('#website-text');
+        const websiteLink = whWebsite.querySelector('#website-link');
+
+        // Wstaw tekst URL i ustaw href w linku
+        websiteText.textContent = data.website;
+        websiteLink.href = data.website;
+
+        const whTaxId = document.querySelector('[wholesalerdata="logo"]'); document.getElementById("whTaxId");
         const whLogo = document.querySelector('[wholesalerdata="logo"]');
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
-        wholesalerName.textContent = data.company;
+        
 
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
@@ -498,7 +518,7 @@ docReady(function () {
         }
         //
         whTaxId.textContent = data.taxId;
-      
+
       } else {
         console.log("error");
       }
@@ -526,11 +546,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/profiles"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -589,11 +609,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/online-offer/status-history?sort=createDate:asc&perPage=30"
+      "shops/" +
+      shopKey +
+      "/wholesalers/" +
+      wholesalerKey +
+      "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -668,9 +688,9 @@ docReady(function () {
   function getWholesalerButtons(wholesalerKey) {
     let url = new URL(
       InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+      "shops/" +
+      shopKey +
+      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
 
     let request = new XMLHttpRequest();
@@ -857,11 +877,11 @@ docReady(function () {
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               let url = new URL(
                 InvokeURL +
-                  "shops/" +
-                  shopKey +
-                  "/wholesalers/" +
-                  wholesalerKey +
-                  "/online-offer/profiles"
+                "shops/" +
+                shopKey +
+                "/wholesalers/" +
+                wholesalerKey +
+                "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -975,7 +995,7 @@ docReady(function () {
               case 403:
                 msg =
                   jqXHR.responseJSON.message ==
-                  "User is not an administrator of this tenant"
+                    "User is not an administrator of this tenant"
                     ? "Nie masz uprawnień do tej czynności"
                     : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
                 break;
@@ -992,10 +1012,10 @@ docReady(function () {
                   exception === "parsererror"
                     ? "Nie udało się odczytać danych"
                     : exception === "timeout"
-                    ? "Przekroczony czas oczekiwania"
-                    : exception === "abort"
-                    ? "Twoje żądanie zostało zaniechane"
-                    : jqXHR.responseJSON.message;
+                      ? "Przekroczony czas oczekiwania"
+                      : exception === "abort"
+                        ? "Twoje żądanie zostało zaniechane"
+                        : jqXHR.responseJSON.message;
                 break;
             }
             displayMessage("Error", msg);
@@ -1311,15 +1331,13 @@ docReady(function () {
         // Position tooltip
         const rect = element.getBoundingClientRect();
         tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
-        tooltip.style.top = `${
-          rect.top + window.scrollY - tooltip.offsetHeight - 5
-        }px`;
+        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5
+          }px`;
         tooltip.style.opacity = "1";
 
         // Center tooltip
-        tooltip.style.left = `${
-          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
-        }px`;
+        tooltip.style.left = `${parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+          }px`;
 
         // Mouseleave event to remove tooltip
         element.addEventListener("mouseleave", () => {
