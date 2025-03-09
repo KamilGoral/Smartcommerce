@@ -498,8 +498,8 @@ docReady(function () {
         // Ustawienia podstawowych danych
         setText('name', data.company);
         setText('taxId', data.taxId, 'NIP: ');
-        setLink('platformUrl', data.platformUrl);
-        setLink('website', data.website);
+        setLink('platformUrl', data.platformUrl, 'Strona E-hurt:');
+        setLink('website', data.website, 'Strona www:');
 
         // Ustawienia badgy
         const smartVanBadge = document.querySelector('#IsmartVan');
@@ -533,11 +533,6 @@ docReady(function () {
           whLogo.src = `data:image/png;base64,${data.image}`;
           whLogo.style.objectFit = 'contain';
         }
-
-
-
-        
-        //
 
       } else {
         console.log("error");
