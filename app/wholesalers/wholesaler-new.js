@@ -511,7 +511,6 @@ docReady(function () {
           }
         }
         if (data.platformUrl !== null) {
-          whPlatformUrl.setAttribute("href", "" + data.platformUrl);
           $("#ehurtBox").removeClass("hide");
         } else {
           $("#ehurtStart").removeClass("hide");  
