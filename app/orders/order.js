@@ -1293,13 +1293,36 @@ docReady(function () {
             {
               orderable: true,
               data: "netPrice",
-              render: function (data) {
+              render: function (data, type, row) {
+                // Sprawdź, czy istnieją segmenty zakupu
+                if (row.purchaseSegments && row.purchaseSegments.length > 1) {
+                  // Oblicz cenę ważoną
+                  let totalQuantity = 0;
+                  let totalValue = 0;
+                  let tooltipContent = "Otrzymasz: ";
+            
+                  row.purchaseSegments.forEach((segment, index) => {
+                    totalQuantity += segment.quantity;
+                    totalValue += segment.netPrice * segment.quantity;
+                    tooltipContent += `${segment.quantity} sztuk po ${segment.netPrice.toFixed(2)} zł`;
+                    if (index < row.purchaseSegments.length - 1) {
+                      tooltipContent += " oraz ";
+                    }
+                  });
+            
+                  const weightedPrice = (totalValue / totalQuantity).toFixed(2);
+            
+                  // Zwróć sformatowaną komórkę z tooltipem i pogrubioną ceną ważoną
+                  return `<td class="tippy" data-tippy-content="${tooltipContent}">
+                            <strong>${weightedPrice}</strong>
+                          </td>`;
+                }
+            
+                // Jeśli jest tylko jeden segment lub brak segmentów, zwróć standardową cenę
                 if (data !== null) {
-                  return "" + data.toFixed(2);
+                  return data.toFixed(2);
                 }
-                if (data === null) {
-                  return "0";
-                }
+                return "0";
               },
             },
             {
