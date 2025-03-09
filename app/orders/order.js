@@ -3496,25 +3496,32 @@ docReady(function () {
   });
 
   $("#spl_table").on("focusout", "input", function () {
-    // Get the right table
-    // Change amount of product
-
+    // Pobierz tabelę
     var table = $("#spl_table").DataTable();
+  
+    // Pobierz nową wartość i początkową wartość
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
-    // Check if the value has changed
-    if (newValue !== initialValue && parseInt(newValue) >= 0) {
+  
+    console.log("New value:", newValue, "Initial value:", initialValue);
+  
+    // Sprawdź, czy wartość się zmieniła i czy jest poprawna
+    if (newValue !== initialValue.toString() && parseInt(newValue) >= 0) {
+      // Zaktualizuj wartość w polu input
       $(this).attr("value", newValue);
+  
+      // Pobierz dane wiersza
       var data = table.row($(this).parents("tr")).data();
-
+  
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity)) {
-          quantity = null; // If so, set quantity to null
+          quantity = null; // Jeśli wartość nie jest liczbą, ustaw na null
         }
-
+  
         var product;
-        if (isNaN(initialValue) && newValue !== initialValue) {
+        if (isNaN(initialValue) && newValue !== initialValue.toString()) {
+          // Jeśli initialValue jest nieprawidłowe, dodaj nowy produkt
           product = {
             op: "add",
             path: "/" + data.gtin,
@@ -3523,25 +3530,31 @@ docReady(function () {
             },
           };
         } else if (quantity !== null) {
+          // Jeśli quantity jest prawidłowe, zaktualizuj ilość
           product = {
             op: "replace",
             path: "/" + data.gtin + "/quantity",
             value: quantity,
           };
         } else {
+          // Jeśli quantity jest null, usuń produkt
           product = {
             op: "remove",
             path: "/" + data.gtin,
           };
         }
-        console.log("1")
+  
+        console.log("Adding product to changesPayload:", product);
         addObject(changesPayload, product);
-        // Emulate changes for the user
+  
+        // Emuluj zmiany dla użytkownika
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
       } else {
-        console.log("GTIN is null");
+        console.log("GTIN is null, cannot proceed.");
       }
+    } else {
+      console.log("No change in value or invalid input, skipping.");
     }
   });
 
