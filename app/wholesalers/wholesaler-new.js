@@ -499,6 +499,7 @@ docReady(function () {
           $("#ftpBox").show();
           console.log("EC or ECS");
         } else {
+          $("#ftpBox").hide();
           console.log("Not EC or ECS");
         }
 
@@ -527,6 +528,8 @@ docReady(function () {
         if (data.connections.ftp && data.connections.ftp.username) {
           ftpElement.classList.remove("hide");
           ftpElement.classList.add("enabled");
+        } else {
+          $("#ehurtBox").hide();
         }
 
         const retroactiveElement = document.getElementById("Iretroactive");
