@@ -3406,7 +3406,7 @@ docReady(function () {
     // Przywróć nasłuchiwanie focusout po zamknięciu alertu
     setTimeout(() => {
       $(inputElement).on('focusout', focusoutHandler);
-    }, 0);
+    }, 1000);
   }
 }
 
