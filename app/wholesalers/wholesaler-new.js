@@ -267,6 +267,8 @@ docReady(function () {
     });
   };
 
+  
+
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
@@ -329,10 +331,19 @@ docReady(function () {
   WholesalerIdBread.textContent = wholesalerKey;
   WholesalerIdBread.setAttribute("href", window.location.href);
 
+  function LogoutNonUser() {
+    if (
+      getCookie("sprytnyInvokeURL") == null ||
+      getCookie("sprytnycookie") == null ||
+      getCookie("sprytnyToken") == null ||
+      getCookie("sprytnyDomainName") == null
+    ) {
+      alert("Twoja sesja wygasła.");
+      window.location.href = "https://sprytnykupiec.pl/login-page";
+    }
+  }
+
   function getWholesaler() {
-    $("#CompanyDivEdit").hide();
-    $("#Wholesaler-profile-Selector-box").hide();
-    $("#status-container").hide();
 
     let url2 = new URL(
       InvokeURL +
@@ -473,12 +484,6 @@ docReady(function () {
         const wholesalerName = document.getElementById("WholesalerName");
         const whPlatformUrl = document.getElementById("whPlatformUrl");
         const whTaxId = document.getElementById("whTaxId");
-        const whCountry = document.getElementById("whCountry");
-        const whLine1 = document.getElementById("whLine1");
-        const whLine2 = document.getElementById("whLine2");
-        const whTown = document.getElementById("whTown");
-        const whState = document.getElementById("whState");
-        const whPostcode = document.getElementById("whPostcode");
         const whLogo = document.getElementById("whLogo");
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
@@ -493,12 +498,7 @@ docReady(function () {
         }
         //
         whTaxId.textContent = data.taxId;
-        whCountry.textContent = data.address.country;
-        whLine1.textContent = data.address.line1;
-        whLine2.textContent = data.address.line2;
-        whTown.textContent = data.address.town;
-        whState.textContent = data.address.state;
-        whPostcode.textContent = data.address.postcode;
+      
       } else {
         console.log("error");
       }
@@ -507,21 +507,21 @@ docReady(function () {
   }
 
   // Funkcja do dostosowania szerokości selecta do najszerszej opcji
-  function adjustSelectWidth() {
-    const select = document.getElementById("Wholesaler-profile-Selector");
-    const options = select.getElementsByTagName("option");
-    let maxWidth = 411;
+  // function adjustSelectWidth() {
+  //   const select = document.getElementById("Wholesaler-profile-Selector");
+  //   const options = select.getElementsByTagName("option");
+  //   let maxWidth = 411;
 
-    // Znajdź najszerszą opcję
-    for (let i = 0; i < options.length; i++) {
-      const option = options[i];
-      const optionWidth = option.scrollWidth;
-      if (optionWidth > maxWidth) {
-        maxWidth = optionWidth;
-        select.style.width = maxWidth + "px";
-      }
-    }
-  }
+  //   // Znajdź najszerszą opcję
+  //   for (let i = 0; i < options.length; i++) {
+  //     const option = options[i];
+  //     const optionWidth = option.scrollWidth;
+  //     if (optionWidth > maxWidth) {
+  //       maxWidth = optionWidth;
+  //       select.style.width = maxWidth + "px";
+  //     }
+  //   }
+  // }
 
   function getProfile() {
     let url = new URL(
@@ -583,7 +583,7 @@ docReady(function () {
       .val("null");
 
     // Wywołaj funkcję
-    adjustSelectWidth();
+    // adjustSelectWidth();
   }
 
   function getWholesalerHistory() {
@@ -737,17 +737,7 @@ docReady(function () {
     request.send();
   }
 
-  function LogoutNonUser() {
-    if (
-      getCookie("sprytnyInvokeURL") == null ||
-      getCookie("sprytnycookie") == null ||
-      getCookie("sprytnyToken") == null ||
-      getCookie("sprytnyDomainName") == null
-    ) {
-      alert("Twoja sesja wygasła.");
-      window.location.href = "https://sprytnykupiec.pl/login-page";
-    }
-  }
+
 
   makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
