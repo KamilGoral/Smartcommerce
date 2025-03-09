@@ -3380,21 +3380,35 @@ docReady(function () {
 
   window.handlePaste = function(event) {
     // Zatrzymanie domyślnej akcji wklejania
-    event.preventDefault();
-  
-    // Pobranie wklejanej wartości
-    const pastedValue = event.clipboardData.getData('text');
-    console.log(pastedValue);
-  
-    // Sprawdzenie, czy wklejona wartość jest liczbą i nie przekracza maksymalnej wartości
-    if (!isNaN(pastedValue) && Number(pastedValue) <= 999999) {
-      // Wklejenie poprawnej wartości
-      event.target.value = pastedValue;
-    } else {
-      // Wyświetlenie komunikatu o błędzie
-      alert(`Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`);
-    }
-  };
+  event.preventDefault();
+
+  // Pobranie wklejanej wartości
+  const pastedValue = event.clipboardData.getData('text');
+  console.log(pastedValue);
+
+  // Sprawdzenie, czy wklejona wartość jest liczbą i nie przekracza maksymalnej wartości
+  if (!isNaN(pastedValue) && Number(pastedValue) <= 999999) {
+    // Wklejenie poprawnej wartości
+    event.target.value = pastedValue;
+  } else {
+    // Tymczasowe usunięcie nasłuchiwania zdarzenia focusout
+    const inputElement = event.target;
+    const focusoutHandler = function () {
+      console.log("Focusout event triggered, but ignored due to invalid paste.");
+    };
+
+    // Usuń nasłuchiwanie focusout
+    $(inputElement).off('focusout');
+
+    // Wyświetlenie komunikatu o błędzie
+    alert(`Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`);
+
+    // Przywróć nasłuchiwanie focusout po zamknięciu alertu
+    setTimeout(() => {
+      $(inputElement).on('focusout', focusoutHandler);
+    }, 0);
+  }
+}
 
   // Function to validate GTIN format (checks if GTIN contains '?')
   function isValidGTIN(gtin) {
