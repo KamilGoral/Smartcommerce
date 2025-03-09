@@ -376,10 +376,10 @@ docReady(function () {
         Iehurt.classList.add("enabled");
 
         const statusmessagebox = document.getElementById("statusmessagebox");
-        setText('extrafield', data.credentials.extraFields, 'Firma: ');
-        setText('username', data.credentials.username, 'Login: ');
+        setText('extrafield', data2.credentials.extraFields, 'Firma: ');
+        setText('username', data2.credentials.username, 'Login: ');
         setText('password', '******', 'Hasło: ');
-        setText('profile', data.profile, 'Profil: ');
+        setText('profile', data2.profile, 'Profil: ');
 
 
         if (data2.lastDownload !== null) {
