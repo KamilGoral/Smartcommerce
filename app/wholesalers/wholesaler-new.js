@@ -484,7 +484,7 @@ docReady(function () {
         const wholesalerName = document.getElementById("WholesalerName");
         const whPlatformUrl = document.getElementById("whPlatformUrl");
         const whTaxId = document.getElementById("whTaxId");
-        const whLogo = document.getElementById("whLogo");
+        const whLogo = document.querySelector('[wholesalerdata="logo"]');
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
         wholesalerName.textContent = data.company;
