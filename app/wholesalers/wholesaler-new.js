@@ -334,16 +334,18 @@ docReady(function () {
   // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
   function setText(selector, text, prefix = '') {
     const el = document.querySelector(`[wholesalerdata="${selector}"]`);
-    if (el) el.textContent = text ? `${prefix}${text}` : `${prefix} -`;
+    if (el) el.textContent = text !== null && text !== undefined ? `${prefix}${text}` : `${prefix} -`;
   }
 
   // Funkcja do ustawiania linku (jeśli istnieje)
   function setLink(selector, url, prefix = '') {
     const el = document.querySelector(`[wholesalerdata="${selector}"]`);
     if (el) {
-      el.innerHTML = `${prefix}&nbsp;<a href="${url}" target="_blank">${url}</a>`;
+      const displayUrl = url !== null && url !== undefined ? url : "-";
+      el.innerHTML = `${prefix}&nbsp;<a href="${displayUrl === "-" ? "#" : displayUrl}" target="_blank">${displayUrl}</a>`;
     }
   }
+
 
   function LogoutNonUser() {
     if (
@@ -519,15 +521,15 @@ docReady(function () {
         const ftpElement = document.getElementById("Iftp");
 
         if (data.connections.ftp && data.connections.ftp.enabled) {
-            ftpElement.classList.remove("hide");
-            ftpElement.classList.add("enabled");
+          ftpElement.classList.remove("hide");
+          ftpElement.classList.add("enabled");
         }
 
         const retroactiveElement = document.getElementById("Iretroactive");
         if (data.connections.retroactive && data.connections.retroactive.enabled) {
           retroactiveElement.classList.remove("hide");
           retroactiveElement.classList.add("enabled");
-      }
+        }
 
         // Obsługa numeru telefonu
         const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
