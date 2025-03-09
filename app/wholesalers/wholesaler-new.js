@@ -334,7 +334,7 @@ docReady(function () {
   // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
   function setText(selector, text, prefix = '') {
     const el = document.querySelector(`[wholesalerdata="${selector}"]`);
-    if (el) el.textContent = text ? `${prefix}${text}` : `${prefix}Brak danych`;
+    if (el) el.textContent = text ? `${prefix}${text}` : `${prefix} -`;
   }
 
   // Funkcja do ustawiania linku (jeśli istnieje)
@@ -377,7 +377,7 @@ docReady(function () {
         Iehurt.classList.remove("hide");
 
         const statusmessagebox = document.getElementById("statusmessagebox");
-        setText('extrafield', data2.credentials.extraFields, 'Firma: ');
+        setText('extrafield', data2.credentials.extraFields.company, 'Firma: ');
         setText('username', data2.credentials.username, 'Login: ');
         setText('password', '******', 'Hasło: ');
         setText('profile', data2.profile, 'Profil: ');
@@ -523,7 +523,7 @@ docReady(function () {
             const phoneData = data.phones[0];
             wholesalerPhone.innerHTML = `Numer telefonu: <a href="tel:${phoneData.phone}">${phoneData.phone}</a> (${phoneData.description})`;
           } else {
-            wholesalerPhone.textContent = 'Numer telefonu: Brak danych';
+            wholesalerPhone.textContent = 'Numer telefonu: -';
           }
         }
 
