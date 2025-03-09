@@ -1110,6 +1110,8 @@ docReady(function () {
               "Success",
               "Minimum logistyczne dla dostawcy zostało zmienione"
             );
+            var displayValue = newValue > 0 ? newValue + " zł" : "Brak wartości";
+            $('div[wholesalerdata="logisticMinimum"]').text("Wartość: " + displayValue);
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
