@@ -3378,7 +3378,7 @@ docReady(function () {
     }
   });
 
-  function handlePaste(event) {
+  window.handlePaste = function(event) {
     // Zatrzymanie domyślnej akcji wklejania
     event.preventDefault();
   
@@ -3394,7 +3394,7 @@ docReady(function () {
       // Wyświetlenie komunikatu o błędzie
       alert(`Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`);
     }
-  }
+  };
 
   // Function to validate GTIN format (checks if GTIN contains '?')
   function isValidGTIN(gtin) {
