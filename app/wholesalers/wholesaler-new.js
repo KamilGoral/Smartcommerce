@@ -516,6 +516,19 @@ docReady(function () {
           }
         }
 
+        const ftpElement = document.getElementById("Iftp");
+
+        if (data.connections.ftp && data.connections.ftp.enabled) {
+            ftpElement.classList.remove("hide");
+            ftpElement.classList.add("enabled");
+        }
+
+        const retroactiveElement = document.getElementById("Iretroactive");
+        if (data.connections.retroactive && data.connections.retroactive.enabled) {
+          retroactiveElement.classList.remove("hide");
+          retroactiveElement.classList.add("enabled");
+      }
+
         // Obsługa numeru telefonu
         const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
         if (wholesalerPhone) {
