@@ -440,6 +440,7 @@ docReady(function () {
           }
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
+          $("#ehurtStart").removeClass("hide");       
         }
 
         $("#Wholesaler-profile-Selector-box").hide();
@@ -468,7 +469,6 @@ docReady(function () {
         if (data.onlineOfferSupport) {
           $("#status-container").show();
         }
-
         // conditional for EC and ECS
         if (
           data.wholesalerKey === "eurocash" ||
