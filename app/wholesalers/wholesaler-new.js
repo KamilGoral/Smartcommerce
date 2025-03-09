@@ -331,6 +331,20 @@ docReady(function () {
   WholesalerIdBread.textContent = wholesalerKey;
   WholesalerIdBread.setAttribute("href", window.location.href);
 
+  // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
+  function setText(selector, text, prefix = '') {
+    const el = document.querySelector(`[wholesalerdata="${selector}"]`);
+    if (el) el.textContent = text ? `${prefix}${text}` : `${prefix}Brak danych`;
+  }
+
+  // Funkcja do ustawiania linku (jeśli istnieje)
+  function setLink(selector, url, prefix = '') {
+    const el = document.querySelector(`[wholesalerdata="${selector}"]`);
+    if (el) {
+      el.innerHTML = `${prefix}&nbsp;<a href="${url}" target="_blank">${url}</a>`;
+    }
+  }
+
   function LogoutNonUser() {
     if (
       getCookie("sprytnyInvokeURL") == null ||
@@ -483,20 +497,6 @@ docReady(function () {
           console.log("EC or ECS");
         } else {
           console.log("Not EC or ECS");
-        }
-
-        // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
-        function setText(selector, text, prefix = '') {
-          const el = document.querySelector(`[wholesalerdata="${selector}"]`);
-          if (el) el.textContent = text ? `${prefix}${text}` : `${prefix}Brak danych`;
-        }
-
-        // Funkcja do ustawiania linku (jeśli istnieje)
-        function setLink(selector, url, prefix = '') {
-          const el = document.querySelector(`[wholesalerdata="${selector}"]`);
-          if (el) {
-            el.innerHTML = `${prefix}&nbsp;<a href="${url}" target="_blank">${url}</a>`;
-          }
         }
 
         // Ustawienia podstawowych danych
