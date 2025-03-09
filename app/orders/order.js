@@ -692,6 +692,7 @@ docReady(function () {
                     suzyw123: [icons.text, icons.pdf, icons.xls]
                   },
                   "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
                   "mag-dystrybucja": { default: [icons.xls], suzyw123: [icons.xls] },
                   "merkury": { default: [icons.xls], suzyw123: [icons.xls] },
                   "default": {
