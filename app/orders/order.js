@@ -3400,8 +3400,10 @@ docReady(function () {
     // Usuń nasłuchiwanie focusout
     $(inputElement).off('focusout');
 
-    // Wyświetlenie komunikatu o błędzie
-    alert(`Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`);
+    displayMessage(
+      "Error",
+      `"Oops. Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona."`
+    );
 
     // Przywróć nasłuchiwanie focusout po zamknięciu alertu
     setTimeout(() => {
@@ -3532,7 +3534,7 @@ docReady(function () {
             path: "/" + data.gtin,
           };
         }
-
+        console.log("1")
         addObject(changesPayload, product);
         // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
@@ -3661,7 +3663,7 @@ docReady(function () {
             path: "/" + data.gtin,
           };
         }
-
+        console.log("0")
         addObject(changesPayload, product);
         // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
