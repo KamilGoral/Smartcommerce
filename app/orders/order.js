@@ -1018,26 +1018,7 @@ docReady(function () {
         </table>
     `;
   }
-
-  function handlePaste(event) {
-    // Zatrzymanie domyślnej akcji wklejania
-    event.preventDefault();
-  
-    // Pobranie wklejanej wartości
-    const pastedValue = event.clipboardData.getData('text');
-    console.log(pastedValue);
-  
-    // Sprawdzenie, czy wklejona wartość jest liczbą i nie przekracza maksymalnej wartości
-    if (!isNaN(pastedValue) && Number(pastedValue) <= 999999) {
-      // Wklejenie poprawnej wartości
-      event.target.value = pastedValue;
-    } else {
-      // Wyświetlenie komunikatu o błędzie
-      alert(`Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`);
-    }
-  }
-  
-
+ 
   function generateWholesalerSelect(
     selectedWholesalerKey,
     jsonData,
@@ -1293,7 +1274,7 @@ docReady(function () {
                 return (
                   '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
                   data.quantity +
-                  '" onpaste="handlePaste(event)">>'
+                  '" onpaste="handlePaste(event)">'
                 );
               },
             },
@@ -3396,6 +3377,24 @@ docReady(function () {
         break;
     }
   });
+
+  function handlePaste(event) {
+    // Zatrzymanie domyślnej akcji wklejania
+    event.preventDefault();
+  
+    // Pobranie wklejanej wartości
+    const pastedValue = event.clipboardData.getData('text');
+    console.log(pastedValue);
+  
+    // Sprawdzenie, czy wklejona wartość jest liczbą i nie przekracza maksymalnej wartości
+    if (!isNaN(pastedValue) && Number(pastedValue) <= 999999) {
+      // Wklejenie poprawnej wartości
+      event.target.value = pastedValue;
+    } else {
+      // Wyświetlenie komunikatu o błędzie
+      alert(`Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`);
+    }
+  }
 
   // Function to validate GTIN format (checks if GTIN contains '?')
   function isValidGTIN(gtin) {
