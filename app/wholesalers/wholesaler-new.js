@@ -481,59 +481,45 @@ docReady(function () {
           console.log("Not EC or ECS");
         }
 
-        const wholesalerName = document.querySelector('[wholesalerdata="name"]');
-        wholesalerName.textContent = data.company;
-
-        const wholesalerTaxId = document.querySelector('[wholesalerdata="taxId"]');
-        wholesalerTaxId.textContent = data.taxId;
-
-        // Znajdź kontener na numer telefonu
-        const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
-
-        // Sprawdź, czy są jakieś numery w `phones`
-        if (data.phones && data.phones.length > 0) {
-          const phoneData = data.phones[0]; // Pobierz pierwszy numer
-
-          // Stwórz link do telefonu
-          const phoneLink = document.createElement('a');
-          phoneLink.href = `tel:${phoneData.phone}`;
-          phoneLink.textContent = phoneData.phone;
-
-          // Stwórz element dla opisu
-          const phoneDescription = document.createElement('span');
-          phoneDescription.textContent = ` (${phoneData.description})`;
-
-          // Wyczyść kontener i dodaj nowe elementy
-          wholesalerPhone.innerHTML = '';
-          wholesalerPhone.appendChild(phoneLink);
-          wholesalerPhone.appendChild(phoneDescription);
-        } else {
-          // Jeśli brak numerów, wyświetl informację
-          wholesalerPhone.textContent = 'Brak numeru telefonu';
+        // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
+        function setText(selector, text, prefix = '') {
+          const el = document.querySelector(`[wholesalerdata="${selector}"]`);
+          if (el) el.textContent = text ? `${prefix}${text}` : `${prefix}Brak danych`;
         }
 
+        // Funkcja do ustawiania linku (jeśli istnieje)
+        function setLink(selector, url) {
+          const el = document.querySelector(`[wholesalerdata="${selector}"] a`);
+          if (el) {
+            el.href = url;
+            el.textContent = url;
+          }
+        }
 
-        // Znajdź elementy
-        const whPlatformUrl = document.querySelector('[wholesalerdata="platformUrl"]');
-        const platformUrlLink = whPlatformUrl.querySelector('#platformUrl');
+        // Ustawienia podstawowych danych
+        setText('name', data.company);
+        setText('taxId', data.taxId, 'NIP: ');
+        setLink('platformUrl', data.platformUrl);
+        setLink('website', data.website);
 
-        // Wstaw tekst URL i ustaw href w linku
-        platformUrlLink.href = data.platformUrl;
-        platformUrlLink.textContent = data.platformUrl;
+        // Obsługa numeru telefonu
+        const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
+        if (wholesalerPhone) {
+          if (data.phones && data.phones.length > 0) {
+            const phoneData = data.phones[0];
+            wholesalerPhone.innerHTML = `Numer telefonu: <a href="tel:${phoneData.phone}">${phoneData.phone}</a> (${phoneData.description})`;
+          } else {
+            wholesalerPhone.textContent = 'Numer telefonu: Brak danych';
+          }
+        }
 
-        // Znajdź elementy
-        const whWebsite = document.querySelector('[wholesalerdata="website"]');
-        const websiteLink = whWebsite.querySelector('#website');
-
-        // Wstaw tekst URL i ustaw href w linku
-        websiteLink.href = data.website;
-        websiteLink.textContent = data.website;
-
-
-        const whTaxId = document.querySelector('[wholesalerdata="logo"]'); document.getElementById("whTaxId");
+        // Obsługa logo
         const whLogo = document.querySelector('[wholesalerdata="logo"]');
-        whLogo.src = "data:image/png;base64," + data.image;
-        whLogo.style.objectFit = "contain";
+        if (whLogo && data.image) {
+          whLogo.src = `data:image/png;base64,${data.image}`;
+          whLogo.style.objectFit = 'contain';
+        }
+
 
 
         if (data.platformUrl !== null) {
