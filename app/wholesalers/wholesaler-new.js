@@ -484,6 +484,35 @@ docReady(function () {
         const wholesalerName = document.querySelector('[wholesalerdata="name"]');
         wholesalerName.textContent = data.company;
 
+        const wholesalerTaxId = document.querySelector('[wholesalerdata="taxId"]');
+        wholesalerTaxId.textContent = data.taxId;
+
+        // Znajdź kontener na numer telefonu
+        const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
+
+        // Sprawdź, czy są jakieś numery w `phones`
+        if (data.phones && data.phones.length > 0) {
+          const phoneData = data.phones[0]; // Pobierz pierwszy numer
+
+          // Stwórz link do telefonu
+          const phoneLink = document.createElement('a');
+          phoneLink.href = `tel:${phoneData.phone}`;
+          phoneLink.textContent = phoneData.phone;
+
+          // Stwórz element dla opisu
+          const phoneDescription = document.createElement('span');
+          phoneDescription.textContent = ` (${phoneData.description})`;
+
+          // Wyczyść kontener i dodaj nowe elementy
+          wholesalerPhone.innerHTML = '';
+          wholesalerPhone.appendChild(phoneLink);
+          wholesalerPhone.appendChild(phoneDescription);
+        } else {
+          // Jeśli brak numerów, wyświetl informację
+          wholesalerPhone.textContent = 'Brak numeru telefonu';
+        }
+
+
         // Znajdź elementy
         const whPlatformUrl = document.querySelector('[wholesalerdata="platformUrl"]');
         const platformUrlLink = whPlatformUrl.querySelector('#platformUrl');
@@ -491,8 +520,6 @@ docReady(function () {
         // Wstaw tekst URL i ustaw href w linku
         platformUrlLink.href = data.platformUrl;
         platformUrlLink.textContent = data.platformUrl;
-
-
 
         // Znajdź elementy
         const whWebsite = document.querySelector('[wholesalerdata="website"]');
