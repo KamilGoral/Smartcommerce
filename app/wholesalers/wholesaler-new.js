@@ -502,6 +502,10 @@ docReady(function () {
           console.log("Not EC or ECS");
         }
 
+        if(data.platformUrl === null) {
+          $("#ehurtBox").hide();
+        }
+
         // Ustawienia podstawowych danych
         setText('name', data.company);
         setText('taxId', data.taxId, 'NIP: ');
