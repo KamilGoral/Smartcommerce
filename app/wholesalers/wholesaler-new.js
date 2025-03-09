@@ -488,11 +488,10 @@ docReady(function () {
         }
 
         // Funkcja do ustawiania linku (jeśli istnieje)
-        function setLink(selector, url) {
-          const el = document.querySelector(`[wholesalerdata="${selector}"] a`);
+        function setLink(selector, url, prefix = '') {
+          const el = document.querySelector(`[wholesalerdata="${selector}"]`);
           if (el) {
-            el.href = url;
-            el.textContent = url;
+            el.innerHTML = `${prefix}&nbsp;<a href="${url}" target="_blank">${url}</a>`;
           }
         }
 
@@ -501,6 +500,22 @@ docReady(function () {
         setText('taxId', data.taxId, 'NIP: ');
         setLink('platformUrl', data.platformUrl);
         setLink('website', data.website);
+
+        // Ustawienia badgy
+        const smartVanBadge = document.querySelector('#IsmartVan');
+
+        if (smartVanBadge) {
+          if (data.vanMember) {
+            smartVanBadge.classList.remove('hide');
+            smartVanBadge.classList.add('enabled');
+          }
+        }
+        if (data.platformUrl !== null) {
+          whPlatformUrl.setAttribute("href", "" + data.platformUrl);
+          $("#ehurtBox").removeClass("hide");
+        } else {
+          $("#ehurtStart").removeClass("hide");  
+        }
 
         // Obsługa numeru telefonu
         const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
@@ -522,15 +537,8 @@ docReady(function () {
 
 
 
-        if (data.platformUrl !== null) {
-          whPlatformUrl.setAttribute("href", "" + data.platformUrl);
-          $("#login-credentials-container").removeClass("hide");
-        } else {
-          $("#proposeIntegration").removeClass("hide");
-          $("#loginButton").hide();
-        }
+        
         //
-        whTaxId.textContent = data.taxId;
 
       } else {
         console.log("error");
