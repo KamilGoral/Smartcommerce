@@ -524,7 +524,7 @@ docReady(function () {
 
         const ftpElement = document.getElementById("Iftp");
 
-        if (data.connections.ftp && data.connections.ftp.enabled) {
+        if (data.connections.ftp && data.connections.ftp.username) {
           ftpElement.classList.remove("hide");
           ftpElement.classList.add("enabled");
         }
