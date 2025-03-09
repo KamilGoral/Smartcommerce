@@ -759,7 +759,7 @@ docReady(function () {
 
         if (customerId !== null) {
           $("#customerId").val(customerId).change();
-          setText('customerId', customerId, 'Wartość: ');
+          setText('customerId', customerId, 'Identyfikator Klienta: ');
         }
 
         if (
