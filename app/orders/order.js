@@ -3406,8 +3406,9 @@ docReady(function () {
 
     displayMessage(
       "Error",
-      `Oops. Wartość "${pastedValue}" jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`
+      `Oops. Wartość <strong>${pastedValue}</strong> jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`
     );
+    
 
     // Przywróć nasłuchiwanie focusout po zamknięciu alertu
     setTimeout(() => {
