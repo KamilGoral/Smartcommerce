@@ -374,6 +374,7 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
         Iehurt.classList.add("enabled");
+        Iehurt.classList.remove("hide");
 
         const statusmessagebox = document.getElementById("statusmessagebox");
         setText('extrafield', data2.credentials.extraFields, 'Firma: ');
