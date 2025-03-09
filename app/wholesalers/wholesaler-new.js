@@ -359,10 +359,15 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
-        $("#login-credentials-container").removeClass("hide");
+        Iehurt.classList.add("enabled");
+
         const statusmessagebox = document.getElementById("statusmessagebox");
-        $("#UsernameEdit").val(data2.credentials.username).change();
-        $("#logisticMinimumEdit").val(data2).change();
+        setText('extrafield', data.credentials.extraFields, 'Firma: ');
+        setText('username', data.credentials.username, 'Login: ');
+        setText('password', '******', 'Hasło: ');
+        setText('profile', data.profile, 'Profil: ');
+
+
         if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
           var firstCreateDate = "";
@@ -440,7 +445,7 @@ docReady(function () {
           }
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
-          $("#ehurtStart").removeClass("hide");       
+          $("#ehurtStart").removeClass("hide");
         }
 
         $("#Wholesaler-profile-Selector-box").hide();
@@ -508,11 +513,6 @@ docReady(function () {
             smartVanBadge.classList.remove('hide');
             smartVanBadge.classList.add('enabled');
           }
-        }
-        if (data.platformUrl !== null) {
-          $("#ehurtBox").removeClass("hide");
-        } else {
-          $("#ehurtStart").removeClass("hide");  
         }
 
         // Obsługa numeru telefonu
