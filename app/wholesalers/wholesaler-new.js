@@ -496,18 +496,18 @@ docReady(function () {
 
         // Znajdź elementy
         const whWebsite = document.querySelector('[wholesalerdata="website"]');
-        const websiteText = whWebsite.querySelector('#website-text');
-        const websiteLink = whWebsite.querySelector('#website-link');
+        const websiteLink = whWebsite.querySelector('#website');
 
         // Wstaw tekst URL i ustaw href w linku
-        websiteText.textContent = data.website;
         websiteLink.href = data.website;
+        websiteLink.textContent = data.website;
+
 
         const whTaxId = document.querySelector('[wholesalerdata="logo"]'); document.getElementById("whTaxId");
         const whLogo = document.querySelector('[wholesalerdata="logo"]');
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
-        
+
 
         if (data.platformUrl !== null) {
           whPlatformUrl.setAttribute("href", "" + data.platformUrl);
