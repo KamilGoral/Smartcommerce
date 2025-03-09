@@ -3406,7 +3406,7 @@ docReady(function () {
 
     displayMessage(
       "Error",
-      `Oops. Wartość <strong>${pastedValue}</strong> jest nieprawidłowa. Maksymalna dozwolona wartość to 999999. Wartość w polu nie została zmieniona.`
+      `Oops. Ilość ${pastedValue} jest nieprawidłowa. Maksymalna dozwolona ilość to 999999. Wartość w polu nie została zmieniona.`
     );
     
 
