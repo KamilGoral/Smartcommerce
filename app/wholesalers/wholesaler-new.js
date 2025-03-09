@@ -474,10 +474,9 @@ docReady(function () {
           data.wholesalerKey === "eurocash" ||
           data.wholesalerKey === "eurocash-serwis"
         ) {
-          $("#editCustomerId").show();
+          $("#ftpBox").show();
           console.log("EC or ECS");
         } else {
-          $("#editCustomerId").hide();
           console.log("Not EC or ECS");
         }
 
