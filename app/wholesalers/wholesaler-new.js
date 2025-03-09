@@ -484,14 +484,14 @@ docReady(function () {
         const wholesalerName = document.querySelector('[wholesalerdata="name"]');
         wholesalerName.textContent = data.company;
 
-        // Kod dla platformUrl
+        // Znajdź elementy
         const whPlatformUrl = document.querySelector('[wholesalerdata="platformUrl"]');
-        const platformUrlText = whPlatformUrl.querySelector('#platformUrl-text');
-        const platformUrlLink = whPlatformUrl.querySelector('#platformUrl-link');
+        const platformUrlLink = whPlatformUrl.querySelector('#platformUrl');
 
         // Wstaw tekst URL i ustaw href w linku
-        platformUrlText.textContent = data.platformUrl;
         platformUrlLink.href = data.platformUrl;
+        platformUrlLink.textContent = data.platformUrl;
+
 
 
         // Znajdź elementy
