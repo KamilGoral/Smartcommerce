@@ -752,7 +752,7 @@ docReady(function () {
 
         if (logisticMinimum !== null) {
           $("#logisticMinimumEdit").val(logisticMinimum).change();
-          setText('logisticMinimum', logisticMinimum, 'Wartość: ');
+          setText('logisticMinimum', `${logisticMinimum} zł`, 'Wartość: ');
         }
 
         var customerId = foundWholesaler.customerId;
