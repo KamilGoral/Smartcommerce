@@ -296,7 +296,7 @@ docReady(function () {
   var formIdEdit = "#wf-form-CredentialsFormEdit";
   var formCustomerIdForm = "#wf-form-customerId";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
-  var formWhLogistic = "#wf-form-LogisticMinimumForm-2";
+  var formWhLogistic = "#wf-form-NewLogisticsMinimum-2";
   const Iehurt = document.getElementById("Iehurt");
   emailElement.textContent = getCookie("sprytnyUser");
   var LastStatusMessage = document.getElementById("LastStatusMessage");
