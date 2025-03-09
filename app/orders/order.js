@@ -671,23 +671,45 @@ docReady(function () {
               orderable: false,
               data: "wholesalerKey",
               render: function (data) {
-                if (OrganizationName !== "Suzyw123") {
-                  if (data === "agra") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  } else if (data === "mirex") {
-                    return '<div class="div-block-20" style="min-width: 100px">  <img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg"    loading="lazy"    fileformat="text/plain"    class="filedownloadicon"  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg"    loading="lazy"    fileformat="text/csv"    class="filedownloadicon"    data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy."  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg"    loading="lazy"    fileformat="application/pdf"    class="filedownloadicon"  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg"    loading="lazy"    fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"    class="filedownloadicon"  /></div>';
-                  } else {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
+                // File icon definitions
+                const icons = {
+                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
+                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csvAgra: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csvMirex: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
+                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">'
+                };
+            
+                // Wholesaler-specific configurations
+                const wholesalerConfigs = {
+                  "agra": {
+                    default: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csvAgra, icons.pdf, icons.xls]
+                  },
+                  "mirex": {
+                    default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.pdf, icons.xls]
+                  },
+                  "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "mag-dystrybucja": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "merkury": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "default": {
+                    default: [icons.text, icons.csv, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls]
                   }
-                } else {
-                  if (data === "agra") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  } else if (data === "mirex") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  } else {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  }
-                }
+                };
+            
+                // Determine which config to use based on OrganizationName
+                const isSuzyw123 = OrganizationName === "Suzyw123";
+                const configKey = isSuzyw123 ? "suzyw123" : "default";
+            
+                // Get the supported icons for the current wholesaler
+                const config = wholesalerConfigs[data] || wholesalerConfigs["default"];
+                const supportedIcons = config[configKey];
+            
+                // Render the icons inside a div
+                return `<div class="div-block-20" style="min-width:100px">${supportedIcons.join("")}</div>`;
               },
             },
 
