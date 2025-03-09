@@ -759,7 +759,7 @@ docReady(function () {
 
         if (customerId !== null) {
           $("#customerId").val(customerId).change();
-          setText('logisticMinimum', logisticMinimum, 'Wartość: ');
+          setText('customerId', customerId, 'Wartość: ');
         }
 
         if (
