@@ -455,12 +455,16 @@ docReady(function () {
         }
 
         // Add handling for the specific timeout error
-        if (messageContent.includes("The online offer download operation failed to complete within the desired time")) {
+        if (
+          messageContent.includes(
+            "The online offer download operation failed to complete within the desired time"
+          )
+        ) {
           messageContent = messageContent.replace(
-              "The online offer download operation failed to complete within the desired time",
-              "Czas pobierania oferty został przekroczony"
+            "The online offer download operation failed to complete within the desired time",
+            "Czas pobierania oferty został przekroczony"
           );
-      }
+        }
 
         Array.from(offerMessageElements).forEach((element) => {
           element.style.display = "block";
@@ -1858,22 +1862,17 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
-  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
-    function () {
+  $('div[role="tab"]').click(function () {
+    if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
 
       delays.forEach((delay) => {
-        setTimeout(function () {
-          $.fn.dataTable
-            .tables({
-              visible: true,
-              api: true,
-            })
-            .columns.adjust();
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         }, delay);
       });
     }
-  );
+  });
 
   $(document).ready(function ($) {
     $("tableSelector").DataTable({

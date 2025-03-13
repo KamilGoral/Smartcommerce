@@ -4554,20 +4554,15 @@ docReady(function () {
     $input.val(value).attr("value", value).data("initialValue", value);
   }
 
-  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
-    function () {
+  $('div[role="tab"]').click(function () {
+    if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
 
       delays.forEach((delay) => {
-        setTimeout(function () {
-          $.fn.dataTable
-            .tables({
-              visible: true,
-              api: true,
-            })
-            .columns.adjust();
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         }, delay);
       });
     }
-  );
+  });
 });
