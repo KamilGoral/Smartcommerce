@@ -4557,11 +4557,11 @@ docReady(function () {
   $('div[role="tab"]').click(function () {
     if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
-
       delays.forEach((delay) => {
         setTimeout(() => {
           $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         }, delay);
+        console.log("adjust");
       });
     }
   });
