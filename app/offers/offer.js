@@ -454,6 +454,14 @@ docReady(function () {
           );
         }
 
+        // Add handling for the specific timeout error
+        if (messageContent.includes("The online offer download operation failed to complete within the desired time")) {
+          messageContent = messageContent.replace(
+              "The online offer download operation failed to complete within the desired time",
+              "Czas pobierania oferty został przekroczony"
+          );
+      }
+
         Array.from(offerMessageElements).forEach((element) => {
           element.style.display = "block";
           element.textContent = "Powód: " + messageContent;

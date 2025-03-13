@@ -671,23 +671,46 @@ docReady(function () {
               orderable: false,
               data: "wholesalerKey",
               render: function (data) {
-                if (OrganizationName !== "Suzyw123") {
-                  if (data === "agra") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  } else if (data === "mirex") {
-                    return '<div class="div-block-20" style="min-width: 100px">  <img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg"    loading="lazy"    fileformat="text/plain"    class="filedownloadicon"  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg"    loading="lazy"    fileformat="text/csv"    class="filedownloadicon"    data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy."  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg"    loading="lazy"    fileformat="application/pdf"    class="filedownloadicon"  /><img    src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg"    loading="lazy"    fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"    class="filedownloadicon"  /></div>';
-                  } else {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
+                // File icon definitions
+                const icons = {
+                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
+                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csvAgra: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csvMirex: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
+                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">'
+                };
+            
+                // Wholesaler-specific configurations
+                const wholesalerConfigs = {
+                  "agra": {
+                    default: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csvAgra, icons.pdf, icons.xls]
+                  },
+                  "mirex": {
+                    default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.pdf, icons.xls]
+                  },
+                  "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "mag-dystrybucja": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "merkury": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "default": {
+                    default: [icons.text, icons.csv, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls]
                   }
-                } else {
-                  if (data === "agra") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  } else if (data === "mirex") {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  } else {
-                    return '<div class="div-block-20" style="min-width:100px"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon"><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon"></div>';
-                  }
-                }
+                };
+            
+                // Determine which config to use based on OrganizationName
+                const isSuzyw123 = OrganizationName === "Suzyw123";
+                const configKey = isSuzyw123 ? "suzyw123" : "default";
+            
+                // Get the supported icons for the current wholesaler
+                const config = wholesalerConfigs[data] || wholesalerConfigs["default"];
+                const supportedIcons = config[configKey];
+            
+                // Render the icons inside a div
+                return `<div class="div-block-20" style="min-width:100px">${supportedIcons.join("")}</div>`;
               },
             },
 
@@ -1018,7 +1041,7 @@ docReady(function () {
         </table>
     `;
   }
-
+ 
   function generateWholesalerSelect(
     selectedWholesalerKey,
     jsonData,
@@ -1274,7 +1297,7 @@ docReady(function () {
                 return (
                   '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
                   data.quantity +
-                  '">'
+                  '" onpaste="handlePaste(event)">'
                 );
               },
             },
@@ -1293,13 +1316,36 @@ docReady(function () {
             {
               orderable: true,
               data: "netPrice",
-              render: function (data) {
+              render: function (data, type, row) {
+                // Sprawdź, czy istnieją segmenty zakupu
+                if (row.purchaseSegments && row.purchaseSegments.length > 1) {
+                  // Oblicz cenę ważoną
+                  let totalQuantity = 0;
+                  let totalValue = 0;
+                  let tooltipContent = "Otrzymasz: ";
+            
+                  row.purchaseSegments.forEach((segment, index) => {
+                    totalQuantity += segment.quantity;
+                    totalValue += segment.netPrice * segment.quantity;
+                    tooltipContent += `${segment.quantity} sztuk po ${segment.netPrice.toFixed(2)} zł`;
+                    if (index < row.purchaseSegments.length - 1) {
+                      tooltipContent += " oraz ";
+                    }
+                  });
+            
+                  const weightedPrice = (totalValue / totalQuantity).toFixed(2);
+            
+                  // Zwróć sformatowaną komórkę z tooltipem i pogrubioną ceną ważoną
+                  return `<td class="tippy" data-tippy-content="${tooltipContent}">
+                            <strong>${weightedPrice}</strong>
+                          </td>`;
+                }
+            
+                // Jeśli jest tylko jeden segment lub brak segmentów, zwróć standardową cenę
                 if (data !== null) {
-                  return "" + data.toFixed(2);
+                  return data.toFixed(2);
                 }
-                if (data === null) {
-                  return "0";
-                }
+                return "0";
               },
             },
             {
@@ -2423,6 +2469,14 @@ docReady(function () {
           );
         }
 
+        // Add handling for the specific timeout error
+        if (messageContent.includes("The online offer download operation failed to complete within the desired time")) {
+          messageContent = messageContent.replace(
+              "The online offer download operation failed to complete within the desired time",
+              "Czas pobierania oferty został przekroczony"
+          );
+      }
+
         Array.from(offerMessageElements).forEach((element) => {
           element.style.display = "block";
           element.textContent = "Powód: " + messageContent;
@@ -2866,7 +2920,11 @@ docReady(function () {
         orderable: false,
         data: null,
         render: function (data) {
-          return '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="">';
+          return (
+            '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
+            data.quantity +
+            '" onpaste="handlePaste(event)">'
+          );
         },
       },
       {
@@ -3378,6 +3436,41 @@ docReady(function () {
     }
   });
 
+  window.handlePaste = function(event) {
+    // Zatrzymanie domyślnej akcji wklejania
+  event.preventDefault();
+
+  // Pobranie wklejanej wartości
+  const pastedValue = event.clipboardData.getData('text');
+  console.log(pastedValue);
+
+  // Sprawdzenie, czy wklejona wartość jest liczbą i nie przekracza maksymalnej wartości
+  if (!isNaN(pastedValue) && Number(pastedValue) <= 999999) {
+    // Wklejenie poprawnej wartości
+    event.target.value = pastedValue;
+  } else {
+    // Tymczasowe usunięcie nasłuchiwania zdarzenia focusout
+    const inputElement = event.target;
+    const focusoutHandler = function () {
+      console.log("Focusout event triggered, but ignored due to invalid paste.");
+    };
+
+    // Usuń nasłuchiwanie focusout
+    $(inputElement).off('focusout');
+
+    displayMessage(
+      "Error",
+      `Oops. Ilość ${pastedValue} jest nieprawidłowa. Maksymalna dozwolona ilość to 999999. Wartość w polu nie została zmieniona.`
+    );
+    
+
+    // Przywróć nasłuchiwanie focusout po zamknięciu alertu
+    setTimeout(() => {
+      $(inputElement).on('focusout', focusoutHandler);
+    }, 1000);
+  }
+}
+
   // Function to validate GTIN format (checks if GTIN contains '?')
   function isValidGTIN(gtin) {
     // GTIN is considered valid if it does not contain '?'
@@ -3462,25 +3555,32 @@ docReady(function () {
   });
 
   $("#spl_table").on("focusout", "input", function () {
-    // Get the right table
-    // Change amount of product
-
+    // Pobierz tabelę
     var table = $("#spl_table").DataTable();
+  
+    // Pobierz nową wartość i początkową wartość
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
-    // Check if the value has changed
-    if (newValue !== initialValue && parseInt(newValue) >= 0) {
+  
+    console.log("New value:", newValue, "Initial value:", initialValue);
+  
+    // Sprawdź, czy wartość się zmieniła i czy jest poprawna
+    if (newValue !== initialValue.toString() && parseInt(newValue) >= 0) {
+      // Zaktualizuj wartość w polu input
       $(this).attr("value", newValue);
+  
+      // Pobierz dane wiersza
       var data = table.row($(this).parents("tr")).data();
-
+  
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity)) {
-          quantity = null; // If so, set quantity to null
+          quantity = null; // Jeśli wartość nie jest liczbą, ustaw na null
         }
-
+  
         var product;
-        if (isNaN(initialValue) && newValue !== initialValue) {
+        if (isNaN(initialValue) && newValue !== initialValue.toString()) {
+          // Jeśli initialValue jest nieprawidłowe, dodaj nowy produkt
           product = {
             op: "add",
             path: "/" + data.gtin,
@@ -3489,25 +3589,31 @@ docReady(function () {
             },
           };
         } else if (quantity !== null) {
+          // Jeśli quantity jest prawidłowe, zaktualizuj ilość
           product = {
             op: "replace",
             path: "/" + data.gtin + "/quantity",
             value: quantity,
           };
         } else {
+          // Jeśli quantity jest null, usuń produkt
           product = {
             op: "remove",
             path: "/" + data.gtin,
           };
         }
-
+  
+        console.log("Adding product to changesPayload:", product);
         addObject(changesPayload, product);
-        // Emulate changes for the user
+  
+        // Emuluj zmiany dla użytkownika
         $("#waitingdots").show(1).delay(150).hide(1);
         checkChangesPayload();
       } else {
-        console.log("GTIN is null");
+        console.log("GTIN is null, cannot proceed.");
       }
+    } else {
+      console.log("No change in value or invalid input, skipping.");
     }
   });
 
@@ -3629,7 +3735,7 @@ docReady(function () {
             path: "/" + data.gtin,
           };
         }
-
+        console.log("0")
         addObject(changesPayload, product);
         // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
