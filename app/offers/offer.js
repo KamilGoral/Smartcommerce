@@ -1850,20 +1850,27 @@ docReady(function () {
     $(this).DataTable().draw(false);
   });
 
+  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
+    function () {
+      const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(function () {
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
+        }, delay);
+      });
+    }
+  );
+
   $(document).ready(function ($) {
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
     $(".dataTables_filter input").attr("maxLength", 60);
-    setTimeout(function () {
-      // Your code to adjust DataTable columns
-      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-      console.log("Adjusting");
-    }, 2000);
-    setTimeout(function () {
-      // Your code to adjust DataTable columns
-      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-      console.log("Adjusting");
-    }, 4000);
   });
 });
