@@ -693,12 +693,6 @@ docReady(function () {
                     default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
                     suzyw123: [icons.text, icons.pdf, icons.xls],
                   },
-                  "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
-                  "mag-dystrybucja": {
-                    default: [icons.xls],
-                    suzyw123: [icons.xls],
-                  },
-                  merkury: { default: [icons.xls], suzyw123: [icons.xls] },
                   default: {
                     default: [icons.text, icons.csv, icons.pdf, icons.xls],
                     suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
