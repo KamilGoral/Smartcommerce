@@ -1353,10 +1353,12 @@ docReady(function () {
               }
             }
             form.show();
-            displayMessage(
-              "Success",
-              "Minimum logistyczne dla dostawcy zostało zmienione"
-            );
+            setTimeout(function () {
+              displayMessage(
+                "Success",
+                "Minimum logistyczne dla dostawcy zostało zmienione"
+              );
+            }, 500); // 500 ms = 0,5 sekundy
             var displayValue =
               newValue > 0 ? newValue + " zł" : "Brak wartości";
             $('div[wholesalerdata="logisticMinimum"]').text(
