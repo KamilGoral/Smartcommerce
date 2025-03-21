@@ -615,7 +615,7 @@ docReady(function () {
         } else {
           formatsElement.innerHTML = "Wybrane formaty:";
           // Zaktualizuj <div> z wybranymi formatami
-          var formatList = previousFormats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
+          var formatList = formats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
           $("div[wholesalerdata='smtpFormats']").text(
             "Wybrane formaty: " + formatList
           ); // Zaktualizuj zawartość <div>
