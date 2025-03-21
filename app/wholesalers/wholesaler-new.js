@@ -513,6 +513,7 @@ docReady(function () {
 
         if (data.platformUrl === null) {
           $("#ehurtBox").hide();
+          $("#ehurtBoxDelete").hide();
         }
 
         // Ustawienia podstawowych danych
