@@ -405,6 +405,7 @@ docReady(function () {
           data2.credentials ? data2.credentials.username : "",
           "Login: "
         );
+
         setText("password", "******", "Hasło: ");
         setText("profile", data2.profile ? data2.profile.name : "", "Profil: ");
 
@@ -1440,6 +1441,11 @@ docReady(function () {
             if (resultData && resultData.smtp) {
               previousEmail = resultData.smtp.email; // Zaktualizuj email
               previousFormats = resultData.smtp.formats || []; // Zaktualizuj formaty
+
+              // Zaktualizuj <div> z wybranymi formatami
+              $("div[wholesalerdata='smtpEmail']").text(
+                "Adres e-mail: " + previousEmail
+              ); // Zaktualizuj zawartość <div>
 
               // Zaktualizuj <div> z wybranymi formatami
               var formatList = previousFormats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
