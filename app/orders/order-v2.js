@@ -3272,7 +3272,7 @@ docReady(function () {
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
 
-  $("#table_splited_wh").on("click", "img", function () {
+  $("#table_splited_wh").on("click", ".filedownloadicon", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
