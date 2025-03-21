@@ -675,7 +675,7 @@ docReady(function () {
 
                 if (data) {
                   icons +=
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61134891eca7c922e581f398_Success%20Icon.svg" loading="lazy" alt="Downloaded" title="Pobrano"> ';
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono"> ';
                 }
                 return icons || "-"; // Return '-' if neither icon is added
               },
