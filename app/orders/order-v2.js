@@ -1679,6 +1679,17 @@ docReady(function () {
                 $("td", row).css("background-color", "#FFFAE6");
               }
             }
+            if (data.confirmed === true) {
+              $(row).css("background-color", "lightgreen");
+
+              // Znajdź i dezaktywuj wszystkie inputy i selecty w wierszu
+              $(row)
+                .find("input, select, button")
+                .attr("disabled", true)
+                .css("pointer-events", "none")
+                .css("opacity", "0.6")
+                .css("cursor", "not-allowed");
+            }
           },
 
           initComplete: function (settings, json) {
