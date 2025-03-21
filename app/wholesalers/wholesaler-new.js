@@ -1107,12 +1107,12 @@ docReady(function () {
             {
               op: "add",
               path: "/credentials/username",
-              value: $("#UsernameEdit").val().trim(),
+              value: $("#Username-Edit").val().trim(),
             },
             {
               op: "add",
               path: "/credentials/password",
-              value: $("#PasswordEdit").val(),
+              value: $("#Password-Edit").val(),
             },
             {
               op: "add",
@@ -1129,12 +1129,12 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val().trim(),
+                value: $("#Username-Edit").val().trim(),
               },
               {
                 op: "add",
                 path: "/credentials/password",
-                value: $("#PasswordEdit").val(),
+                value: $("#Password-Edit").val(),
               },
               {
                 op: "add",
@@ -1153,12 +1153,12 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val().trim(),
+                value: $("#Username-Edit").val().trim(),
               },
               {
                 op: "add",
                 path: "/credentials/password",
-                value: $("#PasswordEdit").val(),
+                value: $("#Password-Edit").val(),
               },
             ];
           }
@@ -1773,7 +1773,7 @@ docReady(function () {
     });
   };
 
-  $("#UsernameEdit").change(function () {
+  $("#Username-Edit").change(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
