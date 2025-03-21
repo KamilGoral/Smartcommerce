@@ -592,7 +592,7 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
         // Obsługuje e-mail
-        let smtpEmail = data2.smtp.email;
+        let smtpEmail = data2.smtp ? data2.smtp.email : null;
         let emailElement = document.querySelector(
           '[wholesalerdata="smtpEmail"]'
         );
@@ -606,21 +606,21 @@ docReady(function () {
         }
 
         // Obsługuje formaty
-        let formats = data2.smtp.formats;
+        let formats =
+          data2.smtp && data2.smtp.formats ? data2.smtp.formats : [];
         let formatsSelect = document.getElementById("formats");
         let formatsElement = document.querySelector(
           '[wholesalerdata="smtpFormats"]'
         );
 
-        if (formats === null || formats.length === 0) {
+        if (formats.length === 0) {
           formatsElement.innerHTML = "Wybrane formaty: -";
         } else {
           formatsElement.innerHTML = "Wybrane formaty:";
-          // Zaktualizuj <div> z wybranymi formatami
-          var formatList = formats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
+          var formatList = formats.join(", "); // Łączenie formatów w jeden ciąg
           $("div[wholesalerdata='smtpFormats']").text(
             "Wybrane formaty: " + formatList
-          ); // Zaktualizuj zawartość <div>
+          );
           formats.forEach(function (format) {
             let option = formatsSelect.querySelector(
               `option[value="${format}"]`
@@ -633,7 +633,7 @@ docReady(function () {
         }
 
         // Obsługuje ostatnią transakcję SMTP
-        let lastTransaction = data2.smtp.lastTransaction;
+        let lastTransaction = data2.smtp ? data2.smtp.lastTransaction : null;
         let lastTransactionElement = document.querySelector(
           '[wholesalerdata="smtpLastTransaction"]'
         );
@@ -645,41 +645,57 @@ docReady(function () {
         }
 
         // Obsługuje FTP
-        // Identyfikator klienta FTP
-        let ftpCustomerId = data2.ftp.customerId;
-        let customerIdElement = document.querySelector(
-          '[wholesalerdata="customerId"]'
-        );
-        let customerIdInput = document.getElementById("customerId");
-        customerIdInput = ftpCustomerId;
-        if (ftpCustomerId === null) {
+        if (data2.ftp) {
+          // Identyfikator klienta FTP
+          let ftpCustomerId = data2.ftp.customerId;
+          let customerIdElement = document.querySelector(
+            '[wholesalerdata="customerId"]'
+          );
+          let customerIdInput = document.getElementById("customerId");
+          customerIdInput = ftpCustomerId;
+          if (ftpCustomerId === null) {
+            customerIdElement.innerHTML = "Identyfikator Klienta: -";
+          } else {
+            customerIdElement.innerHTML =
+              "Identyfikator Klienta: " + ftpCustomerId;
+          }
+
+          // Login FTP
+          let ftpUsername = data2.ftp.username;
+          let ftpUsernameElement = document.querySelector(
+            '[wholesalerdata="ftpUsername"]'
+          );
+          if (ftpUsername === null) {
+            ftpUsernameElement.innerHTML = "Login: -";
+          } else {
+            ftpUsernameElement.innerHTML = "Login: " + ftpUsername;
+          }
+
+          // Ostatnia transakcja FTP
+          let ftpLastTransaction = data2.ftp.lastTransaction;
+          let ftpLastTransactionElement = document.querySelector(
+            '[wholesalerdata="FtpLastTransaction"]'
+          );
+          if (ftpLastTransaction === null) {
+            ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
+          } else {
+            ftpLastTransactionElement.innerHTML =
+              "Ostatnia zmiana: " + ftpLastTransaction;
+          }
+        } else {
+          // Jeśli data2.ftp jest null, zabezpiecz kod, aby nie próbować uzyskać dostępu do danych
+          let customerIdElement = document.querySelector(
+            '[wholesalerdata="customerId"]'
+          );
           customerIdElement.innerHTML = "Identyfikator Klienta: -";
-        } else {
-          customerIdElement.innerHTML =
-            "Identyfikator Klienta: " + ftpCustomerId;
-        }
-
-        // Login FTP
-        let ftpUsername = data2.ftp.username;
-        let ftpUsernameElement = document.querySelector(
-          '[wholesalerdata="ftpUsername"]'
-        );
-        if (ftpUsername === null) {
+          let ftpUsernameElement = document.querySelector(
+            '[wholesalerdata="ftpUsername"]'
+          );
           ftpUsernameElement.innerHTML = "Login: -";
-        } else {
-          ftpUsernameElement.innerHTML = "Login: " + ftpUsername;
-        }
-
-        // Ostatnia transakcja FTP
-        let ftpLastTransaction = data2.ftp.lastTransaction;
-        let ftpLastTransactionElement = document.querySelector(
-          '[wholesalerdata="FtpLastTransaction"]'
-        );
-        if (ftpLastTransaction === null) {
+          let ftpLastTransactionElement = document.querySelector(
+            '[wholesalerdata="FtpLastTransaction"]'
+          );
           ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
-        } else {
-          ftpLastTransactionElement.innerHTML =
-            "Ostatnia zmiana: " + ftpLastTransaction;
         }
       } else if (request2.status >= 400) {
         console.error("Błąd: ", request2.status, this.response);
