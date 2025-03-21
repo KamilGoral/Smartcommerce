@@ -649,6 +649,8 @@ docReady(function () {
         let customerIdElement = document.querySelector(
           '[wholesalerdata="customerId"]'
         );
+        let customerIdInput = document.getElementById("customerId");
+        customerIdInput = ftpCustomerId;
         if (ftpCustomerId === null) {
           customerIdElement.innerHTML = "Identyfikator Klienta: -";
         } else {
@@ -1212,6 +1214,12 @@ docReady(function () {
           }
           // Dodaj nowy email
           data.push({ op: "add", path: "/smtp/email", value: email });
+        }
+
+        // Jeśli e-mail jest pusty i wcześniej był jakiś e-mail, usuń
+        if (!email && previousEmail && previousEmail.length > 0) {
+          // Usuń e-mail, jeśli został usunięty z formularza, a wcześniej istniał
+          data.push({ op: "remove", path: "/smtp/email" });
         }
 
         // Porównaj formaty
