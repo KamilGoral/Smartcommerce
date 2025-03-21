@@ -1218,18 +1218,22 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            if (typeof successCallback === "function") {
-              var result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                window.setTimeout(function () {
-                  location.reload();
-                }, 4000);
-                return;
+            // Zaktualizuj previousEmail i previousFormats po sukcesie
+            if (resultData && resultData.smtp) {
+              previousEmail = resultData.smtp.email; // Zaktualizuj email
+              previousFormats = resultData.smtp.formats || []; // Zaktualizuj formaty
+
+              // Jeśli callback success jest funkcją, wywołaj go
+              if (typeof successCallback === "function") {
+                var result = successCallback(resultData);
+                if (!result) {
+                  form.show();
+                  displayMessage(
+                    "Success",
+                    "Formaty przesyłanych dokumentów zostały zmienione."
+                  );
+                  return;
+                }
               }
             }
           },
