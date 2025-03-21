@@ -734,7 +734,6 @@ docReady(function () {
                 )}</div>`;
               },
             },
-
             {
               orderable: false,
               data: "wholesalerKey",
@@ -3304,6 +3303,11 @@ docReady(function () {
             anchor.download = fileName;
             anchor.click();
             window.URL.revokeObjectURL(objectUrl);
+            // tutaj aktualizacja tabeli po kliknięciu
+            var rowIndex = table.row(row).index();
+            var rowData = table.row(row).data();
+            rowData.confirmed = true;
+            table.row(row).data(rowData).invalidate().draw(false);
           } else {
             console.error("Filename not found in the response headers.");
           }
@@ -3354,14 +3358,14 @@ docReady(function () {
             link.download = "" + fileName;
             link.target = "_blank";
             document.body.appendChild(link);
+            anchor.click();
             link.click();
 
             var rowIndex = table.row(row).index();
             var rowData = table.row(row).data();
 
             // oznacz jako pobrane
-            rowData.status = rowData.status || {}; // jeśli status nie istnieje
-            rowData.status.downloaded = true;
+            rowData.confirmed = true;
 
             // update danych w datatable
             table.row(row).data(rowData).invalidate().draw(false);
