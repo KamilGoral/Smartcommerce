@@ -1680,15 +1680,24 @@ docReady(function () {
               }
             }
             if (data.confirmed === true) {
-              $(row).css("background-color", "#b7eb8f");
+              // Usuń tło z wiersza
+              $(row).css("background-color", "transparent");
 
-              // Znajdź i dezaktywuj wszystkie inputy i selecty w wierszu
-              $(row)
-                .find("input, select, button")
-                .attr("disabled", true)
-                .css("pointer-events", "none")
-                .css("opacity", "0.6")
-                .css("cursor", "not-allowed");
+              // Znajdź i zmodyfikuj wszystkie inputy, selecty i buttony w wierszu
+              $(row).find("input, select, button").attr("disabled", true).css({
+                "pointer-events": "none",
+                opacity: "0.6",
+                cursor: "not-allowed",
+                "font-style": "italic",
+                "font-weight": "300", // odpowiada 'font-light'
+              });
+
+              // Dodaj style do całego wiersza
+              $(row).css({
+                "font-style": "italic",
+                "font-weight": "300",
+                cursor: "not-allowed",
+              });
             }
           },
 
