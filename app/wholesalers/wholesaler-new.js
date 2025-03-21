@@ -295,6 +295,7 @@ docReady(function () {
   var formCustomerIdForm = "#wf-form-customerId";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-NewLogisticsMinimum-2";
+  var formWhSMTP = "#wf-form-editSMTP-2";
   const Iehurt = document.getElementById("Iehurt");
   emailElement.textContent = getCookie("sprytnyUser");
   var LastStatusMessage = document.getElementById("LastStatusMessage");
@@ -570,6 +571,67 @@ docReady(function () {
       }
     };
     request.send();
+  }
+
+  function getWhSmartVan() {
+    let url2 = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/smartvan"
+    );
+    let request2 = new XMLHttpRequest();
+    request2.open("GET", url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function () {
+      var data2 = JSON.parse(this.response);
+      if (request2.status >= 200 && request2.status < 400) {
+        // Obsługuje e-mail
+        let smtpEmail = data2.smtp.email;
+        let emailElement = document.querySelector(
+          '[wholesalerdata="smtpEmail"]'
+        );
+        let smtpEmailInput = document.getElementById("smtpEmail");
+        if (smtpEmail === null) {
+          emailElement.innerHTML = "Adres e-mail: -";
+        } else {
+          emailElement.innerHTML = "Adres e-mail: " + smtpEmail;
+          smtpEmailInput.value = smtpEmail;
+        }
+
+        // Obsługuje formaty
+        let formats = data2.smtp.formats;
+        let formatsElement = document.querySelector(
+          '[wholesalerdata="smtpFormats"]'
+        );
+        let formatsSelect = document.getElementById("formats");
+        formats.forEach(function (format) {
+          let option = formatsSelect.querySelector(`option[value="${format}"]`);
+          if (option) {
+            option.selected = true;
+          }
+        });
+
+        // Obsługuje ostatnią transakcję
+        let lastTransaction = data2.smtp.lastTransaction;
+        let lastTransactionElement = document.querySelector(
+          '[wholesalerdata="smtpLastTransaction"]'
+        );
+        if (lastTransaction === null) {
+          lastTransactionElement.innerHTML = "Ostatnia zmiana: -";
+        } else {
+          lastTransactionElement.innerHTML =
+            "Ostatnia zmiana: " + lastTransaction;
+        }
+      } else if (request2.status >= 400) {
+        console.error("Błąd: ", request2.status, this.response);
+      } else {
+        console.log("Nieoczekiwany błąd");
+      }
+    };
+    request2.send();
   }
 
   // Funkcja do dostosowania szerokości selecta do najszerszej opcji
@@ -1076,6 +1138,136 @@ docReady(function () {
     });
   };
 
+  makeWebflowFormAjaxSMTP = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        event.preventDefault();
+
+        var action =
+          "https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/shops/" +
+          shopKey +
+          "/wholesalers/" +
+          wholesalerKey +
+          "/smartvan";
+        var method = "PATCH";
+
+        var data = [];
+
+        // Pobierz email z inputa
+        var email = $("#smtpEmail").val().trim();
+        var previousEmail = ""; // Wartość emaila, która jest już zapisana w systemie, do porównania
+
+        // Pobierz formaty z <select> jako tablicę
+        var formats = $("#formats").val(); // formaty w formie tablicy
+        var previousFormats = []; // Wartość formatów, które są już zapisane w systemie
+
+        // Porównaj email
+        if (email && email !== previousEmail) {
+          if (previousEmail) {
+            // Usuń stary email
+            data.push({ op: "remove", path: "/smtp/email" });
+          }
+          // Dodaj nowy email
+          data.push({ op: "add", path: "/smtp/email", value: email });
+        }
+
+        // Porównaj formaty
+        formats.forEach(function (format) {
+          if (!previousFormats.includes(format)) {
+            // Dodaj nowe formaty
+            data.push({ op: "add", path: "/smtp/formats/-", value: format });
+          }
+        });
+
+        previousFormats.forEach(function (format) {
+          if (!formats.includes(format)) {
+            // Usuń usunięte formaty
+            data.push({ op: "remove", path: "/smtp/formats/" + format });
+          }
+        });
+
+        // Wyślij żądanie AJAX
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            window.setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 2000);
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              var result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                window.setTimeout(function () {
+                  location.reload();
+                }, 4000);
+                return;
+              }
+            }
+          },
+          error: function (jqXHR, exception) {
+            console.log("error", jqXHR, exception);
+            let msg = "";
+            switch (jqXHR.status) {
+              case 0:
+                msg = "Nie masz połączenia z internetem.";
+                break;
+              case 404:
+                msg = "Nie znaleziono strony";
+                break;
+              case 403:
+                msg =
+                  jqXHR.responseJSON?.message ==
+                  "User is not an administrator of this tenant"
+                    ? "Nie masz uprawnień do tej czynności"
+                    : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
+                break;
+              case 409:
+                msg =
+                  "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                break;
+              case 500:
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
+                break;
+              default:
+                msg =
+                  exception === "parsererror"
+                    ? "Nie udało się odczytać danych"
+                    : exception === "timeout"
+                    ? "Przekroczony czas oczekiwania"
+                    : exception === "abort"
+                    ? "Twoje żądanie zostało zaniechane"
+                    : jqXHR.responseJSON?.message || "Wystąpił nieznany błąd";
+                break;
+            }
+            displayMessage("Error", msg);
+          },
+        });
+      });
+    });
+  };
+
   makeWebflowFormAjaxWhLogistic = function (
     forms,
     successCallback,
@@ -1413,6 +1605,7 @@ docReady(function () {
 
   // Wywołanie funkcji z przykładowym wholesalerKey
   getWholesalerButtons(wholesalerKey);
+  getWhSmartVan();
 
   getWholesaler();
   function onlineOfferSupportFlow() {
@@ -1428,6 +1621,7 @@ docReady(function () {
   makeWebflowFormAjaxWh($(formIdEdit));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
   editCustomerId($(formCustomerIdForm));
+  makeWebflowFormAjaxSMTP($(formWhSMTP));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
   $("#waitingdots").hide();
