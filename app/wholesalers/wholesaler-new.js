@@ -1551,15 +1551,9 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
-  $("#formats").on("click", "option", function (event) {
-    // Zapobiegaj domyślnej akcji (np. zmianie stanu zaznaczenia)
-    event.preventDefault();
-
-    // Przełącz stan zaznaczenia klikniętej opcji
-    $(this).prop("selected", !$(this).prop("selected"));
-
+  $("#formats").on("change", function () {
     // Pobierz wszystkie wybrane opcje
-    var selectedOptions = $("#formats").val();
+    var selectedOptions = $(this).val();
 
     // Możesz teraz wykonać dowolną akcję z wybranymi opcjami
     console.log(selectedOptions);
