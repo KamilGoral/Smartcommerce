@@ -632,10 +632,10 @@ docReady(function () {
           '[wholesalerdata="smtpLastTransaction"]'
         );
         if (lastTransaction === null) {
-          lastTransactionElement.innerHTML = "Ostatnia zmiana: -";
+          lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
         } else {
           lastTransactionElement.innerHTML =
-            "Ostatnia zmiana: " + lastTransaction;
+            "Data ostatniej operacji: " + lastTransaction;
         }
       } else if (request2.status >= 400) {
         console.error("Błąd: ", request2.status, this.response);
@@ -1302,13 +1302,14 @@ docReady(function () {
           InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
 
         var method = "PATCH";
+        var newValue = arseInt($("#logisticMinimumEdit").val());
 
         if (parseInt($("#logisticMinimumEdit").val()) > 0) {
           var data = [
             {
               op: "add",
               path: "/logisticMinimum",
-              value: parseInt($("#logisticMinimumEdit").val()),
+              value: newValue,
             },
           ];
         } else {
