@@ -1302,9 +1302,9 @@ docReady(function () {
           InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
 
         var method = "PATCH";
-        var newValue = arseInt($("#logisticMinimumEdit").val());
+        var newValue = parseInt($("#logisticMinimumEdit").val());
 
-        if (parseInt($("#logisticMinimumEdit").val()) > 0) {
+        if (newValue > 0) {
           var data = [
             {
               op: "add",
