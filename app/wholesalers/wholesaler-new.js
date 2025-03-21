@@ -1551,6 +1551,29 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
+  document
+    .getElementById("formats")
+    .addEventListener("change", function (event) {
+      // Pobiera wszystkie zaznaczone opcje
+      let selectedOptions = Array.from(event.target.selectedOptions).map(
+        (option) => option.value
+      );
+
+      // Zaktualizuj dane na podstawie zaznaczonych opcji
+      console.log("Zaznaczone formaty:", selectedOptions);
+
+      // Możesz tu również zaktualizować stan w HTML, jeśli chcesz pokazać zaznaczone opcje
+      let formatsElement = document.querySelector(
+        '[wholesalerdata="smtpFormats"]'
+      );
+      if (selectedOptions.length > 0) {
+        formatsElement.innerHTML =
+          "Wybrane formaty: " + selectedOptions.join(", ");
+      } else {
+        formatsElement.innerHTML = "Wybrane formaty: -";
+      }
+    });
+
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
     const style = document.createElement("style");
