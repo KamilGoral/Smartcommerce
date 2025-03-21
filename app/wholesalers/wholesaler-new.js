@@ -1551,19 +1551,18 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
-  $("#formats").on("click", "option", function () {
+  $("#formats").on("click", "option", function (event) {
+    // Zapobiegaj domyślnej akcji (np. zmianie stanu zaznaczenia)
+    event.preventDefault();
+
     // Przełącz stan zaznaczenia klikniętej opcji
     $(this).prop("selected", !$(this).prop("selected"));
 
     // Pobierz wszystkie wybrane opcje
     var selectedOptions = $("#formats").val();
 
-    // Zaktualizuj tekst w odpowiedniej sekcji
-    var formatsText =
-      selectedOptions.length > 0
-        ? "Wybrane formaty: " + selectedOptions.join(", ")
-        : "Wybrane formaty: -";
-    $('[wholesalerdata="smtpFormats"] .description').text(formatsText);
+    // Możesz teraz wykonać dowolną akcję z wybranymi opcjami
+    console.log(selectedOptions);
   });
 
   function initializeSimpleTooltips() {
