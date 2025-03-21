@@ -1551,11 +1551,22 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
+  $("#formats").on("mousedown", "option", function (event) {
+    // Zapobiegaj domyślnej akcji przeglądarki
+    event.preventDefault();
+
+    // Przełącz stan zaznaczenia klikniętej opcji
+    $(this).prop("selected", !$(this).prop("selected"));
+
+    // Wymuś aktualizację stanu pola <select>
+    $("#formats").trigger("change");
+  });
+
   $("#formats").on("change", function () {
     // Pobierz wszystkie wybrane opcje
     var selectedOptions = $(this).val();
 
-    // Możesz teraz wykonać dowolną akcję z wybranymi opcjami
+    // Wyświetl wybrane opcje w konsoli
     console.log(selectedOptions);
   });
 
