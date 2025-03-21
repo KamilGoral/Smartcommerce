@@ -760,9 +760,11 @@ docReady(function () {
                   return "";
                 }
                 return (
-                  '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" style="width: 16px; height: 16px; cursor: pointer;" class="send-icon" data-key="' +
+                  '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" ' +
+                  'style="width: 16px; height: 16px; cursor: pointer;" ' +
+                  "onclick=\"sendAction('" +
                   data +
-                  '" />'
+                  "')\" />"
                 );
               },
             },
@@ -3979,6 +3981,11 @@ docReady(function () {
         });
       });
     });
+  }
+
+  function sendAction(wholesalerKey) {
+    console.log("Kliknięto wysyłkę dla:", wholesalerKey);
+    // tu możesz wrzucić swój kod np. ajax
   }
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
