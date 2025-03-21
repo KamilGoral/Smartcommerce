@@ -1596,30 +1596,28 @@ docReady(function () {
             },
             {
               orderable: true,
-              width: "20px",
+              width: "60px",
               data: "confirmed",
-              render: function (data) {
-                if (data === true) {
-                  return '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" />';
+              type: "boolean",
+              render: function (data, type, row) {
+                if (type === "display") {
+                  if (data === true) {
+                    return `
+                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
+                        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />
+                      </div>
+                    `;
+                  } else {
+                    return `
+                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
+                        <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />
+                        <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />
+                      </div>
+                    `;
+                  }
                 }
-                return "";
+                return data;
               },
-            },
-            {
-              orderable: false,
-              class: "details-control4",
-              width: "20px",
-              data: null,
-              defaultContent:
-                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-            },
-            {
-              orderable: false,
-              class: "details-control3",
-              width: "20px",
-              data: null,
-              defaultContent:
-                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
             },
           ],
 
@@ -1692,14 +1690,11 @@ docReady(function () {
               $(row).attr("title", "Produkt zamówiony, edycja jest niemożliwa");
 
               // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
-              $(row)
-                .find("input, select, button, img")
-                .attr("disabled", true)
-                .css({
-                  "pointer-events": "none",
-                  opacity: "0.6",
-                  cursor: "not-allowed",
-                });
+              $(row).find("input, select, button").attr("disabled", true).css({
+                "pointer-events": "none",
+                opacity: "0.6",
+                cursor: "not-allowed",
+              });
             }
           },
 
