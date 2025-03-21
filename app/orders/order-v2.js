@@ -1680,24 +1680,26 @@ docReady(function () {
               }
             }
             if (data.confirmed === true) {
-              // Usuń tło z wiersza
-              $(row).css("background-color", "transparent");
-
-              // Znajdź i zmodyfikuj wszystkie inputy, selecty i buttony w wierszu
-              $(row).find("input, select, button").attr("disabled", true).css({
-                "pointer-events": "none",
-                opacity: "0.6",
-                cursor: "not-allowed",
-                "font-style": "italic",
-                "font-weight": "300", // odpowiada 'font-light'
-              });
-
-              // Dodaj style do całego wiersza
+              // Usuń tło i ustaw styl wiersza
               $(row).css({
+                "background-color": "transparent",
                 "font-style": "italic",
                 "font-weight": "300",
                 cursor: "not-allowed",
               });
+
+              // Ustaw tooltip na wierszu
+              $(row).attr("title", "Produkt zamówiony, edycja jest niemożliwa");
+
+              // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
+              $(row)
+                .find("input, select, button, img")
+                .attr("disabled", true)
+                .css({
+                  "pointer-events": "none",
+                  opacity: "0.6",
+                  cursor: "not-allowed",
+                });
             }
           },
 
