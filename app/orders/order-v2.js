@@ -1595,6 +1595,17 @@ docReady(function () {
               },
             },
             {
+              orderable: true,
+              width: "20px",
+              data: "confirmed",
+              render: function (data) {
+                if (data === true) {
+                  return '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" />';
+                }
+                return "";
+              },
+            },
+            {
               orderable: false,
               class: "details-control4",
               width: "20px",
