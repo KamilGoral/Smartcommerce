@@ -1261,10 +1261,7 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             setTimeout(function () {
-              displayMessage(
-                "Success",
-                "Formaty przesyłanych dokumentów zostały zmienione."
-              );
+              displayMessage("Success", "Dane zostały zaktualizowane.");
             }, 500); // 500 ms = 0,5 sekundy
             // Zaktualizuj previousEmail i previousFormats po sukcesie
             if (resultData && resultData.smtp) {
@@ -1401,8 +1398,7 @@ docReady(function () {
                 "Minimum logistyczne dla dostawcy zostało zmienione"
               );
             }, 500); // 500 ms = 0,5 sekundy
-            var displayValue =
-              newValue > 0 ? newValue + " zł" : "Brak wartości";
+            var displayValue = newValue > 0 ? newValue + " zł" : "-";
             $('div[wholesalerdata="logisticMinimum"]').text(
               "Wartość: " + displayValue
             );
