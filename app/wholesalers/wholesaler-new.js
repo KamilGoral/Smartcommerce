@@ -1838,6 +1838,7 @@ docReady(function () {
   LogoutNonUser();
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
+  makeWebflowFormAjaxWhNew($(formIdNew));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
   editCustomerId($(formCustomerIdForm));
   makeWebflowFormAjaxSMTP($(formWhSMTP));
