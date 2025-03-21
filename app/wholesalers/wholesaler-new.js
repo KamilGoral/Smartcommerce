@@ -387,6 +387,7 @@ docReady(function () {
       if (request2.status >= 200 && request2.status < 400) {
         Iehurt.classList.add("enabled");
         Iehurt.classList.remove("hide");
+        $("#ehurtBoxDelete").show();
 
         const statusmessagebox = document.getElementById("statusmessagebox");
 
