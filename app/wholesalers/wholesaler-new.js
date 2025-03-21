@@ -1227,6 +1227,12 @@ docReady(function () {
               previousEmail = resultData.smtp.email; // Zaktualizuj email
               previousFormats = resultData.smtp.formats || []; // Zaktualizuj formaty
 
+              // Zaktualizuj <div> z wybranymi formatami
+              var formatList = previousFormats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
+              $("div[wholesalerdata='smtpFormats']").text(
+                "Wybrane formaty: " + formatList
+              ); // Zaktualizuj zawartość <div>
+
               // Jeśli callback success jest funkcją, wywołaj go
               if (typeof successCallback === "function") {
                 var result = successCallback(resultData);
