@@ -759,7 +759,7 @@ docReady(function () {
                 if (data === "unassigned") {
                   return "";
                 }
-                return '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" style="width: 24px; height: 24px; cursor: pointer;" />';
+                return '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" class="sendemail" style="width: 24px; height: 24px; cursor: pointer;" />';
               },
             },
           ],
