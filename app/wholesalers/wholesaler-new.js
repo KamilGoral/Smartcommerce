@@ -554,7 +554,7 @@ docReady(function () {
           ftpElement.classList.remove("hide");
           ftpElement.classList.add("enabled");
         } else {
-          $("#ehurtBox").hide();
+          console.log("tutaj");
         }
 
         const retroactiveElement = document.getElementById("Iretroactive");
