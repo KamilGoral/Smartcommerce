@@ -541,6 +541,26 @@ docReady(function () {
           },
         },
         {
+          orderable: true,
+          data: "createDate",
+          render: function (data) {
+            if (data) {
+              var utcDate = new Date(Date.parse(data));
+              var formattedDate = utcDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+              return formattedDate;
+            }
+            return "";
+          },
+        },
+        {
           orderable: false,
           data: null,
           render: function (data, type, row) {
@@ -562,26 +582,6 @@ docReady(function () {
             `;
           },
           defaultContent: "",
-        },
-        {
-          orderable: true,
-          data: "createDate",
-          render: function (data) {
-            if (data) {
-              var utcDate = new Date(Date.parse(data));
-              var formattedDate = utcDate.toLocaleString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false,
-              });
-              return formattedDate;
-            }
-            return "";
-          },
         },
         {
           orderable: false,
