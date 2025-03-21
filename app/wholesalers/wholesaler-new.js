@@ -60,6 +60,8 @@ docReady(function () {
   emailadress.value = attributes["email"];
   const phoneNumberElement = document.getElementById("phoneNumber");
   phoneNumberElement.value = attributes["phonenumber"];
+  var previousFormats = []; // Wartość formatów, które są już zapisane w systemie
+  var previousEmail = ""; // Wartość emaila, która jest już zapisana w systemie, do porównania
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -599,6 +601,7 @@ docReady(function () {
         } else {
           emailElement.innerHTML = "Adres e-mail: " + smtpEmail;
           smtpEmailInput.value = smtpEmail;
+          previousEmail = smtpEmail;
         }
 
         // Obsługuje formaty
@@ -619,6 +622,7 @@ docReady(function () {
             if (option) {
               option.selected = true;
             }
+            previousFormats = formats;
           });
         }
 
@@ -1162,11 +1166,9 @@ docReady(function () {
 
         // Pobierz email z inputa
         var email = $("#smtpEmail").val().trim();
-        var previousEmail = ""; // Wartość emaila, która jest już zapisana w systemie, do porównania
 
         // Pobierz formaty z <select> jako tablicę
         var formats = $("#formats").val(); // formaty w formie tablicy
-        var previousFormats = []; // Wartość formatów, które są już zapisane w systemie
 
         // Porównaj email
         if (email && email !== previousEmail) {
