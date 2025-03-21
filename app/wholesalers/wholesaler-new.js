@@ -1551,28 +1551,20 @@ docReady(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
   });
 
-  document
-    .getElementById("formats")
-    .addEventListener("change", function (event) {
-      // Pobiera wszystkie zaznaczone opcje
-      let selectedOptions = Array.from(event.target.selectedOptions).map(
-        (option) => option.value
-      );
+  $("#formats").on("click", "option", function () {
+    // Przełącz stan zaznaczenia klikniętej opcji
+    $(this).prop("selected", !$(this).prop("selected"));
 
-      // Zaktualizuj dane na podstawie zaznaczonych opcji
-      console.log("Zaznaczone formaty:", selectedOptions);
+    // Pobierz wszystkie wybrane opcje
+    var selectedOptions = $("#formats").val();
 
-      // Możesz tu również zaktualizować stan w HTML, jeśli chcesz pokazać zaznaczone opcje
-      let formatsElement = document.querySelector(
-        '[wholesalerdata="smtpFormats"]'
-      );
-      if (selectedOptions.length > 0) {
-        formatsElement.innerHTML =
-          "Wybrane formaty: " + selectedOptions.join(", ");
-      } else {
-        formatsElement.innerHTML = "Wybrane formaty: -";
-      }
-    });
+    // Zaktualizuj tekst w odpowiedniej sekcji
+    var formatsText =
+      selectedOptions.length > 0
+        ? "Wybrane formaty: " + selectedOptions.join(", ")
+        : "Wybrane formaty: -";
+    $('[wholesalerdata="smtpFormats"] .description').text(formatsText);
+  });
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
