@@ -547,16 +547,19 @@ docReady(function () {
             var total = row.total || 0;
             var confirmed = row.confirmed || 0;
             var percentage = total > 0 ? (confirmed / total) * 100 : 0;
-
+        
+            // Jeśli confirmed jest 0, nie pokazuj zielonego paska
+            var progressBarStyle = confirmed > 0 ? `style="width: ${percentage}%;"` : 'style="display: none;"';
+        
             return `
               <div class="progress-bar-container" title="Produktów: ${total}, Potwierdzonych: ${confirmed}">
-                <div class="progress-bar" style="width: ${percentage}%;"></div>
+                <div class="progress-bar" ${progressBarStyle}></div>
                 <span>${confirmed}/${total}</span>
               </div>
             `;
           },
           defaultContent: "",
-        },
+        }
         {
           orderable: true,
           data: "createDate",
