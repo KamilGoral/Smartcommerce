@@ -607,12 +607,20 @@ docReady(function () {
           '[wholesalerdata="smtpFormats"]'
         );
         let formatsSelect = document.getElementById("formats");
-        formats.forEach(function (format) {
-          let option = formatsSelect.querySelector(`option[value="${format}"]`);
-          if (option) {
-            option.selected = true;
-          }
-        });
+
+        if (formats === null || formats.length === 0) {
+          formatsElement.innerHTML = "Wybrane formaty: -";
+        } else {
+          formatsElement.innerHTML = "Wybrane formaty:";
+          formats.forEach(function (format) {
+            let option = formatsSelect.querySelector(
+              `option[value="${format}"]`
+            );
+            if (option) {
+              option.selected = true;
+            }
+          });
+        }
 
         // Obsługuje ostatnią transakcję
         let lastTransaction = data2.smtp.lastTransaction;
