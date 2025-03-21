@@ -746,11 +746,23 @@ docReady(function () {
                   data +
                   '" value="' +
                   data +
-                  '" />' +
-                  '<label class="mylabel" for="' +
+                  '" /><label class="mylabel" for="' +
                   data +
-                  '"></label>' +
-                  '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" />'
+                  '"></label>'
+                );
+              },
+            },
+            {
+              orderable: false,
+              data: "wholesalerKey",
+              render: function (data) {
+                if (data === "unassigned") {
+                  return "";
+                }
+                return (
+                  '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" style="width: 16px; height: 16px; cursor: pointer;" class="send-icon" data-key="' +
+                  data +
+                  '" />'
                 );
               },
             },
