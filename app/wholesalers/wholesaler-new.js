@@ -293,7 +293,7 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
-  var formIdEdit = "#wf-form-CredentialsFormEdit";
+  var formIdEdit = "#wf-form-ehurt";
   var formCustomerIdForm = "#wf-form-customerId";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-NewLogisticsMinimum-2";
