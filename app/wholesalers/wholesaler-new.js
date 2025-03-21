@@ -406,7 +406,7 @@ docReady(function () {
           "Login: "
         );
         setText("password", "******", "Hasło: ");
-        setText("profile", data2.profile ? data2.profile : "", "Profil: ");
+        setText("profile", data2.profile ? data2.profile.name : "", "Profil: ");
 
         if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
