@@ -631,7 +631,7 @@ docReady(function () {
           });
         }
 
-        // Obsługuje ostatnią transakcję
+        // Obsługuje ostatnią transakcję SMTP
         let lastTransaction = data2.smtp.lastTransaction;
         let lastTransactionElement = document.querySelector(
           '[wholesalerdata="smtpLastTransaction"]'
@@ -641,6 +641,42 @@ docReady(function () {
         } else {
           lastTransactionElement.innerHTML =
             "Data ostatniej operacji: " + lastTransaction;
+        }
+
+        // Obsługuje FTP
+        // Identyfikator klienta FTP
+        let ftpCustomerId = data2.ftp.customerId;
+        let customerIdElement = document.querySelector(
+          '[wholesalerdata="customerId"]'
+        );
+        if (ftpCustomerId === null) {
+          customerIdElement.innerHTML = "Identyfikator Klienta: -";
+        } else {
+          customerIdElement.innerHTML =
+            "Identyfikator Klienta: " + ftpCustomerId;
+        }
+
+        // Login FTP
+        let ftpUsername = data2.ftp.username;
+        let ftpUsernameElement = document.querySelector(
+          '[wholesalerdata="ftpUsername"]'
+        );
+        if (ftpUsername === null) {
+          ftpUsernameElement.innerHTML = "Login: -";
+        } else {
+          ftpUsernameElement.innerHTML = "Login: " + ftpUsername;
+        }
+
+        // Ostatnia transakcja FTP
+        let ftpLastTransaction = data2.ftp.lastTransaction;
+        let ftpLastTransactionElement = document.querySelector(
+          '[wholesalerdata="FtpLastTransaction"]'
+        );
+        if (ftpLastTransaction === null) {
+          ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
+        } else {
+          ftpLastTransactionElement.innerHTML =
+            "Ostatnia zmiana: " + ftpLastTransaction;
         }
       } else if (request2.status >= 400) {
         console.error("Błąd: ", request2.status, this.response);
@@ -846,13 +882,6 @@ docReady(function () {
           setText("logisticMinimum", `${logisticMinimum} zł`, "Wartość: ");
         } else {
           $('div[wholesalerdata="logisticMinimum"]').html("Wartość: -");
-        }
-
-        var customerId = foundWholesaler.customerId;
-
-        if (customerId !== null) {
-          $("#customerId").val(customerId).change();
-          setText("customerId", customerId, "Identyfikator Klienta: ");
         }
 
         if (
