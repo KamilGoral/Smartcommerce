@@ -765,6 +765,8 @@ docReady(function () {
         if (logisticMinimum !== null) {
           $("#logisticMinimumEdit").val(logisticMinimum).change();
           setText("logisticMinimum", `${logisticMinimum} zł`, "Wartość: ");
+        } else {
+          $('div[wholesalerdata="logisticMinimum"]').html("Wartość: -");
         }
 
         var customerId = foundWholesaler.customerId;
@@ -1241,6 +1243,9 @@ docReady(function () {
             displayMessage(
               "Success",
               "Identyfikator klienta dla dostawcy został zmieniony."
+            );
+            $('div[wholesalerdata="customerId"]').html(
+              "Identyfikator klienta: " + customerIdValue
             );
           },
           error: function (e) {
