@@ -154,13 +154,13 @@ docReady(function () {
             setCookie(
               "SpytnyUserAttributes",
               "username:" +
-              firstNameUser +
-              "|familyname:" +
-              lastNameUser +
-              "|email:" +
-              emailadressUser +
-              "|phonenumber:" +
-              phoneNumber,
+                firstNameUser +
+                "|familyname:" +
+                lastNameUser +
+                "|email:" +
+                emailadressUser +
+                "|phonenumber:" +
+                phoneNumber,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
@@ -267,8 +267,6 @@ docReady(function () {
     });
   };
 
-
-
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
@@ -309,20 +307,24 @@ docReady(function () {
   OrganizationBread0.setAttribute(
     "href",
     "https://" +
-    DomainName +
-    "/app/tenants/organization?name=" +
-    OrganizationName +
-    "&clientId=" +
-    ClientID
+      DomainName +
+      "/app/tenants/organization?name=" +
+      OrganizationName +
+      "&clientId=" +
+      ClientID
   );
 
   const ShopBread = document.getElementById("ShopBread0");
-  var shopKey = new URL(document.location.href).searchParams.get("shopKey");
-  ShopBread.textContent = shopKey;
-  ShopBread.setAttribute(
-    "href",
-    "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
-  );
+  const urlParams = new URL(document.location.href).searchParams;
+  var shopKey = urlParams.get("shopKey") || urlParams.get("shopkey");
+
+  if (shopKey) {
+    ShopBread.textContent = shopKey;
+    ShopBread.setAttribute(
+      "href",
+      "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
+    );
+  }
 
   const WholesalerIdBread = document.getElementById("WholesalerBread0");
   var wholesalerKey = new URL(document.location.href).searchParams.get(
@@ -332,20 +334,25 @@ docReady(function () {
   WholesalerIdBread.setAttribute("href", window.location.href);
 
   // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
-  function setText(selector, text, prefix = '') {
+  function setText(selector, text, prefix = "") {
     const el = document.querySelector(`[wholesalerdata="${selector}"]`);
-    if (el) el.textContent = text !== null && text !== undefined ? `${prefix}${text}` : `${prefix} -`;
+    if (el)
+      el.textContent =
+        text !== null && text !== undefined
+          ? `${prefix}${text}`
+          : `${prefix} -`;
   }
 
   // Funkcja do ustawiania linku (jeśli istnieje)
-  function setLink(selector, url, prefix = '') {
+  function setLink(selector, url, prefix = "") {
     const el = document.querySelector(`[wholesalerdata="${selector}"]`);
     if (el) {
       const displayUrl = url !== null && url !== undefined ? url : "-";
-      el.innerHTML = `${prefix}&nbsp;<a href="${displayUrl === "-" ? "#" : displayUrl}" target="_blank">${displayUrl}</a>`;
+      el.innerHTML = `${prefix}&nbsp;<a href="${
+        displayUrl === "-" ? "#" : displayUrl
+      }" target="_blank">${displayUrl}</a>`;
     }
   }
-
 
   function LogoutNonUser() {
     if (
@@ -360,14 +367,13 @@ docReady(function () {
   }
 
   function getWholesaler() {
-
     let url2 = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -379,11 +385,10 @@ docReady(function () {
         Iehurt.classList.remove("hide");
 
         const statusmessagebox = document.getElementById("statusmessagebox");
-        setText('extrafield', data2.credentials.extraFields.company, 'Firma: ');
-        setText('username', data2.credentials.username, 'Login: ');
-        setText('password', '******', 'Hasło: ');
-        setText('profile', data2.profile, 'Profil: ');
-
+        setText("extrafield", data2.credentials.extraFields.company, "Firma: ");
+        setText("username", data2.credentials.username, "Login: ");
+        setText("password", "******", "Hasło: ");
+        setText("profile", data2.profile, "Profil: ");
 
         if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
@@ -503,23 +508,23 @@ docReady(function () {
           console.log("Not EC or ECS");
         }
 
-        if(data.platformUrl === null) {
+        if (data.platformUrl === null) {
           $("#ehurtBox").hide();
         }
 
         // Ustawienia podstawowych danych
-        setText('name', data.company);
-        setText('taxId', data.taxId, 'NIP: ');
-        setLink('platformUrl', data.platformUrl, 'Strona E-hurt:');
-        setLink('website', data.website, 'Strona www:');
+        setText("name", data.company);
+        setText("taxId", data.taxId, "NIP: ");
+        setLink("platformUrl", data.platformUrl, "Strona E-hurt:");
+        setLink("website", data.website, "Strona www:");
 
         // Ustawienia badgy
-        const smartVanBadge = document.querySelector('#IsmartVan');
+        const smartVanBadge = document.querySelector("#IsmartVan");
 
         if (smartVanBadge) {
           if (data.vanMember) {
-            smartVanBadge.classList.remove('hide');
-            smartVanBadge.classList.add('enabled');
+            smartVanBadge.classList.remove("hide");
+            smartVanBadge.classList.add("enabled");
           }
         }
 
@@ -533,19 +538,24 @@ docReady(function () {
         }
 
         const retroactiveElement = document.getElementById("Iretroactive");
-        if (data.connections.retroactive && data.connections.retroactive.enabled) {
+        if (
+          data.connections.retroactive &&
+          data.connections.retroactive.enabled
+        ) {
           retroactiveElement.classList.remove("hide");
           retroactiveElement.classList.add("enabled");
         }
 
         // Obsługa numeru telefonu
-        const wholesalerPhone = document.querySelector('[wholesalerdata="phone"]');
+        const wholesalerPhone = document.querySelector(
+          '[wholesalerdata="phone"]'
+        );
         if (wholesalerPhone) {
           if (data.phones && data.phones.length > 0) {
             const phoneData = data.phones[0];
             wholesalerPhone.innerHTML = `Numer telefonu: <a href="tel:${phoneData.phone}">${phoneData.phone}</a> (${phoneData.description})`;
           } else {
-            wholesalerPhone.textContent = 'Numer telefonu: -';
+            wholesalerPhone.textContent = "Numer telefonu: -";
           }
         }
 
@@ -553,9 +563,8 @@ docReady(function () {
         const whLogo = document.querySelector('[wholesalerdata="logo"]');
         if (whLogo && data.image) {
           whLogo.src = `data:image/png;base64,${data.image}`;
-          whLogo.style.objectFit = 'contain';
+          whLogo.style.objectFit = "contain";
         }
-
       } else {
         console.log("error");
       }
@@ -583,11 +592,11 @@ docReady(function () {
   function getProfile() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/profiles"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/profiles"
     );
 
     let request = new XMLHttpRequest();
@@ -646,11 +655,11 @@ docReady(function () {
   function getWholesalerHistory() {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers/" +
-      wholesalerKey +
-      "/online-offer/status-history?sort=createDate:asc&perPage=30"
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/online-offer/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -725,9 +734,9 @@ docReady(function () {
   function getWholesalerButtons(wholesalerKey) {
     let url = new URL(
       InvokeURL +
-      "shops/" +
-      shopKey +
-      "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+        "shops/" +
+        shopKey +
+        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
     );
 
     let request = new XMLHttpRequest();
@@ -755,14 +764,14 @@ docReady(function () {
 
         if (logisticMinimum !== null) {
           $("#logisticMinimumEdit").val(logisticMinimum).change();
-          setText('logisticMinimum', `${logisticMinimum} zł`, 'Wartość: ');
+          setText("logisticMinimum", `${logisticMinimum} zł`, "Wartość: ");
         }
 
         var customerId = foundWholesaler.customerId;
 
         if (customerId !== null) {
           $("#customerId").val(customerId).change();
-          setText('customerId', customerId, 'Identyfikator Klienta: ');
+          setText("customerId", customerId, "Identyfikator Klienta: ");
         }
 
         if (
@@ -795,8 +804,6 @@ docReady(function () {
     };
     request.send();
   }
-
-
 
   makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -916,11 +923,11 @@ docReady(function () {
             if ($("#Wholesaler-profile-Selector").val() === "null") {
               let url = new URL(
                 InvokeURL +
-                "shops/" +
-                shopKey +
-                "/wholesalers/" +
-                wholesalerKey +
-                "/online-offer/profiles"
+                  "shops/" +
+                  shopKey +
+                  "/wholesalers/" +
+                  wholesalerKey +
+                  "/online-offer/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -1034,7 +1041,7 @@ docReady(function () {
               case 403:
                 msg =
                   jqXHR.responseJSON.message ==
-                    "User is not an administrator of this tenant"
+                  "User is not an administrator of this tenant"
                     ? "Nie masz uprawnień do tej czynności"
                     : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
                 break;
@@ -1051,10 +1058,10 @@ docReady(function () {
                   exception === "parsererror"
                     ? "Nie udało się odczytać danych"
                     : exception === "timeout"
-                      ? "Przekroczony czas oczekiwania"
-                      : exception === "abort"
-                        ? "Twoje żądanie zostało zaniechane"
-                        : jqXHR.responseJSON.message;
+                    ? "Przekroczony czas oczekiwania"
+                    : exception === "abort"
+                    ? "Twoje żądanie zostało zaniechane"
+                    : jqXHR.responseJSON.message;
                 break;
             }
             displayMessage("Error", msg);
@@ -1133,8 +1140,11 @@ docReady(function () {
               "Success",
               "Minimum logistyczne dla dostawcy zostało zmienione"
             );
-            var displayValue = newValue > 0 ? newValue + " zł" : "Brak wartości";
-            $('div[wholesalerdata="logisticMinimum"]').text("Wartość: " + displayValue);
+            var displayValue =
+              newValue > 0 ? newValue + " zł" : "Brak wartości";
+            $('div[wholesalerdata="logisticMinimum"]').text(
+              "Wartość: " + displayValue
+            );
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -1372,13 +1382,15 @@ docReady(function () {
         // Position tooltip
         const rect = element.getBoundingClientRect();
         tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
-        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5
-          }px`;
+        tooltip.style.top = `${
+          rect.top + window.scrollY - tooltip.offsetHeight - 5
+        }px`;
         tooltip.style.opacity = "1";
 
         // Center tooltip
-        tooltip.style.left = `${parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
-          }px`;
+        tooltip.style.left = `${
+          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
+        }px`;
 
         // Mouseleave event to remove tooltip
         element.addEventListener("mouseleave", () => {
