@@ -293,7 +293,8 @@ docReady(function () {
   var DomainName = getCookie("sprytnyDomainName");
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
-  var formIdEdit = "#wf-form-ehurt";
+  var formIdEdit = "#wf-form-CredentialsFormEdit";
+  var formIdNew = "#wf-form-ehurt";
   var formCustomerIdForm = "#wf-form-customerId";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
   var formWhLogistic = "#wf-form-NewLogisticsMinimum-2";
@@ -471,7 +472,7 @@ docReady(function () {
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
           $("#ehurtStart").removeClass("hide");
-          $("#ehurtBoxDelete").hide();
+          $("#ehurtStart").removeClass("hide");
         }
 
         $("#Wholesaler-profile-Selector-box").hide();
@@ -934,6 +935,124 @@ docReady(function () {
     };
     request.send();
   }
+
+  makeWebflowFormAjaxWhNew = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var action =
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          wholesalerKey +
+          "/online-offer";
+        var method = "PATCH";
+
+        var data = [
+          {
+            op: "add",
+            path: "/credentials/username",
+            value: $("#Username").val().trim(),
+          },
+          {
+            op: "add",
+            path: "/credentials/password",
+            value: $("#Password").val(),
+          },
+        ];
+
+        if ($("#CompanyName").val()) {
+          data.push({
+            op: "add",
+            path: "/credentials/extraFields",
+            value: {
+              company: $("#CompanyName").val(),
+            },
+          });
+        }
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            window.setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 2000);
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                console.log(e);
+                displayMessage("Sukces", "Pomyślnie zalogowano");
+                return;
+              }
+            }
+          },
+          error: function (jqXHR, exception) {
+            console.log("error", jqXHR, exception);
+            let msg = "";
+            switch (jqXHR.status) {
+              case 0:
+                msg = "Nie masz połączenia z internetem.";
+                break;
+              case 404:
+                msg = "Nie znaleziono strony";
+                break;
+              case 403:
+                msg =
+                  jqXHR.responseJSON.message ==
+                  "User is not an administrator of this tenant"
+                    ? "Nie masz uprawnień do tej czynności"
+                    : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
+                break;
+              case 409:
+                msg =
+                  "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                break;
+              case 500:
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
+                break;
+              default:
+                msg =
+                  exception === "parsererror"
+                    ? "Nie udało się odczytać danych"
+                    : exception === "timeout"
+                    ? "Przekroczony czas oczekiwania"
+                    : exception === "abort"
+                    ? "Twoje żądanie zostało zaniechane"
+                    : jqXHR.responseJSON.message;
+                break;
+            }
+            displayMessage("Error", msg);
+            return;
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
 
   makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
