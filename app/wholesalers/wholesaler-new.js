@@ -389,10 +389,22 @@ docReady(function () {
         Iehurt.classList.remove("hide");
 
         const statusmessagebox = document.getElementById("statusmessagebox");
-        setText("extrafield", data2.credentials.extraFields.company, "Firma: ");
-        setText("username", data2.credentials.username, "Login: ");
+
+        // Bezpieczne przypisanie wartości, jeśli dane istnieją
+        setText(
+          "extrafield",
+          data2.credentials && data2.credentials.extraFields
+            ? data2.credentials.extraFields.company
+            : "",
+          "Firma: "
+        );
+        setText(
+          "username",
+          data2.credentials ? data2.credentials.username : "",
+          "Login: "
+        );
         setText("password", "******", "Hasło: ");
-        setText("profile", data2.profile, "Profil: ");
+        setText("profile", data2.profile ? data2.profile : "", "Profil: ");
 
         if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
