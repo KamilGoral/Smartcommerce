@@ -672,21 +672,20 @@ docReady(function () {
               data: "status",
               render: function (data) {
                 let icons = "";
-            
+
                 if (data && data.downloaded) {
                   icons +=
                     '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67d6ba17ee11dca78ebd3f65_downloaded.svg" loading="lazy" alt="Downloaded" title="Pobrano"> ';
                 }
-            
+
                 if (data && data.emailed) {
                   icons +=
                     '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67d6ba17bedede1779a15205_sended.svg" loading="lazy" alt="Emailed" title="Wysłano"> ';
                 }
-            
+
                 return icons || "-"; // Return '-' if neither icon is added
               },
-            }
-            
+            },
             {
               orderable: false,
               data: "wholesalerKey",
