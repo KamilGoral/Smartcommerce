@@ -1218,6 +1218,10 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
+            displayMessage(
+              "Success",
+              "Formaty przesyłanych dokumentów zostały zmienione."
+            );
             // Zaktualizuj previousEmail i previousFormats po sukcesie
             if (resultData && resultData.smtp) {
               previousEmail = resultData.smtp.email; // Zaktualizuj email
@@ -1228,10 +1232,6 @@ docReady(function () {
                 var result = successCallback(resultData);
                 if (!result) {
                   form.show();
-                  displayMessage(
-                    "Success",
-                    "Formaty przesyłanych dokumentów zostały zmienione."
-                  );
                   return;
                 }
               }
