@@ -757,9 +757,19 @@ docReady(function () {
         $("#Wholesaler-profile-Selector").attr("required", "");
         const Iehurt = document.getElementById("Iehurt");
         Iehurt.classList.add("enabled");
+        const WholesalerProfileSelectorNew = document.getElementById(
+          "WholesalerProfileSelector"
+        );
         const wholesalerProfileContainer = document.getElementById(
           "Wholesaler-profile-Selector"
         );
+        toParse.forEach((profile) => {
+          var optProfile = document.createElement("option");
+          optProfile.value = profile.id;
+          optProfile.name = profile.id;
+          optProfile.innerHTML = profile.name;
+          WholesalerProfileSelectorNew.appendChild(optProfile);
+        });
         toParse.forEach((profile) => {
           var optProfile = document.createElement("option");
           optProfile.value = profile.id;
@@ -1005,6 +1015,18 @@ docReady(function () {
                 console.log(e);
                 displayMessage("Sukces", "Pomyślnie zalogowano");
                 return;
+              }
+
+              // Sprawdź, czy profil jest nullem
+              if (resultData.profile === null) {
+                // Wywołaj getProfile i poczekaj na jego zakończenie
+                getProfile().then(function () {
+                  // Po zakończeniu getProfile, wyświetl profilBox i ukryj inne elementy
+                  $("#profilBox").css("display", "flex");
+                  $("#CompanyDivEdit, #Username, #Password")
+                    .closest(".field-wrapper")
+                    .hide();
+                });
               }
             }
           },
