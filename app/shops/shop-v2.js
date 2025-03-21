@@ -541,6 +541,25 @@ docReady(function () {
           },
         },
         {
+          orderable: false,
+          data: null,
+          render: function (data, type, row) {
+            var total = row.total || 0;
+            var confirmed = row.confirmed || 0;
+            var percentage = total > 0 ? (confirmed / total) * 100 : 0;
+
+            return `
+              <div class="progress-bar-container" title="Produktów: ${total}, Potwierdzonych: ${confirmed}">
+                <div class="progress-bar" style="width: ${percentage}%; background-color: ${
+              percentage === 100 ? "#4CAF50" : "#808080"
+            };"></div>
+                <span>${confirmed}/${total}</span>
+              </div>
+            `;
+          },
+          defaultContent: "",
+        },
+        {
           orderable: true,
           data: "createDate",
           render: function (data) {
