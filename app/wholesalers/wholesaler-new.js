@@ -1150,8 +1150,6 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
-        event.preventDefault();
-
         var action =
           "https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/shops/" +
           shopKey +
@@ -1272,6 +1270,8 @@ docReady(function () {
             displayMessage("Error", msg);
           },
         });
+        event.preventDefault();
+        return false;
       });
     });
   };
