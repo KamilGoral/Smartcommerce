@@ -3361,6 +3361,16 @@ docReady(function () {
             link.target = "_blank";
             document.body.appendChild(link);
             link.click();
+
+            var rowIndex = table.row(row).index();
+            var rowData = table.row(row).data();
+
+            // oznacz jako pobrane
+            rowData.status = rowData.status || {}; // jeśli status nie istnieje
+            rowData.status.downloaded = true;
+
+            // update danych w datatable
+            table.row(row).data(rowData).invalidate().draw(false);
             document.body.removeChild(link);
           } else {
             console.error("Filename not found in the response headers.");
