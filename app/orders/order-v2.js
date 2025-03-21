@@ -1680,7 +1680,7 @@ docReady(function () {
               }
             }
             if (data.confirmed === true) {
-              $(row).css("background-color", "lightgreen");
+              $(row).css("background-color", "#b7eb8f");
 
               // Znajdź i dezaktywuj wszystkie inputy i selecty w wierszu
               $(row)
