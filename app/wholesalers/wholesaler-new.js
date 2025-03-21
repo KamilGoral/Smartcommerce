@@ -472,7 +472,7 @@ docReady(function () {
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
           $("#ehurtStart").removeClass("hide");
-          $("#ehurtStart").removeClass("hide");
+          $("#ehurtBoxDelete").hide();
         }
 
         $("#Wholesaler-profile-Selector-box").hide();
