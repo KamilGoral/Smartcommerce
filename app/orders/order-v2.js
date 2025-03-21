@@ -3266,6 +3266,10 @@ docReady(function () {
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
 
+  $("#table_splited_wh").on("click", ".sendemail", function () {
+    console.log("Kliknięto ikonę wysyłki w tabeli!");
+  });
+
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
