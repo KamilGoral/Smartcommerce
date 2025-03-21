@@ -761,7 +761,7 @@ docReady(function () {
                 }
                 return (
                   '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" ' +
-                  'style="width: 16px; height: 16px; cursor: pointer;" ' +
+                  'style="width: 24px; height: 24px; cursor: pointer;" ' +
                   "onclick=\"sendAction('" +
                   data +
                   "')\" />"
