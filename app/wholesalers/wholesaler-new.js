@@ -609,12 +609,16 @@ docReady(function () {
         let formatsElement = document.querySelector(
           '[wholesalerdata="smtpFormats"]'
         );
-        let formatsSelect = document.getElementById("formats");
 
         if (formats === null || formats.length === 0) {
           formatsElement.innerHTML = "Wybrane formaty: -";
         } else {
           formatsElement.innerHTML = "Wybrane formaty:";
+          // Zaktualizuj <div> z wybranymi formatami
+          var formatList = previousFormats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
+          $("div[wholesalerdata='smtpFormats']").text(
+            "Wybrane formaty: " + formatList
+          ); // Zaktualizuj zawartość <div>
           formats.forEach(function (format) {
             let option = formatsSelect.querySelector(
               `option[value="${format}"]`
