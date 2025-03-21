@@ -606,6 +606,7 @@ docReady(function () {
 
         // Obsługuje formaty
         let formats = data2.smtp.formats;
+        let formatsSelect = document.getElementById("formats");
         let formatsElement = document.querySelector(
           '[wholesalerdata="smtpFormats"]'
         );
