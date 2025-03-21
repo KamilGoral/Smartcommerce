@@ -370,6 +370,11 @@ docReady(function () {
     });
   }
 
+  function sendAction(wholesalerKey) {
+    console.log("Kliknięto wysyłkę dla:", wholesalerKey);
+    // tu możesz wrzucić swój kod np. ajax
+  }
+
   async function CreateOrder() {
     const tableId = "#spl_table";
 
@@ -3981,11 +3986,6 @@ docReady(function () {
         });
       });
     });
-  }
-
-  function sendAction(wholesalerKey) {
-    console.log("Kliknięto wysyłkę dla:", wholesalerKey);
-    // tu możesz wrzucić swój kod np. ajax
   }
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
