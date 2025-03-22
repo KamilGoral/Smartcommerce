@@ -3764,6 +3764,14 @@ docReady(function () {
     getProductHistory(rowData);
   });
 
+  $("#spl_table tbody").on("click", "img.details-control2", function () {
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    $("#ProductCard").css("display", "flex");
+    getProductDetails(rowData);
+    getProductHistory(rowData);
+  });
+
   $("#table_id tbody").on("click", "td.details-control3", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
