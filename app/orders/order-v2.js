@@ -3595,7 +3595,7 @@ docReady(function () {
     popupContainer.style.display = "flex";
   });
 
-  $("#spl_table").on("click", "td.details-control3", function () {
+  $("#spl_table").on("click", "img[alt='edit']", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
@@ -3611,7 +3611,7 @@ docReady(function () {
     }
   });
 
-  $("#spl_table").on("click", "td.details-control4", function () {
+  $("#spl_table").on("click", "img[alt='delete']", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
@@ -3643,6 +3643,16 @@ docReady(function () {
     if (e.key === "Enter") {
       $(this).blur(); // Simulate focusout when Enter key is pressed
     }
+  });
+
+  $("#spl_table").on("click", "img[alt='details']", function () {
+    var table = $("#spl_table").DataTable();
+    console.log("click");
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    $("#ProductCard").css("display", "flex");
+    getProductDetails(rowData);
+    getProductHistory(rowData);
   });
 
   $("#spl_table").on("focusout", "input", function () {
@@ -3757,16 +3767,6 @@ docReady(function () {
   });
 
   $("#table_id tbody").on("click", "td.details-control2", function () {
-    var tr = $(this).closest("tr");
-    var rowData = table.row(tr).data();
-    $("#ProductCard").css("display", "flex");
-    getProductDetails(rowData);
-    getProductHistory(rowData);
-  });
-
-  $("#spl_table").on("click", "img[alt='details']", function () {
-    var table = $("#spl_table").DataTable();
-    console.log("click");
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     $("#ProductCard").css("display", "flex");
