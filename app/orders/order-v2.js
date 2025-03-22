@@ -2663,7 +2663,7 @@ docReady(function () {
             gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
             "new-name": $("#new-name").val(),
-            countryDistributorName: $("#countryDistributorName").val(),
+            countryDistributorName: $("#countryDistributorName-2").val(),
             brand: $("#brand").val(),
             measurement: $("#measurement").val(),
             quantity: $("#quantity").val(),
@@ -3623,6 +3623,11 @@ docReady(function () {
       var NameInput = document.getElementById("new-name");
       NameInput.value = rowData.name;
       NameInput.textContent = rowData.name;
+      var DistributorInput = document.getElementById(
+        "countryDistributorName-2"
+      );
+      DistributorInput.value = rowData.countryDistributorName;
+      DistributorInput.textContent = rowData.countryDistributorName;
       $("#ProposeChangeInGtinModal").css("display", "flex");
     }
   });
@@ -3799,6 +3804,9 @@ docReady(function () {
     var NameInput = document.getElementById("new-name");
     NameInput.value = rowData.name;
     NameInput.textContent = rowData.name;
+    var DistributorInput = document.getElementById("countryDistributorName-2");
+    DistributorInput.value = rowData.countryDistributorName;
+    DistributorInput.textContent = rowData.countryDistributorName;
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
