@@ -1596,22 +1596,30 @@ docReady(function () {
             },
             {
               orderable: true,
-              width: "60px",
+              width: "80px",
               data: "confirmed",
               type: "boolean",
               render: function (data, type, row) {
                 if (type === "display") {
+                  const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" style="cursor: pointer;" />`;
+                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
+                  const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
+
                   if (data === true) {
                     return `
                       <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />
+                        ${detailsIcon}
+                        ${editIcon}
+                        ${confirmedIcon}
                       </div>
                     `;
                   } else {
                     return `
                       <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                        <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />
-                        <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />
+                        ${detailsIcon}
+                        ${editIcon}
+                        ${trashIcon}
                       </div>
                     `;
                   }
@@ -1620,7 +1628,6 @@ docReady(function () {
               },
             },
           ],
-
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
               // Choose the lower value, but not null
