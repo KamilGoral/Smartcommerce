@@ -3782,7 +3782,7 @@ docReady(function () {
     }
   });
 
-  $("#table_id tbody").on("click", "td.details-control2", function () {
+  $("#table_id").on("click", "img[alt='details']", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     $("#ProductCard").css("display", "flex");
@@ -3790,7 +3790,7 @@ docReady(function () {
     getProductHistory(rowData);
   });
 
-  $("#table_id tbody").on("click", "td.details-control3", function () {
+  $("#table_id").on("click", "img[alt='edit']", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     var GTINEdit = document.getElementById("gtin");
