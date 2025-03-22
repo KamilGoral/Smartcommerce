@@ -3764,7 +3764,7 @@ docReady(function () {
     getProductHistory(rowData);
   });
 
-  $("#spl_table tbody").on("click", "img.details-control2", function () {
+  $("#spl_table tbody").on("click", "img[alt='details']", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     $("#ProductCard").css("display", "flex");
