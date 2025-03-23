@@ -3319,7 +3319,7 @@ docReady(function () {
 
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
-    $("#SendOrderSMTP").show();
+    $("#SendOrderSMTP").css("display", "flex");
   });
 
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
