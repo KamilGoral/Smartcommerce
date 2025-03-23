@@ -1796,14 +1796,6 @@ docReady(function () {
     $("#formats").trigger("change");
   });
 
-  $("#formats").on("change", function () {
-    // Pobierz wszystkie wybrane opcje
-    var selectedOptions = $(this).val();
-
-    // Wyświetl wybrane opcje w konsoli
-    console.log(selectedOptions);
-  });
-
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
     const style = document.createElement("style");

@@ -3322,6 +3322,17 @@ docReady(function () {
     $("#SendOrderSMTP").css("display", "flex");
   });
 
+  $("#formats").on("mousedown", "option", function (event) {
+    // Zapobiegaj domyślnej akcji przeglądarki
+    event.preventDefault();
+
+    // Przełącz stan zaznaczenia klikniętej opcji
+    $(this).prop("selected", !$(this).prop("selected"));
+
+    // Wymuś aktualizację stanu pola <select>
+    $("#formats").trigger("change");
+  });
+
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
