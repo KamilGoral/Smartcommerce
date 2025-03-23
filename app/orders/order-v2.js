@@ -3319,6 +3319,7 @@ docReady(function () {
 
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
+    $("#SendOrderSMTP").show();
   });
 
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
@@ -3668,7 +3669,6 @@ docReady(function () {
 
   $("#spl_table").on("click", "img[alt='details']", function () {
     var table = $("#spl_table").DataTable();
-    console.log("click");
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     $("#ProductCard").css("display", "flex");
