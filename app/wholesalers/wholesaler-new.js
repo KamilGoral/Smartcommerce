@@ -1037,12 +1037,11 @@ docReady(function () {
               if (!result) {
                 form.show();
                 displayMessage(
-                  "Error",
+                  "Błąd",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
                 console.log(e);
-                displayMessage("Sukces", "Pomyślnie zintegrowano dostawcę.");
-                return;
+                return; // Usunięto zbędny komunikat o sukcesie tutaj
               }
 
               // Sprawdź, czy profil jest nullem
@@ -1054,7 +1053,10 @@ docReady(function () {
                   $("#CompanyDivEdit, #Username, #Password")
                     .closest(".field-wrapper")
                     .hide();
+                  displayMessage("Sukces", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
                 });
+              } else {
+                displayMessage("Sukces", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
               }
             }
           },
