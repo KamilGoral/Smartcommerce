@@ -965,6 +965,10 @@ docReady(function () {
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
+
+  $("#Order-Email-Switch").on("change", function () {
+    makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
+  });
   makeWebflowFormAjaxServerWh($(formIdNewServer));
   makeWebflowFormAjaxResetPassword($(formIdResetPassword));
   makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
