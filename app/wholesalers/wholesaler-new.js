@@ -1053,10 +1053,10 @@ docReady(function () {
                   $("#CompanyDivEdit, #Username, #Password")
                     .closest(".field-wrapper")
                     .hide();
-                  displayMessage("Sukces", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
+                  displayMessage("Success", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
                 });
               } else {
-                displayMessage("Sukces", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
+                displayMessage("Success", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
               }
             }
           },
