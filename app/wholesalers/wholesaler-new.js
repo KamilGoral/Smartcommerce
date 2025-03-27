@@ -392,14 +392,23 @@ docReady(function () {
 
         const statusmessagebox = document.getElementById("statusmessagebox");
 
-        // Bezpieczne przypisanie wartości, jeśli dane istnieją
-        setText(
-          "extrafield",
-          data2.credentials && data2.credentials.extraFields
-            ? data2.credentials.extraFields.company
-            : "",
-          "Firma: "
-        );
+        if (
+          data2 &&
+          data2.credentials &&
+          data2.credentials.extraFields &&
+          data2.credentials.extraFields.company
+        ) {
+          // Dane istnieją, ustawiamy tekst i pokazujemy pole
+          setText(
+            "extrafield",
+            data2.credentials.extraFields.company,
+            "Firma: "
+          );
+          document.getElementById("specialServiceBox").style.display = "flex"; // Zakładając, że extrafield to ID pola
+        } else {
+          // Brak danych, ukrywamy pole
+          document.getElementById("specialServiceBox").style.display = "none";
+        }
         setText(
           "username",
           data2.credentials ? data2.credentials.username : "",
