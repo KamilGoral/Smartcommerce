@@ -915,7 +915,7 @@ docReady(function () {
         var logisticMinimum = foundWholesaler.logisticMinimum;
 
         var additionalFields =
-          foundWholesaler.connections.onlineOffer?.requiresExtraField || null;
+          foundWholesaler.connections.ecommerce?.requiresExtraField || null;
 
         if (additionalFields) {
           $("#CompanyDivEdit").show();
@@ -933,9 +933,9 @@ docReady(function () {
         if (
           foundWholesaler &&
           foundWholesaler.connections &&
-          foundWholesaler.connections.onlineOffer
+          foundWholesaler.connections.ecommerce
         ) {
-          var onlineOfferData = foundWholesaler.connections.onlineOffer;
+          var onlineOfferData = foundWholesaler.connections.ecommerce;
           if (onlineOfferData.enabled && onlineOfferData.active) {
             console.log("Online Offer: Tak");
             $("#delete-wholesalers-container").removeClass("hide");
