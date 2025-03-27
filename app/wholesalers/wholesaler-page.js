@@ -483,7 +483,7 @@ docReady(function () {
           {
             op: "replace",
             path: "/smartvan/smtp/enabled",
-            value: enabled,
+            value: !enabled,
           },
         ];
 
