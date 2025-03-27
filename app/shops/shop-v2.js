@@ -1358,6 +1358,19 @@ docReady(function () {
             },
           },
           {
+            orderable: true,
+            data: "smartvan.smtp",
+            width: "108px",
+            visible: true,
+            render: function (data) {
+              if (data && data.enabled) {
+                return '<span class="positive">Tak</span>';
+              } else {
+                return '<span class="negative">Nie</span>';
+              }
+            },
+          },
+          {
             orderable: false,
             data: "logisticMinimum",
             width: "108px",
@@ -1380,7 +1393,7 @@ docReady(function () {
           },
           {
             orderable: true,
-            data: "connections.ftp",
+            data: "smartvan.ftp",
             width: "72px",
             render: function (data) {
               if (data && data.enabled) {
