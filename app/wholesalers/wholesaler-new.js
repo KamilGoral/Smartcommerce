@@ -1034,6 +1034,7 @@ docReady(function () {
             console.log(resultData);
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
+              console.log("Wynik successCallback: ", result);
               if (!result) {
                 form.show();
                 displayMessage(
@@ -1041,15 +1042,12 @@ docReady(function () {
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
                 console.log(e);
-                return; // Usunięto zbędny komunikat o sukcesie tutaj
+                return;
               }
 
-              // Sprawdź, czy profil jest nullem
               if (resultData.profile === null) {
                 console.log(resultData.profile);
-                // Wywołaj getProfile i poczekaj na jego zakończenie
                 getProfile().then(function () {
-                  // Po zakończeniu getProfile, wyświetl profilBox i ukryj inne elementy
                   $("#profilBox").css("display", "flex");
                   $("#CompanyDivEdit, #Username, #Password")
                     .closest(".field-wrapper")
