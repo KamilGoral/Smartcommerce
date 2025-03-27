@@ -759,6 +759,7 @@ docReady(function () {
         wholesalerKey +
         "/online-offer/profiles"
     );
+    console.log("GetProfile");
 
     let request = new XMLHttpRequest();
     request.addEventListener("load", reqListener);
