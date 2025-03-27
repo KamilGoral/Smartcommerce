@@ -60,6 +60,7 @@ docReady(function () {
   emailadress.value = attributes["email"];
   const phoneNumberElement = document.getElementById("phoneNumber");
   phoneNumberElement.value = attributes["phonenumber"];
+  const orderEmailForm = $("#wf-form-Order-Email-Form");
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
@@ -964,12 +965,13 @@ docReady(function () {
 
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
-  makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
+  makeWebflowFormAjaxEmailEnabled($(orderEmailForm));
 
-  $("#wf-form-Order-Email-Form .w-checkbox-input").on("click", function () {
-    makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
+  orderEmailForm.find(".w-checkbox-input").on("click", function () {
+    orderEmailForm.trigger("submit");
     console.log("click");
   });
+
   makeWebflowFormAjaxServerWh($(formIdNewServer));
   makeWebflowFormAjaxResetPassword($(formIdResetPassword));
   makeWebflowFormAjaxDeleteServerWh($(formIdDeleteServer));
