@@ -1064,10 +1064,11 @@ docReady(function () {
               console.log(resultData.profile);
               getProfile()
                 .then(function (profileData) {
+                  console.log(profileData);
                   if (profileData.total === 0) {
                     displayMessage(
-                      "Success-2",
-                      "Pomyślnie skonfigurowano dostawcę."
+                      "Success",
+                      "Pomyślnie zintegrowano dostawcę."
                     );
                   } else {
                     $("#profilBox").css("display", "flex");
@@ -1075,8 +1076,8 @@ docReady(function () {
                       .closest(".field-wrapper")
                       .hide();
                     displayMessage(
-                      "Sukces-0",
-                      "Pomyślnie zintegrowano dostawcę."
+                      "Success",
+                      "Proszę wybrać profil sklepu dla tego dostawcy."
                     );
                   }
                 })
@@ -1803,7 +1804,7 @@ docReady(function () {
               }
             }
             form.show();
-            displayMessage("Success", "Integracja zostałą cofnięta.");
+            displayMessage("Success", "Integracja zostałą usunięta.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
