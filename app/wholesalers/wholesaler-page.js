@@ -968,6 +968,7 @@ docReady(function () {
 
   $("#wf-form-Order-Email-Form .w-checkbox-input").on("click", function () {
     makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
+    console.log("click");
   });
   makeWebflowFormAjaxServerWh($(formIdNewServer));
   makeWebflowFormAjaxResetPassword($(formIdResetPassword));
