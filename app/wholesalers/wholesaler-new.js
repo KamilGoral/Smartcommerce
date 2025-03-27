@@ -1031,6 +1031,7 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
+            console.log(resultData);
             if (typeof successCallback === "function") {
               result = successCallback(resultData);
               if (!result) {
@@ -1040,7 +1041,7 @@ docReady(function () {
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
                 console.log(e);
-                displayMessage("Sukces", "Pomyślnie zalogowano");
+                displayMessage("Sukces", "Pomyślnie zintegrowano dostawcę.");
                 return;
               }
 
