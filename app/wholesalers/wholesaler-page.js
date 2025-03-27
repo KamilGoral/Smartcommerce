@@ -497,7 +497,7 @@ docReady(function () {
           complete: function () {
             setTimeout(function () {
               $("#waitingdots").hide();
-            }, 2000);
+            }, 500);
           },
           contentType: "application/json",
           dataType: "json",
