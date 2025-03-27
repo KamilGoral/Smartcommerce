@@ -560,7 +560,7 @@ docReady(function () {
 
         const ftpElement = document.getElementById("Iftp");
 
-        if (data.connections.ftp && data.connections.ftp.username) {
+        if (data.smartvan.ftp && data.smartvan.ftp.username) {
           ftpElement.classList.remove("hide");
           ftpElement.classList.add("enabled");
         } else {
