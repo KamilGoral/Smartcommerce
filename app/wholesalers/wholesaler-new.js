@@ -761,67 +761,83 @@ docReady(function () {
     );
     console.log("GetProfile");
 
-    let request = new XMLHttpRequest();
-    request.addEventListener("load", reqListener);
+    return new Promise((resolve, reject) => {
+      // Zwracamy Promise
+      let request = new XMLHttpRequest();
+      request.addEventListener("load", reqListener);
 
-    request.open("GET", url, true);
-    $("#waitingdots").show();
+      request.open("GET", url, true);
+      $("#waitingdots").show();
 
-    function reqListener() {
-      if (request.readyState === 4 && request.status === 200) {
-        // Hide the loaders
-        $("#waitingdots").hide();
+      function reqListener() {
+        if (request.readyState === 4 && request.status === 200) {
+          $("#waitingdots").hide();
+        }
       }
-    }
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        $("#Wholesaler-profile-Selector-box").show();
-        $("#Wholesaler-profile-Selector").attr("required", "");
-        const Iehurt = document.getElementById("Iehurt");
-        Iehurt.classList.add("enabled");
-        const WholesalerProfileSelectorNew = document.getElementById(
-          "WholesalerProfileSelector"
-        );
-        const wholesalerProfileContainer = document.getElementById(
-          "Wholesaler-profile-Selector"
-        );
-        toParse.forEach((profile) => {
-          var optProfile = document.createElement("option");
-          optProfile.value = profile.id;
-          optProfile.name = profile.id;
-          optProfile.innerHTML = profile.name;
-          WholesalerProfileSelectorNew.appendChild(optProfile);
-        });
-        toParse.forEach((profile) => {
-          var optProfile = document.createElement("option");
-          optProfile.value = profile.id;
-          optProfile.name = profile.id;
-          optProfile.innerHTML = profile.name;
-          wholesalerProfileContainer.appendChild(optProfile);
-        });
-      } else if (request.status == 401) {
-        console.log("Unauthorized");
-      } else {
-        $("#Wholesaler-profile-Selector-box").hide();
-        $("#Wholesaler-profile-Selector").removeAttr("required");
-      }
-    };
-    request.send();
 
-    $("#waitingdots").show();
-    $("#Wholesaler-profile-Selector")
-      .find("option")
-      .remove()
-      .end()
-      .append("<option value=null>Wybierz profil</option>")
-      .val("null");
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
 
-    // Wywołaj funkcję
-    // adjustSelectWidth();
+      request.onload = function () {
+        try {
+          var data = JSON.parse(this.response);
+          var toParse = data.items;
+
+          if (request.status >= 200 && request.status < 400 && data.total > 0) {
+            $("#Wholesaler-profile-Selector-box").show();
+            $("#Wholesaler-profile-Selector").attr("required", "");
+            const Iehurt = document.getElementById("Iehurt");
+            Iehurt.classList.add("enabled");
+            const WholesalerProfileSelectorNew = document.getElementById(
+              "WholesalerProfileSelector"
+            );
+            const wholesalerProfileContainer = document.getElementById(
+              "Wholesaler-profile-Selector"
+            );
+
+            toParse.forEach((profile) => {
+              var optProfile = document.createElement("option");
+              optProfile.value = profile.id;
+              optProfile.name = profile.id;
+              optProfile.innerHTML = profile.name;
+              WholesalerProfileSelectorNew.appendChild(optProfile);
+            });
+
+            toParse.forEach((profile) => {
+              var optProfile = document.createElement("option");
+              optProfile.value = profile.id;
+              optProfile.name = profile.id;
+              optProfile.innerHTML = profile.name;
+              wholesalerProfileContainer.appendChild(optProfile);
+            });
+            resolve(data); // Rozwiązujemy Promise z danymi
+          } else if (request.status == 401) {
+            console.log("Unauthorized");
+            reject("Unauthorized"); // Odrzucamy Promise
+          } else {
+            $("#Wholesaler-profile-Selector-box").hide();
+            $("#Wholesaler-profile-Selector").removeAttr("required");
+            resolve(data); // Rozwiązujemy Promise z danymi
+          }
+        } catch (error) {
+          reject(error); // Odrzucamy Promise w przypadku błędu JSON
+        }
+      };
+
+      request.onerror = function () {
+        reject("Network Error"); // Odrzucamy Promise w przypadku błędu sieci
+      };
+
+      request.send();
+
+      $("#waitingdots").show();
+      $("#Wholesaler-profile-Selector")
+        .find("option")
+        .remove()
+        .end()
+        .append("<option value=null>Wybierz profil</option>")
+        .val("null");
+    });
   }
 
   function getWholesalerHistory() {
@@ -1033,6 +1049,7 @@ docReady(function () {
           data: JSON.stringify(data),
           success: function (resultData) {
             console.log("Wynik successCallback: ", resultData);
+
             if (!resultData) {
               form.show();
               displayMessage(
@@ -1045,14 +1062,31 @@ docReady(function () {
 
             if (resultData.profile === null) {
               console.log(resultData.profile);
-              getProfile().then(function () {
-                $("#profilBox").css("display", "flex");
-                $("#CompanyDivEdit, #Username, #Password")
-                  .closest(".field-wrapper")
-                  .hide();
-                displayMessage("Success", "Pomyślnie zintegrowano dostawcę.");
-                console.log("Sukces-0");
-              });
+              getProfile()
+                .then(function (profileData) {
+                  if (profileData.total === 0) {
+                    displayMessage(
+                      "Success-2",
+                      "Pomyślnie skonfigurowano dostawcę."
+                    );
+                  } else {
+                    $("#profilBox").css("display", "flex");
+                    $("#Username, #Password, #CompanyName")
+                      .closest(".field-wrapper")
+                      .hide();
+                    displayMessage(
+                      "Sukces-0",
+                      "Pomyślnie zintegrowano dostawcę."
+                    );
+                  }
+                })
+                .catch(function (error) {
+                  console.error("Błąd podczas pobierania profilu:", error);
+                  displayMessage(
+                    "Błąd",
+                    "Wystąpił błąd podczas pobierania profili."
+                  );
+                });
             } else {
               console.log("Sukces");
               displayMessage("Success-1", "Pomyślnie zintegrowano dostawcę.");
