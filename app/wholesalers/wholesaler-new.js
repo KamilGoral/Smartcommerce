@@ -1032,34 +1032,30 @@ docReady(function () {
           },
           data: JSON.stringify(data),
           success: function (resultData) {
-            console.log(resultData);
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              console.log("Wynik successCallback: ", result);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Błąd",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                console.log(e);
-                return;
-              }
+            console.log("Wynik successCallback: ", resultData);
+            if (!resultData) {
+              form.show();
+              displayMessage(
+                "Błąd",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
+              console.log(e);
+              return;
+            }
 
-              if (resultData.profile === null) {
-                console.log(resultData.profile);
-                getProfile().then(function () {
-                  $("#profilBox").css("display", "flex");
-                  $("#CompanyDivEdit, #Username, #Password")
-                    .closest(".field-wrapper")
-                    .hide();
-                  displayMessage("Success", "Pomyślnie zintegrowano dostawcę.");
-                  console.log("Sukces-0");
-                });
-              } else {
-                console.log("Sukces");
-                displayMessage("Success-1", "Pomyślnie zintegrowano dostawcę.");
-              }
+            if (resultData.profile === null) {
+              console.log(resultData.profile);
+              getProfile().then(function () {
+                $("#profilBox").css("display", "flex");
+                $("#CompanyDivEdit, #Username, #Password")
+                  .closest(".field-wrapper")
+                  .hide();
+                displayMessage("Success", "Pomyślnie zintegrowano dostawcę.");
+                console.log("Sukces-0");
+              });
+            } else {
+              console.log("Sukces");
+              displayMessage("Success-1", "Pomyślnie zintegrowano dostawcę.");
             }
           },
           error: function (jqXHR, exception) {
