@@ -966,7 +966,7 @@ docReady(function () {
   postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
 
-  $("#Order-Email-Switch").on("change", function () {
+  $("#wf-form-Order-Email-Form .w-checkbox-input").on("click", function () {
     makeWebflowFormAjaxEmailEnabled($("#wf-form-Order-Email-Form"));
   });
   makeWebflowFormAjaxServerWh($(formIdNewServer));
