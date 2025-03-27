@@ -1046,6 +1046,7 @@ docReady(function () {
 
               // Sprawdź, czy profil jest nullem
               if (resultData.profile === null) {
+                console.log(resultData.profile);
                 // Wywołaj getProfile i poczekaj na jego zakończenie
                 getProfile().then(function () {
                   // Po zakończeniu getProfile, wyświetl profilBox i ukryj inne elementy
@@ -1053,10 +1054,12 @@ docReady(function () {
                   $("#CompanyDivEdit, #Username, #Password")
                     .closest(".field-wrapper")
                     .hide();
-                  displayMessage("Success", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
+                  displayMessage("Success", "Pomyślnie zintegrowano dostawcę.");
+                  console.log("Sukces-0");
                 });
               } else {
-                displayMessage("Success", "Pomyślnie zintegrowano dostawcę."); // Dodano komunikat o sukcesie tutaj
+                console.log("Sukces");
+                displayMessage("Success-1", "Pomyślnie zintegrowano dostawcę.");
               }
             }
           },
