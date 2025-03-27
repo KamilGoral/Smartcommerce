@@ -496,6 +496,7 @@ docReady(function () {
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
           $("#ehurtStart").removeClass("hide");
+          $("#ehurtBox").hide();
           $("#ehurtBoxDelete").hide();
         }
 
@@ -928,8 +929,10 @@ docReady(function () {
 
         if (additionalFields) {
           $("#CompanyDivEdit").show();
+          $("#CompanyDivStart").show();
         } else {
           $("#CompanyDivEdit").hide();
+          $("#CompanyDivStart").hide();
         }
 
         if (logisticMinimum !== null) {
