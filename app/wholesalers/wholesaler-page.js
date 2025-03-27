@@ -134,6 +134,7 @@ docReady(function () {
         whLogo.src = "data:image/png;base64," + data.image;
         whLogo.style.objectFit = "contain";
         wholesalerName.textContent = data.company;
+
         if (
           data &&
           data.smartvan &&
@@ -141,12 +142,15 @@ docReady(function () {
           typeof data.smartvan.smtp.enabled === "boolean"
         ) {
           var smtpEnabled = data.smartvan.smtp.enabled;
-          var orderEmailSwitch = $("#Order-Email-Switch");
+          var switchInput = $("#Order-Email-Switch");
+          var switchDiv = switchInput.siblings(".w-checkbox-input");
 
           if (smtpEnabled) {
-            orderEmailSwitch.prop("checked", true);
+            switchInput.prop("checked", true);
+            switchDiv.addClass("w--redirected-checked"); // Dodaj klasę Webflow
           } else {
-            orderEmailSwitch.prop("checked", false);
+            switchInput.prop("checked", false);
+            switchDiv.removeClass("w--redirected-checked"); // Usuń klasę Webflow
           }
         } else {
           console.error(
