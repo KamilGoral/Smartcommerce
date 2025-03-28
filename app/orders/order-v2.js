@@ -396,8 +396,6 @@ docReady(function () {
         if (data.address) {
           const { country, line1, town, state, postcode } = data.address;
           const addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
-          document.querySelector('[shopdata="address"]').textContent =
-            addressDescription || "N/A";
         }
       } else {
         console.log("error");
