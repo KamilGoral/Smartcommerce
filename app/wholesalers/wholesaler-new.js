@@ -1070,6 +1070,7 @@ docReady(function () {
                       "Success",
                       "Pomyślnie zintegrowano dostawcę."
                     );
+                    $("#startEhurtModal").hide();
                   } else {
                     $("#profilBox").css("display", "flex");
                     $("#Username, #Password, #CompanyName")

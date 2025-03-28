@@ -326,6 +326,88 @@ docReady(function () {
       shopKey
   );
 
+  function getShop() {
+    var request = new XMLHttpRequest();
+    let endpoint = new URL(InvokeURL + "shops/" + shopKey);
+    request.open("GET", endpoint.toString(), true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+
+      if (request.status >= 200 && request.status < 400) {
+        if (data.merchantConsoleShopId === null) {
+          data.merchantConsoleShopId = "";
+        }
+
+        // Update shopName, shopKey, and other information
+
+        $("#shopNameEdit").val(data.name || "");
+
+        // Mapping Polish state names to <select> element values
+        var stateMapping = {
+          Dolnośląskie: "LowerSilesian",
+          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
+          Lubelskie: "Lublin",
+          Lubuskie: "Lubusz",
+          Łódzkie: "Łódź",
+          Małopolskie: "Lesser Poland",
+          Mazowieckie: "Masovian",
+          Opolskie: "Opole",
+          Podkarpackie: "Subcarpathian",
+          Podlaskie: "Podlaskie",
+          Pomorskie: "Pomeranian",
+          Śląskie: "Silesian",
+          Świętokrzyskie: "HolyCross",
+          "Warmińsko-Mazurskie": "Warmian-Masurian",
+          Wielkopolskie: "Greater Poland",
+          Zachodniopomorskie: "West Pomeranian",
+        };
+
+        if (data.address && typeof data.address.state !== "undefined") {
+          $("#shopStateEdit").val(stateMapping[data.address.state] || "");
+        } else {
+          $("#shopStateEdit").val("");
+        }
+
+        $("#shopTownEdit").val((data.address && data.address.town) || "");
+        $("#shopPostcodeEdit").val(
+          (data.address && data.address.postcode) || ""
+        );
+        $("#shopAdressEdit").val((data.address && data.address.line1) || "");
+        $("#shopPhoneEdit").val(
+          Array.isArray(data.phones) && data.phones.length > 0
+            ? data.phones[0].phone
+            : ""
+        );
+
+        if (data.emails && data.emails.length > 0) {
+          data.emails.forEach((email, index) => {
+            if (index < 3) {
+              $(`#shopEmailEdit${index + 1}`).val(email.email || "");
+              $(`#shopEmailEditDescription${index + 1}`).val(
+                email.description || ""
+              );
+            }
+          });
+        }
+
+        // Address information
+        if (data.address) {
+          const { country, line1, town, state, postcode } = data.address;
+          const addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+          document.querySelector('[shopdata="address"]').textContent =
+            addressDescription || "N/A";
+        }
+      } else {
+        console.log("error");
+      }
+    };
+
+    // Send request
+    request.send();
+  }
+
   function saveToSessionStorage(productsData) {
     // Konwersja obiektu do JSON
     const jsonData = JSON.stringify(productsData);
@@ -2650,6 +2732,155 @@ docReady(function () {
     });
   };
 
+  makeWebflowFormAjaxPatchShopEdit = function (
+    forms,
+    successCallback,
+    errorCallback
+  ) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        event.preventDefault();
+
+        const url = InvokeURL + "shops/" + shopKey;
+
+        $.ajax({
+          type: "GET",
+          url: url,
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Authorization: orgToken,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Requested-By": "webflow-3-4",
+          },
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          success: function (currentData) {
+            const patchData = preparePatchData(currentData);
+
+            $.ajax({
+              type: "PATCH",
+              url: url,
+              data: JSON.stringify(patchData),
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+              beforeSend: function () {
+                $("#waitingdots").show();
+              },
+              complete: function () {
+                setTimeout(function () {
+                  $("#waitingdots").hide();
+                }, 1000); // 1000 milliseconds = 1 second
+              },
+              success: function (resultData) {
+                if (typeof successCallback === "function") {
+                  successCallback(resultData);
+                }
+                displayMessage("Success", "Twoje dane zostały zaktualizowane.");
+                setTimeout(function () {
+                  $("#editShopModal").hide();
+                  location.reload();
+                }, 3000);
+              },
+              error: function () {
+                if (typeof errorCallback === "function") {
+                  errorCallback();
+                }
+                // Show form-done-fail-edit on error
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+              },
+            });
+          },
+          error: function () {
+            if (typeof errorCallback === "function") {
+              errorCallback();
+            }
+            // Show form-done-fail-edit on error
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
+          },
+        });
+        return false; // Prevent the form from submitting normally
+      });
+    });
+  };
+
+  function preparePatchData(currentData) {
+    var patchData = [];
+
+    // Name
+    var newName = $("#shopNameEdit").val();
+    if (newName !== currentData.name) {
+      patchData.push({ op: "replace", path: "/name", value: newName });
+    }
+
+    // Telephone number
+
+    var newTelephone = $("#shopPhoneEdit").val();
+    if (newTelephone === "") {
+      newTelephone = null;
+    }
+    if (newTelephone !== null && newTelephone !== currentData.phones) {
+      patchData.push({
+        op: "replace",
+        path: "/phones",
+        value: [{ phone: newTelephone, description: "Główny" }],
+      });
+    }
+
+    // Address
+    var newAddress = {
+      country: "Polska", // Assuming the country is always Poland
+      line1: $("#shopAdressEdit").val(),
+      town: $("#shopTownEdit").val(),
+      state: $("#shopStateEdit option:selected").text(),
+      postcode: $("#shopPostcodeEdit").val(),
+    };
+
+    // Check if the current data has an address to compare against
+    var currentAddress = currentData.address || {};
+    var addressChanged = Object.keys(newAddress).some(
+      (key) => newAddress[key] !== (currentAddress[key] || "")
+    );
+
+    if (addressChanged) {
+      patchData.push({ op: "replace", path: "/address", value: newAddress });
+    }
+
+    // Emails
+    var newEmails = [];
+    for (let i = 1; i <= 3; i++) {
+      let email = $(`#shopEmailEdit${i}`).val();
+      let description = $(`#shopEmailEditDescription${i}`).val();
+      if (email || description) {
+        // Add if either field is filled
+        newEmails.push({ email: email, description: description });
+      }
+    }
+
+    // Only replace emails if there's a difference, using JSON.stringify for a quick deep comparison
+    if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
+      patchData.push({ op: "replace", path: "/emails", value: newEmails });
+    }
+
+    return patchData;
+  }
+
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -4005,6 +4236,7 @@ docReady(function () {
   getOffers();
   getWholesalersSh();
   fetchDataFromEndpoint();
+  getShop();
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
@@ -4065,6 +4297,7 @@ docReady(function () {
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
+  makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
 
   // DataTables initialization and event handling
   $("table.dataTable").on("init.dt xhr.dt page.dt draw.dt", function () {
