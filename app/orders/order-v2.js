@@ -773,13 +773,17 @@ docReady(function () {
                   return "";
                 }
                 return (
+                  "<div>" +
                   '<input type="checkbox" class="theClass" id="' +
                   data +
                   '" value="' +
                   data +
-                  '" /><label class="mylabel" for="' +
+                  '" />' +
+                  '<label class="mylabel" for="' +
                   data +
-                  '"></label>'
+                  '"></label>' +
+                  '<a href="#" class="buttonoutline editme w-button">Zamów</a>' +
+                  "</div>"
                 );
               },
             },

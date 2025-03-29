@@ -1774,22 +1774,18 @@ docReady(function () {
               orderable: false,
               data: "wholesalerKey",
               render: function (data) {
-                if (data === "unassigned") {
+                if (data !== null) {
+                  return (
+                    '<div class="action-container"><a href="https://' +
+                    DomainName +
+                    "/app/wholesalers/wholesaler-page?wholesalerKey=" +
+                    data +
+                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
+                  );
+                }
+                if (data === null) {
                   return "";
                 }
-                return (
-                  "<div>" +
-                  '<input type="checkbox" class="theClass" id="' +
-                  data +
-                  '" value="' +
-                  data +
-                  '" />' +
-                  '<label class="mylabel" for="' +
-                  data +
-                  '"></label>' +
-                  '<a href="#" class="buttonoutline editme w-button">Zamów</a>' +
-                  "</div>"
-                );
               },
             },
           ],
@@ -3474,7 +3470,7 @@ docReady(function () {
       opacity: 0;
       transition: opacity 0.2s ease;
       pointer-events: none;
-      z-index: 6000;
+      z-index: 1000;
     }
   `;
     document.head.appendChild(style);
