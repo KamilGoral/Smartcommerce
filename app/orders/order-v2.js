@@ -746,40 +746,41 @@ docReady(function () {
                 // Obliczanie łącznej wartości
                 var total = bestMatch + exclusive + order;
 
-                // Generowanie paska postępu tylko jeśli total > 0
-                var progressBar =
-                  total > 0
-                    ? `<div class="progress" style="width: 100%; height: 20px; background-color: #f5f5f5; border-radius: 4px; display: flex; overflow: hidden;">
-                      ${
-                        bestMatch > 0
-                          ? `<div style="width: ${
-                              (bestMatch / total) * 100
-                            }%; background-color: green;" title="Best Match: ${bestMatch}"></div>`
-                          : ""
-                      }
-                      ${
-                        exclusive > 0
-                          ? `<div style="width: ${
-                              (exclusive / total) * 100
-                            }%; background-color: blue;" title="Exclusive: ${exclusive}"></div>`
-                          : ""
-                      }
-                      ${
-                        order > 0
-                          ? `<div style="width: ${
-                              (order / total) * 100
-                            }%; background-color: orange;" title="Order: ${order}"></div>`
-                          : ""
-                      }
-                     </div>`
-                    : '<div style="width: 100%; height: 20px; background-color: #f5f5f5; border-radius: 4px;"></div>';
+                // Generowanie paska postępu
+                var progressBars = [];
+                var leftPosition = 0;
+
+                if (bestMatch > 0) {
+                  var width = (bestMatch / total) * 100;
+                  progressBars.push(
+                    `<div class="progress-bar" style="width: ${width}%; background-color: green; left: ${leftPosition}%;" title="Best Match: ${bestMatch}"></div>`
+                  );
+                  leftPosition += width;
+                }
+
+                if (exclusive > 0) {
+                  var width = (exclusive / total) * 100;
+                  progressBars.push(
+                    `<div class="progress-bar" style="width: ${width}%; background-color: blue; left: ${leftPosition}%;" title="Exclusive: ${exclusive}"></div>`
+                  );
+                  leftPosition += width;
+                }
+
+                if (order > 0) {
+                  var width = (order / total) * 100;
+                  progressBars.push(
+                    `<div class="progress-bar" style="width: ${width}%; background-color: orange; left: ${leftPosition}%;" title="Order: ${order}"></div>`
+                  );
+                }
+
+                var progressBarHTML = progressBars.join("");
 
                 // Tooltip z szczegółowymi danymi
                 var tooltip = `Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}`;
 
-                return `<div title="${tooltip}">
-                          ${progressBar}
-                          <div style="text-align: center; font-size: 12px; margin-top: 4px;">${total} produktów</div>
+                return `<div class="progress-bar-container" title="${tooltip}">
+                          ${total > 0 ? progressBarHTML : ""}
+                          <span>${total} produktów</span>
                         </div>`;
               },
               defaultContent: "",
