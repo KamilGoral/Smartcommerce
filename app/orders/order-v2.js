@@ -754,15 +754,16 @@ docReady(function () {
                 var orderPercentage = total > 0 ? (order / total) * 100 : 0;
 
                 // Generowanie paska postępu
-                return `
-                  <div class="progress-bar-container" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
-                    <div class="progress-bar" style="width: ${bestMatchPercentage}%; background-color: green;" title="Best Match: ${bestMatch}"></div>
-                    <div class="progress-bar" style="width: ${exclusivePercentage}%; background-color: blue;" title="Exclusive: ${exclusive}"></div>
-                    <div class="progress-bar" style="width: ${orderPercentage}%; background-color: orange;" title="Order: ${order}"></div>
-                    <span>${bestMatch}/${total} | ${exclusive}/${total} | ${order}/${total}</span>
-                  </div>
-                `;
+                return `<div class="progress-bar-container" style="width: 100%;" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
+                          <div class="progress" style="width: 100%; height: 20px; background-color: #f5f5f5; border-radius: 4px; display: flex;">
+                            <div class="progress-bar" style="width: ${bestMatchPercentage}%; background-color: green;" title="Best Match: ${bestMatch}"></div>
+                            <div class="progress-bar" style="width: ${exclusivePercentage}%; background-color: blue;" title="Exclusive: ${exclusive}"></div>
+                            <div class="progress-bar" style="width: ${orderPercentage}%; background-color: orange;" title="Order: ${order}"></div>
+                          </div>
+                          <span style="font-size: smaller;">${total} produktów</span>
+                        </div>`;
               },
+              type: "num", // Określa, że sortowanie powinno być numeryczne
               defaultContent: "",
             },
             {
@@ -773,7 +774,7 @@ docReady(function () {
                   return "";
                 }
                 return (
-                  "<div>" +
+                  '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">' +
                   '<input type="checkbox" class="theClass" id="' +
                   data +
                   '" value="' +
@@ -781,8 +782,8 @@ docReady(function () {
                   '" />' +
                   '<label class="mylabel" for="' +
                   data +
-                  '"></label>' +
-                  '<a href="#" class="buttonoutline editme w-button">Zamów</a>' +
+                  '" style="margin: 0;"></label>' +
+                  '<a href="#" class="buttonoutline editme w-button" style="margin: 0;">Zamów</a>' +
                   "</div>"
                 );
               },
