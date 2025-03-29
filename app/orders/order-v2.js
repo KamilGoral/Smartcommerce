@@ -701,7 +701,7 @@ docReady(function () {
             {
               orderable: false,
               data: null,
-              width: "32px",
+              width: "48px",
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
                   return ""; // Pusty string zamiast ikony dla niezarejestrowanych
@@ -742,7 +742,7 @@ docReady(function () {
             {
               orderable: true,
               data: "netValue",
-              width: "128px",
+              width: "96px",
               className: "dt-right",
               render: function (data, type, row) {
                 return data;
