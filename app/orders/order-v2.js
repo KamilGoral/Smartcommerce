@@ -741,7 +741,16 @@ docReady(function () {
             {
               orderable: true,
               data: "products",
-              render: function (data) {
+              render: function (data, type, row) {
+                // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
+                if (type === "sort" || type === "type") {
+                  var bestMatch = data.bestMatch || 0;
+                  var exclusive = data.exclusive || 0;
+                  var order = data.order || 0;
+                  return bestMatch + exclusive + order; // Zwraca total dla sortowania
+                }
+
+                // Normalne renderowanie dla wyświetlania
                 var bestMatch = data.bestMatch || 0;
                 var exclusive = data.exclusive || 0;
                 var order = data.order || 0;
@@ -750,7 +759,6 @@ docReady(function () {
                 var progressBars = [];
                 var currentPosition = 0;
 
-                // Funkcja pomocnicza do generowania segmentów z etykietami
                 function addSegment(value, color, title, isFirst, isLast) {
                   if (value <= 0) return;
 
@@ -773,7 +781,6 @@ docReady(function () {
                   currentPosition += width;
                 }
 
-                // Określenie kolejności segmentów
                 var segments = [
                   {
                     value: bestMatch,
@@ -788,7 +795,6 @@ docReady(function () {
                   },
                 ].filter((seg) => seg.value > 0);
 
-                // Generowanie segmentów z odpowiednimi zaokrągleniami
                 segments.forEach((seg, index) => {
                   addSegment(
                     seg.value,
@@ -799,7 +805,6 @@ docReady(function () {
                   );
                 });
 
-                // Tworzenie warunkowego opisu tooltipa
                 var tooltipParts = [];
                 if (bestMatch > 0)
                   tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
@@ -814,6 +819,7 @@ docReady(function () {
                           ${total > 0 ? progressBars.join("") : ""}
                         </div>`;
               },
+              type: "num", // Określa typ danych do sortowania (numeryczny)
               defaultContent: "",
             },
             {
