@@ -3576,7 +3576,11 @@ docReady(function () {
     console.log(data);
 
     // orderItems
-    $("#orderItems").val(data2.products.bestMatch);
+    const productsSum =
+      data2.products.bestMatch +
+      data2.products.exclusive +
+      data2.products.order;
+    $("#orderItems").val(productsSum);
 
     // orderValue
     $("#orderValue").val(data2.netValue);
