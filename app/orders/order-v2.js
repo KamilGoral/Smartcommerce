@@ -713,20 +713,18 @@ docReady(function () {
                 }
 
                 if (data.logisticMinimum === null) {
-                  return data.wholesalerName; // Usunąłem "<br>-" - jeśli nie ma minimum, wystarczy sama nazwa
+                  return data.wholesalerName;
                 } else {
                   var toGo = (data.logisticMinimum - data.netValue).toFixed(2);
                   if (toGo > 0) {
-                    return (
-                      data.wholesalerName +
-                      "<br>" +
-                      data.logisticMinimum +
-                      " (Brakuje " +
-                      toGo +
-                      " zł do spełnienia minimum log.)"
-                    );
+                    return `
+                      <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span>${data.wholesalerName}</span>
+                        <span style="color: #ff6b6b; font-weight: bold;">Brakuje ${toGo} zł do minimum</span>
+                      </div>
+                    `;
                   }
-                  return data.wholesalerName; // Tylko nazwa, jeśli warunek jest spełniony
+                  return data.wholesalerName;
                 }
               },
             },
