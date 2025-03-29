@@ -412,7 +412,7 @@ docReady(function () {
           }
 
           $("#orderDelivery").val(
-            `${shopDescription} \n ${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
+            `${shopDescription} \n${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
           );
         } else {
           $("#orderDelivery").val("");
@@ -3578,15 +3578,19 @@ docReady(function () {
     // orderItems
     const productsSum =
       data.products.bestMatch + data.products.exclusive + data.products.order;
-    $("#orderItems").val(productsSum);
+    $("#orderItems").text(productsSum);
 
     // orderValue
-    $("#orderValue").val(data.netValue);
+    $("#orderValue").text(data.netValue);
 
-    // orderWholesalerKey (input, nie select)
+    // orderWholesalerKey
     $("#orderWholesalerKey").val(data.wholesalerName);
     $("#orderWholesalerKey").attr("data-key", data.wholesalerKey);
+    $("#orderWholesalerKey").prop("disabled", true);
 
+    // orderSender
+    $("#orderUserName").val(username + userfamilyname);
+    $("#orderUserName").prop("disabled", true);
     getShop();
     $("#SendOrderSMTP").css("display", "flex");
   });
