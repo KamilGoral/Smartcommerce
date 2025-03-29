@@ -738,32 +738,50 @@ docReady(function () {
               orderable: true,
               data: "products",
               render: function (data) {
-                // Ustalanie wartości dla bestMatch, exclusive i order
-                var bestMatch = data.bestMatch === null ? 0 : data.bestMatch;
-                var exclusive = data.exclusive === null ? 0 : data.exclusive;
-                var order = data.order === null ? 0 : data.order;
+                // Ustalanie wartości dla bestMatch, exclusive i order (domyślnie 0 jeśli null)
+                var bestMatch = data.bestMatch || 0;
+                var exclusive = data.exclusive || 0;
+                var order = data.order || 0;
 
                 // Obliczanie łącznej wartości
                 var total = bestMatch + exclusive + order;
 
-                // Obliczanie procentów dla każdego z danych
-                var bestMatchPercentage =
-                  total > 0 ? (bestMatch / total) * 100 : 0;
-                var exclusivePercentage =
-                  total > 0 ? (exclusive / total) * 100 : 0;
-                var orderPercentage = total > 0 ? (order / total) * 100 : 0;
+                // Generowanie paska postępu tylko jeśli total > 0
+                var progressBar =
+                  total > 0
+                    ? `<div class="progress" style="width: 100%; height: 20px; background-color: #f5f5f5; border-radius: 4px; display: flex; overflow: hidden;">
+                      ${
+                        bestMatch > 0
+                          ? `<div style="width: ${
+                              (bestMatch / total) * 100
+                            }%; background-color: green;" title="Best Match: ${bestMatch}"></div>`
+                          : ""
+                      }
+                      ${
+                        exclusive > 0
+                          ? `<div style="width: ${
+                              (exclusive / total) * 100
+                            }%; background-color: blue;" title="Exclusive: ${exclusive}"></div>`
+                          : ""
+                      }
+                      ${
+                        order > 0
+                          ? `<div style="width: ${
+                              (order / total) * 100
+                            }%; background-color: orange;" title="Order: ${order}"></div>`
+                          : ""
+                      }
+                     </div>`
+                    : '<div style="width: 100%; height: 20px; background-color: #f5f5f5; border-radius: 4px;"></div>';
 
-                // Generowanie paska postępu
-                return `<div class="progress-bar-container" style="width: 100%;" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
-                          <div class="progress" style="width: 100%; height: 20px; background-color: #f5f5f5; border-radius: 4px; display: flex;">
-                            <div class="progress-bar" style="width: ${bestMatchPercentage}%; background-color: green;" title="Best Match: ${bestMatch}"></div>
-                            <div class="progress-bar" style="width: ${exclusivePercentage}%; background-color: blue;" title="Exclusive: ${exclusive}"></div>
-                            <div class="progress-bar" style="width: ${orderPercentage}%; background-color: orange;" title="Order: ${order}"></div>
-                          </div>
-                          <span style="font-size: smaller;">${total} produktów</span>
+                // Tooltip z szczegółowymi danymi
+                var tooltip = `Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}`;
+
+                return `<div title="${tooltip}">
+                          ${progressBar}
+                          <div style="text-align: center; font-size: 12px; margin-top: 4px;">${total} produktów</div>
                         </div>`;
               },
-              type: "num", // Określa, że sortowanie powinno być numeryczne
               defaultContent: "",
             },
             {
