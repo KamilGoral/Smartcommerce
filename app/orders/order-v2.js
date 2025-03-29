@@ -738,53 +738,60 @@ docReady(function () {
               orderable: true,
               data: "products",
               render: function (data) {
-                // Ustalanie wartości dla bestMatch, exclusive i order (domyślnie 0 jeśli null)
                 var bestMatch = data.bestMatch || 0;
                 var exclusive = data.exclusive || 0;
                 var order = data.order || 0;
-
-                // Obliczanie łącznej wartości
                 var total = bestMatch + exclusive + order;
-
-                // Generowanie paska postępu
+            
                 var progressBars = [];
-                var leftPosition = 0;
-
-                if (bestMatch > 0) {
-                  var width = (bestMatch / total) * 100;
+                var currentPosition = 0;
+            
+                // Funkcja pomocnicza do generowania segmentów
+                function addSegment(value, color, title, isFirst, isLast) {
+                  if (value <= 0) return;
+                  
+                  var width = (value / total) * 100;
+                  var borderRadius = '';
+                  
+                  if (isFirst && isLast) {
+                    borderRadius = 'border-radius: 5px;'; // zaokrąglenie po obu stronach jeśli tylko jeden segment
+                  } else if (isFirst) {
+                    borderRadius = 'border-radius: 5px 0 0 5px;'; // zaokrąglenie tylko z lewej
+                  } else if (isLast) {
+                    borderRadius = 'border-radius: 0 5px 5px 0;'; // zaokrąglenie tylko z prawej
+                  }
+                  
                   progressBars.push(
-                    `<div class="progress-bar" style="width: ${width}%; background-color: green; left: ${leftPosition}%;" title="Best Match: ${bestMatch}"></div>`
+                    `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}"></div>`
                   );
-                  leftPosition += width;
+                  currentPosition += width;
                 }
-
-                if (exclusive > 0) {
-                  var width = (exclusive / total) * 100;
-                  progressBars.push(
-                    `<div class="progress-bar" style="width: ${width}%; background-color: blue; left: ${leftPosition}%;" title="Exclusive: ${exclusive}"></div>`
+            
+                // Określenie kolejności segmentów
+                var segments = [
+                  { value: bestMatch, color: 'green', title: 'Best Match' },
+                  { value: exclusive, color: 'blue', title: 'Exclusive' },
+                  { value: order, color: 'orange', title: 'Order' }
+                ].filter(seg => seg.value > 0);
+            
+                // Generowanie segmentów z odpowiednimi zaokrągleniami
+                segments.forEach((seg, index) => {
+                  addSegment(
+                    seg.value,
+                    seg.color,
+                    seg.title,
+                    index === 0, // czy pierwszy segment
+                    index === segments.length - 1 // czy ostatni segment
                   );
-                  leftPosition += width;
-                }
-
-                if (order > 0) {
-                  var width = (order / total) * 100;
-                  progressBars.push(
-                    `<div class="progress-bar" style="width: ${width}%; background-color: orange; left: ${leftPosition}%;" title="Order: ${order}"></div>`
-                  );
-                }
-
-                var progressBarHTML = progressBars.join("");
-
-                // Tooltip z szczegółowymi danymi
-                var tooltip = `Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}`;
-
-                return `<div class="progress-bar-container" title="${tooltip}">
-                          ${total > 0 ? progressBarHTML : ""}
+                });
+            
+                return `<div class="progress-bar-container" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
+                          ${total > 0 ? progressBars.join('') : ''}
                           <span>${total} produktów</span>
                         </div>`;
               },
               defaultContent: "",
-            },
+            }
             {
               orderable: false,
               data: "wholesalerKey",
