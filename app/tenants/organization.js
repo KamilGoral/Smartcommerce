@@ -1774,18 +1774,22 @@ docReady(function () {
               orderable: false,
               data: "wholesalerKey",
               render: function (data) {
-                if (data !== null) {
-                  return (
-                    '<div class="action-container"><a href="https://' +
-                    DomainName +
-                    "/app/wholesalers/wholesaler-page?wholesalerKey=" +
-                    data +
-                    '"class="buttonoutline editme w-button">Przejdź</a></div>'
-                  );
-                }
-                if (data === null) {
+                if (data === "unassigned") {
                   return "";
                 }
+                return (
+                  "<div>" +
+                  '<input type="checkbox" class="theClass" id="' +
+                  data +
+                  '" value="' +
+                  data +
+                  '" />' +
+                  '<label class="mylabel" for="' +
+                  data +
+                  '"></label>' +
+                  '<a href="#" class="buttonoutline editme w-button">Zamów</a>' +
+                  "</div>"
+                );
               },
             },
           ],
