@@ -746,7 +746,7 @@ docReady(function () {
                 var progressBars = [];
                 var currentPosition = 0;
 
-                // Funkcja pomocnicza do generowania segmentów
+                // Funkcja pomocnicza do generowania segmentów z etykietami
                 function addSegment(value, color, title, isFirst, isLast) {
                   if (value <= 0) return;
 
@@ -762,7 +762,9 @@ docReady(function () {
                   }
 
                   progressBars.push(
-                    `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}"></div>`
+                    `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}">
+                       <span class="segment-count">${value}</span>
+                     </div>`
                   );
                   currentPosition += width;
                 }
@@ -806,7 +808,6 @@ docReady(function () {
                   tooltip || "Brak produktów"
                 }">
                           ${total > 0 ? progressBars.join("") : ""}
-                          <span>${total}</span>
                         </div>`;
               },
               defaultContent: "",
