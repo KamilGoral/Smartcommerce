@@ -700,7 +700,7 @@ docReady(function () {
           columns: [
             {
               orderable: false,
-              width: "2rem",
+              width: "auto",
               data: null,
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
