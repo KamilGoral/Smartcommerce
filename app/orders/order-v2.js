@@ -3867,6 +3867,7 @@ docReady(function () {
       const popupContainer = document.getElementById("lockOrderDiv");
       const popupContent = document.getElementById("popupContent");
       const popupConfirmButton = document.getElementById("lockOrderButton");
+      console.log("tutaj");
 
       // Add click event handler for lockOrderButton
       popupConfirmButton.addEventListener("click", function () {
