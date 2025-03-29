@@ -718,9 +718,14 @@ docReady(function () {
                   var toGo = (data.logisticMinimum - data.netValue).toFixed(2);
                   if (toGo > 0) {
                     return `
-                      <div style="display: flex; justify-content: space-between; width: 100%;">
+                      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                         <span>${data.wholesalerName}</span>
-                        <span style="color: #ff6b6b; font-weight: bold;">Brakuje ${toGo} zł do minimum</span>
+                        <span style="color: #8E1212; font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                               alt="Ostrzeżenie" 
+                               style="width: 16px; height: 16px;">
+                          Brakuje ${toGo} zł do minimum log.
+                        </span>
                       </div>
                     `;
                   }
@@ -843,11 +848,6 @@ docReady(function () {
               },
             },
           ],
-          rowCallback: function (row, data) {
-            if (data.logisticMinimum > data.netValue) {
-              $("td", row).css("background-color", "#FFFAE6");
-            }
-          },
           initComplete: function (settings, json) {
             var textBox = $("#table_splited_wh filter label input");
             textBox.unbind();
