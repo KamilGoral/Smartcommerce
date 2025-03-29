@@ -701,6 +701,7 @@ docReady(function () {
             {
               orderable: false,
               data: null,
+              width: "32px",
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
                   return ""; // Pusty string zamiast ikony dla niezarejestrowanych
@@ -712,6 +713,7 @@ docReady(function () {
             {
               orderable: true,
               data: null,
+              width: "auto",
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
                   return "Nieprzydzielone";
