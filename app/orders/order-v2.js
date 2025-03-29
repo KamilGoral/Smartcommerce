@@ -700,7 +700,7 @@ docReady(function () {
           columns: [
             {
               orderable: false,
-              width: "auto",
+              width: "2rem",
               data: null,
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
@@ -3873,6 +3873,7 @@ docReady(function () {
       const popupContent = document.getElementById("popupContent");
       const popupConfirmButton = document.getElementById("lockOrderButton");
       console.log("tutaj");
+      popupContainer.style.display = "flex";
 
       // Add click event handler for lockOrderButton
       popupConfirmButton.addEventListener("click", function () {
