@@ -712,7 +712,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              width: auto,
+              width: "auto",
               data: null,
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
@@ -742,7 +742,7 @@ docReady(function () {
             {
               orderable: true,
               data: "netValue",
-              width: auto,
+              width: "auto",
               className: "dt-right",
               render: function (data, type, row) {
                 return data;
@@ -751,7 +751,7 @@ docReady(function () {
             {
               orderable: true,
               data: "products",
-              width: auto,
+              width: "auto",
               render: function (data, type, row) {
                 // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
                 if (type === "sort" || type === "type") {
@@ -835,7 +835,7 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: auto,
+              width: "auto",
               data: "wholesalerKey",
               render: function (data) {
                 if (data === "unassigned") {
