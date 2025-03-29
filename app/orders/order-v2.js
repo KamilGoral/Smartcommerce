@@ -754,11 +754,11 @@ docReady(function () {
                   var borderRadius = "";
 
                   if (isFirst && isLast) {
-                    borderRadius = "border-radius: 5px;"; // zaokrąglenie po obu stronach jeśli tylko jeden segment
+                    borderRadius = "border-radius: 5px;";
                   } else if (isFirst) {
-                    borderRadius = "border-radius: 5px 0 0 5px;"; // zaokrąglenie tylko z lewej
+                    borderRadius = "border-radius: 5px 0 0 5px;";
                   } else if (isLast) {
-                    borderRadius = "border-radius: 0 5px 5px 0;"; // zaokrąglenie tylko z prawej
+                    borderRadius = "border-radius: 0 5px 5px 0;";
                   }
 
                   progressBars.push(
@@ -788,12 +788,23 @@ docReady(function () {
                     seg.value,
                     seg.color,
                     seg.title,
-                    index === 0, // czy pierwszy segment
-                    index === segments.length - 1 // czy ostatni segment
+                    index === 0,
+                    index === segments.length - 1
                   );
                 });
 
-                return `<div class="progress-bar-container" title="Najlepszy wybór: ${bestMatch}, Blokada: ${exclusive}, Wybór użytkownika: ${order}">
+                // Tworzenie warunkowego opisu tooltipa
+                var tooltipParts = [];
+                if (bestMatch > 0)
+                  tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
+                if (exclusive > 0) tooltipParts.push(`Blokada: ${exclusive}`);
+                if (order > 0) tooltipParts.push(`Wybór użytkownika: ${order}`);
+
+                var tooltip = tooltipParts.join(", ");
+
+                return `<div class="progress-bar-container" title="${
+                  tooltip || "Brak produktów"
+                }">
                           ${total > 0 ? progressBars.join("") : ""}
                           <span>${total}</span>
                         </div>`;
