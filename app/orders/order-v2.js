@@ -769,9 +769,17 @@ docReady(function () {
 
                 // Określenie kolejności segmentów
                 var segments = [
-                  { value: bestMatch, color: "green", title: "Best Match" },
-                  { value: exclusive, color: "blue", title: "Exclusive" },
-                  { value: order, color: "orange", title: "Order" },
+                  {
+                    value: bestMatch,
+                    color: "#CAEDC4",
+                    title: "Najlepszy wybór",
+                  },
+                  { value: exclusive, color: "#F5E8E3", title: "Blokada" },
+                  {
+                    value: order,
+                    color: "#FFF8E2",
+                    title: "Wybór użytkownika",
+                  },
                 ].filter((seg) => seg.value > 0);
 
                 // Generowanie segmentów z odpowiednimi zaokrągleniami
@@ -785,9 +793,9 @@ docReady(function () {
                   );
                 });
 
-                return `<div class="progress-bar-container" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
+                return `<div class="progress-bar-container" title="Najlepszy wybór: ${bestMatch}, Blokada: ${exclusive}, Wybór użytkownika: ${order}">
                           ${total > 0 ? progressBars.join("") : ""}
-                          <span>${total} produktów</span>
+                          <span>${total}</span>
                         </div>`;
               },
               defaultContent: "",
