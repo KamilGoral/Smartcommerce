@@ -701,19 +701,17 @@ docReady(function () {
             {
               orderable: false,
               data: null,
-              width: "48px",
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
-                  return ""; // Pusty string zamiast ikony dla niezarejestrowanych
+                  return "";
                 }
-                return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" alt="Budynek">';
+                return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" alt="Budynek" style="width:24px; height:24px;">';
               },
               defaultContent: "",
             },
             {
               orderable: true,
               data: null,
-              width: "auto",
               render: function (data) {
                 if (data.wholesalerName === "unassigned") {
                   return "Nieprzydzielone";
@@ -742,7 +740,6 @@ docReady(function () {
             {
               orderable: true,
               data: "netValue",
-              width: "96px",
               className: "dt-right",
               render: function (data, type, row) {
                 return data;
@@ -751,7 +748,6 @@ docReady(function () {
             {
               orderable: true,
               data: "products",
-              width: "128px",
               render: function (data, type, row) {
                 // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
                 if (type === "sort" || type === "type") {
