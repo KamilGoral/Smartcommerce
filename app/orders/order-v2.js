@@ -4295,7 +4295,7 @@ docReady(function () {
       opacity: 0;
       transition: opacity 0.2s ease;
       pointer-events: none;
-      z-index: 1000;
+      z-index: 6000;
     }
   `;
     document.head.appendChild(style);
