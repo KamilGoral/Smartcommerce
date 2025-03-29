@@ -738,101 +738,32 @@ docReady(function () {
               orderable: true,
               data: "products",
               render: function (data) {
-                if (data.bestMatch === null) {
-                  return "-";
-                } else {
-                  return data.bestMatch;
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "products",
-              render: function (data) {
-                if (data.exclusive === null) {
-                  return "-";
-                } else {
-                  return data.exclusive;
-                }
-              },
-            },
-            {
-              orderable: true,
-              data: "products",
-              render: function (data) {
-                if (data.exclusive === null) {
-                  return "-";
-                } else {
-                  return data.order;
-                }
-              },
-            },
-            {
-              orderable: false,
-              data: "confirmed",
-              render: function (data) {
-                let icons = "";
+                // Ustalanie wartości dla bestMatch, exclusive i order
+                var bestMatch = data.bestMatch === null ? 0 : data.bestMatch;
+                var exclusive = data.exclusive === null ? 0 : data.exclusive;
+                var order = data.order === null ? 0 : data.order;
 
-                if (data) {
-                  icons +=
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono"> ';
-                }
-                return icons || "-"; // Return '-' if neither icon is added
+                // Obliczanie łącznej wartości
+                var total = bestMatch + exclusive + order;
+
+                // Obliczanie procentów dla każdego z danych
+                var bestMatchPercentage =
+                  total > 0 ? (bestMatch / total) * 100 : 0;
+                var exclusivePercentage =
+                  total > 0 ? (exclusive / total) * 100 : 0;
+                var orderPercentage = total > 0 ? (order / total) * 100 : 0;
+
+                // Generowanie paska postępu
+                return `
+                  <div class="progress-bar-container" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
+                    <div class="progress-bar" style="width: ${bestMatchPercentage}%; background-color: green;" title="Best Match: ${bestMatch}"></div>
+                    <div class="progress-bar" style="width: ${exclusivePercentage}%; background-color: blue;" title="Exclusive: ${exclusive}"></div>
+                    <div class="progress-bar" style="width: ${orderPercentage}%; background-color: orange;" title="Order: ${order}"></div>
+                    <span>${bestMatch}/${total} | ${exclusive}/${total} | ${order}/${total}</span>
+                  </div>
+                `;
               },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              render: function (data) {
-                // File icon definitions
-                const icons = {
-                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
-                  csvAgra:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
-                  csvMirex:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
-                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
-                };
-
-                // Wholesaler-specific configurations
-                const wholesalerConfigs = {
-                  agra: {
-                    default: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
-                    suzyw123: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
-                  },
-                  mirex: {
-                    default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
-                    suzyw123: [icons.text, icons.pdf, icons.xls],
-                  },
-                  "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
-                  "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
-                  "mag-dystrybucja": {
-                    default: [icons.xls],
-                    suzyw123: [icons.xls],
-                  },
-                  merkury: { default: [icons.xls], suzyw123: [icons.xls] },
-                  default: {
-                    default: [icons.text, icons.csv, icons.pdf, icons.xls],
-                    suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
-                  },
-                };
-
-                // Determine which config to use based on OrganizationName
-                const isSuzyw123 = OrganizationName === "Suzyw123";
-                const configKey = isSuzyw123 ? "suzyw123" : "default";
-
-                // Get the supported icons for the current wholesaler
-                const config =
-                  wholesalerConfigs[data] || wholesalerConfigs["default"];
-                const supportedIcons = config[configKey];
-
-                // Render the icons inside a div
-                return `<div class="div-block-20" style="min-width:100px">${supportedIcons.join(
-                  ""
-                )}</div>`;
-              },
+              defaultContent: "",
             },
             {
               orderable: false,
@@ -850,16 +781,6 @@ docReady(function () {
                   data +
                   '"></label>'
                 );
-              },
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              render: function (data) {
-                if (data === "unassigned") {
-                  return "";
-                }
-                return '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" class="sendemail" style="width: 24px; height: 24px; cursor: pointer;" />';
               },
             },
           ],
