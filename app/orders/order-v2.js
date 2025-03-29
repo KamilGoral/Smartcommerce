@@ -3866,19 +3866,27 @@ docReady(function () {
     popupContainer.style.display = "flex";
   });
 
-  $('a.buttonoutline.editme.w-button:contains("Realizuj")').on(
+  $("#table_splited_wh tbody").on(
     "click",
-    function () {
+    'a.buttonoutline.editme.w-button:contains("Realizuj")',
+    function (event) {
+      event.preventDefault(); // Zapobiega domyślnej akcji linku
+
       const popupContainer = document.getElementById("lockOrderDiv");
       const popupContent = document.getElementById("popupContent");
       const popupConfirmButton = document.getElementById("lockOrderButton");
-      console.log("tutaj");
+
+      console.log(
+        "Przycisk Realizuj kliknięty w wierszu:",
+        $(this).closest("tr")
+      ); // Wyświetla wiersz, w którym kliknięto
+
       popupContainer.style.display = "flex";
 
-      // Add click event handler for lockOrderButton
-      popupConfirmButton.addEventListener("click", function () {
+      // Dodaj obsługę kliknięcia dla lockOrderButton
+      popupConfirmButton.onclick = function () {
         popupContainer.style.display = "none";
-      });
+      };
     }
   );
 
