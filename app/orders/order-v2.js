@@ -3577,17 +3577,15 @@ docReady(function () {
 
     // orderItems
     const productsSum =
-      data2.products.bestMatch +
-      data2.products.exclusive +
-      data2.products.order;
+      data.products.bestMatch + data.products.exclusive + data.products.order;
     $("#orderItems").val(productsSum);
 
     // orderValue
-    $("#orderValue").val(data2.netValue);
+    $("#orderValue").val(data.netValue);
 
     // orderWholesalerKey (input, nie select)
-    $("#orderWholesalerKey").val(data2.wholesalerName);
-    $("#orderWholesalerKey").attr("data-key", data2.wholesalerKey);
+    $("#orderWholesalerKey").val(data.wholesalerName);
+    $("#orderWholesalerKey").attr("data-key", data.wholesalerKey);
 
     getShop();
     $("#SendOrderSMTP").css("display", "flex");
