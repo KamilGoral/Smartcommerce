@@ -3590,7 +3590,7 @@ docReady(function () {
 
     // orderSender
     $("#orderUserName").val(
-      attributes["username"] + attributes["userfamilyname"]
+      (attributes["username"] || "") + (attributes["userfamilyname"] || "")
     );
     $("#orderUserName").prop("disabled", true);
     getShop();
