@@ -742,38 +742,38 @@ docReady(function () {
                 var exclusive = data.exclusive || 0;
                 var order = data.order || 0;
                 var total = bestMatch + exclusive + order;
-            
+
                 var progressBars = [];
                 var currentPosition = 0;
-            
+
                 // Funkcja pomocnicza do generowania segmentów
                 function addSegment(value, color, title, isFirst, isLast) {
                   if (value <= 0) return;
-                  
+
                   var width = (value / total) * 100;
-                  var borderRadius = '';
-                  
+                  var borderRadius = "";
+
                   if (isFirst && isLast) {
-                    borderRadius = 'border-radius: 5px;'; // zaokrąglenie po obu stronach jeśli tylko jeden segment
+                    borderRadius = "border-radius: 5px;"; // zaokrąglenie po obu stronach jeśli tylko jeden segment
                   } else if (isFirst) {
-                    borderRadius = 'border-radius: 5px 0 0 5px;'; // zaokrąglenie tylko z lewej
+                    borderRadius = "border-radius: 5px 0 0 5px;"; // zaokrąglenie tylko z lewej
                   } else if (isLast) {
-                    borderRadius = 'border-radius: 0 5px 5px 0;'; // zaokrąglenie tylko z prawej
+                    borderRadius = "border-radius: 0 5px 5px 0;"; // zaokrąglenie tylko z prawej
                   }
-                  
+
                   progressBars.push(
                     `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}"></div>`
                   );
                   currentPosition += width;
                 }
-            
+
                 // Określenie kolejności segmentów
                 var segments = [
-                  { value: bestMatch, color: 'green', title: 'Best Match' },
-                  { value: exclusive, color: 'blue', title: 'Exclusive' },
-                  { value: order, color: 'orange', title: 'Order' }
-                ].filter(seg => seg.value > 0);
-            
+                  { value: bestMatch, color: "green", title: "Best Match" },
+                  { value: exclusive, color: "blue", title: "Exclusive" },
+                  { value: order, color: "orange", title: "Order" },
+                ].filter((seg) => seg.value > 0);
+
                 // Generowanie segmentów z odpowiednimi zaokrągleniami
                 segments.forEach((seg, index) => {
                   addSegment(
@@ -784,14 +784,14 @@ docReady(function () {
                     index === segments.length - 1 // czy ostatni segment
                   );
                 });
-            
+
                 return `<div class="progress-bar-container" title="Najlepsze dopasowanie: ${bestMatch}, Blokady: ${exclusive}, Wybrane przez użytkownika: ${order}">
-                          ${total > 0 ? progressBars.join('') : ''}
+                          ${total > 0 ? progressBars.join("") : ""}
                           <span>${total} produktów</span>
                         </div>`;
               },
               defaultContent: "",
-            }
+            },
             {
               orderable: false,
               data: "wholesalerKey",
