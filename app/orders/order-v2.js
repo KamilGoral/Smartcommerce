@@ -670,7 +670,7 @@ docReady(function () {
           pageLength: 25,
           destroy: true,
           orderMulti: true,
-          order: [[3, "desc"]],
+          order: [[2, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak danych do wyświetlenia",
@@ -701,8 +701,13 @@ docReady(function () {
             {
               orderable: false,
               data: null,
-              defaultContent:
-                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
+              render: function (data) {
+                if (data.wholesalerName === "unassigned") {
+                  return ""; // Pusty string zamiast ikony dla niezarejestrowanych
+                }
+                return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" alt="Budynek">';
+              },
+              defaultContent: "",
             },
             {
               orderable: true,
@@ -721,10 +726,9 @@ docReady(function () {
                       <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                         <span>${data.wholesalerName}</span>
                         <span style="color: #8E1212; font-weight: bold; display: flex; align-items: center; gap: 4px;">
-                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                          Brakuje ${toGo} zł do minimum log.<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
                                alt="Ostrzeżenie" 
                                style="width: 16px; height: 16px;">
-                          Brakuje ${toGo} zł do minimum log.
                         </span>
                       </div>
                     `;
