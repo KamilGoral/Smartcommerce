@@ -393,10 +393,12 @@ docReady(function () {
         }
 
         // Address information
+        $("#orderDelivery").prop("disabled", true);
         if (data && data.address) {
-          const addressDescription = `${data.name || ""}, ${
-            data.address.line1 || ""
-          }, ${data.address.town || ""}, ${data.address.postcode || ""}`;
+          const shopDescription = `${data.name || ""}`;
+          const addressDescription = `${data.address.line1 || ""}, ${
+            data.address.town || ""
+          }, ${data.address.postcode || ""}`;
 
           let emails = "";
           let phones = "";
@@ -410,7 +412,7 @@ docReady(function () {
           }
 
           $("#orderDelivery").val(
-            `${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
+            `${shopDescription} \n ${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
           );
         } else {
           $("#orderDelivery").val("");
@@ -3572,6 +3574,17 @@ docReady(function () {
     var row = $(this).closest("tr");
     var data = table.row($(this).parents("tr")).data();
     console.log(data);
+
+    // orderItems
+    $("#orderItems").val(data2.products.bestMatch);
+
+    // orderValue
+    $("#orderValue").val(data2.netValue);
+
+    // orderWholesalerKey (input, nie select)
+    $("#orderWholesalerKey").val(data2.wholesalerName);
+    $("#orderWholesalerKey").attr("data-key", data2.wholesalerKey);
+
     getShop();
     $("#SendOrderSMTP").css("display", "flex");
   });
