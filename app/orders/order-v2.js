@@ -3861,6 +3861,20 @@ docReady(function () {
     popupContainer.style.display = "flex";
   });
 
+  $('a.buttonoutline.editme.w-button:contains("Realizuj")').on(
+    "click",
+    function () {
+      const popupContainer = document.getElementById("lockOrderDiv");
+      const popupContent = document.getElementById("popupContent");
+      const popupConfirmButton = document.getElementById("lockOrderButton");
+
+      // Add click event handler for lockOrderButton
+      popupConfirmButton.addEventListener("click", function () {
+        popupContainer.style.display = "none";
+      });
+    }
+  );
+
   $("#spl_table").on("click", "img[alt='edit']", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
