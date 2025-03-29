@@ -393,9 +393,27 @@ docReady(function () {
         }
 
         // Address information
-        if (data.address) {
-          const { country, line1, town, state, postcode } = data.address;
-          const addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+        if (data && data.address) {
+          const { name, line1, town, postcode } = data.address;
+          const addressDescription = `${name || ""}, ${line1 || ""}, ${
+            town || ""
+          }, ${postcode || ""}`;
+          let emails = "";
+          let phones = "";
+
+          if (data.emails && data.emails.length > 0) {
+            emails = data.emails.map((e) => e.email).join(", ");
+          }
+
+          if (data.phones && data.phones.length > 0) {
+            phones = data.phones.map((p) => p.phone).join(", ");
+          }
+
+          $("#orderDelivery").val(
+            `${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
+          );
+        } else {
+          $("#orderDelivery").val("");
         }
       } else {
         console.log("error");
@@ -3548,6 +3566,16 @@ docReady(function () {
 
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
+    // Get the right table
+    var table = $("#table_splited_wh").DataTable();
+    var cell = $(this).closest("td");
+    var row = $(this).closest("tr");
+    var data = table.row($(this).parents("tr")).data();
+    if (!data || !data.wholesalerKey) {
+      console.log(data);
+    }
+
+    getShop();
     $("#SendOrderSMTP").css("display", "flex");
   });
 
