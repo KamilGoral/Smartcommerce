@@ -3581,7 +3581,7 @@ docReady(function () {
     $("#orderItems").text(productsSum);
 
     // orderValue
-    $("#orderValue").text(data.netValue);
+    $("#orderValue").text(data.netValue + " zł");
 
     // orderWholesalerKey
     $("#orderWholesalerKey").val(data.wholesalerName);
@@ -3589,7 +3589,9 @@ docReady(function () {
     $("#orderWholesalerKey").prop("disabled", true);
 
     // orderSender
-    $("#orderUserName").val(username + userfamilyname);
+    $("#orderUserName").val(
+      attributes["username"] + attributes["userfamilyname"]
+    );
     $("#orderUserName").prop("disabled", true);
     getShop();
     $("#SendOrderSMTP").css("display", "flex");
