@@ -394,10 +394,10 @@ docReady(function () {
 
         // Address information
         if (data && data.address) {
-          const { name, line1, town, postcode } = data.address;
-          const addressDescription = `${name || ""}, ${line1 || ""}, ${
-            town || ""
-          }, ${postcode || ""}`;
+          const addressDescription = `${data.name || ""}, ${
+            data.address.line1 || ""
+          }, ${data.address.town || ""}, ${data.address.postcode || ""}`;
+
           let emails = "";
           let phones = "";
 
@@ -3571,10 +3571,7 @@ docReady(function () {
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
     var data = table.row($(this).parents("tr")).data();
-    if (!data || !data.wholesalerKey) {
-      console.log(data);
-    }
-
+    console.log(data);
     getShop();
     $("#SendOrderSMTP").css("display", "flex");
   });
