@@ -706,33 +706,37 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "wholesalerName",
-              render: function (data) {
-                if (data === "unassigned") {
-                  return "Nieprzydzielone";
-                } else {
-                  return data;
-                }
-              },
-            },
-            {
-              orderable: true,
               data: null,
               render: function (data) {
+                if (data.wholesalerName === "unassigned") {
+                  return "Nieprzydzielone";
+                }
+
                 if (data.logisticMinimum === null) {
-                  return "-";
+                  return data.wholesalerName; // Usunąłem "<br>-" - jeśli nie ma minimum, wystarczy sama nazwa
                 } else {
                   var toGo = (data.logisticMinimum - data.netValue).toFixed(2);
                   if (toGo > 0) {
-                    return data.logisticMinimum + " (" + toGo + ")";
+                    return (
+                      data.wholesalerName +
+                      "<br>" +
+                      data.logisticMinimum +
+                      " (Brakuje " +
+                      toGo +
+                      " zł do spełnienia minimum log.)"
+                    );
                   }
-                  return data.logisticMinimum;
+                  return data.wholesalerName; // Tylko nazwa, jeśli warunek jest spełniony
                 }
               },
             },
             {
               orderable: true,
               data: "netValue",
+              className: "dt-right",
+              render: function (data, type, row) {
+                return data;
+              },
             },
             {
               orderable: true,
@@ -829,7 +833,7 @@ docReady(function () {
                   '<label class="mylabel" for="' +
                   data +
                   '" style="margin: 0;"></label>' +
-                  '<a href="#" class="buttonoutline editme w-button" style="margin: 0;">Zamów</a>' +
+                  '<a href="#" class="buttonoutline editme w-button" style="margin: 0;">Realizuj</a>' +
                   "</div>"
                 );
               },
