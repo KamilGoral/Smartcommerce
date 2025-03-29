@@ -742,6 +742,7 @@ docReady(function () {
             {
               orderable: true,
               data: "netValue",
+              width: "128px",
               className: "dt-right",
               render: function (data, type, row) {
                 return data;
@@ -750,6 +751,7 @@ docReady(function () {
             {
               orderable: true,
               data: "products",
+              width: "128px",
               render: function (data, type, row) {
                 // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
                 if (type === "sort" || type === "type") {
