@@ -3539,9 +3539,7 @@ docReady(function () {
     '.buttonoutline:contains("Realizuj")',
     function (e) {
       e.preventDefault();
-      $("#lockOrderDiv").show();
-      console.log("Realizuj kliknięty w wierszu:", $(this).closest("tr"));
-
+      $("#lockOrderDiv").css("display", "flex");
       $("#lockOrderButton").one("click", function () {
         $(
           "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
