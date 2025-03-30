@@ -3537,24 +3537,17 @@ docReady(function () {
   $("#table_splited_wh").on(
     "click",
     '.buttonoutline:contains("Realizuj")',
-    function (event) {
-      event.preventDefault(); // Zapobiega domyślnej akcji linku
+    function (e) {
+      e.preventDefault();
+      $("#lockOrderDiv").show();
+      console.log("Realizuj kliknięty w wierszu:", $(this).closest("tr"));
 
-      const popupContainer = document.getElementById("lockOrderDiv");
-      const popupContent = document.getElementById("popupContent");
-      const popupConfirmButton = document.getElementById("lockOrderButton");
-
-      console.log(
-        "Przycisk Realizuj kliknięty w wierszu:",
-        $(this).closest("tr")
-      ); // Wyświetla wiersz, w którym kliknięto
-
-      popupContainer.style.display = "flex";
-
-      // Dodaj obsługę kliknięcia dla lockOrderButton
-      popupConfirmButton.onclick = function () {
-        popupContainer.style.display = "none";
-      };
+      $("#lockOrderButton").one("click", function () {
+        $(
+          "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
+        ).hide();
+        $("#lockOrderDiv").hide();
+      });
     }
   );
 
