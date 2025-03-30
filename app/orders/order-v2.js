@@ -3534,6 +3534,30 @@ docReady(function () {
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
 
+  $("#table_splited_wh").on(
+    "click",
+    '.buttonoutline:contains("Realizuj")',
+    function (event) {
+      event.preventDefault(); // Zapobiega domyślnej akcji linku
+
+      const popupContainer = document.getElementById("lockOrderDiv");
+      const popupContent = document.getElementById("popupContent");
+      const popupConfirmButton = document.getElementById("lockOrderButton");
+
+      console.log(
+        "Przycisk Realizuj kliknięty w wierszu:",
+        $(this).closest("tr")
+      ); // Wyświetla wiersz, w którym kliknięto
+
+      popupContainer.style.display = "flex";
+
+      // Dodaj obsługę kliknięcia dla lockOrderButton
+      popupConfirmButton.onclick = function () {
+        popupContainer.style.display = "none";
+      };
+    }
+  );
+
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
     // Get the right table
@@ -3865,30 +3889,6 @@ docReady(function () {
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
   });
-
-  $("#table_splited_wh tbody").on(
-    "click",
-    'a.buttonoutline.editme.w-button:contains("Realizuj")',
-    function (event) {
-      event.preventDefault(); // Zapobiega domyślnej akcji linku
-
-      const popupContainer = document.getElementById("lockOrderDiv");
-      const popupContent = document.getElementById("popupContent");
-      const popupConfirmButton = document.getElementById("lockOrderButton");
-
-      console.log(
-        "Przycisk Realizuj kliknięty w wierszu:",
-        $(this).closest("tr")
-      ); // Wyświetla wiersz, w którym kliknięto
-
-      popupContainer.style.display = "flex";
-
-      // Dodaj obsługę kliknięcia dla lockOrderButton
-      popupConfirmButton.onclick = function () {
-        popupContainer.style.display = "none";
-      };
-    }
-  );
 
   $("#spl_table").on("click", "img[alt='edit']", function () {
     var table = $("#spl_table").DataTable();
