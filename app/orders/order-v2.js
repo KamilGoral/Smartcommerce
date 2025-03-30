@@ -665,6 +665,42 @@ docReady(function () {
         $("#details").show();
         $(".target-tab-link").triggerHandler("click");
         $("#splitedwhcontainer").show();
+
+        function getStatusHtml(item) {
+          // Dodatkowe klasy CSS dla różnych statusów
+          const statusClasses = {
+            "in progress": "positive",
+            pending: "medium",
+            ready: "positive",
+            error: "negative",
+            incomplete: "medium",
+            batching: "informative",
+            forced: "informative",
+          };
+
+          // Teksty dla statusów
+          const statusTexts = {
+            "in progress": "W realizacji",
+            pending: "Oczekuje",
+            ready: "Gotowa",
+            error: "Problem",
+            incomplete: "Niekompletna",
+            batching: "W kolejce",
+            forced: "W kolejce",
+          };
+
+          const baseClass = "status-badge";
+          const statusClass = statusClasses[item.status] || "informative";
+          const text = statusTexts[item.status] || "-";
+
+          // Dodatkowy atrybut title z pełnym opisem
+          const title = item.confirmed
+            ? "Zamówienie potwierdzone i w realizacji"
+            : "Oczekuje na potwierdzenie";
+
+          return `<span class="${baseClass} ${statusClass}" title="${title}">${text}</span>`;
+        }
+
         var table = $("#table_splited_wh").DataTable({
           pagingType: "full_numbers",
           pageLength: 25,
@@ -728,9 +764,9 @@ docReady(function () {
                       <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                         <span>${data.wholesalerName}</span>
                         <span style="color: #8E1212; font-weight: bold; display: flex; align-items: center; gap: 4px;">
-                          Brakuje ${toGo} zł do minimum log.<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
                                alt="Ostrzeżenie" 
-                               style="width: 16px; height: 16px;">
+                               style="width: 16px; height: 16px;"> Brakuje ${toGo} zł do minimum log.
                         </span>
                       </div>
                     `;
@@ -832,6 +868,26 @@ docReady(function () {
               },
               type: "num", // Określa typ danych do sortowania (numeryczny)
               defaultContent: "",
+            },
+            {
+              orderable: false,
+              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
+              name: "statusColumn",
+              render: function (data, type, row) {
+                // Pokazuj tylko w stanie realizacji
+                if (!row.inRealization) return "";
+
+                // Określ status na podstawie confirmed
+                const status = data.confirmed ? "in progress" : "pending";
+
+                // Generuj badge
+                return getStatusHtml({
+                  status: status,
+                  confirmed: data.confirmed,
+                });
+              },
+              className: "status-column",
+              visible: false,
             },
             {
               orderable: false,
@@ -976,6 +1032,8 @@ docReady(function () {
                       });
 
                       // Przerysuj CAŁĄ tabelę
+                      // Pokazanie kolumny statusu
+                      table.column("statusColumn:name").visible(true);
                       table.draw();
                     });
                   }
