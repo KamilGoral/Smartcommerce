@@ -968,9 +968,11 @@ docReady(function () {
                       var table = $("#table_splited_wh").DataTable();
                       var allData = table.rows().data();
 
-                      // Ustaw flagę inRealization dla WSZYSTKICH wierszy
-                      allData.each(function (row) {
-                        row.inRealization = true;
+                      // Ustaw flagę inRealization dla WSZYSTKICH wierszy i zaktualizuj dane
+                      table.rows().every(function () {
+                        var data = this.data();
+                        data.inRealization = true;
+                        this.data(data); // Jawnie aktualizujemy dane wiersza
                       });
 
                       // Przerysuj CAŁĄ tabelę
