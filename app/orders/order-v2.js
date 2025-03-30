@@ -837,11 +837,27 @@ docReady(function () {
               orderable: false,
               width: "auto",
               data: "wholesalerKey",
-              render: function (data) {
+              render: function (data, type, row) {
                 if (data === "unassigned") {
                   return "";
                 }
-                return (
+
+                // File icon definitions
+                const icons = {
+                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
+                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csvAgra:
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csvMirex:
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
+                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
+                  email:
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/672d9ae6d7cd2056fac337b6_send.png" class="sendemail" style="width: 24px; height: 24px; cursor: pointer;" />',
+                };
+
+                // Default content (checkbox and "Realizuj" button)
+                let content =
                   '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">' +
                   '<input type="checkbox" class="theClass" id="' +
                   data +
@@ -852,7 +868,115 @@ docReady(function () {
                   data +
                   '" style="margin: 0;"></label>' +
                   '<a href="#" class="buttonoutline editme w-button" style="margin: 0;">Realizuj</a>' +
-                  "</div>"
+                  "</div>";
+
+                // If the row is in "realizacja" mode (after clicking "Realizuj")
+                if (row.inRealization) {
+                  content =
+                    '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">';
+
+                  // Add file download icons based on wholesaler
+                  const wholesalerConfigs = {
+                    agra: {
+                      default: [
+                        icons.text,
+                        icons.csvAgra,
+                        icons.pdf,
+                        icons.xls,
+                        icons.email,
+                      ],
+                      suzyw123: [
+                        icons.text,
+                        icons.csvAgra,
+                        icons.pdf,
+                        icons.xls,
+                        icons.email,
+                      ],
+                    },
+                    mirex: {
+                      default: [
+                        icons.text,
+                        icons.csvMirex,
+                        icons.pdf,
+                        icons.xls,
+                        icons.email,
+                      ],
+                      suzyw123: [icons.text, icons.pdf, icons.xls, icons.email],
+                    },
+                    "kd-tedi": {
+                      default: [icons.xls, icons.email],
+                      suzyw123: [icons.xls, icons.email],
+                    },
+                    "kd-tano": {
+                      default: [icons.xls, icons.email],
+                      suzyw123: [icons.xls, icons.email],
+                    },
+                    "mag-dystrybucja": {
+                      default: [icons.xls, icons.email],
+                      suzyw123: [icons.xls, icons.email],
+                    },
+                    merkury: {
+                      default: [icons.xls, icons.email],
+                      suzyw123: [icons.xls, icons.email],
+                    },
+                    default: {
+                      default: [
+                        icons.text,
+                        icons.csv,
+                        icons.pdf,
+                        icons.xls,
+                        icons.email,
+                      ],
+                      suzyw123: [
+                        icons.text,
+                        icons.csv,
+                        icons.pdf,
+                        icons.xls,
+                        icons.email,
+                      ],
+                    },
+                  };
+
+                  const isSuzyw123 = OrganizationName === "Suzyw123";
+                  const configKey = isSuzyw123 ? "suzyw123" : "default";
+                  const config =
+                    wholesalerConfigs[data] || wholesalerConfigs["default"];
+                  const supportedIcons = config[configKey];
+
+                  content += supportedIcons.join("");
+                  content += "</div>";
+                }
+
+                return content;
+              },
+              createdCell: function (td, cellData, rowData, row, col) {
+                // Add click handler for "Realizuj" button
+                $(td).on(
+                  "click",
+                  '.buttonoutline:contains("Realizuj")',
+                  function (e) {
+                    e.preventDefault();
+                    $("#lockOrderDiv").css("display", "flex");
+
+                    $("#lockOrderButton").one("click", function () {
+                      $(
+                        "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
+                      ).hide();
+                      $("#lockOrderDiv").hide();
+
+                      // Pobierz wszystkie dane z tabeli
+                      var table = $("#table_splited_wh").DataTable();
+                      var allData = table.rows().data();
+
+                      // Ustaw flagę inRealization dla WSZYSTKICH wierszy
+                      allData.each(function (row) {
+                        row.inRealization = true;
+                      });
+
+                      // Przerysuj CAŁĄ tabelę
+                      table.draw();
+                    });
+                  }
                 );
               },
             },
@@ -3533,21 +3657,6 @@ docReady(function () {
     });
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
-
-  $("#table_splited_wh").on(
-    "click",
-    '.buttonoutline:contains("Realizuj")',
-    function (e) {
-      e.preventDefault();
-      $("#lockOrderDiv").css("display", "flex");
-      $("#lockOrderButton").one("click", function () {
-        $(
-          "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
-        ).hide();
-        $("#lockOrderDiv").hide();
-      });
-    }
-  );
 
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
