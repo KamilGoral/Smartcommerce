@@ -4554,14 +4554,21 @@ docReady(function () {
     $input.val(value).attr("value", value).data("initialValue", value);
   }
 
-  $('div[role="tab"]').click(function () {
+  $('a[role="tab"]').click(function (e) {
     if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
       delays.forEach((delay) => {
         setTimeout(() => {
-          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+          try {
+            const tables = $.fn.dataTable.tables({ visible: true, api: true });
+            if (tables) {
+              tables.columns.adjust();
+              console.log("DataTable adjusted (delay: " + delay + "ms)");
+            }
+          } catch (error) {
+            console.error("DataTables error:", error);
+          }
         }, delay);
-        console.log("adjust");
       });
     }
   });
