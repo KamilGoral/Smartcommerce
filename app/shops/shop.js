@@ -2077,22 +2077,24 @@ docReady(function () {
   getOrders();
   getOffers();
 
-  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
-    function () {
+  $('a[role="tab"]').click(function (e) {
+    if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
-
       delays.forEach((delay) => {
-        setTimeout(function () {
-          $.fn.dataTable
-            .tables({
-              visible: true,
-              api: true,
-            })
-            .columns.adjust();
+        setTimeout(() => {
+          try {
+            const tables = $.fn.dataTable.tables({ visible: true, api: true });
+            if (tables) {
+              tables.columns.adjust();
+              console.log("DataTable adjusted (delay: " + delay + "ms)");
+            }
+          } catch (error) {
+            console.error("DataTables error:", error);
+          }
         }, delay);
       });
     }
-  );
+  });
 
   $("#table_offers").on("click", "td.details-control", function () {
     //Get the righ table
