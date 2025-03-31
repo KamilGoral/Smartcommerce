@@ -3719,7 +3719,7 @@ docReady(function () {
           whichColumns = "modified.by:";
           break;
         case 11:
-          whichColumns = "updated.at:";
+          whichColumns = "modified.at:";
           break;
         default:
           whichColumns = "null";
