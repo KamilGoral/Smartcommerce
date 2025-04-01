@@ -894,10 +894,6 @@ docReady(function () {
               width: "auto",
               data: "wholesalerKey",
               render: function (data, type, row) {
-                if (data === "unassigned") {
-                  return "";
-                }
-
                 // File icon definitions
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
@@ -938,8 +934,6 @@ docReady(function () {
                     content += icons.pdf;
                     content += icons.xls;
                   } else {
-                    // Add file download icons based on wholesaler
-
                     // Add file download icons based on wholesaler
                     const wholesalerConfigs = {
                       agra: {
@@ -1014,8 +1008,8 @@ docReady(function () {
                     const supportedIcons = config[configKey];
 
                     content += supportedIcons.join("");
-                    content += "</div>";
                   }
+                  content += "</div>";
                 }
 
                 return content;
