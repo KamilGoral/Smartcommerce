@@ -897,7 +897,7 @@ docReady(function () {
                 // File icon definitions
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece3惪1108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                   csvAgra:
                     '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                   csvMirex:
@@ -909,18 +909,21 @@ docReady(function () {
                 };
 
                 // Default content (checkbox and "Realizuj" button)
-                let content =
-                  '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">' +
-                  '<input type="checkbox" class="theClass" id="' +
-                  data +
-                  '" value="' +
-                  data +
-                  '" />' +
-                  '<label class="mylabel" for="' +
-                  data +
-                  '" style="margin: 0;"></label>' +
-                  '<a href="#" class="buttonoutline editme w-button" style="margin: 0;">Realizuj</a>' +
-                  "</div>";
+                let content = "";
+                if (data !== "unassigned") {
+                  content =
+                    '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">' +
+                    '<input type="checkbox" class="theClass" id="' +
+                    data +
+                    '" value="' +
+                    data +
+                    '" />' +
+                    '<label class="mylabel" for="' +
+                    data +
+                    '" style="margin: 0;"></label>' +
+                    '<a href="#" class="buttonoutline editme w-button" style="margin: 0;">Realizuj</a>' +
+                    "</div>";
+                }
 
                 // If the row is in "realizacja" mode (after clicking "Realizuj")
                 if (row.inRealization) {
