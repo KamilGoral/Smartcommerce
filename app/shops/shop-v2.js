@@ -399,10 +399,31 @@ docReady(function () {
           });
         }
 
-        // Address information
+        // Address information with phones and emails
         if (data.address) {
           const { country, line1, town, state, postcode } = data.address;
-          const addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+          let addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+
+          // Add phones if available
+          if (Array.isArray(data.phones)) {
+            addressDescription += "\n\nTelefony:";
+            data.phones.forEach((phone) => {
+              addressDescription += `\n${phone.phone} (${
+                phone.description || "brak opisu"
+              })`;
+            });
+          }
+
+          // Add emails if available
+          if (Array.isArray(data.emails)) {
+            addressDescription += "\n\nE-maile:";
+            data.emails.forEach((email) => {
+              addressDescription += `\n${email.email} (${
+                email.description || "brak opisu"
+              })`;
+            });
+          }
+
           document.querySelector('[shopdata="address"]').textContent =
             addressDescription || "N/A";
         }
