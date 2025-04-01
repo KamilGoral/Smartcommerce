@@ -780,6 +780,10 @@ docReady(function () {
               data: null, // Używamy null, bo będziemy korzystać z całego wiersza
               name: "statusColumn",
               render: function (data, type, row) {
+                if (data.wholesalerName === "unassigned") {
+                  return "";
+                }
+
                 // Określ status na podstawie confirmed
                 const status = data.confirmed ? "in progress" : "pending";
 
