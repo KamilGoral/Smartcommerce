@@ -904,7 +904,7 @@ docReady(function () {
                   pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
                   xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
                   email:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7ca870013cbc7efa207d_sendemailnew.svg" class="sendemail" style="cursor: pointer;" />',
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7dbb3d5480618bfcb9c2_sendicon.svg" class="sendemail" style="cursor: pointer;" />',
                 };
 
                 // Default content (checkbox and "Realizuj" button)
