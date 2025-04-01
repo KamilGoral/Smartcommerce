@@ -890,7 +890,7 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "256px",
+              width: "196px",
               data: "wholesalerKey",
               render: function (data, type, row) {
                 // File icon definitions
