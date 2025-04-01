@@ -670,7 +670,7 @@ docReady(function () {
           // Dodatkowe klasy CSS dla różnych statusów
           const statusClasses = {
             "in progress": "positive",
-            pending: "medium",
+            pending: "informative",
             ready: "positive",
             error: "negative",
             incomplete: "medium",
@@ -681,7 +681,7 @@ docReady(function () {
           // Teksty dla statusów
           const statusTexts = {
             "in progress": "W realizacji",
-            pending: "Oczekuje",
+            pending: "Szkic",
             ready: "Gotowa",
             error: "Problem",
             incomplete: "Niekompletna",
@@ -776,6 +776,25 @@ docReady(function () {
               },
             },
             {
+              orderable: false,
+              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
+              name: "statusColumn",
+              render: function (data, type, row) {
+                // Pokazuj tylko w stanie realizacji
+                if (!row.inRealization) return "";
+
+                // Określ status na podstawie confirmed
+                const status = data.confirmed ? "in progress" : "pending";
+
+                // Generuj badge
+                return getStatusHtml({
+                  status: status,
+                  confirmed: data.confirmed,
+                });
+              },
+              className: "status-column",
+            },
+            {
               orderable: true,
               data: "netValue",
               width: "auto",
@@ -868,26 +887,6 @@ docReady(function () {
               },
               type: "num", // Określa typ danych do sortowania (numeryczny)
               defaultContent: "",
-            },
-            {
-              orderable: false,
-              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
-              name: "statusColumn",
-              render: function (data, type, row) {
-                // Pokazuj tylko w stanie realizacji
-                if (!row.inRealization) return "";
-
-                // Określ status na podstawie confirmed
-                const status = data.confirmed ? "in progress" : "pending";
-
-                // Generuj badge
-                return getStatusHtml({
-                  status: status,
-                  confirmed: data.confirmed,
-                });
-              },
-              className: "status-column",
-              visible: false,
             },
             {
               orderable: false,
@@ -1032,8 +1031,6 @@ docReady(function () {
                       });
 
                       // Przerysuj CAŁĄ tabelę
-                      // Pokazanie kolumny statusu
-                      table.column("statusColumn:name").visible(true);
                       table.draw();
                     });
                   }
