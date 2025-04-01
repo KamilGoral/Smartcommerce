@@ -742,9 +742,8 @@ docReady(function () {
                 if (data.wholesalerName === "unassigned") {
                   return "";
                 }
-                return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" alt="Budynek" style="width:24px; height:24px;">';
+                return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" alt="Budynek">';
               },
-              defaultContent: "",
             },
             {
               orderable: true,
