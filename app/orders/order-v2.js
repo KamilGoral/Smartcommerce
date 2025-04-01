@@ -3727,6 +3727,7 @@ docReady(function () {
 
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
+    getShop();
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
