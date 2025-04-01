@@ -406,7 +406,7 @@ docReady(function () {
 
           // Add phones if available
           if (Array.isArray(data.phones)) {
-            addressDescription += "\n\nTelefony:";
+            addressDescription += "\n\nTelefon:";
             data.phones.forEach((phone) => {
               addressDescription += `\n${phone.phone} (${
                 phone.description || "brak opisu"
@@ -416,7 +416,7 @@ docReady(function () {
 
           // Add emails if available
           if (Array.isArray(data.emails)) {
-            addressDescription += "\n\nE-maile:";
+            addressDescription += "\n\nE-mail:";
             data.emails.forEach((email) => {
               addressDescription += `\n${email.email} (${
                 email.description || "brak opisu"
@@ -610,7 +610,11 @@ docReady(function () {
           width: "72px",
           render: function (data, type, row) {
             if (type === "display" && data) {
-              return `<div class="action-container"><a href="https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}" class="buttonoutline editme w-button">Przejdź</a></div>`;
+              let url = `https://${DomainName}/app/orders/order-v2?orderId=${data}&shopKey=${shopKey}`;
+              if (row.confirmed > 0) {
+                url += "&confirmed=true";
+              }
+              return `<div class="action-container"><a href="${url}" class="buttonoutline editme w-button">Przejdź</a></div>`;
             }
             return "";
           },
