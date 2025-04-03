@@ -1537,17 +1537,28 @@ docReady(function () {
 
         const organizationTaxId = getCookie("sprytnyOrganizationTaxId");
 
-        // PGD
+        // Lista TaxID dla UB,
+        const allowedTaxIds = ["8792220128", "5213681831", "6670004078"];
+
+        // Lista TaxID dla PGD,
         if (organizationTaxId === "7792272047") {
-          const found = toParse.some(function (item) {
-            return item.taxId === organizationTaxId;
-          });
+          const found = toParse.some(
+            (item) => item.taxId === organizationTaxId
+          );
 
           if (found) {
-            toParse = toParse.filter(function (item) {
-              return item.taxId === organizationTaxId;
-            });
+            toParse = toParse.filter(
+              (item) => item.taxId === organizationTaxId
+            );
           }
+        } else if (allowedTaxIds.includes(organizationTaxId)) {
+          //UB
+          toParse = toParse.filter((item) =>
+            allowedTaxIds.includes(item.taxId)
+          );
+        } else {
+          // All
+          toParse = toParse;
         }
 
         // Code for exclusive
