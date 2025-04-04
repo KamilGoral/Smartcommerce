@@ -1068,14 +1068,17 @@ docReady(function () {
               ).hide();
               $("#lockOrderDiv").hide();
 
-              // Ustaw flagę inRealization dla wszystkich wierszy
+              // Pobierz wszystkie dane z tabeli
+              var table = $("#table_splited_wh").DataTable();
+              var allData = table.rows().data();
+
+              // Ustaw flagę inRealization dla WSZYSTKICH wierszy i zaktualizuj dane
               table.rows().every(function () {
                 var data = this.data();
                 data.inRealization = true;
-                this.data(data);
+                this.data(data); // Jawnie aktualizujemy dane wiersza
               });
-
-              // Przerysuj tabelę
+              // Przerysuj CAŁĄ tabelę
               table.draw();
             }
           },
