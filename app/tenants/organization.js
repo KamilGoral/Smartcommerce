@@ -4399,13 +4399,16 @@ docReady(function () {
             doneBlock.show();
             failBlock.hide();
 
-            // Resetowanie formularza do stanu początkowego
-            form.trigger("reset");
-            setTimeout(function () {
-              form.show();
-              doneBlock.hide();
-              failBlock.hide();
-            }, 5000);
+            // Resetowanie formularza do stanu początkowego gdy ktoś kliknie element o id #resetwhform
+            $("#resetwhform").on("click", function () {
+              // Reset formularza
+              form.trigger("reset");
+              setTimeout(function () {
+                form.show();
+                doneBlock.hide();
+                failBlock.hide();
+              }, 1000);
+            });
           },
           error: function (jqXHR, exception) {
             var msg = "";
