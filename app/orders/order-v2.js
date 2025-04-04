@@ -1058,6 +1058,26 @@ docReady(function () {
                 api.search(this.value).draw();
               }
             });
+
+            // Sprawdź parametr URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("confirmed") === "true") {
+              // Ukryj elementy jak po kliknięciu lockOrderButton
+              $(
+                "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
+              ).hide();
+              $("#lockOrderDiv").hide();
+
+              // Ustaw flagę inRealization dla wszystkich wierszy
+              table.rows().every(function () {
+                var data = this.data();
+                data.inRealization = true;
+                this.data(data);
+              });
+
+              // Przerysuj tabelę
+              table.draw();
+            }
           },
         });
         return false;
