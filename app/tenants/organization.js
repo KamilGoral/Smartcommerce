@@ -1677,7 +1677,7 @@ docReady(function () {
                 if (data !== null) {
                   // Sprawdzenie, czy vanMember jest true
                   if (row.vanMember) {
-                    return `${data} <div class="positive newtippy" data-tippy-content="Aktywuj dostawcę, a integracja rozpocznie się automatycznie" style="margin-left: 8px;">SmartVan</div>`;
+                    return `${data} <div class="positive" data-tippy-content="Aktywuj dostawcę, a integracja rozpocznie się automatycznie" style="margin-left: 8px;">SmartVan</div>`;
                   }
                   return data;
                 }
