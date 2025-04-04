@@ -670,12 +670,12 @@ docReady(function () {
           // Dodatkowe klasy CSS dla różnych statusów
           const statusClasses = {
             "in progress": "positive",
-            pending: "informative",
+            pending: "noneexisting",
             ready: "positive",
             error: "negative",
             incomplete: "medium",
-            batching: "informative",
-            forced: "informative",
+            batching: "noneexisting",
+            forced: "noneexisting",
           };
 
           // Teksty dla statusów
@@ -690,7 +690,7 @@ docReady(function () {
           };
 
           const baseClass = "status-badge";
-          const statusClass = statusClasses[item.status] || "informative";
+          const statusClass = statusClasses[item.status] || "noneexisting";
           const text = statusTexts[item.status] || "-";
 
           // Dodatkowy atrybut title z pełnym opisem
