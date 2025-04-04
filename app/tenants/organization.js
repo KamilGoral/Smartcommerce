@@ -1535,29 +1535,39 @@ docReady(function () {
           return b.enabled - a.enabled;
         });
 
-        const organizationTaxId = getCookie("sprytnyOrganizationTaxId");
+        const organizationName = getCookie("OrganizationName");
 
-        // Lista TaxID dla UB,
-        const allowedTaxIds = ["8792220128", "5213681831", "6670004078"];
+        // Mapowanie nazw organizacji na ich TaxId
+        const organizationMapping = {
+          UnitedBeverages: "8792220128",
+          Distribev: "5213681831",
+          "Alco-Trade": "6670004078",
+          "PGD-Polska": "7792272047",
+        };
 
-        // Lista TaxID dla PGD,
-        if (organizationTaxId === "7792272047") {
-          const found = toParse.some(
-            (item) => item.taxId === organizationTaxId
-          );
+        // Pobierz TaxId na podstawie nazwy organizacji
+        const currentTaxId = organizationMapping[organizationName];
 
+        // Lista TaxID dla UB
+        const allowedTaxIds = [
+          organizationMapping["UnitedBeverages"],
+          organizationMapping["Distribev"],
+          organizationMapping["Alco-Trade"],
+        ];
+
+        if (organizationName === "PGD-Polska") {
+          // Dla PGD filtruj tylko swoje rekordy
+          const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
-            toParse = toParse.filter(
-              (item) => item.taxId === organizationTaxId
-            );
+            toParse = toParse.filter((item) => item.taxId === currentTaxId);
           }
-        } else if (allowedTaxIds.includes(organizationTaxId)) {
-          //UB
+        } else if (allowedTaxIds.includes(currentTaxId)) {
+          // Dla UB filtruj wszystkie rekordy UB
           toParse = toParse.filter((item) =>
             allowedTaxIds.includes(item.taxId)
           );
         } else {
-          // All
+          // Dla innych pozostaw bez zmian
           toParse = toParse;
         }
 
