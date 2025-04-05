@@ -2745,6 +2745,38 @@ docReady(function () {
     request.send();
   }
 
+  function calculateAndDisplayTimeSavings(responseData) {
+    // Oblicz całkowitą liczbę ofert (asks) dla wszystkich produktów
+    let totalOffers = 0;
+
+    if (
+      responseData &&
+      responseData.items &&
+      Array.isArray(responseData.items)
+    ) {
+      responseData.items.forEach((item) => {
+        if (item.asks && Array.isArray(item.asks)) {
+          totalOffers += item.asks.length;
+        }
+      });
+    }
+
+    // Oblicz czas zaoszczędzony w sekundach (liczba pozycji × liczba ofert × 5 sekund)
+    const totalItems = responseData?.total || 0;
+    const timeSavedInSeconds = totalItems * totalOffers * 5;
+
+    // Przelicz sekundy na minuty i zaokrąglij w górę
+    const timeSavedInMinutes = Math.ceil(timeSavedInSeconds / 60);
+
+    // Zaktualizuj element #timesavings
+    const timeSavingsElement = document.getElementById("timesavings");
+    if (timeSavingsElement) {
+      timeSavingsElement.textContent = timeSavedInMinutes.toString();
+    }
+
+    return timeSavedInMinutes;
+  }
+
   function fetchDataFromEndpoint() {
     let url = new URL(
       InvokeURL +
@@ -2762,6 +2794,7 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const productsData = JSON.parse(request.responseText);
         saveToSessionStorage(productsData);
+        calculateAndDisplayTimeSavings(productsData); // Dodane wywołanie funkcji
       } else {
         console.error("Błąd podczas pobierania danych z endpointu.");
       }
