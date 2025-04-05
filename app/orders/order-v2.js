@@ -693,7 +693,7 @@ docReady(function () {
           pageLength: 25,
           destroy: true,
           orderMulti: true,
-          order: [[3, "desc"]],
+          order: [[2, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak danych do wyświetlenia",
