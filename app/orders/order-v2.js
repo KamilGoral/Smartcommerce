@@ -289,7 +289,6 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var counter = 0;
-  var offerId = "latest";
   var changesPayload = [];
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var orderId = new URL(location.href).searchParams.get("orderId");
@@ -487,8 +486,6 @@ docReady(function () {
 
     await makeChangesToOrder();
     var method = "GET";
-    var e = document.getElementById("offerId");
-    var offerId = e.value;
 
     var searchIDs = $("#table_splited_wh input:checkbox:checked")
       .map(function () {
@@ -534,12 +531,6 @@ docReady(function () {
     var UrlParameters = "";
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
-
-    if (offerId.length > 0) {
-      UrlParameters = "offerId=" + offerId;
-    } else {
-      UrlParameters = "offerId=latest";
-    }
 
     getOfferStatus();
 
@@ -1139,72 +1130,6 @@ docReady(function () {
         }
       },
     });
-  }
-
-  function getOffers() {
-    let url = new URL(
-      InvokeURL +
-        "shops/" +
-        shopKey +
-        "/offers?perPage=100&sort=createDate:desc"
-    );
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
-        const OffersSelector = document.getElementById("offerId");
-        toParse.forEach((offer) => {
-          // Check if createDate is not null
-          if (offer.createDate) {
-            var opt = document.createElement("option");
-            opt.value = offer.offerId;
-
-            var offset = new Date().getTimezoneOffset();
-            var localeTime = new Date(
-              Date.parse(offer.createDate) - offset * 60 * 1000
-            ).toISOString();
-            var creationDate = localeTime.split("T");
-            var creationTime = creationDate[1].split("Z");
-            var statusText = "";
-
-            if (offer.status !== null) {
-              if (offer.status === "ready") {
-                statusText = "Gotowa";
-              } else if (offer.status === "error") {
-                statusText = "Problem";
-              } else if (offer.status === "in progress") {
-                statusText = "W trakcie";
-              } else if (offer.status === "incomplete") {
-                statusText = "Niekompletna";
-              } else if (
-                offer.status === "batching" ||
-                offer.status === "forced"
-              ) {
-                statusText = "W kolejce";
-              }
-            }
-
-            opt.textContent =
-              creationDate[0] +
-              " " +
-              creationTime[0].slice(0, -4) +
-              " " +
-              statusText;
-            OffersSelector.appendChild(opt);
-          } else {
-            console.log("Skipping offer with missing createDate:", offer);
-          }
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
-      }
-    };
-    request.send();
   }
 
   function format(d) {
@@ -2738,18 +2663,7 @@ docReady(function () {
   }
 
   function getOfferStatus() {
-    var e = document.getElementById("offerId");
-    var offerId = e.value;
-
-    if (offerId.length > 0) {
-      UrlParameters = "offerId=" + offerId;
-    } else {
-      UrlParameters = "offerId=latest";
-    }
-
-    let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
-    );
+    let url = new URL(InvokeURL + "shops/" + shopKey + "/offers/latest/status");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -3347,15 +3261,6 @@ docReady(function () {
         QStr = QStr + sort;
       }
 
-      var e = document.getElementById("offerId");
-      var offerId = e.value;
-
-      if (offerId.length > 0) {
-        UrlParameters = "offerId=" + offerId;
-      } else {
-        UrlParameters = "offerId=latest";
-      }
-
       getOfferStatus();
 
       $.ajaxSetup({
@@ -3371,7 +3276,7 @@ docReady(function () {
         },
       });
       $.get(
-        InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
+        InvokeURL + "shops/" + shopKey + "/offers/latest" + QStr,
         function (res) {
           callback({
             recordsTotal: res.total,
@@ -4462,7 +4367,6 @@ docReady(function () {
     CreateOrder(); // Fire CreateOrder() if the parameter is not present
   }
 
-  getOffers();
   getWholesalersSh();
   fetchDataFromEndpoint();
   getShop();
