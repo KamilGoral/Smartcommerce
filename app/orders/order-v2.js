@@ -604,7 +604,6 @@ docReady(function () {
           const savingsValue = values.avg - values.total;
           const savingsPercentage = (savingsValue / values.avg) * 100;
           setElementContent(`${prefix}totalValue`, values.total);
-          setElementContent(`${prefix}maxValue`, values.max);
           setElementContent(`${prefix}avgValue`, values.avg);
           return { savingsValue, savingsPercentage };
         };
@@ -635,9 +634,6 @@ docReady(function () {
           userRole === "admin" &&
           data.netValues.total !== data.netNetValues.total
         ) {
-          $(
-            "#netNetValues, #netmaxValue, #netavgValue, #nettotalValue, #savingsNet"
-          ).show();
           setElementContent(
             "savingsNet",
             savingsNetValue,
