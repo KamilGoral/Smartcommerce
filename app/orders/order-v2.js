@@ -765,10 +765,11 @@ docReady(function () {
                     return `
                               <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;">
                                   <span>${data}zł</span>
-                                  <span style="color: #8E1212; font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                                  <span style="color: #8E1212; display: flex; align-items: center;"
+                                        data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
                                       <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
                                            alt="Ostrzeżenie" 
-                                           style="width: 16px; height: 16px;"> [${toGo}zł do min. log]
+                                           style="width: 16px; height: 16px;">
                                   </span>
                               </div>
                           `;
