@@ -722,9 +722,10 @@ docReady(function () {
           },
           columns: [
             {
-              orderable: false,
+              orderable: true,
               data: null, // Używamy null, bo będziemy korzystać z całego wiersza
               name: "statusColumn",
+              width: "96px",
               render: function (data, type, row) {
                 if (data.wholesalerName === "unassigned") {
                   return "";
