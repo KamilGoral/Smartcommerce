@@ -750,25 +750,7 @@ docReady(function () {
                 if (data.wholesalerName === "unassigned") {
                   return "Nieprzydzielone";
                 }
-
-                if (data.logisticMinimum === null) {
-                  return data.wholesalerName;
-                } else {
-                  var toGo = (data.logisticMinimum - data.netValue).toFixed(2);
-                  if (toGo > 0) {
-                    return `
-                      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                        <span>${data.wholesalerName}</span>
-                        <span style="color: #8E1212; font-weight: bold; display: flex; align-items: center; gap: 4px;">
-                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                               alt="Ostrzeżenie" 
-                               style="width: 16px; height: 16px;"> Brakuje ${toGo} zł do minimum log.
-                        </span>
-                      </div>
-                    `;
-                  }
-                  return data.wholesalerName;
-                }
+                return data.wholesalerName;
               },
             },
             {
@@ -777,7 +759,22 @@ docReady(function () {
               width: "auto",
               className: "dt-right",
               render: function (data, type, row) {
-                return data;
+                if (row.logisticMinimum !== null) {
+                  var toGo = (row.logisticMinimum - row.netValue).toFixed(2);
+                  if (toGo > 0) {
+                    return `
+                              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;">
+                                  <span>${data}zł</span>
+                                  <span style="color: #8E1212; font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                                           alt="Ostrzeżenie" 
+                                           style="width: 16px; height: 16px;"> [${toGo}zł do min. log]
+                                  </span>
+                              </div>
+                          `;
+                  }
+                }
+                return `${data}zł`;
               },
             },
             {
