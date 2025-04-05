@@ -756,7 +756,7 @@ docReady(function () {
             {
               orderable: true,
               data: "netValue",
-              width: "auto",
+              width: "96px",
               className: "dt-right",
               render: function (data, type, row) {
                 // Dla wyświetlania i sortowania zwracamy czystą wartość
@@ -787,7 +787,7 @@ docReady(function () {
             {
               orderable: true,
               data: "products",
-              width: "auto",
+              width: "96px",
               render: function (data, type, row) {
                 // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
                 if (type === "sort" || type === "type") {
@@ -871,7 +871,7 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "196px",
+              width: "192px",
               data: "wholesalerKey",
               render: function (data, type, row) {
                 // File icon definitions
