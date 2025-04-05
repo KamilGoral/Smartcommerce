@@ -759,23 +759,30 @@ docReady(function () {
               width: "auto",
               className: "dt-right",
               render: function (data, type, row) {
-                if (row.logisticMinimum !== null) {
-                  var toGo = (row.logisticMinimum - row.netValue).toFixed(2);
-                  if (toGo > 0) {
-                    return `
-                              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego>
-                                  <span style="color: #8E1212; display: flex; align-items: center;">
-                                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                                           alt="Ostrzeżenie" 
-                                           style="width: 16px; height: 16px;">
-                                  </span>
-                                  <span>${data}zł</span>
-                              </div>
-                          `;
+                // Dla wyświetlania i sortowania zwracamy czystą wartość
+                if (type === "display" || type === "filter") {
+                  if (row.logisticMinimum !== null) {
+                    var toGo = (row.logisticMinimum - row.netValue).toFixed(2);
+                    if (toGo > 0) {
+                      return `
+                                  <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
+                                       data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
+                                      <span style="color: #8E1212; display: flex; align-items: center;">
+                                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                                               alt="Ostrzeżenie" 
+                                               style="width: 16px; height: 16px;">
+                                      </span>
+                                      <span>${data}zł</span>
+                                  </div>
+                              `;
+                    }
                   }
+                  return `${data}zł`;
                 }
-                return `${data}zł`;
+                // Dla sortowania zwracamy oryginalną wartość liczbową
+                return data;
               },
+              type: "num", // Określamy, że to kolumna numeryczna
             },
             {
               orderable: true,
