@@ -2763,15 +2763,27 @@ docReady(function () {
 
     // Oblicz czas zaoszczędzony w sekundach (liczba pozycji × liczba ofert × 5 sekund)
     const totalItems = responseData?.total || 0;
-    const timeSavedInSeconds = totalItems * totalOffers * 5;
+    const timeSavedInSeconds = totalItems * totalOffers * 2;
 
     // Przelicz sekundy na minuty i zaokrąglij w górę
-    const timeSavedInMinutes = Math.ceil(timeSavedInSeconds / 60);
+    let timeSavedInMinutes = Math.ceil(timeSavedInSeconds / 60);
+
+    // Formatuj czas w zależności od długości
+    let timeText;
+    if (timeSavedInMinutes < 60) {
+      timeText = `${timeSavedInMinutes} min`;
+    } else {
+      const hours = Math.floor(timeSavedInMinutes / 60);
+      const minutes = timeSavedInMinutes % 60;
+      timeText = `${hours} h ${minutes} min`;
+
+      timeText = minutes > 0 ? `${hours} h ${minutes} min` : `${hours} h`;
+    }
 
     // Zaktualizuj element #timesavings
     const timeSavingsElement = document.getElementById("timesavings");
     if (timeSavingsElement) {
-      timeSavingsElement.textContent = timeSavedInMinutes.toString();
+      timeSavingsElement.textContent = timeText;
     }
 
     return timeSavedInMinutes;
