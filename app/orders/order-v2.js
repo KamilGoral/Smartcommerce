@@ -723,14 +723,23 @@ docReady(function () {
           columns: [
             {
               orderable: false,
-              width: "44px",
-              data: null,
-              render: function (data) {
+              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
+              name: "statusColumn",
+              render: function (data, type, row) {
                 if (data.wholesalerName === "unassigned") {
                   return "";
                 }
-                return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" alt="Budynek">';
+
+                // Określ status na podstawie confirmed
+                const status = data.confirmed ? "in progress" : "pending";
+
+                // Generuj badge
+                return getStatusHtml({
+                  status: status,
+                  confirmed: data.confirmed,
+                });
               },
+              className: "status-column",
             },
             {
               orderable: true,
@@ -760,26 +769,6 @@ docReady(function () {
                   return data.wholesalerName;
                 }
               },
-            },
-            {
-              orderable: false,
-              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
-              name: "statusColumn",
-              render: function (data, type, row) {
-                if (data.wholesalerName === "unassigned") {
-                  return "";
-                }
-
-                // Określ status na podstawie confirmed
-                const status = data.confirmed ? "in progress" : "pending";
-
-                // Generuj badge
-                return getStatusHtml({
-                  status: status,
-                  confirmed: data.confirmed,
-                });
-              },
-              className: "status-column",
             },
             {
               orderable: true,
