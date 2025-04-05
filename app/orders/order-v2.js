@@ -888,7 +888,7 @@ docReady(function () {
                 let content = "";
                 if (data !== "unassigned") {
                   content =
-                    '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">' +
+                    '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">' +
                     '<input type="checkbox" class="theClass" id="' +
                     data +
                     '" value="' +
@@ -904,7 +904,7 @@ docReady(function () {
                 // If the row is in "realizacja" mode (after clicking "Realizuj")
                 if (row.inRealization) {
                   content =
-                    '<div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">';
+                    '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">';
 
                   if (data === "unassigned") {
                     // Generate 4 formats for "unassigned"
