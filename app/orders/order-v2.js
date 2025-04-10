@@ -2772,6 +2772,12 @@ docReady(function () {
           console.log("wpisz adres-email");
         } else {
           smtpEmailInput.value = smtpEmail;
+          smtpEmailInput.disabled = true;
+          smtpEmailInput.setAttribute(
+            "data-tippy-content",
+            "Edycja adresu email dostawcy mozliwa jest na poziomie sklepu z pozycji ustawien dostawcy przez administatora organizacji"
+          );
+          initializeSimpleTooltips();
         }
 
         // Obsługuje formaty
