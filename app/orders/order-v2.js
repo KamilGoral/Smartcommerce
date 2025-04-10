@@ -725,7 +725,7 @@ docReady(function () {
               orderable: true,
               data: null, // Używamy null, bo będziemy korzystać z całego wiersza
               name: "statusColumn",
-              width: "96px",
+              width: "108px",
               render: function (data, type, row) {
                 if (data.wholesalerName === "unassigned") {
                   return "";
@@ -756,7 +756,7 @@ docReady(function () {
             {
               orderable: true,
               data: "netValue",
-              width: "96px",
+              width: "108px",
               className: "dt-right",
               render: function (data, type, row) {
                 // Dla wyświetlania i sortowania zwracamy czystą wartość
@@ -787,7 +787,7 @@ docReady(function () {
             {
               orderable: true,
               data: "products",
-              width: "96px",
+              width: "108px",
               render: function (data, type, row) {
                 // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
                 if (type === "sort" || type === "type") {
