@@ -3764,7 +3764,7 @@ docReady(function () {
     console.log(data);
 
     getShop(); // Avoid problems
-    getWhSmartVan(data.wholesalerName);
+    getWhSmartVan(data.wholesalerKey);
 
     // orderItems
     const productsSum =
