@@ -2749,6 +2749,69 @@ docReady(function () {
     request.send();
   }
 
+  function getWhSmartVan(wholesalerKey) {
+    let url2 = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/smartvan"
+    );
+    let request2 = new XMLHttpRequest();
+    request2.open("GET", url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function () {
+      var data2 = JSON.parse(this.response);
+      if (request2.status >= 200 && request2.status < 400) {
+        // Obsługuje e-mail
+        let smtpEmail = data2.smtp ? data2.smtp.email : null;
+
+        let smtpEmailInput = document.getElementById("orderEmail");
+        if (smtpEmail === null) {
+          console.log("wpisz adres-email");
+        } else {
+          smtpEmailInput.value = smtpEmail;
+        }
+
+        // Obsługuje formaty
+        let formats =
+          data2.smtp && data2.smtp.formats ? data2.smtp.formats : [];
+        let formatsSelect = document.getElementById("formats");
+        if (formats.length === 0) {
+          console.log("wybierz formaty");
+        } else {
+          formats.forEach(function (format) {
+            let option = formatsSelect.querySelector(
+              `option[value="${format}"]`
+            );
+            if (option) {
+              option.selected = true;
+            }
+            previousFormats = formats;
+          });
+        }
+
+        // // Obsługuje ostatnią transakcję SMTP dodaj to jako dajny UX
+        // let lastTransaction = data2.smtp ? data2.smtp.lastTransaction : null;
+        // let lastTransactionElement = document.querySelector(
+        //   '[wholesalerdata="smtpLastTransaction"]'
+        // );
+        // if (lastTransaction === null) {
+        //   lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
+        // } else {
+        //   lastTransactionElement.innerHTML =
+        //     "Data ostatniej operacji: " + lastTransaction;
+        // }
+      } else if (request2.status >= 400) {
+        console.error("Błąd: ", request2.status, this.response);
+      } else {
+        console.log("Nieoczekiwany błąd");
+      }
+    };
+    request2.send();
+  }
+
   function calculateAndDisplayTimeSavings(responseData) {
     // Oblicz całkowitą liczbę ofert (asks) dla wszystkich produktów
     let totalOffers = 0;
@@ -3692,13 +3755,16 @@ docReady(function () {
 
   $("#table_splited_wh").on("click", ".sendemail", function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
-    getShop();
+
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
     var row = $(this).closest("tr");
     var data = table.row($(this).parents("tr")).data();
     console.log(data);
+
+    getShop(); // Avoid problems
+    getWhSmartVan(data.wholesalerName);
 
     // orderItems
     const productsSum =
