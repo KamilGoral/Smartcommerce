@@ -2946,6 +2946,81 @@ docReady(function () {
     });
   };
 
+  sendEmailToWholesaler = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        // Pobieranie wartości z formularza
+        var wholesalerKey = $("#orderWholesalerKey").data("key"); // Pobieramy z data-key zamiast z wartości inputa
+        var orderEmail = $("#orderEmail").val();
+        var formats = $("#formats").val();
+        var orderEmailMe = $("#orderEmailMe").is(":checked");
+        var orderId = new URL(location.href).searchParams.get("orderId"); // Pobieramy orderId z URL
+
+        // Przygotowanie danych do wysłania
+        var requestData = {
+          orderId: orderId,
+          wholesalerKey: wholesalerKey,
+          formats: formats,
+          ccToMe: orderEmailMe,
+        };
+
+        var action = InvokeURL + "van/orders";
+        var method = "POST";
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 3000);
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(requestData),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              var result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                return;
+              }
+            }
+            displayMessage("Success", "Email został wysłany do dostawcy.");
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
+            console.error("Błąd podczas wysyłania emaila:", e);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   makeWebflowFormAjaxPatchShopEdit = function (
     forms,
     successCallback,
@@ -4532,6 +4607,7 @@ docReady(function () {
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
+  sendEmailToWholesaler($("#wf-form-orderForm"));
 
   // DataTables initialization and event handling
   $("table.dataTable").on("init.dt xhr.dt page.dt draw.dt", function () {
