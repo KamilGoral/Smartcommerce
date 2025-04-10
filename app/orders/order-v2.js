@@ -2950,12 +2950,27 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
         // Pobieranie wartości z formularza
-        var wholesalerKey = $("#orderWholesalerKey").data("key"); // Pobieramy z data-key zamiast z wartości inputa
+        var wholesalerKey = $("#orderWholesalerKey").data("key");
         var orderEmail = $("#orderEmail").val();
         var formats = $("#formats").val();
         var orderEmailMe = $("#orderEmailMe").is(":checked");
-        var orderId = new URL(location.href).searchParams.get("orderId"); // Pobieramy orderId z URL
+        var orderId = new URL(location.href).searchParams.get("orderId");
+
+        // Resetowanie podświetlenia błędów
+        $("#formats").removeClass("error-highlight");
+
+        // Walidacja formatów
+        if (!formats || formats.length < 1) {
+          displayMessage(
+            "Error",
+            "Proszę wybrać przynajmniej jeden format danych do wysyłki."
+          );
+          $("#formats").addClass("error-highlight");
+          return false;
+        }
 
         // Przygotowanie danych do wysłania
         var requestData = {
@@ -3015,11 +3030,27 @@ docReady(function () {
             console.error("Błąd podczas wysyłania emaila:", e);
           },
         });
-        event.preventDefault();
+
         return false;
       });
     });
   };
+
+  // Dodaj odpowiedni CSS dla podświetlenia błędów
+  var errorHighlightStyle = document.createElement("style");
+  errorHighlightStyle.innerHTML = `
+    .error-highlight {
+      border: 2px solid rgb(10, 24, 224) !important;
+      box-shadow: 0 0 5px rgba(6, 3, 192, 0.5) !important;
+      animation: pulse 0.5s ease-in-out;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+  `;
+  document.head.appendChild(errorHighlightStyle);
 
   makeWebflowFormAjaxPatchShopEdit = function (
     forms,
