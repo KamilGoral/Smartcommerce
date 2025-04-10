@@ -2766,36 +2766,45 @@ docReady(function () {
       if (request2.status >= 200 && request2.status < 400) {
         // Obsługuje e-mail
         let smtpEmail = data2.smtp ? data2.smtp.email : null;
+        let smtpEmailInput = document.getElementById("orderEmail"); // Obsługuje formaty
 
-        let smtpEmailInput = document.getElementById("orderEmail");
-        if (smtpEmail === null) {
-          console.log("wpisz adres-email");
-        } else {
-          smtpEmailInput.value = smtpEmail;
-          smtpEmailInput.disabled = true;
-          smtpEmailInput.setAttribute(
-            "data-tippy-content",
-            "Edycja adresu email dostawcy mozliwa jest na poziomie sklepu z pozycji ustawien dostawcy przez administatora organizacji"
-          );
-          initializeSimpleTooltips();
-        }
-
-        // Obsługuje formaty
         let formats =
           data2.smtp && data2.smtp.formats ? data2.smtp.formats : [];
         let formatsSelect = document.getElementById("formats");
-        if (formats.length === 0) {
-          console.log("wybierz formaty");
+
+        if (data2.smtp === null) {
+          // Resetuj pole e-mail
+          smtpEmailInput.value = "";
+          smtpEmailInput.disabled = false;
+          console.log("zresetowano adres-email"); // Resetuj listę formatów
+
+          for (let i = 0; i < formatsSelect.options.length; i++) {
+            formatsSelect.options[i].selected = false;
+          }
+          previousFormats = [];
+          console.log("zresetowano formaty");
         } else {
-          formats.forEach(function (format) {
-            let option = formatsSelect.querySelector(
-              `option[value="${format}"]`
-            );
-            if (option) {
-              option.selected = true;
-            }
-            previousFormats = formats;
-          });
+          // Obsługa e-maila, gdy data2.smtp nie jest null
+          if (smtpEmail === null) {
+            console.log("wpisz adres-email");
+          } else {
+            smtpEmailInput.value = smtpEmail;
+            smtpEmailInput.disabled = true;
+          } // Obsługa formatów, gdy data2.smtp nie jest null
+
+          if (formats.length === 0) {
+            console.log("wybierz formaty");
+          } else {
+            formats.forEach(function (format) {
+              let option = formatsSelect.querySelector(
+                `option[value="${format}"]`
+              );
+              if (option) {
+                option.selected = true;
+              }
+              previousFormats = formats;
+            });
+          }
         }
 
         // // Obsługuje ostatnią transakcję SMTP dodaj to jako dajny UX
