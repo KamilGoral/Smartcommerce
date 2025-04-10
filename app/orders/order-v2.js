@@ -2765,46 +2765,40 @@ docReady(function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
         // Obsługuje e-mail
-        let smtpEmail = data2.smtp ? data2.smtp.email : null;
-        let smtpEmailInput = document.getElementById("orderEmail"); // Obsługuje formaty
+        let smtpEmailInput = document.getElementById("orderEmail");
+        let smtpEmail = data2.smtp ? data2.smtp.email : null; // Obsługuje formaty
 
-        let formats =
-          data2.smtp && data2.smtp.formats ? data2.smtp.formats : [];
         let formatsSelect = document.getElementById("formats");
+        let formats = data2.smtp ? data2.smtp.formats : []; // Resetuj, jeśli data2.smtp jest null LUB data2.smtp.email jest null
 
-        if (data2.smtp === null) {
-          // Resetuj pole e-mail
+        if (data2.smtp === null || data2.smtp.email === null) {
           smtpEmailInput.value = "";
           smtpEmailInput.disabled = false;
-          console.log("zresetowano adres-email"); // Resetuj listę formatów
+          console.log("zresetowano adres-email");
+        } else {
+          smtpEmailInput.value = smtpEmail;
+          smtpEmailInput.disabled = true;
+        } // Resetuj, jeśli data2.smtp jest null LUB data2.smtp.formats jest pusta
 
+        if (
+          data2.smtp === null ||
+          (data2.smtp.formats && data2.smtp.formats.length === 0)
+        ) {
           for (let i = 0; i < formatsSelect.options.length; i++) {
             formatsSelect.options[i].selected = false;
           }
           previousFormats = [];
           console.log("zresetowano formaty");
         } else {
-          // Obsługa e-maila, gdy data2.smtp nie jest null
-          if (smtpEmail === null) {
-            console.log("wpisz adres-email");
-          } else {
-            smtpEmailInput.value = smtpEmail;
-            smtpEmailInput.disabled = true;
-          } // Obsługa formatów, gdy data2.smtp nie jest null
-
-          if (formats.length === 0) {
-            console.log("wybierz formaty");
-          } else {
-            formats.forEach(function (format) {
-              let option = formatsSelect.querySelector(
-                `option[value="${format}"]`
-              );
-              if (option) {
-                option.selected = true;
-              }
-              previousFormats = formats;
-            });
-          }
+          formats.forEach(function (format) {
+            let option = formatsSelect.querySelector(
+              `option[value="${format}"]`
+            );
+            if (option) {
+              option.selected = true;
+            }
+            previousFormats = formats;
+          });
         }
 
         // // Obsługuje ostatnią transakcję SMTP dodaj to jako dajny UX
