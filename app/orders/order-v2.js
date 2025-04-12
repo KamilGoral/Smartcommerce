@@ -3165,26 +3165,38 @@ docReady(function () {
                   console.log(
                     "DataTable found, searching for wholesaler:",
                     wholesalerKeyToSend
-                  ); // Log table found
+                  );
                   var found = false;
-                  table.rows().every(function () {
+
+                  table.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     var rowData = this.data();
                     console.log(
                       "Checking row with wholesalerKey:",
                       rowData.wholesalerKey
-                    ); // Log each row check
+                    );
 
                     if (rowData.wholesalerKey === wholesalerKeyToSend) {
-                      console.log("Matching wholesaler found, updating row"); // Log match found
-                      this.cell(0)
-                        .data(
-                          '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
-                            new Date().toLocaleString() +
-                            '">W realizacji</span>'
-                        )
-                        .draw();
-                      this.node().querySelector(".sendemail").disabled = true;
+                      console.log("Matching wholesaler found, updating row");
+
+                      // Update the status cell
+                      var statusCell = this.cell(rowIdx, 0); // 0 is the status column index
+                      statusCell.data(
+                        '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
+                          new Date().toLocaleString() +
+                          '">W realizacji</span>'
+                      );
+
+                      // Disable the send button
+                      var rowNode = this.node();
+                      if (rowNode) {
+                        var sendButton = rowNode.querySelector(".sendemail");
+                        if (sendButton) {
+                          sendButton.disabled = true;
+                        }
+                      }
+
                       found = true;
+                      return false; // Break the loop
                     }
                   });
 
@@ -3195,13 +3207,11 @@ docReady(function () {
                         wholesalerKeyToSend: wholesalerKeyToSend,
                         tableData: table.rows().data().toArray(),
                       }
-                    ); // Enhanced warning with data
+                    );
                   }
-                } else {
-                  console.error(
-                    "Tabela DataTable nie została poprawnie załadowana.",
-                    $("#table_splited_wh")
-                  ); // Error log with element info
+
+                  // Redraw the table to reflect changes
+                  table.draw();
                 }
 
                 console.log("Showing success message"); // Log before success message
