@@ -2983,7 +2983,7 @@ docReady(function () {
         event.preventDefault();
 
         // Pobieranie wartości z formularza
-        var wholesalerKey = $("#orderWholesalerKey").data("key");
+        var wholesalerKeyToSend = $("#orderWholesalerKey").data("key");
         var orderEmail = $("#orderEmail").val();
         var formats = $("#formats").val();
         var orderEmailMe = $("#orderEmailMe").is(":checked");
@@ -3005,7 +3005,7 @@ docReady(function () {
         // Przygotowanie danych do wysłania
         var requestData = {
           orderId: orderId,
-          wholesalerKey: wholesalerKey,
+          wholesalerKey: wholesalerKeyToSend,
           formats: formats,
           ccToMe: orderEmailMe,
         };
