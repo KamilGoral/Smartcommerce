@@ -3063,6 +3063,7 @@ docReady(function () {
               },
               data: JSON.stringify(patchData),
               success: function () {
+                $("#orderEmail").prop("disabled", true);
                 resolve();
               },
               error: function (jqXHR, exception) {
@@ -3128,13 +3129,23 @@ docReady(function () {
               },
               data: JSON.stringify(requestData),
               success: function (resultData) {
+                console.log("Entering success callback"); // Log entry point
+                console.log("Received resultData:", resultData); // Log input data
+
                 setTimeout(function () {
+                  console.log("Hiding waiting dots after timeout"); // Log timeout action
                   $("#waitingdots").hide();
                 }, 3000);
 
                 if (typeof successCallback === "function") {
+                  console.log("Success callback function exists, executing it"); // Log callback check
                   var result = successCallback(resultData);
+                  console.log("Callback returned:", result); // Log callback result
+
                   if (!result) {
+                    console.error(
+                      "Callback returned false, showing error message"
+                    ); // Log error case
                     form.show();
                     displayMessage(
                       "Error",
@@ -3143,15 +3154,28 @@ docReady(function () {
                     reject(new Error("Callback returned false"));
                     return;
                   }
+                } else {
+                  console.log("No success callback function provided"); // Log no callback case
                 }
 
                 // Zaktualizowanie statusu w tabeli
+                console.log("Attempting to update table status"); // Log table update start
                 var table = $("#table_splited_wh").DataTable();
                 if (table) {
+                  console.log(
+                    "DataTable found, searching for wholesaler:",
+                    wholesalerKeyToSend
+                  ); // Log table found
                   var found = false;
                   table.rows().every(function () {
                     var rowData = this.data();
+                    console.log(
+                      "Checking row with wholesalerKey:",
+                      rowData.wholesalerKey
+                    ); // Log each row check
+
                     if (rowData.wholesalerKey === wholesalerKeyToSend) {
+                      console.log("Matching wholesaler found, updating row"); // Log match found
                       this.cell(0)
                         .data(
                           '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
@@ -3165,16 +3189,25 @@ docReady(function () {
                   });
 
                   if (!found) {
-                    console.warn("Nie znaleziono wiersza dla tego hurtownika.");
+                    console.warn(
+                      "Nie znaleziono wiersza dla tego hurtownika.",
+                      {
+                        wholesalerKeyToSend: wholesalerKeyToSend,
+                        tableData: table.rows().data().toArray(),
+                      }
+                    ); // Enhanced warning with data
                   }
                 } else {
-                  console.warn(
-                    "Tabela DataTable nie została poprawnie załadowana."
-                  );
+                  console.error(
+                    "Tabela DataTable nie została poprawnie załadowana.",
+                    $("#table_splited_wh")
+                  ); // Error log with element info
                 }
 
+                console.log("Showing success message"); // Log before success message
                 displayMessage("Success", "Email został wysłany do dostawcy.");
                 $("#SendOrderSMTP").hide();
+                console.log("Resolving promise with resultData:", resultData); // Log before resolve
                 resolve(resultData);
               },
               error: function (e) {
