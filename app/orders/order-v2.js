@@ -3038,11 +3038,15 @@ docReady(function () {
 
             // Dodaj email, jeśli istnieje
             if (email)
-              data.push({ op: "add", path: "/smtp/email", value: email });
+              patchData.push({ op: "add", path: "/smtp/email", value: email });
 
             // Dodaj formaty
             formats.forEach((format) =>
-              data.push({ op: "add", path: "/smtp/formats/-", value: format })
+              patchData.push({
+                op: "add",
+                path: "/smtp/formats/-",
+                value: format,
+              })
             );
 
             $.ajax({
