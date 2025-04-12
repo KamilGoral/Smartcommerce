@@ -1001,6 +1001,8 @@ docReady(function () {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
         var action =
           InvokeURL +
           "shops/" +
@@ -1010,27 +1012,59 @@ docReady(function () {
           "/online-offer";
         var method = "PATCH";
 
-        var data = [
-          {
-            op: "add",
-            path: "/credentials/username",
-            value: $("#Username").val().trim(),
-          },
-          {
-            op: "add",
-            path: "/credentials/password",
-            value: $("#Password").val(),
-          },
-        ];
+        let profileId = $("#Wholesaler-profile-Selector").val();
+        let profileName = $(
+          "#Wholesaler-profile-Selector option:selected"
+        ).text();
 
-        if ($("#CompanyName").val()) {
-          data.push({
-            op: "add",
-            path: "/credentials/extraFields",
-            value: {
-              company: $("#CompanyName").val(),
+        var data = [];
+
+        // Jeżeli formularz zawiera już wybrany profil
+        if (profileId && profileId !== "null") {
+          data = [
+            {
+              op: "add",
+              path: "/credentials/username",
+              value: $("#Username").val().trim(),
             },
-          });
+            {
+              op: "add",
+              path: "/credentials/password",
+              value: $("#Password").val(),
+            },
+            {
+              op: "add",
+              path: "/profile",
+              value: {
+                id: profileId,
+                name: profileName,
+              },
+            },
+          ];
+        } else {
+          // Pierwsze podejście bez profilu, dodaj firmę jeśli istnieje
+          data = [
+            {
+              op: "add",
+              path: "/credentials/username",
+              value: $("#Username").val().trim(),
+            },
+            {
+              op: "add",
+              path: "/credentials/password",
+              value: $("#Password").val(),
+            },
+          ];
+
+          if ($("#CompanyName").val()) {
+            data.push({
+              op: "add",
+              path: "/credentials/extraFields",
+              value: {
+                company: $("#CompanyName").val(),
+              },
+            });
+          }
         }
 
         $.ajax({
@@ -1063,12 +1097,11 @@ docReady(function () {
                 "Błąd",
                 "Oops. Coś poszło nie tak, spróbuj ponownie."
               );
-              console.log(e);
               return;
             }
 
             if (resultData.profile === null) {
-              console.log(resultData.profile);
+              console.log("Brak profilu, pobieram profile...");
               getProfile()
                 .then(function (profileData) {
                   console.log(profileData);
@@ -1079,13 +1112,30 @@ docReady(function () {
                     );
                     $("#startEhurtModal").hide();
                   } else {
+                    // pokaż selektor profilu
                     $("#profilBox").css("display", "flex");
+                    $("#Wholesaler-profile-Selector")
+                      .find("option")
+                      .remove()
+                      .end()
+                      .append("<option value=null>Wybierz profil</option>")
+                      .val("null");
+
+                    profileData.items.forEach((profile) => {
+                      $("#Wholesaler-profile-Selector").append(
+                        $("<option></option>")
+                          .attr("value", profile.id)
+                          .text(profile.name)
+                      );
+                    });
+
                     $("#Username, #Password, #CompanyName")
                       .closest(".field-wrapper")
                       .hide();
+
                     displayMessage(
                       "Success",
-                      "Proszę wybrać profil sklepu dla tego dostawcy."
+                      "Proszę wybrać profil sklepu dla tego dostawcy i kliknąć ponownie Zapisz."
                     );
                   }
                 })
@@ -1099,6 +1149,9 @@ docReady(function () {
             } else {
               console.log("Sukces");
               displayMessage("Success-1", "Pomyślnie zintegrowano dostawcę.");
+              window.setTimeout(function () {
+                location.reload();
+              }, 2000);
             }
           },
           error: function (jqXHR, exception) {
@@ -1134,14 +1187,13 @@ docReady(function () {
                     ? "Przekroczony czas oczekiwania"
                     : exception === "abort"
                     ? "Twoje żądanie zostało zaniechane"
-                    : jqXHR.responseJSON.message;
+                    : jqXHR.responseJSON?.message || "Nieznany błąd";
                 break;
             }
             displayMessage("Error", msg);
-            return;
           },
         });
-        event.preventDefault();
+
         return false;
       });
     });
