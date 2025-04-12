@@ -3884,7 +3884,7 @@ docReady(function () {
     const wholesalersData = JSON.parse(
       sessionStorage.getItem("wholesalersData")
     );
-    if (wholesalersData && wholesalersData.wholesalerData) {
+    if (wholesalersData) {
       const clickedWholesaler = wholesalersData.find(
         (item) => item.wholesalerKey === data.wholesalerKey
       );
