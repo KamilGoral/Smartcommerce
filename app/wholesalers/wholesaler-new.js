@@ -663,6 +663,9 @@ docReady(function () {
 
         // Obsługuje ostatnią transakcję SMTP
         let lastTransaction = data2.smtp ? data2.smtp.lastTransaction : null;
+        let formattedDate = new Date(lastTransaction.createDate).toLocaleString(
+          "pl-PL"
+        );
         let lastTransactionElement = document.querySelector(
           '[wholesalerdata="smtpLastTransaction"]'
         );
@@ -670,7 +673,7 @@ docReady(function () {
           lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
         } else {
           lastTransactionElement.innerHTML =
-            "Data ostatniej operacji: " + lastTransaction.createDate;
+            "Data ostatniej operacji: " + formattedDate;
         }
 
         // Obsługuje FTP
