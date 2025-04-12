@@ -3033,7 +3033,7 @@ docReady(function () {
             var patchData = [];
 
             // Pobierz email z inputa i formaty z <select>
-            var email = $("#smtpEmail").val().trim();
+            var email = $("#smtpEmail").val();
             var formats = $("#formats").val();
 
             // Dodaj email, jeśli istnieje
