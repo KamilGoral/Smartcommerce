@@ -3890,13 +3890,11 @@ docReady(function () {
       );
 
       if (clickedWholesaler) {
-        console.log("✅ Dane hurtownika:", clickedWholesaler);
+        const { company = "", taxId = "", address = {} } = clickedWholesaler;
+        const { line1 = "", town = "", postcode = "" } = address;
 
-        // Przykładowo: dostęp do e-maili
-        console.log("📧 Maile:", clickedWholesaler.emails);
-
-        // Albo np. adres
-        console.log("📍 Adres:", clickedWholesaler.address);
+        const partyText = `${company}\n${line1}, ${town}, ${postcode}\nNIP: ${taxId}`;
+        $("#orderParty").val(partyText).prop("disabled", true);
       } else {
         console.warn("❌ Hurtownik o takim kluczu nie został znaleziony.");
       }
