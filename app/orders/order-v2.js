@@ -4722,6 +4722,23 @@ docReady(function () {
     }, 300);
   });
 
+  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
+    function () {
+      const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(function () {
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
+        }, delay);
+      });
+    }
+  );
+
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
