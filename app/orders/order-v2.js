@@ -3046,6 +3046,24 @@ docReady(function () {
                 return;
               }
             }
+            // Zaktualizowanie statusu w tabeli
+            var table = $("#table_splited_wh").DataTable();
+            table.rows().every(function () {
+              var currentRowData = this.data();
+              if (currentRowData.wholesalerKey === wholesalerKeyToSend) {
+                // Znaleziono odpowiedni wiersz, teraz zmień status
+                this.cell(0)
+                  .data(
+                    '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
+                      new Date().toLocaleString() +
+                      '">W realizacji</span>'
+                  )
+                  .draw();
+                this.node().querySelector(".sendemail").disabled = true; // Wyłącz przycisk wysyłki
+              }
+            });
+
+            // Pokazuje komunikat o sukcesie
             displayMessage("Success", "Email został wysłany do dostawcy.");
             $("#SendOrderSMTP").hide();
           },
