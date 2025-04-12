@@ -3874,18 +3874,20 @@ docReady(function () {
     });
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
+
   $("#table_splited_wh").on("click", ".sendemail", async function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
 
-    // Get the right table
     var table = $("#table_splited_wh").DataTable();
-    var cell = $(this).closest("td");
     var row = $(this).closest("tr");
-    var data = table.row($(this).parents("tr")).data();
+    var data = table.row(row).data();
     console.log(data);
 
     try {
-      // Czekamy na oba Promise równocześnie
+      // Pokaż animację ładowania
+      $("#waitingdots").show();
+
+      // Poczekaj na oba Promise
       await Promise.all([getShop(), getWhSmartVan(data.wholesalerKey)]);
 
       // orderItems
@@ -3912,6 +3914,9 @@ docReady(function () {
     } catch (error) {
       console.error("Błąd podczas pobierania danych:", error);
       alert("Wystąpił błąd podczas ładowania danych. Spróbuj ponownie.");
+    } finally {
+      // Zawsze schowaj animację niezależnie od powodzenia
+      $("#waitingdots").hide();
     }
   });
 
