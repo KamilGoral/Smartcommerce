@@ -3885,12 +3885,10 @@ docReady(function () {
       sessionStorage.getItem("wholesalersData")
     );
 
-    if (wholesalersData && wholesalersData.items) {
-      const clickedWholesaler = wholesalersData.items.find(
-        (item) => item.wholesalerKey === data.wholesalerKey
-      );
-      console.log("Dane hurtownika:", clickedWholesaler);
-    }
+    const clickedWholesaler = wholesalersData.items.find(
+      (item) => item.wholesalerKey === data.wholesalerKey
+    );
+    console.log("Dane hurtownika:", clickedWholesaler);
 
     try {
       // Pokaż animację ładowania
