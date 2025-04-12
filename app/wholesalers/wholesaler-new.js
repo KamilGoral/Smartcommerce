@@ -1094,7 +1094,7 @@ docReady(function () {
             if (!resultData) {
               form.show();
               displayMessage(
-                "Błąd",
+                "Error",
                 "Oops. Coś poszło nie tak, spróbuj ponownie."
               );
               return;
@@ -1135,20 +1135,20 @@ docReady(function () {
 
                     displayMessage(
                       "Success",
-                      "Proszę wybrać profil sklepu dla tego dostawcy i kliknąć ponownie Zapisz."
+                      "Proszę wybrać profil sklepu dla tego dostawcy i kliknąć ponownie Integruj."
                     );
                   }
                 })
                 .catch(function (error) {
                   console.error("Błąd podczas pobierania profilu:", error);
                   displayMessage(
-                    "Błąd",
+                    "Error",
                     "Wystąpił błąd podczas pobierania profili."
                   );
                 });
             } else {
               console.log("Sukces");
-              displayMessage("Success-1", "Pomyślnie zintegrowano dostawcę.");
+              displayMessage("Success", "Pomyślnie zintegrowano dostawcę.");
               window.setTimeout(function () {
                 location.reload();
               }, 2000);
