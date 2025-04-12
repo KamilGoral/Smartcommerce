@@ -3030,10 +3030,20 @@ docReady(function () {
               wholesalerKeyToSend +
               "/smartvan";
 
-            var patchData = {
-              email: orderEmail,
-              formats: formats,
-            };
+            var patchData = [];
+
+            // Pobierz email z inputa i formaty z <select>
+            var email = $("#smtpEmail").val().trim();
+            var formats = $("#formats").val();
+
+            // Dodaj email, jeśli istnieje
+            if (email)
+              data.push({ op: "add", path: "/smtp/email", value: email });
+
+            // Dodaj formaty
+            formats.forEach((format) =>
+              data.push({ op: "add", path: "/smtp/formats/-", value: format })
+            );
 
             $.ajax({
               type: "PATCH",
