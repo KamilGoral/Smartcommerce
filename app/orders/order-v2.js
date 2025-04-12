@@ -674,8 +674,8 @@ docReady(function () {
 
           // Teksty dla statusów
           const statusTexts = {
-            "in progress": "W realizacji",
-            pending: "Szkic",
+            "in progress": "Potwierdzono",
+            pending: "W trakcie",
             ready: "Gotowa",
             error: "Problem",
             incomplete: "Niekompletna",
@@ -738,8 +738,8 @@ docReady(function () {
                   return "";
                 }
 
-                // Określ status na podstawie confirmed
-                const status = data.confirmed ? "in progress" : "pending";
+                // Określ status na podstawie confirmedAt
+                const status = data.confirmedAt ? "in progress" : "pending";
 
                 // Generuj badge
                 return getStatusHtml({
@@ -3033,6 +3033,7 @@ docReady(function () {
               }
             }
             displayMessage("Success", "Email został wysłany do dostawcy.");
+            $("#SendOrderSMTP").hide();
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
