@@ -3881,7 +3881,16 @@ docReady(function () {
     var table = $("#table_splited_wh").DataTable();
     var row = $(this).closest("tr");
     var data = table.row(row).data();
-    console.log(data);
+    const wholesalersData = JSON.parse(
+      sessionStorage.getItem("wholesalersData")
+    );
+
+    if (wholesalersData && wholesalersData.items) {
+      const clickedWholesaler = wholesalersData.items.find(
+        (item) => item.wholesalerKey === data.wholesalerKey
+      );
+      console.log("Dane hurtownika:", clickedWholesaler);
+    }
 
     try {
       // Pokaż animację ładowania
