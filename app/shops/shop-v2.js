@@ -1386,7 +1386,7 @@ docReady(function () {
             orderable: true,
             data: "smartvan.smtp",
             width: "108px",
-            visible: true,
+            visible: false,
             render: function (data) {
               if (data && data.enabled) {
                 return '<span class="positive">Tak</span>';
@@ -1412,7 +1412,7 @@ docReady(function () {
               if (data && data.enabled) {
                 return '<span class="positive">Tak</span>';
               } else {
-                return '<span class="negative">Nie</span>';
+                return '<span class="noneexisting">Nie</span>';
               }
             },
           },
