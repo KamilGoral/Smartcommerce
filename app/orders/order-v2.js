@@ -810,8 +810,12 @@ docReady(function () {
               data: "products",
               width: "108px",
               render: function (data, type, row) {
+                // Sprawdź czy wholesalerName to "unassigned"
+                const isUnassigned = row.wholesalerName === "unassigned";
+
                 // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
                 if (type === "sort" || type === "type") {
+                  if (isUnassigned) return 0;
                   var bestMatch = data.bestMatch || 0;
                   var exclusive = data.exclusive || 0;
                   var order = data.order || 0;
@@ -819,6 +823,14 @@ docReady(function () {
                 }
 
                 // Normalne renderowanie dla wyświetlania
+                if (isUnassigned) {
+                  return `<div class="progress-bar-container" title="Nieprzydzielono">
+                            <div class="progress-bar" style="width: 100%; background-color: #cccccc; border-radius: 5px;">
+                              <span class="segment-count">0</span>
+                            </div>
+                          </div>`;
+                }
+
                 var bestMatch = data.bestMatch || 0;
                 var exclusive = data.exclusive || 0;
                 var order = data.order || 0;
