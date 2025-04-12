@@ -699,10 +699,13 @@ docReady(function () {
             ? formatDateToPolishTime(item.confirmedAt)
             : null;
 
+          // Ustawienie tekstu w zależności od tego, czy jest data
+          const tippyText = formattedDate
+            ? `Potwierdzono ${formattedDate}`
+            : "Oczekuję";
+
           // Generowanie span z atrybutem data-tippy-content
-          return `<span class="${baseClass} ${statusClass}" data-tippy-content="Potwierdzono ${
-            formattedDate || "-"
-          }">${text}</span>`;
+          return `<span class="${baseClass} ${statusClass}" data-tippy-content="${tippyText}">${text}</span>`;
         }
 
         var table = $("#table_splited_wh").DataTable({
