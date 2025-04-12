@@ -674,8 +674,8 @@ docReady(function () {
 
           // Teksty dla statusów
           const statusTexts = {
-            "in progress": "Potwierdzono",
-            pending: "W trakcie",
+            "in progress": "W realizacji",
+            pending: "Szkic",
             ready: "Gotowa",
             error: "Problem",
             incomplete: "Niekompletna",
@@ -683,16 +683,31 @@ docReady(function () {
             forced: "W kolejce",
           };
 
+          // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
+          function formatDateToPolishTime(dateString) {
+            const date = new Date(dateString);
+            const options = { timeZone: "Europe/Warsaw", hour12: false };
+            return date.toLocaleString("pl-PL", options).replace(",", "");
+          }
+
           const baseClass = "status-badge";
           const statusClass = statusClasses[item.status] || "noneexisting";
           const text = statusTexts[item.status] || "-";
+
+          // Formatowanie daty dla confirmedAt
+          const formattedDate = item.confirmedAt
+            ? formatDateToPolishTime(item.confirmedAt)
+            : null;
 
           // Dodatkowy atrybut title z pełnym opisem
           const title = item.confirmed
             ? "Zamówienie potwierdzone i w realizacji"
             : "Oczekuje na potwierdzenie";
 
-          return `<span class="${baseClass} ${statusClass}" title="${title}">${text}</span>`;
+          // Generowanie span z atrybutem data-tippy-content
+          return `<span class="${baseClass} ${statusClass}" title="${title}" data-tippy-content="Potwierdzono ${
+            formattedDate || "-"
+          }">${text}</span>`;
         }
 
         var table = $("#table_splited_wh").DataTable({
@@ -745,6 +760,7 @@ docReady(function () {
                 return getStatusHtml({
                   status: status,
                   confirmed: data.confirmed,
+                  confirmedAt: data.confirmedAt,
                 });
               },
               className: "status-column",
