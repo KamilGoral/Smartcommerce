@@ -405,7 +405,7 @@ docReady(function () {
             "Firma: "
           );
           document.getElementById("specialServiceBox").style.display = "flex"; // Zakładając, że extrafield to ID pola
-          $("#CompanyNameEdit").value(data2.credentials.extraFields.company);
+          $("#CompanyNameEdit").val(data2.credentials.extraFields.company);
         } else {
           // Brak danych, ukrywamy pole
           document.getElementById("specialServiceBox").style.display = "none";
@@ -415,7 +415,7 @@ docReady(function () {
           data2.credentials ? data2.credentials.username : "",
           "Login: "
         );
-        $("#Username-Edit").value(data2.credentials.username);
+        $("#Username-Edit").val(data2.credentials.username);
 
         setText("password", "******", "Hasło: ");
         setText("profile", data2.profile ? data2.profile.name : "", "Profil: ");
