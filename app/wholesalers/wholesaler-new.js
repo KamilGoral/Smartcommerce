@@ -406,9 +406,9 @@ docReady(function () {
           );
           document.getElementById("specialServiceBox").style.display = "flex"; // Zakładając, że extrafield to ID pola
           $("#CompanyNameEdit").val(data2.credentials.extraFields.company);
-        } else {
           // Brak danych, ukrywamy pole
           document.getElementById("specialServiceBox").style.display = "none";
+        } else {
         }
         setText(
           "username",
@@ -670,7 +670,7 @@ docReady(function () {
           lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
         } else {
           lastTransactionElement.innerHTML =
-            "Data ostatniej operacji: " + lastTransaction;
+            "Data ostatniej operacji: " + lastTransaction.createDate;
         }
 
         // Obsługuje FTP
