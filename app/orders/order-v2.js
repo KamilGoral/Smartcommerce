@@ -3178,20 +3178,22 @@ docReady(function () {
                     if (rowData.wholesalerKey === wholesalerKeyToSend) {
                       console.log("Matching wholesaler found, updating row");
 
-                      // Get the row node and cells
+                      // Get the row node
                       var rowNode = this.node();
-                      var rowCells = table.row(rowNode).nodes().to$();
 
-                      // Update the status cell (index 0)
-                      rowCells
-                        .find("td:eq(0)")
-                        .html(
+                      // Find and update the status cell directly in DOM
+                      var statusCell =
+                        rowNode.querySelector("td.status-column");
+                      if (statusCell) {
+                        statusCell.innerHTML =
                           '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
-                            new Date().toLocaleString() +
-                            '">W realizacji</span>'
-                        );
+                          new Date().toLocaleString() +
+                          '">W realizacji</span>';
+                      } else {
+                        console.error("Status cell not found in row");
+                      }
 
-                      // Disable the send button (already working)
+                      // Disable the send button (this part works)
                       var sendButton = rowNode.querySelector(".sendemail");
                       if (sendButton) {
                         sendButton.disabled = true;
@@ -3200,8 +3202,8 @@ docReady(function () {
                         sendButton.style.cursor = "not-allowed";
                       }
 
-                      // Force DataTables to acknowledge the change
-                      table.cell(rowNode, 0).invalidate().draw();
+                      // Optional: Force DataTables redraw if needed
+                      table.draw(false);
 
                       found = true;
                       return false;
