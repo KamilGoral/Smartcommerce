@@ -957,6 +957,7 @@ docReady(function () {
         } else {
           $("#CompanyDivEdit").hide();
           $("#CompanyDivStart").hide();
+          $("#specialServiceBoxCompany").hide();
         }
 
         if (logisticMinimum !== null) {
