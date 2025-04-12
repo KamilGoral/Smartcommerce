@@ -3884,11 +3884,25 @@ docReady(function () {
     const wholesalersData = JSON.parse(
       sessionStorage.getItem("wholesalersData")
     );
+    if (wholesalersData && wholesalersData.wholesalerData) {
+      const clickedWholesaler = wholesalersData.wholesalerData.find(
+        (item) => item.wholesalerKey === data.wholesalerKey
+      );
 
-    const clickedWholesaler = wholesalersData.items.find(
-      (item) => item.wholesalerKey === data.wholesalerKey
-    );
-    console.log("Dane hurtownika:", clickedWholesaler);
+      if (clickedWholesaler) {
+        console.log("✅ Dane hurtownika:", clickedWholesaler);
+
+        // Przykładowo: dostęp do e-maili
+        console.log("📧 Maile:", clickedWholesaler.emails);
+
+        // Albo np. adres
+        console.log("📍 Adres:", clickedWholesaler.address);
+      } else {
+        console.warn("❌ Hurtownik o takim kluczu nie został znaleziony.");
+      }
+    } else {
+      console.warn("❌ Brak danych hurtowników w sessionStorage.");
+    }
 
     try {
       // Pokaż animację ładowania
