@@ -1477,7 +1477,8 @@ docReady(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var action =
-          "https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/shops/" +
+          InvokeURL +
+          "shops/" +
           shopKey +
           "/wholesalers/" +
           wholesalerKey +

@@ -2988,6 +2988,7 @@ docReady(function () {
         var formats = $("#formats").val();
         var orderEmailMe = $("#orderEmailMe").is(":checked");
         var orderId = new URL(location.href).searchParams.get("orderId");
+        var isEmailDisabled = $("#orderEmail").is(":disabled");
 
         // Resetowanie podświetlenia błędów
         $("#formats").removeClass("error-highlight");
@@ -3013,85 +3014,182 @@ docReady(function () {
         var action = InvokeURL + "van/orders";
         var method = "POST";
 
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            setTimeout(function () {
-              $("#waitingdots").hide();
-            }, 3000);
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          data: JSON.stringify(requestData),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              var result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                return;
-              }
+        // Funkcja do wysłania PATCH requesta
+        const updateEmailAndFormats = () => {
+          return new Promise((resolve, reject) => {
+            if (isEmailDisabled || !orderEmail) {
+              resolve(); // Pomijamy jeśli email jest disabled lub pusty
+              return;
             }
 
-            // Zaktualizowanie statusu w tabeli
-            var table = $("#table_splited_wh").DataTable();
-            if (table) {
-              var found = false;
-              table.rows().every(function () {
-                var rowData = this.data();
-                if (rowData.wholesalerKey === wholesalerKeyToSend) {
-                  // Znaleziono odpowiedni wiersz, teraz zmień status
-                  this.cell(0)
-                    .data(
-                      '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
-                        new Date().toLocaleString() +
-                        '">W realizacji</span>'
-                    )
-                    .draw();
-                  this.node().querySelector(".sendemail").disabled = true; // Wyłącz przycisk wysyłki
-                  found = true;
+            var patchAction =
+              InvokeURL +
+              "shops/" +
+              shopKey +
+              "/wholesalers/" +
+              wholesalerKeyToSend +
+              "/smartvan";
+
+            var patchData = {
+              email: orderEmail,
+              formats: formats,
+            };
+
+            $.ajax({
+              type: "PATCH",
+              url: patchAction,
+              cors: true,
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+              data: JSON.stringify(patchData),
+              success: function () {
+                resolve();
+              },
+              error: function (jqXHR, exception) {
+                console.log("error", jqXHR, exception);
+                let msg = "";
+                switch (jqXHR.status) {
+                  case 0:
+                    msg = "Nie masz połączenia z internetem.";
+                    break;
+                  case 404:
+                    msg = "Nie znaleziono strony";
+                    break;
+                  case 403:
+                    msg =
+                      jqXHR.responseJSON?.message ==
+                      "User is not an administrator of this tenant"
+                        ? "Nie masz uprawnień do tej czynności"
+                        : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
+                    break;
+                  case 409:
+                    msg =
+                      "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                    break;
+                  case 500:
+                    msg =
+                      "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
+                    break;
+                  default:
+                    msg =
+                      exception === "parsererror"
+                        ? "Nie udało się odczytać danych"
+                        : exception === "timeout"
+                        ? "Przekroczony czas oczekiwania"
+                        : exception === "abort"
+                        ? "Twoje żądanie zostało zaniechane"
+                        : jqXHR.responseJSON?.message ||
+                          "Wystąpił nieznany błąd";
+                    break;
                 }
-              });
+                displayMessage("Error", msg);
+                reject(new Error(msg));
+              },
+            });
+          });
+        };
 
-              if (!found) {
-                console.warn("Nie znaleziono wiersza dla tego hurtownika.");
-              }
-            } else {
-              console.warn(
-                "Tabela DataTable nie została poprawnie załadowana."
-              );
-            }
+        // Funkcja do wysłania właściwego emaila
+        const sendOrderEmail = () => {
+          return new Promise((resolve, reject) => {
+            $("#waitingdots").show();
 
-            // Pokazuje komunikat o sukcesie
-            displayMessage("Success", "Email został wysłany do dostawcy.");
-            $("#SendOrderSMTP").hide();
-          },
-          error: function (e) {
-            if (typeof errorCallback === "function") {
-              errorCallback(e);
-            }
-            form.show();
-            const errorMessage = e.message.includes("already exists")
-              ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
-              : "Oops. Coś poszło nie tak, spróbuj ponownie.";
-            displayMessage("Błąd", errorMessage);
-            console.error("Błąd podczas wysyłania emaila:", e);
-          },
-        });
+            $.ajax({
+              type: method,
+              url: action,
+              cors: true,
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+              data: JSON.stringify(requestData),
+              success: function (resultData) {
+                setTimeout(function () {
+                  $("#waitingdots").hide();
+                }, 3000);
+
+                if (typeof successCallback === "function") {
+                  var result = successCallback(resultData);
+                  if (!result) {
+                    form.show();
+                    displayMessage(
+                      "Error",
+                      "Oops. Coś poszło nie tak, spróbuj ponownie."
+                    );
+                    reject(new Error("Callback returned false"));
+                    return;
+                  }
+                }
+
+                // Zaktualizowanie statusu w tabeli
+                var table = $("#table_splited_wh").DataTable();
+                if (table) {
+                  var found = false;
+                  table.rows().every(function () {
+                    var rowData = this.data();
+                    if (rowData.wholesalerKey === wholesalerKeyToSend) {
+                      this.cell(0)
+                        .data(
+                          '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
+                            new Date().toLocaleString() +
+                            '">W realizacji</span>'
+                        )
+                        .draw();
+                      this.node().querySelector(".sendemail").disabled = true;
+                      found = true;
+                    }
+                  });
+
+                  if (!found) {
+                    console.warn("Nie znaleziono wiersza dla tego hurtownika.");
+                  }
+                } else {
+                  console.warn(
+                    "Tabela DataTable nie została poprawnie załadowana."
+                  );
+                }
+
+                displayMessage("Success", "Email został wysłany do dostawcy.");
+                $("#SendOrderSMTP").hide();
+                resolve(resultData);
+              },
+              error: function (e) {
+                setTimeout(function () {
+                  $("#waitingdots").hide();
+                }, 3000);
+
+                if (typeof errorCallback === "function") {
+                  errorCallback(e);
+                }
+                form.show();
+                const errorMessage = e.message.includes("already exists")
+                  ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
+                  : "Oops. Coś poszło nie tak, spróbuj ponownie.";
+                displayMessage("Błąd", errorMessage);
+                console.error("Błąd podczas wysyłania emaila:", e);
+                reject(e);
+              },
+            });
+          });
+        };
+
+        // Główna sekwencja wykonania
+        updateEmailAndFormats()
+          .then(() => sendOrderEmail())
+          .catch((error) => {
+            console.error("Error in sequence:", error);
+            // Błąd już został obsłużony w odpowiednich funkcjach
+          });
 
         return false;
       });
