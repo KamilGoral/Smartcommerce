@@ -3178,30 +3178,33 @@ docReady(function () {
                     if (rowData.wholesalerKey === wholesalerKeyToSend) {
                       console.log("Matching wholesaler found, updating row");
 
-                      // Update the status cell
-                      var statusCell = this.cell(rowIdx, 0); // 0 is the status column index
-                      statusCell
-                        .data(
+                      // Get the row node and cells
+                      var rowNode = this.node();
+                      var rowCells = table.row(rowNode).nodes().to$();
+
+                      // Update the status cell (index 0)
+                      rowCells
+                        .find("td:eq(0)")
+                        .html(
                           '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
                             new Date().toLocaleString() +
                             '">W realizacji</span>'
-                        )
-                        .draw(false); // Force redraw
+                        );
 
-                      // Disable the send button
-                      var rowNode = this.node();
-                      if (rowNode) {
-                        var sendButton = rowNode.querySelector(".sendemail");
-                        if (sendButton) {
-                          sendButton.disabled = true;
-                          sendButton.classList.add("disabled");
-                          sendButton.style.opacity = "0.5";
-                          sendButton.style.cursor = "not-allowed";
-                        }
+                      // Disable the send button (already working)
+                      var sendButton = rowNode.querySelector(".sendemail");
+                      if (sendButton) {
+                        sendButton.disabled = true;
+                        sendButton.classList.add("disabled");
+                        sendButton.style.opacity = "0.5";
+                        sendButton.style.cursor = "not-allowed";
                       }
 
+                      // Force DataTables to acknowledge the change
+                      table.cell(rowNode, 0).invalidate().draw();
+
                       found = true;
-                      return false; // Break the loop
+                      return false;
                     }
                   });
 
