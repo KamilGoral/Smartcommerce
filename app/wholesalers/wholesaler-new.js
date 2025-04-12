@@ -404,8 +404,12 @@ docReady(function () {
             data2.credentials.extraFields.company,
             "Firma: "
           );
-          document.getElementById("specialServiceBox").style.display = "flex"; // Zakładając, że extrafield to ID pola
+          document.getElementById("specialServiceBoxCompany").style.display =
+            "flex"; // Zakładając, że extrafield to ID pola
           $("#CompanyNameEdit").val(data2.credentials.extraFields.company);
+          // Brak danych, ukrywamy pole
+          document.getElementById("specialServiceBoxProfile").style.display =
+            "none";
         } else {
         }
         setText(
