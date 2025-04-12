@@ -3885,7 +3885,7 @@ docReady(function () {
       sessionStorage.getItem("wholesalersData")
     );
     if (wholesalersData && wholesalersData.wholesalerData) {
-      const clickedWholesaler = wholesalersData.wholesalerData.find(
+      const clickedWholesaler = wholesalersData.find(
         (item) => item.wholesalerKey === data.wholesalerKey
       );
 
