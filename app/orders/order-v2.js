@@ -1033,7 +1033,7 @@ docReady(function () {
                 // Add click handler for "Realizuj" button
                 $(td).on(
                   "click",
-                  '.buttonoutline:contains("Realizuj")',
+                  'img[alt="Realizuj"]', // Select the image by its alt text
                   function (e) {
                     e.preventDefault();
                     $("#lockOrderDiv").css("display", "flex");
