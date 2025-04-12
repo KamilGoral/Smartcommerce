@@ -920,7 +920,7 @@ docReady(function () {
                     '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" class="sendemail" style="cursor: pointer;" />',
                 };
 
-                // Default content (checkbox and image buttons)
+                // Default content (checkbox and "Realizuj" button)
                 let content = "";
                 if (data !== "unassigned") {
                   content =
@@ -933,8 +933,7 @@ docReady(function () {
                     '<label class="mylabel" for="' +
                     data +
                     '" style="margin: 0;"></label>' +
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b0c7b0174bfdb32512_advanceButton.svg" alt="Realizuj" class="button-image" style="height: 24px; width: auto; cursor: pointer; margin: 0;">' +
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b00b5d451d70fae4c2_skipButton.svg" alt="Skip" class="button-image" style="height: 24px; width: auto; cursor: pointer; margin: 0;">' +
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b0c7b0174bfdb32512_advanceButton.svg" alt="Realizuj" class="buttonoutline editme w-button" style="height: 24px; width: auto; cursor: pointer; margin: 0;">' +
                     "</div>";
                 }
 
