@@ -326,103 +326,110 @@ docReady(function () {
   );
 
   function getShop() {
-    var request = new XMLHttpRequest();
-    let endpoint = new URL(InvokeURL + "shops/" + shopKey);
-    request.open("GET", endpoint.toString(), true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
+    return new Promise((resolve, reject) => {
+      var request = new XMLHttpRequest();
+      let endpoint = new URL(InvokeURL + "shops/" + shopKey);
+      request.open("GET", endpoint.toString(), true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
 
-      if (request.status >= 200 && request.status < 400) {
-        if (data.merchantConsoleShopId === null) {
-          data.merchantConsoleShopId = "";
-        }
+      request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+          var data = JSON.parse(this.response);
 
-        // Update shopName, shopKey, and other information
+          if (data.merchantConsoleShopId === null) {
+            data.merchantConsoleShopId = "";
+          }
 
-        $("#shopNameEdit").val(data.name || "");
+          // Update shopName, shopKey, and other information
+          $("#shopNameEdit").val(data.name || "");
 
-        // Mapping Polish state names to <select> element values
-        var stateMapping = {
-          Dolnośląskie: "LowerSilesian",
-          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
-          Lubelskie: "Lublin",
-          Lubuskie: "Lubusz",
-          Łódzkie: "Łódź",
-          Małopolskie: "Lesser Poland",
-          Mazowieckie: "Masovian",
-          Opolskie: "Opole",
-          Podkarpackie: "Subcarpathian",
-          Podlaskie: "Podlaskie",
-          Pomorskie: "Pomeranian",
-          Śląskie: "Silesian",
-          Świętokrzyskie: "HolyCross",
-          "Warmińsko-Mazurskie": "Warmian-Masurian",
-          Wielkopolskie: "Greater Poland",
-          Zachodniopomorskie: "West Pomeranian",
-        };
+          var stateMapping = {
+            Dolnośląskie: "LowerSilesian",
+            "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
+            Lubelskie: "Lublin",
+            Lubuskie: "Lubusz",
+            Łódzkie: "Łódź",
+            Małopolskie: "Lesser Poland",
+            Mazowieckie: "Masovian",
+            Opolskie: "Opole",
+            Podkarpackie: "Subcarpathian",
+            Podlaskie: "Podlaskie",
+            Pomorskie: "Pomeranian",
+            Śląskie: "Silesian",
+            Świętokrzyskie: "HolyCross",
+            "Warmińsko-Mazurskie": "Warmian-Masurian",
+            Wielkopolskie: "Greater Poland",
+            Zachodniopomorskie: "West Pomeranian",
+          };
 
-        if (data.address && typeof data.address.state !== "undefined") {
-          $("#shopStateEdit").val(stateMapping[data.address.state] || "");
-        } else {
-          $("#shopStateEdit").val("");
-        }
+          if (data.address && typeof data.address.state !== "undefined") {
+            $("#shopStateEdit").val(stateMapping[data.address.state] || "");
+          } else {
+            $("#shopStateEdit").val("");
+          }
 
-        $("#shopTownEdit").val((data.address && data.address.town) || "");
-        $("#shopPostcodeEdit").val(
-          (data.address && data.address.postcode) || ""
-        );
-        $("#shopAdressEdit").val((data.address && data.address.line1) || "");
-        $("#shopPhoneEdit").val(
-          Array.isArray(data.phones) && data.phones.length > 0
-            ? data.phones[0].phone
-            : ""
-        );
-
-        if (data.emails && data.emails.length > 0) {
-          data.emails.forEach((email, index) => {
-            if (index < 3) {
-              $(`#shopEmailEdit${index + 1}`).val(email.email || "");
-              $(`#shopEmailEditDescription${index + 1}`).val(
-                email.description || ""
-              );
-            }
-          });
-        }
-
-        // Address information
-        $("#orderDelivery").prop("disabled", true);
-        if (data && data.address) {
-          const shopDescription = `${data.name || ""}`;
-          const addressDescription = `${data.address.line1 || ""}, ${
-            data.address.town || ""
-          }, ${data.address.postcode || ""}`;
-
-          let emails = "";
-          let phones = "";
+          $("#shopTownEdit").val((data.address && data.address.town) || "");
+          $("#shopPostcodeEdit").val(
+            (data.address && data.address.postcode) || ""
+          );
+          $("#shopAdressEdit").val((data.address && data.address.line1) || "");
+          $("#shopPhoneEdit").val(
+            Array.isArray(data.phones) && data.phones.length > 0
+              ? data.phones[0].phone
+              : ""
+          );
 
           if (data.emails && data.emails.length > 0) {
-            emails = data.emails.map((e) => e.email).join(", ");
+            data.emails.forEach((email, index) => {
+              if (index < 3) {
+                $(`#shopEmailEdit${index + 1}`).val(email.email || "");
+                $(`#shopEmailEditDescription${index + 1}`).val(
+                  email.description || ""
+                );
+              }
+            });
           }
 
-          if (data.phones && data.phones.length > 0) {
-            phones = data.phones.map((p) => p.phone).join(", ");
+          // Address information
+          $("#orderDelivery").prop("disabled", true);
+          if (data && data.address) {
+            const shopDescription = `${data.name || ""}`;
+            const addressDescription = `${data.address.line1 || ""}, ${
+              data.address.town || ""
+            }, ${data.address.postcode || ""}`;
+
+            let emails = "";
+            let phones = "";
+
+            if (data.emails && data.emails.length > 0) {
+              emails = data.emails.map((e) => e.email).join(", ");
+            }
+
+            if (data.phones && data.phones.length > 0) {
+              phones = data.phones.map((p) => p.phone).join(", ");
+            }
+
+            $("#orderDelivery").val(
+              `${shopDescription} \n${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
+            );
+          } else {
+            $("#orderDelivery").val("");
           }
 
-          $("#orderDelivery").val(
-            `${shopDescription} \n${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
-          );
+          resolve(data); // <- Zwracamy dane, które mogą być dalej użyte
         } else {
-          $("#orderDelivery").val("");
+          console.error("Błąd podczas pobierania danych sklepu.");
+          reject(new Error("Błąd podczas pobierania danych sklepu."));
         }
-      } else {
-        console.log("error");
-      }
-    };
+      };
 
-    // Send request
-    request.send();
+      request.onerror = function () {
+        reject(new Error("Błąd połączenia z serwerem."));
+      };
+
+      request.send();
+    });
   }
 
   function saveToSessionStorage(productsData) {
@@ -1794,7 +1801,7 @@ docReady(function () {
               },
             },
             {
-              orderable: true,
+              orderable: false,
               width: "80px",
               data: "confirmed",
               type: "boolean",
@@ -2748,77 +2755,77 @@ docReady(function () {
     };
     request.send();
   }
-
   function getWhSmartVan(wholesalerKey) {
-    let url2 = new URL(
-      InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers/" +
-        wholesalerKey +
-        "/smartvan"
-    );
-    let request2 = new XMLHttpRequest();
-    request2.open("GET", url2, true);
-    request2.setRequestHeader("Authorization", orgToken);
-    request2.onload = function () {
-      var data2 = JSON.parse(this.response);
-      if (request2.status >= 200 && request2.status < 400) {
-        // Obsługuje e-mail
-        let smtpEmailInput = document.getElementById("orderEmail");
-        let smtpEmail = data2.smtp ? data2.smtp.email : null; // Obsługuje formaty
+    return new Promise((resolve, reject) => {
+      let url2 = new URL(
+        InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          wholesalerKey +
+          "/smartvan"
+      );
+      let request2 = new XMLHttpRequest();
+      request2.open("GET", url2, true);
+      request2.setRequestHeader("Authorization", orgToken);
 
-        let formatsSelect = document.getElementById("formats");
-        let formats = data2.smtp ? data2.smtp.formats : []; // Resetuj, jeśli data2.smtp jest null LUB data2.smtp.email jest null
+      request2.onload = function () {
+        if (request2.status >= 200 && request2.status < 400) {
+          var data2 = JSON.parse(this.response);
 
-        if (data2.smtp === null || data2.smtp.email === null) {
-          smtpEmailInput.value = "";
-          smtpEmailInput.disabled = false;
-          console.log("zresetowano adres-email");
-        } else {
-          smtpEmailInput.value = smtpEmail;
-          smtpEmailInput.disabled = true;
-        } // Resetuj, jeśli data2.smtp jest null LUB data2.smtp.formats jest pusta
+          let smtpEmailInput = document.getElementById("orderEmail");
+          let smtpEmail = data2.smtp ? data2.smtp.email : null;
 
-        if (
-          data2.smtp === null ||
-          (data2.smtp.formats && data2.smtp.formats.length === 0)
-        ) {
-          for (let i = 0; i < formatsSelect.options.length; i++) {
-            formatsSelect.options[i].selected = false;
+          let formatsSelect = document.getElementById("formats");
+          let formats = data2.smtp ? data2.smtp.formats : [];
+
+          if (data2.smtp === null || data2.smtp.email === null) {
+            smtpEmailInput.value = "";
+            smtpEmailInput.disabled = false;
+            console.log("zresetowano adres-email");
+          } else {
+            smtpEmailInput.value = smtpEmail;
+            smtpEmailInput.disabled = true;
           }
-          previousFormats = [];
-          console.log("zresetowano formaty");
-        } else {
-          formats.forEach(function (format) {
-            let option = formatsSelect.querySelector(
-              `option[value="${format}"]`
-            );
-            if (option) {
-              option.selected = true;
-            }
-            previousFormats = formats;
-          });
-        }
 
-        // // Obsługuje ostatnią transakcję SMTP dodaj to jako dajny UX
-        // let lastTransaction = data2.smtp ? data2.smtp.lastTransaction : null;
-        // let lastTransactionElement = document.querySelector(
-        //   '[wholesalerdata="smtpLastTransaction"]'
-        // );
-        // if (lastTransaction === null) {
-        //   lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
-        // } else {
-        //   lastTransactionElement.innerHTML =
-        //     "Data ostatniej operacji: " + lastTransaction;
-        // }
-      } else if (request2.status >= 400) {
-        console.error("Błąd: ", request2.status, this.response);
-      } else {
-        console.log("Nieoczekiwany błąd");
-      }
-    };
-    request2.send();
+          if (
+            data2.smtp === null ||
+            (data2.smtp.formats && data2.smtp.formats.length === 0)
+          ) {
+            for (let i = 0; i < formatsSelect.options.length; i++) {
+              formatsSelect.options[i].selected = false;
+            }
+            previousFormats = [];
+            console.log("zresetowano formaty");
+          } else {
+            formats.forEach(function (format) {
+              let option = formatsSelect.querySelector(
+                `option[value="${format}"]`
+              );
+              if (option) {
+                option.selected = true;
+              }
+              previousFormats = formats;
+            });
+          }
+
+          // Możesz też zwrócić dane, jeśli będą potrzebne dalej
+          resolve(data2);
+        } else if (request2.status >= 400) {
+          console.error("Błąd: ", request2.status, this.response);
+          reject(new Error("Błąd HTTP: " + request2.status));
+        } else {
+          console.log("Nieoczekiwany błąd");
+          reject(new Error("Nieoczekiwany błąd"));
+        }
+      };
+
+      request2.onerror = function () {
+        reject(new Error("Błąd połączenia z serwerem."));
+      };
+
+      request2.send();
+    });
   }
 
   function calculateAndDisplayTimeSavings(responseData) {
@@ -3736,7 +3743,7 @@ docReady(function () {
         },
       },
       {
-        orderable: true,
+        orderable: false,
         width: "80px",
         data: "confirmed",
         type: "boolean",
@@ -3867,8 +3874,7 @@ docReady(function () {
     });
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
-
-  $("#table_splited_wh").on("click", ".sendemail", function () {
+  $("#table_splited_wh").on("click", ".sendemail", async function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
 
     // Get the right table
@@ -3878,29 +3884,35 @@ docReady(function () {
     var data = table.row($(this).parents("tr")).data();
     console.log(data);
 
-    getShop(); // Avoid problems
-    getWhSmartVan(data.wholesalerKey);
+    try {
+      // Czekamy na oba Promise równocześnie
+      await Promise.all([getShop(), getWhSmartVan(data.wholesalerKey)]);
 
-    // orderItems
-    const productsSum =
-      data.products.bestMatch + data.products.exclusive + data.products.order;
-    $("#orderItems").text(productsSum);
+      // orderItems
+      const productsSum =
+        data.products.bestMatch + data.products.exclusive + data.products.order;
+      $("#orderItems").text(productsSum);
 
-    // orderValue
-    $("#orderValue").text(data.netValue + " zł");
+      // orderValue
+      $("#orderValue").text(data.netValue + " zł");
 
-    // orderWholesalerKey
-    $("#orderWholesalerKey").val(data.wholesalerName);
-    $("#orderWholesalerKey").attr("data-key", data.wholesalerKey);
-    $("#orderWholesalerKey").prop("disabled", true);
+      // orderWholesalerKey
+      $("#orderWholesalerKey").val(data.wholesalerName);
+      $("#orderWholesalerKey").attr("data-key", data.wholesalerKey);
+      $("#orderWholesalerKey").prop("disabled", true);
 
-    // orderSender
-    $("#orderUserName").val(
-      (attributes["username"] || "") + (attributes["userfamilyname"] || "")
-    );
-    $("#orderUserName").prop("disabled", true);
-    getShop();
-    $("#SendOrderSMTP").css("display", "flex");
+      // orderSender
+      $("#orderUserName").val(
+        (attributes["username"] || "") + (attributes["userfamilyname"] || "")
+      );
+      $("#orderUserName").prop("disabled", true);
+
+      // Pokaż okno dopiero po załadowaniu danych
+      $("#SendOrderSMTP").css("display", "flex");
+    } catch (error) {
+      console.error("Błąd podczas pobierania danych:", error);
+      alert("Wystąpił błąd podczas ładowania danych. Spróbuj ponownie.");
+    }
   });
 
   $("#formats").on("mousedown", "option", function (event) {
