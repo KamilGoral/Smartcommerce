@@ -1308,9 +1308,9 @@ docReady(function () {
         // Check if any wholesaler has the status "Przywróć"
         var hasPrzywroc = res.items.some(function (wholesaler) {
           return (
-            wholesaler.connections.onlineOffer &&
-            wholesaler.connections.onlineOffer.enabled &&
-            !wholesaler.connections.onlineOffer.active
+            wholesaler.connections.ecommerce &&
+            wholesaler.connections.ecommerce.enabled &&
+            !wholesaler.connections.ecommerce.active
           );
         });
 
@@ -1443,7 +1443,7 @@ docReady(function () {
           },
           {
             orderable: true,
-            data: "connections.onlineOffer",
+            data: "connections.ecommerce",
             width: "72px",
             render: function (data, type, row) {
               let sortValue = 4; // Domyślnie "Brak"
@@ -1499,9 +1499,9 @@ docReady(function () {
         rowCallback: function (row, data) {
           if (
             data.connections &&
-            data.connections.onlineOffer &&
-            data.connections.onlineOffer.enabled &&
-            !data.connections.onlineOffer.active
+            data.connections.ecommerce &&
+            data.connections.ecommerce.enabled &&
+            !data.connections.ecommerce.active
           ) {
             $("td", row).css("background-color", "#FFFAE6");
           }
