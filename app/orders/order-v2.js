@@ -699,13 +699,8 @@ docReady(function () {
             ? formatDateToPolishTime(item.confirmedAt)
             : null;
 
-          // Dodatkowy atrybut title z pełnym opisem
-          const title = item.confirmed
-            ? "Zamówienie potwierdzone i w realizacji"
-            : "Oczekuje na potwierdzenie";
-
           // Generowanie span z atrybutem data-tippy-content
-          return `<span class="${baseClass} ${statusClass}" title="${title}" data-tippy-content="Potwierdzono ${
+          return `<span class="${baseClass} ${statusClass}" data-tippy-content="Potwierdzono ${
             formattedDate || "-"
           }">${text}</span>`;
         }
