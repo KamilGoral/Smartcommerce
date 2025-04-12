@@ -3180,11 +3180,13 @@ docReady(function () {
 
                       // Update the status cell
                       var statusCell = this.cell(rowIdx, 0); // 0 is the status column index
-                      statusCell.data(
-                        '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
-                          new Date().toLocaleString() +
-                          '">W realizacji</span>'
-                      );
+                      statusCell
+                        .data(
+                          '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
+                            new Date().toLocaleString() +
+                            '">W realizacji</span>'
+                        )
+                        .draw(false); // Force redraw
 
                       // Disable the send button
                       var rowNode = this.node();
@@ -3192,6 +3194,9 @@ docReady(function () {
                         var sendButton = rowNode.querySelector(".sendemail");
                         if (sendButton) {
                           sendButton.disabled = true;
+                          sendButton.classList.add("disabled");
+                          sendButton.style.opacity = "0.5";
+                          sendButton.style.cursor = "not-allowed";
                         }
                       }
 
