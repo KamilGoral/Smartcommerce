@@ -1111,6 +1111,9 @@ docReady(function () {
                       "Pomyślnie zintegrowano dostawcę."
                     );
                     $("#startEhurtModal").hide();
+                    window.setTimeout(function () {
+                      location.reload();
+                    }, 2000);
                   } else {
                     // pokaż selektor profilu
                     $("#profilBox").css("display", "flex");
