@@ -3054,10 +3054,10 @@ docReady(function () {
               errorCallback(e);
             }
             form.show();
-            displayMessage(
-              "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
-            );
+            const errorMessage = e.message.includes("already exists")
+              ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
+              : "Oops. Coś poszło nie tak, spróbuj ponownie.";
+            displayMessage("Błąd", errorMessage);
             console.error("Błąd podczas wysyłania emaila:", e);
           },
         });
