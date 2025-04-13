@@ -1493,6 +1493,19 @@ docReady(function () {
         // Pobierz formaty z <select> jako tablicę
         var formats = $("#formats").val(); // formaty w formie tablicy
 
+        // Resetowanie podświetlenia błędów
+        $("#formats").removeClass("error-highlight");
+
+        // Walidacja formatów
+        if (!formats || formats.length < 1) {
+          displayMessage(
+            "Error",
+            "Proszę wybrać przynajmniej jeden format danych do wysyłki."
+          );
+          $("#formats").addClass("error-highlight");
+          return false;
+        }
+
         // Porównaj email
         if (email && email !== previousEmail) {
           if (previousEmail) {
