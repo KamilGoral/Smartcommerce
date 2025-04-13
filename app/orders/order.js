@@ -970,12 +970,10 @@ docReady(function () {
 
                 // Akcja: Pomiń
                 const skipCheckbox = `
-                  <div style="display: flex; align-items: center; gap: 4px;">
                     <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
                   row.confirmedAt ? "disabled" : ""
                 } />
                     <label class="mylabel" for="${data}" style="margin: 0;"></label>
-                  </div>
                 `;
 
                 // Pliki + Wyślij
