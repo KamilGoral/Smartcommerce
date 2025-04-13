@@ -1677,7 +1677,7 @@ docReady(function () {
                 if (data !== null) {
                   // Sprawdzenie, czy vanMember jest true
                   if (row.vanMember) {
-                    return `${data} <div class="positive" data-tippy-content="Aktywuj dostawcę, a integracja rozpocznie się automatycznie" style="margin-left: 8px;">SmartVan</div>`;
+                    return `${data} <div class="positive" data-tippy-content="Aktywuj dostawcę, a integracja rozpocznie się automatycznie" style="margin-left: 8px;">SmartVAN</div>`;
                   }
                   return data;
                 }
@@ -1727,7 +1727,7 @@ docReady(function () {
             },
             {
               orderable: true,
-              data: "c",
+              data: "smartvan.smtp.enabled",
               visible: false,
               render: function (data) {
                 if (data === true) {
@@ -1815,6 +1815,7 @@ docReady(function () {
             ).on("keyup", (e) => {
               this.api().search(e.target.value).draw();
             });
+            initializeSimpleTooltips();
           },
         });
 
