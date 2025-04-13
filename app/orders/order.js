@@ -917,7 +917,6 @@ docReady(function () {
                   xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" title="XLS" class="filedownloadicon">',
                   email:
                     '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
-                  skip: '<img src="https://cdn-icons-png.flaticon.com/512/458/458595.png" title="Pomiń" style="width: 16px; height: 16px; margin-right: 4px;" />',
                 };
 
                 const wholesalerConfigs = {
@@ -972,11 +971,10 @@ docReady(function () {
                 // Akcja: Pomiń
                 const skipCheckbox = `
                   <div style="display: flex; align-items: center; gap: 4px;">
-                    ${icons.skip}
                     <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
                   row.confirmedAt ? "disabled" : ""
                 } />
-                    <label class="mylabel" for="${data}" style="margin: 0;">Pomiń</label>
+                    <label class="mylabel" for="${data}" style="margin: 0;"></label>
                   </div>
                 `;
 
