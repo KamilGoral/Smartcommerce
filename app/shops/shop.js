@@ -585,6 +585,14 @@ docReady(function () {
           orderable: false,
           data: null,
           render: function (data, type, row) {
+            // Sprawdź, czy createDate jest przed 2025-04-10
+            var createDate = new Date(row.createDate);
+            var cutoffDate = new Date("2025-04-10");
+
+            if (createDate < cutoffDate) {
+              return "-";
+            }
+
             var total = row.total || 0;
             var confirmed = row.confirmed || 0;
             var percentage = total > 0 ? (confirmed / total) * 100 : 0;
