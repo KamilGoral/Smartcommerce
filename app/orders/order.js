@@ -903,7 +903,7 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "256px",
+              width: "384px",
               data: "wholesalerKey",
               render: function (data, type, row) {
                 const icons = {
@@ -977,15 +977,15 @@ docReady(function () {
                 `;
 
                 // Pliki + Wyślij
-                const filesAndSend = `
-                    ${fileIcons.join("")}
-                    ${icons.email}
+                const files = `
+                    ${fileIcons.join("")}                
                 `;
 
                 return `
                   <div style="display: flex; flex-direction: row; gap: 6px; white-space: nowrap;">
+                    ${files}
                     ${skipCheckbox}
-                    ${filesAndSend}
+                    ${icons.email}
                   </div>
                 `;
               },
