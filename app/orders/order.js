@@ -933,8 +933,7 @@ docReady(function () {
                     '<label class="mylabel" for="' +
                     data +
                     '" style="margin: 0;"></label>' +
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b0c7b0174bfdb32512_advanceButton.svg" alt="Realizuj" style="height: 24px; width: auto; cursor: pointer; margin: 0; border-radius: 8px;">';
-                  ("</div>");
+                    "</div>";
                 }
 
                 // If the row is in "realizacja" mode (after clicking "Realizuj")
