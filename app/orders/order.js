@@ -907,76 +907,50 @@ docReady(function () {
               data: "wholesalerKey",
               render: function (data, type, row) {
                 const icons = {
-                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                  csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  text: '<div class="dropdown-item" data-format="text/plain">Plik TXT</div>',
+                  csv: '<div class="dropdown-item" data-format="text/csv">CSV</div>',
                   csvAgra:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                    '<div class="dropdown-item" data-format="text/csv">CSV Agra</div>',
                   csvMirex:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
-                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
-                  email:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" class="sendemail" style="cursor: pointer;" />',
+                    '<div class="dropdown-item" data-format="text/csv">CSV Mirex</div>',
+                  pdf: '<div class="dropdown-item" data-format="application/pdf">PDF</div>',
+                  xls: '<div class="dropdown-item" data-format="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">XLS</div>',
                 };
+
+                const emailButton = `
+                  <button class="sendemail" title="Wyślij" style="cursor: pointer;">
+                    <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" />
+                  </button>
+                `;
 
                 const wholesalerConfigs = {
                   agra: {
-                    default: [
-                      icons.text,
-                      icons.csvAgra,
-                      icons.pdf,
-                      icons.xls,
-                      icons.email,
-                    ],
-                    suzyw123: [
-                      icons.text,
-                      icons.csvAgra,
-                      icons.pdf,
-                      icons.xls,
-                      icons.email,
-                    ],
+                    default: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
                   },
                   mirex: {
-                    default: [
-                      icons.text,
-                      icons.csvMirex,
-                      icons.pdf,
-                      icons.xls,
-                      icons.email,
-                    ],
-                    suzyw123: [icons.text, icons.pdf, icons.xls, icons.email],
+                    default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.pdf, icons.xls],
                   },
                   "kd-tedi": {
-                    default: [icons.xls, icons.email],
-                    suzyw123: [icons.xls, icons.email],
+                    default: [icons.xls],
+                    suzyw123: [icons.xls],
                   },
                   "kd-tano": {
-                    default: [icons.xls, icons.email],
-                    suzyw123: [icons.xls, icons.email],
+                    default: [icons.xls],
+                    suzyw123: [icons.xls],
                   },
                   "mag-dystrybucja": {
-                    default: [icons.xls, icons.email],
-                    suzyw123: [icons.xls, icons.email],
+                    default: [icons.xls],
+                    suzyw123: [icons.xls],
                   },
                   merkury: {
-                    default: [icons.xls, icons.email],
-                    suzyw123: [icons.xls, icons.email],
+                    default: [icons.xls],
+                    suzyw123: [icons.xls],
                   },
                   default: {
-                    default: [
-                      icons.text,
-                      icons.csv,
-                      icons.pdf,
-                      icons.xls,
-                      icons.email,
-                    ],
-                    suzyw123: [
-                      icons.text,
-                      icons.csv,
-                      icons.pdf,
-                      icons.xls,
-                      icons.email,
-                    ],
+                    default: [icons.text, icons.csv, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
                   },
                 };
 
@@ -984,28 +958,39 @@ docReady(function () {
                 const configKey = isSuzyw123 ? "suzyw123" : "default";
                 const config =
                   wholesalerConfigs[data] || wholesalerConfigs["default"];
-                const supportedIcons = config[configKey];
+                const downloadOptions = config[configKey];
 
-                let content =
-                  '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">';
+                // Dropdown dla przycisku "Pobierz"
+                const dropdownButton = `
+                  <div class="dropdown" style="position: relative; display: inline-block;">
+                    <button class="dropbtn">Pobierz ▼</button>
+                    <div class="dropdown-content" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; z-index: 1;">
+                      ${downloadOptions.join("")}
+                    </div>
+                  </div>
+                `;
 
+                // Checkbox Pomiń
+                let checkbox = "";
                 if (data !== "unassigned") {
-                  content +=
-                    '<input type="checkbox" class="theClass" id="' +
-                    data +
-                    '" value="' +
-                    data +
-                    '"' +
-                    (row.confirmedAt ? " disabled" : "") +
-                    " />" +
-                    '<label class="mylabel" for="' +
-                    data +
-                    '" style="margin: 0;"></label>';
+                  checkbox = `
+                    <div style="display: flex; align-items: center; gap: 2px;">
+                      <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
+                    row.confirmedAt ? "disabled" : ""
+                  } />
+                      <label class="mylabel" for="${data}" style="margin: 0;">Pomiń</label>
+                    </div>
+                  `;
                 }
 
-                // Ikony plików
-                content += supportedIcons.join("");
-                content += "</div>";
+                // Składamy całość
+                const content = `
+                  <div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                    ${checkbox}
+                    ${dropdownButton}
+                    ${emailButton}
+                  </div>
+                `;
 
                 return content;
               },
