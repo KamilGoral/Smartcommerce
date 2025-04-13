@@ -4795,12 +4795,9 @@ docReady(function () {
     });
   }
 
-  var elements2 = document.getElementsByClassName("showproducts");
-  for (var i = 0; i < elements2.length; i++) {
-    elements2[i].addEventListener("click", (event) => {
-      GetSplittedProducts();
-    });
-  }
+  $("#cart").on("click", function () {
+    GetSplittedProducts();
+  });
 
   $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
     var elem = document.getElementById("DataTablesModule");
