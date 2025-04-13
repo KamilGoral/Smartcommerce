@@ -548,20 +548,6 @@ docReady(function () {
           },
         },
         {
-          orderable: false,
-          data: "createdBy",
-          render: function (data) {
-            return data ? data : "";
-          },
-        },
-        {
-          orderable: false,
-          data: "name",
-          render: function (data) {
-            return data ? data : "";
-          },
-        },
-        {
           orderable: true,
           data: "createDate",
           render: function (data) {
@@ -579,6 +565,20 @@ docReady(function () {
               return formattedDate;
             }
             return "";
+          },
+        },
+        {
+          orderable: false,
+          data: "createdBy",
+          render: function (data) {
+            return data ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          data: "name",
+          render: function (data) {
+            return data ? data : "";
           },
         },
         {
