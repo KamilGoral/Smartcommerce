@@ -983,7 +983,7 @@ docReady(function () {
                 `;
 
                 return `
-                  <div style="display: flex; flex-direction: column; gap: 4px; white-space: nowrap;">
+                  <div style="display: flex; flex-direction: row; gap: 6px; white-space: nowrap;">
                     ${skipCheckbox}
                     ${filesAndSend}
                   </div>
