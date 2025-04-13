@@ -1487,17 +1487,39 @@ docReady(function () {
 
         var data = [];
 
-        // Pobierz email z inputa
         var email = $("#smtpEmail").val().trim();
+        var formats = $("#formats").val() || [];
 
-        // Pobierz formaty z <select> jako tablicę
-        var formats = $("#formats").val(); // formaty w formie tablicy
-
-        // Resetowanie podświetlenia błędów
         $("#formats").removeClass("error-highlight");
 
+        // Porównaj email
+        if (email && email !== previousEmail) {
+          if (previousEmail) {
+            data.push({ op: "remove", path: "/smtp/email" });
+          }
+          data.push({ op: "add", path: "/smtp/email", value: email });
+        }
+
+        if (!email && previousEmail && previousEmail.length > 0) {
+          data.push({ op: "remove", path: "/smtp/email" });
+        }
+
+        // Porównaj formaty - dodaj nowe
+        formats.forEach(function (format) {
+          if (!previousFormats.includes(format)) {
+            data.push({ op: "add", path: "/smtp/formats/-", value: format });
+          }
+        });
+
+        // Usuń formaty, które zostały odznaczone
+        previousFormats.forEach(function (format) {
+          if (!formats.includes(format)) {
+            data.push({ op: "remove", path: "/smtp/formats/" + format });
+          }
+        });
+
         // Walidacja formatów
-        if (!formats || formats.length < 1) {
+        if (formats.length < 1 && previousFormats.length < 1) {
           displayMessage(
             "Error",
             "Proszę wybrać przynajmniej jeden format danych do wysyłki."
@@ -1506,38 +1528,6 @@ docReady(function () {
           return false;
         }
 
-        // Porównaj email
-        if (email && email !== previousEmail) {
-          if (previousEmail) {
-            // Usuń stary email
-            data.push({ op: "remove", path: "/smtp/email" });
-          }
-          // Dodaj nowy email
-          data.push({ op: "add", path: "/smtp/email", value: email });
-        }
-
-        // Jeśli e-mail jest pusty i wcześniej był jakiś e-mail, usuń
-        if (!email && previousEmail && previousEmail.length > 0) {
-          // Usuń e-mail, jeśli został usunięty z formularza, a wcześniej istniał
-          data.push({ op: "remove", path: "/smtp/email" });
-        }
-
-        // Porównaj formaty
-        formats.forEach(function (format) {
-          if (!previousFormats.includes(format)) {
-            // Dodaj nowe formaty
-            data.push({ op: "add", path: "/smtp/formats/-", value: format });
-          }
-        });
-
-        previousFormats.forEach(function (format) {
-          if (!formats.includes(format)) {
-            // Usuń usunięte formaty
-            data.push({ op: "remove", path: "/smtp/formats/" + format });
-          }
-        });
-
-        // Wyślij żądanie AJAX
         $.ajax({
           type: method,
           url: action,
@@ -1562,24 +1552,21 @@ docReady(function () {
           success: function (resultData) {
             setTimeout(function () {
               displayMessage("Success", "Dane zostały zaktualizowane.");
-            }, 500); // 500 ms = 0,5 sekundy
-            // Zaktualizuj previousEmail i previousFormats po sukcesie
-            if (resultData && resultData.smtp) {
-              previousEmail = resultData.smtp.email; // Zaktualizuj email
-              previousFormats = resultData.smtp.formats || []; // Zaktualizuj formaty
+            }, 500);
 
-              // Zaktualizuj <div> z wybranymi formatami
+            if (resultData && resultData.smtp) {
+              previousEmail = resultData.smtp.email;
+              previousFormats = resultData.smtp.formats || [];
+
               $("div[wholesalerdata='smtpEmail']").text(
                 "Adres e-mail: " + previousEmail
-              ); // Zaktualizuj zawartość <div>
+              );
 
-              // Zaktualizuj <div> z wybranymi formatami
-              var formatList = previousFormats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
+              var formatList = previousFormats.join(", ");
               $("div[wholesalerdata='smtpFormats']").text(
                 "Wybrane formaty: " + formatList
-              ); // Zaktualizuj zawartość <div>
+              );
 
-              // Jeśli callback success jest funkcją, wywołaj go
               if (typeof successCallback === "function") {
                 var result = successCallback(resultData);
                 if (!result) {
@@ -1628,6 +1615,7 @@ docReady(function () {
             displayMessage("Error", msg);
           },
         });
+
         event.preventDefault();
         return false;
       });
