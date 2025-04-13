@@ -399,10 +399,31 @@ docReady(function () {
           });
         }
 
-        // Address information
+        // Address information with phones and emails
         if (data.address) {
           const { country, line1, town, state, postcode } = data.address;
-          const addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+          let addressDescription = `${country}, ${line1}, ${town}, ${state}, ${postcode}`;
+
+          // Add phones if available
+          if (Array.isArray(data.phones)) {
+            addressDescription += "\n\nTelefon:";
+            data.phones.forEach((phone) => {
+              addressDescription += `\n${phone.phone} (${
+                phone.description || "brak opisu"
+              })`;
+            });
+          }
+
+          // Add emails if available
+          if (Array.isArray(data.emails)) {
+            addressDescription += "\n\nE-mail:";
+            data.emails.forEach((email) => {
+              addressDescription += `\n${email.email} (${
+                email.description || "brak opisu"
+              })`;
+            });
+          }
+
           document.querySelector('[shopdata="address"]').textContent =
             addressDescription || "N/A";
         }
@@ -562,11 +583,38 @@ docReady(function () {
         },
         {
           orderable: false,
+          data: null,
+          render: function (data, type, row) {
+            var total = row.total || 0;
+            var confirmed = row.confirmed || 0;
+            var percentage = total > 0 ? (confirmed / total) * 100 : 0;
+
+            // Jeśli confirmed jest 0, nie pokazuj zielonego paska
+            var progressBarStyle =
+              confirmed > 0
+                ? `style="width: ${percentage}%;"`
+                : 'style="display: none;"';
+
+            return `
+              <div class="progress-bar-container" title="Produktów: ${total}, Potwierdzonych: ${confirmed}">
+                <div class="progress-bar" ${progressBarStyle}></div>
+                <span>${confirmed}/${total}</span>
+              </div>
+            `;
+          },
+          defaultContent: "",
+        },
+        {
+          orderable: false,
           data: "orderId",
           width: "72px",
           render: function (data, type, row) {
             if (type === "display" && data) {
-              return `<div class="action-container"><a href="https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}" class="buttonoutline editme w-button">Przejdź</a></div>`;
+              let url = `https://${DomainName}/app/orders/order-v2?orderId=${data}&shopKey=${shopKey}`;
+              if (row.confirmed > 0) {
+                url += "&confirmed=true";
+              }
+              return `<div class="action-container"><a href="${url}" class="buttonoutline editme w-button">Przejdź</a></div>`;
             }
             return "";
           },
@@ -1260,9 +1308,9 @@ docReady(function () {
         // Check if any wholesaler has the status "Przywróć"
         var hasPrzywroc = res.items.some(function (wholesaler) {
           return (
-            wholesaler.connections.onlineOffer &&
-            wholesaler.connections.onlineOffer.enabled &&
-            !wholesaler.connections.onlineOffer.active
+            wholesaler.connections.ecommerce &&
+            wholesaler.connections.ecommerce.enabled &&
+            !wholesaler.connections.ecommerce.active
           );
         });
 
@@ -1335,6 +1383,19 @@ docReady(function () {
             },
           },
           {
+            orderable: true,
+            data: "smartvan.smtp",
+            width: "108px",
+            visible: false,
+            render: function (data) {
+              if (data && data.enabled) {
+                return '<span class="positive">Tak</span>';
+              } else {
+                return '<span class="negative">Nie</span>';
+              }
+            },
+          },
+          {
             orderable: false,
             data: "logisticMinimum",
             width: "108px",
@@ -1351,13 +1412,13 @@ docReady(function () {
               if (data && data.enabled) {
                 return '<span class="positive">Tak</span>';
               } else {
-                return '<span class="negative">Nie</span>';
+                return '<span class="noneexisting">Nie</span>';
               }
             },
           },
           {
             orderable: true,
-            data: "connections.ftp",
+            data: "smartvan.ftp",
             width: "72px",
             render: function (data) {
               if (data && data.enabled) {
@@ -1382,7 +1443,7 @@ docReady(function () {
           },
           {
             orderable: true,
-            data: "connections.onlineOffer",
+            data: "connections.ecommerce",
             width: "72px",
             render: function (data, type, row) {
               let sortValue = 4; // Domyślnie "Brak"
@@ -1438,9 +1499,9 @@ docReady(function () {
         rowCallback: function (row, data) {
           if (
             data.connections &&
-            data.connections.onlineOffer &&
-            data.connections.onlineOffer.enabled &&
-            !data.connections.onlineOffer.active
+            data.connections.ecommerce &&
+            data.connections.ecommerce.enabled &&
+            !data.connections.ecommerce.active
           ) {
             $("td", row).css("background-color", "#FFFAE6");
           }
@@ -2077,24 +2138,22 @@ docReady(function () {
   getOrders();
   getOffers();
 
-  $('a[role="tab"]').click(function (e) {
-    if ($.fn.dataTable) {
+  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
+    function () {
       const delays = [1, 49, 151, 901];
+
       delays.forEach((delay) => {
-        setTimeout(() => {
-          try {
-            const tables = $.fn.dataTable.tables({ visible: true, api: true });
-            if (tables) {
-              tables.columns.adjust();
-              console.log("DataTable adjusted (delay: " + delay + "ms)");
-            }
-          } catch (error) {
-            console.error("DataTables error:", error);
-          }
+        setTimeout(function () {
+          $.fn.dataTable
+            .tables({
+              visible: true,
+              api: true,
+            })
+            .columns.adjust();
         }, delay);
       });
     }
-  });
+  );
 
   $("#table_offers").on("click", "td.details-control", function () {
     //Get the righ table

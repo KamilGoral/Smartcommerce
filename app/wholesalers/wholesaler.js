@@ -60,6 +60,8 @@ docReady(function () {
   emailadress.value = attributes["email"];
   const phoneNumberElement = document.getElementById("phoneNumber");
   phoneNumberElement.value = attributes["phonenumber"];
+  var previousFormats = []; // Wartość formatów, które są już zapisane w systemie
+  var previousEmail = ""; // Wartość emaila, która jest już zapisana w systemie, do porównania
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -292,9 +294,11 @@ docReady(function () {
   var userKey = getCookie("sprytnyUsername") || "me";
   const orgName = document.getElementById("orgName");
   var formIdEdit = "#wf-form-CredentialsFormEdit";
+  var formIdNew = "#wf-form-ehurt";
   var formCustomerIdForm = "#wf-form-customerId";
   var formIdDelete = "#wf-form-DeleteWholesalerCredential";
-  var formWhLogistic = "#wf-form-LogisticMinimumForm";
+  var formWhLogistic = "#wf-form-NewLogisticsMinimum-2";
+  var formWhSMTP = "#wf-form-editSMTP-2";
   const Iehurt = document.getElementById("Iehurt");
   emailElement.textContent = getCookie("sprytnyUser");
   var LastStatusMessage = document.getElementById("LastStatusMessage");
@@ -315,12 +319,16 @@ docReady(function () {
   );
 
   const ShopBread = document.getElementById("ShopBread0");
-  var shopKey = new URL(document.location.href).searchParams.get("shopKey");
-  ShopBread.textContent = shopKey;
-  ShopBread.setAttribute(
-    "href",
-    "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
-  );
+  const urlParams = new URL(document.location.href).searchParams;
+  var shopKey = urlParams.get("shopKey") || urlParams.get("shopkey");
+
+  if (shopKey) {
+    ShopBread.textContent = shopKey;
+    ShopBread.setAttribute(
+      "href",
+      "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
+    );
+  }
 
   const WholesalerIdBread = document.getElementById("WholesalerBread0");
   var wholesalerKey = new URL(document.location.href).searchParams.get(
@@ -329,11 +337,40 @@ docReady(function () {
   WholesalerIdBread.textContent = wholesalerKey;
   WholesalerIdBread.setAttribute("href", window.location.href);
 
-  function getWholesaler() {
-    $("#CompanyDivEdit").hide();
-    $("#Wholesaler-profile-Selector-box").hide();
-    $("#status-container").hide();
+  // Funkcja do ustawiania tekstu w elemencie (jeśli istnieje)
+  function setText(selector, text, prefix = "") {
+    const el = document.querySelector(`[wholesalerdata="${selector}"]`);
+    if (el)
+      el.textContent =
+        text !== null && text !== undefined
+          ? `${prefix}${text}`
+          : `${prefix} -`;
+  }
 
+  // Funkcja do ustawiania linku (jeśli istnieje)
+  function setLink(selector, url, prefix = "") {
+    const el = document.querySelector(`[wholesalerdata="${selector}"]`);
+    if (el) {
+      const displayUrl = url !== null && url !== undefined ? url : "-";
+      el.innerHTML = `${prefix}&nbsp;<a href="${
+        displayUrl === "-" ? "#" : displayUrl
+      }" target="_blank">${displayUrl}</a>`;
+    }
+  }
+
+  function LogoutNonUser() {
+    if (
+      getCookie("sprytnyInvokeURL") == null ||
+      getCookie("sprytnycookie") == null ||
+      getCookie("sprytnyToken") == null ||
+      getCookie("sprytnyDomainName") == null
+    ) {
+      alert("Twoja sesja wygasła.");
+      window.location.href = "https://sprytnykupiec.pl/login-page";
+    }
+  }
+
+  function getWholesaler() {
     let url2 = new URL(
       InvokeURL +
         "shops/" +
@@ -348,10 +385,43 @@ docReady(function () {
     request2.onload = function () {
       var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
-        $("#login-credentials-container").removeClass("hide");
+        Iehurt.classList.add("enabled");
+        Iehurt.classList.remove("hide");
+        $("#ehurtBox").show();
+        $("#ehurtBoxDelete").show();
+
         const statusmessagebox = document.getElementById("statusmessagebox");
-        $("#UsernameEdit").val(data2.credentials.username).change();
-        $("#logisticMinimumEdit").val(data2).change();
+
+        if (
+          data2 &&
+          data2.credentials &&
+          data2.credentials.extraFields &&
+          data2.credentials.extraFields.company
+        ) {
+          // Dane istnieją, ustawiamy tekst i pokazujemy pole
+          setText(
+            "extrafield",
+            data2.credentials.extraFields.company,
+            "Firma: "
+          );
+          document.getElementById("specialServiceBoxCompany").style.display =
+            "flex"; // Zakładając, że extrafield to ID pola
+          $("#CompanyNameEdit").val(data2.credentials.extraFields.company);
+          // Brak danych, ukrywamy pole
+          document.getElementById("specialServiceBoxProfile").style.display =
+            "none";
+        } else {
+        }
+        setText(
+          "username",
+          data2.credentials ? data2.credentials.username : "",
+          "Login: "
+        );
+        $("#Username-Edit").val(data2.credentials.username);
+
+        setText("password", "******", "Hasło: ");
+        setText("profile", data2.profile ? data2.profile.name : "", "Profil: ");
+
         if (data2.lastDownload !== null) {
           var firstData = data2.lastDownload;
           var firstCreateDate = "";
@@ -429,6 +499,9 @@ docReady(function () {
           }
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
+          $("#ehurtStart").removeClass("hide");
+          $("#ehurtBox").hide();
+          $("#ehurtBoxDelete").hide();
         }
 
         $("#Wholesaler-profile-Selector-box").hide();
@@ -457,48 +530,76 @@ docReady(function () {
         if (data.onlineOfferSupport) {
           $("#status-container").show();
         }
-
         // conditional for EC and ECS
         if (
           data.wholesalerKey === "eurocash" ||
           data.wholesalerKey === "eurocash-serwis"
         ) {
-          $("#editCustomerId").show();
+          $("#ftpBox").show();
           console.log("EC or ECS");
         } else {
-          $("#editCustomerId").hide();
+          $("#ftpBox").hide();
           console.log("Not EC or ECS");
         }
 
-        const wholesalerName = document.getElementById("WholesalerName");
-        const whPlatformUrl = document.getElementById("whPlatformUrl");
-        const whTaxId = document.getElementById("whTaxId");
-        const whCountry = document.getElementById("whCountry");
-        const whLine1 = document.getElementById("whLine1");
-        const whLine2 = document.getElementById("whLine2");
-        const whTown = document.getElementById("whTown");
-        const whState = document.getElementById("whState");
-        const whPostcode = document.getElementById("whPostcode");
-        const whLogo = document.getElementById("whLogo");
-        whLogo.src = "data:image/png;base64," + data.image;
-        whLogo.style.objectFit = "contain";
-        wholesalerName.textContent = data.company;
-
-        if (data.platformUrl !== null) {
-          whPlatformUrl.setAttribute("href", "" + data.platformUrl);
-          $("#login-credentials-container").removeClass("hide");
-        } else {
-          $("#proposeIntegration").removeClass("hide");
-          $("#loginButton").hide();
+        if (data.platformUrl === null) {
+          $("#ehurtBox").hide();
+          $("#ehurtBoxDelete").hide();
         }
-        //
-        whTaxId.textContent = data.taxId;
-        whCountry.textContent = data.address.country;
-        whLine1.textContent = data.address.line1;
-        whLine2.textContent = data.address.line2;
-        whTown.textContent = data.address.town;
-        whState.textContent = data.address.state;
-        whPostcode.textContent = data.address.postcode;
+
+        // Ustawienia podstawowych danych
+        setText("name", data.company);
+        setText("taxId", data.taxId, "NIP: ");
+        setLink("platformUrl", data.platformUrl, "Strona E-hurt:");
+        setLink("website", data.website, "Strona www:");
+
+        // Ustawienia badgy
+        const smartVanBadge = document.querySelector("#IsmartVan");
+
+        if (smartVanBadge) {
+          if (data.vanMember) {
+            smartVanBadge.classList.remove("hide");
+            smartVanBadge.classList.add("enabled");
+          }
+        }
+
+        const ftpElement = document.getElementById("Iftp");
+
+        if (data.smartvan.ftp && data.smartvan.ftp.username) {
+          ftpElement.classList.remove("hide");
+          ftpElement.classList.add("enabled");
+        } else {
+          console.log("tutaj");
+        }
+
+        const retroactiveElement = document.getElementById("Iretroactive");
+        if (
+          data.connections.retroactive &&
+          data.connections.retroactive.enabled
+        ) {
+          retroactiveElement.classList.remove("hide");
+          retroactiveElement.classList.add("enabled");
+        }
+
+        // Obsługa numeru telefonu
+        const wholesalerPhone = document.querySelector(
+          '[wholesalerdata="phone"]'
+        );
+        if (wholesalerPhone) {
+          if (data.phones && data.phones.length > 0) {
+            const phoneData = data.phones[0];
+            wholesalerPhone.innerHTML = `Numer telefonu: <a href="tel:${phoneData.phone}">${phoneData.phone}</a> (${phoneData.description})`;
+          } else {
+            wholesalerPhone.textContent = "Numer telefonu: -";
+          }
+        }
+
+        // Obsługa logo
+        const whLogo = document.querySelector('[wholesalerdata="logo"]');
+        if (whLogo && data.image) {
+          whLogo.src = `data:image/png;base64,${data.image}`;
+          whLogo.style.objectFit = "contain";
+        }
       } else {
         console.log("error");
       }
@@ -506,22 +607,155 @@ docReady(function () {
     request.send();
   }
 
-  // Funkcja do dostosowania szerokości selecta do najszerszej opcji
-  function adjustSelectWidth() {
-    const select = document.getElementById("Wholesaler-profile-Selector");
-    const options = select.getElementsByTagName("option");
-    let maxWidth = 411;
+  function getWhSmartVan() {
+    let url2 = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/wholesalers/" +
+        wholesalerKey +
+        "/smartvan"
+    );
+    let request2 = new XMLHttpRequest();
+    request2.open("GET", url2, true);
+    request2.setRequestHeader("Authorization", orgToken);
+    request2.onload = function () {
+      var data2 = JSON.parse(this.response);
+      if (request2.status >= 200 && request2.status < 400) {
+        // Obsługuje e-mail
+        let smtpEmail = data2.smtp ? data2.smtp.email : null;
+        let emailElement = document.querySelector(
+          '[wholesalerdata="smtpEmail"]'
+        );
+        let smtpEmailInput = document.getElementById("smtpEmail");
+        if (smtpEmail === null) {
+          emailElement.innerHTML = "Adres e-mail: -";
+        } else {
+          emailElement.innerHTML = "Adres e-mail: " + smtpEmail;
+          smtpEmailInput.value = smtpEmail;
+          previousEmail = smtpEmail;
+        }
 
-    // Znajdź najszerszą opcję
-    for (let i = 0; i < options.length; i++) {
-      const option = options[i];
-      const optionWidth = option.scrollWidth;
-      if (optionWidth > maxWidth) {
-        maxWidth = optionWidth;
-        select.style.width = maxWidth + "px";
+        // Obsługuje formaty
+        let formats =
+          data2.smtp && data2.smtp.formats ? data2.smtp.formats : [];
+        let formatsSelect = document.getElementById("formats");
+        let formatsElement = document.querySelector(
+          '[wholesalerdata="smtpFormats"]'
+        );
+
+        if (formats.length === 0) {
+          formatsElement.innerHTML = "Wybrane formaty: -";
+        } else {
+          formatsElement.innerHTML = "Wybrane formaty:";
+          var formatList = formats.join(", "); // Łączenie formatów w jeden ciąg
+          $("div[wholesalerdata='smtpFormats']").text(
+            "Wybrane formaty: " + formatList
+          );
+          formats.forEach(function (format) {
+            let option = formatsSelect.querySelector(
+              `option[value="${format}"]`
+            );
+            if (option) {
+              option.selected = true;
+            }
+            previousFormats = formats;
+          });
+        }
+
+        // Obsługuje ostatnią transakcję SMTP
+        let lastTransaction = data2.smtp ? data2.smtp.lastTransaction : null;
+        let formattedDate = new Date(lastTransaction.createDate).toLocaleString(
+          "pl-PL"
+        );
+        let lastTransactionElement = document.querySelector(
+          '[wholesalerdata="smtpLastTransaction"]'
+        );
+        if (lastTransaction === null) {
+          lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
+        } else {
+          lastTransactionElement.innerHTML =
+            "Data ostatniej operacji: " + formattedDate;
+        }
+
+        // Obsługuje FTP
+        if (data2.ftp) {
+          // Identyfikator klienta FTP
+          let ftpCustomerId = data2.ftp.customerId;
+          let customerIdElement = document.querySelector(
+            '[wholesalerdata="customerId"]'
+          );
+          let customerIdInput = document.getElementById("customerId");
+          customerIdInput = ftpCustomerId;
+          if (ftpCustomerId === null) {
+            customerIdElement.innerHTML = "Identyfikator Klienta: -";
+          } else {
+            customerIdElement.innerHTML =
+              "Identyfikator Klienta: " + ftpCustomerId;
+          }
+
+          // Login FTP
+          let ftpUsername = data2.ftp.username;
+          let ftpUsernameElement = document.querySelector(
+            '[wholesalerdata="ftpUsername"]'
+          );
+          if (ftpUsername === null) {
+            ftpUsernameElement.innerHTML = "Login: -";
+          } else {
+            ftpUsernameElement.innerHTML = "Login: " + ftpUsername;
+          }
+
+          // Ostatnia transakcja FTP
+          let ftpLastTransaction = data2.ftp.lastTransaction;
+          let ftpLastTransactionElement = document.querySelector(
+            '[wholesalerdata="FtpLastTransaction"]'
+          );
+          if (ftpLastTransaction === null) {
+            ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
+          } else {
+            ftpLastTransactionElement.innerHTML =
+              "Ostatnia zmiana: " + ftpLastTransaction;
+          }
+        } else {
+          // Jeśli data2.ftp jest null, zabezpiecz kod, aby nie próbować uzyskać dostępu do danych
+          let customerIdElement = document.querySelector(
+            '[wholesalerdata="customerId"]'
+          );
+          customerIdElement.innerHTML = "Identyfikator Klienta: -";
+          let ftpUsernameElement = document.querySelector(
+            '[wholesalerdata="ftpUsername"]'
+          );
+          ftpUsernameElement.innerHTML = "Login: -";
+          let ftpLastTransactionElement = document.querySelector(
+            '[wholesalerdata="FtpLastTransaction"]'
+          );
+          ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
+        }
+      } else if (request2.status >= 400) {
+        console.error("Błąd: ", request2.status, this.response);
+      } else {
+        console.log("Nieoczekiwany błąd");
       }
-    }
+    };
+    request2.send();
   }
+
+  // Funkcja do dostosowania szerokości selecta do najszerszej opcji
+  // function adjustSelectWidth() {
+  //   const select = document.getElementById("Wholesaler-profile-Selector");
+  //   const options = select.getElementsByTagName("option");
+  //   let maxWidth = 411;
+
+  //   // Znajdź najszerszą opcję
+  //   for (let i = 0; i < options.length; i++) {
+  //     const option = options[i];
+  //     const optionWidth = option.scrollWidth;
+  //     if (optionWidth > maxWidth) {
+  //       maxWidth = optionWidth;
+  //       select.style.width = maxWidth + "px";
+  //     }
+  //   }
+  // }
 
   function getProfile() {
     let url = new URL(
@@ -532,58 +766,85 @@ docReady(function () {
         wholesalerKey +
         "/online-offer/profiles"
     );
+    console.log("GetProfile");
 
-    let request = new XMLHttpRequest();
-    request.addEventListener("load", reqListener);
+    return new Promise((resolve, reject) => {
+      // Zwracamy Promise
+      let request = new XMLHttpRequest();
+      request.addEventListener("load", reqListener);
 
-    request.open("GET", url, true);
-    $("#waitingdots").show();
+      request.open("GET", url, true);
+      $("#waitingdots").show();
 
-    function reqListener() {
-      if (request.readyState === 4 && request.status === 200) {
-        // Hide the loaders
-        $("#waitingdots").hide();
+      function reqListener() {
+        if (request.readyState === 4 && request.status === 200) {
+          $("#waitingdots").hide();
+        }
       }
-    }
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400 && data.total > 0) {
-        $("#Wholesaler-profile-Selector-box").show();
-        $("#Wholesaler-profile-Selector").attr("required", "");
-        const Iehurt = document.getElementById("Iehurt");
-        Iehurt.classList.add("enabled");
-        const wholesalerProfileContainer = document.getElementById(
-          "Wholesaler-profile-Selector"
-        );
-        toParse.forEach((profile) => {
-          var optProfile = document.createElement("option");
-          optProfile.value = profile.id;
-          optProfile.name = profile.id;
-          optProfile.innerHTML = profile.name;
-          wholesalerProfileContainer.appendChild(optProfile);
-        });
-      } else if (request.status == 401) {
-        console.log("Unauthorized");
-      } else {
-        $("#Wholesaler-profile-Selector-box").hide();
-        $("#Wholesaler-profile-Selector").removeAttr("required");
-      }
-    };
-    request.send();
 
-    $("#waitingdots").show();
-    $("#Wholesaler-profile-Selector")
-      .find("option")
-      .remove()
-      .end()
-      .append("<option value=null>Wybierz profil</option>")
-      .val("null");
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
 
-    // Wywołaj funkcję
-    adjustSelectWidth();
+      request.onload = function () {
+        try {
+          var data = JSON.parse(this.response);
+          var toParse = data.items;
+
+          if (request.status >= 200 && request.status < 400 && data.total > 0) {
+            $("#Wholesaler-profile-Selector-box").show();
+            $("#Wholesaler-profile-Selector").attr("required", "");
+            const Iehurt = document.getElementById("Iehurt");
+            Iehurt.classList.add("enabled");
+            const WholesalerProfileSelectorNew = document.getElementById(
+              "WholesalerProfileSelector"
+            );
+            const wholesalerProfileContainer = document.getElementById(
+              "Wholesaler-profile-Selector"
+            );
+
+            toParse.forEach((profile) => {
+              var optProfile = document.createElement("option");
+              optProfile.value = profile.id;
+              optProfile.name = profile.id;
+              optProfile.innerHTML = profile.name;
+              WholesalerProfileSelectorNew.appendChild(optProfile);
+            });
+
+            toParse.forEach((profile) => {
+              var optProfile = document.createElement("option");
+              optProfile.value = profile.id;
+              optProfile.name = profile.id;
+              optProfile.innerHTML = profile.name;
+              wholesalerProfileContainer.appendChild(optProfile);
+            });
+            resolve(data); // Rozwiązujemy Promise z danymi
+          } else if (request.status == 401) {
+            console.log("Unauthorized");
+            reject("Unauthorized"); // Odrzucamy Promise
+          } else {
+            $("#Wholesaler-profile-Selector-box").hide();
+            $("#Wholesaler-profile-Selector").removeAttr("required");
+            resolve(data); // Rozwiązujemy Promise z danymi
+          }
+        } catch (error) {
+          reject(error); // Odrzucamy Promise w przypadku błędu JSON
+        }
+      };
+
+      request.onerror = function () {
+        reject("Network Error"); // Odrzucamy Promise w przypadku błędu sieci
+      };
+
+      request.send();
+
+      $("#waitingdots").show();
+      $("#Wholesaler-profile-Selector")
+        .find("option")
+        .remove()
+        .end()
+        .append("<option value=null>Wybierz profil</option>")
+        .val("null");
+    });
   }
 
   function getWholesalerHistory() {
@@ -688,30 +949,30 @@ docReady(function () {
         var logisticMinimum = foundWholesaler.logisticMinimum;
 
         var additionalFields =
-          foundWholesaler.connections.onlineOffer?.requiresExtraField || null;
+          foundWholesaler.connections.ecommerce?.requiresExtraField || null;
 
         if (additionalFields) {
           $("#CompanyDivEdit").show();
+          $("#CompanyDivStart").show();
         } else {
           $("#CompanyDivEdit").hide();
+          $("#CompanyDivStart").hide();
+          $("#specialServiceBoxCompany").hide();
         }
 
         if (logisticMinimum !== null) {
           $("#logisticMinimumEdit").val(logisticMinimum).change();
-        }
-
-        var customerId = foundWholesaler.customerId;
-
-        if (customerId !== null) {
-          $("#customerId").val(customerId).change();
+          setText("logisticMinimum", `${logisticMinimum} zł`, "Wartość: ");
+        } else {
+          $('div[wholesalerdata="logisticMinimum"]').html("Wartość: -");
         }
 
         if (
           foundWholesaler &&
           foundWholesaler.connections &&
-          foundWholesaler.connections.onlineOffer
+          foundWholesaler.connections.ecommerce
         ) {
-          var onlineOfferData = foundWholesaler.connections.onlineOffer;
+          var onlineOfferData = foundWholesaler.connections.ecommerce;
           if (onlineOfferData.enabled && onlineOfferData.active) {
             console.log("Online Offer: Tak");
             $("#delete-wholesalers-container").removeClass("hide");
@@ -737,17 +998,210 @@ docReady(function () {
     request.send();
   }
 
-  function LogoutNonUser() {
-    if (
-      getCookie("sprytnyInvokeURL") == null ||
-      getCookie("sprytnycookie") == null ||
-      getCookie("sprytnyToken") == null ||
-      getCookie("sprytnyDomainName") == null
-    ) {
-      alert("Twoja sesja wygasła.");
-      window.location.href = "https://sprytnykupiec.pl/login-page";
-    }
-  }
+  makeWebflowFormAjaxWhNew = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        event.preventDefault();
+
+        var action =
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          wholesalerKey +
+          "/online-offer";
+        var method = "PATCH";
+
+        let profileId = $("#WholesalerProfileSelector").val();
+        let profileName = $(
+          "#WholesalerProfileSelector option:selected"
+        ).text();
+
+        var data = [];
+
+        // Jeżeli formularz zawiera już wybrany profil
+        if (profileId && profileId !== "null") {
+          data = [
+            {
+              op: "add",
+              path: "/credentials/username",
+              value: $("#Username").val().trim(),
+            },
+            {
+              op: "add",
+              path: "/credentials/password",
+              value: $("#Password").val(),
+            },
+            {
+              op: "add",
+              path: "/profile",
+              value: {
+                id: profileId,
+                name: profileName,
+              },
+            },
+          ];
+        } else {
+          // Pierwsze podejście bez profilu, dodaj firmę jeśli istnieje
+          data = [
+            {
+              op: "add",
+              path: "/credentials/username",
+              value: $("#Username").val().trim(),
+            },
+            {
+              op: "add",
+              path: "/credentials/password",
+              value: $("#Password").val(),
+            },
+          ];
+
+          if ($("#CompanyName").val()) {
+            data.push({
+              op: "add",
+              path: "/credentials/extraFields",
+              value: {
+                company: $("#CompanyName").val(),
+              },
+            });
+          }
+        }
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            window.setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 2000);
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            console.log("Wynik successCallback: ", resultData);
+
+            if (!resultData) {
+              form.show();
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
+              return;
+            }
+
+            if (resultData.profile === null) {
+              console.log("Brak profilu, pobieram profile...");
+              getProfile()
+                .then(function (profileData) {
+                  console.log(profileData);
+                  if (profileData.total === 0) {
+                    displayMessage(
+                      "Success",
+                      "Pomyślnie zintegrowano dostawcę."
+                    );
+                    $("#startEhurtModal").hide();
+                    window.setTimeout(function () {
+                      location.reload();
+                    }, 2000);
+                  } else {
+                    // pokaż selektor profilu
+                    $("#profilBox").css("display", "flex");
+                    $("#Wholesaler-profile-Selector")
+                      .find("option")
+                      .remove()
+                      .end()
+                      .append("<option value=null>Wybierz profil</option>")
+                      .val("null");
+
+                    profileData.items.forEach((profile) => {
+                      $("#Wholesaler-profile-Selector").append(
+                        $("<option></option>")
+                          .attr("value", profile.id)
+                          .text(profile.name)
+                      );
+                    });
+
+                    $("#Username, #Password, #CompanyName")
+                      .closest(".field-wrapper")
+                      .hide();
+
+                    displayMessage(
+                      "Success",
+                      "Proszę wybrać profil sklepu dla tego dostawcy i kliknąć ponownie Integruj."
+                    );
+                  }
+                })
+                .catch(function (error) {
+                  console.error("Błąd podczas pobierania profilu:", error);
+                  displayMessage(
+                    "Error",
+                    "Wystąpił błąd podczas pobierania profili."
+                  );
+                });
+            } else {
+              console.log("Sukces");
+              displayMessage("Success", "Pomyślnie zintegrowano dostawcę.");
+              window.setTimeout(function () {
+                location.reload();
+              }, 2000);
+            }
+          },
+          error: function (jqXHR, exception) {
+            console.log("error", jqXHR, exception);
+            let msg = "";
+            switch (jqXHR.status) {
+              case 0:
+                msg = "Nie masz połączenia z internetem.";
+                break;
+              case 404:
+                msg = "Nie znaleziono strony";
+                break;
+              case 403:
+                msg =
+                  jqXHR.responseJSON.message ==
+                  "User is not an administrator of this tenant"
+                    ? "Nie masz uprawnień do tej czynności"
+                    : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
+                break;
+              case 409:
+                msg =
+                  "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                break;
+              case 500:
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
+                break;
+              default:
+                msg =
+                  exception === "parsererror"
+                    ? "Nie udało się odczytać danych"
+                    : exception === "timeout"
+                    ? "Przekroczony czas oczekiwania"
+                    : exception === "abort"
+                    ? "Twoje żądanie zostało zaniechane"
+                    : jqXHR.responseJSON?.message || "Nieznany błąd";
+                break;
+            }
+            displayMessage("Error", msg);
+          },
+        });
+
+        return false;
+      });
+    });
+  };
 
   makeWebflowFormAjaxWh = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -768,12 +1222,12 @@ docReady(function () {
             {
               op: "add",
               path: "/credentials/username",
-              value: $("#UsernameEdit").val().trim(),
+              value: $("#Username-Edit").val().trim(),
             },
             {
               op: "add",
               path: "/credentials/password",
-              value: $("#PasswordEdit").val(),
+              value: $("#Password-Edit").val(),
             },
             {
               op: "add",
@@ -790,12 +1244,12 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val().trim(),
+                value: $("#Username-Edit").val().trim(),
               },
               {
                 op: "add",
                 path: "/credentials/password",
-                value: $("#PasswordEdit").val(),
+                value: $("#Password-Edit").val(),
               },
               {
                 op: "add",
@@ -814,12 +1268,12 @@ docReady(function () {
               {
                 op: "add",
                 path: "/credentials/username",
-                value: $("#UsernameEdit").val().trim(),
+                value: $("#Username-Edit").val().trim(),
               },
               {
                 op: "add",
                 path: "/credentials/password",
-                value: $("#PasswordEdit").val(),
+                value: $("#Password-Edit").val(),
               },
             ];
           }
@@ -1018,6 +1472,155 @@ docReady(function () {
     });
   };
 
+  makeWebflowFormAjaxSMTP = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var action =
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          wholesalerKey +
+          "/smartvan";
+        var method = "PATCH";
+
+        var data = [];
+
+        // Pobierz email z inputa
+        var email = $("#smtpEmail").val().trim();
+
+        // Pobierz formaty z <select> jako tablicę
+        var formats = $("#formats").val(); // formaty w formie tablicy
+
+        // Porównaj email
+        if (email && email !== previousEmail) {
+          if (previousEmail) {
+            // Usuń stary email
+            data.push({ op: "remove", path: "/smtp/email" });
+          }
+          // Dodaj nowy email
+          data.push({ op: "add", path: "/smtp/email", value: email });
+        }
+
+        // Jeśli e-mail jest pusty i wcześniej był jakiś e-mail, usuń
+        if (!email && previousEmail && previousEmail.length > 0) {
+          // Usuń e-mail, jeśli został usunięty z formularza, a wcześniej istniał
+          data.push({ op: "remove", path: "/smtp/email" });
+        }
+
+        // Porównaj formaty
+        formats.forEach(function (format) {
+          if (!previousFormats.includes(format)) {
+            // Dodaj nowe formaty
+            data.push({ op: "add", path: "/smtp/formats/-", value: format });
+          }
+        });
+
+        previousFormats.forEach(function (format) {
+          if (!formats.includes(format)) {
+            // Usuń usunięte formaty
+            data.push({ op: "remove", path: "/smtp/formats/" + format });
+          }
+        });
+
+        // Wyślij żądanie AJAX
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            window.setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 2000);
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            setTimeout(function () {
+              displayMessage("Success", "Dane zostały zaktualizowane.");
+            }, 500); // 500 ms = 0,5 sekundy
+            // Zaktualizuj previousEmail i previousFormats po sukcesie
+            if (resultData && resultData.smtp) {
+              previousEmail = resultData.smtp.email; // Zaktualizuj email
+              previousFormats = resultData.smtp.formats || []; // Zaktualizuj formaty
+
+              // Zaktualizuj <div> z wybranymi formatami
+              $("div[wholesalerdata='smtpEmail']").text(
+                "Adres e-mail: " + previousEmail
+              ); // Zaktualizuj zawartość <div>
+
+              // Zaktualizuj <div> z wybranymi formatami
+              var formatList = previousFormats.join(", "); // Łączenie formatów w jeden ciąg, oddzielony przecinkiem
+              $("div[wholesalerdata='smtpFormats']").text(
+                "Wybrane formaty: " + formatList
+              ); // Zaktualizuj zawartość <div>
+
+              // Jeśli callback success jest funkcją, wywołaj go
+              if (typeof successCallback === "function") {
+                var result = successCallback(resultData);
+                if (!result) {
+                  form.show();
+                  return;
+                }
+              }
+            }
+          },
+          error: function (jqXHR, exception) {
+            console.log("error", jqXHR, exception);
+            let msg = "";
+            switch (jqXHR.status) {
+              case 0:
+                msg = "Nie masz połączenia z internetem.";
+                break;
+              case 404:
+                msg = "Nie znaleziono strony";
+                break;
+              case 403:
+                msg =
+                  jqXHR.responseJSON?.message ==
+                  "User is not an administrator of this tenant"
+                    ? "Nie masz uprawnień do tej czynności"
+                    : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
+                break;
+              case 409:
+                msg =
+                  "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
+                break;
+              case 500:
+                msg =
+                  "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
+                break;
+              default:
+                msg =
+                  exception === "parsererror"
+                    ? "Nie udało się odczytać danych"
+                    : exception === "timeout"
+                    ? "Przekroczony czas oczekiwania"
+                    : exception === "abort"
+                    ? "Twoje żądanie zostało zaniechane"
+                    : jqXHR.responseJSON?.message || "Wystąpił nieznany błąd";
+                break;
+            }
+            displayMessage("Error", msg);
+          },
+        });
+        event.preventDefault();
+        return false;
+      });
+    });
+  };
+
   makeWebflowFormAjaxWhLogistic = function (
     forms,
     successCallback,
@@ -1030,13 +1633,14 @@ docReady(function () {
           InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
 
         var method = "PATCH";
+        var newValue = parseInt($("#logisticMinimumEdit").val());
 
-        if (parseInt($("#logisticMinimumEdit").val()) > 0) {
+        if (newValue > 0) {
           var data = [
             {
               op: "add",
               path: "/logisticMinimum",
-              value: parseInt($("#logisticMinimumEdit").val()),
+              value: newValue,
             },
           ];
         } else {
@@ -1080,9 +1684,15 @@ docReady(function () {
               }
             }
             form.show();
-            displayMessage(
-              "Success",
-              "Minimum logistyczne dla dostawcy zostało zmienione"
+            setTimeout(function () {
+              displayMessage(
+                "Success",
+                "Minimum logistyczne dla dostawcy zostało zmienione"
+              );
+            }, 500); // 500 ms = 0,5 sekundy
+            var displayValue = newValue > 0 ? newValue + " zł" : "-";
+            $('div[wholesalerdata="logisticMinimum"]').text(
+              "Wartość: " + displayValue
             );
           },
           error: function (e) {
@@ -1181,6 +1791,9 @@ docReady(function () {
               "Success",
               "Identyfikator klienta dla dostawcy został zmieniony."
             );
+            $('div[wholesalerdata="customerId"]').html(
+              "Identyfikator klienta: " + customerIdValue
+            );
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -1256,7 +1869,7 @@ docReady(function () {
               }
             }
             form.show();
-            displayMessage("Success", "Integracja zostałą cofnięta.");
+            displayMessage("Success", "Integracja zostałą usunięta.");
             window.setTimeout(function () {
               window.location.replace(
                 "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
@@ -1281,8 +1894,19 @@ docReady(function () {
     });
   };
 
-  $("#UsernameEdit").change(function () {
+  $("#Username-Edit").change(function () {
     $("#Wholesaler-profile-Selector").val("null").change();
+  });
+
+  $("#formats").on("mousedown", "option", function (event) {
+    // Zapobiegaj domyślnej akcji przeglądarki
+    event.preventDefault();
+
+    // Przełącz stan zaznaczenia klikniętej opcji
+    $(this).prop("selected", !$(this).prop("selected"));
+
+    // Wymuś aktualizację stanu pola <select>
+    $("#formats").trigger("change");
   });
 
   function initializeSimpleTooltips() {
@@ -1347,6 +1971,7 @@ docReady(function () {
 
   // Wywołanie funkcji z przykładowym wholesalerKey
   getWholesalerButtons(wholesalerKey);
+  getWhSmartVan();
 
   getWholesaler();
   function onlineOfferSupportFlow() {
@@ -1360,8 +1985,10 @@ docReady(function () {
   LogoutNonUser();
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
   makeWebflowFormAjaxWh($(formIdEdit));
+  makeWebflowFormAjaxWhNew($(formIdNew));
   makeWebflowFormAjaxWhLogistic($(formWhLogistic));
   editCustomerId($(formCustomerIdForm));
+  makeWebflowFormAjaxSMTP($(formWhSMTP));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
   $("#waitingdots").hide();
