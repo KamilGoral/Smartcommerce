@@ -610,7 +610,7 @@ docReady(function () {
           width: "72px",
           render: function (data, type, row) {
             if (type === "display" && data) {
-              let url = `https://${DomainName}/app/orders/order-v2?orderId=${data}&shopKey=${shopKey}`;
+              let url = `https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}`;
               if (row.confirmed > 0) {
                 url += "&confirmed=true";
               }
