@@ -903,7 +903,7 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "192px",
+              width: "256px",
               data: "wholesalerKey",
               render: function (data, type, row) {
                 const icons = {
