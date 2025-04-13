@@ -289,6 +289,7 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var counter = 0;
+  var offerId = "latest";
   var changesPayload = [];
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var orderId = new URL(location.href).searchParams.get("orderId");
@@ -324,113 +325,6 @@ docReady(function () {
       "&shopKey=" +
       shopKey
   );
-
-  function getShop() {
-    return new Promise((resolve, reject) => {
-      var request = new XMLHttpRequest();
-      let endpoint = new URL(InvokeURL + "shops/" + shopKey);
-      request.open("GET", endpoint.toString(), true);
-      request.setRequestHeader("Authorization", orgToken);
-      request.setRequestHeader("Requested-By", "webflow-3-4");
-
-      request.onload = function () {
-        if (request.status >= 200 && request.status < 400) {
-          var data = JSON.parse(this.response);
-
-          if (data.merchantConsoleShopId === null) {
-            data.merchantConsoleShopId = "";
-          }
-
-          // Update shopName, shopKey, and other information
-          $("#shopNameEdit").val(data.name || "");
-
-          var stateMapping = {
-            Dolnośląskie: "LowerSilesian",
-            "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
-            Lubelskie: "Lublin",
-            Lubuskie: "Lubusz",
-            Łódzkie: "Łódź",
-            Małopolskie: "Lesser Poland",
-            Mazowieckie: "Masovian",
-            Opolskie: "Opole",
-            Podkarpackie: "Subcarpathian",
-            Podlaskie: "Podlaskie",
-            Pomorskie: "Pomeranian",
-            Śląskie: "Silesian",
-            Świętokrzyskie: "HolyCross",
-            "Warmińsko-Mazurskie": "Warmian-Masurian",
-            Wielkopolskie: "Greater Poland",
-            Zachodniopomorskie: "West Pomeranian",
-          };
-
-          if (data.address && typeof data.address.state !== "undefined") {
-            $("#shopStateEdit").val(stateMapping[data.address.state] || "");
-          } else {
-            $("#shopStateEdit").val("");
-          }
-
-          $("#shopTownEdit").val((data.address && data.address.town) || "");
-          $("#shopPostcodeEdit").val(
-            (data.address && data.address.postcode) || ""
-          );
-          $("#shopAdressEdit").val((data.address && data.address.line1) || "");
-          $("#shopPhoneEdit").val(
-            Array.isArray(data.phones) && data.phones.length > 0
-              ? data.phones[0].phone
-              : ""
-          );
-
-          if (data.emails && data.emails.length > 0) {
-            data.emails.forEach((email, index) => {
-              if (index < 3) {
-                $(`#shopEmailEdit${index + 1}`).val(email.email || "");
-                $(`#shopEmailEditDescription${index + 1}`).val(
-                  email.description || ""
-                );
-              }
-            });
-          }
-
-          // Address information
-          $("#orderDelivery").prop("disabled", true);
-          if (data && data.address) {
-            const shopDescription = `${data.name || ""}`;
-            const addressDescription = `${data.address.line1 || ""}, ${
-              data.address.town || ""
-            }, ${data.address.postcode || ""}`;
-
-            let emails = "";
-            let phones = "";
-
-            if (data.emails && data.emails.length > 0) {
-              emails = data.emails.map((e) => e.email).join(", ");
-            }
-
-            if (data.phones && data.phones.length > 0) {
-              phones = data.phones.map((p) => p.phone).join(", ");
-            }
-
-            $("#orderDelivery").val(
-              `${shopDescription} \n${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
-            );
-          } else {
-            $("#orderDelivery").val("");
-          }
-
-          resolve(data); // <- Zwracamy dane, które mogą być dalej użyte
-        } else {
-          console.error("Błąd podczas pobierania danych sklepu.");
-          reject(new Error("Błąd podczas pobierania danych sklepu."));
-        }
-      };
-
-      request.onerror = function () {
-        reject(new Error("Błąd połączenia z serwerem."));
-      };
-
-      request.send();
-    });
-  }
 
   function saveToSessionStorage(productsData) {
     // Konwersja obiektu do JSON
@@ -493,6 +387,8 @@ docReady(function () {
 
     await makeChangesToOrder();
     var method = "GET";
+    var e = document.getElementById("offerId");
+    var offerId = e.value;
 
     var searchIDs = $("#table_splited_wh input:checkbox:checked")
       .map(function () {
@@ -538,6 +434,12 @@ docReady(function () {
     var UrlParameters = "";
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
+
+    if (offerId.length > 0) {
+      UrlParameters = "offerId=" + offerId;
+    } else {
+      UrlParameters = "offerId=latest";
+    }
 
     getOfferStatus();
 
@@ -611,6 +513,7 @@ docReady(function () {
           const savingsValue = values.avg - values.total;
           const savingsPercentage = (savingsValue / values.avg) * 100;
           setElementContent(`${prefix}totalValue`, values.total);
+          setElementContent(`${prefix}maxValue`, values.max);
           setElementContent(`${prefix}avgValue`, values.avg);
           return { savingsValue, savingsPercentage };
         };
@@ -641,6 +544,9 @@ docReady(function () {
           userRole === "admin" &&
           data.netValues.total !== data.netNetValues.total
         ) {
+          $(
+            "#netNetValues, #netmaxValue, #netavgValue, #nettotalValue, #savingsNet"
+          ).show();
           setElementContent(
             "savingsNet",
             savingsNetValue,
@@ -659,61 +565,12 @@ docReady(function () {
         $("#details").show();
         $(".target-tab-link").triggerHandler("click");
         $("#splitedwhcontainer").show();
-
-        function getStatusHtml(item) {
-          // Dodatkowe klasy CSS dla różnych statusów
-          const statusClasses = {
-            "in progress": "positive",
-            pending: "noneexisting",
-            ready: "positive",
-            error: "negative",
-            incomplete: "medium",
-            batching: "noneexisting",
-            forced: "noneexisting",
-          };
-
-          // Teksty dla statusów
-          const statusTexts = {
-            "in progress": "W realizacji",
-            pending: "Szkic",
-            ready: "Gotowa",
-            error: "Problem",
-            incomplete: "Niekompletna",
-            batching: "W kolejce",
-            forced: "W kolejce",
-          };
-
-          // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
-          function formatDateToPolishTime(dateString) {
-            const date = new Date(dateString);
-            const options = { timeZone: "Europe/Warsaw", hour12: false };
-            return date.toLocaleString("pl-PL", options).replace(",", "");
-          }
-
-          const baseClass = "status-badge";
-          const statusClass = statusClasses[item.status] || "noneexisting";
-          const text = statusTexts[item.status] || "-";
-
-          // Formatowanie daty dla confirmedAt
-          const formattedDate = item.confirmedAt
-            ? formatDateToPolishTime(item.confirmedAt)
-            : null;
-
-          // Ustawienie tekstu w zależności od tego, czy jest data
-          const tippyText = formattedDate
-            ? `Potwierdzono ${formattedDate}`
-            : "Oczekuję";
-
-          // Generowanie span z atrybutem data-tippy-content
-          return `<span class="${baseClass} ${statusClass}" data-tippy-content="${tippyText}">${text}</span>`;
-        }
-
         var table = $("#table_splited_wh").DataTable({
           pagingType: "full_numbers",
           pageLength: 25,
           destroy: true,
           orderMulti: true,
-          order: [[2, "desc"]],
+          order: [[3, "desc"]],
           dom: '<"top">rt<"bottom"lip>',
           language: {
             emptyTable: "Brak danych do wyświetlenia",
@@ -742,328 +599,168 @@ docReady(function () {
           },
           columns: [
             {
-              orderable: true,
-              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
-              name: "statusColumn",
-              width: "108px",
-              render: function (data, type, row) {
-                if (data.wholesalerName === "unassigned") {
-                  return "";
-                }
-
-                // Określ status na podstawie confirmedAt
-                const status = data.confirmedAt ? "in progress" : "pending";
-
-                // Generuj badge
-                return getStatusHtml({
-                  status: status,
-                  confirmed: data.confirmed,
-                  confirmedAt: data.confirmedAt,
-                });
-              },
-              className: "status-column",
+              orderable: false,
+              data: null,
+              defaultContent:
+                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
             },
             {
               orderable: true,
-              width: "auto",
+              data: "wholesalerName",
+              render: function (data) {
+                if (data === "unassigned") {
+                  return "Nieprzydzielone";
+                } else {
+                  return data;
+                }
+              },
+            },
+            {
+              orderable: true,
               data: null,
               render: function (data) {
-                if (data.wholesalerName === "unassigned") {
-                  return "Nieprzydzielone";
+                if (data.logisticMinimum === null) {
+                  return "-";
+                } else {
+                  var toGo = (data.logisticMinimum - data.netValue).toFixed(2);
+                  if (toGo > 0) {
+                    return data.logisticMinimum + " (" + toGo + ")";
+                  }
+                  return data.logisticMinimum;
                 }
-                return data.wholesalerName;
               },
             },
             {
               orderable: true,
               data: "netValue",
-              width: "108px",
-              className: "dt-right",
-              render: function (data, type, row) {
-                // Dla wyświetlania i sortowania zwracamy czystą wartość
-                if (type === "display" || type === "filter") {
-                  if (row.logisticMinimum !== null) {
-                    var toGo = (row.logisticMinimum - row.netValue).toFixed(2);
-                    if (toGo > 0) {
-                      return `
-                                  <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
-                                       data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
-                                      <span style="color: #8E1212; display: flex; align-items: center;">
-                                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                                               alt="Ostrzeżenie" 
-                                               style="width: 16px; height: 16px;">
-                                      </span>
-                                      <span>${data}zł</span>
-                                  </div>
-                              `;
-                    }
-                  }
-                  return `${data}zł`;
-                }
-                // Dla sortowania zwracamy oryginalną wartość liczbową
-                return data;
-              },
-              type: "num", // Określamy, że to kolumna numeryczna
             },
             {
               orderable: true,
               data: "products",
-              width: "108px",
-              render: function (data, type, row) {
-                // Sprawdź czy wholesalerName to "unassigned"
-                const isUnassigned = row.wholesalerName === "unassigned";
-
-                // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
-                if (type === "sort" || type === "type") {
-                  var bestMatch = data.bestMatch || 0;
-                  var exclusive = data.exclusive || 0;
-                  var order = data.order || 0;
-                  return bestMatch + exclusive + order; // Zwraca total dla sortowania
+              render: function (data) {
+                if (data.bestMatch === null) {
+                  return "-";
+                } else {
+                  return data.bestMatch;
                 }
-
-                // Normalne renderowanie dla wyświetlania
-                var bestMatch = data.bestMatch || 0;
-                var exclusive = data.exclusive || 0;
-                var order = data.order || 0;
-                var total = bestMatch + exclusive + order;
-
-                if (isUnassigned) {
-                  return `<div class="progress-bar-container" title="Nieprzydzielono">
-                            <div class="progress-bar" style="width: 100%; background-color: #cccccc; border-radius: 5px;">
-                              <span class="segment-count">${total}</span>
-                            </div>
-                          </div>`;
-                }
-
-                var progressBars = [];
-                var currentPosition = 0;
-
-                function addSegment(value, color, title, isFirst, isLast) {
-                  if (value <= 0) return;
-
-                  var width = (value / total) * 100;
-                  var borderRadius = "";
-
-                  if (isFirst && isLast) {
-                    borderRadius = "border-radius: 5px;";
-                  } else if (isFirst) {
-                    borderRadius = "border-radius: 5px 0 0 5px;";
-                  } else if (isLast) {
-                    borderRadius = "border-radius: 0 5px 5px 0;";
-                  }
-
-                  progressBars.push(
-                    `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}">
-                       <span class="segment-count">${value}</span>
-                     </div>`
-                  );
-                  currentPosition += width;
-                }
-
-                var segments = [
-                  {
-                    value: bestMatch,
-                    color: "#CAEDC4",
-                    title: "Najlepszy wybór",
-                  },
-                  { value: exclusive, color: "#F5E8E3", title: "Blokada" },
-                  {
-                    value: order,
-                    color: "#FFF8E2",
-                    title: "Wybór użytkownika",
-                  },
-                ].filter((seg) => seg.value > 0);
-
-                segments.forEach((seg, index) => {
-                  addSegment(
-                    seg.value,
-                    seg.color,
-                    seg.title,
-                    index === 0,
-                    index === segments.length - 1
-                  );
-                });
-
-                var tooltipParts = [];
-                if (bestMatch > 0)
-                  tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
-                if (exclusive > 0) tooltipParts.push(`Blokada: ${exclusive}`);
-                if (order > 0) tooltipParts.push(`Wybór użytkownika: ${order}`);
-
-                var tooltip = tooltipParts.join(", ");
-
-                return `<div class="progress-bar-container" title="${
-                  tooltip || "Brak produktów"
-                }">
-                          ${total > 0 ? progressBars.join("") : ""}
-                        </div>`;
               },
-              type: "num",
-              defaultContent: "",
+            },
+            {
+              orderable: true,
+              data: "products",
+              render: function (data) {
+                if (data.exclusive === null) {
+                  return "-";
+                } else {
+                  return data.exclusive;
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "products",
+              render: function (data) {
+                if (data.exclusive === null) {
+                  return "-";
+                } else {
+                  return data.order;
+                }
+              },
             },
             {
               orderable: false,
-              width: "192px",
               data: "wholesalerKey",
-              render: function (data, type, row) {
+              render: function (data) {
                 // File icon definitions
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                  csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                   csvAgra:
                     '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                   csvMirex:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
                   pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
                   xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
-                  email:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" class="sendemail" style="cursor: pointer;" />',
                 };
 
-                // Default content (checkbox and "Realizuj" button)
-                let content = "";
-                if (data !== "unassigned") {
-                  content =
-                    '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">' +
-                    '<input type="checkbox" class="theClass" id="' +
-                    data +
-                    '" value="' +
-                    data +
-                    '" />' +
-                    '<label class="mylabel" for="' +
-                    data +
-                    '" style="margin: 0;"></label>' +
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b0c7b0174bfdb32512_advanceButton.svg" alt="Realizuj" style="height: 24px; width: auto; cursor: pointer; margin: 0; border-radius: 8px;">';
-                  ("</div>");
-                }
+                // Wholesaler-specific configurations
+                const wholesalerConfigs = {
+                  agra: {
+                    default: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
+                  },
+                  mirex: {
+                    default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.pdf, icons.xls],
+                  },
+                  default: {
+                    default: [icons.text, icons.csv, icons.pdf, icons.xls],
+                    suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
+                  },
+                };
 
-                // If the row is in "realizacja" mode (after clicking "Realizuj")
-                if (row.inRealization) {
-                  content =
-                    '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">';
+                // Determine which config to use based on OrganizationName
+                const isSuzyw123 = OrganizationName === "Suzyw123";
+                const configKey = isSuzyw123 ? "suzyw123" : "default";
 
-                  if (data === "unassigned") {
-                    // Generate 4 formats for "unassigned"
-                    content += icons.text;
-                    content += icons.csv;
-                    content += icons.pdf;
-                    content += icons.xls;
-                  } else {
-                    // Add file download icons based on wholesaler
-                    const wholesalerConfigs = {
-                      agra: {
-                        default: [
-                          icons.text,
-                          icons.csvAgra,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.csvAgra,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                      },
-                      mirex: {
-                        default: [
-                          icons.text,
-                          icons.csvMirex,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                      },
-                      "kd-tedi": {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      "kd-tano": {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      "mag-dystrybucja": {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      merkury: {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      default: {
-                        default: [
-                          icons.text,
-                          icons.csv,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.csv,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                      },
-                    };
+                // Get the supported icons for the current wholesaler
+                const config =
+                  wholesalerConfigs[data] || wholesalerConfigs["default"];
+                const supportedIcons = config[configKey];
 
-                    const isSuzyw123 = OrganizationName === "Suzyw123";
-                    const configKey = isSuzyw123 ? "suzyw123" : "default";
-                    const config =
-                      wholesalerConfigs[data] || wholesalerConfigs["default"];
-                    const supportedIcons = config[configKey];
-
-                    content += supportedIcons.join("");
-                  }
-                  content += "</div>";
-                }
-
-                return content;
+                // Render the icons inside a div
+                return `<div class="div-block-20" style="min-width:100px">${supportedIcons.join(
+                  ""
+                )}</div>`;
               },
-              createdCell: function (td, cellData, rowData, row, col) {
-                // Add click handler for "Realizuj" button
-                $(td).on(
-                  "click",
-                  'img[alt="Realizuj"]', // Select the image by its alt text
-                  function (e) {
-                    e.preventDefault();
-                    $("#lockOrderDiv").css("display", "flex");
+            },
 
-                    $("#lockOrderButton").one("click", function () {
-                      $(
-                        "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
-                      ).hide();
-                      $("#lockOrderDiv").hide();
-
-                      // Pobierz wszystkie dane z tabeli
-                      var table = $("#table_splited_wh").DataTable();
-                      var allData = table.rows().data();
-
-                      // Ustaw flagę inRealization dla WSZYSTKICH wierszy i zaktualizuj dane
-                      table.rows().every(function () {
-                        var data = this.data();
-                        data.inRealization = true;
-                        this.data(data); // Jawnie aktualizujemy dane wiersza
-                      });
-
-                      // Przerysuj CAŁĄ tabelę
-                      table.draw();
-                    });
-                  }
+            {
+              orderable: false,
+              data: "wholesalerKey",
+              render: function (data) {
+                if (data === "unassigned") {
+                  return "";
+                }
+                return (
+                  '<input type="checkbox" class="theClass" id="' +
+                  data +
+                  '" value="' +
+                  data +
+                  '" /><label class="mylabel" for="' +
+                  data +
+                  '"></label>'
                 );
               },
             },
           ],
+          rowCallback: function (row, data) {
+            if (data.logisticMinimum > data.netValue) {
+              $("td", row).css("background-color", "#FFFAE6");
+            }
+          },
           initComplete: function (settings, json) {
+            var totalEclusiveProducts = 0;
+            var totalOrderedProducts = 0;
+            var table = $("#table_splited_wh").DataTable();
+
+            table.rows().every(function () {
+              var rowData = this.data();
+              var productQuantity = parseInt(rowData["products"]["exclusive"]);
+              var productQuantity2 = parseInt(rowData["products"]["order"]);
+              totalEclusiveProducts += productQuantity;
+              totalOrderedProducts += productQuantity2;
+            });
+
+            if (totalEclusiveProducts === 0) {
+              // Hide Office column
+              table.column(5).visible(false); // Produkty na wyłączność
+            }
+            if (totalOrderedProducts === 0) {
+              // Hide Office column
+              table.column(6).visible(false); // Produkty na wyłączność
+            }
+
             var textBox = $("#table_splited_wh filter label input");
             textBox.unbind();
             textBox.bind("keyup input", function (e) {
@@ -1071,29 +768,6 @@ docReady(function () {
                 api.search(this.value).draw();
               }
             });
-
-            // Sprawdź parametr URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get("confirmed") === "true") {
-              // Ukryj elementy jak po kliknięciu lockOrderButton
-              $(
-                "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
-              ).hide();
-              $("#lockOrderDiv").hide();
-
-              // Pobierz wszystkie dane z tabeli
-              var table = $("#table_splited_wh").DataTable();
-              var allData = table.rows().data();
-
-              // Ustaw flagę inRealization dla WSZYSTKICH wierszy i zaktualizuj dane
-              table.rows().every(function () {
-                var data = this.data();
-                data.inRealization = true;
-                this.data(data); // Jawnie aktualizujemy dane wiersza
-              });
-              // Przerysuj CAŁĄ tabelę
-              table.draw();
-            }
           },
         });
         return false;
@@ -1152,6 +826,72 @@ docReady(function () {
         }
       },
     });
+  }
+
+  function getOffers() {
+    let url = new URL(
+      InvokeURL +
+        "shops/" +
+        shopKey +
+        "/offers?perPage=100&sort=createDate:desc"
+    );
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.onload = function () {
+      var data = JSON.parse(this.response);
+      var toParse = data.items;
+      if (request.status >= 200 && request.status < 400) {
+        const OffersSelector = document.getElementById("offerId");
+        toParse.forEach((offer) => {
+          // Check if createDate is not null
+          if (offer.createDate) {
+            var opt = document.createElement("option");
+            opt.value = offer.offerId;
+
+            var offset = new Date().getTimezoneOffset();
+            var localeTime = new Date(
+              Date.parse(offer.createDate) - offset * 60 * 1000
+            ).toISOString();
+            var creationDate = localeTime.split("T");
+            var creationTime = creationDate[1].split("Z");
+            var statusText = "";
+
+            if (offer.status !== null) {
+              if (offer.status === "ready") {
+                statusText = "Gotowa";
+              } else if (offer.status === "error") {
+                statusText = "Problem";
+              } else if (offer.status === "in progress") {
+                statusText = "W trakcie";
+              } else if (offer.status === "incomplete") {
+                statusText = "Niekompletna";
+              } else if (
+                offer.status === "batching" ||
+                offer.status === "forced"
+              ) {
+                statusText = "W kolejce";
+              }
+            }
+
+            opt.textContent =
+              creationDate[0] +
+              " " +
+              creationTime[0].slice(0, -4) +
+              " " +
+              statusText;
+            OffersSelector.appendChild(opt);
+          } else {
+            console.log("Skipping offer with missing createDate:", offer);
+          }
+        });
+        if (request.status == 401) {
+          console.log("Unauthorized");
+        }
+      }
+    };
+    request.send();
   }
 
   function format(d) {
@@ -1827,38 +1567,22 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "80px",
-              data: "confirmed",
-              type: "boolean",
-              render: function (data, type, row) {
-                if (type === "display") {
-                  const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" style="cursor: pointer;" />`;
-                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
-                  const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
-
-                  if (data === true) {
-                    return `
-                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                        ${detailsIcon}
-                        ${editIcon}
-                        ${confirmedIcon}
-                      </div>
-                    `;
-                  } else {
-                    return `
-                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                        ${detailsIcon}
-                        ${editIcon}
-                        ${trashIcon}
-                      </div>
-                    `;
-                  }
-                }
-                return data;
-              },
+              class: "details-control4",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+            },
+            {
+              orderable: false,
+              class: "details-control3",
+              width: "20px",
+              data: null,
+              defaultContent:
+                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
             },
           ],
+
           rowCallback: function (row, data) {
             if (data.hasOwnProperty("asks") && data.asks !== null) {
               // Choose the lower value, but not null
@@ -1914,25 +1638,6 @@ docReady(function () {
                 ).toFixed(2);
                 $("td", row).css("background-color", "#FFFAE6");
               }
-            }
-            if (data.confirmed === true) {
-              // Usuń tło i ustaw styl wiersza
-              $(row).css({
-                "background-color": "transparent",
-                "font-style": "italic",
-                "font-weight": "300",
-                cursor: "not-allowed",
-              });
-
-              // Ustaw tooltip na wierszu
-              $(row).attr("title", "Produkt zamówiony, edycja jest niemożliwa");
-
-              // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
-              $(row).find("input, select, button").attr("disabled", true).css({
-                "pointer-events": "none",
-                opacity: "0.6",
-                cursor: "not-allowed",
-              });
             }
           },
 
@@ -2685,7 +2390,18 @@ docReady(function () {
   }
 
   function getOfferStatus() {
-    let url = new URL(InvokeURL + "shops/" + shopKey + "/offers/latest/status");
+    var e = document.getElementById("offerId");
+    var offerId = e.value;
+
+    if (offerId.length > 0) {
+      UrlParameters = "offerId=" + offerId;
+    } else {
+      UrlParameters = "offerId=latest";
+    }
+
+    let url = new URL(
+      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
+    );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -2780,122 +2496,6 @@ docReady(function () {
     };
     request.send();
   }
-  function getWhSmartVan(wholesalerKey) {
-    return new Promise((resolve, reject) => {
-      let url2 = new URL(
-        InvokeURL +
-          "shops/" +
-          shopKey +
-          "/wholesalers/" +
-          wholesalerKey +
-          "/smartvan"
-      );
-      let request2 = new XMLHttpRequest();
-      request2.open("GET", url2, true);
-      request2.setRequestHeader("Authorization", orgToken);
-
-      request2.onload = function () {
-        if (request2.status >= 200 && request2.status < 400) {
-          var data2 = JSON.parse(this.response);
-
-          let smtpEmailInput = document.getElementById("orderEmail");
-          let smtpEmail = data2.smtp ? data2.smtp.email : null;
-
-          let formatsSelect = document.getElementById("formats");
-          let formats = data2.smtp ? data2.smtp.formats : [];
-
-          if (data2.smtp === null || data2.smtp.email === null) {
-            smtpEmailInput.value = "";
-            smtpEmailInput.disabled = false;
-            console.log("zresetowano adres-email");
-          } else {
-            smtpEmailInput.value = smtpEmail;
-            smtpEmailInput.disabled = true;
-          }
-
-          if (
-            data2.smtp === null ||
-            (data2.smtp.formats && data2.smtp.formats.length === 0)
-          ) {
-            for (let i = 0; i < formatsSelect.options.length; i++) {
-              formatsSelect.options[i].selected = false;
-            }
-            previousFormats = [];
-            console.log("zresetowano formaty");
-          } else {
-            formats.forEach(function (format) {
-              let option = formatsSelect.querySelector(
-                `option[value="${format}"]`
-              );
-              if (option) {
-                option.selected = true;
-              }
-              previousFormats = formats;
-            });
-          }
-
-          // Możesz też zwrócić dane, jeśli będą potrzebne dalej
-          resolve(data2);
-        } else if (request2.status >= 400) {
-          console.error("Błąd: ", request2.status, this.response);
-          reject(new Error("Błąd HTTP: " + request2.status));
-        } else {
-          console.log("Nieoczekiwany błąd");
-          reject(new Error("Nieoczekiwany błąd"));
-        }
-      };
-
-      request2.onerror = function () {
-        reject(new Error("Błąd połączenia z serwerem."));
-      };
-
-      request2.send();
-    });
-  }
-
-  function calculateAndDisplayTimeSavings(responseData) {
-    // Oblicz całkowitą liczbę ofert (asks) dla wszystkich produktów
-    let totalOffers = 0;
-
-    if (
-      responseData &&
-      responseData.items &&
-      Array.isArray(responseData.items)
-    ) {
-      responseData.items.forEach((item) => {
-        if (item.asks && Array.isArray(item.asks)) {
-          totalOffers += item.asks.length;
-        }
-      });
-    }
-
-    // Oblicz czas zaoszczędzony w sekundach (liczba pozycji × liczba ofert × 5 sekund)
-    const totalItems = responseData?.total || 0;
-    const timeSavedInSeconds = totalItems * totalOffers * 2;
-
-    // Przelicz sekundy na minuty i zaokrąglij w górę
-    let timeSavedInMinutes = Math.ceil(timeSavedInSeconds / 60);
-
-    // Formatuj czas w zależności od długości
-    let timeText;
-    if (timeSavedInMinutes < 60) {
-      timeText = `${timeSavedInMinutes} min`;
-    } else {
-      const hours = Math.floor(timeSavedInMinutes / 60);
-      const minutes = timeSavedInMinutes % 60;
-      timeText = `${hours} h ${minutes} min`;
-
-      timeText = minutes > 0 ? `${hours} h ${minutes} min` : `${hours} h`;
-    }
-
-    // Zaktualizuj element #timesavings
-    const timeSavingsElement = document.getElementById("timesavings");
-    if (timeSavingsElement) {
-      timeSavingsElement.textContent = timeText;
-    }
-
-    return timeSavedInMinutes;
-  }
 
   function fetchDataFromEndpoint() {
     let url = new URL(
@@ -2914,7 +2514,6 @@ docReady(function () {
       if (request.status >= 200 && request.status < 400) {
         const productsData = JSON.parse(request.responseText);
         saveToSessionStorage(productsData);
-        calculateAndDisplayTimeSavings(productsData); // Dodane wywołanie funkcji
       } else {
         console.error("Błąd podczas pobierania danych z endpointu.");
       }
@@ -2987,458 +2586,6 @@ docReady(function () {
     });
   };
 
-  sendEmailToWholesaler = function (forms, successCallback, errorCallback) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        event.preventDefault();
-
-        // Pobieranie wartości z formularza
-        var wholesalerKeyToSend = $("#orderWholesalerKey").data("key");
-        var orderEmail = $("#orderEmail").val();
-        var formats = $("#formats").val();
-        var orderEmailMe = $("#orderEmailMe").is(":checked");
-        var orderId = new URL(location.href).searchParams.get("orderId");
-        var isEmailDisabled = $("#orderEmail").is(":disabled");
-
-        // Resetowanie podświetlenia błędów
-        $("#formats").removeClass("error-highlight");
-
-        // Walidacja formatów
-        if (!formats || formats.length < 1) {
-          displayMessage(
-            "Error",
-            "Proszę wybrać przynajmniej jeden format danych do wysyłki."
-          );
-          $("#formats").addClass("error-highlight");
-          return false;
-        }
-
-        // Przygotowanie danych do wysłania
-        var requestData = {
-          orderId: orderId,
-          wholesalerKey: wholesalerKeyToSend,
-          formats: formats,
-          ccToMe: orderEmailMe,
-        };
-
-        var action = InvokeURL + "van/orders";
-        var method = "POST";
-
-        // Funkcja do wysłania PATCH requesta
-        const updateEmailAndFormats = () => {
-          return new Promise((resolve, reject) => {
-            if (isEmailDisabled || !orderEmail) {
-              resolve(); // Pomijamy jeśli email jest disabled lub pusty
-              return;
-            }
-
-            var patchAction =
-              InvokeURL +
-              "shops/" +
-              shopKey +
-              "/wholesalers/" +
-              wholesalerKeyToSend +
-              "/smartvan";
-
-            var patchData = [];
-
-            // Pobierz email z inputa i formaty z <select>
-            var email = $("#orderEmail").val();
-            var formats = $("#formats").val();
-
-            // Dodaj email, jeśli istnieje
-            if (email)
-              patchData.push({ op: "add", path: "/smtp/email", value: email });
-
-            // Dodaj formaty
-            formats.forEach((format) =>
-              patchData.push({
-                op: "add",
-                path: "/smtp/formats/-",
-                value: format,
-              })
-            );
-
-            $.ajax({
-              type: "PATCH",
-              url: patchAction,
-              cors: true,
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-                "Requested-By": "webflow-3-4",
-              },
-              data: JSON.stringify(patchData),
-              success: function () {
-                $("#orderEmail").prop("disabled", true);
-                resolve();
-              },
-              error: function (jqXHR, exception) {
-                console.log("error", jqXHR, exception);
-                let msg = "";
-                switch (jqXHR.status) {
-                  case 0:
-                    msg = "Nie masz połączenia z internetem.";
-                    break;
-                  case 404:
-                    msg = "Nie znaleziono strony";
-                    break;
-                  case 403:
-                    msg =
-                      jqXHR.responseJSON?.message ==
-                      "User is not an administrator of this tenant"
-                        ? "Nie masz uprawnień do tej czynności"
-                        : "Dostęp jest obecnie nieaktywny. Aby aktywować ofertę, prosimy o kontakt z dostawcą.";
-                    break;
-                  case 409:
-                    msg =
-                      "Nie można zmienić kodu. Jeden ze sklepów wciąż korzysta z tego kodu.";
-                    break;
-                  case 500:
-                    msg =
-                      "Serwer napotkał problemy. Prosimy o kontakt kontakt@smartcommerce.net";
-                    break;
-                  default:
-                    msg =
-                      exception === "parsererror"
-                        ? "Nie udało się odczytać danych"
-                        : exception === "timeout"
-                        ? "Przekroczony czas oczekiwania"
-                        : exception === "abort"
-                        ? "Twoje żądanie zostało zaniechane"
-                        : jqXHR.responseJSON?.message ||
-                          "Wystąpił nieznany błąd";
-                    break;
-                }
-                displayMessage("Error", msg);
-                reject(new Error(msg));
-              },
-            });
-          });
-        };
-
-        // Funkcja do wysłania właściwego emaila
-        const sendOrderEmail = () => {
-          return new Promise((resolve, reject) => {
-            $("#waitingdots").show();
-
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-                "Requested-By": "webflow-3-4",
-              },
-              data: JSON.stringify(requestData),
-              success: function (resultData) {
-                console.log("Entering success callback"); // Log entry point
-                console.log("Received resultData:", resultData); // Log input data
-
-                setTimeout(function () {
-                  console.log("Hiding waiting dots after timeout"); // Log timeout action
-                  $("#waitingdots").hide();
-                }, 3000);
-
-                if (typeof successCallback === "function") {
-                  console.log("Success callback function exists, executing it"); // Log callback check
-                  var result = successCallback(resultData);
-                  console.log("Callback returned:", result); // Log callback result
-
-                  if (!result) {
-                    console.error(
-                      "Callback returned false, showing error message"
-                    ); // Log error case
-                    form.show();
-                    displayMessage(
-                      "Error",
-                      "Oops. Coś poszło nie tak, spróbuj ponownie."
-                    );
-                    reject(new Error("Callback returned false"));
-                    return;
-                  }
-                } else {
-                  console.log("No success callback function provided"); // Log no callback case
-                }
-
-                // Zaktualizowanie statusu w tabeli
-                console.log("Attempting to update table status"); // Log table update start
-                var table = $("#table_splited_wh").DataTable();
-                if (table) {
-                  console.log(
-                    "DataTable found, searching for wholesaler:",
-                    wholesalerKeyToSend
-                  );
-                  var found = false;
-
-                  table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                    var rowData = this.data();
-                    console.log(
-                      "Checking row with wholesalerKey:",
-                      rowData.wholesalerKey
-                    );
-
-                    if (rowData.wholesalerKey === wholesalerKeyToSend) {
-                      console.log("Matching wholesaler found, updating row");
-
-                      // Get the row node
-                      var rowNode = this.node();
-
-                      // Find and update the status cell directly in DOM
-                      var statusCell =
-                        rowNode.querySelector("td.status-column");
-                      if (statusCell) {
-                        statusCell.innerHTML =
-                          '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
-                          new Date().toLocaleString() +
-                          '">W realizacji</span>';
-                      } else {
-                        console.error("Status cell not found in row");
-                      }
-
-                      // Disable the send button (this part works)
-                      var sendButton = rowNode.querySelector(".sendemail");
-                      if (sendButton) {
-                        sendButton.disabled = true;
-                        sendButton.classList.add("disabled");
-                        sendButton.style.opacity = "0.5";
-                        sendButton.style.cursor = "not-allowed";
-                      }
-
-                      // Optional: Force DataTables redraw if needed
-                      table.draw(false);
-
-                      found = true;
-                      return false;
-                    }
-                  });
-
-                  if (!found) {
-                    console.warn(
-                      "Nie znaleziono wiersza dla tego hurtownika.",
-                      {
-                        wholesalerKeyToSend: wholesalerKeyToSend,
-                        tableData: table.rows().data().toArray(),
-                      }
-                    );
-                  }
-
-                  // Redraw the table to reflect changes
-                  table.draw();
-                }
-
-                console.log("Showing success message"); // Log before success message
-                displayMessage("Success", "Email został wysłany do dostawcy.");
-                $("#SendOrderSMTP").hide();
-                console.log("Resolving promise with resultData:", resultData); // Log before resolve
-                resolve(resultData);
-              },
-              error: function (e) {
-                setTimeout(function () {
-                  $("#waitingdots").hide();
-                }, 3000);
-
-                if (typeof errorCallback === "function") {
-                  errorCallback(e);
-                }
-                form.show();
-                const errorMessage = e.message.includes("already exists")
-                  ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
-                  : "Oops. Coś poszło nie tak, spróbuj ponownie.";
-                displayMessage("Błąd", errorMessage);
-                console.error("Błąd podczas wysyłania emaila:", e);
-                reject(e);
-              },
-            });
-          });
-        };
-
-        // Główna sekwencja wykonania
-        updateEmailAndFormats()
-          .then(() => sendOrderEmail())
-          .catch((error) => {
-            console.error("Error in sequence:", error);
-            // Błąd już został obsłużony w odpowiednich funkcjach
-          });
-
-        return false;
-      });
-    });
-  };
-
-  // Dodaj odpowiedni CSS dla podświetlenia błędów
-  var errorHighlightStyle = document.createElement("style");
-  errorHighlightStyle.innerHTML = `
-    .error-highlight {
-      border: 2px solid rgb(10, 24, 224) !important;
-      box-shadow: 0 0 5px rgba(6, 3, 192, 0.5) !important;
-      animation: pulse 0.5s ease-in-out;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-  `;
-  document.head.appendChild(errorHighlightStyle);
-
-  makeWebflowFormAjaxPatchShopEdit = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        event.preventDefault();
-
-        const url = InvokeURL + "shops/" + shopKey;
-
-        $.ajax({
-          type: "GET",
-          url: url,
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Authorization: orgToken,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Requested-By": "webflow-3-4",
-          },
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          success: function (currentData) {
-            const patchData = preparePatchData(currentData);
-
-            $.ajax({
-              type: "PATCH",
-              url: url,
-              data: JSON.stringify(patchData),
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Authorization: orgToken,
-                "Requested-By": "webflow-3-4",
-              },
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                setTimeout(function () {
-                  $("#waitingdots").hide();
-                }, 1000); // 1000 milliseconds = 1 second
-              },
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  successCallback(resultData);
-                }
-                displayMessage("Success", "Twoje dane zostały zaktualizowane.");
-                setTimeout(function () {
-                  $("#editShopModal").hide();
-                  location.reload();
-                }, 3000);
-              },
-              error: function () {
-                if (typeof errorCallback === "function") {
-                  errorCallback();
-                }
-                // Show form-done-fail-edit on error
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-              },
-            });
-          },
-          error: function () {
-            if (typeof errorCallback === "function") {
-              errorCallback();
-            }
-            // Show form-done-fail-edit on error
-            displayMessage(
-              "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
-            );
-          },
-        });
-        return false; // Prevent the form from submitting normally
-      });
-    });
-  };
-
-  function preparePatchData(currentData) {
-    var patchData = [];
-
-    // Name
-    var newName = $("#shopNameEdit").val();
-    if (newName !== currentData.name) {
-      patchData.push({ op: "replace", path: "/name", value: newName });
-    }
-
-    // Telephone number
-
-    var newTelephone = $("#shopPhoneEdit").val();
-    if (newTelephone === "") {
-      newTelephone = null;
-    }
-    if (newTelephone !== null && newTelephone !== currentData.phones) {
-      patchData.push({
-        op: "replace",
-        path: "/phones",
-        value: [{ phone: newTelephone, description: "Główny" }],
-      });
-    }
-
-    // Address
-    var newAddress = {
-      country: "Polska", // Assuming the country is always Poland
-      line1: $("#shopAdressEdit").val(),
-      town: $("#shopTownEdit").val(),
-      state: $("#shopStateEdit option:selected").text(),
-      postcode: $("#shopPostcodeEdit").val(),
-    };
-
-    // Check if the current data has an address to compare against
-    var currentAddress = currentData.address || {};
-    var addressChanged = Object.keys(newAddress).some(
-      (key) => newAddress[key] !== (currentAddress[key] || "")
-    );
-
-    if (addressChanged) {
-      patchData.push({ op: "replace", path: "/address", value: newAddress });
-    }
-
-    // Emails
-    var newEmails = [];
-    for (let i = 1; i <= 3; i++) {
-      let email = $(`#shopEmailEdit${i}`).val();
-      let description = $(`#shopEmailEditDescription${i}`).val();
-      if (email || description) {
-        // Add if either field is filled
-        newEmails.push({ email: email, description: description });
-      }
-    }
-
-    // Only replace emails if there's a difference, using JSON.stringify for a quick deep comparison
-    if (JSON.stringify(newEmails) !== JSON.stringify(currentData.emails)) {
-      patchData.push({ op: "replace", path: "/emails", value: newEmails });
-    }
-
-    return patchData;
-  }
-
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -3452,7 +2599,7 @@ docReady(function () {
             gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
             "new-name": $("#new-name").val(),
-            countryDistributorName: $("#countryDistributorName-2").val(),
+            countryDistributorName: $("#countryDistributorName").val(),
             brand: $("#brand").val(),
             measurement: $("#measurement").val(),
             quantity: $("#quantity").val(),
@@ -3703,6 +2850,15 @@ docReady(function () {
         QStr = QStr + sort;
       }
 
+      var e = document.getElementById("offerId");
+      var offerId = e.value;
+
+      if (offerId.length > 0) {
+        UrlParameters = "offerId=" + offerId;
+      } else {
+        UrlParameters = "offerId=latest";
+      }
+
       getOfferStatus();
 
       $.ajaxSetup({
@@ -3718,7 +2874,7 @@ docReady(function () {
         },
       });
       $.get(
-        InvokeURL + "shops/" + shopKey + "/offers/latest" + QStr,
+        InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
         function (res) {
           callback({
             recordsTotal: res.total,
@@ -3745,6 +2901,14 @@ docReady(function () {
           }
         },
         orderable: false,
+      },
+      {
+        orderable: false,
+        class: "details-control2",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
       },
       {
         orderable: true,
@@ -3966,35 +3130,11 @@ docReady(function () {
       },
       {
         orderable: false,
-        width: "80px",
-        data: "confirmed",
-        type: "boolean",
-        render: function (data, type, row) {
-          if (type === "display") {
-            const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" class="details-control2" style="cursor: pointer;" />`;
-            const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
-            const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
-
-            if (data === true) {
-              return `
-                <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                  ${detailsIcon}
-                  ${editIcon}
-                  ${confirmedIcon}
-                </div>
-              `;
-            } else {
-              return `
-                <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                  ${detailsIcon}
-                  ${editIcon}
-                </div>
-              `;
-            }
-          }
-          return data;
-        },
+        class: "details-control3",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
       },
     ],
     drawCallback: function (settings) {
@@ -4097,82 +3237,7 @@ docReady(function () {
     tabsContainer.removeEventListener("click", handleTabContainerClick);
   }
 
-  $("#table_splited_wh").on("click", ".sendemail", async function () {
-    console.log("Kliknięto ikonę wysyłki w tabeli!");
-
-    var table = $("#table_splited_wh").DataTable();
-    var row = $(this).closest("tr");
-    var data = table.row(row).data();
-    const wholesalersData = JSON.parse(
-      sessionStorage.getItem("wholesalersData")
-    );
-    if (wholesalersData) {
-      const clickedWholesaler = wholesalersData.find(
-        (item) => item.wholesalerKey === data.wholesalerKey
-      );
-
-      if (clickedWholesaler) {
-        const { company = "", taxId = "", address = {} } = clickedWholesaler;
-        const { line1 = "", town = "", postcode = "" } = address;
-
-        const partyText = `${company}\n${line1}, ${town}, ${postcode}\nNIP: ${taxId}`;
-        $("#orderParty").val(partyText).prop("disabled", true);
-      } else {
-        console.warn("❌ Hurtownik o takim kluczu nie został znaleziony.");
-      }
-    } else {
-      console.warn("❌ Brak danych hurtowników w sessionStorage.");
-    }
-
-    try {
-      // Pokaż animację ładowania
-      $("#waitingdots").show();
-
-      // Poczekaj na oba Promise
-      await Promise.all([getShop(), getWhSmartVan(data.wholesalerKey)]);
-
-      // orderItems
-      const productsSum =
-        data.products.bestMatch + data.products.exclusive + data.products.order;
-      $("#orderItems").text(productsSum);
-
-      // orderValue
-      $("#orderValue").text(data.netValue + " zł");
-
-      // orderWholesalerKey
-      $("#orderWholesalerKey").val(data.wholesalerName);
-      $("#orderWholesalerKey").attr("data-key", data.wholesalerKey);
-      $("#orderWholesalerKey").prop("disabled", true);
-
-      // orderSender
-      $("#orderUserName").val(
-        (attributes["username"] || "") + (attributes["userfamilyname"] || "")
-      );
-      $("#orderUserName").prop("disabled", true);
-
-      // Pokaż okno dopiero po załadowaniu danych
-      $("#SendOrderSMTP").css("display", "flex");
-    } catch (error) {
-      console.error("Błąd podczas pobierania danych:", error);
-      alert("Wystąpił błąd podczas ładowania danych. Spróbuj ponownie.");
-    } finally {
-      // Zawsze schowaj animację niezależnie od powodzenia
-      $("#waitingdots").hide();
-    }
-  });
-
-  $("#formats").on("mousedown", "option", function (event) {
-    // Zapobiegaj domyślnej akcji przeglądarki
-    event.preventDefault();
-
-    // Przełącz stan zaznaczenia klikniętej opcji
-    $(this).prop("selected", !$(this).prop("selected"));
-
-    // Wymuś aktualizację stanu pola <select>
-    $("#formats").trigger("change");
-  });
-
-  $("#table_splited_wh").on("click", ".filedownloadicon", function () {
+  $("#table_splited_wh").on("click", "img", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
     var cell = $(this).closest("td");
@@ -4219,11 +3284,6 @@ docReady(function () {
             anchor.download = fileName;
             anchor.click();
             window.URL.revokeObjectURL(objectUrl);
-            // tutaj aktualizacja tabeli po kliknięciu
-            var rowIndex = table.row(row).index();
-            var rowData = table.row(row).data();
-            rowData.confirmed = true;
-            table.row(row).data(rowData).invalidate().draw(false);
           } else {
             console.error("Filename not found in the response headers.");
           }
@@ -4274,17 +3334,7 @@ docReady(function () {
             link.download = "" + fileName;
             link.target = "_blank";
             document.body.appendChild(link);
-            anchor.click();
             link.click();
-
-            var rowIndex = table.row(row).index();
-            var rowData = table.row(row).data();
-
-            // oznacz jako pobrane
-            rowData.confirmed = true;
-
-            // update danych w datatable
-            table.row(row).data(rowData).invalidate().draw(false);
             document.body.removeChild(link);
           } else {
             console.error("Filename not found in the response headers.");
@@ -4462,7 +3512,7 @@ docReady(function () {
     popupContainer.style.display = "flex";
   });
 
-  $("#spl_table").on("click", "img[alt='edit']", function () {
+  $("#spl_table").on("click", "td.details-control3", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
@@ -4474,16 +3524,11 @@ docReady(function () {
       var NameInput = document.getElementById("new-name");
       NameInput.value = rowData.name;
       NameInput.textContent = rowData.name;
-      var DistributorInput = document.getElementById(
-        "countryDistributorName-2"
-      );
-      DistributorInput.value = rowData.countryDistributorName;
-      DistributorInput.textContent = rowData.countryDistributorName;
       $("#ProposeChangeInGtinModal").css("display", "flex");
     }
   });
 
-  $("#spl_table").on("click", "img[alt='delete']", function () {
+  $("#spl_table").on("click", "td.details-control4", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
@@ -4515,15 +3560,6 @@ docReady(function () {
     if (e.key === "Enter") {
       $(this).blur(); // Simulate focusout when Enter key is pressed
     }
-  });
-
-  $("#spl_table").on("click", "img[alt='details']", function () {
-    var table = $("#spl_table").DataTable();
-    var tr = $(this).closest("tr");
-    var rowData = table.row(tr).data();
-    $("#ProductCard").css("display", "flex");
-    getProductDetails(rowData);
-    getProductHistory(rowData);
   });
 
   $("#spl_table").on("focusout", "input", function () {
@@ -4637,7 +3673,7 @@ docReady(function () {
     }
   });
 
-  $("#table_id").on("click", "img[alt='details']", function () {
+  $("#table_id tbody").on("click", "td.details-control2", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     $("#ProductCard").css("display", "flex");
@@ -4645,7 +3681,7 @@ docReady(function () {
     getProductHistory(rowData);
   });
 
-  $("#table_id").on("click", "img[alt='edit']", function () {
+  $("#table_id tbody").on("click", "td.details-control3", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
     var GTINEdit = document.getElementById("gtin");
@@ -4654,9 +3690,6 @@ docReady(function () {
     var NameInput = document.getElementById("new-name");
     NameInput.value = rowData.name;
     NameInput.textContent = rowData.name;
-    var DistributorInput = document.getElementById("countryDistributorName-2");
-    DistributorInput.value = rowData.countryDistributorName;
-    DistributorInput.textContent = rowData.countryDistributorName;
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
@@ -4753,23 +3786,6 @@ docReady(function () {
     }, 300);
   });
 
-  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
-    function () {
-      const delays = [1, 49, 151, 901];
-
-      delays.forEach((delay) => {
-        setTimeout(function () {
-          $.fn.dataTable
-            .tables({
-              visible: true,
-              api: true,
-            })
-            .columns.adjust();
-        }, delay);
-      });
-    }
-  );
-
   $("table.dataTable").on("page.dt", function () {
     $(this).DataTable().draw(false);
   });
@@ -4858,9 +3874,9 @@ docReady(function () {
     CreateOrder(); // Fire CreateOrder() if the parameter is not present
   }
 
+  getOffers();
   getWholesalersSh();
   fetchDataFromEndpoint();
-  getShop();
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
@@ -4921,8 +3937,6 @@ docReady(function () {
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
-  makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
-  sendEmailToWholesaler($("#wf-form-orderForm"));
 
   // DataTables initialization and event handling
   $("table.dataTable").on("init.dt xhr.dt page.dt draw.dt", function () {
