@@ -907,21 +907,18 @@ docReady(function () {
               data: "wholesalerKey",
               render: function (data, type, row) {
                 const icons = {
-                  text: '<div class="dropdown-item" data-format="text/plain">Plik TXT</div>',
-                  csv: '<div class="dropdown-item" data-format="text/csv">CSV</div>',
+                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" title="TXT" class="filedownloadicon">',
+                  csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV" class="filedownloadicon">',
                   csvAgra:
-                    '<div class="dropdown-item" data-format="text/csv">CSV Agra</div>',
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" title="CSV Agra" class="filedownloadicon">',
                   csvMirex:
-                    '<div class="dropdown-item" data-format="text/csv">CSV Mirex</div>',
-                  pdf: '<div class="dropdown-item" data-format="application/pdf">PDF</div>',
-                  xls: '<div class="dropdown-item" data-format="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">XLS</div>',
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV Mirex" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" title="PDF" class="filedownloadicon">',
+                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" title="XLS" class="filedownloadicon">',
+                  email:
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
+                  skip: '<img src="https://cdn-icons-png.flaticon.com/512/458/458595.png" title="Pomiń" style="width: 16px; height: 16px; margin-right: 4px;" />',
                 };
-
-                const emailButton = `
-                  <button class="sendemail" title="Wyślij" style="cursor: pointer;">
-                    <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" />
-                  </button>
-                `;
 
                 const wholesalerConfigs = {
                   agra: {
@@ -958,41 +955,45 @@ docReady(function () {
                 const configKey = isSuzyw123 ? "suzyw123" : "default";
                 const config =
                   wholesalerConfigs[data] || wholesalerConfigs["default"];
-                const downloadOptions = config[configKey];
+                const fileIcons = config[configKey];
 
-                // Dropdown dla przycisku "Pobierz"
-                const dropdownButton = `
-                  <div class="dropdown" style="position: relative; display: inline-block;">
-                    <button class="dropbtn">Pobierz ▼</button>
-                    <div class="dropdown-content" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; z-index: 1;">
-                      ${downloadOptions.join("")}
-                    </div>
-                  </div>
-                `;
-
-                // Checkbox Pomiń
-                let checkbox = "";
-                if (data !== "unassigned") {
-                  checkbox = `
-                    <div style="display: flex; align-items: center; gap: 2px;">
-                      <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
-                    row.confirmedAt ? "disabled" : ""
-                  } />
-                      <label class="mylabel" for="${data}" style="margin: 0;">Pomiń</label>
+                // Dla wholesalera unassigned pokazujemy tylko pliki
+                if (data === "unassigned") {
+                  return `
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      ${icons.text}
+                      ${icons.csv}
+                      ${icons.pdf}
+                      ${icons.xls}
                     </div>
                   `;
                 }
 
-                // Składamy całość
-                const content = `
-                  <div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">
-                    ${checkbox}
-                    ${dropdownButton}
-                    ${emailButton}
+                // Akcja: Pomiń
+                const skipCheckbox = `
+                  <div style="display: flex; align-items: center; gap: 4px;">
+                    ${icons.skip}
+                    <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
+                  row.confirmedAt ? "disabled" : ""
+                } />
+                    <label class="mylabel" for="${data}" style="margin: 0;">Pomiń</label>
                   </div>
                 `;
 
-                return content;
+                // Pliki + Wyślij
+                const filesAndSend = `
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    ${fileIcons.join("")}
+                    ${icons.email}
+                  </div>
+                `;
+
+                return `
+                  <div style="display: flex; flex-direction: column; gap: 4px; white-space: nowrap;">
+                    ${skipCheckbox}
+                    ${filesAndSend}
+                  </div>
+                `;
               },
             },
           ],
