@@ -1040,7 +1040,7 @@ docReady(function () {
 
                     $("#lockOrderButton").one("click", function () {
                       $(
-                        "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
+                        "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup"
                       ).hide();
                       $("#lockOrderDiv").hide();
 
@@ -1077,7 +1077,7 @@ docReady(function () {
             if (urlParams.get("confirmed") === "true") {
               // Ukryj elementy jak po kliknięciu lockOrderButton
               $(
-                "#settings, #addProducts, #splittedProductsSection, #splliterMainButton"
+                "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup"
               ).hide();
               $("#lockOrderDiv").hide();
 
