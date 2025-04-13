@@ -903,7 +903,7 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "384px",
+              width: "220px",
               data: "wholesalerKey",
               render: function (data, type, row) {
                 const icons = {
@@ -915,8 +915,6 @@ docReady(function () {
                     '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV Mirex" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
                   pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" title="PDF" class="filedownloadicon">',
                   xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" title="XLS" class="filedownloadicon">',
-                  email:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b1ffe0fd89838860cf_sendButton.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
                 };
 
                 const wholesalerConfigs = {
@@ -928,22 +926,13 @@ docReady(function () {
                     default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
                     suzyw123: [icons.text, icons.pdf, icons.xls],
                   },
-                  "kd-tedi": {
-                    default: [icons.xls],
-                    suzyw123: [icons.xls],
-                  },
-                  "kd-tano": {
-                    default: [icons.xls],
-                    suzyw123: [icons.xls],
-                  },
+                  "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
+                  "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
                   "mag-dystrybucja": {
                     default: [icons.xls],
                     suzyw123: [icons.xls],
                   },
-                  merkury: {
-                    default: [icons.xls],
-                    suzyw123: [icons.xls],
-                  },
+                  merkury: { default: [icons.xls], suzyw123: [icons.xls] },
                   default: {
                     default: [icons.text, icons.csv, icons.pdf, icons.xls],
                     suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
@@ -956,34 +945,44 @@ docReady(function () {
                   wholesalerConfigs[data] || wholesalerConfigs["default"];
                 const fileIcons = config[configKey];
 
-                // Dla wholesalera unassigned pokazujemy tylko pliki
                 if (data === "unassigned") {
                   return `
                     <div style="display: flex; align-items: center; gap: 6px;">
-                      ${icons.text}
-                      ${icons.csv}
-                      ${icons.pdf}
-                      ${icons.xls}
+                      ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
                     </div>
                   `;
                 }
 
-                // Akcja: Pomiń
+                return `
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    ${fileIcons.join("")}
+                  </div>
+                `;
+              },
+            },
+            {
+              orderable: false,
+              width: "160px",
+              data: "wholesalerKey",
+              render: function (data, type, row) {
+                const icons = {
+                  email:
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b1ffe0fd89838860cf_sendButton.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
+                };
+
+                if (data === "unassigned") {
+                  return ""; // brak akcji dla 'unassigned'
+                }
+
                 const skipCheckbox = `
-                    <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
+                  <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
                   row.confirmedAt ? "disabled" : ""
                 } />
-                    <label class="mylabel" for="${data}" style="margin: 0;"></label>
-                `;
-
-                // Pliki + Wyślij
-                const files = `
-                    ${fileIcons.join("")}                
+                  <label class="mylabel" for="${data}" style="margin: 0;"></label>
                 `;
 
                 return `
-                  <div style="display: flex; flex-direction: row; gap: 6px; white-space: nowrap;">
-                    ${files}
+                  <div style="display: flex; align-items: center; gap: 8px;">
                     ${skipCheckbox}
                     ${icons.email}
                   </div>
