@@ -903,18 +903,18 @@ docReady(function () {
             },
             {
               orderable: false,
-              width: "220px",
+              width: "128px",
               data: "wholesalerKey",
               render: function (data, type, row) {
                 const icons = {
-                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" title="TXT" class="filedownloadicon">',
-                  csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV" class="filedownloadicon">',
+                  text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="edi" class="filedownloadicon">',
+                  csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="csv" class="filedownloadicon">',
                   csvAgra:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" title="CSV Agra" class="filedownloadicon">',
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="csvAgra" class="filedownloadicon">',
                   csvMirex:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV Mirex" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" title="PDF" class="filedownloadicon">',
-                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" title="XLS" class="filedownloadicon">',
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="csvMirex" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                  pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="pdf" class="filedownloadicon">',
+                  xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="tema" class="filedownloadicon">',
                 };
 
                 const wholesalerConfigs = {
@@ -945,21 +945,21 @@ docReady(function () {
                   wholesalerConfigs[data] || wholesalerConfigs["default"];
                 const fileIcons = config[configKey];
 
-                if (data === "unassigned") {
-                  return `
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                      ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
-                    </div>
-                  `;
-                }
+                const iconsHtml =
+                  data === "unassigned"
+                    ? [icons.text, icons.csv, icons.pdf, icons.xls].join("")
+                    : fileIcons.join("");
 
                 return `
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    ${fileIcons.join("")}
+                  <div id="zipcontainer">
+                    <div class="div-block-20">
+                      ${iconsHtml}
+                    </div>
                   </div>
                 `;
               },
             },
+
             {
               orderable: false,
               width: "160px",
