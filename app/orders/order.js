@@ -1028,38 +1028,6 @@ docReady(function () {
 
                 return content;
               },
-              createdCell: function (td, cellData, rowData, row, col) {
-                // Add click handler for "Realizuj" button
-                $(td).on(
-                  "click",
-                  'img[alt="Realizuj"]', // Select the image by its alt text
-                  function (e) {
-                    e.preventDefault();
-                    $("#lockOrderDiv").css("display", "flex");
-
-                    $("#lockOrderButton").one("click", function () {
-                      $(
-                        "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup"
-                      ).hide();
-                      $("#lockOrderDiv").hide();
-
-                      // Pobierz wszystkie dane z tabeli
-                      var table = $("#table_splited_wh").DataTable();
-                      var allData = table.rows().data();
-
-                      // Ustaw flagę inRealization dla WSZYSTKICH wierszy i zaktualizuj dane
-                      table.rows().every(function () {
-                        var data = this.data();
-                        data.inRealization = true;
-                        this.data(data); // Jawnie aktualizujemy dane wiersza
-                      });
-
-                      // Przerysuj CAŁĄ tabelę
-                      table.draw();
-                    });
-                  }
-                );
-              },
             },
           ],
           initComplete: function (settings, json) {
@@ -1152,6 +1120,31 @@ docReady(function () {
       },
     });
   }
+
+  $("#spliterProceed").on("click", function (e) {
+    e.preventDefault();
+    $("#lockOrderDiv").css("display", "flex");
+
+    $("#lockOrderButton").one("click", function () {
+      $(
+        "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup"
+      ).hide();
+      $("#lockOrderDiv").hide();
+
+      // Pobierz dane z tabeli
+      var table = $("#table_splited_wh").DataTable();
+
+      // Ustaw flagę inRealization dla każdego wiersza
+      table.rows().every(function () {
+        var data = this.data();
+        data.inRealization = true;
+        this.data(data); // Aktualizacja wiersza
+      });
+
+      // Przerysuj tabelę
+      table.draw();
+    });
+  });
 
   function format(d) {
     const arr = d.asks;
