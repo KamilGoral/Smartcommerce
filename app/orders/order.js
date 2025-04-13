@@ -4893,3 +4893,13 @@ docReady(function () {
     $(".dataTables_filter input").attr("maxLength", 60);
   });
 });
+
+$(document).on("click", ".dropbtn", function (e) {
+  e.stopPropagation();
+  $(".dropdown-content").hide(); // ukryj inne
+  $(this).next(".dropdown-content").toggle();
+});
+
+$(document).on("click", function () {
+  $(".dropdown-content").hide();
+});
