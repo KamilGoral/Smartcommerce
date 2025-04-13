@@ -978,10 +978,8 @@ docReady(function () {
 
                 // Pliki + Wyślij
                 const filesAndSend = `
-                  <div style="display: flex; align-items: center; gap: 6px;">
                     ${fileIcons.join("")}
                     ${icons.email}
-                  </div>
                 `;
 
                 return `
