@@ -906,7 +906,6 @@ docReady(function () {
               width: "192px",
               data: "wholesalerKey",
               render: function (data, type, row) {
-                // File icon definitions
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
                   csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
@@ -920,111 +919,93 @@ docReady(function () {
                     '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" class="sendemail" style="cursor: pointer;" />',
                 };
 
-                // Default content (checkbox and "Realizuj" button)
-                let content = "";
+                const wholesalerConfigs = {
+                  agra: {
+                    default: [
+                      icons.text,
+                      icons.csvAgra,
+                      icons.pdf,
+                      icons.xls,
+                      icons.email,
+                    ],
+                    suzyw123: [
+                      icons.text,
+                      icons.csvAgra,
+                      icons.pdf,
+                      icons.xls,
+                      icons.email,
+                    ],
+                  },
+                  mirex: {
+                    default: [
+                      icons.text,
+                      icons.csvMirex,
+                      icons.pdf,
+                      icons.xls,
+                      icons.email,
+                    ],
+                    suzyw123: [icons.text, icons.pdf, icons.xls, icons.email],
+                  },
+                  "kd-tedi": {
+                    default: [icons.xls, icons.email],
+                    suzyw123: [icons.xls, icons.email],
+                  },
+                  "kd-tano": {
+                    default: [icons.xls, icons.email],
+                    suzyw123: [icons.xls, icons.email],
+                  },
+                  "mag-dystrybucja": {
+                    default: [icons.xls, icons.email],
+                    suzyw123: [icons.xls, icons.email],
+                  },
+                  merkury: {
+                    default: [icons.xls, icons.email],
+                    suzyw123: [icons.xls, icons.email],
+                  },
+                  default: {
+                    default: [
+                      icons.text,
+                      icons.csv,
+                      icons.pdf,
+                      icons.xls,
+                      icons.email,
+                    ],
+                    suzyw123: [
+                      icons.text,
+                      icons.csv,
+                      icons.pdf,
+                      icons.xls,
+                      icons.email,
+                    ],
+                  },
+                };
+
+                const isSuzyw123 = OrganizationName === "Suzyw123";
+                const configKey = isSuzyw123 ? "suzyw123" : "default";
+                const config =
+                  wholesalerConfigs[data] || wholesalerConfigs["default"];
+                const supportedIcons = config[configKey];
+
+                let content =
+                  '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">';
+
                 if (data !== "unassigned") {
-                  content =
-                    '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">' +
+                  content +=
                     '<input type="checkbox" class="theClass" id="' +
                     data +
                     '" value="' +
                     data +
-                    '" />' +
+                    '"' +
+                    (row.confirmedAt ? " disabled" : "") +
+                    " />" +
                     '<label class="mylabel" for="' +
                     data +
-                    '" style="margin: 0;"></label>' +
-                    "</div>";
+                    '" style="margin: 0;"></label>';
                 }
 
-                // If the row is in "realizacja" mode (after clicking "Realizuj")
-                if (row.inRealization) {
-                  content =
-                    '<div style="display: flex; align-items: center; gap: 2px; white-space: nowrap;">';
-
-                  if (data === "unassigned") {
-                    // Generate 4 formats for "unassigned"
-                    content += icons.text;
-                    content += icons.csv;
-                    content += icons.pdf;
-                    content += icons.xls;
-                  } else {
-                    // Add file download icons based on wholesaler
-                    const wholesalerConfigs = {
-                      agra: {
-                        default: [
-                          icons.text,
-                          icons.csvAgra,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.csvAgra,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                      },
-                      mirex: {
-                        default: [
-                          icons.text,
-                          icons.csvMirex,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                      },
-                      "kd-tedi": {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      "kd-tano": {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      "mag-dystrybucja": {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      merkury: {
-                        default: [icons.xls, icons.email],
-                        suzyw123: [icons.xls, icons.email],
-                      },
-                      default: {
-                        default: [
-                          icons.text,
-                          icons.csv,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.csv,
-                          icons.pdf,
-                          icons.xls,
-                          icons.email,
-                        ],
-                      },
-                    };
-
-                    const isSuzyw123 = OrganizationName === "Suzyw123";
-                    const configKey = isSuzyw123 ? "suzyw123" : "default";
-                    const config =
-                      wholesalerConfigs[data] || wholesalerConfigs["default"];
-                    const supportedIcons = config[configKey];
-
-                    content += supportedIcons.join("");
-                  }
-                  content += "</div>";
-                }
+                // Ikony plików
+                content += supportedIcons.join("");
+                content += "</div>";
 
                 return content;
               },
