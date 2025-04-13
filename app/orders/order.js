@@ -1044,7 +1044,8 @@ docReady(function () {
             if (urlParams.get("confirmed") === "true") {
               // Ukryj elementy jak po kliknięciu lockOrderButton
               $(
-                "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup"
+                "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup",
+                "#cart"
               ).hide();
               $("#lockOrderDiv").hide();
 
@@ -4795,7 +4796,7 @@ docReady(function () {
     });
   }
 
-  $("#cart").on("click", function () {
+  $('a[data-w-tab="Cart"]').on("click", function () {
     GetSplittedProducts();
   });
 
