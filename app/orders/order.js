@@ -916,7 +916,7 @@ docReady(function () {
                   pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" title="PDF" class="filedownloadicon">',
                   xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" title="XLS" class="filedownloadicon">',
                   email:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67eb7eadf3c98c0faf8b7283_simplesend.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
+                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b1ffe0fd89838860cf_sendButton.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
                 };
 
                 const wholesalerConfigs = {
