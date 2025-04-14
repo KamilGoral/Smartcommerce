@@ -1092,11 +1092,6 @@ docReady(function () {
   const DELAY = 2000;
   let timer = null;
 
-  // Funkcja tworząca zamówienie
-  function CreateOrder() {
-    console.log("✅ [CreateOrder] Funkcja została wywołana!");
-  }
-
   // Funkcja wywoływana po czasie
   function triggerCreateOrder() {
     console.log("⏱ [triggerCreateOrder] Uruchamiam CreateOrder po opóźnieniu");
