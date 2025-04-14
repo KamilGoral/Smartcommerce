@@ -904,6 +904,7 @@ docReady(function () {
             {
               orderable: false,
               data: "wholesalerKey",
+              width: "160px",
               render: function (data, type, row) {
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" title="TXT" class="filedownloadicon">',
