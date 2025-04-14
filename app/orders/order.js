@@ -477,6 +477,7 @@ docReady(function () {
   }
 
   async function CreateOrder() {
+    console.log("Creating Order");
     const tableId = "#spl_table";
 
     // Wymaż wartwę blur
@@ -1101,11 +1102,13 @@ docReady(function () {
 
   // Obsługa kliknięcia checkboxa
   $(".theClass").on("click", function () {
+    console.log("Kliknieto checkbox");
     startOrResetTimer();
   });
 
   // Obsługa kliknięcia w dowolne inne miejsce interfejsu (poza checkboxem i labelką)
   $("body").on("click", function (e) {
+    console.log("Kliknieto poza");
     if (!$(e.target).closest(".theClass, label.mylabel").length) {
       if (timer) {
         clearTimeout(timer);
@@ -2141,38 +2144,6 @@ docReady(function () {
     } else {
       changesPayload.push(newObj);
     }
-  }
-
-  var tippyLoaded = false;
-
-  function LoadTippy() {
-    if (tippyLoaded) {
-      applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
-      return;
-    }
-
-    $.getScript("https://unpkg.com/popper.js@1", function () {
-      $.getScript("https://unpkg.com/tippy.js@4", function () {
-        tippyLoaded = true;
-        applyTippyTooltips(); // Apply Tippy to all existing .tippy elements
-      });
-    });
-  }
-
-  function applyTippyTooltips() {
-    tippy(".tippy:not([data-tippy-initialized])", {
-      theme: "light",
-      animation: "scale",
-      duration: 250,
-      arrow: true,
-      allowHTML: true,
-      arrowType: "round",
-      delay: [0, 50],
-      maxWidth: 240,
-      onShow(instance) {
-        instance.reference.setAttribute("data-tippy-initialized", "true");
-      },
-    });
   }
 
   function getProductDetails(rowData) {
