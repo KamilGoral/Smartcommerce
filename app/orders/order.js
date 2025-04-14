@@ -1106,18 +1106,6 @@ docReady(function () {
     startOrResetTimer();
   });
 
-  // Obsługa kliknięcia w dowolne inne miejsce interfejsu (poza checkboxem i labelką)
-  $("body").on("click", function (e) {
-    console.log("Kliknieto poza");
-    if (!$(e.target).closest(".theClass, label.mylabel").length) {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-        CreateOrder();
-      }
-    }
-  });
-
   $("#spliterProceed").on("click", function (e) {
     e.preventDefault();
     $("#lockOrderDiv").css("display", "flex");
