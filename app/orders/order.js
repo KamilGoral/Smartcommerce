@@ -1091,6 +1091,7 @@ docReady(function () {
   }
 
   const DELAY = 2000;
+  let timer;
 
   function triggerCreateOrder() {
     clearTimeout(timer);
@@ -1105,8 +1106,7 @@ docReady(function () {
     timer = setTimeout(triggerCreateOrder, DELAY);
   });
 
-  // Jeśli klikniemy gdziekolwiek indziej w interfejsie aplikacji
-  // (bez document), musisz dodać kontener, np. div o klasie ".interface-wrapper"
+  // Kliknięcie gdziekolwiek indziej w aplikacji (np. na body)
   $("body").on("click", function () {
     if (timer) triggerCreateOrder();
   });
