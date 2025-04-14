@@ -714,7 +714,7 @@ docReady(function () {
           destroy: true,
           orderMulti: true,
           order: [[2, "desc"]],
-          dom: '<"top">rt<"bottom"lip>',
+          dom: '<"top">rt<"bottom"lip><"clear">',
           language: {
             emptyTable: "Brak danych do wyświetlenia",
             info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -741,6 +741,12 @@ docReady(function () {
             return: true,
           },
           columns: [
+            {
+              orderable: false,
+              data: null,
+              defaultContent:
+                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
+            },
             {
               orderable: true,
               width: "auto",
@@ -883,7 +889,7 @@ docReady(function () {
               orderable: true,
               data: null, // Używamy null, bo będziemy korzystać z całego wiersza
               name: "statusColumn",
-              width: "108px",
+              width: "92px",
               render: function (data, type, row) {
                 if (data.wholesalerName === "unassigned") {
                   return "";
@@ -904,7 +910,7 @@ docReady(function () {
             {
               orderable: false,
               data: "wholesalerKey",
-              width: "92px",
+              width: "108px",
               render: function (data, type, row) {
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" title="TXT" class="filedownloadicon">',
