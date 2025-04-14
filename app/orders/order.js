@@ -525,17 +525,18 @@ docReady(function () {
           wholesaler +
           '">' +
           wholesaler +
-          '<input type="checkbox" class="theClass" id="' +
+          '<input type="checkbox" class="theClass customicon" id="' +
           wholesaler +
           '" value="' +
           wholesaler +
           '" name="' +
           wholesaler +
-          '"><label class="mylabel" for="' +
+          '"><label class="mylabel customicon" for="' +
           wholesaler +
           '"></label></div>'
       );
     });
+
     var UrlParameters = "";
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
