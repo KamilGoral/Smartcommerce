@@ -1089,6 +1089,32 @@ docReady(function () {
     });
   }
 
+  let timer = null;
+
+  function startOrResetTimer() {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      CreateOrder();
+      timer = null;
+    }, 2000);
+  }
+
+  // Obsługa kliknięcia checkboxa
+  $(".theClass").on("click", function () {
+    startOrResetTimer();
+  });
+
+  // Obsługa kliknięcia w dowolne inne miejsce interfejsu (poza checkboxem i labelką)
+  $("body").on("click", function (e) {
+    if (!$(e.target).closest(".theClass, label.mylabel").length) {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+        CreateOrder();
+      }
+    }
+  });
+
   $("#spliterProceed").on("click", function (e) {
     e.preventDefault();
     $("#lockOrderDiv").css("display", "flex");
