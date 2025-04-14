@@ -1089,39 +1089,6 @@ docReady(function () {
       },
     });
   }
-  const DELAY = 2000;
-  let timer = null;
-
-  // Funkcja wywoływana po czasie
-  function triggerCreateOrder() {
-    console.log("⏱ [triggerCreateOrder] Uruchamiam CreateOrder po opóźnieniu");
-    timer = null;
-    CreateOrder();
-  }
-
-  // Funkcja ustawiająca timer (lub restartująca)
-  function resetOrderTimer() {
-    if (timer) {
-      console.log("♻️ [resetOrderTimer] Istniejący timer usunięty");
-      clearTimeout(timer);
-    } else {
-      console.log("🆕 [resetOrderTimer] Timer jeszcze nie istniał");
-    }
-    timer = setTimeout(triggerCreateOrder, DELAY);
-    console.log(`⏳ [resetOrderTimer] Nowy timer ustawiony na ${DELAY}ms`);
-  }
-
-  // Kliknięcie na checkbox/label – nie przerywa dalszego propagowania
-  $(".theClass, .mylabel").on("click", function (e) {
-    console.log("[click .theClass / .mylabel] Kliknięcie:", this);
-    resetOrderTimer();
-  });
-
-  // Kliknięcie w dowolnym innym miejscu w aplikacji
-  $(".interface-wrapper").on("click", function (e) {
-    console.log("[click .interface-wrapper] Kliknięcie w interfejsie");
-    resetOrderTimer();
-  });
 
   $("#spliterProceed").on("click", function (e) {
     e.preventDefault();
@@ -4134,6 +4101,33 @@ docReady(function () {
     $("#formats").trigger("change");
   });
 
+  const DELAY = 2000;
+  let timer = null;
+
+  // Funkcja wywoływana po czasie
+  function triggerCreateOrder() {
+    console.log("⏱ [triggerCreateOrder] Uruchamiam CreateOrder po opóźnieniu");
+    timer = null;
+    CreateOrder();
+  }
+
+  // Funkcja ustawiająca timer (lub restartująca)
+  function resetOrderTimer() {
+    if (timer) {
+      console.log("♻️ [resetOrderTimer] Istniejący timer usunięty");
+      clearTimeout(timer);
+    } else {
+      console.log("🆕 [resetOrderTimer] Timer jeszcze nie istniał");
+    }
+    timer = setTimeout(triggerCreateOrder, DELAY);
+    console.log("[resetOrderTimer] Nowy timer ustawiony na ${DELAY}ms");
+  }
+
+  $("#table_splited_wh").on("click", ".theClass, .mylabel", function (e) {
+    console.log("[click .theClass / .mylabel] Kliknięcie w tabeli:", this);
+    resetOrderTimer();
+  });
+
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
     // Get the right table
     var table = $("#table_splited_wh").DataTable();
@@ -4895,14 +4889,4 @@ docReady(function () {
     });
     $(".dataTables_filter input").attr("maxLength", 60);
   });
-});
-
-$(document).on("click", ".dropbtn", function (e) {
-  e.stopPropagation();
-  $(".dropdown-content").hide(); // ukryj inne
-  $(this).next(".dropdown-content").toggle();
-});
-
-$(document).on("click", function () {
-  $(".dropdown-content").hide();
 });
