@@ -4107,7 +4107,6 @@ docReady(function () {
 
   // Funkcja wywoływana po czasie
   function triggerCreateOrder() {
-    console.log("⏱ [triggerCreateOrder] Uruchamiam CreateOrder po opóźnieniu");
     timer = null;
     CreateOrder();
   }
@@ -4115,17 +4114,13 @@ docReady(function () {
   // Funkcja ustawiająca timer (lub restartująca)
   function resetOrderTimer() {
     if (timer) {
-      console.log("♻️ [resetOrderTimer] Istniejący timer usunięty");
       clearTimeout(timer);
     } else {
-      console.log("🆕 [resetOrderTimer] Timer jeszcze nie istniał");
     }
     timer = setTimeout(triggerCreateOrder, DELAY);
-    console.log("[resetOrderTimer] Nowy timer ustawiony na ${DELAY}ms");
   }
 
-  $("#table_splited_wh").on("click", ".theClass, .mylabel", function (e) {
-    console.log("[click .theClass / .mylabel] Kliknięcie w tabeli:", this);
+  $("#table-content").on("click", ".theClass, .mylabel", function (e) {
     resetOrderTimer();
   });
 
