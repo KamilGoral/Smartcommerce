@@ -743,28 +743,6 @@ docReady(function () {
           columns: [
             {
               orderable: true,
-              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
-              name: "statusColumn",
-              width: "108px",
-              render: function (data, type, row) {
-                if (data.wholesalerName === "unassigned") {
-                  return "";
-                }
-
-                // Określ status na podstawie confirmedAt
-                const status = data.confirmedAt ? "in progress" : "pending";
-
-                // Generuj badge
-                return getStatusHtml({
-                  status: status,
-                  confirmed: data.confirmed,
-                  confirmedAt: data.confirmedAt,
-                });
-              },
-              className: "status-column",
-            },
-            {
-              orderable: true,
               width: "auto",
               data: null,
               render: function (data) {
@@ -902,9 +880,31 @@ docReady(function () {
               defaultContent: "",
             },
             {
+              orderable: true,
+              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
+              name: "statusColumn",
+              width: "108px",
+              render: function (data, type, row) {
+                if (data.wholesalerName === "unassigned") {
+                  return "";
+                }
+
+                // Określ status na podstawie confirmedAt
+                const status = data.confirmedAt ? "in progress" : "pending";
+
+                // Generuj badge
+                return getStatusHtml({
+                  status: status,
+                  confirmed: data.confirmed,
+                  confirmedAt: data.confirmedAt,
+                });
+              },
+              className: "status-column",
+            },
+            {
               orderable: false,
               data: "wholesalerKey",
-              width: "160px",
+              width: "92px",
               render: function (data, type, row) {
                 const icons = {
                   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" title="TXT" class="filedownloadicon">',
