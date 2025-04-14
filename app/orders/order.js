@@ -1094,6 +1094,7 @@ docReady(function () {
   let timer;
 
   function triggerCreateOrder() {
+    console.log("[triggerCreateOrder] Wywołanie funkcji CreateOrder");
     clearTimeout(timer);
     timer = null;
     CreateOrder();
@@ -1101,14 +1102,34 @@ docReady(function () {
 
   // Kliknięcie na checkbox lub label rozpoczyna/resetuje odliczanie
   $(".theClass, .mylabel").on("click", function (e) {
+    console.log("[click .theClass / .mylabel] Kliknięcie elementu:", this);
     e.stopPropagation();
-    if (timer) clearTimeout(timer);
+
+    if (timer) {
+      console.log("[click .theClass / .mylabel] Istnieje timer - czyści timer");
+      clearTimeout(timer);
+    } else {
+      console.log(
+        "[click .theClass / .mylabel] Timer nie istnieje - ustawienie nowego"
+      );
+    }
+
     timer = setTimeout(triggerCreateOrder, DELAY);
+    console.log(
+      `[click .theClass / .mylabel] Nowy timer ustawiony na ${DELAY}ms`
+    );
   });
 
-  // Kliknięcie gdziekolwiek indziej w aplikacji (np. na body)
+  // Kliknięcie gdziekolwiek indziej w interfejsie
   $("body").on("click", function () {
-    if (timer) triggerCreateOrder();
+    console.log("[click body] Kliknięcie poza .theClass / .mylabel");
+
+    if (timer) {
+      console.log("[click body] Timer istnieje - uruchamiam CreateOrder");
+      triggerCreateOrder();
+    } else {
+      console.log("[click body] Timer nie istnieje - nic nie robię");
+    }
   });
 
   $("#spliterProceed").on("click", function (e) {
