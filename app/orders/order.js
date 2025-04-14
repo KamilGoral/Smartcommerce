@@ -1089,47 +1089,43 @@ docReady(function () {
       },
     });
   }
-
   const DELAY = 2000;
-  let timer;
+  let timer = null;
 
+  // Funkcja tworząca zamówienie
+  function CreateOrder() {
+    console.log("✅ [CreateOrder] Funkcja została wywołana!");
+  }
+
+  // Funkcja wywoływana po czasie
   function triggerCreateOrder() {
-    console.log("[triggerCreateOrder] Wywołanie funkcji CreateOrder");
-    clearTimeout(timer);
+    console.log("⏱ [triggerCreateOrder] Uruchamiam CreateOrder po opóźnieniu");
     timer = null;
     CreateOrder();
   }
 
-  // Kliknięcie na checkbox lub label rozpoczyna/resetuje odliczanie
-  $(".theClass, .mylabel").on("click", function (e) {
-    console.log("[click .theClass / .mylabel] Kliknięcie elementu:", this);
-    e.stopPropagation();
-
+  // Funkcja ustawiająca timer (lub restartująca)
+  function resetOrderTimer() {
     if (timer) {
-      console.log("[click .theClass / .mylabel] Istnieje timer - czyści timer");
+      console.log("♻️ [resetOrderTimer] Istniejący timer usunięty");
       clearTimeout(timer);
     } else {
-      console.log(
-        "[click .theClass / .mylabel] Timer nie istnieje - ustawienie nowego"
-      );
+      console.log("🆕 [resetOrderTimer] Timer jeszcze nie istniał");
     }
-
     timer = setTimeout(triggerCreateOrder, DELAY);
-    console.log(
-      `[click .theClass / .mylabel] Nowy timer ustawiony na ${DELAY}ms`
-    );
+    console.log(`⏳ [resetOrderTimer] Nowy timer ustawiony na ${DELAY}ms`);
+  }
+
+  // Kliknięcie na checkbox/label – nie przerywa dalszego propagowania
+  $(".theClass, .mylabel").on("click", function (e) {
+    console.log("[click .theClass / .mylabel] Kliknięcie:", this);
+    resetOrderTimer();
   });
 
-  // Kliknięcie gdziekolwiek indziej w interfejsie
-  $("body").on("click", function () {
-    console.log("[click body] Kliknięcie poza .theClass / .mylabel");
-
-    if (timer) {
-      console.log("[click body] Timer istnieje - uruchamiam CreateOrder");
-      triggerCreateOrder();
-    } else {
-      console.log("[click body] Timer nie istnieje - nic nie robię");
-    }
+  // Kliknięcie w dowolnym innym miejscu w aplikacji
+  $(".interface-wrapper").on("click", function (e) {
+    console.log("[click .interface-wrapper] Kliknięcie w interfejsie");
+    resetOrderTimer();
   });
 
   $("#spliterProceed").on("click", function (e) {
