@@ -1012,10 +1012,7 @@ docReady(function () {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get("confirmed") === "true") {
               // Ukryj elementy jak po kliknięciu lockOrderButton
-              $(
-                "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup",
-                "#cart"
-              ).hide();
+              $("#addProducts").hide();
               $("#lockOrderDiv").hide();
 
               // Pobierz wszystkie dane z tabeli
@@ -1096,9 +1093,7 @@ docReady(function () {
     $("#lockOrderDiv").css("display", "flex");
 
     $("#lockOrderButton").one("click", function () {
-      $(
-        "#settings, #addProducts, #splittedProductsSection, #splitButtonsGroup"
-      ).hide();
+      $("#addProducts").hide();
       $("#lockOrderDiv").hide();
 
       // Pobierz dane z tabeli
