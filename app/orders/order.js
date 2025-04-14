@@ -1090,20 +1090,25 @@ docReady(function () {
     });
   }
 
-  let timer = null;
+  const DELAY = 2000;
 
-  function startOrResetTimer() {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      CreateOrder();
-      timer = null;
-    }, 2000);
+  function triggerCreateOrder() {
+    clearTimeout(timer);
+    timer = null;
+    CreateOrder();
   }
 
-  // Obsługa kliknięcia checkboxa
-  $(".theClass").on("click", function () {
-    console.log("Kliknieto checkbox");
-    startOrResetTimer();
+  // Kliknięcie na checkbox lub label rozpoczyna/resetuje odliczanie
+  $(".theClass, .mylabel").on("click", function (e) {
+    e.stopPropagation();
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(triggerCreateOrder, DELAY);
+  });
+
+  // Jeśli klikniemy gdziekolwiek indziej w interfejsie aplikacji
+  // (bez document), musisz dodać kontener, np. div o klasie ".interface-wrapper"
+  $("body").on("click", function () {
+    if (timer) triggerCreateOrder();
   });
 
   $("#spliterProceed").on("click", function (e) {
