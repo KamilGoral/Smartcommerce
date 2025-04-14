@@ -743,6 +743,7 @@ docReady(function () {
           columns: [
             {
               orderable: false,
+              width: "48px",
               data: null,
               defaultContent:
                 '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
