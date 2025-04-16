@@ -4691,6 +4691,12 @@ docReady(function () {
     return changesPayload.length > 0 && !comingFromDetails;
   }
 
+  function shouldGetSplittedProducts() {
+    const isSplittedVisible = $("#splitted-products").is(":visible");
+    const hasChanges = changesPayload.length > 0;
+    return !isSplittedVisible || hasChanges;
+  }
+
   $("a[data-w-tab]").on("click", async function () {
     const tab = $(this).data("w-tab");
     const comingFromDetails = previousTab === "Details";
