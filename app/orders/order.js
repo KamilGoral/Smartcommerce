@@ -4650,13 +4650,40 @@ docReady(function () {
     }
   );
 
+  $('a[data-w-tab="AddProducts"]').on("click", function () {
+    setTimeout(function () {
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust(); // 1000 milliseconds = 1 second
+    }, 300);
+  });
+
   $('a[data-w-tab="Cart"]').on("click", function () {
     GetSplittedProducts();
+    setTimeout(function () {
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust(); // 1000 milliseconds = 1 second
+    }, 300);
   });
 
   $('a[data-w-tab="Details"]').on("click", function () {
     console.log("click Details");
     CreateOrder();
+    setTimeout(function () {
+      $.fn.dataTable
+        .tables({
+          visible: true,
+          api: true,
+        })
+        .columns.adjust(); // 1000 milliseconds = 1 second
+    }, 300);
   });
 
   $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
@@ -4692,17 +4719,8 @@ docReady(function () {
 
   if (tabToClick === "add") {
     setTimeout(function () {
-      clickTab("addProducts"); // Click the 'Add' tab if the parameter is present
+      clickTab("AddProducts"); // Click the 'Add' tab if the parameter is present
     }, 2000);
-
-    setTimeout(function () {
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust(); // 1000 milliseconds = 1 second
-    }, 300);
   } else {
     console.log("tab is not add so create order");
     CreateOrder(); // Fire CreateOrder() if the parameter is not present
