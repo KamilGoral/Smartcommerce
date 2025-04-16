@@ -4691,11 +4691,6 @@ docReady(function () {
     return changesPayload.length > 0 && !comingFromDetails;
   }
 
-  function shouldGetSplittedProducts() {
-    const hasChanges = changesPayload.length > 0;
-    return hasChanges;
-  }
-
   $("a[data-w-tab]").on("click", async function () {
     const tab = $(this).data("w-tab");
     const comingFromDetails = previousTab === "Details";
@@ -4704,9 +4699,8 @@ docReady(function () {
       if (shouldCreateOrder(comingFromDetails)) {
         try {
           await CreateOrder();
-          if (shouldGetSplittedProducts()) {
-            GetSplittedProducts();
-          }
+
+          GetSplittedProducts();
         } catch (err) {
           console.error("Błąd przy tworzeniu zamówienia:", err);
         }
