@@ -538,8 +538,6 @@ docReady(function () {
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
 
-    getOfferStatus();
-
     if (exludedWholesalersAlready.length > 0) {
       UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready;
     }
@@ -3577,8 +3575,6 @@ docReady(function () {
         QStr = QStr + sort;
       }
 
-      getOfferStatus();
-
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
@@ -4729,6 +4725,7 @@ docReady(function () {
   }
 
   getWholesalersSh();
+  getOfferStatus();
   fetchDataFromEndpoint();
   getShop();
 
