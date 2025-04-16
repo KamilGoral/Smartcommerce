@@ -4653,6 +4653,10 @@ docReady(function () {
     }, 300);
   }
 
+  function shouldCreateOrder(comingFromDetails) {
+    return changesPayload.length > 0 && !comingFromDetails;
+  }
+
   $("a[data-w-tab]").on("click", function () {
     const tab = $(this).data("w-tab");
     console.log(`click ${tab}`);
@@ -4660,16 +4664,15 @@ docReady(function () {
     const comingFromDetails = previousTab === "Details";
 
     if (tab === "Cart") {
-      if (!comingFromDetails) CreateOrder();
+      if (shouldCreateOrder(comingFromDetails)) CreateOrder();
       GetSplittedProducts();
     } else if (tab === "AddProducts") {
-      if (!comingFromDetails) CreateOrder();
+      if (shouldCreateOrder(comingFromDetails)) CreateOrder();
     } else if (tab === "Details") {
-      CreateOrder();
+      if (changesPayload.length > 0) CreateOrder();
     }
 
     adjustDataTablesColumns();
-
     previousTab = tab;
   });
 
