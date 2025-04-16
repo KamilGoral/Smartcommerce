@@ -4121,123 +4121,92 @@ docReady(function () {
   });
 
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
-    // Get the right table
-    var table = $("#table_splited_wh").DataTable();
-    var cell = $(this).closest("td");
-    var row = $(this).closest("tr");
-    var data = table.row($(this).parents("tr")).data();
+    const table = $("#table_splited_wh").DataTable();
+    const row = $(this).closest("tr");
+    const data = table.row(row).data();
+    const fileformat = $(this).attr("fileformat");
+    const anchor = document.createElement("a");
+    document.body.appendChild(anchor);
+    $("#waitingdots").show();
 
-    if (!data || !data.wholesalerKey) {
-      var fileformat = $(this).attr("fileformat");
-      const downloadLink = new URL(
-        InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/wholesalers?filesFormat=" +
-          fileformat
-      );
-      let anchor = document.createElement("a");
-      document.body.appendChild(anchor);
-      $("#waitingdots").show();
-      var headersResponse = [];
-      fetch(downloadLink, {
+    const downloadFile = (url, fileName, onSuccess) => {
+      fetch(url, {
         headers: {
-          Accept: "application/zip",
+          Accept: fileformat,
           Authorization: orgToken,
           "Requested-By": "webflow-3-4",
         },
       })
         .then((res) => {
-          if (res && res.headers) {
-            res.headers.forEach((e) => headersResponse.push(e));
-          }
-          return res.blob();
+          const headersResponse = [];
+          res.headers.forEach((e) => headersResponse.push(e));
+          return Promise.all([res.blob(), headersResponse]);
         })
-        .then((blobby) => {
+        .then(([blob, headersResponse]) => {
           $("#waitingdots").hide();
-          if (
-            headersResponse.length > 0 &&
-            headersResponse[0].includes("filename=")
-          ) {
-            var fileName = headersResponse[0].split("filename=")[1];
-            let objectUrl = window.URL.createObjectURL(blobby);
-            anchor.href = objectUrl;
-            anchor.download = fileName;
-            anchor.click();
-            window.URL.revokeObjectURL(objectUrl);
-            // tutaj aktualizacja tabeli po kliknięciu
-            var rowIndex = table.row(row).index();
-            var rowData = table.row(row).data();
-            rowData.confirmed = true;
-            table.row(row).data(rowData).invalidate().draw(false);
-          } else {
+
+          const filenameHeader = headersResponse.find((h) =>
+            h.includes("filename=")
+          );
+          if (!filenameHeader) {
             console.error("Filename not found in the response headers.");
+            return;
           }
+
+          const fileNameFromHeader = filenameHeader.split("filename=")[1];
+          const objectUrl = URL.createObjectURL(blob);
+          anchor.href = objectUrl;
+          anchor.download = fileNameFromHeader;
+          anchor.click();
+          URL.revokeObjectURL(objectUrl);
+
+          if (onSuccess) onSuccess();
         })
         .catch((error) => {
+          $("#waitingdots").hide();
           console.error("Error fetching the file:", error);
         });
-    } else {
-      var fileformat = $(this).attr("fileformat");
-      var wholesalerKey = data.wholesalerKey;
-      const downloadLink = new URL(
-        InvokeURL +
-          "shops/" +
-          shopKey +
-          "/orders/" +
-          orderId +
-          "/wholesalers/" +
-          wholesalerKey
+    };
+
+    const updateRowStatus = (matchFn = () => true) => {
+      table.rows().every(function () {
+        const rowData = this.data();
+        if (!matchFn(rowData)) return;
+
+        const rowNode = this.node();
+        const statusCell = rowNode.querySelector("td.status-column");
+
+        if (statusCell) {
+          statusCell.innerHTML =
+            '<span class="status-badge positive" data-tippy-content="Zatwierdzone ' +
+            new Date().toLocaleString() +
+            '">Zatwierdzone</span>';
+        } else {
+          console.error("Status cell not found in row");
+        }
+
+        table.draw(false);
+        return false; // break loop after update
+      });
+    };
+
+    if (!data || !data.wholesalerKey) {
+      const downloadUrl = new URL(
+        `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers?filesFormat=${fileformat}`
       );
-      let anchor = document.createElement("a");
-      document.body.appendChild(anchor);
-      let headers = new Headers();
-      headers.append("Authorization", orgToken);
-      headers.append("Accept", fileformat);
-      $("#waitingdots").show();
-      var headersResponse = [];
 
-      fetch(downloadLink, {
-        headers,
-      })
-        .then((res) => {
-          res.headers.forEach((e) => headersResponse.push(e));
-          return res.blob();
-        })
-        .then((blobby) => {
-          $("#waitingdots").hide();
-          let objectUrl = URL.createObjectURL(blobby);
-          return objectUrl;
-        })
-        .then((uril) => {
-          if (
-            headersResponse.length > 0 &&
-            headersResponse[0].includes("filename=")
-          ) {
-            var fileName = headersResponse[0].split("filename=")[1];
-            var link = document.createElement("a");
-            link.href = uril;
-            link.download = "" + fileName;
-            link.target = "_blank";
-            document.body.appendChild(link);
-            anchor.click();
-            link.click();
+      downloadFile(downloadUrl, fileformat, () => {
+        updateRowStatus(); // aktualizuj wszystkie, bo brak konkretnego wholesalera
+      });
+    } else {
+      const wholesalerKey = data.wholesalerKey;
+      const downloadUrl = new URL(
+        `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers/${wholesalerKey}`
+      );
 
-            var rowIndex = table.row(row).index();
-            var rowData = table.row(row).data();
-
-            // oznacz jako pobrane
-            rowData.confirmed = true;
-
-            // update danych w datatable
-            table.row(row).data(rowData).invalidate().draw(false);
-            document.body.removeChild(link);
-          } else {
-            console.error("Filename not found in the response headers.");
-          }
-        });
+      downloadFile(downloadUrl, fileformat, () => {
+        updateRowStatus((rowData) => rowData.wholesalerKey === wholesalerKey);
+      });
     }
   });
 
