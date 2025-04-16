@@ -553,220 +553,223 @@ docReady(function () {
       "/split?" +
       UrlParameters;
 
-    $.ajax({
-      type: method,
-      url: action,
-      cors: true,
-      beforeSend: function () {
-        $("#waitingdots").show();
-      },
-      complete: function () {
-        $("#waitingdots").hide();
-      },
-      contentType: "application/json",
-      dataType: "json",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      processData: false,
-      success: function (resultData) {
-        if (typeof successCallback === "function") {
-          result = successCallback(resultData);
-          if (!result) {
-            return;
+    return await new Promise((resolve, reject) => {
+      $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        processData: false,
+        success: function (resultData) {
+          if (typeof successCallback === "function") {
+            result = successCallback(resultData);
+            if (!result) {
+              return;
+            }
           }
-        }
-        $("#table-content").show();
+          $("#table-content").show();
 
-        var data = resultData;
+          var data = resultData;
 
-        const setElementContent = (elementId, content, percentage) => {
-          const element = document.getElementById(elementId);
-          if (element === null) {
-            console.error(`Element with ID '${elementId}' not found.`);
-            return; // Exit the function if the element is not found
-          }
-          if (content === null) {
-            element.textContent = "-";
-            return;
-          }
-          const numericContent = Number(content);
-          const formattedContent = isNaN(numericContent)
-            ? "-"
-            : `${numericContent.toFixed(2)} zł${
-                percentage ? ` (${percentage.toFixed(2)}%)` : ""
-              }`;
-          element.textContent = formattedContent;
-        };
+          const setElementContent = (elementId, content, percentage) => {
+            const element = document.getElementById(elementId);
+            if (element === null) {
+              console.error(`Element with ID '${elementId}' not found.`);
+              return; // Exit the function if the element is not found
+            }
+            if (content === null) {
+              element.textContent = "-";
+              return;
+            }
+            const numericContent = Number(content);
+            const formattedContent = isNaN(numericContent)
+              ? "-"
+              : `${numericContent.toFixed(2)} zł${
+                  percentage ? ` (${percentage.toFixed(2)}%)` : ""
+                }`;
+            element.textContent = formattedContent;
+          };
 
-        const userRole = getCookie("sprytnyUserRole");
+          const userRole = getCookie("sprytnyUserRole");
 
-        // Calculate savings and update elements
-        const calculateAndSetSavings = (values, prefix = "") => {
-          const savingsValue = values.avg - values.total;
-          const savingsPercentage = (savingsValue / values.avg) * 100;
-          setElementContent(`${prefix}totalValue`, values.total);
-          setElementContent(`${prefix}avgValue`, values.avg);
-          return { savingsValue, savingsPercentage };
-        };
+          // Calculate savings and update elements
+          const calculateAndSetSavings = (values, prefix = "") => {
+            const savingsValue = values.avg - values.total;
+            const savingsPercentage = (savingsValue / values.avg) * 100;
+            setElementContent(`${prefix}totalValue`, values.total);
+            setElementContent(`${prefix}avgValue`, values.avg);
+            return { savingsValue, savingsPercentage };
+          };
 
-        const { savingsValue, savingsPercentage } = calculateAndSetSavings(
-          data.netValues
-        );
-        const {
-          savingsNetValue: savingsNetValue,
-          savingsNetPercentage: savingsNetPercentage,
-        } = calculateAndSetSavings(data.netNetValues, "net");
-
-        // Determine text color
-        const textColor =
-          savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
-
-        // Set savings content based on condition
-        if (savingsValue >= 0) {
-          setElementContent("savings", savingsValue, savingsPercentage);
-        } else {
-          setElementContent("savings", "Zamówienie nieoptymalne");
-        }
-
-        // Set savingsNet content based on condition
-        if (savingsNetValue >= 0) {
-          setElementContent("savingsNet", "Zamówienie nieoptymalne");
-        } else if (
-          userRole === "admin" &&
-          data.netValues.total !== data.netNetValues.total
-        ) {
-          setElementContent(
-            "savingsNet",
-            savingsNetValue,
-            savingsNetPercentage
+          const { savingsValue, savingsPercentage } = calculateAndSetSavings(
+            data.netValues
           );
-        }
+          const {
+            savingsNetValue: savingsNetValue,
+            savingsNetPercentage: savingsNetPercentage,
+          } = calculateAndSetSavings(data.netNetValues, "net");
 
-        // Adjust content color
-        ["savings", "savingsNet"].forEach((id) => {
-          const element = document.getElementById(id);
-          if (element) element.style.color = textColor;
-        });
+          // Determine text color
+          const textColor =
+            savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
 
-        var toParse = data.items;
-        toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
-        $("#splitedwhcontainer").show();
-
-        function getStatusHtml(item) {
-          // Dodatkowe klasy CSS dla różnych statusów
-          const statusClasses = {
-            "in progress": "positive",
-            pending: "noneexisting",
-            ready: "positive",
-            error: "negative",
-            incomplete: "medium",
-            batching: "noneexisting",
-            forced: "noneexisting",
-          };
-
-          // Teksty dla statusów
-          const statusTexts = {
-            "in progress": "Zatwierdzone",
-            pending: "Szkic",
-            ready: "Gotowa",
-            error: "Problem",
-            incomplete: "Niekompletna",
-            batching: "W kolejce",
-            forced: "W kolejce",
-          };
-
-          // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
-          function formatDateToPolishTime(dateString) {
-            const date = new Date(dateString);
-            const options = { timeZone: "Europe/Warsaw", hour12: false };
-            return date.toLocaleString("pl-PL", options).replace(",", "");
+          // Set savings content based on condition
+          if (savingsValue >= 0) {
+            setElementContent("savings", savingsValue, savingsPercentage);
+          } else {
+            setElementContent("savings", "Zamówienie nieoptymalne");
           }
 
-          const baseClass = "status-badge";
-          const statusClass = statusClasses[item.status] || "noneexisting";
-          const text = statusTexts[item.status] || "-";
+          // Set savingsNet content based on condition
+          if (savingsNetValue >= 0) {
+            setElementContent("savingsNet", "Zamówienie nieoptymalne");
+          } else if (
+            userRole === "admin" &&
+            data.netValues.total !== data.netNetValues.total
+          ) {
+            setElementContent(
+              "savingsNet",
+              savingsNetValue,
+              savingsNetPercentage
+            );
+          }
 
-          // Formatowanie daty dla confirmedAt
-          const formattedDate = item.confirmedAt
-            ? formatDateToPolishTime(item.confirmedAt)
-            : null;
+          // Adjust content color
+          ["savings", "savingsNet"].forEach((id) => {
+            const element = document.getElementById(id);
+            if (element) element.style.color = textColor;
+          });
 
-          // Ustawienie tekstu w zależności od tego, czy jest data
-          const tippyText = formattedDate
-            ? `Potwierdzono ${formattedDate}`
-            : "Oczekuję";
+          var toParse = data.items;
+          toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+          $("#splitedwhcontainer").show();
 
-          // Generowanie span z atrybutem data-tippy-content
-          return `<span class="${baseClass} ${statusClass}" data-tippy-content="${tippyText}">${text}</span>`;
-        }
+          function getStatusHtml(item) {
+            // Dodatkowe klasy CSS dla różnych statusów
+            const statusClasses = {
+              "in progress": "positive",
+              pending: "noneexisting",
+              ready: "positive",
+              error: "negative",
+              incomplete: "medium",
+              batching: "noneexisting",
+              forced: "noneexisting",
+            };
 
-        var table = $("#table_splited_wh").DataTable({
-          pagingType: "full_numbers",
-          pageLength: 25,
-          destroy: true,
-          orderMulti: true,
-          order: [[2, "desc"]],
-          dom: '<"top">rt<"bottom"lip><"clear">',
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'</div>",
-            processing: "<div class='spinner'</div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          data: data.items,
-          search: {
-            return: true,
-          },
-          columns: [
-            {
-              orderable: false,
-              width: "48px",
-              data: null,
-              defaultContent:
-                '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
-            },
-            {
-              orderable: true,
-              width: "auto",
-              data: null,
-              render: function (data) {
-                if (data.wholesalerName === "unassigned") {
-                  return "Nieprzydzielone";
-                }
-                return data.wholesalerName;
+            // Teksty dla statusów
+            const statusTexts = {
+              "in progress": "Zatwierdzone",
+              pending: "Szkic",
+              ready: "Gotowa",
+              error: "Problem",
+              incomplete: "Niekompletna",
+              batching: "W kolejce",
+              forced: "W kolejce",
+            };
+
+            // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
+            function formatDateToPolishTime(dateString) {
+              const date = new Date(dateString);
+              const options = { timeZone: "Europe/Warsaw", hour12: false };
+              return date.toLocaleString("pl-PL", options).replace(",", "");
+            }
+
+            const baseClass = "status-badge";
+            const statusClass = statusClasses[item.status] || "noneexisting";
+            const text = statusTexts[item.status] || "-";
+
+            // Formatowanie daty dla confirmedAt
+            const formattedDate = item.confirmedAt
+              ? formatDateToPolishTime(item.confirmedAt)
+              : null;
+
+            // Ustawienie tekstu w zależności od tego, czy jest data
+            const tippyText = formattedDate
+              ? `Potwierdzono ${formattedDate}`
+              : "Oczekuję";
+
+            // Generowanie span z atrybutem data-tippy-content
+            return `<span class="${baseClass} ${statusClass}" data-tippy-content="${tippyText}">${text}</span>`;
+          }
+
+          var table = $("#table_splited_wh").DataTable({
+            pagingType: "full_numbers",
+            pageLength: 25,
+            destroy: true,
+            orderMulti: true,
+            order: [[2, "desc"]],
+            dom: '<"top">rt<"bottom"lip><"clear">',
+            language: {
+              emptyTable: "Brak danych do wyświetlenia",
+              info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+              infoEmpty: "Brak danych",
+              infoFiltered: "(z _MAX_ rezultatów)",
+              lengthMenu: "Pokaż _MENU_ rekordów",
+              loadingRecords: "<div class='spinner'</div>",
+              processing: "<div class='spinner'</div>",
+              search: "Szukaj:",
+              zeroRecords: "Brak pasujących rezultatów",
+              paginate: {
+                first: "<<",
+                last: ">>",
+                next: " >",
+                previous: "< ",
+              },
+              aria: {
+                sortAscending: ": Sortowanie rosnące",
+                sortDescending: ": Sortowanie malejące",
               },
             },
-            {
-              orderable: true,
-              data: "netValue",
-              width: "108px",
-              className: "dt-right",
-              render: function (data, type, row) {
-                // Dla wyświetlania i sortowania zwracamy czystą wartość
-                if (type === "display" || type === "filter") {
-                  if (row.logisticMinimum !== null) {
-                    var toGo = (row.logisticMinimum - row.netValue).toFixed(2);
-                    if (toGo > 0) {
-                      return `
+            data: data.items,
+            search: {
+              return: true,
+            },
+            columns: [
+              {
+                orderable: false,
+                width: "48px",
+                data: null,
+                defaultContent:
+                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
+              },
+              {
+                orderable: true,
+                width: "auto",
+                data: null,
+                render: function (data) {
+                  if (data.wholesalerName === "unassigned") {
+                    return "Nieprzydzielone";
+                  }
+                  return data.wholesalerName;
+                },
+              },
+              {
+                orderable: true,
+                data: "netValue",
+                width: "108px",
+                className: "dt-right",
+                render: function (data, type, row) {
+                  // Dla wyświetlania i sortowania zwracamy czystą wartość
+                  if (type === "display" || type === "filter") {
+                    if (row.logisticMinimum !== null) {
+                      var toGo = (row.logisticMinimum - row.netValue).toFixed(
+                        2
+                      );
+                      if (toGo > 0) {
+                        return `
                                   <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
                                        data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
                                       <span style="color: #8E1212; display: flex; align-items: center;">
@@ -777,288 +780,309 @@ docReady(function () {
                                       <span>${data}zł</span>
                                   </div>
                               `;
+                      }
                     }
+                    return `${data}zł`;
                   }
-                  return `${data}zł`;
-                }
-                // Dla sortowania zwracamy oryginalną wartość liczbową
-                return data;
+                  // Dla sortowania zwracamy oryginalną wartość liczbową
+                  return data;
+                },
+                type: "num", // Określamy, że to kolumna numeryczna
               },
-              type: "num", // Określamy, że to kolumna numeryczna
-            },
-            {
-              orderable: true,
-              data: "products",
-              width: "108px",
-              render: function (data, type, row) {
-                // Sprawdź czy wholesalerName to "unassigned"
-                const isUnassigned = row.wholesalerName === "unassigned";
+              {
+                orderable: true,
+                data: "products",
+                width: "108px",
+                render: function (data, type, row) {
+                  // Sprawdź czy wholesalerName to "unassigned"
+                  const isUnassigned = row.wholesalerName === "unassigned";
 
-                // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
-                if (type === "sort" || type === "type") {
+                  // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
+                  if (type === "sort" || type === "type") {
+                    var bestMatch = data.bestMatch || 0;
+                    var exclusive = data.exclusive || 0;
+                    var order = data.order || 0;
+                    return bestMatch + exclusive + order; // Zwraca total dla sortowania
+                  }
+
+                  // Normalne renderowanie dla wyświetlania
                   var bestMatch = data.bestMatch || 0;
                   var exclusive = data.exclusive || 0;
                   var order = data.order || 0;
-                  return bestMatch + exclusive + order; // Zwraca total dla sortowania
-                }
+                  var total = bestMatch + exclusive + order;
 
-                // Normalne renderowanie dla wyświetlania
-                var bestMatch = data.bestMatch || 0;
-                var exclusive = data.exclusive || 0;
-                var order = data.order || 0;
-                var total = bestMatch + exclusive + order;
-
-                if (isUnassigned) {
-                  return `<div class="progress-bar-container" title="Nieprzydzielono">
+                  if (isUnassigned) {
+                    return `<div class="progress-bar-container" title="Nieprzydzielono">
                             <div class="progress-bar" style="width: 100%; background-color: #cccccc; border-radius: 5px;">
                               <span class="segment-count">${total}</span>
                             </div>
                           </div>`;
-                }
-
-                var progressBars = [];
-                var currentPosition = 0;
-
-                function addSegment(value, color, title, isFirst, isLast) {
-                  if (value <= 0) return;
-
-                  var width = (value / total) * 100;
-                  var borderRadius = "";
-
-                  if (isFirst && isLast) {
-                    borderRadius = "border-radius: 5px;";
-                  } else if (isFirst) {
-                    borderRadius = "border-radius: 5px 0 0 5px;";
-                  } else if (isLast) {
-                    borderRadius = "border-radius: 0 5px 5px 0;";
                   }
 
-                  progressBars.push(
-                    `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}">
+                  var progressBars = [];
+                  var currentPosition = 0;
+
+                  function addSegment(value, color, title, isFirst, isLast) {
+                    if (value <= 0) return;
+
+                    var width = (value / total) * 100;
+                    var borderRadius = "";
+
+                    if (isFirst && isLast) {
+                      borderRadius = "border-radius: 5px;";
+                    } else if (isFirst) {
+                      borderRadius = "border-radius: 5px 0 0 5px;";
+                    } else if (isLast) {
+                      borderRadius = "border-radius: 0 5px 5px 0;";
+                    }
+
+                    progressBars.push(
+                      `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}">
                        <span class="segment-count">${value}</span>
                      </div>`
-                  );
-                  currentPosition += width;
-                }
+                    );
+                    currentPosition += width;
+                  }
 
-                var segments = [
-                  {
-                    value: bestMatch,
-                    color: "#CAEDC4",
-                    title: "Najlepszy wybór",
-                  },
-                  { value: exclusive, color: "#F5E8E3", title: "Blokada" },
-                  {
-                    value: order,
-                    color: "#FFF8E2",
-                    title: "Wybór użytkownika",
-                  },
-                ].filter((seg) => seg.value > 0);
+                  var segments = [
+                    {
+                      value: bestMatch,
+                      color: "#CAEDC4",
+                      title: "Najlepszy wybór",
+                    },
+                    { value: exclusive, color: "#F5E8E3", title: "Blokada" },
+                    {
+                      value: order,
+                      color: "#FFF8E2",
+                      title: "Wybór użytkownika",
+                    },
+                  ].filter((seg) => seg.value > 0);
 
-                segments.forEach((seg, index) => {
-                  addSegment(
-                    seg.value,
-                    seg.color,
-                    seg.title,
-                    index === 0,
-                    index === segments.length - 1
-                  );
-                });
+                  segments.forEach((seg, index) => {
+                    addSegment(
+                      seg.value,
+                      seg.color,
+                      seg.title,
+                      index === 0,
+                      index === segments.length - 1
+                    );
+                  });
 
-                var tooltipParts = [];
-                if (bestMatch > 0)
-                  tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
-                if (exclusive > 0) tooltipParts.push(`Blokada: ${exclusive}`);
-                if (order > 0) tooltipParts.push(`Wybór użytkownika: ${order}`);
+                  var tooltipParts = [];
+                  if (bestMatch > 0)
+                    tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
+                  if (exclusive > 0) tooltipParts.push(`Blokada: ${exclusive}`);
+                  if (order > 0)
+                    tooltipParts.push(`Wybór użytkownika: ${order}`);
 
-                var tooltip = tooltipParts.join(", ");
+                  var tooltip = tooltipParts.join(", ");
 
-                return `<div class="progress-bar-container" title="${
-                  tooltip || "Brak produktów"
-                }">
+                  return `<div class="progress-bar-container" title="${
+                    tooltip || "Brak produktów"
+                  }">
                           ${total > 0 ? progressBars.join("") : ""}
                         </div>`;
+                },
+                type: "num",
+                defaultContent: "",
               },
-              type: "num",
-              defaultContent: "",
-            },
-            {
-              orderable: true,
-              data: null, // Używamy null, bo będziemy korzystać z całego wiersza
-              name: "statusColumn",
-              width: "92px",
-              render: function (data, type, row) {
-                if (data.wholesalerName === "unassigned") {
-                  return "";
-                }
+              {
+                orderable: true,
+                data: null, // Używamy null, bo będziemy korzystać z całego wiersza
+                name: "statusColumn",
+                width: "92px",
+                render: function (data, type, row) {
+                  if (data.wholesalerName === "unassigned") {
+                    return "";
+                  }
 
-                // Określ status na podstawie confirmedAt
-                const status = data.confirmedAt ? "in progress" : "pending";
+                  // Określ status na podstawie confirmedAt
+                  const status = data.confirmedAt ? "in progress" : "pending";
 
-                // Generuj badge
-                return getStatusHtml({
-                  status: status,
-                  confirmed: data.confirmed,
-                  confirmedAt: data.confirmedAt,
-                });
+                  // Generuj badge
+                  return getStatusHtml({
+                    status: status,
+                    confirmed: data.confirmed,
+                    confirmedAt: data.confirmedAt,
+                  });
+                },
+                className: "status-column",
               },
-              className: "status-column",
-            },
-            {
-              orderable: false,
-              data: "wholesalerKey",
-              width: "108px",
-              render: function (data, type, row) {
-                // File icon definitions
-                const icons = {
-                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
-                  csvAgra:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
-                  csvMirex:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
-                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
-                };
+              {
+                orderable: false,
+                data: "wholesalerKey",
+                width: "108px",
+                render: function (data, type, row) {
+                  // File icon definitions
+                  const icons = {
+                    text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
+                    csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                    csvAgra:
+                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                    csvMirex:
+                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                    pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
+                    xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
+                  };
 
-                const wholesalerConfigs = {
-                  agra: {
-                    default: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
-                    suzyw123: [icons.text, icons.csvAgra, icons.pdf, icons.xls],
-                  },
-                  mirex: {
-                    default: [icons.text, icons.csvMirex, icons.pdf, icons.xls],
-                    suzyw123: [icons.text, icons.pdf, icons.xls],
-                  },
-                  "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
-                  "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
-                  "mag-dystrybucja": {
-                    default: [icons.xls],
-                    suzyw123: [icons.xls],
-                  },
-                  merkury: { default: [icons.xls], suzyw123: [icons.xls] },
-                  default: {
-                    default: [icons.text, icons.csv, icons.pdf, icons.xls],
-                    suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
-                  },
-                };
+                  const wholesalerConfigs = {
+                    agra: {
+                      default: [
+                        icons.text,
+                        icons.csvAgra,
+                        icons.pdf,
+                        icons.xls,
+                      ],
+                      suzyw123: [
+                        icons.text,
+                        icons.csvAgra,
+                        icons.pdf,
+                        icons.xls,
+                      ],
+                    },
+                    mirex: {
+                      default: [
+                        icons.text,
+                        icons.csvMirex,
+                        icons.pdf,
+                        icons.xls,
+                      ],
+                      suzyw123: [icons.text, icons.pdf, icons.xls],
+                    },
+                    "kd-tedi": { default: [icons.xls], suzyw123: [icons.xls] },
+                    "kd-tano": { default: [icons.xls], suzyw123: [icons.xls] },
+                    "mag-dystrybucja": {
+                      default: [icons.xls],
+                      suzyw123: [icons.xls],
+                    },
+                    merkury: { default: [icons.xls], suzyw123: [icons.xls] },
+                    default: {
+                      default: [icons.text, icons.csv, icons.pdf, icons.xls],
+                      suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
+                    },
+                  };
 
-                const isSuzyw123 = OrganizationName === "Suzyw123";
-                const configKey = isSuzyw123 ? "suzyw123" : "default";
-                const config =
-                  wholesalerConfigs[data] || wholesalerConfigs["default"];
-                const fileIcons = config[configKey];
+                  const isSuzyw123 = OrganizationName === "Suzyw123";
+                  const configKey = isSuzyw123 ? "suzyw123" : "default";
+                  const config =
+                    wholesalerConfigs[data] || wholesalerConfigs["default"];
+                  const fileIcons = config[configKey];
 
-                if (data === "unassigned") {
-                  return `
+                  if (data === "unassigned") {
+                    return `
                     <div style="display: flex; align-items: center; gap: 6px;">
                       ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
                     </div>
                   `;
-                }
+                  }
 
-                return `
+                  return `
                   <div style="display: flex; align-items: center; gap: 6px;">
                     ${fileIcons.join("")}
                   </div>
                 `;
+                },
               },
-            },
-            {
-              orderable: false,
-              width: "160px",
-              data: "wholesalerKey",
-              render: function (data, type, row) {
-                const icons = {
-                  email:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b1ffe0fd89838860cf_sendButton.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
-                };
+              {
+                orderable: false,
+                width: "160px",
+                data: "wholesalerKey",
+                render: function (data, type, row) {
+                  const icons = {
+                    email:
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b1ffe0fd89838860cf_sendButton.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
+                  };
 
-                if (data === "unassigned") {
-                  return ""; // brak akcji dla 'unassigned'
-                }
+                  if (data === "unassigned") {
+                    return ""; // brak akcji dla 'unassigned'
+                  }
 
-                const skipCheckbox = `
+                  const skipCheckbox = `
                   <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
-                  row.confirmedAt ? "disabled" : ""
-                } />
+                    row.confirmedAt ? "disabled" : ""
+                  } />
                   <label class="mylabel" for="${data}" style="margin: 0;"></label>
                 `;
 
-                return `
+                  return `
                   <div style="display: flex; align-items: center; gap: 8px;">
                     ${skipCheckbox}
                     ${icons.email}
                   </div>
                 `;
+                },
               },
+            ],
+            initComplete: function (settings, json) {
+              var textBox = $("#table_splited_wh filter label input");
+              textBox.unbind();
+              textBox.bind("keyup input", function (e) {
+                if (e.keyCode == 13) {
+                  api.search(this.value).draw();
+                }
+              });
             },
-          ],
-          initComplete: function (settings, json) {
-            var textBox = $("#table_splited_wh filter label input");
-            textBox.unbind();
-            textBox.bind("keyup input", function (e) {
-              if (e.keyCode == 13) {
-                api.search(this.value).draw();
-              }
-            });
-          },
-        });
-        return false;
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        if (jqXHR.status === 422) {
-          var response = JSON.parse(jqXHR.responseText);
-          var translatedError = "";
+          });
+          return false;
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          if (jqXHR.status === 422) {
+            var response = JSON.parse(jqXHR.responseText);
+            var translatedError = "";
 
-          if (
-            response.message ===
-            "Unable to split requested order: no products to split."
-          ) {
-            translatedError =
-              "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
-          } else if (
-            response.message.includes(
-              "Quantities of products exceed limit for GTINs"
-            )
-          ) {
-            // Extract GTINs from the message
-            var gtins = response.message.match(/\[([^\]]+)\]/)[1];
-            translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
-          } else if (
-            response.message.includes("Exceptions occurred for GTINs")
-          ) {
-            // Extract GTINs from the message
-            var gtins = response.message.match(/\[([^\]]+)\]/)[1];
-            translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
-          } else if (
-            response.message ===
-            "Total value for the order exceeded the available limit."
-          ) {
-            translatedError =
-              "Całkowita wartość zamówienia przekroczyła dostępny limit.";
-          }
+            if (
+              response.message ===
+              "Unable to split requested order: no products to split."
+            ) {
+              translatedError =
+                "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
+            } else if (
+              response.message.includes(
+                "Quantities of products exceed limit for GTINs"
+              )
+            ) {
+              // Extract GTINs from the message
+              var gtins = response.message.match(/\[([^\]]+)\]/)[1];
+              translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
+            } else if (
+              response.message.includes("Exceptions occurred for GTINs")
+            ) {
+              // Extract GTINs from the message
+              var gtins = response.message.match(/\[([^\]]+)\]/)[1];
+              translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
+            } else if (
+              response.message ===
+              "Total value for the order exceeded the available limit."
+            ) {
+              translatedError =
+                "Całkowita wartość zamówienia przekroczyła dostępny limit.";
+            }
 
-          if (translatedError) {
-            console.error(translatedError);
-            displayMessage("Error", translatedError);
+            if (translatedError) {
+              console.error(translatedError);
+              displayMessage("Error", translatedError);
+            }
           }
-        }
-        if (jqXHR.status === 404) {
-          try {
-            displayMessage(
-              "Error",
-              "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
-            );
-            window.setTimeout(function () {
-              window.location.href =
-                "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
-            }, 4000);
-          } catch (e) {
-            console.error("Error while parsing response:", e);
+          if (jqXHR.status === 404) {
+            try {
+              displayMessage(
+                "Error",
+                "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
+              );
+              window.setTimeout(function () {
+                window.location.href =
+                  "https://" +
+                  DomainName +
+                  "/app/shops/shop?shopKey=" +
+                  shopKey;
+              }, 4000);
+            } catch (e) {
+              console.error("Error while parsing response:", e);
+            }
           }
-        }
-      },
+          reject(errorThrown);
+        },
+      });
     });
   }
 
@@ -4655,42 +4679,38 @@ docReady(function () {
     }
   );
 
-  let previousTab = "Details";
-
-  function adjustDataTablesColumns() {
-    setTimeout(() => {
-      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-    }, 300);
-  }
-
-  function shouldCreateOrder(comingFromDetails) {
-    return changesPayload.length > 0 && !comingFromDetails;
-  }
-
-  function shouldGetSplittedProducts() {
-    const isSplittedVisible = $("#splitted-products").is(":visible");
-    const hasChanges = changesPayload.length > 0;
-    return !isSplittedVisible || hasChanges;
-  }
-
-  $("a[data-w-tab]").on("click", function () {
+  $("a[data-w-tab]").on("click", async function () {
     const tab = $(this).data("w-tab");
     const comingFromDetails = previousTab === "Details";
 
     if (tab === "Cart") {
       if (shouldCreateOrder(comingFromDetails)) {
-        CreateOrder();
-      }
-      if (shouldGetSplittedProducts()) {
+        try {
+          await CreateOrder();
+          if (shouldGetSplittedProducts()) {
+            GetSplittedProducts();
+          }
+        } catch (err) {
+          console.error("Błąd przy tworzeniu zamówienia:", err);
+        }
+      } else if (shouldGetSplittedProducts()) {
         GetSplittedProducts();
       }
     } else if (tab === "AddProducts") {
       if (shouldCreateOrder(comingFromDetails)) {
-        CreateOrder();
+        try {
+          await CreateOrder();
+        } catch (err) {
+          console.error("Błąd przy tworzeniu zamówienia:", err);
+        }
       }
     } else if (tab === "Details") {
       if (changesPayload.length > 0) {
-        CreateOrder();
+        try {
+          await CreateOrder();
+        } catch (err) {
+          console.error("Błąd przy tworzeniu zamówienia:", err);
+        }
       }
     }
 
