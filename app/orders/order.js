@@ -4699,10 +4699,10 @@ docReady(function () {
       if (shouldCreateOrder(comingFromDetails)) {
         try {
           await CreateOrder();
-
-          GetSplittedProducts();
         } catch (err) {
           console.error("Błąd przy tworzeniu zamówienia:", err);
+        } finally {
+          GetSplittedProducts(); // ZAWSZE się wykona
         }
       } else {
         GetSplittedProducts();
