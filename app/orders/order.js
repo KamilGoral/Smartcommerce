@@ -4683,49 +4683,87 @@ docReady(function () {
 
   function adjustDataTablesColumns() {
     setTimeout(() => {
+      console.log("Adjusting DataTables columns...");
       $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     }, 300);
   }
 
   function shouldCreateOrder(comingFromDetails) {
-    return changesPayload.length > 0 && !comingFromDetails;
+    const result = changesPayload.length > 0 && !comingFromDetails;
+    console.log(
+      "shouldCreateOrder called. comingFromDetails:",
+      comingFromDetails,
+      "changesPayload.length:",
+      changesPayload.length,
+      "result:",
+      result
+    );
+    return result;
   }
 
   $("a[data-w-tab]").on("click", async function () {
     const tab = $(this).data("w-tab");
     const comingFromDetails = previousTab === "Details";
 
+    console.log("Clicked tab:", tab);
+    console.log("Previous tab:", previousTab);
+    console.log("Coming from Details:", comingFromDetails);
+
     if (tab === "Cart") {
+      console.log("Switching to Cart tab...");
       if (shouldCreateOrder(comingFromDetails)) {
+        console.log("Should create order before showing Cart.");
         try {
+          console.log("Calling CreateOrder()...");
           await CreateOrder();
+          console.log("CreateOrder completed successfully.");
         } catch (err) {
-          console.error("Błąd przy tworzeniu zamówienia:", err);
+          console.error("Błąd przy tworzeniu zamówienia (Cart):", err);
         } finally {
-          GetSplittedProducts(); // ZAWSZE się wykona
+          console.log("Calling GetSplittedProducts() (Cart - finally)");
+          GetSplittedProducts();
         }
       } else {
+        console.log(
+          "Skipping CreateOrder. Just calling GetSplittedProducts() (Cart)."
+        );
         GetSplittedProducts();
       }
     } else if (tab === "AddProducts") {
+      console.log("Switching to AddProducts tab...");
       if (shouldCreateOrder(comingFromDetails)) {
+        console.log("Should create order before switching to AddProducts.");
         try {
+          console.log("Calling CreateOrder()...");
           await CreateOrder();
+          console.log("CreateOrder completed successfully (AddProducts).");
         } catch (err) {
-          console.error("Błąd przy tworzeniu zamówienia:", err);
+          console.error("Błąd przy tworzeniu zamówienia (AddProducts):", err);
         }
+      } else {
+        console.log(
+          "No changes or not coming from Details. Skipping CreateOrder (AddProducts)."
+        );
       }
     } else if (tab === "Details") {
+      console.log("Switching to Details tab...");
       if (changesPayload.length > 0) {
+        console.log(
+          "Changes detected. Calling CreateOrder before switching to Details."
+        );
         try {
           await CreateOrder();
+          console.log("CreateOrder completed successfully (Details).");
         } catch (err) {
-          console.error("Błąd przy tworzeniu zamówienia:", err);
+          console.error("Błąd przy tworzeniu zamówienia (Details):", err);
         }
+      } else {
+        console.log("No changes. Skipping CreateOrder (Details).");
       }
     }
 
     adjustDataTablesColumns();
+    console.log("Updating previousTab to:", tab);
     previousTab = tab;
   });
 
