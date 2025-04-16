@@ -2065,28 +2065,6 @@ docReady(function () {
     }
   }
 
-  function checkChangesPayload() {
-    if (changesPayload.length > 0) {
-      //
-      disableTabLinks();
-      // Dodaj nakładkę tylko wtedy, gdy nie istnieje
-      if (!$(".blur-overlay").length) {
-        addBlurOverlay(
-          "table-content",
-          "Wykryto zmiany w produktach, podziel zamówienie ponownie."
-        );
-      }
-    } else {
-      // Usuń nakładkę, jeśli liczba rekordów wynosi 0
-      removeBlurOverlay();
-    }
-  }
-
-  function removeBlurOverlay() {
-    $(".blur-overlay").remove();
-    $("#table-content").css("pointer-events", "");
-  }
-
   function isValidBarcode(value) {
     // We only allow correct length barcodes
     if (!value.match(/^(\d{8}|\d{12,14})$/)) {
@@ -3999,30 +3977,6 @@ docReady(function () {
     },
   });
 
-  function handleTabContainerClick() {
-    // Wyświetl informacyjny alert
-    $("#AlertDiv").css("display", "flex");
-  }
-
-  function disableTabLinks() {
-    const tabsContainer = document.getElementById("tabscontainer");
-    const tabLinks = tabsContainer.querySelectorAll("a[data-w-tab]");
-    // Zablokuj kliknięcia na wszystkich zakładkach
-    tabLinks.forEach((tabLink) => {
-      tabLink.style.pointerEvents = "none";
-    });
-    tabsContainer.addEventListener("click", handleTabContainerClick);
-  }
-
-  function enableTabLinks() {
-    const tabsContainer = document.getElementById("tabscontainer");
-    const tabLinks = tabsContainer.querySelectorAll("a[data-w-tab]");
-    tabLinks.forEach((tabLink) => {
-      tabLink.style.pointerEvents = "auto";
-    });
-    tabsContainer.removeEventListener("click", handleTabContainerClick);
-  }
-
   $("#table_splited_wh").on("click", ".sendemail", async function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
 
@@ -4283,7 +4237,6 @@ docReady(function () {
 
     const emulateChangeForUser = () => {
       $("#waitingdots").show(1).delay(150).hide(1);
-      checkChangesPayload();
     };
 
     // Process based on newValue
@@ -4427,7 +4380,6 @@ docReady(function () {
     // Emulate changes for user
     $("#waitingdots").show(1).delay(150).hide(1);
     table.row($(this).parents("tr")).remove().draw(false);
-    checkChangesPayload();
 
     // Aktualizuj wartość input w tabeli $('#table_id') na null
     var tableId = $("#table_id").DataTable();
@@ -4514,7 +4466,6 @@ docReady(function () {
 
         // Emuluj zmiany dla użytkownika
         $("#waitingdots").show(1).delay(150).hide(1);
-        checkChangesPayload();
       } else {
         console.log("GTIN is null, cannot proceed.");
       }
@@ -4648,7 +4599,6 @@ docReady(function () {
         addObject(changesPayload, product);
         // Emulate changes for the user
         $("#waitingdots").show(1).delay(150).hide(1);
-        checkChangesPayload();
       } else {
         console.log("GTIN is null");
       }
@@ -4725,20 +4675,12 @@ docReady(function () {
     }
   );
 
-  var elements = document.getElementsByClassName("splitbutton");
-  for (var i = 0; i < elements.length; i++) {
-    elements[i].addEventListener("click", (event) => {
-      CreateOrder();
-      enableTabLinks();
-      var detailsLink = document.getElementById("details");
-      if (detailsLink) {
-        detailsLink.click();
-      }
-    });
-  }
-
   $('a[data-w-tab="Cart"]').on("click", function () {
     GetSplittedProducts();
+  });
+
+  $('a[data-w-tab="Details"]').on("click", function () {
+    CreateOrder();
   });
 
   $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
