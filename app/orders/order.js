@@ -4681,6 +4681,16 @@ docReady(function () {
 
   let previousTab = "Details";
 
+  function adjustDataTablesColumns() {
+    setTimeout(() => {
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    }, 300);
+  }
+
+  function shouldCreateOrder(comingFromDetails) {
+    return changesPayload.length > 0 && !comingFromDetails;
+  }
+
   $("a[data-w-tab]").on("click", async function () {
     const tab = $(this).data("w-tab");
     const comingFromDetails = previousTab === "Details";
