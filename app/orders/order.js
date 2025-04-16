@@ -4129,6 +4129,16 @@ docReady(function () {
     document.body.appendChild(anchor);
     $("#waitingdots").show();
 
+    // ✅ Disable checkbox in a specific row
+    const disableCheckboxInRow = (rowElement) => {
+      $(rowElement).find("input.theClass").prop("disabled", true);
+    };
+
+    // ✅ Disable all checkboxes
+    const disableAllCheckboxes = () => {
+      $("input.theClass").prop("disabled", true);
+    };
+
     const downloadFile = (url, fileName, onSuccess) => {
       fetch(url, {
         headers: {
@@ -4178,7 +4188,7 @@ docReady(function () {
 
         if (statusCell) {
           statusCell.innerHTML =
-            '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
+            '<span class="status-badge positive" data-tippy-content="Zatwierdzone ' +
             new Date().toLocaleString() +
             '">Zatwierdzone</span>';
         } else {
@@ -4191,15 +4201,22 @@ docReady(function () {
     };
 
     if (!data || !data.wholesalerKey) {
+      // ✅ Pobieranie wszystkich – blokuj wszystkie checkboxy
+      disableAllCheckboxes();
+
       const downloadUrl = new URL(
         `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers?filesFormat=${fileformat}`
       );
 
       downloadFile(downloadUrl, fileformat, () => {
-        updateRowStatus(); // aktualizuj wszystkie, bo brak konkretnego wholesalera
+        updateRowStatus();
       });
     } else {
       const wholesalerKey = data.wholesalerKey;
+
+      // ✅ Pobieranie jednego – blokuj checkbox tylko w tym wierszu
+      disableCheckboxInRow(row);
+
       const downloadUrl = new URL(
         `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers/${wholesalerKey}`
       );
