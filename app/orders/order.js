@@ -915,15 +915,16 @@ docReady(function () {
               data: "wholesalerKey",
               width: "108px",
               render: function (data, type, row) {
+                // File icon definitions
                 const icons = {
-                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" title="TXT" class="filedownloadicon">',
-                  csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV" class="filedownloadicon">',
+                  text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
+                  csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                   csvAgra:
-                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" title="CSV Agra" class="filedownloadicon">',
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                   csvMirex:
-                    '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" title="CSV Mirex" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" title="PDF" class="filedownloadicon">',
-                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" title="XLS" class="filedownloadicon">',
+                    '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                  pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
+                  xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
                 };
 
                 const wholesalerConfigs = {
