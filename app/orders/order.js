@@ -554,6 +554,7 @@ docReady(function () {
       orderId +
       "/split?" +
       UrlParameters;
+
     $.ajax({
       type: method,
       url: action,
@@ -655,8 +656,6 @@ docReady(function () {
 
         var toParse = data.items;
         toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
-        $("#details").show();
-        $(".target-tab-link").triggerHandler("click");
         $("#splitedwhcontainer").show();
 
         function getStatusHtml(item) {
