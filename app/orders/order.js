@@ -4028,7 +4028,7 @@ docReady(function () {
   // Funkcja wywoływana po czasie
   function triggerCreateOrder() {
     timer = null;
-    // CreateOrder();
+    CreateOrder();
   }
 
   // Funkcja ustawiająca timer (lub restartująca)
@@ -4645,7 +4645,7 @@ docReady(function () {
     }
   );
 
-  let previousTab = null;
+  let previousTab = "Details";
 
   function adjustDataTablesColumns() {
     setTimeout(() => {
