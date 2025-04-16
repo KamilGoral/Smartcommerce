@@ -4524,25 +4524,33 @@ docReady(function () {
   });
 
   $("#table_id").on("focusout", "input", function () {
-    // Get the right table
-    // Change amount of product
+    console.log("focusout triggered");
 
     var table = $("#table_id").DataTable();
     let newValue = $(this).val();
     var initialValue = parseInt($(this).data("initialValue"));
-    // Check if the value has changed
+
+    console.log("New value:", newValue);
+    console.log("Initial value (parsed):", initialValue);
+
     if (newValue !== initialValue && parseInt(newValue) >= 0) {
+      console.log("Value changed and new value is valid");
+
       $(this).attr("value", newValue);
       var data = table.row($(this).parents("tr")).data();
+
+      console.log("Row data:", data);
 
       if (data.gtin !== null) {
         let quantity = parseInt(newValue);
         if (isNaN(quantity)) {
-          quantity = null; // If so, set quantity to null
+          quantity = null;
+          console.log("Parsed quantity is NaN, setting to null");
         }
 
         var product;
         if (isNaN(initialValue) && newValue !== initialValue) {
+          console.log("Operation: ADD");
           product = {
             op: "add",
             path: "/" + data.gtin,
@@ -4551,24 +4559,29 @@ docReady(function () {
             },
           };
         } else if (quantity !== null) {
+          console.log("Operation: REPLACE");
           product = {
             op: "replace",
             path: "/" + data.gtin + "/quantity",
             value: quantity,
           };
         } else {
+          console.log("Operation: REMOVE");
           product = {
             op: "remove",
             path: "/" + data.gtin,
           };
         }
-        console.log("0");
+
         addObject(changesPayload, product);
-        // Emulate changes for the user
+        console.log("Updated changesPayload:", changesPayload);
+
         $("#waitingdots").show(1).delay(150).hide(1);
       } else {
-        console.log("GTIN is null");
+        console.warn("GTIN is null – row data might be incomplete");
       }
+    } else {
+      console.log("Value not changed or invalid new value");
     }
   });
 
