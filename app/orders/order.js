@@ -574,11 +574,13 @@ docReady(function () {
         },
         processData: false,
         success: function (resultData) {
+          let proceed = true;
           if (typeof successCallback === "function") {
-            result = successCallback(resultData);
-            if (!result) {
-              return;
-            }
+            proceed = successCallback(resultData);
+          }
+
+          if (proceed !== false) {
+            resolve(); // <-- To zapewni, że Promise się zakończy
           }
           $("#table-content").show();
 
@@ -1023,6 +1025,7 @@ docReady(function () {
               });
             },
           });
+          resolve();
           return false;
         },
         error: function (jqXHR, textStatus, errorThrown) {
