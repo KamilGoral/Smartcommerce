@@ -4657,19 +4657,31 @@ docReady(function () {
     return changesPayload.length > 0 && !comingFromDetails;
   }
 
+  function shouldGetSplittedProducts() {
+    const isSplittedVisible = $("#splitted-products").is(":visible");
+    const hasChanges = changesPayload.length > 0;
+    return !isSplittedVisible || hasChanges;
+  }
+
   $("a[data-w-tab]").on("click", function () {
     const tab = $(this).data("w-tab");
-    console.log(`click ${tab}`);
-
     const comingFromDetails = previousTab === "Details";
 
     if (tab === "Cart") {
-      if (shouldCreateOrder(comingFromDetails)) CreateOrder();
-      GetSplittedProducts();
+      if (shouldCreateOrder(comingFromDetails)) {
+        CreateOrder();
+      }
+      if (shouldGetSplittedProducts()) {
+        GetSplittedProducts();
+      }
     } else if (tab === "AddProducts") {
-      if (shouldCreateOrder(comingFromDetails)) CreateOrder();
+      if (shouldCreateOrder(comingFromDetails)) {
+        CreateOrder();
+      }
     } else if (tab === "Details") {
-      if (changesPayload.length > 0) CreateOrder();
+      if (changesPayload.length > 0) {
+        CreateOrder();
+      }
     }
 
     adjustDataTablesColumns();
