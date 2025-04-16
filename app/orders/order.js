@@ -480,9 +480,6 @@ docReady(function () {
     console.log("Creating Order");
     const tableId = "#spl_table";
 
-    // Wymaż wartwę blur
-    removeBlurOverlay();
-
     if ($.fn.dataTable.isDataTable(tableId)) {
       // Usuń wszystkie rekordy z tabeli podzielonych produktów
       const tableToClear = $("#spl_table").DataTable();
