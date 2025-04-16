@@ -676,7 +676,7 @@ docReady(function () {
 
           // Teksty dla statusów
           const statusTexts = {
-            "in progress": "W realizacji",
+            "in progress": "Zatwierdzone",
             pending: "Szkic",
             ready: "Gotowa",
             error: "Problem",
@@ -3125,7 +3125,7 @@ docReady(function () {
                         statusCell.innerHTML =
                           '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
                           new Date().toLocaleString() +
-                          '">W realizacji</span>';
+                          '">Zatwierdzone</span>';
                       } else {
                         console.error("Status cell not found in row");
                       }
@@ -4178,7 +4178,7 @@ docReady(function () {
 
         if (statusCell) {
           statusCell.innerHTML =
-            '<span class="status-badge positive" data-tippy-content="Zatwierdzone ' +
+            '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
             new Date().toLocaleString() +
             '">Zatwierdzone</span>';
         } else {
