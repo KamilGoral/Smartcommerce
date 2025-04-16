@@ -1005,27 +1005,6 @@ docReady(function () {
                 api.search(this.value).draw();
               }
             });
-
-            // Sprawdź parametr URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get("confirmed") === "true") {
-              // Ukryj elementy jak po kliknięciu lockOrderButton
-              $("#addProducts").hide();
-              $("#lockOrderDiv").hide();
-
-              // Pobierz wszystkie dane z tabeli
-              var table = $("#table_splited_wh").DataTable();
-              var allData = table.rows().data();
-
-              // Ustaw flagę inRealization dla WSZYSTKICH wierszy i zaktualizuj dane
-              table.rows().every(function () {
-                var data = this.data();
-                data.inRealization = true;
-                this.data(data); // Jawnie aktualizujemy dane wiersza
-              });
-              // Przerysuj CAŁĄ tabelę
-              table.draw();
-            }
           },
         });
         return false;
