@@ -619,9 +619,6 @@ docReady(function () {
           render: function (data, type, row) {
             if (type === "display" && data) {
               let url = `https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}`;
-              if (row.confirmed > 0) {
-                url += "&confirmed=true";
-              }
               return `<div class="action-container"><a href="${url}" class="buttonoutline editme w-button">Przejdź</a></div>`;
             }
             return "";
