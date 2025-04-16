@@ -4055,7 +4055,7 @@ docReady(function () {
   // Funkcja wywoływana po czasie
   function triggerCreateOrder() {
     timer = null;
-    CreateOrder();
+    // CreateOrder();
   }
 
   // Funkcja ustawiająca timer (lub restartująca)
@@ -4677,6 +4677,7 @@ docReady(function () {
   });
 
   $('a[data-w-tab="Details"]').on("click", function () {
+    console.log("click Details");
     CreateOrder();
   });
 
@@ -4725,6 +4726,7 @@ docReady(function () {
         .columns.adjust(); // 1000 milliseconds = 1 second
     }, 300);
   } else {
+    console.log("tab is not add so create order");
     CreateOrder(); // Fire CreateOrder() if the parameter is not present
   }
 
