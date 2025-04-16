@@ -2652,6 +2652,7 @@ docReady(function () {
     };
     request.send();
   }
+
   function getWhSmartVan(wholesalerKey) {
     return new Promise((resolve, reject) => {
       let url2 = new URL(
