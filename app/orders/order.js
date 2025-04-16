@@ -4692,9 +4692,8 @@ docReady(function () {
   }
 
   function shouldGetSplittedProducts() {
-    const isSplittedVisible = $("#splitted-products").is(":visible");
     const hasChanges = changesPayload.length > 0;
-    return !isSplittedVisible || hasChanges;
+    return hasChanges;
   }
 
   $("a[data-w-tab]").on("click", async function () {
