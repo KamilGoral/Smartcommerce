@@ -4704,7 +4704,7 @@ docReady(function () {
         } catch (err) {
           console.error("Błąd przy tworzeniu zamówienia:", err);
         }
-      } else if (shouldGetSplittedProducts()) {
+      } else {
         GetSplittedProducts();
       }
     } else if (tab === "AddProducts") {
