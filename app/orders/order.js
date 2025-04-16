@@ -1923,11 +1923,6 @@ docReady(function () {
             });
           },
         });
-
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: "smooth",
-        });
       },
       error: function (jqXHR, exception) {
         return;
@@ -4650,40 +4645,32 @@ docReady(function () {
     }
   );
 
-  $('a[data-w-tab="AddProducts"]').on("click", function () {
-    setTimeout(function () {
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust(); // 1000 milliseconds = 1 second
-    }, 300);
-  });
+  let previousTab = null;
 
-  $('a[data-w-tab="Cart"]').on("click", function () {
-    GetSplittedProducts();
-    setTimeout(function () {
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust(); // 1000 milliseconds = 1 second
+  function adjustDataTablesColumns() {
+    setTimeout(() => {
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     }, 300);
-  });
+  }
 
-  $('a[data-w-tab="Details"]').on("click", function () {
-    console.log("click Details");
-    CreateOrder();
-    setTimeout(function () {
-      $.fn.dataTable
-        .tables({
-          visible: true,
-          api: true,
-        })
-        .columns.adjust(); // 1000 milliseconds = 1 second
-    }, 300);
+  $("a[data-w-tab]").on("click", function () {
+    const tab = $(this).data("w-tab");
+    console.log(`click ${tab}`);
+
+    const comingFromDetails = previousTab === "Details";
+
+    if (tab === "Cart") {
+      if (!comingFromDetails) CreateOrder();
+      GetSplittedProducts();
+    } else if (tab === "AddProducts") {
+      if (!comingFromDetails) CreateOrder();
+    } else if (tab === "Details") {
+      CreateOrder();
+    }
+
+    adjustDataTablesColumns();
+
+    previousTab = tab;
   });
 
   $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
