@@ -4679,6 +4679,8 @@ docReady(function () {
     }
   );
 
+  let previousTab = "Details";
+
   $("a[data-w-tab]").on("click", async function () {
     const tab = $(this).data("w-tab");
     const comingFromDetails = previousTab === "Details";
