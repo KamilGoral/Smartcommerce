@@ -376,10 +376,14 @@ docReady(function () {
         displayMessage("Success", "Status dostawcy został zmieniony.");
         if (isVanMember && changeOfStatus) {
           $("#smartVanDialog").css("display", "flex");
-          $("#Wholesaler-Login-2")
-            .prop("disabled", true)
-            .val(organizationName + "." + wholesalerKey)
-            .toLowerCase();
+
+          const loginValue = (
+            organizationName +
+            "." +
+            wholesalerKey
+          ).toLowerCase();
+
+          $("#Wholesaler-Login-2").prop("disabled", true).val(loginValue);
         }
       },
       error: function (jqXHR, exception) {
