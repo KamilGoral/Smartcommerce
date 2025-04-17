@@ -1908,14 +1908,24 @@ docReady(function () {
 
               // Dodaj nowy filtr tylko jeśli coś wybrane
               if (selectedValue !== "") {
-                $.fn.dataTable.ext.search.push({
-                  name: "wholesalerFilter",
-                  fn: function (settings, data, dataIndex) {
-                    const cellNode = table.cell(dataIndex, 8).node();
-                    const selectedInRow = $(cellNode).find("select").val();
-                    return selectedInRow === selectedValue;
-                  },
-                });
+                try {
+                  $.fn.dataTable.ext.search.push({
+                    name: "wholesalerFilter",
+                    fn: function (settings, data, dataIndex) {
+                      const cellNode = table.cell(dataIndex, 8).node();
+                      const selectedInRow = $(cellNode).find("select").val();
+                      console.log(
+                        "selectedInRow:",
+                        selectedInRow,
+                        "==",
+                        selectedValue
+                      );
+                      return selectedInRow === selectedValue;
+                    },
+                  });
+                } catch (e) {
+                  console.error("Błąd przy dodawaniu filtra:", e);
+                }
               }
 
               table.draw();
