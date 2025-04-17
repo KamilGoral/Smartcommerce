@@ -1899,11 +1899,29 @@ docReady(function () {
 
             // Filtrowanie hurtowni
             $("#CartwholesalerKeyIndicator").on("change", function () {
-              var val = $.fn.dataTable.util.escapeRegex($(this).val());
-              api
-                .column(8) // kolumna z hurtownikiem
-                .search(val ? "^" + val + "$" : "", true, false)
-                .draw();
+              const selectedWholesaler = $(this).val();
+
+              $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(
+                function (f) {
+                  return f.name !== "wholesalerFilter";
+                }
+              );
+
+              if (selectedWholesaler) {
+                $.fn.dataTable.ext.search.push({
+                  name: "wholesalerFilter",
+                  fn: function (settings, data, dataIndex, rowData) {
+                    const table = $("#spl_table").DataTable();
+                    const wholesalerSelect = table.cell(dataIndex, 8).node();
+                    const selectedOption = $(wholesalerSelect)
+                      .find("select option:selected")
+                      .val();
+                    return selectedOption === selectedWholesaler;
+                  },
+                });
+              }
+
+              api.draw();
             });
 
             // Filtrowanie rotacji
