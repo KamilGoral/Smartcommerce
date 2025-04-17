@@ -1896,47 +1896,28 @@ docReady(function () {
 
           initComplete: function (settings, json) {
             var api = this.api();
+
+            // Filtrowanie hurtowni
+            $("#CartwholesalerKeyIndicator").on("change", function () {
+              var val = $.fn.dataTable.util.escapeRegex($(this).val());
+              api
+                .column(8) // kolumna z hurtownikiem
+                .search(val ? "^" + val + "$" : "", true, false)
+                .draw();
+            });
+
+            // Filtrowanie rotacji
+            $("#CartRotationIndicator").on("change", function () {
+              var val = $.fn.dataTable.util.escapeRegex($(this).val());
+              api
+                .column(12) // kolumna z rotacją
+                .search(val ? "^" + val + "$" : "", true, false)
+                .draw();
+            });
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
-            // // Work In Progress
-            // // Create a filter row as a jQuery object
-            // var $filterRow = $('<tr class="filtersData"></tr>');
-
-            // // Loop through the columns
-            // api.columns().every(function () {
-            //   var column = this;
-
-            //   // Create a new TH element for the filter
-            //   var $filterCell = $("<th>");
-
-            //   // Append the filter cell to the filter row
-            //   $filterRow.append($filterCell);
-
-            //   // Check if the column is orderable
-            //   if (column.settings()[0].aoColumns[column.index()].bSortable) {
-            //     // Accessing the property directly
-            //     $filterCell.html(
-            //       '<input type="text" style="max-width: 58px;"/>'
-            //     );
-
-            //     // Event handlers for the input
-            //     $("input", $filterCell).on("keyup change", function () {
-            //       // Perform the search
-            //       if (column.search() !== this.value) {
-            //         column.search(this.value).draw();
-            //       }
-            //     });
-            //   } else {
-            //     // If the column is not orderable, you can either leave the cell empty or add a placeholder
-            //     $filterCell.html(" ");
-            //   }
-            // });
-
-            // Append the filter row to the table head
-            // $(api.table().header()).append($filterRow);
-            // Adjust collumns width
             api.columns.adjust().draw();
 
             var textBox = $("#spl_table_filter label input");
@@ -1954,24 +1935,6 @@ docReady(function () {
       },
     });
   }
-
-  // Filtrowanie hurtowni
-  $("#CartwholesalerKeyIndicator").on("change", function () {
-    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-    api
-      .column(8) // kolumna z hurtownikiem
-      .search(val ? "^" + val + "$" : "", true, false)
-      .draw();
-  });
-
-  // Filtrowanie rotacji
-  $("#CartRotationIndicator").on("change", function () {
-    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-    api
-      .column(12) // kolumna z rotacją
-      .search(val ? "^" + val + "$" : "", true, false)
-      .draw();
-  });
 
   function makeChangesToOrder() {
     return new Promise((resolve, reject) => {
