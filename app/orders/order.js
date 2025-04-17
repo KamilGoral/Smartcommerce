@@ -1955,6 +1955,24 @@ docReady(function () {
     });
   }
 
+  // Filtrowanie hurtowni
+  $("#CartwholesalerKeyIndicator").on("change", function () {
+    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+    api
+      .column(8) // kolumna z hurtownikiem
+      .search(val ? "^" + val + "$" : "", true, false)
+      .draw();
+  });
+
+  // Filtrowanie rotacji
+  $("#CartRotationIndicator").on("change", function () {
+    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+    api
+      .column(12) // kolumna z rotacją
+      .search(val ? "^" + val + "$" : "", true, false)
+      .draw();
+  });
+
   function makeChangesToOrder() {
     return new Promise((resolve, reject) => {
       if (changesPayload.length > 0) {
