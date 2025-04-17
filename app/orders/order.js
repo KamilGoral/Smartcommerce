@@ -1895,28 +1895,25 @@ docReady(function () {
           },
 
           initComplete: function (settings, json) {
-            var table = this.api();
-            var api = this.api();
+            const table = this.api();
 
-            // Filtrowanie hurtowni
+            // --- Filtr hurtowni po <select> w kolumnie 8 ---
             $("#CartwholesalerKeyIndicator").on("change", function () {
               const selectedValue = $(this).val();
 
-              // Najpierw usuń poprzednie filtry
+              // Usuń poprzedni filtr hurtownika
               $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(
                 (f) => f.name !== "wholesalerFilter"
               );
 
-              // Dodaj nowy, tylko jeśli coś wybrane
+              // Dodaj nowy filtr tylko jeśli coś wybrane
               if (selectedValue !== "") {
                 $.fn.dataTable.ext.search.push({
                   name: "wholesalerFilter",
                   fn: function (settings, data, dataIndex) {
-                    const node = table.cell(dataIndex, 8).node(); // kolumna z <select>
-                    const selectedOption = $(node)
-                      .find("select option:selected")
-                      .val();
-                    return selectedOption === selectedValue;
+                    const cellNode = table.cell(dataIndex, 8).node();
+                    const selectedInRow = $(cellNode).find("select").val();
+                    return selectedInRow === selectedValue;
                   },
                 });
               }
@@ -1924,25 +1921,30 @@ docReady(function () {
               table.draw();
             });
 
-            // Filtrowanie rotacji
+            // --- Filtr rotacji (kolumna 12, <p> z tekstem) ---
             $("#CartRotationIndicator").on("change", function () {
-              var val = $.fn.dataTable.util.escapeRegex($(this).val());
-              api
-                .column(12) // kolumna z rotacją
+              const val = $.fn.dataTable.util.escapeRegex($(this).val());
+              table
+                .column(12)
                 .search(val ? "^" + val + "$" : "", true, false)
                 .draw();
             });
+
+            // --- Inne istniejące funkcjonalności ---
             $("#lowerprice").removeClass("details-invisible");
+
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
-            api.columns.adjust().draw();
 
-            var textBox = $("#spl_table_filter label input");
-            textBox.unbind();
-            textBox.bind("keyup input", function (e) {
-              if (e.keyCode == 13) {
-                api.search(this.value).draw();
+            table.columns.adjust().draw();
+
+            // ENTER w wyszukiwarce globalnej (górny input)
+            const textBox = $("#spl_table_filter label input");
+            textBox.off(); // zamiast unbind (lepsze i bezpieczniejsze)
+            textBox.on("keyup input", function (e) {
+              if (e.keyCode === 13) {
+                table.search(this.value).draw();
               }
             });
           },
