@@ -669,6 +669,7 @@ docReady(function () {
           var table = $("#table_splited_wh").DataTable({
             pagingType: "full_numbers",
             pageLength: 25,
+            stripeClasses: [],
             destroy: true,
             orderMulti: true,
             order: [[2, "desc"]],
