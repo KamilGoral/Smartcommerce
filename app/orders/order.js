@@ -1512,14 +1512,22 @@ docReady(function () {
               },
             },
             {
-              orderable: false,
-              data: null,
-              render: function (data) {
-                return (
-                  '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
-                  data.quantity +
-                  '" onpaste="handlePaste(event)">'
-                );
+              orderable: true, // pozwala sortować
+              data: "quantity", // dane używane do sortowania
+              render: function (data, type, row) {
+                // Jeśli typ to 'display', renderujemy input
+                if (type === "display") {
+                  return (
+                    '<input type="number" style="max-width: 80px" ' +
+                    'onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" ' +
+                    'min="0" max="999999" value="' +
+                    data +
+                    '" onpaste="handlePaste(event)">'
+                  );
+                }
+
+                // W innych przypadkach (np. sortowanie, wyszukiwanie), zwróć wartość surową
+                return data;
               },
             },
             {
