@@ -950,29 +950,33 @@ docReady(function () {
               },
               {
                 orderable: false,
-                width: "208px",
+                width: "64px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
-                  const icons = {
-                    email:
-                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67faa4b1ffe0fd89838860cf_sendButton.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />',
-                  };
-
                   if (data === "unassigned") {
                     return ""; // brak akcji dla 'unassigned'
                   }
 
-                  const skipCheckbox = !row.confirmedAt
-                    ? `
-                      <input type="checkbox" class="theClass" id="${data}" value="${data}" />
-                      <label class="mylabel" for="${data}" style="margin: 0;"></label>
-                    `
-                    : "";
+                  return `
+                    <div style="display: flex; justify-content: center;">
+                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/66019364bf06c555bcd2426c_icon.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />
+                    </div>
+                  `;
+                },
+              },
+              {
+                orderable: false,
+                width: "144px",
+                data: "wholesalerKey",
+                render: function (data, type, row) {
+                  if (data === "unassigned" || row.confirmedAt) {
+                    return ""; // brak checkboxa dla 'unassigned' lub już potwierdzonych
+                  }
 
                   return `
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                      ${icons.email}
-                      ${skipCheckbox}
+                    <div style="display: flex; justify-content: center;">
+                      <input type="checkbox" class="theClass" id="${data}" value="${data}" />
+                      <label class="mylabel" for="${data}" style="margin: 0;"></label>
                     </div>
                   `;
                 },
