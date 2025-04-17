@@ -1897,41 +1897,32 @@ docReady(function () {
           initComplete: function (settings, json) {
             const table = this.api();
 
-            // --- Filtr hurtowni po <select> w kolumnie 8 ---
+            // Wyczyść WSZYSTKIE niestandardowe filtry na początku
+            $.fn.dataTable.ext.search.length = 0;
+
+            // === Filtr hurtowni ===
             $("#CartwholesalerKeyIndicator").on("change", function () {
               const selectedValue = $(this).val();
 
-              // Usuń poprzedni filtr hurtownika
-              $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(
-                (f) => f.name !== "wholesalerFilter"
-              );
+              // Usuń wszystkie inne filtry
+              $.fn.dataTable.ext.search = [];
 
-              // Dodaj nowy filtr tylko jeśli coś wybrane
-              if (selectedValue !== "") {
-                try {
-                  $.fn.dataTable.ext.search.push({
-                    name: "wholesalerFilter",
-                    fn: function (settings, data, dataIndex) {
-                      const cellNode = table.cell(dataIndex, 8).node();
-                      const selectedInRow = $(cellNode).find("select").val();
-                      console.log(
-                        "selectedInRow:",
-                        selectedInRow,
-                        "==",
-                        selectedValue
-                      );
-                      return selectedInRow === selectedValue;
-                    },
-                  });
-                } catch (e) {
-                  console.error("Błąd przy dodawaniu filtra:", e);
-                }
+              if (selectedValue) {
+                $.fn.dataTable.ext.search.push(function (
+                  settings,
+                  data,
+                  dataIndex
+                ) {
+                  const cellNode = table.cell(dataIndex, 8).node(); // kolumna hurtownika
+                  const selectedInRow = $(cellNode).find("select").val();
+                  return selectedInRow === selectedValue;
+                });
               }
 
               table.draw();
             });
 
-            // --- Filtr rotacji (kolumna 12, <p> z tekstem) ---
+            // === Filtr rotacji (kolumna 12 - <p>) ===
             $("#CartRotationIndicator").on("change", function () {
               const val = $.fn.dataTable.util.escapeRegex($(this).val());
               table
@@ -1940,18 +1931,17 @@ docReady(function () {
                 .draw();
             });
 
-            // --- Inne istniejące funkcjonalności ---
+            // === Dodatki ===
             $("#lowerprice").removeClass("details-invisible");
-
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
 
             table.columns.adjust().draw();
 
-            // ENTER w wyszukiwarce globalnej (górny input)
+            // ENTER uruchamia globalne filtrowanie
             const textBox = $("#spl_table_filter label input");
-            textBox.off(); // zamiast unbind (lepsze i bezpieczniejsze)
+            textBox.off();
             textBox.on("keyup input", function (e) {
               if (e.keyCode === 13) {
                 table.search(this.value).draw();
