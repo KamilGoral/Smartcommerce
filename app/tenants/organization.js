@@ -378,7 +378,8 @@ docReady(function () {
           $("#smartVanDialog").css("display", "flex");
           $("#Wholesaler-Login-2")
             .prop("disabled", true)
-            .val(organizationName + "." + wholesalerKey);
+            .val(organizationName + "." + wholesalerKey)
+            .toLowerCase();
         }
       },
       error: function (jqXHR, exception) {
