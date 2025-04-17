@@ -1347,6 +1347,8 @@ docReady(function () {
   }
 
   function GetSplittedProducts() {
+    $("#CartwholesalerKeyIndicator").val("");
+    $("#CartRotationIndicator").val("");
     $("#spl_table_wrapper").show();
     $.ajax({
       type: "GET",
