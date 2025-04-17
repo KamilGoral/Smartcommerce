@@ -2567,12 +2567,24 @@ docReady(function () {
         const wholesalerContainer = document.getElementById(
           "wholesalerKeyIndicator"
         );
+        const CartwholesalerContainer = document.getElementById(
+          "CartwholesalerKeyIndicator"
+        );
+
         toParse.forEach((wholesaler) => {
           if (wholesaler.enabled) {
             var opt = document.createElement("option");
             opt.value = wholesaler.wholesalerKey;
             opt.innerHTML = wholesaler.wholesalerKey;
             wholesalerContainer.appendChild(opt);
+          }
+        });
+        toParse.forEach((wholesaler) => {
+          if (wholesaler.enabled) {
+            var opt = document.createElement("option");
+            opt.value = wholesaler.wholesalerKey;
+            opt.innerHTML = wholesaler.wholesalerKey;
+            CartwholesalerContainer.appendChild(opt);
           }
         });
         if (request.status == 401) {
