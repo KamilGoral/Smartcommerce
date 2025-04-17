@@ -742,7 +742,7 @@ docReady(function () {
             columns: [
               {
                 orderable: false,
-                width: "48px",
+                width: "4px",
                 data: null,
                 defaultContent:
                   '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
@@ -794,7 +794,7 @@ docReady(function () {
               {
                 orderable: true,
                 data: "products",
-                width: "108px",
+                width: "64px",
                 render: function (data, type, row) {
                   // Sprawdź czy wholesalerName to "unassigned"
                   const isUnassigned = row.wholesalerName === "unassigned";
@@ -1008,8 +1008,8 @@ docReady(function () {
 
                   return `
                   <div style="display: flex; align-items: center; gap: 8px;">
-                    ${skipCheckbox}
                     ${icons.email}
+                    ${skipCheckbox}
                   </div>
                 `;
                 },
