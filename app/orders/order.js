@@ -666,47 +666,6 @@ docReady(function () {
             return date.toLocaleString("pl-PL", options).replace(",", "");
           }
 
-          function getStatusHtml(item) {
-            // Dodatkowe klasy CSS dla różnych statusów
-            const statusClasses = {
-              "in progress": "positive",
-              pending: "noneexisting",
-              ready: "positive",
-              error: "negative",
-              incomplete: "medium",
-              batching: "noneexisting",
-              forced: "noneexisting",
-            };
-
-            // Teksty dla statusów
-            const statusTexts = {
-              "in progress": "Zatwierdzone",
-              pending: "Szkic",
-              ready: "Gotowa",
-              error: "Problem",
-              incomplete: "Niekompletna",
-              batching: "W kolejce",
-              forced: "W kolejce",
-            };
-
-            const baseClass = "status-badge";
-            const statusClass = statusClasses[item.status] || "noneexisting";
-            const text = statusTexts[item.status] || "-";
-
-            // Formatowanie daty dla confirmedAt
-            const formattedDate = item.confirmedAt
-              ? formatDateToPolishTime(item.confirmedAt)
-              : null;
-
-            // Ustawienie tekstu w zależności od tego, czy jest data
-            const tippyText = formattedDate
-              ? `Potwierdzono ${formattedDate}`
-              : "Oczekuję";
-
-            // Generowanie span z atrybutem data-tippy-content
-            return `<span class="${baseClass} ${statusClass}" data-tippy-content="${tippyText}">${text}</span>`;
-          }
-
           var table = $("#table_splited_wh").DataTable({
             pagingType: "full_numbers",
             pageLength: 25,
@@ -892,21 +851,24 @@ docReady(function () {
                 orderable: true,
                 data: null, // Używamy null, bo będziemy korzystać z całego wiersza
                 name: "statusColumn",
-                width: "92px",
+                width: "64px",
                 render: function (data, type, row) {
                   if (data.wholesalerName === "unassigned") {
                     return "";
                   }
 
-                  // Określ status na podstawie confirmedAt
-                  const status = data.confirmedAt ? "in progress" : "pending";
+                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
 
-                  // Generuj badge
-                  return getStatusHtml({
-                    status: status,
-                    confirmed: data.confirmed,
-                    confirmedAt: data.confirmedAt,
-                  });
+                  // Jeśli confirmedAt istnieje, wyświetlamy ikonę potwierdzenia
+                  if (data.confirmedAt) {
+                    return `<span data-tippy-content="Potwierdzono ${formatDateToPolishTime(
+                      data.confirmedAt
+                    )}">${confirmedIcon}</span>`;
+                  } else {
+                    // W przeciwnym razie, szkic z ikoną edycji
+                    return `<span data-tippy-content="Oczekuję">${editIcon}</span>`;
+                  }
                 },
                 className: "status-column",
               },
