@@ -961,19 +961,19 @@ docReady(function () {
                     return ""; // brak akcji dla 'unassigned'
                   }
 
-                  const skipCheckbox = `
-                  <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
-                    row.confirmedAt ? "disabled" : ""
-                  } />
-                  <label class="mylabel" for="${data}" style="margin: 0;"></label>
-                `;
+                  const skipCheckbox = !row.confirmedAt
+                    ? `
+                      <input type="checkbox" class="theClass" id="${data}" value="${data}" />
+                      <label class="mylabel" for="${data}" style="margin: 0;"></label>
+                    `
+                    : "";
 
                   return `
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    ${icons.email}
-                    ${skipCheckbox}
-                  </div>
-                `;
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      ${icons.email}
+                      ${skipCheckbox}
+                    </div>
+                  `;
                 },
               },
             ],
