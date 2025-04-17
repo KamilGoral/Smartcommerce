@@ -950,7 +950,7 @@ docReady(function () {
               },
               {
                 orderable: false,
-                width: "160px",
+                width: "208px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
                   const icons = {
