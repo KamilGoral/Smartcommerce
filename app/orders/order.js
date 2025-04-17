@@ -1895,33 +1895,33 @@ docReady(function () {
           },
 
           initComplete: function (settings, json) {
+            var table = this.api();
             var api = this.api();
 
             // Filtrowanie hurtowni
             $("#CartwholesalerKeyIndicator").on("change", function () {
-              const selectedWholesaler = $(this).val();
+              const selectedValue = $(this).val();
 
+              // Najpierw usuń poprzednie filtry
               $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(
-                function (f) {
-                  return f.name !== "wholesalerFilter";
-                }
+                (f) => f.name !== "wholesalerFilter"
               );
 
-              if (selectedWholesaler) {
+              // Dodaj nowy, tylko jeśli coś wybrane
+              if (selectedValue !== "") {
                 $.fn.dataTable.ext.search.push({
                   name: "wholesalerFilter",
-                  fn: function (settings, data, dataIndex, rowData) {
-                    const table = $("#spl_table").DataTable();
-                    const wholesalerSelect = table.cell(dataIndex, 8).node();
-                    const selectedOption = $(wholesalerSelect)
+                  fn: function (settings, data, dataIndex) {
+                    const node = table.cell(dataIndex, 8).node(); // kolumna z <select>
+                    const selectedOption = $(node)
                       .find("select option:selected")
                       .val();
-                    return selectedOption === selectedWholesaler;
+                    return selectedOption === selectedValue;
                   },
                 });
               }
 
-              api.draw();
+              table.draw();
             });
 
             // Filtrowanie rotacji
