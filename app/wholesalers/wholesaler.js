@@ -746,6 +746,7 @@ docReady(function () {
 
           if (request.status >= 200 && request.status < 400 && data.total > 0) {
             $("#Wholesaler-profile-Selector-box").show();
+            $("#specialServiceBoxProfile").show();
             $("#Wholesaler-profile-Selector").attr("required", "");
             const Iehurt = document.getElementById("Iehurt");
             Iehurt.classList.add("enabled");
