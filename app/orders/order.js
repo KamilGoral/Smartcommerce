@@ -1001,7 +1001,7 @@ docReady(function () {
 
                   const skipCheckbox = `
                   <input type="checkbox" class="theClass" id="${data}" value="${data}" ${
-                    formatDateToPolishTime(row.confirmedAt) ? "disabled" : ""
+                    row.confirmedAt ? "disabled" : ""
                   } />
                   <label class="mylabel" for="${data}" style="margin: 0;"></label>
                 `;
