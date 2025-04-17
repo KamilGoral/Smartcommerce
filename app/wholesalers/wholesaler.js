@@ -616,42 +616,39 @@ docReady(function () {
         wholesalerKey +
         "/smartvan"
     );
+
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
     request2.setRequestHeader("Authorization", orgToken);
     request2.onload = function () {
-      var data2 = JSON.parse(this.response);
       if (request2.status >= 200 && request2.status < 400) {
-        // Obsługuje e-mail
-        let smtpEmail = data2.smtp ? data2.smtp.email : null;
-        let emailElement = document.querySelector(
-          '[wholesalerdata="smtpEmail"]'
-        );
-        let smtpEmailInput = document.getElementById("smtpEmail");
-        if (smtpEmail === null) {
-          emailElement.innerHTML = "Adres e-mail: -";
-        } else {
-          emailElement.innerHTML = "Adres e-mail: " + smtpEmail;
-          smtpEmailInput.value = smtpEmail;
-          previousEmail = smtpEmail;
+        let data2 = {};
+        try {
+          data2 = JSON.parse(this.response);
+        } catch (e) {
+          console.error("Błąd parsowania JSON:", e);
+          return;
         }
 
+        // Obsługuje e-mail
+        let smtpEmail = data2?.smtp?.email ?? "-";
+        document.querySelector('[wholesalerdata="smtpEmail"]').innerHTML =
+          "Adres e-mail: " + smtpEmail;
+        document.getElementById("smtpEmail").value =
+          smtpEmail !== "-" ? smtpEmail : "";
+        previousEmail = smtpEmail !== "-" ? smtpEmail : null;
+
         // Obsługuje formaty
-        let formats =
-          data2.smtp && data2.smtp.formats ? data2.smtp.formats : [];
-        let formatsSelect = document.getElementById("formats");
+        let formats = data2?.smtp?.formats ?? [];
         let formatsElement = document.querySelector(
           '[wholesalerdata="smtpFormats"]'
         );
+        let formatsSelect = document.getElementById("formats");
 
         if (formats.length === 0) {
           formatsElement.innerHTML = "Wybrane formaty: -";
         } else {
-          formatsElement.innerHTML = "Wybrane formaty:";
-          var formatList = formats.join(", "); // Łączenie formatów w jeden ciąg
-          $("div[wholesalerdata='smtpFormats']").text(
-            "Wybrane formaty: " + formatList
-          );
+          formatsElement.innerHTML = "Wybrane formaty: " + formats.join(", ");
           formats.forEach(function (format) {
             let option = formatsSelect.querySelector(
               `option[value="${format}"]`
@@ -659,84 +656,41 @@ docReady(function () {
             if (option) {
               option.selected = true;
             }
-            previousFormats = formats;
           });
+          previousFormats = formats;
         }
 
         // Obsługuje ostatnią transakcję SMTP
-        let lastTransaction = data2.smtp ? data2.smtp.lastTransaction : null;
-        let formattedDate = new Date(lastTransaction.createDate).toLocaleString(
-          "pl-PL"
-        );
-        let lastTransactionElement = document.querySelector(
+        let lastTransactionDate = data2?.smtp?.lastTransaction?.createDate;
+        let formattedDate = lastTransactionDate
+          ? new Date(lastTransactionDate).toLocaleString("pl-PL")
+          : "-";
+        document.querySelector(
           '[wholesalerdata="smtpLastTransaction"]'
-        );
-        if (lastTransaction === null) {
-          lastTransactionElement.innerHTML = "Data ostatniej operacji: -";
-        } else {
-          lastTransactionElement.innerHTML =
-            "Data ostatniej operacji: " + formattedDate;
-        }
+        ).innerHTML = "Data ostatniej operacji: " + formattedDate;
 
         // Obsługuje FTP
-        if (data2.ftp) {
-          // Identyfikator klienta FTP
-          let ftpCustomerId = data2.ftp.customerId;
-          let customerIdElement = document.querySelector(
-            '[wholesalerdata="customerId"]'
-          );
-          let customerIdInput = document.getElementById("customerId");
-          customerIdInput = ftpCustomerId;
-          if (ftpCustomerId === null) {
-            customerIdElement.innerHTML = "Identyfikator Klienta: -";
-          } else {
-            customerIdElement.innerHTML =
-              "Identyfikator Klienta: " + ftpCustomerId;
-          }
+        let ftp = data2?.ftp ?? {};
+        let ftpCustomerId = ftp.customerId ?? "-";
+        let ftpUsername = ftp.username ?? "-";
+        let ftpLastTransaction = ftp.lastTransaction ?? "-";
 
-          // Login FTP
-          let ftpUsername = data2.ftp.username;
-          let ftpUsernameElement = document.querySelector(
-            '[wholesalerdata="ftpUsername"]'
-          );
-          if (ftpUsername === null) {
-            ftpUsernameElement.innerHTML = "Login: -";
-          } else {
-            ftpUsernameElement.innerHTML = "Login: " + ftpUsername;
-          }
-
-          // Ostatnia transakcja FTP
-          let ftpLastTransaction = data2.ftp.lastTransaction;
-          let ftpLastTransactionElement = document.querySelector(
-            '[wholesalerdata="FtpLastTransaction"]'
-          );
-          if (ftpLastTransaction === null) {
-            ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
-          } else {
-            ftpLastTransactionElement.innerHTML =
-              "Ostatnia zmiana: " + ftpLastTransaction;
-          }
-        } else {
-          // Jeśli data2.ftp jest null, zabezpiecz kod, aby nie próbować uzyskać dostępu do danych
-          let customerIdElement = document.querySelector(
-            '[wholesalerdata="customerId"]'
-          );
-          customerIdElement.innerHTML = "Identyfikator Klienta: -";
-          let ftpUsernameElement = document.querySelector(
-            '[wholesalerdata="ftpUsername"]'
-          );
-          ftpUsernameElement.innerHTML = "Login: -";
-          let ftpLastTransactionElement = document.querySelector(
-            '[wholesalerdata="FtpLastTransaction"]'
-          );
-          ftpLastTransactionElement.innerHTML = "Ostatnia zmiana: -";
-        }
+        document.querySelector('[wholesalerdata="customerId"]').innerHTML =
+          "Identyfikator Klienta: " + ftpCustomerId;
+        document.getElementById("customerId").value =
+          ftpCustomerId !== "-" ? ftpCustomerId : "";
+        document.querySelector('[wholesalerdata="ftpUsername"]').innerHTML =
+          "Login: " + ftpUsername;
+        document.querySelector(
+          '[wholesalerdata="FtpLastTransaction"]'
+        ).innerHTML = "Ostatnia zmiana: " + ftpLastTransaction;
       } else if (request2.status >= 400) {
         console.error("Błąd: ", request2.status, this.response);
       } else {
         console.log("Nieoczekiwany błąd");
       }
     };
+
     request2.send();
   }
 
