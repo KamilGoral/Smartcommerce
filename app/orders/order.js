@@ -963,10 +963,11 @@ docReady(function () {
                     </div>
                   `;
                 },
+                className: "dt-center",
               },
               {
                 orderable: false,
-                width: "144px",
+                width: "64px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
                   if (data === "unassigned" || row.confirmedAt) {
@@ -975,11 +976,12 @@ docReady(function () {
 
                   return `
                     <div style="display: flex; justify-content: center;">
-                      <input type="checkbox" class="theClass" id="${data}" value="${data}" />
-                      <label class="mylabel" for="${data}" style="margin: 0;"></label>
+                      <input type="checkbox" class="theClass customicon" id="${data}" value="${data}" />
+                      <label class="mylabel customicon" for="${data}" style="margin: 0;"></label>
                     </div>
                   `;
                 },
+                className: "dt-center",
               },
             ],
             initComplete: function (settings, json) {
