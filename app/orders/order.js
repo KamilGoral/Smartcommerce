@@ -659,6 +659,13 @@ docReady(function () {
           toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
           $("#splitedwhcontainer").show();
 
+          // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
+          function formatDateToPolishTime(dateString) {
+            const date = new Date(dateString);
+            const options = { timeZone: "Europe/Warsaw", hour12: false };
+            return date.toLocaleString("pl-PL", options).replace(",", "");
+          }
+
           function getStatusHtml(item) {
             // Dodatkowe klasy CSS dla różnych statusów
             const statusClasses = {
@@ -681,13 +688,6 @@ docReady(function () {
               batching: "W kolejce",
               forced: "W kolejce",
             };
-
-            // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
-            function formatDateToPolishTime(dateString) {
-              const date = new Date(dateString);
-              const options = { timeZone: "Europe/Warsaw", hour12: false };
-              return date.toLocaleString("pl-PL", options).replace(",", "");
-            }
 
             const baseClass = "status-badge";
             const statusClass = statusClasses[item.status] || "noneexisting";
