@@ -702,10 +702,10 @@ docReady(function () {
             columns: [
               {
                 orderable: false,
-                width: "4px",
+                width: "32px",
                 data: null,
                 defaultContent:
-                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" fileformat="text/plain">',
+                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" style="width: 24px;height: 24px;">',
               },
               {
                 orderable: true,
