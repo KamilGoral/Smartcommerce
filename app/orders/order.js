@@ -852,7 +852,7 @@ docReady(function () {
                 orderable: true,
                 data: null, // Używamy null, bo będziemy korzystać z całego wiersza
                 name: "statusColumn",
-                width: "64px",
+                width: "80px",
                 render: function (data, type, row) {
                   if (data.wholesalerName === "unassigned") {
                     return "";
@@ -876,7 +876,7 @@ docReady(function () {
               {
                 orderable: false,
                 data: "wholesalerKey",
-                width: "108px",
+                width: "128px",
                 render: function (data, type, row) {
                   // File icon definitions
                   const icons = {
@@ -935,14 +935,14 @@ docReady(function () {
 
                   if (data === "unassigned") {
                     return `
-                    <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
                       ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
                     </div>
                   `;
                   }
 
                   return `
-                  <div style="display: flex; align-items: center; gap: 6px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
                     ${fileIcons.join("")}
                   </div>
                 `;
@@ -950,7 +950,7 @@ docReady(function () {
               },
               {
                 orderable: false,
-                width: "64px",
+                width: "80px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
                   if (data === "unassigned") {
@@ -967,7 +967,7 @@ docReady(function () {
               },
               {
                 orderable: false,
-                width: "64px",
+                width: "80px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
                   if (data === "unassigned" || row.confirmedAt) {
