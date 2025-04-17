@@ -2792,9 +2792,9 @@ docReady(function () {
       });
     }
 
-    // Oblicz czas zaoszczędzony w sekundach (liczba pozycji × liczba ofert × 5 sekund)
-    const totalItems = responseData?.total || 0;
-    const timeSavedInSeconds = totalItems * totalOffers * 2;
+    // Oblicz czas zaoszczędzony w sekundach (liczba ofert × 5 sekund)
+
+    const timeSavedInSeconds = totalOffers * 5;
 
     // Przelicz sekundy na minuty i zaokrąglij w górę
     let timeSavedInMinutes = Math.ceil(timeSavedInSeconds / 60);
