@@ -858,7 +858,7 @@ docReady(function () {
                   }
 
                   const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
-                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer;" />`;
 
                   // Jeśli confirmedAt istnieje, wyświetlamy ikonę potwierdzenia
                   if (data.confirmedAt) {
