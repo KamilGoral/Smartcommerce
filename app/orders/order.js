@@ -870,7 +870,7 @@ docReady(function () {
                     return `<span data-tippy-content="Oczekuję">${editIcon}</span>`;
                   }
                 },
-                className: "status-column",
+                className: "dt-center",
               },
               {
                 orderable: false,
