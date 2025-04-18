@@ -951,6 +951,7 @@ docReady(function () {
               },
             ],
             initComplete: function (settings, json) {
+              initializeSimpleTooltips();
               const api = this.api(); // Prawidłowe pobranie API w tym kontekście
               const allData = api.rows().data().toArray();
 
@@ -1859,6 +1860,7 @@ docReady(function () {
           },
 
           initComplete: function (settings, json) {
+            initializeSimpleTooltips();
             const table = this.api();
 
             // Wyczyść WSZYSTKIE niestandardowe filtry na początku
@@ -3876,6 +3878,7 @@ docReady(function () {
       updateTableInputsFromSessionStorage(orderId);
     },
     initComplete: function (settings, json) {
+      initializeSimpleTooltips();
       var api = this.api();
       var textBox = $("#table_id_filter label input");
 
