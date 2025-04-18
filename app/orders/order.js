@@ -959,7 +959,7 @@ docReady(function () {
 
                   return `
                     <div style="display: flex; justify-content: center;">
-                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/66019364bf06c555bcd2426c_icon.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
+                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
                     </div>
                   `;
                 },
@@ -976,8 +976,22 @@ docReady(function () {
 
                   return `
                     <div style="display: flex; justify-content: center;">
-                      <input type="checkbox" class="theClass customicon" id="${data}" value="${data}" />
-                      <label class="mylabel customicon" for="${data}" data-tippy-content="Pomiń" style="margin: 0;"></label>
+                      <input 
+                        type="checkbox" 
+                        class="theClass customicon" 
+                        id="${data}" 
+                        value="${data}" 
+                      />
+                      <label 
+                        class="mylabel customicon" 
+                        for="${data}" 
+                        data-tippy-content="Pomiń" 
+                        style="margin: 0;"
+                      >
+                        <span class="icon initial"></span>
+                        <span class="icon loading"></span>
+                        <span class="icon final"></span>
+                      </label>
                     </div>
                   `;
                 },
