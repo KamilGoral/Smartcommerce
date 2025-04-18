@@ -747,7 +747,7 @@ docReady(function () {
                                       <span style="color: #8E1212; display: flex; align-items: center;">
                                           <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
                                                alt="warning" 
-                                               style="width: 16px; height: 16px;">
+                                               style="width: 16px; height: 16px;margin-right: 4px">
                                       </span>
                                       <span>${data}zł</span>
                                   </div>
