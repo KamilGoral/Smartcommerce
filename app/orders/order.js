@@ -968,7 +968,7 @@ docReady(function () {
                   }
 
                   return `
-                    <div style="display: flex; justify-content: center;">
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
                       <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
                     </div>
                   `;
@@ -984,8 +984,8 @@ docReady(function () {
                     return ""; // brak checkboxa dla 'unassigned' lub już potwierdzonych
                   }
 
-                  return `
-                    <div style="display: flex; justify-content: center;">
+                  return `  
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
                       <input 
                         type="checkbox" 
                         class="theClass customicon" 
