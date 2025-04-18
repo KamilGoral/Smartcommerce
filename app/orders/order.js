@@ -3056,46 +3056,30 @@ docReady(function () {
                     "DataTable found, searching for wholesaler:",
                     wholesalerKeyToSend
                   );
-                  var found = false;
 
-                  table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                    var rowData = this.data();
-                    console.log(
-                      "Checking row with wholesalerKey:",
-                      rowData.wholesalerKey
-                    );
+                  let found = false;
 
+                  updateRowStatus((rowData) => {
+                    const match = rowData.wholesalerKey === wholesalerKeyToSend;
+                    if (match) {
+                      found = true;
+                    }
+                    return match;
+                  });
+
+                  // Teraz w osobnej pętli ustawiamy stan przycisku
+                  table.rows().every(function () {
+                    const rowData = this.data();
                     if (rowData.wholesalerKey === wholesalerKeyToSend) {
-                      console.log("Matching wholesaler found, updating row");
+                      const rowNode = this.node();
 
-                      // Get the row node
-                      var rowNode = this.node();
-
-                      // Find and update the status cell directly in DOM
-                      var statusCell =
-                        rowNode.querySelector("td.status-column");
-                      if (statusCell) {
-                        statusCell.innerHTML =
-                          '<span class="status-badge positive" data-tippy-content="Potwierdzono ' +
-                          new Date().toLocaleString() +
-                          '">Zatwierdzone</span>';
-                      } else {
-                        console.error("Status cell not found in row");
-                      }
-
-                      // Disable the send button (this part works)
-                      var sendButton = rowNode.querySelector(".sendemail");
+                      const sendButton = rowNode.querySelector(".sendemail");
                       if (sendButton) {
                         sendButton.disabled = true;
                         sendButton.classList.add("disabled");
                         sendButton.style.opacity = "0.5";
                         sendButton.style.cursor = "not-allowed";
                       }
-
-                      // Optional: Force DataTables redraw if needed
-                      table.draw(false);
-
-                      found = true;
                       return false;
                     }
                   });
@@ -3110,8 +3094,8 @@ docReady(function () {
                     );
                   }
 
-                  // Redraw the table to reflect changes
-                  table.draw();
+                  // Pełne przerysowanie jeśli trzeba
+                  table.draw(false);
                 }
 
                 console.log("Showing success message"); // Log before success message
