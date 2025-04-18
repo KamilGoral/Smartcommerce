@@ -784,7 +784,7 @@ docReady(function () {
                   var total = bestMatch + exclusive + order;
 
                   if (isUnassigned) {
-                    return `<div class="progress-bar-container" title="Nieprzydzielono">
+                    return `<div class="progress-bar-container" data-tippy-content="Nieprzydzielono">
                             <div class="progress-bar" style="width: 100%; background-color: #cccccc; border-radius: 5px;">
                               <span class="segment-count">${total}</span>
                             </div>
@@ -809,7 +809,7 @@ docReady(function () {
                     }
 
                     progressBars.push(
-                      `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" title="${title}: ${value}">
+                      `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" data-tippy-content="${title}: ${value}">
                        <span class="segment-count">${value}</span>
                      </div>`
                     );
@@ -1796,7 +1796,7 @@ docReady(function () {
                   const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" style="cursor: pointer;" />`;
                   const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
                   const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
 
                   if (data === true) {
                     return `
@@ -1886,7 +1886,10 @@ docReady(function () {
               });
 
               // Ustaw tooltip na wierszu
-              $(row).attr("title", "Produkt zamówiony, edycja jest niemożliwa");
+              $(row).attr(
+                "data-tippy-content",
+                "Produkt zamówiony, edycja jest niemożliwa"
+              );
 
               // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
               $(row).find("input, select, button").attr("disabled", true).css({
@@ -3888,7 +3891,7 @@ docReady(function () {
             const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" class="details-control2" style="cursor: pointer;" />`;
             const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
             const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
+            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
 
             if (data === true) {
               return `
