@@ -3059,20 +3059,19 @@ docReady(function () {
 
                   let found = false;
 
-                  updateRowStatus((rowData) => {
-                    const match = rowData.wholesalerKey === wholesalerKeyToSend;
-                    if (match) {
-                      found = true;
-                    }
-                    return match;
-                  });
-
-                  // Teraz w osobnej pętli ustawiamy stan przycisku
+                  // Aktualizacja confirmedAt w danych
                   table.rows().every(function () {
                     const rowData = this.data();
                     if (rowData.wholesalerKey === wholesalerKeyToSend) {
-                      const rowNode = this.node();
+                      found = true;
 
+                      // Ustawienie daty potwierdzenia
+                      rowData.confirmedAt = new Date().toISOString();
+                      this.data(rowData); // zaktualizuj dane
+                      table.row(this.index()).invalidate(); // zaktualizuj widok
+
+                      // Wyłączenie przycisku wysyłki
+                      const rowNode = this.node();
                       const sendButton = rowNode.querySelector(".sendemail");
                       if (sendButton) {
                         sendButton.disabled = true;
@@ -3080,7 +3079,8 @@ docReady(function () {
                         sendButton.style.opacity = "0.5";
                         sendButton.style.cursor = "not-allowed";
                       }
-                      return false;
+
+                      return false; // zakończ pętlę po pierwszym trafieniu
                     }
                   });
 
@@ -3088,13 +3088,13 @@ docReady(function () {
                     console.warn(
                       "Nie znaleziono wiersza dla tego hurtownika.",
                       {
-                        wholesalerKeyToSend: wholesalerKeyToSend,
+                        wholesalerKeyToSend,
                         tableData: table.rows().data().toArray(),
                       }
                     );
                   }
 
-                  // Pełne przerysowanie jeśli trzeba
+                  // Przerysowanie tabeli
                   table.draw(false);
                 }
 
