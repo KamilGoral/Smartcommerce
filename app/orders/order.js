@@ -768,9 +768,9 @@ docReady(function () {
                 render: function (data, type, row) {
                   const isUnassigned = row.wholesalerName === "unassigned";
 
-                  var bestMatch = data.bestMatch || 0;
-                  var exclusive = data.exclusive || 0;
-                  var order = data.order || 0;
+                  const bestMatch = data.bestMatch || 0;
+                  const exclusive = data.exclusive || 0;
+                  const order = data.order || 0;
 
                   if (type === "sort" || type === "type") {
                     return bestMatch + exclusive + order;
@@ -778,35 +778,26 @@ docReady(function () {
 
                   const total = bestMatch + exclusive + order;
 
-                  // Tooltip text
-                  const tooltipParts = [];
-                  if (bestMatch > 0)
-                    tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
-                  if (exclusive > 0) tooltipParts.push(`Blokada: ${exclusive}`);
-                  if (order > 0)
-                    tooltipParts.push(`Wybór użytkownika: ${order}`);
-                  const tooltip =
-                    tooltipParts.length > 0
-                      ? tooltipParts.join(", ")
-                      : "Brak produktów";
-
                   let displayText = "";
+                  let tooltip = "";
 
                   if (isUnassigned) {
                     displayText = `${total}`;
+                    tooltip = "Nieprzydzielono";
                   } else if (exclusive > 0 || order > 0) {
                     displayText = `${bestMatch}/${exclusive}/${order}`;
+                    tooltip = `Najlepszy wybór: ${bestMatch}, Blokada: ${exclusive}, Wybór użytkownika: ${order}`;
                   } else {
                     displayText = `${bestMatch}`;
+                    tooltip = `Najlepszy wybór: ${bestMatch}`;
                   }
 
-                  return `<div data-tippy-content="${tooltip}">
+                  return `<div class="textual-product-info" title="${tooltip}">
                             ${displayText}
                           </div>`;
                 },
                 type: "num",
                 defaultContent: "",
-                className: "dt-center",
               },
               {
                 orderable: true,
