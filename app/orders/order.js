@@ -638,12 +638,12 @@ docReady(function () {
           if (savingsValue >= 0) {
             setElementContent("savings", savingsValue, savingsPercentage);
           } else {
-            setElementContent("savings", "Zamówienie nieoptymalne");
+            setElementContent("savings", "Zamówienie nieoptymalne", "-");
           }
 
           // Set savingsNet content based on condition
           if (savingsNetValue >= 0) {
-            setElementContent("savingsNet", "Zamówienie nieoptymalne");
+            setElementContent("savingsNet", "Zamówienie nieoptymalne", "-");
           } else if (
             userRole === "admin" &&
             data.netValues.total !== data.netNetValues.total
