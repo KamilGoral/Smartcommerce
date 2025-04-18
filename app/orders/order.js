@@ -532,9 +532,9 @@ docReady(function () {
             for="${wholesaler}" 
             data-tippy-content="Pomiń"
           >
-            <span class="icon initial"></span>
-            <span class="icon loading"></span>
-            <span class="icon final"></span>
+            <span class="icon initial" style="maring-left:6px;"></span>
+            <span class="icon loading" style="maring-left:6px;"></span>
+            <span class="icon final" style="maring-left:6px;"></span>
           </label>
         </div>
       `);
