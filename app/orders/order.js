@@ -951,16 +951,19 @@ docReady(function () {
               },
             ],
             initComplete: function (settings, json) {
-              // Sprawdź, czy któryś z wierszy ma status confirmed
-              const confirmedExists = json.some(
-                (row) => row.confirmedAt !== null
-              );
+              // Pobieramy wszystkie dane z tabeli
+              const allData = table.rows().data().toArray();
 
-              if (confirmedExists) {
-                // Ukryj tab "Dodaj produkty"
+              // Sprawdzamy, czy którykolwiek wiersz ma confirmedAt
+              const hasConfirmed = allData.some(
+                (row) =>
+                  row.confirmedAt !== null && row.confirmedAt !== undefined
+              );
+              console.log(hasConfirmed);
+
+              if (hasConfirmed) {
                 $('a[data-w-tab="AddProducts"]').hide();
               } else {
-                // Pokaż tab "Dodaj produkty" (opcjonalnie, w razie ponownego załadowania)
                 $('a[data-w-tab="AddProducts"]').show();
               }
 
