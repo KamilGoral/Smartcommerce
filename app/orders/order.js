@@ -792,7 +792,7 @@ docReady(function () {
                     tooltip = `Najlepszy wybór: ${bestMatch}`;
                   }
 
-                  return `<div class="textual-product-info" title="${tooltip}">
+                  return `<div data-tippy-content="${tooltip}">
                             ${displayText}
                           </div>`;
                 },
