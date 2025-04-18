@@ -880,14 +880,14 @@ docReady(function () {
                 render: function (data, type, row) {
                   // File icon definitions
                   const icons = {
-                    text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da5308ca3b98f7f653_pc-FILE.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                    csv: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                    text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b6e9d0c00a6329e3e5_document-PC.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
+                    csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                     csvAgra:
-                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
                     csvMirex:
-                      '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da6407030dde16ffb9_kc-FILE.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                    pdf: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
-                    xls: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64f899b627cb527b193815cd_TemaSimple.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
+                    pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_document-PDF.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
+                    xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
                   };
 
                   const wholesalerConfigs = {
@@ -1403,13 +1403,13 @@ docReady(function () {
             // },
             // {
             //   extend: "excelHtml5",
-            //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+            //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" alt="spreadsheet">',
             //   titleAttr: "Excel",
             // },
             // ,
             // {
             //   extend: "pdfHtml5",
-            //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+            //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_document-PDF.svg" alt="pdf">',
             //   titleAttr: "PDF",
             // },
           ],
@@ -3449,13 +3449,13 @@ docReady(function () {
       // },
       // {
       //   extend: "excelHtml5",
-      //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+      //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" alt="spreadsheet">',
       //   titleAttr: "Excel",
       // },
       // ,
       // {
       //   extend: "pdfHtml5",
-      //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+      //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_document-PDF.svg" alt="pdf">',
       //   titleAttr: "PDF",
       // },
     ],
