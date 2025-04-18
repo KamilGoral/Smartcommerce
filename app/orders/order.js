@@ -810,7 +810,7 @@ docReady(function () {
                     return "";
                   }
 
-                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
+                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
                   const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="pointer;" />`;
 
                   // Jeśli confirmedAt istnieje, wyświetlamy ikonę potwierdzenia
@@ -4099,21 +4099,20 @@ docReady(function () {
     const updateRowStatus = (matchFn = () => true) => {
       table.rows().every(function () {
         const rowData = this.data();
+
         if (!matchFn(rowData)) return;
 
-        const rowNode = this.node();
-        const statusCell = rowNode.querySelector("td.status-column");
+        // Modyfikujemy dane, żeby zaktualizować `confirmedAt`
+        rowData.confirmedAt = new Date().toISOString();
 
-        if (statusCell) {
-          statusCell.innerHTML =
-            '<span class="status-badge positive" data-tippy-content="Zatwierdzone ' +
-            new Date().toLocaleString() +
-            '">Zatwierdzone</span>';
-        } else {
-          console.error("Status cell not found in row");
-        }
+        // Aktualizujemy dane w wierszu
+        this.data(rowData);
 
-        return false;
+        // Przerysowujemy tylko ten wiersz
+        const rowIndex = this.index();
+        table.row(rowIndex).invalidate().draw(false);
+
+        return false; // przerywa pętlę po pierwszym dopasowaniu
       });
     };
 
