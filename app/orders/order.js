@@ -828,7 +828,7 @@ docReady(function () {
               {
                 orderable: false,
                 data: "wholesalerKey",
-                width: "128px",
+                width: "152px",
                 render: function (data, type, row) {
                   // File icon definitions
                   const icons = {
