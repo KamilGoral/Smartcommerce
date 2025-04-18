@@ -798,6 +798,7 @@ docReady(function () {
                 },
                 type: "num",
                 defaultContent: "",
+                className: "dt-center",
               },
               {
                 orderable: true,
