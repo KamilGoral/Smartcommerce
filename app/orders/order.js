@@ -517,21 +517,27 @@ docReady(function () {
     });
 
     searchIDs.forEach((wholesaler) => {
-      $("#DeletedContainer").append(
-        '<div class="deletedwh" id="d' +
-          wholesaler +
-          '">' +
-          wholesaler +
-          '<input type="checkbox" class="theClass customicon" id="' +
-          wholesaler +
-          '" value="' +
-          wholesaler +
-          '" name="' +
-          wholesaler +
-          '"><label class="mylabel customicon" for="' +
-          wholesaler +
-          '"></label></div>'
-      );
+      $("#DeletedContainer").append(`
+        <div class="deletedwh" id="d${wholesaler}">
+          ${wholesaler}
+          <input 
+            type="checkbox" 
+            class="theClass customicon" 
+            id="${wholesaler}" 
+            value="${wholesaler}" 
+            name="${wholesaler}"
+          />
+          <label 
+            class="mylabel customicon" 
+            for="${wholesaler}" 
+            data-tippy-content="Pomiń"
+          >
+            <span class="icon initial"></span>
+            <span class="icon loading"></span>
+            <span class="icon final"></span>
+          </label>
+        </div>
+      `);
     });
 
     var UrlParameters = "";
