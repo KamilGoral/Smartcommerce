@@ -4142,6 +4142,7 @@ docReady(function () {
 
       downloadFile(downloadUrl, fileformat, () => {
         updateRowStatus();
+        $('a[data-w-tab="AddProducts"]').hide(); // hide AddProducts Tab
       });
     } else {
       const wholesalerKey = data.wholesalerKey;
