@@ -746,7 +746,7 @@ docReady(function () {
                                        data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
                                       <span style="color: #8E1212; display: flex; align-items: center;">
                                           <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                                               alt="Ostrzeżenie" 
+                                               alt="warning" 
                                                style="width: 16px; height: 16px;">
                                       </span>
                                       <span>${data}zł</span>
@@ -868,8 +868,8 @@ docReady(function () {
                     return "";
                   }
 
-                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" data-tippy-content="W edycji" style="cursor: pointer;" />`;
-                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer;" />`;
+                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="pointer;" />`;
 
                   // Jeśli confirmedAt istnieje, wyświetlamy ikonę potwierdzenia
                   if (data.confirmedAt) {
@@ -878,7 +878,7 @@ docReady(function () {
                     )}">${confirmedIcon}</span>`;
                   } else {
                     // W przeciwnym razie, szkic z ikoną edycji
-                    return `<span data-tippy-content="Oczekuję">${editIcon}</span>`;
+                    return `<span data-tippy-content="W edycji">${editIcon}</span>`;
                   }
                 },
                 className: "dt-center",
