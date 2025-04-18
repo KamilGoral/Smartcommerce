@@ -4048,10 +4048,19 @@ docReady(function () {
       $("input.theClass").prop("disabled", true);
     };
 
+    const mimeTypesMap = {
+      edi: "application/zip",
+      csv: "application/zip",
+      pdf: "application/zip",
+      tema: "application/zip",
+    };
+
+    const acceptMime = mimeTypesMap[fileformat] || fileformat;
+
     const downloadFile = (url, fileName, onSuccess) => {
       fetch(url, {
         headers: {
-          Accept: fileformat,
+          Accept: acceptMime,
           Authorization: orgToken,
           "Requested-By": "webflow-3-4",
         },
