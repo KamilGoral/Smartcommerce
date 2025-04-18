@@ -862,7 +862,7 @@ docReady(function () {
                 orderable: true,
                 data: null, // Używamy null, bo będziemy korzystać z całego wiersza
                 name: "statusColumn",
-                width: "80px",
+                width: "48px",
                 render: function (data, type, row) {
                   if (data.wholesalerName === "unassigned") {
                     return "";
@@ -960,7 +960,7 @@ docReady(function () {
               },
               {
                 orderable: false,
-                width: "80px",
+                width: "48px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
                   if (data === "unassigned") {
@@ -977,7 +977,7 @@ docReady(function () {
               },
               {
                 orderable: false,
-                width: "80px",
+                width: "48px",
                 data: "wholesalerKey",
                 render: function (data, type, row) {
                   if (data === "unassigned" || row.confirmedAt) {
