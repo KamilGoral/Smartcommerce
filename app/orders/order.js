@@ -766,94 +766,43 @@ docReady(function () {
                 data: "products",
                 width: "64px",
                 render: function (data, type, row) {
-                  // Sprawdź czy wholesalerName to "unassigned"
                   const isUnassigned = row.wholesalerName === "unassigned";
 
-                  // Jeśli to sortowanie lub filtrowanie, zwróć tylko wartość do sortowania
-                  if (type === "sort" || type === "type") {
-                    var bestMatch = data.bestMatch || 0;
-                    var exclusive = data.exclusive || 0;
-                    var order = data.order || 0;
-                    return bestMatch + exclusive + order; // Zwraca total dla sortowania
-                  }
-
-                  // Normalne renderowanie dla wyświetlania
                   var bestMatch = data.bestMatch || 0;
                   var exclusive = data.exclusive || 0;
                   var order = data.order || 0;
-                  var total = bestMatch + exclusive + order;
 
-                  if (isUnassigned) {
-                    return `<div class="progress-bar-container" data-tippy-content="Nieprzydzielono">
-                            <div class="progress-bar" style="width: 100%; background-color: #cccccc; border-radius: 5px;">
-                              <span class="segment-count">${total}</span>
-                            </div>
-                          </div>`;
+                  if (type === "sort" || type === "type") {
+                    return bestMatch + exclusive + order;
                   }
 
-                  var progressBars = [];
-                  var currentPosition = 0;
+                  const total = bestMatch + exclusive + order;
 
-                  function addSegment(value, color, title, isFirst, isLast) {
-                    if (value <= 0) return;
-
-                    var width = (value / total) * 100;
-                    var borderRadius = "";
-
-                    if (isFirst && isLast) {
-                      borderRadius = "border-radius: 5px;";
-                    } else if (isFirst) {
-                      borderRadius = "border-radius: 5px 0 0 5px;";
-                    } else if (isLast) {
-                      borderRadius = "border-radius: 0 5px 5px 0;";
-                    }
-
-                    progressBars.push(
-                      `<div class="progress-bar" style="width: ${width}%; left: ${currentPosition}%; background-color: ${color}; ${borderRadius}" data-tippy-content="${title}: ${value}">
-                       <span class="segment-count">${value}</span>
-                     </div>`
-                    );
-                    currentPosition += width;
-                  }
-
-                  var segments = [
-                    {
-                      value: bestMatch,
-                      color: "#CAEDC4",
-                      title: "Najlepszy wybór",
-                    },
-                    { value: exclusive, color: "#F5E8E3", title: "Blokada" },
-                    {
-                      value: order,
-                      color: "#FFF8E2",
-                      title: "Wybór użytkownika",
-                    },
-                  ].filter((seg) => seg.value > 0);
-
-                  segments.forEach((seg, index) => {
-                    addSegment(
-                      seg.value,
-                      seg.color,
-                      seg.title,
-                      index === 0,
-                      index === segments.length - 1
-                    );
-                  });
-
-                  var tooltipParts = [];
+                  // Tooltip text
+                  const tooltipParts = [];
                   if (bestMatch > 0)
                     tooltipParts.push(`Najlepszy wybór: ${bestMatch}`);
                   if (exclusive > 0) tooltipParts.push(`Blokada: ${exclusive}`);
                   if (order > 0)
                     tooltipParts.push(`Wybór użytkownika: ${order}`);
+                  const tooltip =
+                    tooltipParts.length > 0
+                      ? tooltipParts.join(", ")
+                      : "Brak produktów";
 
-                  var tooltip = tooltipParts.join(", ");
+                  let displayText = "";
 
-                  return `<div class="progress-bar-container" title="${
-                    tooltip || "Brak produktów"
-                  }">
-                          ${total > 0 ? progressBars.join("") : ""}
-                        </div>`;
+                  if (isUnassigned) {
+                    displayText = `${total}`;
+                  } else if (exclusive > 0 || order > 0) {
+                    displayText = `${bestMatch}/${exclusive}/${order}`;
+                  } else {
+                    displayText = `${bestMatch}`;
+                  }
+
+                  return `<div class="textual-product-info" title="${tooltip}">
+                            ${displayText}
+                          </div>`;
                 },
                 type: "num",
                 defaultContent: "",
