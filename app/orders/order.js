@@ -800,12 +800,13 @@ docReady(function () {
                     displayText = `${bestMatch}`;
                   }
 
-                  return `<div class="textual-product-info" title="${tooltip}">
+                  return `<div data-tippy-content="${tooltip}">
                             ${displayText}
                           </div>`;
                 },
                 type: "num",
                 defaultContent: "",
+                className: "dt-center",
               },
               {
                 orderable: true,
