@@ -858,8 +858,8 @@ docReady(function () {
                     return "";
                   }
 
-                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
-                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" title="Potwierdzono" style="pointer;" />`;
+                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" data-tippy-content="W edycji" style="cursor: pointer;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer;" />`;
 
                   // Jeśli confirmedAt istnieje, wyświetlamy ikonę potwierdzenia
                   if (data.confirmedAt) {
@@ -880,14 +880,14 @@ docReady(function () {
                 render: function (data, type, row) {
                   // File icon definitions
                   const icons = {
-                    text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b6e9d0c00a6329e3e5_document-PC.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon">',
-                    csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                    text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b6e9d0c00a6329e3e5_document-PC.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon" data-tippy-content="PC-Market">',
+                    csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
                     csvAgra:
-                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon">',
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Excel / Tema">',
                     csvMirex:
-                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Plik nieobsługiwany przez e-hurtownie dostawcy.">',
-                    pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_document-PDF.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon">',
-                    xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon">',
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
+                    pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_document-PDF.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon" data-tippy-content="PDF / Wydruk">',
+                    xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_document-XLS.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon" data-tippy-content="Excel / Tema">',
                   };
 
                   const wholesalerConfigs = {
@@ -959,7 +959,7 @@ docReady(function () {
 
                   return `
                     <div style="display: flex; justify-content: center;">
-                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/66019364bf06c555bcd2426c_icon.svg" title="Wyślij" class="sendemail" style="cursor: pointer;" />
+                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/66019364bf06c555bcd2426c_icon.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
                     </div>
                   `;
                 },
@@ -977,7 +977,7 @@ docReady(function () {
                   return `
                     <div style="display: flex; justify-content: center;">
                       <input type="checkbox" class="theClass customicon" id="${data}" value="${data}" />
-                      <label class="mylabel customicon" for="${data}" style="margin: 0;"></label>
+                      <label class="mylabel customicon" for="${data}" data-tippy-content="Pomiń" style="margin: 0;"></label>
                     </div>
                   `;
                 },
