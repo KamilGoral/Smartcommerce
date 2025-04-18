@@ -823,7 +823,7 @@ docReady(function () {
                     return `<span data-tippy-content="W edycji">${editIcon}</span>`;
                   }
                 },
-                className: "dt-center",
+                className: "dt-center status-column",
               },
               {
                 orderable: false,
@@ -4113,8 +4113,7 @@ docReady(function () {
           console.error("Status cell not found in row");
         }
 
-        table.draw(false);
-        return false; // break loop after update
+        return false;
       });
     };
 
