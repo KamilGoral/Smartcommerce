@@ -951,6 +951,19 @@ docReady(function () {
               },
             ],
             initComplete: function (settings, json) {
+              // Sprawdź, czy któryś z wierszy ma status confirmed
+              const confirmedExists = json.some(
+                (row) => row.confirmedAt !== null
+              );
+
+              if (confirmedExists) {
+                // Ukryj tab "Dodaj produkty"
+                $('a[data-w-tab="AddProducts"]').hide();
+              } else {
+                // Pokaż tab "Dodaj produkty" (opcjonalnie, w razie ponownego załadowania)
+                $('a[data-w-tab="AddProducts"]').show();
+              }
+
               var textBox = $("#table_splited_wh filter label input");
               textBox.unbind();
               textBox.bind("keyup input", function (e) {
