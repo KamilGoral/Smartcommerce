@@ -710,8 +710,12 @@ docReady(function () {
                 orderable: false,
                 width: "32px",
                 data: null,
-                defaultContent:
-                  '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" style="width: 24px;height: 24px;">',
+                render: function (data) {
+                  if (data.wholesalerName === "unassigned") {
+                    return "";
+                  }
+                  return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" style="width: 24px;height: 24px;">';
+                },
               },
               {
                 orderable: true,
