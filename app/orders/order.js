@@ -951,15 +951,15 @@ docReady(function () {
               },
             ],
             initComplete: function (settings, json) {
-              // Pobieramy wszystkie dane z tabeli
-              const allData = table.rows().data().toArray();
+              const api = this.api(); // Prawidłowe pobranie API w tym kontekście
+              const allData = api.rows().data().toArray();
 
-              // Sprawdzamy, czy którykolwiek wiersz ma confirmedAt
               const hasConfirmed = allData.some(
                 (row) =>
                   row.confirmedAt !== null && row.confirmedAt !== undefined
               );
-              console.log(hasConfirmed);
+
+              console.log("Has confirmed:", hasConfirmed);
 
               if (hasConfirmed) {
                 $('a[data-w-tab="AddProducts"]').hide();
