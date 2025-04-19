@@ -1353,7 +1353,7 @@ docReady(function () {
               : ""
           } ${
             isConfirmed
-              ? 'disabled data-tippy-content="Ten dostawca został już potwierdzony - wybór nie jest możliwy"'
+              ? 'disabled style="font-style: italic;backgroud-color: #fbfbfb"'
               : ""
           }
           style="background-color: #EBECF0;">
