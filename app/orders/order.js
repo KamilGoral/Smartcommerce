@@ -569,7 +569,17 @@ docReady(function () {
         },
         complete: function () {
           $("#waitingdots").hide();
+
+          // Jeśli tabela istnieje, ale nie ma danych, pokaż pusty stan
+          if ($.fn.dataTable.isDataTable("#table_splited_wh")) {
+            const table = $("#table_splited_wh").DataTable();
+            if (table.data().count() === 0) {
+              $("#table_splited_wh").show(); // upewnij się, że widoczna
+              table.clear().draw(); // może niepotrzebne, ale zachowawczo
+            }
+          }
         },
+
         contentType: "application/json",
         dataType: "json",
         headers: {
