@@ -1327,23 +1327,20 @@ docReady(function () {
             self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
         );
 
-        // Dodajemy dostawców z jsonData
+        // Dodajemy dostawców z jsonData, pomijając potwierdzonych
         jsonData.forEach((item) => {
+          if (confirmedWholesalers.has(item.wholesalerKey)) return;
+
           const wholesaler = wholesalersData.find(
             (w) => w.wholesalerKey === item.wholesalerKey
           );
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          const isConfirmed = confirmedWholesalers.has(item.wholesalerKey);
 
           selectHTML += `<option value="${item.wholesalerKey}" ${
             item.wholesalerKey === selectedWholesalerKey
               ? 'selected style="font-weight: bold"'
-              : ""
-          } ${
-            isConfirmed
-              ? 'disabled style="font-style: italic;backgroud-color: #fbfbfb"'
               : ""
           }>
             ${wholesalerName}
@@ -1351,25 +1348,19 @@ docReady(function () {
         });
       }
 
-      // Dodajemy pozostałych dostawców z wholesalersData
+      // Dodajemy pozostałych dostawców z wholesalersData, pomijając potwierdzonych
       wholesalersData.forEach((wholesaler) => {
         const alreadyAdded =
           jsonData &&
           jsonData.some(
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
           );
-        if (!alreadyAdded) {
-          const isConfirmed = confirmedWholesalers.has(
-            wholesaler.wholesalerKey
-          );
+        const isConfirmed = confirmedWholesalers.has(wholesaler.wholesalerKey);
 
+        if (!alreadyAdded && !isConfirmed) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}" ${
             wholesaler.wholesalerKey === selectedWholesalerKey
               ? 'selected style="font-weight: bold"'
-              : ""
-          } ${
-            isConfirmed
-              ? 'disabled style="font-style: italic;backgroud-color: #fbfbfb"'
               : ""
           }
           style="background-color: #EBECF0;">
@@ -1378,7 +1369,7 @@ docReady(function () {
         }
       });
 
-      return selectHTML;
+      return selectHTML + "</select>";
     } else {
       return "Brak dostawców do wyboru.";
     }
