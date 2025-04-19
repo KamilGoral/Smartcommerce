@@ -3109,12 +3109,18 @@ docReady(function () {
                   $("#waitingdots").hide();
                 }, 3000);
 
-                const responseText = jqXHR.responseText || "";
-                const alreadyExists = responseText.includes("already exists");
+                let errorMessage =
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.";
 
-                const errorMessage = alreadyExists
-                  ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie."
-                  : "Oops. Coś poszło nie tak, spróbuj ponownie.";
+                if (
+                  jqXHR.status === 409 &&
+                  jqXHR.responseJSON?.message?.includes("already exists")
+                ) {
+                  errorMessage =
+                    "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie.";
+                } else if (jqXHR.responseJSON?.message) {
+                  errorMessage = jqXHR.responseJSON.message;
+                }
 
                 displayMessage("Błąd", errorMessage);
 
