@@ -4225,6 +4225,9 @@ docReady(function () {
         const rowIndex = this.index();
         table.row(rowIndex).invalidate().draw(false);
 
+        // Hide AddProducts Tab
+        $('a[data-w-tab="AddProducts"]').hide();
+
         return false; // przerywa pętlę po pierwszym dopasowaniu
       });
     };
@@ -4239,7 +4242,6 @@ docReady(function () {
 
       downloadFile(downloadUrl, fileformat, () => {
         updateRowStatus();
-        $('a[data-w-tab="AddProducts"]').hide(); // hide AddProducts Tab
       });
     } else {
       const wholesalerKey = data.wholesalerKey;
