@@ -3113,7 +3113,7 @@ docReady(function () {
                   errorCallback(e);
                 }
                 form.show();
-                const errorMessage = e.message.includes("already exists")
+                const errorMessage = e.message.include("already exists")
                   ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
                   : "Oops. Coś poszło nie tak, spróbuj ponownie.";
                 displayMessage("Błąd", errorMessage);
