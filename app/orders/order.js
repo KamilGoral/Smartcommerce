@@ -4811,7 +4811,7 @@ docReady(function () {
 
     setTimeout(function () {
       clickTab("addProducts"); // Kliknij zakładkę po krótkim opóźnieniu
-    }, 2000);
+    }, 500);
   } else {
     console.log(
       "Parametr 'data-w-tab' nie jest równy 'add' – wywołuję CreateOrder()"
