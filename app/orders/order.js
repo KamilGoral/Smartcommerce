@@ -4788,23 +4788,35 @@ docReady(function () {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
 
+  // Pobierz wartość parametru "data-w-tab" z URL
   var tabToClick = getParameterByName("data-w-tab");
+  console.log("Parametr 'data-w-tab' z URL:", tabToClick);
 
-  // Function to simulate clicking on a tab by its data-w-tab attribute
+  // Funkcja do kliknięcia w zakładkę na podstawie atrybutu data-w-tab
   function clickTab(tabName) {
     var tabLink = document.getElementById(tabName);
     if (tabLink) {
+      console.log(`Klikam w zakładkę o ID: '${tabName}'`);
       tabLink.click();
+    } else {
+      console.warn(`Nie znaleziono elementu o ID: '${tabName}'`);
     }
   }
 
   if (tabToClick === "add") {
+    console.log(
+      "Parametr 'data-w-tab' to 'add' – pokazuję i klikam zakładkę 'AddProducts'"
+    );
+    $('a[data-w-tab="AddProducts"]').show();
+
     setTimeout(function () {
-      clickTab("AddProducts"); // Click the 'Add' tab if the parameter is present
+      clickTab("AddProducts"); // Kliknij zakładkę po krótkim opóźnieniu
     }, 2000);
   } else {
-    console.log("tab is not add so create order");
-    CreateOrder(); // Fire CreateOrder() if the parameter is not present
+    console.log(
+      "Parametr 'data-w-tab' nie jest równy 'add' – wywołuję CreateOrder()"
+    );
+    CreateOrder();
   }
 
   getWholesalersSh();
