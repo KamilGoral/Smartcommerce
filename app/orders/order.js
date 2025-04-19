@@ -2017,10 +2017,35 @@ docReady(function () {
           data: JSON.stringify(changesPayload),
           processData: false,
           success: function (resultData) {
-            resolve(resultData);
-            changesPayload = [];
+            try {
+              if (resultData.errorMessage) {
+                const parsedError = JSON.parse(resultData.errorMessage);
+                if (parsedError.code === 409) {
+                  displayMessage(
+                    "Błąd",
+                    "Nie można edytować produktów, które zostały już potwierdzone."
+                  );
+                  reject(parsedError); // odrzucamy, mimo 200
+                  return;
+                }
+              }
+
+              // brak błędu, normalna ścieżka
+              resolve(resultData);
+              changesPayload = [];
+            } catch (e) {
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
+              reject(e);
+            }
           },
           error: function (jqXHR, exception) {
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
             reject({ jqXHR, exception });
           },
         });
