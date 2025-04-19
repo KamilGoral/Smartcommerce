@@ -1109,9 +1109,19 @@ docReady(function () {
 
   function format(d) {
     if (!d || !Array.isArray(d.asks) || d.asks.length === 0) {
-      return ""; // <-- nic nie renderujemy
+      return "";
     }
 
+    // Pobiera potwierdzonych dostawców z tabeli #table_splited_wh
+    function getConfirmedWholesalersFromTable() {
+      const table = $("#table_splited_wh").DataTable();
+      const data = table.rows().data().toArray();
+      return data
+        .filter((row) => row.confirmedAt)
+        .map((row) => row.wholesalerKey);
+    }
+
+    const confirmedKeys = getConfirmedWholesalersFromTable();
     const arr = d.asks;
 
     const sourceMap = {
@@ -1223,7 +1233,13 @@ docReady(function () {
 
         const benefitHtml = getBenefitDetails(item.promotion?.benefit);
 
-        return `<tr>
+        const isConfirmed = confirmedKeys.includes(item.wholesalerKey);
+        const rowAttrs = isConfirmed
+          ? `data-tippy-content="Dostawca potwierdzony, w tym zamówieniu cena jest niemożliwa"
+             style="background-color: transparent; font-style: italic; font-weight: 300; cursor: not-allowed;"`
+          : "";
+
+        return `<tr ${rowAttrs}>
           <td>${item.wholesalerKey}</td>
           <td>${item.netPrice}</td>
           <td>${
@@ -1244,7 +1260,7 @@ docReady(function () {
           <td>${item.promotion?.cap ?? "-"}</td>
           <td>${calculatePackage(item.promotion)}</td>
           <td>${benefitHtml}</td>
-          <td>${showRelated}</td>    
+          <td>${showRelated}</td>
         </tr>`;
       })
       .join("");
