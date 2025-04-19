@@ -4859,6 +4859,7 @@ docReady(function () {
 
     setTimeout(function () {
       clickTab("addProducts"); // Kliknij zakładkę po krótkim opóźnieniu
+      CreateOrder();
     }, 500);
   } else {
     console.log(
