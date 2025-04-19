@@ -1065,7 +1065,7 @@ docReady(function () {
   });
 
   function format(d) {
-    const arr = d.asks;
+    const arr = d && Array.isArray(d.asks) ? d.asks : [];
     const sourceMap = {
       "price list": "Cennik",
       "online offer": "E-hurt",
