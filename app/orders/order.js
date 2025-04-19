@@ -1329,6 +1329,593 @@ docReady(function () {
       },
       complete: function () {
         $("#waitingdots").hide();
+
+        // Usunięcie starej tabeli jeśli istnieje
+        if ($.fn.DataTable.isDataTable("#spl_table")) {
+          $("#spl_table").DataTable().destroy();
+          $("#spl_table").empty(); // czyści <thead>/<tbody> jeśli trzeba
+        }
+
+        var table = $("#spl_table").DataTable({
+          order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
+          pagingType: "full_numbers",
+          destroy: true,
+          dom: '<"top"fB>rt<"bottom"lip>',
+          scrollY: "60vh",
+          scrollCollapse: true,
+          pageLength: 25,
+          orderCellsTop: true,
+          fixedHeader: true,
+          orderMulti: true,
+          buttons: [
+            {
+              text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
+              titleAttr: "Rozwiń wszystkie",
+              action: function (e, dt, node, config) {
+                dt.rows().every(function () {
+                  var row = this;
+                  var rowData = row.data();
+                  if (
+                    Array.isArray(rowData.asks) &&
+                    rowData.asks.length > 0 &&
+                    !row.child.isShown()
+                  ) {
+                    row.child(format(rowData)).show();
+                    $(row.node()).addClass("shown");
+                  }
+                });
+              },
+            },
+            {
+              text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
+              titleAttr: "Zwiń wszystkie",
+              action: function (e, dt, node, config) {
+                dt.rows().every(function () {
+                  var row = this;
+                  if (row.child.isShown()) {
+                    row.child.hide();
+                    $(row.node()).removeClass("shown");
+                  }
+                });
+              },
+            },
+            // ,
+            // {
+            //   extend: "copyHtml5",
+            //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+            //   titleAttr: "Kopiuj",
+            // },
+            // {
+            //   extend: "excelHtml5",
+            //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="spreadsheet">',
+            //   titleAttr: "Excel",
+            // },
+            // ,
+            // {
+            //   extend: "pdfHtml5",
+            //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" alt="pdf">',
+            //   titleAttr: "PDF",
+            // },
+          ],
+          language: {
+            emptyTable: "Brak danych do wyświetlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            infoEmpty: "Brak danych",
+            infoFiltered: "(z _MAX_ rezultatów)",
+            lengthMenu: "Pokaż _MENU_ rekordów",
+            loadingRecords: "<div class='spinner'</div>",
+            processing: "<div class='spinner'</div>",
+            search: "Szukaj:",
+            zeroRecords: "Brak pasujących rezultatów",
+            paginate: {
+              first: "<<",
+              last: ">>",
+              next: " >",
+              previous: "< ",
+            },
+            aria: {
+              sortAscending: ": Sortowanie rosnące",
+              sortDescending: ": Sortowanie malejące",
+            },
+          },
+          data: resultProducts.items,
+          search: {
+            return: true,
+          },
+          columns: [
+            {
+              data: null,
+              defaultContent: "",
+              createdCell: function (
+                cell,
+                cellData,
+                rowData,
+                rowIndex,
+                colIndex
+              ) {
+                if (rowData.asks && rowData.asks.length > 0) {
+                  $(cell).addClass("details-control");
+                }
+              },
+              orderable: false,
+            },
+            {
+              orderable: true,
+              data: "name",
+            },
+            {
+              orderable: true,
+              data: "countryDistributorName",
+              defaultContent: "-",
+            },
+            {
+              orderable: true,
+              data: "gtin",
+            },
+            {
+              orderable: true,
+              data: "stock",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.value;
+                }
+                if (data === null) {
+                  return "0";
+                }
+              },
+            },
+            {
+              orderable: true, // pozwala sortować
+              data: "quantity", // dane używane do sortowania
+              render: function (data, type, row) {
+                // Jeśli typ to 'display', renderujemy input
+                if (type === "display") {
+                  return (
+                    '<input type="number" style="max-width: 80px" ' +
+                    'onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" ' +
+                    'min="0" max="999999" value="' +
+                    data +
+                    '" onpaste="handlePaste(event)">'
+                  );
+                }
+
+                // W innych przypadkach (np. sortowanie, wyszukiwanie), zwróć wartość surową
+                return data;
+              },
+            },
+            {
+              orderable: true,
+              data: "standardPrice",
+              render: function (data) {
+                if (data !== null) {
+                  return "" + data.value.toFixed(2);
+                }
+                if (data === null) {
+                  return "0";
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "netPrice",
+              render: function (data, type, row) {
+                // Sprawdź, czy istnieją segmenty zakupu
+                if (row.purchaseSegments && row.purchaseSegments.length > 1) {
+                  // Oblicz cenę ważoną
+                  let totalQuantity = 0;
+                  let totalValue = 0;
+                  let tooltipContent = "Otrzymasz: ";
+
+                  row.purchaseSegments.forEach((segment, index) => {
+                    totalQuantity += segment.quantity;
+                    totalValue += segment.netPrice * segment.quantity;
+                    tooltipContent += `${
+                      segment.quantity
+                    } sztuk po ${segment.netPrice.toFixed(2)} zł`;
+                    if (index < row.purchaseSegments.length - 1) {
+                      tooltipContent += " oraz ";
+                    }
+                  });
+
+                  const weightedPrice = (totalValue / totalQuantity).toFixed(2);
+
+                  // Zwróć sformatowaną komórkę z tooltipem i pogrubioną ceną ważoną
+                  return `<td class="tippy" data-tippy-content="${tooltipContent}">
+                            <strong>${weightedPrice}</strong>
+                          </td>`;
+                }
+
+                // Jeśli jest tylko jeden segment lub brak segmentów, zwróć standardową cenę
+                if (data !== null) {
+                  return data.toFixed(2);
+                }
+                return "0";
+              },
+            },
+            {
+              orderable: true,
+              orderData: [8, 1],
+              data: null,
+              render: function (data) {
+                return (
+                  '<p style="font-size: 0;display: none">' +
+                  data.wholesalerKey +
+                  "</p>" +
+                  generateWholesalerSelect(
+                    data.wholesalerKey,
+                    data.asks,
+                    0,
+                    data.assignmentSource
+                  )
+                );
+              },
+            },
+            {
+              orderable: true,
+              data: "assignmentSource",
+              render: function (data) {
+                if (data !== null) {
+                  if (data === "best match") {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>';
+                  } else if (data === "exclusive") {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>';
+                  } else if (data === "preferential match") {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/661ac96de52db7d23c282bd7_marketplace_preferential.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">3</p></div>';
+                  } else {
+                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">4</p></div>';
+                  }
+                } else {
+                  return '<p class="neutral">-</p>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: null,
+              width: "72px",
+              // class: "details-invisible",
+              render: function (data) {
+                if (data.hasOwnProperty("asks") && data.asks !== null) {
+                  // Wybór niższej wartości, ale nie null
+                  if (data.netNetPrice !== null && data.netPrice !== null) {
+                    currentPrice = Math.min(data.netNetPrice, data.netPrice);
+                  } else {
+                    currentPrice =
+                      data.netNetPrice !== null
+                        ? data.netNetPrice
+                        : data.netPrice;
+                  }
+
+                  // Jeśli obie wartości są null, przerywamy dalsze działanie
+                  if (currentPrice === null) {
+                    return "<td>0.00%</td>";
+                  }
+                  // Znajdowanie najniższych wartości dla netPrice i netNetPrice, pomijając null dla netNetPrice
+                  let lowestNetPrice = Infinity;
+                  let lowestNetNetPrice = Infinity;
+
+                  data.asks.forEach((ask) => {
+                    if (ask.netPrice !== null) {
+                      lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                    }
+                    if (ask.netNetPrice !== null) {
+                      lowestNetNetPrice = Math.min(
+                        lowestNetNetPrice,
+                        ask.netNetPrice
+                      );
+                    }
+                  });
+
+                  // Pomijanie wartości null dla netNetPrice
+                  if (lowestNetNetPrice === Infinity) {
+                    lowestNetNetPrice = null;
+                  }
+
+                  // Wybór najniższej wartości spośród najniższych asków
+                  let lowestPrice;
+                  if (
+                    lowestNetPrice !== Infinity &&
+                    lowestNetNetPrice !== null
+                  ) {
+                    lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
+                  } else {
+                    // Używamy tylko netPrice, jeśli netNetPrice jest null
+                    lowestPrice =
+                      lowestNetPrice !== Infinity ? lowestNetPrice : null;
+                  }
+
+                  // Sprawdzanie, czy najniższa cena jest skończona i różna od null
+                  if (lowestPrice !== null && currentPrice > lowestPrice) {
+                    var diffPercent = (
+                      ((currentPrice - lowestPrice) / currentPrice) *
+                      100
+                    ).toFixed(2);
+                    return (
+                      "<td>" +
+                      diffPercent +
+                      '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
+                      "</td>"
+                    );
+                  } else {
+                    return (
+                      '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                      "</td>"
+                    );
+                  }
+                } else {
+                  return (
+                    '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
+                    "</td>"
+                  );
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "standardPrice",
+              render: function (data) {
+                if (
+                  data !== null &&
+                  data.hasOwnProperty("wholesalerPremium") &&
+                  data.wholesalerPremium !== null
+                ) {
+                  if (data.wholesalerPremium >= 0) {
+                    return (
+                      '<p class="positive">' + data.wholesalerPremium + "</p>"
+                    );
+                  } else {
+                    return (
+                      '<p class="negative">' + data.wholesalerPremium + "</p>"
+                    );
+                  }
+                } else {
+                  return '<p class="positive">0</p>';
+                }
+              },
+            },
+            {
+              orderable: true,
+              data: "rotationIndicator",
+              defaultContent: "brak",
+              render: function (data) {
+                var tippyContent;
+                var baseClass = "tippy";
+
+                switch (data) {
+                  case "AX":
+                    tippyContent =
+                      ' class="super ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa A (80% marży) i X (stała sprzedaż)" alt=""';
+                    break;
+                  case "AY":
+                    tippyContent =
+                      ' class="positive ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa A (80% marży) i Y (zmienna sprzedaż)" alt=""';
+                    break;
+                  case "BX":
+                    tippyContent =
+                      ' class="positive ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa B (15% marży) i X (stała sprzedaż)" alt=""';
+                    break;
+                  case "AZ":
+                    tippyContent =
+                      ' class="medium ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa A (80% marży) i Z (nieregularna sprzedaż)" alt=""';
+                    break;
+                  case "CX":
+                    tippyContent =
+                      ' class="medium ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa C (5% marży) i X (stała sprzedaż)" alt=""';
+                    break;
+                  case "BY":
+                    tippyContent =
+                      ' class="medium ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa B (15% marży) i Y (zmienna sprzedaż)" alt=""';
+                    break;
+                  case "BZ":
+                    tippyContent =
+                      ' class="negative ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa B (15% marży) i Z (nieregularna sprzedaż)" alt=""';
+                    break;
+                  case "CY":
+                    tippyContent =
+                      ' class="negative ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa C (5% marży) i Y (zmienna sprzedaż)" alt=""';
+                    break;
+                  case "CZ":
+                    tippyContent =
+                      ' class="bad ' +
+                      baseClass +
+                      '" data-tippy-content="Grupa C (5% marży) i Z (nieregularna sprzedaż)" alt=""';
+                    break;
+                  default:
+                    tippyContent =
+                      ' class="noneexisting ' +
+                      baseClass +
+                      '" data-tippy-content="Niewystarczająca historia" alt=""';
+                }
+
+                return "<p" + tippyContent + ">" + (data || "-") + "</p>";
+              },
+            },
+            {
+              orderable: false,
+              width: "80px",
+              data: "confirmed",
+              type: "boolean",
+              render: function (data, type, row) {
+                if (type === "display") {
+                  const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" style="cursor: pointer;" />`;
+                  const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
+                  const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
+
+                  if (data === true) {
+                    return `
+                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
+                        ${detailsIcon}
+                        ${editIcon}
+                        ${confirmedIcon}
+                      </div>
+                    `;
+                  } else {
+                    return `
+                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
+                        ${detailsIcon}
+                        ${editIcon}
+                        ${trashIcon}
+                      </div>
+                    `;
+                  }
+                }
+                return data;
+              },
+            },
+          ],
+          rowCallback: function (row, data) {
+            if (data.hasOwnProperty("asks") && data.asks !== null) {
+              // Choose the lower value, but not null
+              let currentPrice;
+              if (data.netNetPrice !== null && data.netPrice !== null) {
+                currentPrice = Math.min(data.netNetPrice, data.netPrice);
+              } else {
+                currentPrice =
+                  data.netNetPrice !== null ? data.netNetPrice : data.netPrice;
+              }
+
+              // If both values are null, do not change the row
+              if (currentPrice === null) {
+                return;
+              }
+
+              // Find the lowest values for netPrice and netNetPrice, excluding null for netNetPrice
+              let lowestNetPrice = Infinity;
+              let lowestNetNetPrice = Infinity;
+
+              data.asks.forEach((ask) => {
+                if (ask.netPrice !== null) {
+                  lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                }
+                if (ask.netNetPrice !== null) {
+                  lowestNetNetPrice = Math.min(
+                    lowestNetNetPrice,
+                    ask.netNetPrice
+                  );
+                }
+              });
+
+              // Ignore null for netNetPrice
+              if (lowestNetNetPrice === Infinity) {
+                lowestNetNetPrice = null;
+              }
+
+              // Choose the lowest value from the lowest asks
+              let lowestPrice;
+              if (lowestNetPrice !== Infinity && lowestNetNetPrice !== null) {
+                lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
+              } else {
+                // Use only netPrice if netNetPrice is null
+                lowestPrice =
+                  lowestNetPrice !== Infinity ? lowestNetPrice : null;
+              }
+
+              // Check if the lowest price is finite and not null, then change the row color
+              if (lowestPrice !== null && currentPrice > lowestPrice) {
+                var diffPercent = (
+                  ((currentPrice - lowestPrice) / currentPrice) *
+                  100
+                ).toFixed(2);
+                $("td", row).css("background-color", "#FFFAE6");
+              }
+            }
+            if (data.confirmed === true) {
+              // Usuń tło i ustaw styl wiersza
+              $(row).css({
+                "background-color": "transparent",
+                "font-style": "italic",
+                "font-weight": "300",
+                cursor: "not-allowed",
+              });
+
+              // Ustaw tooltip na wierszu
+              $(row).attr(
+                "data-tippy-content",
+                "Produkt zamówiony, edycja jest niemożliwa"
+              );
+
+              // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
+              $(row).find("input, select, button").attr("disabled", true).css({
+                "pointer-events": "none",
+                opacity: "0.6",
+                cursor: "not-allowed",
+              });
+            }
+          },
+
+          initComplete: function (settings, json) {
+            initializeSimpleTooltips();
+            const table = this.api();
+
+            // Wyczyść WSZYSTKIE niestandardowe filtry na początku
+            $.fn.dataTable.ext.search.length = 0;
+
+            // === Filtr hurtowni ===
+            $("#CartwholesalerKeyIndicator").on("change", function () {
+              const selectedValue = $(this).val();
+
+              // Usuń wszystkie inne filtry
+              $.fn.dataTable.ext.search = [];
+
+              if (selectedValue) {
+                $.fn.dataTable.ext.search.push(function (
+                  settings,
+                  data,
+                  dataIndex
+                ) {
+                  const cellNode = table.cell(dataIndex, 8).node(); // kolumna hurtownika
+                  const selectedInRow = $(cellNode).find("select").val();
+                  return selectedInRow === selectedValue;
+                });
+              }
+
+              table.draw();
+            });
+
+            // === Filtr rotacji (kolumna 12 - <p>) ===
+            $("#CartRotationIndicator").on("change", function () {
+              const val = $.fn.dataTable.util.escapeRegex($(this).val());
+              table
+                .column(12)
+                .search(val ? "^" + val + "$" : "", true, false)
+                .draw();
+            });
+
+            // === Dodatki ===
+            $("#lowerprice").removeClass("details-invisible");
+            $("#spl_table").wrap(
+              "<div style='overflow:auto; width:100%;position:relative;'></div>"
+            );
+
+            table.columns.adjust().draw();
+
+            // ENTER uruchamia globalne filtrowanie
+            const textBox = $("#spl_table_filter label input");
+            textBox.off();
+            textBox.on("keyup input", function (e) {
+              if (e.keyCode === 13) {
+                table.search(this.value).draw();
+              }
+            });
+          },
+        });
       },
       success: function (response) {
         resultProducts = response;
@@ -1357,567 +1944,6 @@ docReady(function () {
         console.warn("Błąd pobierania danych:", jqXHR.status);
         resultProducts = { items: [] }; // <- kluczowy moment: ustawiam pusty zbiór
         $("#splittedProductsSection").show(); // opcjonalnie: nadal pokaż sekcję
-      },
-    });
-    var table = $("#spl_table").DataTable({
-      order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
-      pagingType: "full_numbers",
-      destroy: true,
-      dom: '<"top"fB>rt<"bottom"lip>',
-      scrollY: "60vh",
-      scrollCollapse: true,
-      pageLength: 25,
-      orderCellsTop: true,
-      fixedHeader: true,
-      orderMulti: true,
-      buttons: [
-        {
-          text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
-          titleAttr: "Rozwiń wszystkie",
-          action: function (e, dt, node, config) {
-            dt.rows().every(function () {
-              var row = this;
-              var rowData = row.data();
-              if (
-                Array.isArray(rowData.asks) &&
-                rowData.asks.length > 0 &&
-                !row.child.isShown()
-              ) {
-                row.child(format(rowData)).show();
-                $(row.node()).addClass("shown");
-              }
-            });
-          },
-        },
-        {
-          text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
-          titleAttr: "Zwiń wszystkie",
-          action: function (e, dt, node, config) {
-            dt.rows().every(function () {
-              var row = this;
-              if (row.child.isShown()) {
-                row.child.hide();
-                $(row.node()).removeClass("shown");
-              }
-            });
-          },
-        },
-        // ,
-        // {
-        //   extend: "copyHtml5",
-        //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
-        //   titleAttr: "Kopiuj",
-        // },
-        // {
-        //   extend: "excelHtml5",
-        //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="spreadsheet">',
-        //   titleAttr: "Excel",
-        // },
-        // ,
-        // {
-        //   extend: "pdfHtml5",
-        //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" alt="pdf">',
-        //   titleAttr: "PDF",
-        // },
-      ],
-      language: {
-        emptyTable: "Brak danych do wyświetlenia",
-        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-        infoEmpty: "Brak danych",
-        infoFiltered: "(z _MAX_ rezultatów)",
-        lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'</div>",
-        processing: "<div class='spinner'</div>",
-        search: "Szukaj:",
-        zeroRecords: "Brak pasujących rezultatów",
-        paginate: {
-          first: "<<",
-          last: ">>",
-          next: " >",
-          previous: "< ",
-        },
-        aria: {
-          sortAscending: ": Sortowanie rosnące",
-          sortDescending: ": Sortowanie malejące",
-        },
-      },
-      data: resultProducts.items,
-      search: {
-        return: true,
-      },
-      columns: [
-        {
-          data: null,
-          defaultContent: "",
-          createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
-            if (rowData.asks && rowData.asks.length > 0) {
-              $(cell).addClass("details-control");
-            }
-          },
-          orderable: false,
-        },
-        {
-          orderable: true,
-          data: "name",
-        },
-        {
-          orderable: true,
-          data: "countryDistributorName",
-          defaultContent: "-",
-        },
-        {
-          orderable: true,
-          data: "gtin",
-        },
-        {
-          orderable: true,
-          data: "stock",
-          render: function (data) {
-            if (data !== null) {
-              return "" + data.value;
-            }
-            if (data === null) {
-              return "0";
-            }
-          },
-        },
-        {
-          orderable: true, // pozwala sortować
-          data: "quantity", // dane używane do sortowania
-          render: function (data, type, row) {
-            // Jeśli typ to 'display', renderujemy input
-            if (type === "display") {
-              return (
-                '<input type="number" style="max-width: 80px" ' +
-                'onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" ' +
-                'min="0" max="999999" value="' +
-                data +
-                '" onpaste="handlePaste(event)">'
-              );
-            }
-
-            // W innych przypadkach (np. sortowanie, wyszukiwanie), zwróć wartość surową
-            return data;
-          },
-        },
-        {
-          orderable: true,
-          data: "standardPrice",
-          render: function (data) {
-            if (data !== null) {
-              return "" + data.value.toFixed(2);
-            }
-            if (data === null) {
-              return "0";
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "netPrice",
-          render: function (data, type, row) {
-            // Sprawdź, czy istnieją segmenty zakupu
-            if (row.purchaseSegments && row.purchaseSegments.length > 1) {
-              // Oblicz cenę ważoną
-              let totalQuantity = 0;
-              let totalValue = 0;
-              let tooltipContent = "Otrzymasz: ";
-
-              row.purchaseSegments.forEach((segment, index) => {
-                totalQuantity += segment.quantity;
-                totalValue += segment.netPrice * segment.quantity;
-                tooltipContent += `${
-                  segment.quantity
-                } sztuk po ${segment.netPrice.toFixed(2)} zł`;
-                if (index < row.purchaseSegments.length - 1) {
-                  tooltipContent += " oraz ";
-                }
-              });
-
-              const weightedPrice = (totalValue / totalQuantity).toFixed(2);
-
-              // Zwróć sformatowaną komórkę z tooltipem i pogrubioną ceną ważoną
-              return `<td class="tippy" data-tippy-content="${tooltipContent}">
-                        <strong>${weightedPrice}</strong>
-                      </td>`;
-            }
-
-            // Jeśli jest tylko jeden segment lub brak segmentów, zwróć standardową cenę
-            if (data !== null) {
-              return data.toFixed(2);
-            }
-            return "0";
-          },
-        },
-        {
-          orderable: true,
-          orderData: [8, 1],
-          data: null,
-          render: function (data) {
-            return (
-              '<p style="font-size: 0;display: none">' +
-              data.wholesalerKey +
-              "</p>" +
-              generateWholesalerSelect(
-                data.wholesalerKey,
-                data.asks,
-                0,
-                data.assignmentSource
-              )
-            );
-          },
-        },
-        {
-          orderable: true,
-          data: "assignmentSource",
-          render: function (data) {
-            if (data !== null) {
-              if (data === "best match") {
-                return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>';
-              } else if (data === "exclusive") {
-                return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>';
-              } else if (data === "preferential match") {
-                return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/661ac96de52db7d23c282bd7_marketplace_preferential.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">3</p></div>';
-              } else {
-                return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">4</p></div>';
-              }
-            } else {
-              return '<p class="neutral">-</p>';
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: null,
-          width: "72px",
-          // class: "details-invisible",
-          render: function (data) {
-            if (data.hasOwnProperty("asks") && data.asks !== null) {
-              // Wybór niższej wartości, ale nie null
-              if (data.netNetPrice !== null && data.netPrice !== null) {
-                currentPrice = Math.min(data.netNetPrice, data.netPrice);
-              } else {
-                currentPrice =
-                  data.netNetPrice !== null ? data.netNetPrice : data.netPrice;
-              }
-
-              // Jeśli obie wartości są null, przerywamy dalsze działanie
-              if (currentPrice === null) {
-                return "<td>0.00%</td>";
-              }
-              // Znajdowanie najniższych wartości dla netPrice i netNetPrice, pomijając null dla netNetPrice
-              let lowestNetPrice = Infinity;
-              let lowestNetNetPrice = Infinity;
-
-              data.asks.forEach((ask) => {
-                if (ask.netPrice !== null) {
-                  lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
-                }
-                if (ask.netNetPrice !== null) {
-                  lowestNetNetPrice = Math.min(
-                    lowestNetNetPrice,
-                    ask.netNetPrice
-                  );
-                }
-              });
-
-              // Pomijanie wartości null dla netNetPrice
-              if (lowestNetNetPrice === Infinity) {
-                lowestNetNetPrice = null;
-              }
-
-              // Wybór najniższej wartości spośród najniższych asków
-              let lowestPrice;
-              if (lowestNetPrice !== Infinity && lowestNetNetPrice !== null) {
-                lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
-              } else {
-                // Używamy tylko netPrice, jeśli netNetPrice jest null
-                lowestPrice =
-                  lowestNetPrice !== Infinity ? lowestNetPrice : null;
-              }
-
-              // Sprawdzanie, czy najniższa cena jest skończona i różna od null
-              if (lowestPrice !== null && currentPrice > lowestPrice) {
-                var diffPercent = (
-                  ((currentPrice - lowestPrice) / currentPrice) *
-                  100
-                ).toFixed(2);
-                return (
-                  "<td>" +
-                  diffPercent +
-                  '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
-                  "</td>"
-                );
-              } else {
-                return (
-                  '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                  "</td>"
-                );
-              }
-            } else {
-              return (
-                '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                "</td>"
-              );
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "standardPrice",
-          render: function (data) {
-            if (
-              data !== null &&
-              data.hasOwnProperty("wholesalerPremium") &&
-              data.wholesalerPremium !== null
-            ) {
-              if (data.wholesalerPremium >= 0) {
-                return '<p class="positive">' + data.wholesalerPremium + "</p>";
-              } else {
-                return '<p class="negative">' + data.wholesalerPremium + "</p>";
-              }
-            } else {
-              return '<p class="positive">0</p>';
-            }
-          },
-        },
-        {
-          orderable: true,
-          data: "rotationIndicator",
-          defaultContent: "brak",
-          render: function (data) {
-            var tippyContent;
-            var baseClass = "tippy";
-
-            switch (data) {
-              case "AX":
-                tippyContent =
-                  ' class="super ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa A (80% marży) i X (stała sprzedaż)" alt=""';
-                break;
-              case "AY":
-                tippyContent =
-                  ' class="positive ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa A (80% marży) i Y (zmienna sprzedaż)" alt=""';
-                break;
-              case "BX":
-                tippyContent =
-                  ' class="positive ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa B (15% marży) i X (stała sprzedaż)" alt=""';
-                break;
-              case "AZ":
-                tippyContent =
-                  ' class="medium ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa A (80% marży) i Z (nieregularna sprzedaż)" alt=""';
-                break;
-              case "CX":
-                tippyContent =
-                  ' class="medium ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa C (5% marży) i X (stała sprzedaż)" alt=""';
-                break;
-              case "BY":
-                tippyContent =
-                  ' class="medium ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa B (15% marży) i Y (zmienna sprzedaż)" alt=""';
-                break;
-              case "BZ":
-                tippyContent =
-                  ' class="negative ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa B (15% marży) i Z (nieregularna sprzedaż)" alt=""';
-                break;
-              case "CY":
-                tippyContent =
-                  ' class="negative ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa C (5% marży) i Y (zmienna sprzedaż)" alt=""';
-                break;
-              case "CZ":
-                tippyContent =
-                  ' class="bad ' +
-                  baseClass +
-                  '" data-tippy-content="Grupa C (5% marży) i Z (nieregularna sprzedaż)" alt=""';
-                break;
-              default:
-                tippyContent =
-                  ' class="noneexisting ' +
-                  baseClass +
-                  '" data-tippy-content="Niewystarczająca historia" alt=""';
-            }
-
-            return "<p" + tippyContent + ">" + (data || "-") + "</p>";
-          },
-        },
-        {
-          orderable: false,
-          width: "80px",
-          data: "confirmed",
-          type: "boolean",
-          render: function (data, type, row) {
-            if (type === "display") {
-              const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" style="cursor: pointer;" />`;
-              const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
-              const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-              const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
-
-              if (data === true) {
-                return `
-                  <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                    ${detailsIcon}
-                    ${editIcon}
-                    ${confirmedIcon}
-                  </div>
-                `;
-              } else {
-                return `
-                  <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                    ${detailsIcon}
-                    ${editIcon}
-                    ${trashIcon}
-                  </div>
-                `;
-              }
-            }
-            return data;
-          },
-        },
-      ],
-      rowCallback: function (row, data) {
-        if (data.hasOwnProperty("asks") && data.asks !== null) {
-          // Choose the lower value, but not null
-          let currentPrice;
-          if (data.netNetPrice !== null && data.netPrice !== null) {
-            currentPrice = Math.min(data.netNetPrice, data.netPrice);
-          } else {
-            currentPrice =
-              data.netNetPrice !== null ? data.netNetPrice : data.netPrice;
-          }
-
-          // If both values are null, do not change the row
-          if (currentPrice === null) {
-            return;
-          }
-
-          // Find the lowest values for netPrice and netNetPrice, excluding null for netNetPrice
-          let lowestNetPrice = Infinity;
-          let lowestNetNetPrice = Infinity;
-
-          data.asks.forEach((ask) => {
-            if (ask.netPrice !== null) {
-              lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
-            }
-            if (ask.netNetPrice !== null) {
-              lowestNetNetPrice = Math.min(lowestNetNetPrice, ask.netNetPrice);
-            }
-          });
-
-          // Ignore null for netNetPrice
-          if (lowestNetNetPrice === Infinity) {
-            lowestNetNetPrice = null;
-          }
-
-          // Choose the lowest value from the lowest asks
-          let lowestPrice;
-          if (lowestNetPrice !== Infinity && lowestNetNetPrice !== null) {
-            lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
-          } else {
-            // Use only netPrice if netNetPrice is null
-            lowestPrice = lowestNetPrice !== Infinity ? lowestNetPrice : null;
-          }
-
-          // Check if the lowest price is finite and not null, then change the row color
-          if (lowestPrice !== null && currentPrice > lowestPrice) {
-            var diffPercent = (
-              ((currentPrice - lowestPrice) / currentPrice) *
-              100
-            ).toFixed(2);
-            $("td", row).css("background-color", "#FFFAE6");
-          }
-        }
-        if (data.confirmed === true) {
-          // Usuń tło i ustaw styl wiersza
-          $(row).css({
-            "background-color": "transparent",
-            "font-style": "italic",
-            "font-weight": "300",
-            cursor: "not-allowed",
-          });
-
-          // Ustaw tooltip na wierszu
-          $(row).attr(
-            "data-tippy-content",
-            "Produkt zamówiony, edycja jest niemożliwa"
-          );
-
-          // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
-          $(row).find("input, select, button").attr("disabled", true).css({
-            "pointer-events": "none",
-            opacity: "0.6",
-            cursor: "not-allowed",
-          });
-        }
-      },
-
-      initComplete: function (settings, json) {
-        initializeSimpleTooltips();
-        const table = this.api();
-
-        // Wyczyść WSZYSTKIE niestandardowe filtry na początku
-        $.fn.dataTable.ext.search.length = 0;
-
-        // === Filtr hurtowni ===
-        $("#CartwholesalerKeyIndicator").on("change", function () {
-          const selectedValue = $(this).val();
-
-          // Usuń wszystkie inne filtry
-          $.fn.dataTable.ext.search = [];
-
-          if (selectedValue) {
-            $.fn.dataTable.ext.search.push(function (
-              settings,
-              data,
-              dataIndex
-            ) {
-              const cellNode = table.cell(dataIndex, 8).node(); // kolumna hurtownika
-              const selectedInRow = $(cellNode).find("select").val();
-              return selectedInRow === selectedValue;
-            });
-          }
-
-          table.draw();
-        });
-
-        // === Filtr rotacji (kolumna 12 - <p>) ===
-        $("#CartRotationIndicator").on("change", function () {
-          const val = $.fn.dataTable.util.escapeRegex($(this).val());
-          table
-            .column(12)
-            .search(val ? "^" + val + "$" : "", true, false)
-            .draw();
-        });
-
-        // === Dodatki ===
-        $("#lowerprice").removeClass("details-invisible");
-        $("#spl_table").wrap(
-          "<div style='overflow:auto; width:100%;position:relative;'></div>"
-        );
-
-        table.columns.adjust().draw();
-
-        // ENTER uruchamia globalne filtrowanie
-        const textBox = $("#spl_table_filter label input");
-        textBox.off();
-        textBox.on("keyup input", function (e) {
-          if (e.keyCode === 13) {
-            table.search(this.value).draw();
-          }
-        });
       },
     });
   }
