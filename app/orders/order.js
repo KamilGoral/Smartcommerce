@@ -1065,7 +1065,12 @@ docReady(function () {
   });
 
   function format(d) {
-    const arr = d && Array.isArray(d.asks) ? d.asks : [];
+    if (!d || !Array.isArray(d.asks) || d.asks.length === 0) {
+      return ""; // <-- nic nie renderujemy
+    }
+
+    const arr = d.asks;
+
     const sourceMap = {
       "price list": "Cennik",
       "online offer": "E-hurt",
@@ -1098,20 +1103,16 @@ docReady(function () {
         description:
           "Przy określonej ilości, wszystkie produkty w promocji tanieją.",
       },
-      // Add more as needed
     };
 
     function calculatePackage(promotion) {
       if (!promotion || !promotion.factors) return "-";
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors;
-
       if (!quantityFactor) return "-";
-
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-
       return "-";
     }
 
@@ -1180,36 +1181,38 @@ docReady(function () {
         const benefitHtml = getBenefitDetails(item.promotion?.benefit);
 
         return `<tr>
-            <td>${item.wholesalerKey}</td>
-            <td>${item.netPrice}</td>
-            <td>${
-              getCookie("sprytnyUserRole") === "admin"
-                ? item.netNetPrice ?? "-"
-                : "-"
-            }</td>
-            <td>${item.set ?? "-"}</td>
-            <td>${sourceMap[item.source] || "-"}</td>
-            <td>${item.originated ?? "-"}</td>
-            <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
-            <td>${item.promotion?.threshold ?? "-"}</td>
-            <td>${item.promotion?.cap ?? "-"}</td>
-            <td>${calculatePackage(item.promotion)}</td>
-            <td>${benefitHtml}</td>
-            <td>${showRelated}</td>    
+          <td>${item.wholesalerKey}</td>
+          <td>${item.netPrice}</td>
+          <td>${
+            getCookie("sprytnyUserRole") === "admin"
+              ? item.netNetPrice ?? "-"
+              : "-"
+          }</td>
+          <td>${item.set ?? "-"}</td>
+          <td>${sourceMap[item.source] || "-"}</td>
+          <td>${item.originated ?? "-"}</td>
+          <td>${item.stock ?? "-"}</td>
+          ${
+            promotion
+              ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+              : "<td>-</td>"
+          }
+          <td>${item.promotion?.threshold ?? "-"}</td>
+          <td>${item.promotion?.cap ?? "-"}</td>
+          <td>${calculatePackage(item.promotion)}</td>
+          <td>${benefitHtml}</td>
+          <td>${showRelated}</td>    
         </tr>`;
       })
       .join("");
 
     return `
-        <table>
-            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th></tr>
-            ${toDisplayHtml}
-        </table>
+      <table>
+        <tr>
+          <th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th>
+        </tr>
+        ${toDisplayHtml}
+      </table>
     `;
   }
 
