@@ -560,6 +560,7 @@ docReady(function () {
       UrlParameters;
 
     return await new Promise((resolve, reject) => {
+      let resultData = null;
       $.ajax({
         type: method,
         url: action,
@@ -569,27 +570,6 @@ docReady(function () {
         },
         complete: function () {
           $("#waitingdots").hide();
-
-          // Jeśli tabela istnieje, ale nie ma danych, pokaż pusty stan
-          if ($.fn.dataTable.isDataTable("#table_splited_wh")) {
-            const table = $("#table_splited_wh").DataTable();
-            if (table.data().count() === 0) {
-              $("#table_splited_wh").show(); // upewnij się, że widoczna
-              table.clear().draw(); // może niepotrzebne, ale zachowawczo
-            }
-          }
-        },
-
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4",
-        },
-        processData: false,
-        success: function (resultData) {
           let proceed = true;
           if (typeof successCallback === "function") {
             proceed = successCallback(resultData);
@@ -752,16 +732,16 @@ docReady(function () {
                       );
                       if (toGo > 0) {
                         return `
-                                  <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
-                                       data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
-                                      <span style="color: #8E1212; display: flex; align-items: center;">
-                                          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                                               alt="warning" 
-                                               style="width: 16px; height: 16px;margin-right: 4px">
-                                      </span>
-                                      <span>${data}zł</span>
-                                  </div>
-                              `;
+                                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
+                                         data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
+                                        <span style="color: #8E1212; display: flex; align-items: center;">
+                                            <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                                                 alt="warning" 
+                                                 style="width: 16px; height: 16px;margin-right: 4px">
+                                        </span>
+                                        <span>${data}zł</span>
+                                    </div>
+                                `;
                       }
                     }
                     return `${data}zł`;
@@ -803,8 +783,8 @@ docReady(function () {
                   }
 
                   return `<div data-tippy-content="${tooltip}">
-                            ${displayText}
-                          </div>`;
+                              ${displayText}
+                            </div>`;
                 },
                 type: "num",
                 defaultContent: "",
@@ -897,17 +877,17 @@ docReady(function () {
 
                   if (data === "unassigned") {
                     return `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
-                    </div>
-                  `;
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
+                      </div>
+                    `;
                   }
 
                   return `
-                  <div style="display: flex; align-items: center; gap: 10px;">
-                    ${fileIcons.join("")}
-                  </div>
-                `;
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      ${fileIcons.join("")}
+                    </div>
+                  `;
                 },
               },
               {
@@ -920,10 +900,10 @@ docReady(function () {
                   }
 
                   return `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
-                    </div>
-                  `;
+                      <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
+                      </div>
+                    `;
                 },
                 className: "dt-center",
               },
@@ -937,25 +917,25 @@ docReady(function () {
                   }
 
                   return `  
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                      <input 
-                        type="checkbox" 
-                        class="theClass customicon" 
-                        id="${data}" 
-                        value="${data}" 
-                      />
-                      <label 
-                        class="mylabel customicon" 
-                        for="${data}" 
-                        data-tippy-content="Pomiń" 
-                        style="margin: 0;"
-                      >
-                        <span class="icon initial"></span>
-                        <span class="icon loading"></span>
-                        <span class="icon final"></span>
-                      </label>
-                    </div>
-                  `;
+                      <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                        <input 
+                          type="checkbox" 
+                          class="theClass customicon" 
+                          id="${data}" 
+                          value="${data}" 
+                        />
+                        <label 
+                          class="mylabel customicon" 
+                          for="${data}" 
+                          data-tippy-content="Pomiń" 
+                          style="margin: 0;"
+                        >
+                          <span class="icon initial"></span>
+                          <span class="icon loading"></span>
+                          <span class="icon final"></span>
+                        </label>
+                      </div>
+                    `;
                 },
                 className: "dt-center",
               },
@@ -989,6 +969,18 @@ docReady(function () {
           });
           resolve();
           return false;
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        processData: false,
+        success: function (data) {
+          resultData = data; // <-- to kluczowe
         },
         error: function (jqXHR, textStatus, errorThrown) {
           if (jqXHR.status === 422) {
