@@ -1065,6 +1065,10 @@ docReady(function () {
   });
 
   function format(d) {
+    if (!d || !Array.isArray(d.asks) || d.asks.length === 0) {
+      return ""; // <-- nic nie renderujemy
+    }
+
     const arr = d.asks;
 
     const sourceMap = {
@@ -1357,8 +1361,13 @@ docReady(function () {
               action: function (e, dt, node, config) {
                 dt.rows().every(function () {
                   var row = this;
-                  if (!row.child.isShown()) {
-                    row.child(format(row.data())).show();
+                  var rowData = row.data();
+                  if (
+                    Array.isArray(rowData.asks) &&
+                    rowData.asks.length > 0 &&
+                    !row.child.isShown()
+                  ) {
+                    row.child(format(rowData)).show();
                     $(row.node()).addClass("shown");
                   }
                 });
@@ -3403,8 +3412,13 @@ docReady(function () {
         action: function (e, dt, node, config) {
           dt.rows().every(function () {
             var row = this;
-            if (!row.child.isShown()) {
-              row.child(format(row.data())).show();
+            var rowData = row.data();
+            if (
+              Array.isArray(rowData.asks) &&
+              rowData.asks.length > 0 &&
+              !row.child.isShown()
+            ) {
+              row.child(format(rowData)).show();
               $(row.node()).addClass("shown");
             }
           });
