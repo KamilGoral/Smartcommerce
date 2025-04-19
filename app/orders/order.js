@@ -1012,6 +1012,18 @@ docReady(function () {
           resultData = data; // <-- to kluczowe
         },
         error: function (jqXHR, textStatus, errorThrown) {
+          // 🧠 Sprawdzenie, czy aktywny jest tab "Dodaj produkty"
+          const isAddProductsTabActive =
+            $("#addProducts").hasClass("w--current");
+
+          if (isAddProductsTabActive) {
+            console.log(
+              "Tab 'Dodaj produkty' jest aktywny — pomijam obsługę błędu."
+            );
+            reject(errorThrown); // zakończ promise
+            return;
+          }
+
           if (jqXHR.status === 422) {
             var response = JSON.parse(jqXHR.responseText);
             var translatedError = "";
