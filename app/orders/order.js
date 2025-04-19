@@ -4810,7 +4810,7 @@ docReady(function () {
     $('a[data-w-tab="AddProducts"]').show();
 
     setTimeout(function () {
-      clickTab("AddProducts"); // Kliknij zakładkę po krótkim opóźnieniu
+      clickTab("addProducts"); // Kliknij zakładkę po krótkim opóźnieniu
     }, 2000);
   } else {
     console.log(
