@@ -3113,11 +3113,15 @@ docReady(function () {
                   errorCallback(e);
                 }
                 form.show();
-                const errorMessage = e.message.include("already exists")
-                  ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
-                  : "Oops. Coś poszło nie tak, spróbuj ponownie.";
+                const errorMessage =
+                  typeof e.message === "string" &&
+                  e.message.includes("already exists")
+                    ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
+                    : "Oops. Coś poszło nie tak, spróbuj ponownie.";
+
                 displayMessage("Błąd", errorMessage);
-                console.error("Błąd podczas wysyłania emaila:", e);
+                console.error("Błąd podczas wysyłania emaila:", e, e?.message);
+
                 reject(e);
               },
             });
