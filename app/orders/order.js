@@ -1263,78 +1263,102 @@ docReady(function () {
     selectedWholesalerKey,
     jsonData,
     isDisabled,
-    assignmentSource // Additional parameter for assignment source
+    assignmentSource,
+    tableSelector // np. "#table_splited_wh"
   ) {
     const wholesalersData = JSON.parse(
       sessionStorage.getItem("wholesalersData")
     );
+    const confirmedWholesalers = new Set();
+
+    // Pobieramy dane z DataTable
+    const table = $(tableSelector).DataTable();
+    const tableData = table.rows().data().toArray();
+
+    tableData.forEach((row) => {
+      if (row.confirmedAt) {
+        confirmedWholesalers.add(row.wholesalerKey);
+      }
+    });
 
     if (wholesalersData && wholesalersData.length > 0) {
       let selectHTML = "";
 
-      // Handle disabled state
+      // Obsługa trybu disabled
       if (isDisabled == 1) {
         selectHTML =
           '<select style="width: 120px;" class="wholesalerSelect" disabled>';
-      } else if (selectedWholesalerKey == "unassigned") {
-        selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
-        selectHTML += `<option value="unassigned" selected style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-
-        // Add "Anuluj mój wybór" only if assignmentSource is "order"
-        if (assignmentSource === "order") {
-          selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
-        }
       } else {
         selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
-        selectHTML += `<option value="unassigned" style="font-weight: bold">Nieprzydzielony / Pomiń</option>`;
-
-        // Add "Anuluj mój wybór" only if assignmentSource is "order"
+        selectHTML += `<option value="unassigned"${
+          selectedWholesalerKey === "unassigned"
+            ? ' selected style="font-weight: bold"'
+            : ""
+        }>Nieprzydzielony / Pomiń</option>`;
         if (assignmentSource === "order") {
           selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
         }
       }
 
-      // Sort suppliers by 'netPrice' if jsonData is not null
+      // Sortujemy jsonData po netPrice
       if (jsonData !== null && jsonData.length > 0) {
         jsonData.sort((a, b) => a.netPrice - b.netPrice);
 
-        // Remove duplicate suppliers in jsonData
-        jsonData = jsonData.filter((item, index, self) => {
-          return (
+        // Usuwamy duplikaty
+        jsonData = jsonData.filter(
+          (item, index, self) =>
             index ===
             self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
-          );
-        });
+        );
 
-        // Add suppliers from jsonData to the top of the select list
+        // Dodajemy dostawców z jsonData
         jsonData.forEach((item) => {
           const wholesaler = wholesalersData.find(
-            (wholesaler) => wholesaler.wholesalerKey === item.wholesalerKey
+            (w) => w.wholesalerKey === item.wholesalerKey
           );
           const wholesalerName = wholesaler
             ? wholesaler.name
             : item.wholesalerKey;
-          selectHTML += `<option value="${item.wholesalerKey}"${
+          const isConfirmed = confirmedWholesalers.has(item.wholesalerKey);
+
+          selectHTML += `<option value="${item.wholesalerKey}" ${
             item.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
+              ? 'selected style="font-weight: bold"'
               : ""
-          }>${wholesalerName}</option>`;
+          } ${
+            isConfirmed
+              ? 'disabled data-tippy-content="Ten dostawca został już potwierdzony - wybór nie jest możliwy"'
+              : ""
+          }>
+            ${wholesalerName}
+          </option>`;
         });
       }
 
-      // Add remaining suppliers from sessionStorage to the select list
+      // Dodajemy pozostałych dostawców z wholesalersData
       wholesalersData.forEach((wholesaler) => {
-        if (
-          !jsonData ||
-          !jsonData.some(
+        const alreadyAdded =
+          jsonData &&
+          jsonData.some(
             (item) => item.wholesalerKey === wholesaler.wholesalerKey
-          )
-        ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}"${
+          );
+        if (!alreadyAdded) {
+          const isConfirmed = confirmedWholesalers.has(
+            wholesaler.wholesalerKey
+          );
+
+          selectHTML += `<option value="${wholesaler.wholesalerKey}" ${
             wholesaler.wholesalerKey === selectedWholesalerKey
-              ? ' selected style="font-weight: bold"'
+              ? 'selected style="font-weight: bold"'
               : ""
-          } style="background-color: #EBECF0;">${wholesaler.name}</option>`;
+          } ${
+            isConfirmed
+              ? 'disabled data-tippy-content="Ten dostawca został już potwierdzony - wybór nie jest możliwy"'
+              : ""
+          }
+          style="background-color: #EBECF0;">
+            ${wholesaler.name}
+          </option>`;
         }
       });
 
@@ -1587,7 +1611,8 @@ docReady(function () {
                     data.wholesalerKey,
                     data.asks,
                     0,
-                    data.assignmentSource
+                    data.assignmentSource,
+                    "#table_splited_wh"
                   )
                 );
               },
