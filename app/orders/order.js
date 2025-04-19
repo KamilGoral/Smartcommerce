@@ -832,14 +832,14 @@ docReady(function () {
                 render: function (data, type, row) {
                   // File icon definitions
                   const icons = {
-                    text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b6e9d0c00a6329e3e5_b0fc4e382ede37a3a31a9a8bf2aabe9b_document-PC.svg" loading="lazy" fileformat="text/plain" class="filedownloadicon" data-tippy-content="PC-Market">',
-                    csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_a03eac84060b4e1648f6001c1315e885_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
+                    text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b6e9d0c00a6329e3e5_b0fc4e382ede37a3a31a9a8bf2aabe9b_document-PC.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/plain" class="filedownloadicon" data-tippy-content="PC-Market">',
+                    csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_a03eac84060b4e1648f6001c1315e885_document-KC.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
                     csvAgra:
-                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Excel / Tema">',
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Excel / Tema">',
                     csvMirex:
-                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_a03eac84060b4e1648f6001c1315e885_document-KC.svg" loading="lazy" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
-                    pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" loading="lazy" fileformat="application/pdf" class="filedownloadicon" data-tippy-content="PDF / Wydruk">',
-                    xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" loading="lazy" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon" data-tippy-content="Excel / Tema">',
+                      '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_a03eac84060b4e1648f6001c1315e885_document-KC.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
+                    pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" loading="lazy" style="height:28px; width:28px" fileformat="application/pdf" class="filedownloadicon" data-tippy-content="PDF / Wydruk">',
+                    xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" loading="lazy" style="height:28px; width:28px" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon" data-tippy-content="Excel / Tema">',
                   };
 
                   const wholesalerConfigs = {
