@@ -3104,25 +3104,27 @@ docReady(function () {
                 console.log("Resolving promise with resultData:", resultData); // Log before resolve
                 resolve(resultData);
               },
-              error: function (e) {
+              error: function (jqXHR, textStatus, errorThrown) {
                 setTimeout(function () {
                   $("#waitingdots").hide();
                 }, 3000);
 
-                if (typeof errorCallback === "function") {
-                  errorCallback(e);
-                }
-                form.show();
-                const errorMessage =
-                  typeof e.message === "string" &&
-                  e.message.includes("already exists")
-                    ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie. "
-                    : "Oops. Coś poszło nie tak, spróbuj ponownie.";
+                const responseText = jqXHR.responseText || "";
+                const alreadyExists = responseText.includes("already exists");
+
+                const errorMessage = alreadyExists
+                  ? "Wiadomość z zamówieniem została już wcześniej wysłana do tego dostawcy. Nie można wysłać tego samego zamówienia ponownie."
+                  : "Oops. Coś poszło nie tak, spróbuj ponownie.";
 
                 displayMessage("Błąd", errorMessage);
-                console.error("Błąd podczas wysyłania emaila:", e, e?.message);
 
-                reject(e);
+                if (typeof errorCallback === "function") {
+                  errorCallback(jqXHR);
+                }
+
+                form.show();
+                console.error("Błąd podczas wysyłania emaila:", jqXHR);
+                reject(jqXHR);
               },
             });
           });
