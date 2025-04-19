@@ -1333,7 +1333,6 @@ docReady(function () {
         // Usunięcie starej tabeli jeśli istnieje
         if ($.fn.DataTable.isDataTable("#spl_table")) {
           $("#spl_table").DataTable().destroy();
-          $("#spl_table").empty(); // czyści <thead>/<tbody> jeśli trzeba
         }
 
         var table = $("#spl_table").DataTable({
