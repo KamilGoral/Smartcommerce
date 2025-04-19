@@ -1065,10 +1065,6 @@ docReady(function () {
   });
 
   function format(d) {
-    if (!d || !Array.isArray(d.asks) || d.asks.length === 0) {
-      return ""; // <-- nic nie renderujemy
-    }
-
     const arr = d.asks;
 
     const sourceMap = {
