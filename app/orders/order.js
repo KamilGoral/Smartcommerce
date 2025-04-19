@@ -3122,7 +3122,7 @@ docReady(function () {
                   errorMessage = jqXHR.responseJSON.message;
                 }
 
-                displayMessage("Błąd", errorMessage);
+                displayMessage("Error", errorMessage);
 
                 if (typeof errorCallback === "function") {
                   errorCallback(jqXHR);
