@@ -2686,7 +2686,7 @@ docReady(function () {
         element.innerHTML = "Data oferty: " + createDate;
       });
       Array.from(offerStatusElements).forEach((element) => {
-        element.textContent = "Status: " + getStatusText(data.status);
+        element.textContent = "Status oferty: " + getStatusText(data.status);
       });
       // Update offermessage elements
       if (data.messages && data.messages.length > 0) {
