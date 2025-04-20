@@ -987,20 +987,20 @@ docReady(function () {
 
     if (confirmedCount === 0) {
       $badgeContainer.append(`
-        <div data-tippy-content="Możesz dodać, edytować zamówienie dowolnie" class="badgestatus editstate" style="display: flex;">
-          <div>W edycji</div>
+        <div data-tippy-content="Możesz swobodnie edytować, usuwać i dodawać produkty do zamówienia" class="badgestatus editstate" style="display: flex;">
+          <div>Do edycji</div>
         </div>
       `);
     } else if (confirmedCount < totalCount) {
       $badgeContainer.append(`
-        <div data-tippy-content="Część akcji nie jest dostępna" class="badgestatus confirmstate" style="display: flex;">
-          <div>W realizacji</div>
+        <div data-tippy-content="Część pozycji została już potwierdzona – niektóre akcje są teraz zablokowane" class="badgestatus confirmstate" style="display: flex;">
+          <div>W trakcie potwierdzania</div>
         </div>
       `);
     } else {
       $badgeContainer.append(`
-        <div data-tippy-content="Wszystkie zamówienia zostały potwierdzone" class="badgestatus confirmedstate" style="display: flex;">
-          <div>Zrealizowano</div>
+        <div data-tippy-content="Wszystkie pozycje zostały potwierdzone. Nie można już wprowadzać zmian" class="badgestatus confirmedstate" style="display: flex;">
+          <div>Potwierdzone</div>
         </div>
       `);
     }
