@@ -981,31 +981,7 @@ docReady(function () {
 
                 console.log("Potwierdzonych:", confirmedCount, "z", totalCount);
 
-                // ✅ Status badga
-                const $badgeContainer = $(".badgecontainer");
-                $badgeContainer.empty();
-
-                if (confirmedCount === 0) {
-                  $badgeContainer.append(`
-                    <div data-tippy-content="Możesz dodać, edytować zamówienie dowolnie" class="badgestatus editstate" style="display: flex;">
-                      <div>W edycji</div>
-                    </div>
-                  `);
-                } else if (confirmedCount < totalCount) {
-                  $badgeContainer.append(`
-                    <div data-tippy-content="Część akcji nie jest dostępna" class="badgestatus confirmstate" style="display: flex;">
-                      <div>W realizacji</div>
-                    </div>
-                  `);
-                } else {
-                  $badgeContainer.append(`
-                    <div data-tippy-content="Wszystkie zamówienia zostały potwierdzone" class="badgestatus confirmedstate" style="display: flex;">
-                      <div>Zrealizowano</div>
-                    </div>
-                  `);
-                }
-
-                // ✅ Twoja logika z AddProducts
+                // Twoja logika z AddProducts
                 const hasConfirmed = confirmedCount > 0;
                 if (hasConfirmed) {
                   $('a[data-w-tab="AddProducts"]').hide();
@@ -1024,6 +1000,45 @@ docReady(function () {
               },
             });
           }
+
+          function updateStatusBadge(api) {
+            const allData = api.rows().data().toArray();
+            const confirmedCount = allData.filter(
+              (row) => row.confirmedAt != null
+            ).length;
+            const totalCount = allData.length;
+
+            const $badgeContainer = $(".badgecontainer");
+            $badgeContainer.empty();
+
+            if (confirmedCount === 0) {
+              $badgeContainer.append(`
+                <div data-tippy-content="Możesz dodać, edytować zamówienie dowolnie" class="badgestatus editstate" style="display: flex;">
+                  <div>W edycji</div>
+                </div>
+              `);
+            } else if (confirmedCount < totalCount) {
+              $badgeContainer.append(`
+                <div data-tippy-content="Część akcji nie jest dostępna" class="badgestatus confirmstate" style="display: flex;">
+                  <div>W realizacji</div>
+                </div>
+              `);
+            } else {
+              $badgeContainer.append(`
+                <div data-tippy-content="Wszystkie zamówienia zostały potwierdzone" class="badgestatus confirmedstate" style="display: flex;">
+                  <div>Zrealizowano</div>
+                </div>
+              `);
+            }
+
+            initializeSimpleTooltips(); // jeśli używasz tippy.js
+          }
+
+          $("#table_splited_wh").on("draw.dt", function () {
+            const table = $("#table_splited_wh").DataTable();
+            updateStatusBadge(table);
+          });
+
           resolve();
           return false;
         },
