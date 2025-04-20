@@ -973,23 +973,51 @@ docReady(function () {
                 const api = this.api(); // Prawidłowe pobranie API w tym kontekście
                 const allData = api.rows().data().toArray();
 
-                const hasConfirmed = allData.some(
+                const confirmedCount = allData.filter(
                   (row) =>
                     row.confirmedAt !== null && row.confirmedAt !== undefined
-                );
+                ).length;
+                const totalCount = allData.length;
 
-                console.log("Has confirmed:", hasConfirmed);
+                console.log("Potwierdzonych:", confirmedCount, "z", totalCount);
 
+                // ✅ Status badga
+                const $badgeContainer = $(".badgecontainer");
+                $badgeContainer.empty();
+
+                if (confirmedCount === 0) {
+                  $badgeContainer.append(`
+                    <div data-tippy-content="Możesz dodać, edytować zamówienie dowolnie" class="badgestatus editstate">
+                      <div>W edycji</div>
+                    </div>
+                  `);
+                } else if (confirmedCount < totalCount) {
+                  $badgeContainer.append(`
+                    <div data-tippy-content="Część akcji nie jest dostępna" class="badgestatus confirmstate">
+                      <div>W realizacji</div>
+                    </div>
+                  `);
+                } else {
+                  $badgeContainer.append(`
+                    <div data-tippy-content="Wszystkie zamówienia zostały potwierdzone" class="badgestatus confirmedstate">
+                      <div>Zrealizowano</div>
+                    </div>
+                  `);
+                }
+
+                // ✅ Twoja logika z AddProducts
+                const hasConfirmed = confirmedCount > 0;
                 if (hasConfirmed) {
                   $('a[data-w-tab="AddProducts"]').hide();
                 } else {
                   $('a[data-w-tab="AddProducts"]').show();
                 }
 
-                var textBox = $("#table_splited_wh filter label input");
+                // ✅ Obsługa Entera w filtrze
+                const textBox = $("#table_splited_wh filter label input");
                 textBox.unbind();
                 textBox.bind("keyup input", function (e) {
-                  if (e.keyCode == 13) {
+                  if (e.keyCode === 13) {
                     api.search(this.value).draw();
                   }
                 });
