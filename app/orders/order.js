@@ -1037,11 +1037,6 @@ docReady(function () {
             initializeSimpleTooltips(); // jeśli używasz tippy.js
           }
 
-          $("#table_splited_wh").on("draw.dt", function () {
-            const table = $("#table_splited_wh").DataTable();
-            updateStatusBadge(table);
-          });
-
           resolve();
           return false;
         },
