@@ -1004,39 +1004,6 @@ docReady(function () {
             });
           }
 
-          function updateStatusBadge(api) {
-            const allData = api.rows().data().toArray();
-            const confirmedCount = allData.filter(
-              (row) => row.confirmedAt != null
-            ).length;
-            const totalCount = allData.length;
-
-            const $badgeContainer = $(".badgecontainer");
-            $badgeContainer.empty();
-
-            if (confirmedCount === 0) {
-              $badgeContainer.append(`
-                <div data-tippy-content="Możesz dodać, edytować zamówienie dowolnie" class="badgestatus editstate" style="display: flex;">
-                  <div>W edycji</div>
-                </div>
-              `);
-            } else if (confirmedCount < totalCount) {
-              $badgeContainer.append(`
-                <div data-tippy-content="Część akcji nie jest dostępna" class="badgestatus confirmstate" style="display: flex;">
-                  <div>W realizacji</div>
-                </div>
-              `);
-            } else {
-              $badgeContainer.append(`
-                <div data-tippy-content="Wszystkie zamówienia zostały potwierdzone" class="badgestatus confirmedstate" style="display: flex;">
-                  <div>Zrealizowano</div>
-                </div>
-              `);
-            }
-
-            initializeSimpleTooltips(); // jeśli używasz tippy.js
-          }
-
           resolve();
           return false;
         },
@@ -1123,6 +1090,40 @@ docReady(function () {
         },
       });
     });
+  }
+
+  function updateStatusBadge() {
+    const table = $("#table_splited_wh").DataTable();
+    const allData = table.rows().data().toArray();
+    const confirmedCount = allData.filter(
+      (row) => row.confirmedAt != null
+    ).length;
+    const totalCount = allData.length;
+
+    const $badgeContainer = $(".badgecontainer");
+    $badgeContainer.empty();
+
+    if (confirmedCount === 0) {
+      $badgeContainer.append(`
+        <div data-tippy-content="Możesz dodać, edytować zamówienie dowolnie" class="badgestatus editstate" style="display: flex;">
+          <div>W edycji</div>
+        </div>
+      `);
+    } else if (confirmedCount < totalCount) {
+      $badgeContainer.append(`
+        <div data-tippy-content="Część akcji nie jest dostępna" class="badgestatus confirmstate" style="display: flex;">
+          <div>W realizacji</div>
+        </div>
+      `);
+    } else {
+      $badgeContainer.append(`
+        <div data-tippy-content="Wszystkie zamówienia zostały potwierdzone" class="badgestatus confirmedstate" style="display: flex;">
+          <div>Zrealizowano</div>
+        </div>
+      `);
+    }
+
+    initializeSimpleTooltips(); // jeśli używasz tippy.js
   }
 
   $("#spliterProceed").on("click", function (e) {
@@ -4303,6 +4304,7 @@ docReady(function () {
 
         return false; // przerywa pętlę po pierwszym dopasowaniu
       });
+      updateStatusBadge();
     };
 
     if (!data || !data.wholesalerKey) {
