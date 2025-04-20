@@ -1369,9 +1369,14 @@ docReady(function () {
             self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
         );
 
-        // Dodajemy dostawców z jsonData, pomijając potwierdzonych
+        // Dodajemy dostawców z jsonData, pomijając potwierdzonych (z wyjątkiem wybranego)
         jsonData.forEach((item) => {
-          if (confirmedWholesalers.has(item.wholesalerKey)) return;
+          if (
+            confirmedWholesalers.has(item.wholesalerKey) &&
+            item.wholesalerKey !== selectedWholesalerKey
+          ) {
+            return;
+          }
 
           const wholesaler = wholesalersData.find(
             (w) => w.wholesalerKey === item.wholesalerKey
@@ -1390,7 +1395,7 @@ docReady(function () {
         });
       }
 
-      // Dodajemy pozostałych dostawców z wholesalersData, pomijając potwierdzonych
+      // Dodajemy pozostałych dostawców z wholesalersData, pomijając potwierdzonych (z wyjątkiem wybranego)
       wholesalersData.forEach((wholesaler) => {
         const alreadyAdded =
           jsonData &&
@@ -1399,7 +1404,10 @@ docReady(function () {
           );
         const isConfirmed = confirmedWholesalers.has(wholesaler.wholesalerKey);
 
-        if (!alreadyAdded && !isConfirmed) {
+        if (
+          !alreadyAdded &&
+          (!isConfirmed || wholesaler.wholesalerKey === selectedWholesalerKey)
+        ) {
           selectHTML += `<option value="${wholesaler.wholesalerKey}" ${
             wholesaler.wholesalerKey === selectedWholesalerKey
               ? 'selected style="font-weight: bold"'
