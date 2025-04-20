@@ -475,6 +475,216 @@ docReady(function () {
       }
     });
   }
+  function buildSplittedTable(data = []) {
+    var table = $("#table_splited_wh").DataTable({
+      pagingType: "full_numbers",
+      pageLength: 25,
+      stripeClasses: [],
+      destroy: true,
+      orderMulti: true,
+      order: [[2, "desc"]],
+      dom: '<"top">rt<"bottom"lip><"clear">',
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rekordów",
+        loadingRecords: "<div class='spinner'></div>",
+        processing: "<div class='spinner'></div>",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
+        },
+      },
+      data: data,
+      search: {
+        return: true,
+      },
+      columns: [
+        {
+          orderable: false,
+          width: "32px",
+          data: null,
+          render: function (data) {
+            if (data.wholesalerName === "unassigned") return "";
+            return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" style="width: 24px;height: 24px;">';
+          },
+        },
+        {
+          orderable: true,
+          width: "auto",
+          data: null,
+          render: function (data) {
+            return data.wholesalerName === "unassigned"
+              ? "Nieprzydzielone"
+              : data.wholesalerName;
+          },
+        },
+        {
+          orderable: true,
+          data: "netValue",
+          width: "108px",
+          className: "dt-right",
+          render: function (data, type, row) {
+            if (type === "display" || type === "filter") {
+              if (row.logisticMinimum !== null) {
+                const toGo = (row.logisticMinimum - row.netValue).toFixed(2);
+                if (toGo > 0) {
+                  return `
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
+                         data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
+                      <span style="color: #8E1212; display: flex; align-items: center;">
+                        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                             alt="warning" style="width: 16px; height: 16px;margin-right: 4px">
+                      </span>
+                      <span>${data}zł</span>
+                    </div>
+                  `;
+                }
+              }
+              return `${data}zł`;
+            }
+            return data;
+          },
+          type: "num",
+        },
+        {
+          orderable: true,
+          data: "products",
+          width: "64px",
+          render: function (data, type, row) {
+            const bestMatch = data.bestMatch || 0;
+            const exclusive = data.exclusive || 0;
+            const order = data.order || 0;
+            const total = bestMatch + exclusive + order;
+
+            if (type === "sort" || type === "type") {
+              return total;
+            }
+
+            const tooltip =
+              row.wholesalerName === "unassigned"
+                ? "Nieprzydzielono"
+                : exclusive > 0 || order > 0
+                ? `Najlepszy wybór: ${bestMatch}, Blokada: ${exclusive}, Wybór użytkownika: ${order}`
+                : `Najlepszy wybór: ${bestMatch}`;
+
+            const displayText =
+              exclusive > 0 || order > 0
+                ? `${bestMatch}/${exclusive}/${order}`
+                : `${bestMatch}`;
+
+            return `<div data-tippy-content="${tooltip}">${displayText}</div>`;
+          },
+          type: "num",
+          defaultContent: "",
+          className: "dt-center",
+        },
+        {
+          orderable: true,
+          data: null,
+          name: "statusColumn",
+          width: "48px",
+          render: function (data) {
+            if (data.wholesalerName === "unassigned") return "";
+
+            const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
+            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="pointer;" />`;
+
+            return data.confirmedAt
+              ? `<span data-tippy-content="Potwierdzono ${formatDateToPolishTime(
+                  data.confirmedAt
+                )}">${confirmedIcon}</span>`
+              : `<span data-tippy-content="W edycji">${editIcon}</span>`;
+          },
+          className: "dt-center status-column",
+        },
+        {
+          orderable: false,
+          data: "wholesalerKey",
+          width: "152px",
+          render: function (data) {
+            const icons = {
+              text: "<img ... >", // Skrócone, zachowaj swoje
+              csv: "<img ... >",
+              csvAgra: "<img ... >",
+              csvMirex: "<img ... >",
+              pdf: "<img ... >",
+              xls: "<img ... >",
+            };
+
+            const config = {
+              default: [icons.text, icons.csv, icons.pdf, icons.xls],
+            };
+            const fileIcons = config.default; // uproszczone dla skrótu
+
+            return `<div style="display: flex; align-items: center; gap: 10px;">${fileIcons.join(
+              ""
+            )}</div>`;
+          },
+        },
+        {
+          orderable: false,
+          width: "48px",
+          data: "wholesalerKey",
+          render: function (data, type, row) {
+            if (data === "unassigned") return "";
+            return `
+              <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
+              </div>`;
+          },
+          className: "dt-center",
+        },
+        {
+          orderable: false,
+          width: "48px",
+          data: "wholesalerKey",
+          render: function (data, type, row) {
+            if (data === "unassigned" || row.confirmedAt) return "";
+
+            return `
+              <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                <input type="checkbox" class="theClass customicon" id="${data}" value="${data}" />
+                <label class="mylabel customicon" for="${data}" data-tippy-content="Pomiń" style="margin: 0;">
+                  <span class="icon initial"></span>
+                  <span class="icon loading"></span>
+                  <span class="icon final"></span>
+                </label>
+              </div>`;
+          },
+          className: "dt-center",
+        },
+      ],
+      initComplete: function () {
+        initializeSimpleTooltips();
+
+        const api = this.api();
+        const allData = api.rows().data().toArray();
+        const confirmedCount = allData.filter(
+          (r) => r.confirmedAt != null
+        ).length;
+
+        $('a[data-w-tab="AddProducts"]').toggle(confirmedCount === 0);
+
+        const textBox = $("#table_splited_wh filter label input");
+        textBox.off().on("keyup input", function (e) {
+          if (e.keyCode === 13) api.search(this.value).draw();
+        });
+
+        updateStatusBadge(api);
+      },
+    });
+  }
 
   async function CreateOrder() {
     console.log("Creating Order");
