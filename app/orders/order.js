@@ -475,6 +475,22 @@ docReady(function () {
       }
     });
   }
+
+  function formatDateToPolishTime(dateString) {
+    const date = new Date(dateString);
+    const options = {
+      timeZone: "Europe/Warsaw",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    };
+    return date.toLocaleString("pl-PL", options).replace(",", "");
+  }
+
   function buildSplittedTable(data = []) {
     var table = $("#table_splited_wh").DataTable({
       pagingType: "full_numbers",
