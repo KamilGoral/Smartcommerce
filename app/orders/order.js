@@ -1158,45 +1158,53 @@ docReady(function () {
         const benefitHtml = getBenefitDetails(item.promotion?.benefit);
 
         const isConfirmed = confirmedKeys.includes(item.wholesalerKey);
+
+        // <=== 🔥 tu nowy warunek wyróżniający "twoją" cenę ===>
+        const isUserAssigned =
+          item.wholesalerKey === d.wholesalerKey &&
+          item.netPrice === d.netPrice;
+
         const rowAttrs = isConfirmed
           ? `data-tippy-content="Dostawca potwierdzony, w tym zamówieniu cena jest niemożliwa"
-             style="background-color: transparent; font-style: italic; font-weight: 300; cursor: not-allowed;"`
+           style="background-color: transparent; font-style: italic; font-weight: 300; cursor: not-allowed;"`
+          : isUserAssigned
+          ? `style="font-weight: 700; background-color: #f0f5ff;" data-tippy-content='Twoja cena'`
           : "";
 
         return `<tr ${rowAttrs}>
-          <td>${item.wholesalerKey}</td>
-          <td>${item.netPrice}</td>
-          <td>${
-            getCookie("sprytnyUserRole") === "admin"
-              ? item.netNetPrice ?? "-"
-              : "-"
-          }</td>
-          <td>${item.set ?? "-"}</td>
-          <td>${sourceMap[item.source] || "-"}</td>
-          <td>${item.originated ?? "-"}</td>
-          <td>${item.stock ?? "-"}</td>
-          ${
-            promotion
-              ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-              : "<td>-</td>"
-          }
-          <td>${item.promotion?.threshold ?? "-"}</td>
-          <td>${item.promotion?.cap ?? "-"}</td>
-          <td>${calculatePackage(item.promotion)}</td>
-          <td>${benefitHtml}</td>
-          <td>${showRelated}</td>
-        </tr>`;
+        <td>${item.wholesalerKey}</td>
+        <td>${item.netPrice}</td>
+        <td>${
+          getCookie("sprytnyUserRole") === "admin"
+            ? item.netNetPrice ?? "-"
+            : "-"
+        }</td>
+        <td>${item.set ?? "-"}</td>
+        <td>${sourceMap[item.source] || "-"}</td>
+        <td>${item.originated ?? "-"}</td>
+        <td>${item.stock ?? "-"}</td>
+        ${
+          promotion
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+        }
+        <td>${item.promotion?.threshold ?? "-"}</td>
+        <td>${item.promotion?.cap ?? "-"}</td>
+        <td>${calculatePackage(item.promotion)}</td>
+        <td>${benefitHtml}</td>
+        <td>${showRelated}</td>
+      </tr>`;
       })
       .join("");
 
     return `
-      <table>
-        <tr>
-          <th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th>
-        </tr>
-        ${toDisplayHtml}
-      </table>
-    `;
+    <table>
+      <tr>
+        <th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th>
+      </tr>
+      ${toDisplayHtml}
+    </table>
+  `;
   }
 
   function generateWholesalerSelect(
