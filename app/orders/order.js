@@ -478,31 +478,30 @@ docReady(function () {
 
   async function CreateOrder() {
     console.log("Creating Order");
+
     const tableId = "#spl_table";
 
     if ($.fn.dataTable.isDataTable(tableId)) {
-      // Usuń wszystkie rekordy z tabeli podzielonych produktów
       const tableToClear = $("#spl_table").DataTable();
       tableToClear.clear().draw();
       $("#spl_table_wrapper").hide();
-    } else {
-      // Tabela nie została zainicjalizowana jako DataTable
     }
 
     await makeChangesToOrder();
-    var method = "GET";
 
-    var searchIDs = $("#table_splited_wh input:checkbox:checked")
+    const searchIDs = $("#table_splited_wh input:checkbox:checked")
       .map(function () {
         return $(this).val();
       })
       .toArray();
-    var deletetedIds = $("#DeletedContainer input:checkbox:checked")
+
+    const deletetedIds = $("#DeletedContainer input:checkbox:checked")
       .map(function () {
         return $(this).val();
       })
       .toArray();
-    var deletetedIdstoDelete = $(
+
+    const deletetedIdstoDelete = $(
       "#DeletedContainer input:checkbox:not(:checked)"
     )
       .map(function () {
@@ -532,480 +531,34 @@ docReady(function () {
             for="${wholesaler}" 
             data-tippy-content="Pomiń"
           >
-            <span class="icon initial" style="maring-left:6px;margin-left: 6px;margin-top: 1px;"></span>
-            <span class="icon loading" style="maring-left:6px;margin-left: 6px;margin-top: 1px;"></span>
-            <span class="icon final" style="maring-left:6px;margin-left: 6px;margin-top: 1px;"></span>
+            <span class="icon initial"></span>
+            <span class="icon loading"></span>
+            <span class="icon final"></span>
           </label>
         </div>
       `);
     });
 
-    var UrlParameters = "";
+    let UrlParameters = "";
     const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
     const exludedWholesalers = searchIDs.join("&exclude=");
 
     if (exludedWholesalersAlready.length > 0) {
-      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalersAlready;
+      UrlParameters += "&exclude=" + exludedWholesalersAlready;
     }
     if (exludedWholesalers.length > 0) {
-      UrlParameters = UrlParameters + "&exclude=" + exludedWholesalers;
+      UrlParameters += "&exclude=" + exludedWholesalers;
     }
-    var action =
-      InvokeURL +
-      "shops/" +
-      shopKey +
-      "/orders/" +
-      orderId +
-      "/split?" +
-      UrlParameters;
 
-    return await new Promise((resolve, reject) => {
-      let resultData = null;
+    const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split?${UrlParameters}`;
+
+    return new Promise((resolve, reject) => {
       $.ajax({
-        type: method,
+        type: "GET",
         url: action,
         cors: true,
         beforeSend: function () {
           $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-
-          if (!resultData || !resultData.items) {
-            console.warn("Brak danych - pokazuję pustą tabelę");
-            $("#splitedwhcontainer").show();
-
-            if ($.fn.dataTable.isDataTable("#table_splited_wh")) {
-              // Bonus: tabela już istnieje → wyczyść i pokaż pusty stan
-              const table = $("#table_splited_wh").DataTable();
-              table.clear().draw();
-            } else {
-              // Tabela nie istnieje → zbuduj od zera z pustym datasetem
-              buildSplittedTable([]);
-            }
-
-            resolve();
-            return;
-          }
-
-          // jeśli są dane:
-          buildSplittedTable(resultData.items);
-
-          let proceed = true;
-          if (typeof successCallback === "function") {
-            proceed = successCallback(resultData);
-          }
-
-          if (proceed !== false) {
-            resolve(); // <-- To zapewni, że Promise się zakończy
-          }
-          $("#table-content").show();
-
-          var data = resultData;
-
-          const setElementContent = (elementId, content, percentage) => {
-            const element = document.getElementById(elementId);
-            if (element === null) {
-              console.error(`Element with ID '${elementId}' not found.`);
-              return; // Exit the function if the element is not found
-            }
-            if (content === null) {
-              element.textContent = "-";
-              return;
-            }
-            const numericContent = Number(content);
-            const formattedContent = isNaN(numericContent)
-              ? "-"
-              : `${numericContent.toFixed(2)} zł${
-                  percentage ? ` (${percentage.toFixed(2)}%)` : ""
-                }`;
-            element.textContent = formattedContent;
-          };
-
-          const userRole = getCookie("sprytnyUserRole");
-
-          // Calculate savings and update elements
-          const calculateAndSetSavings = (values, prefix = "") => {
-            const savingsValue = values.avg - values.total;
-            const savingsPercentage = (savingsValue / values.avg) * 100;
-            setElementContent(`${prefix}totalValue`, values.total);
-            setElementContent(`${prefix}avgValue`, values.avg);
-            return { savingsValue, savingsPercentage };
-          };
-
-          const { savingsValue, savingsPercentage } = calculateAndSetSavings(
-            data.netValues
-          );
-          const {
-            savingsNetValue: savingsNetValue,
-            savingsNetPercentage: savingsNetPercentage,
-          } = calculateAndSetSavings(data.netNetValues, "net");
-
-          // Determine text color
-          const textColor =
-            savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
-
-          // Set savings content based on condition
-          if (savingsValue >= 0) {
-            setElementContent("savings", savingsValue, savingsPercentage);
-          } else {
-            setElementContent("savings", "Zamówienie nieoptymalne", "-");
-          }
-
-          // Set savingsNet content based on condition
-          if (savingsNetValue >= 0) {
-            setElementContent("savingsNet", "Zamówienie nieoptymalne", "-");
-          } else if (
-            userRole === "admin" &&
-            data.netValues.total !== data.netNetValues.total
-          ) {
-            setElementContent(
-              "savingsNet",
-              savingsNetValue,
-              savingsNetPercentage
-            );
-          }
-
-          // Adjust content color
-          ["savings", "savingsNet"].forEach((id) => {
-            const element = document.getElementById(id);
-            if (element) element.style.color = textColor;
-          });
-
-          var toParse = data.items;
-          toParse.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
-          $("#splitedwhcontainer").show();
-
-          // Funkcja do formatowania daty na czas polski bez 'T' i 'Z', z dokładnością do sekundy
-          function formatDateToPolishTime(dateString) {
-            const date = new Date(dateString);
-            const options = { timeZone: "Europe/Warsaw", hour12: false };
-            return date.toLocaleString("pl-PL", options).replace(",", "");
-          }
-
-          function buildSplittedTable(data = []) {
-            var table = $("#table_splited_wh").DataTable({
-              pagingType: "full_numbers",
-              pageLength: 25,
-              stripeClasses: [],
-              destroy: true,
-              orderMulti: true,
-              order: [[2, "desc"]],
-              dom: '<"top">rt<"bottom"lip><"clear">',
-              language: {
-                emptyTable: "Brak danych do wyświetlenia",
-                info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-                infoEmpty: "Brak danych",
-                infoFiltered: "(z _MAX_ rezultatów)",
-                lengthMenu: "Pokaż _MENU_ rekordów",
-                loadingRecords: "<div class='spinner'</div>",
-                processing: "<div class='spinner'</div>",
-                search: "Szukaj:",
-                zeroRecords: "Brak pasujących rezultatów",
-                paginate: {
-                  first: "<<",
-                  last: ">>",
-                  next: " >",
-                  previous: "< ",
-                },
-                aria: {
-                  sortAscending: ": Sortowanie rosnące",
-                  sortDescending: ": Sortowanie malejące",
-                },
-              },
-              data: data,
-              search: {
-                return: true,
-              },
-              columns: [
-                {
-                  orderable: false,
-                  width: "32px",
-                  data: null,
-                  render: function (data) {
-                    if (data.wholesalerName === "unassigned") {
-                      return "";
-                    }
-                    return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" style="width: 24px;height: 24px;">';
-                  },
-                },
-                {
-                  orderable: true,
-                  width: "auto",
-                  data: null,
-                  render: function (data) {
-                    if (data.wholesalerName === "unassigned") {
-                      return "Nieprzydzielone";
-                    }
-                    return data.wholesalerName;
-                  },
-                },
-                {
-                  orderable: true,
-                  data: "netValue",
-                  width: "108px",
-                  className: "dt-right",
-                  render: function (data, type, row) {
-                    // Dla wyświetlania i sortowania zwracamy czystą wartość
-                    if (type === "display" || type === "filter") {
-                      if (row.logisticMinimum !== null) {
-                        var toGo = (row.logisticMinimum - row.netValue).toFixed(
-                          2
-                        );
-                        if (toGo > 0) {
-                          return `
-                                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 4px;" 
-                                         data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
-                                        <span style="color: #8E1212; display: flex; align-items: center;">
-                                            <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                                                 alt="warning" 
-                                                 style="width: 16px; height: 16px;margin-right: 4px">
-                                        </span>
-                                        <span>${data}zł</span>
-                                    </div>
-                                `;
-                        }
-                      }
-                      return `${data}zł`;
-                    }
-                    // Dla sortowania zwracamy oryginalną wartość liczbową
-                    return data;
-                  },
-                  type: "num", // Określamy, że to kolumna numeryczna
-                },
-                {
-                  orderable: true,
-                  data: "products",
-                  width: "64px",
-                  render: function (data, type, row) {
-                    const isUnassigned = row.wholesalerName === "unassigned";
-
-                    const bestMatch = data.bestMatch || 0;
-                    const exclusive = data.exclusive || 0;
-                    const order = data.order || 0;
-
-                    if (type === "sort" || type === "type") {
-                      return bestMatch + exclusive + order;
-                    }
-
-                    const total = bestMatch + exclusive + order;
-
-                    let displayText = "";
-                    let tooltip = "";
-
-                    if (isUnassigned) {
-                      displayText = `${total}`;
-                      tooltip = "Nieprzydzielono";
-                    } else if (exclusive > 0 || order > 0) {
-                      displayText = `${bestMatch}/${exclusive}/${order}`;
-                      tooltip = `Najlepszy wybór: ${bestMatch}, Blokada: ${exclusive}, Wybór użytkownika: ${order}`;
-                    } else {
-                      displayText = `${bestMatch}`;
-                      tooltip = `Najlepszy wybór: ${bestMatch}`;
-                    }
-
-                    return `<div data-tippy-content="${tooltip}">
-                              ${displayText}
-                            </div>`;
-                  },
-                  type: "num",
-                  defaultContent: "",
-                  className: "dt-center",
-                },
-                {
-                  orderable: true,
-                  data: null, // Używamy null, bo będziemy korzystać z całego wiersza
-                  name: "statusColumn",
-                  width: "48px",
-                  render: function (data, type, row) {
-                    if (data.wholesalerName === "unassigned") {
-                      return "";
-                    }
-
-                    const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
-                    const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="pointer;" />`;
-
-                    // Jeśli confirmedAt istnieje, wyświetlamy ikonę potwierdzenia
-                    if (data.confirmedAt) {
-                      return `<span data-tippy-content="Potwierdzono ${formatDateToPolishTime(
-                        data.confirmedAt
-                      )}">${confirmedIcon}</span>`;
-                    } else {
-                      // W przeciwnym razie, szkic z ikoną edycji
-                      return `<span data-tippy-content="W edycji">${editIcon}</span>`;
-                    }
-                  },
-                  className: "dt-center status-column",
-                },
-                {
-                  orderable: false,
-                  data: "wholesalerKey",
-                  width: "152px",
-                  render: function (data, type, row) {
-                    // File icon definitions
-                    const icons = {
-                      text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b6e9d0c00a6329e3e5_b0fc4e382ede37a3a31a9a8bf2aabe9b_document-PC.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/plain" class="filedownloadicon" data-tippy-content="PC-Market">',
-                      csv: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_a03eac84060b4e1648f6001c1315e885_document-KC.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
-                      csvAgra:
-                        '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/csv" class="filedownloadicon" data-tippy-content="Excel / Tema">',
-                      csvMirex:
-                        '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b78c32ec3d759793c3_a03eac84060b4e1648f6001c1315e885_document-KC.svg" loading="lazy" style="height:28px; width:28px" fileformat="text/csv" class="filedownloadicon" data-tippy-content="KC-Firma">',
-                      pdf: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" loading="lazy" style="height:28px; width:28px" fileformat="application/pdf" class="filedownloadicon" data-tippy-content="PDF / Wydruk">',
-                      xls: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" loading="lazy" style="height:28px; width:28px" fileformat="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="filedownloadicon" data-tippy-content="Excel / Tema">',
-                    };
-
-                    const wholesalerConfigs = {
-                      agra: {
-                        default: [
-                          icons.text,
-                          icons.csvAgra,
-                          icons.pdf,
-                          icons.xls,
-                        ],
-                        suzyw123: [
-                          icons.text,
-                          icons.csvAgra,
-                          icons.pdf,
-                          icons.xls,
-                        ],
-                      },
-                      mirex: {
-                        default: [
-                          icons.text,
-                          icons.csvMirex,
-                          icons.pdf,
-                          icons.xls,
-                        ],
-                        suzyw123: [icons.text, icons.pdf, icons.xls],
-                      },
-                      "kd-tedi": {
-                        default: [icons.xls],
-                        suzyw123: [icons.xls],
-                      },
-                      "kd-tano": {
-                        default: [icons.xls],
-                        suzyw123: [icons.xls],
-                      },
-                      "mag-dystrybucja": {
-                        default: [icons.xls],
-                        suzyw123: [icons.xls],
-                      },
-                      merkury: { default: [icons.xls], suzyw123: [icons.xls] },
-                      default: {
-                        default: [icons.text, icons.csv, icons.pdf, icons.xls],
-                        suzyw123: [icons.text, icons.csv, icons.pdf, icons.xls],
-                      },
-                    };
-
-                    const isSuzyw123 = OrganizationName === "Suzyw123";
-                    const configKey = isSuzyw123 ? "suzyw123" : "default";
-                    const config =
-                      wholesalerConfigs[data] || wholesalerConfigs["default"];
-                    const fileIcons = config[configKey];
-
-                    if (data === "unassigned") {
-                      return `
-                      <div style="display: flex; align-items: center; gap: 10px;">
-                        ${icons.text}${icons.csv}${icons.pdf}${icons.xls}
-                      </div>
-                    `;
-                    }
-
-                    return `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      ${fileIcons.join("")}
-                    </div>
-                  `;
-                  },
-                },
-                {
-                  orderable: false,
-                  width: "48px",
-                  data: "wholesalerKey",
-                  render: function (data, type, row) {
-                    if (data === "unassigned") {
-                      return ""; // brak akcji dla 'unassigned'
-                    }
-
-                    return `
-                      <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
-                      </div>
-                    `;
-                  },
-                  className: "dt-center",
-                },
-                {
-                  orderable: false,
-                  width: "48px",
-                  data: "wholesalerKey",
-                  render: function (data, type, row) {
-                    if (data === "unassigned" || row.confirmedAt) {
-                      return ""; // brak checkboxa dla 'unassigned' lub już potwierdzonych
-                    }
-
-                    return `  
-                      <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        <input 
-                          type="checkbox" 
-                          class="theClass customicon" 
-                          id="${data}" 
-                          value="${data}" 
-                        />
-                        <label 
-                          class="mylabel customicon" 
-                          for="${data}" 
-                          data-tippy-content="Pomiń" 
-                          style="margin: 0;"
-                        >
-                          <span class="icon initial"></span>
-                          <span class="icon loading"></span>
-                          <span class="icon final"></span>
-                        </label>
-                      </div>
-                    `;
-                  },
-                  className: "dt-center",
-                },
-              ],
-              initComplete: function (settings, json) {
-                initializeSimpleTooltips();
-                const api = this.api(); // Prawidłowe pobranie API w tym kontekście
-                const allData = api.rows().data().toArray();
-
-                const confirmedCount = allData.filter(
-                  (row) =>
-                    row.confirmedAt !== null && row.confirmedAt !== undefined
-                ).length;
-                const totalCount = allData.length;
-
-                console.log("Potwierdzonych:", confirmedCount, "z", totalCount);
-
-                // Twoja logika z AddProducts
-                const hasConfirmed = confirmedCount > 0;
-                if (hasConfirmed) {
-                  $('a[data-w-tab="AddProducts"]').hide();
-                } else {
-                  $('a[data-w-tab="AddProducts"]').show();
-                }
-
-                // ✅ Obsługa Entera w filtrze
-                const textBox = $("#table_splited_wh filter label input");
-                textBox.unbind();
-                textBox.bind("keyup input", function (e) {
-                  if (e.keyCode === 13) {
-                    api.search(this.value).draw();
-                  }
-                });
-
-                // Zaktualizuj statusowy badge globalnie
-                updateStatusBadge(api);
-              },
-            });
-          }
-
-          resolve();
-          return false;
         },
         contentType: "application/json",
         dataType: "json",
@@ -1015,80 +568,181 @@ docReady(function () {
           Authorization: orgToken,
           "Requested-By": "webflow-3-4",
         },
-        processData: false,
         success: function (data) {
-          resultData = data; // <-- to kluczowe
+          $("#waitingdots").hide();
+          handleSplitResponse(data);
+          resolve();
         },
         error: function (jqXHR, textStatus, errorThrown) {
-          // 🧠 Sprawdzenie, czy aktywny jest tab "Dodaj produkty"
+          $("#waitingdots").hide();
+
           const isAddProductsTabActive =
             $("#addProducts").hasClass("w--current");
-
           if (isAddProductsTabActive) {
             console.log(
               "Tab 'Dodaj produkty' jest aktywny — pomijam obsługę błędu."
             );
-            reject(errorThrown); // zakończ promise
+            reject(errorThrown);
             return;
           }
 
-          if (jqXHR.status === 422) {
-            var response = JSON.parse(jqXHR.responseText);
-            var translatedError = "";
-
-            if (
-              response.message ===
-              "Unable to split requested order: no products to split."
-            ) {
-              translatedError =
-                "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
-            } else if (
-              response.message.includes(
-                "Quantities of products exceed limit for GTINs"
-              )
-            ) {
-              // Extract GTINs from the message
-              var gtins = response.message.match(/\[([^\]]+)\]/)[1];
-              translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
-            } else if (
-              response.message.includes("Exceptions occurred for GTINs")
-            ) {
-              // Extract GTINs from the message
-              var gtins = response.message.match(/\[([^\]]+)\]/)[1];
-              translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
-            } else if (
-              response.message ===
-              "Total value for the order exceeded the available limit."
-            ) {
-              translatedError =
-                "Całkowita wartość zamówienia przekroczyła dostępny limit.";
-            }
-
-            if (translatedError) {
-              console.error(translatedError);
-              displayMessage("Error", translatedError);
-            }
-          }
-          if (jqXHR.status === 404) {
+          // Próbujemy sparsować dane z response
+          if (jqXHR.responseText) {
             try {
-              displayMessage(
-                "Error",
-                "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
-              );
-              window.setTimeout(function () {
-                window.location.href =
-                  "https://" +
-                  DomainName +
-                  "/app/shops/shop?shopKey=" +
-                  shopKey;
-              }, 4000);
+              const parsed = JSON.parse(jqXHR.responseText);
+              if (parsed && parsed.items) {
+                handleSplitResponse(parsed);
+                resolve();
+                return;
+              }
+
+              let translatedError = "";
+              if (
+                parsed.message ===
+                "Unable to split requested order: no products to split."
+              ) {
+                translatedError =
+                  "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
+              } else if (
+                parsed.message.includes(
+                  "Quantities of products exceed limit for GTINs"
+                )
+              ) {
+                const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
+                translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
+              } else if (
+                parsed.message.includes("Exceptions occurred for GTINs")
+              ) {
+                const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
+                translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
+              } else if (
+                parsed.message ===
+                "Total value for the order exceeded the available limit."
+              ) {
+                translatedError =
+                  "Całkowita wartość zamówienia przekroczyła dostępny limit.";
+              }
+
+              if (translatedError) {
+                console.error(translatedError);
+                displayMessage("Error", translatedError);
+              }
             } catch (e) {
-              console.error("Error while parsing response:", e);
+              console.error(
+                "Nie udało się sparsować odpowiedzi JSON w error blocku",
+                e
+              );
             }
           }
+
+          if (jqXHR.status === 404) {
+            displayMessage(
+              "Error",
+              "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
+            );
+            window.setTimeout(() => {
+              window.location.href = `https://${DomainName}/app/shops/shop?shopKey=${shopKey}`;
+            }, 4000);
+          }
+
           reject(errorThrown);
         },
       });
+    });
+  }
+
+  function handleSplitResponse(data) {
+    // Obsługa braku danych lub pustej tablicy
+    if (
+      !data ||
+      !data.items ||
+      !Array.isArray(data.items) ||
+      data.items.length === 0
+    ) {
+      console.warn("Brak danych - pokazuję pustą tabelę");
+      $("#splitedwhcontainer").show();
+
+      if ($.fn.dataTable.isDataTable("#table_splited_wh")) {
+        const table = $("#table_splited_wh").DataTable();
+        table.clear().draw();
+      } else {
+        buildSplittedTable([]);
+      }
+      return;
+    }
+
+    // Sortowanie, jeśli potrzebujesz
+    data.items.sort((a, b) => parseFloat(b.netValue) - parseFloat(a.netValue));
+
+    // Budowanie tabeli z danymi
+    buildSplittedTable(data.items);
+    $("#splitedwhcontainer").show();
+    $("#table-content").show();
+
+    // ------ Obsługa liczbowych wartości (oszczędności itd.) ------
+    function setElementContent(elementId, content, percentage) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+
+      if (content === null || typeof content === "undefined") {
+        element.textContent = "-";
+        return;
+      }
+
+      const numericContent = Number(content);
+      const formattedContent = isNaN(numericContent)
+        ? "-"
+        : `${numericContent.toFixed(2)} zł${
+            percentage !== undefined ? ` (${percentage.toFixed(2)}%)` : ""
+          }`;
+      element.textContent = formattedContent;
+    }
+
+    const userRole = getCookie && getCookie("sprytnyUserRole");
+
+    function calculateAndSetSavings(values, prefix = "") {
+      const savingsValue = values.avg - values.total;
+      const savingsPercentage = (savingsValue / values.avg) * 100;
+      setElementContent(`${prefix}totalValue`, values.total);
+      setElementContent(`${prefix}avgValue`, values.avg);
+      return { savingsValue, savingsPercentage };
+    }
+
+    // Wyliczenie oszczędności
+    const { savingsValue, savingsPercentage } = calculateAndSetSavings(
+      data.netValues
+    );
+    const {
+      savingsValue: savingsNetValue,
+      savingsPercentage: savingsNetPercentage,
+    } = calculateAndSetSavings(data.netNetValues, "net");
+
+    // Dobór koloru oszczędności
+    const textColor =
+      savingsValue >= 0 || savingsNetValue >= 0 ? "#67ca24" : "#ff5630";
+
+    // Aktualizacja widoków oszczędności
+    if (savingsValue >= 0) {
+      setElementContent("savings", savingsValue, savingsPercentage);
+    } else {
+      setElementContent("savings", "Zamówienie nieoptymalne", "-");
+    }
+
+    if (savingsNetValue >= 0) {
+      setElementContent("savingsNet", "Zamówienie nieoptymalne", "-");
+    } else if (
+      userRole === "admin" &&
+      data.netValues &&
+      data.netNetValues &&
+      data.netValues.total !== data.netNetValues.total
+    ) {
+      setElementContent("savingsNet", savingsNetValue, savingsNetPercentage);
+    }
+
+    // Ustawienie kolorów w UI
+    ["savings", "savingsNet"].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) element.style.color = textColor;
     });
   }
 
