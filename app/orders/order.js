@@ -997,6 +997,9 @@ docReady(function () {
                     api.search(this.value).draw();
                   }
                 });
+
+                // Zaktualizuj statusowy badge globalnie
+                updateStatusBadge(api);
               },
             });
           }
