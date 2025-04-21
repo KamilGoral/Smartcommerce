@@ -1107,11 +1107,11 @@ docReady(function () {
 
       const benefitTexts = {
         discount:
-          "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
-        gratis: "W ramach tej promocji otrzymasz inne produkty gratis.",
+          "W ramach promocji otrzymasz inne produkty w obniżonej cenie.",
+        gratis: "W ramach promocji otrzymasz inne produkty gratis.",
         "self-discount":
-          "W ramach tej promocji otrzymasz ten produkt w obniżonej cenie.",
-        "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
+          "W ramach promocji otrzymasz ten produkt w obniżonej cenie.",
+        "self-gratis": "W ramach promocji otrzymasz ten produkt gratis.",
       };
 
       if (Array.isArray(types)) {
@@ -1609,6 +1609,8 @@ docReady(function () {
                   let lowestNetNetPrice = Infinity;
 
                   data.asks.forEach((ask) => {
+                    if (ask.confirmed === true) return; // pomijamy zatwierdzonych
+
                     if (ask.netPrice !== null) {
                       lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
                     }
@@ -1815,6 +1817,8 @@ docReady(function () {
               let lowestNetNetPrice = Infinity;
 
               data.asks.forEach((ask) => {
+                if (ask.confirmed === true) return; // pomijamy zatwierdzonych
+
                 if (ask.netPrice !== null) {
                   lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
                 }
