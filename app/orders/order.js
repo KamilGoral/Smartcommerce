@@ -988,13 +988,13 @@ docReady(function () {
     if (confirmedCount === 0) {
       $badgeContainer.append(`
         <div data-tippy-content="Możesz swobodnie edytować, usuwać i dodawać produkty do zamówienia" class="badgestatus editstate" style="display: flex;">
-          <div>Do edycji</div>
+          <div>W edycji</div>
         </div>
       `);
     } else if (confirmedCount < totalCount) {
       $badgeContainer.append(`
         <div data-tippy-content="Część pozycji została już potwierdzona – niektóre akcje są teraz zablokowane" class="badgestatus confirmstate" style="display: flex;">
-          <div>W trakcie potwierdzania</div>
+          <div>Częściowo potwierdzone</div>
         </div>
       `);
     } else {
