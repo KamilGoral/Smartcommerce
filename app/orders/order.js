@@ -2753,25 +2753,22 @@ docReady(function () {
           let formatsSelect = document.getElementById("formats");
           let formats = data2.smtp ? data2.smtp.formats : [];
 
-          if (data2.smtp === null || data2.smtp.email === null) {
+          // Obsługa adresu e-mail
+          if (smtpEmail === null) {
             smtpEmailInput.value = "";
             smtpEmailInput.disabled = false;
-            console.log("zresetowano adres-email");
+            console.log("zresetowano adres e-mail");
           } else {
             smtpEmailInput.value = smtpEmail;
             smtpEmailInput.disabled = true;
           }
 
-          if (
-            data2.smtp === null ||
-            (data2.smtp.formats && data2.smtp.formats.length === 0)
-          ) {
-            for (let i = 0; i < formatsSelect.options.length; i++) {
-              formatsSelect.options[i].selected = false;
-            }
-            previousFormats = [];
-            console.log("zresetowano formaty");
-          } else {
+          // Obsługa formatów — CZYSZCZENIE selekcji i ustawianie nowych
+          for (let i = 0; i < formatsSelect.options.length; i++) {
+            formatsSelect.options[i].selected = false; // wyczyść zaznaczenia
+          }
+
+          if (formats && formats.length > 0) {
             formats.forEach(function (format) {
               let option = formatsSelect.querySelector(
                 `option[value="${format}"]`
@@ -2779,11 +2776,12 @@ docReady(function () {
               if (option) {
                 option.selected = true;
               }
-              previousFormats = formats;
             });
+            console.log("zaktualizowano formaty");
+          } else {
+            console.log("zresetowano formaty");
           }
 
-          // Możesz też zwrócić dane, jeśli będą potrzebne dalej
           resolve(data2);
         } else if (request2.status >= 400) {
           console.error("Błąd: ", request2.status, this.response);
