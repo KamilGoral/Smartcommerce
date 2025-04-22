@@ -2763,20 +2763,13 @@ docReady(function () {
             smtpEmailInput.disabled = true;
           }
 
-          // Obsługa formatów
-
-          if (formats === null) {
-            formatsSelect.disabled.false;
-          } else {
-            formatsSelect.disabled.true;
-          }
-
-          // Obsługa formatów — CZYSZCZENIE selekcji i ustawianie nowych
+          // Reset zaznaczeń w <select>
           for (let i = 0; i < formatsSelect.options.length; i++) {
-            formatsSelect.options[i].selected = false; // wyczyść zaznaczenia
+            formatsSelect.options[i].selected = false;
           }
 
           if (formats && formats.length > 0) {
+            // Zaznacz dostępne formaty
             formats.forEach(function (format) {
               let option = formatsSelect.querySelector(
                 `option[value="${format}"]`
@@ -2785,9 +2778,14 @@ docReady(function () {
                 option.selected = true;
               }
             });
-            console.log("zaktualizowano formaty");
+
+            // Zablokuj select
+            formatsSelect.disabled = true;
+            console.log("zaktualizowano i zablokowano formaty");
           } else {
-            console.log("zresetowano formaty");
+            // Odblokuj select, gdy brak formatów
+            formatsSelect.disabled = false;
+            console.log("zresetowano i odblokowano formaty");
           }
 
           resolve(data2);
