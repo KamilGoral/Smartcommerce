@@ -716,6 +716,7 @@ docReady(function () {
     }
 
     await makeChangesToOrder();
+    fetchDataFromEndpoint();
 
     const searchIDs = $("#table_splited_wh input:checkbox:checked")
       .map(function () {
