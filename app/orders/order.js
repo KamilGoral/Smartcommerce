@@ -2763,6 +2763,14 @@ docReady(function () {
             smtpEmailInput.disabled = true;
           }
 
+          // Obsługa formatów
+
+          if (formats === null) {
+            formatsSelect.disabled.false;
+          } else {
+            formatsSelect.disabled.true;
+          }
+
           // Obsługa formatów — CZYSZCZENIE selekcji i ustawianie nowych
           for (let i = 0; i < formatsSelect.options.length; i++) {
             formatsSelect.options[i].selected = false; // wyczyść zaznaczenia
