@@ -2126,57 +2126,71 @@ docReady(function () {
   }
 
   function getProductDetails(rowData) {
-    let url = new URL(
+    const url = new URL(
       InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
     );
-    let request = new XMLHttpRequest();
+
+    const request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
-        const pName = document.getElementById("pName");
-        const pEan = document.getElementById("pEan");
-        const pInStock = document.getElementById("pInStock");
-        const pUnit = document.getElementById("pUnit");
-        const pStandardPrice = document.getElementById("pStandardPrice");
-        const pRetailPrice = document.getElementById("pRetailPrice");
-        const pIndicator = document.getElementById("pIndicator");
-        const pBestPrice = document.getElementById("pBestPrice");
 
-        pName.textContent = data.name;
-        pEan.textContent = data.gtin;
-        if (data.stock === null) {
-          data.stock = {
-            value: 0,
-            unit: "pieces",
-          };
-        }
-        pInStock.textContent = data.stock.value;
-        pIndicator.textContent = rowData.rotationIndicator;
+    request.onload = function () {
+      if (request.status === 401) {
+        console.log("Unauthorized");
+        return;
+      }
+
+      if (request.status < 200 || request.status >= 400) {
+        console.log("Request failed with status", request.status);
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(this.response);
+      } catch (e) {
+        console.error("Error parsing response JSON:", e);
+        return;
+      }
+
+      // Elementy DOM
+      const pName = document.getElementById("pName");
+      const pEan = document.getElementById("pEan");
+      const pInStock = document.getElementById("pInStock");
+      const pUnit = document.getElementById("pUnit");
+      const pStandardPrice = document.getElementById("pStandardPrice");
+      const pRetailPrice = document.getElementById("pRetailPrice");
+      const pIndicator = document.getElementById("pIndicator");
+      const pBestPrice = document.getElementById("pBestPrice");
+
+      // Wypełnianie danych
+      pName.textContent = data?.name || "-";
+      pEan.textContent = data?.gtin || "-";
+
+      const stock = data?.stock ?? { value: 0, unit: "pieces" };
+      pInStock.textContent = stock.value;
+      pUnit.textContent = stock.unit === "pieces" ? "szt" : stock.unit;
+
+      const standardPrice = data?.standardPrice?.value ?? 0;
+      pStandardPrice.textContent = standardPrice;
+
+      const retailPrice = data?.retailPrice ?? 0;
+      pRetailPrice.textContent = retailPrice;
+
+      pIndicator.textContent = rowData?.rotationIndicator ?? "-";
+
+      if (Array.isArray(rowData?.asks) && rowData.asks.length > 0) {
         pBestPrice.textContent = rowData.asks[0].netPrice;
-        if ((data.stock.unit = "pieces")) {
-          pUnit.textContent = "szt";
-        } else {
-          pUnit.textContent = data.stock.unit;
-        }
-        if (data.standardPrice === null) {
-          data.standardPrice = {
-            value: 0,
-            premium: 0,
-          };
-        }
-        pStandardPrice.textContent = data.standardPrice.value;
-        if (data.retailPrice === null) {
-          data.retailPrice = 0;
-        }
-        pRetailPrice.textContent = data.retailPrice;
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
+      } else {
+        pBestPrice.textContent = "-";
       }
     };
+
+    request.onerror = function () {
+      console.error("Network error while fetching product details.");
+    };
+
     request.send();
   }
 
