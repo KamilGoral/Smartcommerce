@@ -4658,11 +4658,24 @@ docReady(function () {
   });
 
   $("#table_id").on("click", "img[alt='details']", function () {
+    var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    $("#ProductCard").css("display", "flex");
-    getProductDetails(rowData);
-    getProductHistory(rowData);
+
+    // Pokaż loader
+    $("#ProductCard").hide();
+    $("#waitingdots").show(); // Zakładamy, że masz element z id="loader"
+
+    Promise.all([getProductDetails(rowData), getProductHistory(rowData)])
+      .then(() => {
+        $("#waitingdots").hide();
+        $("#ProductCard").css("display", "flex");
+      })
+      .catch((err) => {
+        console.error("Błąd ładowania danych:", err);
+        $("#waitingdots").hide();
+        alert("Nie udało się załadować danych.");
+      });
   });
 
   $("#table_id").on("click", "img[alt='edit']", function () {

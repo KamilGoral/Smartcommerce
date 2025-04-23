@@ -326,21 +326,39 @@ docReady(function () {
   );
 
   function getProductDetails(rowData) {
-    let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
-    );
+    return new Promise((resolve, reject) => {
+      const url = new URL(
+        InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
+      );
 
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      beforeSend: function () {
-        $("#waitingdots").show(); // Show the loading indicator
-      },
-      success: function (data) {
+      const request = new XMLHttpRequest();
+      request.open("GET", url, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
+
+      request.onload = function () {
+        if (request.status === 401) {
+          console.log("Unauthorized");
+          reject("Unauthorized or error");
+          return;
+        }
+
+        if (request.status < 200 || request.status >= 400) {
+          console.log("Request failed with status", request.status);
+          reject("Request failed with status");
+          return;
+        }
+
+        let data;
+        try {
+          data = JSON.parse(this.response);
+        } catch (e) {
+          console.error("Error parsing response JSON:", e);
+          reject("Parse error");
+          return;
+        }
+
+        // Elementy DOM
         const pName = document.getElementById("pName");
         const pEan = document.getElementById("pEan");
         const pInStock = document.getElementById("pInStock");
@@ -350,38 +368,36 @@ docReady(function () {
         const pIndicator = document.getElementById("pIndicator");
         const pBestPrice = document.getElementById("pBestPrice");
 
-        pName.textContent = data.name;
-        pEan.textContent = data.gtin;
+        // Wypełnianie danych
+        pName.textContent = data?.name || "-";
+        pEan.textContent = data?.gtin || "-";
 
-        if (!data.stock) {
-          data.stock = { value: 0, unit: "pieces" };
-        }
-        pInStock.textContent = data.stock.value;
-        pUnit.textContent =
-          data.stock.unit === "pieces" ? "szt" : data.stock.unit;
+        const stock = data?.stock ?? { value: 0, unit: "pieces" };
+        pInStock.textContent = stock.value;
+        pUnit.textContent = stock.unit === "pieces" ? "szt" : stock.unit;
 
-        if (!data.standardPrice) {
-          data.standardPrice = { value: 0, premium: 0 };
-        }
-        pStandardPrice.textContent = data.standardPrice.value;
+        const standardPrice = data?.standardPrice?.value ?? 0;
+        pStandardPrice.textContent = standardPrice;
 
-        pRetailPrice.textContent = data.retailPrice || 0;
+        const retailPrice = data?.retailPrice ?? 0;
+        pRetailPrice.textContent = retailPrice;
 
-        pIndicator.textContent = rowData.rotationIndicator;
-        pBestPrice.textContent = rowData.asks[0].netPrice;
+        pIndicator.textContent = rowData?.rotationIndicator ?? "-";
 
-        // Hide the waiting dots after the chart has been dealt with
-        $("#waitingdots").hide();
-      },
-      error: function (xhr, status, error) {
-        if (xhr.status == 401) {
-          console.log("Unauthorized");
+        if (Array.isArray(rowData?.asks) && rowData.asks.length > 0) {
+          pBestPrice.textContent = rowData.asks[0].netPrice;
         } else {
-          console.error("An error occurred: " + status + ", " + error);
+          pBestPrice.textContent = "-";
         }
-        // Hide the waiting dots after the chart has been dealt with
-        $("#waitingdots").hide();
-      },
+        resolve();
+      };
+
+      request.onerror = function () {
+        console.error("Network error while fetching product details.");
+        reject("Network error");
+      };
+
+      request.send();
     });
   }
 
@@ -480,435 +496,454 @@ docReady(function () {
   }
 
   function getProductHistory(rowData) {
-    if (rowData.stock === null) {
-      rowData.stock = {
-        value: 0,
-        unit: "pieces",
-      };
-    }
-
-    function arrayConvert(json) {
-      var dataInArrays = {
-        date: [],
-        highest: [],
-        average: [],
-        lowest: [],
-        retailPrice: [],
-        standardPrice: [],
-        stock: [],
-        volume: [],
-      };
-
-      for (let i = 0, l = json.items.length; i < l; i++) {
-        let item = json.items[i];
-        dataInArrays.date.push(item.date ? item.date.split("T")[0] : null);
-        dataInArrays.highest.push(
-          item.asks && item.asks.highest ? item.asks.highest : null
-        );
-        dataInArrays.average.push(
-          item.asks && item.asks.average ? item.asks.average : null
-        );
-        dataInArrays.lowest.push(
-          item.asks && item.asks.lowest ? item.asks.lowest : null
-        );
-        dataInArrays.retailPrice.push(
-          item.retailPrice ? item.retailPrice : null
-        );
-        dataInArrays.standardPrice.push(
-          item.standardPrice && item.standardPrice.value
-            ? item.standardPrice.value
-            : null
-        );
-        dataInArrays.stock.push(
-          item.stock && item.stock.value ? item.stock.value : null
-        );
-        dataInArrays.volume.push(item.volume ? item.volume : null);
+    return new Promise((resolve, reject) => {
+      if (rowData.stock === null) {
+        rowData.stock = {
+          value: 0,
+          unit: "pieces",
+        };
       }
-      return dataInArrays;
-    }
 
-    let url =
-      InvokeURL +
-      "shops/" +
-      shopKey +
-      "/products/" +
-      rowData.gtin +
-      "/history?perPage=91&page=1";
+      function arrayConvert(json) {
+        var dataInArrays = {
+          date: [],
+          highest: [],
+          average: [],
+          lowest: [],
+          retailPrice: [],
+          standardPrice: [],
+          stock: [],
+          volume: [],
+        };
 
-    $.ajax({
-      url: url,
-      type: "GET",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      beforeSend: function () {
-        $("#waitingdots").show();
-      },
-      success: function (jsonek) {
-        function displayData(x) {
-          if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
-            return x;
+        function checkNested(obj /*, level1, level2, ... levelN*/) {
+          var args = Array.prototype.slice.call(arguments, 1);
+          for (var i = 0; i < args.length; i++) {
+            if (
+              !obj ||
+              typeof obj !== "object" ||
+              !obj.hasOwnProperty(args[i])
+            ) {
+              return false;
+            }
+            obj = obj[args[i]];
           }
-          return "";
+          return true;
         }
-        var dataToChart = arrayConvert(jsonek);
-        const pHistory = document.getElementById("pHistory");
-        pHistory.textContent = dataToChart.date.length;
-        const pHistorySpan = document.getElementById("pHistorySpan");
-        pHistorySpan.textContent =
-          dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
-        const pOfferDate = document.getElementById("pOfferDate");
-        pOfferDate.textContent = dataToChart.date[0];
-        const pRetailPriceChange =
-          document.getElementById("pRetailPriceChange");
-        pRetailPriceChange.textContent =
-          "(" +
-          displayData(
-            parseFloat(
-              ((dataToChart.retailPrice[0] -
-                dataToChart.retailPrice.slice(-1)[0]) /
-                dataToChart.retailPrice.slice(-1)[0]) *
-                100
-            ).toFixed(2)
-          ) +
-          "%)";
-        const pStandardPriceChange = document.getElementById(
-          "pStandardPriceChange"
-        );
-        pStandardPriceChange.textContent =
-          "(" +
-          displayData(
-            parseFloat(
-              ((dataToChart.standardPrice[0] -
-                dataToChart.standardPrice.slice(-1)[0]) /
-                dataToChart.standardPrice.slice(-1)[0]) *
-                100
-            ).toFixed(2)
-          ) +
-          "%)";
-        const pSales7 = document.getElementById("pSales7");
-        pSales7.textContent = displayData(
-          dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)
-        );
-        const pStockDays = document.getElementById("pStockDays");
-        pStockDays.textContent = displayData(
-          Math.round(
-            (rowData.stock.value /
-              dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-              7
-          )
-        );
-        const pSales90 = document.getElementById("pSales90");
-        pSales90.textContent = displayData(
-          dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)
-        );
-        "(" +
-          displayData(
-            parseFloat(
-              ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
-                dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
-                dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                100
-            ).toFixed(2)
-          ) +
-          "%)";
 
-        var scaleMax =
-          Math.max.apply(Math, [
-            ...dataToChart.highest,
-            ...dataToChart.retailPrice,
-          ]) * 1.1;
-        var scaleMin =
-          Math.min.apply(Math, [
-            ...dataToChart.lowest,
-            ...dataToChart.standardPrice,
-          ]) * 0.9;
+        for (let i = 0, l = json.items.length; i < l; i++) {
+          const item = json.items[i];
 
-        var options = {
-          series: [
-            {
-              name: "Najwyzsza",
-              type: "line",
-              data: dataToChart.highest.reverse(),
-            },
-            {
-              name: "Srednia",
-              type: "line",
-              data: dataToChart.average.reverse(),
-            },
-            {
-              name: "Najnizsza",
-              type: "line",
-              data: dataToChart.lowest.reverse(),
-            },
-            {
-              name: "Cena det.",
-              type: "line",
-              data: dataToChart.retailPrice.reverse(),
-            },
-            {
-              name: "Cena ew.",
-              type: "line",
-              data: dataToChart.standardPrice.reverse(),
-            },
-            {
-              name: "Sprzedaz",
-              type: "bar",
-              data: dataToChart.volume.reverse(),
-            },
-            {
-              name: "Stan",
-              type: "bar",
-              data: dataToChart.stock.reverse(),
-            },
-          ],
-          chart: {
-            id: "productHistoryChart",
-            defaultLocale: "pl",
-            toolbar: {
-              show: true,
-              offsetX: 0,
-              offsetY: 0,
-              tools: {
-                download: true,
-                selection: true,
-                zoom: true,
-                zoomin: true,
-                zoomout: true,
-                pan: true,
-                reset: true | '<img src="/static/icons/reset.png" width="20">',
-                customIcons: [],
-              },
-              export: {
-                csv: {
-                  filename: "PlikCSV",
-                  columnDelimiter: ";",
-                  headerCategory: "category",
-                  headerValue: "value",
-                },
-                svg: {
-                  filename: "Wykres",
-                },
-                png: {
-                  filename: "Wykres",
-                },
-              },
-              autoSelected: "zoom",
-            },
-            locales: [
+          // Zabezpiecz dane historyczne
+          dataInArrays.date.push(item.date?.split("T")[0] || "-");
+
+          dataInArrays.highest.push(
+            checkNested(item, "asks", "highest") ? item.asks.highest : 0
+          );
+          dataInArrays.average.push(
+            checkNested(item, "asks", "average") ? item.asks.average : 0
+          );
+          dataInArrays.lowest.push(
+            checkNested(item, "asks", "lowest") ? item.asks.lowest : 0
+          );
+          dataInArrays.retailPrice.push(item.retailPrice ?? 0);
+
+          const stdPrice = checkNested(item, "standardPrice", "value")
+            ? item.standardPrice.value
+            : item.standardPrice ?? 0;
+          dataInArrays.standardPrice.push(stdPrice);
+
+          const stock = checkNested(item, "stock", "value")
+            ? item.stock.value
+            : item.stock ?? 0;
+          dataInArrays.stock.push(stock);
+
+          dataInArrays.volume.push(item.volume ?? 0);
+        }
+
+        return dataInArrays;
+      }
+
+      let url = new URL(
+        InvokeURL +
+          "shops/" +
+          shopKey +
+          "/products/" +
+          rowData.gtin +
+          "/history?perPage=91&page=1"
+      );
+      let request = new XMLHttpRequest();
+      request.open("GET", url, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
+      request.onload = function () {
+        if (request.status < 200 || request.status >= 400) {
+          reject("Błąd podczas pobierania historii produktu");
+          return;
+        }
+        var jsonek = JSON.parse(this.response);
+        if (request.status >= 200 && request.status < 400) {
+          function displayData(x) {
+            if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
+              return x;
+            }
+            return "";
+          }
+          var dataToChart = arrayConvert(jsonek);
+          const pHistory = document.getElementById("pHistory");
+          pHistory.textContent = dataToChart.date.length;
+          const pHistorySpan = document.getElementById("pHistorySpan");
+          pHistorySpan.textContent =
+            dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
+          const pOfferDate = document.getElementById("pOfferDate");
+          pOfferDate.textContent = dataToChart.date[0];
+          const pRetailPriceChange =
+            document.getElementById("pRetailPriceChange");
+          pRetailPriceChange.textContent =
+            "(" +
+            displayData(
+              parseFloat(
+                ((dataToChart.retailPrice[0] -
+                  dataToChart.retailPrice.slice(-1)[0]) /
+                  dataToChart.retailPrice.slice(-1)[0]) *
+                  100
+              ).toFixed(2)
+            ) +
+            "%)";
+          const pStandardPriceChange = document.getElementById(
+            "pStandardPriceChange"
+          );
+          pStandardPriceChange.textContent =
+            "(" +
+            displayData(
+              parseFloat(
+                ((dataToChart.standardPrice[0] -
+                  dataToChart.standardPrice.slice(-1)[0]) /
+                  dataToChart.standardPrice.slice(-1)[0]) *
+                  100
+              ).toFixed(2)
+            ) +
+            "%)";
+          const pSales7 = document.getElementById("pSales7");
+          pSales7.textContent = displayData(
+            dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)
+          );
+          const pStockDays = document.getElementById("pStockDays");
+          pStockDays.textContent = displayData(
+            Math.round(
+              (rowData.stock.value /
+                dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
+                7
+            )
+          );
+          const pSales90 = document.getElementById("pSales90");
+          pSales90.textContent = displayData(
+            dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)
+          );
+          "(" +
+            displayData(
+              parseFloat(
+                ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
+                  dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
+                  dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
+                  100
+              ).toFixed(2)
+            ) +
+            "%)";
+
+          var scaleMax =
+            Math.max.apply(Math, [
+              ...dataToChart.highest,
+              ...dataToChart.retailPrice,
+            ]) * 1.1;
+          var scaleMin =
+            Math.min.apply(Math, [
+              ...dataToChart.lowest,
+              ...dataToChart.standardPrice,
+            ]) * 0.9;
+
+          var options = {
+            series: [
               {
-                name: "pl",
-                options: {
-                  months: [
-                    "Styczen",
-                    "Luty",
-                    "Marzec",
-                    "Kwiecien",
-                    "Maj",
-                    "Czerwiec",
-                    "Lipiec",
-                    "Sierpien",
-                    "Wrzesien",
-                    "Pazdziernik",
-                    "Listopad",
-                    "Grudzien",
-                  ],
-                  shortMonths: [
-                    "Sty",
-                    "Lut",
-                    "Mar",
-                    "Kwi",
-                    "Maj",
-                    "Cze",
-                    "Lip",
-                    "Sie",
-                    "Wrz",
-                    "Paz",
-                    "Lis",
-                    "Gru",
-                  ],
-                  days: [
-                    "Niedziela",
-                    "Poniedzialek",
-                    "Wtorek",
-                    "Sroda",
-                    "Czwartek",
-                    "Piatek",
-                    "Sobota",
-                  ],
-                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
-                  toolbar: {
-                    download: "Pobierz SVG",
-                    selection: "Zaznacz",
-                    selectionZoom: "Powieksz strefe",
-                    zoomIn: "Przybliz",
-                    zoomOut: "Oddal",
-                    pan: "Przesun",
-                    reset: "Reset",
-                  },
-                },
+                name: "Najwyzsza",
+                type: "line",
+                data: dataToChart.highest.reverse(),
+              },
+              {
+                name: "Srednia",
+                type: "line",
+                data: dataToChart.average.reverse(),
+              },
+              {
+                name: "Najnizsza",
+                type: "line",
+                data: dataToChart.lowest.reverse(),
+              },
+              {
+                name: "Cena det.",
+                type: "line",
+                data: dataToChart.retailPrice.reverse(),
+              },
+              {
+                name: "Cena ew.",
+                type: "line",
+                data: dataToChart.standardPrice.reverse(),
+              },
+              {
+                name: "Sprzedaz",
+                type: "bar",
+                data: dataToChart.volume.reverse(),
+              },
+              {
+                name: "Stan",
+                type: "bar",
+                data: dataToChart.stock.reverse(),
               },
             ],
-            height: 350,
-            type: "line",
-            stacked: false,
-          },
-          colors: [
-            "#FD6A6A",
-            "#F9C80E",
-            "#4CAF50",
-            "#3F51B5",
-            "#03A9F4",
-            "#92A9BD",
-            "#D3DEDC",
-          ],
-          title: {
-            text: "Historia towaru",
-            align: "left",
-            margin: 10,
-            offsetX: 0,
-            offsetY: 0,
-            floating: false,
-            style: {
-              fontSize: "14px",
-              fontWeight: "bold",
-              fontFamily: "Arial",
-              color: "#263238",
+            chart: {
+              id: "productHistoryChart",
+              defaultLocale: "pl",
+              toolbar: {
+                show: true,
+                offsetX: 0,
+                offsetY: 0,
+                tools: {
+                  download: true,
+                  selection: true,
+                  zoom: true,
+                  zoomin: true,
+                  zoomout: true,
+                  pan: true,
+                  reset:
+                    true | '<img src="/static/icons/reset.png" width="20">',
+                  customIcons: [],
+                },
+                export: {
+                  csv: {
+                    filename: "PlikCSV",
+                    columnDelimiter: ";",
+                    headerCategory: "category",
+                    headerValue: "value",
+                  },
+                  svg: {
+                    filename: "Wykres",
+                  },
+                  png: {
+                    filename: "Wykres",
+                  },
+                },
+                autoSelected: "zoom",
+              },
+              locales: [
+                {
+                  name: "pl",
+                  options: {
+                    months: [
+                      "Styczen",
+                      "Luty",
+                      "Marzec",
+                      "Kwiecien",
+                      "Maj",
+                      "Czerwiec",
+                      "Lipiec",
+                      "Sierpien",
+                      "Wrzesien",
+                      "Pazdziernik",
+                      "Listopad",
+                      "Grudzien",
+                    ],
+                    shortMonths: [
+                      "Sty",
+                      "Lut",
+                      "Mar",
+                      "Kwi",
+                      "Maj",
+                      "Cze",
+                      "Lip",
+                      "Sie",
+                      "Wrz",
+                      "Paz",
+                      "Lis",
+                      "Gru",
+                    ],
+                    days: [
+                      "Niedziela",
+                      "Poniedzialek",
+                      "Wtorek",
+                      "Sroda",
+                      "Czwartek",
+                      "Piatek",
+                      "Sobota",
+                    ],
+                    shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                    toolbar: {
+                      download: "Pobierz SVG",
+                      selection: "Zaznacz",
+                      selectionZoom: "Powieksz strefe",
+                      zoomIn: "Przybliz",
+                      zoomOut: "Oddal",
+                      pan: "Przesun",
+                      reset: "Reset",
+                    },
+                  },
+                },
+              ],
+              height: 350,
+              type: "line",
+              stacked: false,
             },
-          },
-          stroke: {
-            width: [2, 2, 2, 2, 2],
-            curve: "smooth",
-          },
-          plotOptions: {
-            bar: {
-              columnWidth: "50%",
-              colors: {
-                backgroundBarOpacity: 0.5,
+            colors: [
+              "#FD6A6A",
+              "#F9C80E",
+              "#4CAF50",
+              "#3F51B5",
+              "#03A9F4",
+              "#92A9BD",
+              "#D3DEDC",
+            ],
+            title: {
+              text: "Historia towaru",
+              align: "left",
+              margin: 10,
+              offsetX: 0,
+              offsetY: 0,
+              floating: false,
+              style: {
+                fontSize: "14px",
+                fontWeight: "bold",
+                fontFamily: "Arial",
+                color: "#263238",
               },
             },
-          },
-          markers: {
-            size: 0,
-          },
-          xaxis: {
-            type: "category",
-            categories: dataToChart.date.reverse(),
-            labels: {
-              show: true,
-              rotate: -45,
-              rotateAlways: false,
-              hideOverlappingLabels: true,
+            stroke: {
+              width: [2, 2, 2, 2, 2],
+              curve: "smooth",
             },
-          },
-          yaxis: [
-            {
-              seriesName: "Najwyzsza",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              title: {
-                text: "Cena",
+            plotOptions: {
+              bar: {
+                columnWidth: "50%",
+                colors: {
+                  backgroundBarOpacity: 0.5,
+                },
               },
             },
-            {
-              seriesName: "Najwyzsza",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              seriesName: "Najwyzsza",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              seriesName: "Najwyzsza",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              seriesName: "Najwyzsza",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              opposite: true,
-              seriesName: "Stan",
-              max: Math.max.apply(Math, dataToChart.stock) * 1.1,
-              min: Math.min.apply(Math, dataToChart.volume) * 0.9,
-              forceNiceScale: true,
-              title: {
-                text: "Ilosc",
-              },
-            },
-            {
-              opposite: true,
-              seriesName: "Stan",
-              max: Math.max.apply(Math, dataToChart.stock) * 1.1,
-              min: Math.min.apply(Math, dataToChart.volume) * 0.9,
-              forceNiceScale: true,
-              show: false,
-            },
-          ],
-          tooltip: {
-            shared: true,
-            intersect: false,
-            y: {
-              formatter: function (y) {
-                if (typeof y !== "null") {
-                  return y;
-                }
-                return "0";
-              },
-            },
-          },
-          legend: {
-            position: "right",
-            horizontalAlign: "center",
-            floating: false,
-            offsetX: 0,
-            offsetY: 20,
             markers: {
-              width: 12,
-              height: 12,
-              radius: 12,
+              size: 0,
             },
-            labels: {
-              useSeriesColors: false,
+            xaxis: {
+              type: "category",
+              categories: dataToChart.date.reverse(),
+              labels: {
+                show: true,
+                rotate: -45,
+                rotateAlways: false,
+                hideOverlappingLabels: true,
+              },
             },
-          },
-        };
-        var chart;
-        if (counter == 0) {
-          chart = new ApexCharts(document.getElementById("chart"), options);
-          chart.render();
-          counter = counter + 1;
-        } else {
-          console.log("tutaj");
-          console.log(options);
-          ApexCharts.exec("productHistoryChart", "updateOptions", options);
+            yaxis: [
+              {
+                seriesName: "Najwyzsza",
+                max: scaleMax,
+                min: scaleMin,
+                forceNiceScale: false,
+                title: {
+                  text: "Cena",
+                },
+              },
+              {
+                seriesName: "Najwyzsza",
+                max: scaleMax,
+                min: scaleMin,
+                forceNiceScale: false,
+                show: false,
+              },
+              {
+                seriesName: "Najwyzsza",
+                max: scaleMax,
+                min: scaleMin,
+                forceNiceScale: false,
+                show: false,
+              },
+              {
+                seriesName: "Najwyzsza",
+                max: scaleMax,
+                min: scaleMin,
+                forceNiceScale: false,
+                show: false,
+              },
+              {
+                seriesName: "Najwyzsza",
+                max: scaleMax,
+                min: scaleMin,
+                forceNiceScale: false,
+                show: false,
+              },
+              {
+                opposite: true,
+                seriesName: "Stan",
+                max: Math.max.apply(Math, dataToChart.stock) * 1.1,
+                min: Math.min.apply(Math, dataToChart.volume) * 0.9,
+                forceNiceScale: true,
+                title: {
+                  text: "Ilosc",
+                },
+              },
+              {
+                opposite: true,
+                seriesName: "Stan",
+                max: Math.max.apply(Math, dataToChart.stock) * 1.1,
+                min: Math.min.apply(Math, dataToChart.volume) * 0.9,
+                forceNiceScale: true,
+                show: false,
+              },
+            ],
+            tooltip: {
+              shared: true,
+              intersect: false,
+              y: {
+                formatter: function (y) {
+                  if (typeof y !== "null") {
+                    return y;
+                  }
+                  return "0";
+                },
+              },
+            },
+            legend: {
+              position: "right",
+              horizontalAlign: "center",
+              floating: false,
+              offsetX: 0,
+              offsetY: 20,
+              markers: {
+                width: 12,
+                height: 12,
+                radius: 12,
+              },
+              labels: {
+                useSeriesColors: false,
+              },
+            },
+          };
+          if (counter == 0) {
+            var chart = new ApexCharts(
+              document.getElementById("chart"),
+              options
+            );
+            chart.render();
+            counter = counter + 1;
+            resolve();
+          } else {
+            ApexCharts.exec("productHistoryChart", "updateOptions", options);
+            resolve();
+          }
+          if (request.status == 401) {
+            console.log("Unauthorized");
+            reject();
+          }
         }
-        // Hide the waiting dots after the chart has been dealt with
-        $("#waitingdots").hide();
-      },
-      error: function (xhr, status, error) {
-        if (xhr.status == 401) {
-          console.log("Unauthorized");
-        } else {
-          console.error("An error occurred: " + status + ", " + error);
-        }
-        // Hide the waiting dots after the chart has been dealt with
-        $("#waitingdots").hide();
-      },
+      };
+      request.send();
     });
   }
 
@@ -1675,14 +1710,26 @@ docReady(function () {
   });
 
   $("#table_id tbody").on("click", "td.details-control2", function () {
+    var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    console.log(rowData);
-    $("#ProductCard").css("display", "flex");
-    clearProductPopupData();
-    getProductHistory(rowData);
-    getProductDetails(rowData);
+
+    // Pokaż loader
+    $("#ProductCard").hide();
+    $("#waitingdots").show(); // Zakładamy, że masz element z id="loader"
+
+    Promise.all([getProductDetails(rowData), getProductHistory(rowData)])
+      .then(() => {
+        $("#waitingdots").hide();
+        $("#ProductCard").css("display", "flex");
+      })
+      .catch((err) => {
+        console.error("Błąd ładowania danych:", err);
+        $("#waitingdots").hide();
+        alert("Nie udało się załadować danych.");
+      });
   });
+
   $("#table_id tbody").on("click", "td.details-control3", function () {
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
