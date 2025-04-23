@@ -349,7 +349,7 @@ docReady(function () {
           if (isAddressEmpty && areEmailsEmpty && arePhonesEmpty) {
             $("#editShopModal").css("display", "flex").show();
             $("#shopNameEdit").val(data.name || "");
-            $("#shopNameEdit").prop("disabled", false);
+            $("#shopNameEdit").prop("disabled", true);
             return reject("Please edit shop details");
           }
 
