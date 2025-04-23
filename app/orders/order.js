@@ -2947,7 +2947,7 @@ docReady(function () {
         event.preventDefault();
 
         // Pobieranie wartości z formularza
-        var wholesalerKeyToSend = $("#orderWholesalerKey").data("key");
+        var wholesalerKeyToSend = $("#orderWholesalerKey").attr("data-key");
         var orderEmail = $("#orderEmail").val();
         var formats = $("#formats").val();
         var orderEmailMe = $("#orderEmailMe").is(":checked");
