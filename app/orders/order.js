@@ -341,7 +341,19 @@ docReady(function () {
             data.merchantConsoleShopId = "";
           }
 
-          // Update shopName, shopKey, and other information
+          // Jeśli brak danych adresowych, emaili i telefonów -> pokaż modal edycji
+          const isAddressEmpty = !data.address;
+          const areEmailsEmpty = !(data.emails && data.emails.length > 0);
+          const arePhonesEmpty = !(data.phones && data.phones.length > 0);
+
+          if (isAddressEmpty && areEmailsEmpty && arePhonesEmpty) {
+            $("#editShopModal").show();
+            return reject(
+              new Error("Brak danych kontaktowych sklepu – wymagana edycja.")
+            );
+          }
+
+          // Kontynuuj normalne ustawianie danych
           $("#shopNameEdit").val(data.name || "");
 
           var stateMapping = {
@@ -391,33 +403,20 @@ docReady(function () {
             });
           }
 
-          // Address information
+          // Wypełnij dane do wysyłki
           $("#orderDelivery").prop("disabled", true);
-          if (data && data.address) {
-            const shopDescription = `${data.name || ""}`;
-            const addressDescription = `${data.address.line1 || ""}, ${
-              data.address.town || ""
-            }, ${data.address.postcode || ""}`;
+          const shopDescription = `${data.name || ""}`;
+          const addressDescription = `${data.address?.line1 || ""}, ${
+            data.address?.town || ""
+          }, ${data.address?.postcode || ""}`;
+          const emails = data.emails?.map((e) => e.email).join(", ") || "";
+          const phones = data.phones?.map((p) => p.phone).join(", ") || "";
 
-            let emails = "";
-            let phones = "";
+          $("#orderDelivery").val(
+            `${shopDescription} \n${addressDescription} \n${emails} \n${phones}`
+          );
 
-            if (data.emails && data.emails.length > 0) {
-              emails = data.emails.map((e) => e.email).join(", ");
-            }
-
-            if (data.phones && data.phones.length > 0) {
-              phones = data.phones.map((p) => p.phone).join(", ");
-            }
-
-            $("#orderDelivery").val(
-              `${shopDescription} \n${addressDescription} \n${emails} \n${phones}`
-            );
-          } else {
-            $("#orderDelivery").val("");
-          }
-
-          resolve(data); // <- Zwracamy dane, które mogą być dalej użyte
+          resolve(data);
         } else {
           console.error("Błąd podczas pobierania danych sklepu.");
           reject(new Error("Błąd podczas pobierania danych sklepu."));
@@ -4982,7 +4981,6 @@ docReady(function () {
   getWholesalersSh();
   getOfferStatus();
   fetchDataFromEndpoint();
-  getShop();
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
