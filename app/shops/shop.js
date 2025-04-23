@@ -587,7 +587,7 @@ docReady(function () {
           render: function (data, type, row) {
             // Sprawdź, czy createDate jest przed 2025-04-10
             var createDate = new Date(row.createDate);
-            var cutoffDate = new Date("2025-04-12");
+            var cutoffDate = new Date("2025-04-24");
 
             if (createDate < cutoffDate) {
               return "-";
