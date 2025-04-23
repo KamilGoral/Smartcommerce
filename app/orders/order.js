@@ -4147,7 +4147,6 @@ docReady(function () {
       $("#SendOrderSMTP").css("display", "flex");
     } catch (error) {
       console.error("Błąd podczas pobierania danych:", error);
-      alert("Wystąpił błąd podczas ładowania danych. Spróbuj ponownie.");
     } finally {
       // Zawsze schowaj animację niezależnie od powodzenia
       $("#waitingdots").hide();
