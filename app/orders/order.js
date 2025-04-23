@@ -411,7 +411,7 @@ docReady(function () {
             }
 
             $("#orderDelivery").val(
-              `${shopDescription} \n${addressDescription} \nEmail: ${emails} \nTelefon: ${phones}`
+              `${shopDescription} \n${addressDescription} \n${emails} \n${phones}`
             );
           } else {
             $("#orderDelivery").val("");
