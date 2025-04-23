@@ -2216,38 +2216,48 @@ docReady(function () {
 
       function checkNested(obj /*, level1, level2, ... levelN*/) {
         var args = Array.prototype.slice.call(arguments, 1);
-
         for (var i = 0; i < args.length; i++) {
-          if (!obj || !obj.hasOwnProperty(args[i])) {
+          if (!obj || typeof obj !== "object" || !obj.hasOwnProperty(args[i])) {
             return false;
           }
           obj = obj[args[i]];
         }
         return true;
       }
+
       for (let i = 0, l = json.items.length; i < l; i++) {
-        if (checkNested(json.items[i].stock, "value")) {
-          dataInArrays.date.push(json.items[i].date.split("T")[0]);
-          dataInArrays.highest.push(json.items[i].asks.highest);
-          dataInArrays.average.push(json.items[i].asks.average);
-          dataInArrays.lowest.push(json.items[i].asks.lowest);
-          dataInArrays.retailPrice.push(json.items[i].retailPrice);
-          dataInArrays.standardPrice.push(json.items[i].standardPrice.value);
-          dataInArrays.stock.push(json.items[i].stock.value);
-          dataInArrays.volume.push(json.items[i].volume);
-        } else {
-          dataInArrays.date.push(json.items[i].date.split("T")[0]);
-          dataInArrays.highest.push(json.items[i].asks.highest);
-          dataInArrays.average.push(json.items[i].asks.average);
-          dataInArrays.lowest.push(json.items[i].asks.lowest);
-          dataInArrays.retailPrice.push(json.items[i].retailPrice);
-          dataInArrays.standardPrice.push(json.items[i].standardPrice);
-          dataInArrays.stock.push(json.items[i].stock);
-          dataInArrays.volume.push(json.items[i].volume);
-        }
+        const item = json.items[i];
+
+        // Zabezpiecz dane historyczne
+        dataInArrays.date.push(item.date?.split("T")[0] || "-");
+
+        dataInArrays.highest.push(
+          checkNested(item, "asks", "highest") ? item.asks.highest : 0
+        );
+        dataInArrays.average.push(
+          checkNested(item, "asks", "average") ? item.asks.average : 0
+        );
+        dataInArrays.lowest.push(
+          checkNested(item, "asks", "lowest") ? item.asks.lowest : 0
+        );
+        dataInArrays.retailPrice.push(item.retailPrice ?? 0);
+
+        const stdPrice = checkNested(item, "standardPrice", "value")
+          ? item.standardPrice.value
+          : item.standardPrice ?? 0;
+        dataInArrays.standardPrice.push(stdPrice);
+
+        const stock = checkNested(item, "stock", "value")
+          ? item.stock.value
+          : item.stock ?? 0;
+        dataInArrays.stock.push(stock);
+
+        dataInArrays.volume.push(item.volume ?? 0);
       }
+
       return dataInArrays;
     }
+
     let url = new URL(
       InvokeURL +
         "shops/" +
