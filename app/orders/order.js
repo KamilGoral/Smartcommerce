@@ -1883,38 +1883,40 @@ docReady(function () {
             initializeSimpleTooltips();
             const table = this.api();
 
-            // Wyczyść WSZYSTKIE niestandardowe filtry na początku
-            $.fn.dataTable.ext.search.length = 0;
-
             // === Filtr hurtowni ===
             $("#CartwholesalerKeyIndicator").on("change", function () {
               const selectedValue = $(this).val();
 
-              // Usuń wszystkie inne filtry
-              $.fn.dataTable.ext.search = [];
+              table.rows().every(function () {
+                const cellNode = table.cell(this.index(), 8).node();
+                const selectedInRow = $(cellNode).find("select").val();
 
-              if (selectedValue) {
-                $.fn.dataTable.ext.search.push(function (
-                  settings,
-                  data,
-                  dataIndex
-                ) {
-                  const cellNode = table.cell(dataIndex, 8).node(); // kolumna hurtownika
-                  const selectedInRow = $(cellNode).find("select").val();
-                  return selectedInRow === selectedValue;
-                });
-              }
-
-              table.draw();
+                if (selectedValue) {
+                  if (selectedInRow === selectedValue) {
+                    $(this.node()).show();
+                  } else {
+                    $(this.node()).hide();
+                  }
+                } else {
+                  $(this.node()).show();
+                }
+              });
             });
 
             // === Filtr rotacji (kolumna 12 - <p>) ===
             $("#CartRotationIndicator").on("change", function () {
               const val = $.fn.dataTable.util.escapeRegex($(this).val());
-              table
-                .column(12)
-                .search(val ? "^" + val + "$" : "", true, false)
-                .draw();
+
+              table.rows().every(function () {
+                const cellText = $(table.cell(this.index(), 12).node())
+                  .text()
+                  .trim();
+                if (!val || new RegExp("^" + val + "$").test(cellText)) {
+                  $(this.node()).show();
+                } else {
+                  $(this.node()).hide();
+                }
+              });
             });
 
             // === Dodatki ===
@@ -4916,7 +4918,6 @@ docReady(function () {
         }
       } else {
         console.log("No changes. Skipping CreateOrder (Details).");
-        await CreateOrder();
       }
     }
 
