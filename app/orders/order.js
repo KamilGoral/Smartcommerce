@@ -4916,6 +4916,7 @@ docReady(function () {
         }
       } else {
         console.log("No changes. Skipping CreateOrder (Details).");
+        await CreateOrder();
       }
     }
 
