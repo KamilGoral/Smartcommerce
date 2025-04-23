@@ -2602,8 +2602,8 @@ docReady(function () {
             position: "right",
             horizontalAlign: "center",
             floating: false,
-            offsetX: 10,
-            offsetY: 0,
+            offsetX: 0,
+            offsetY: 20,
             markers: {
               width: 12,
               height: 12,
