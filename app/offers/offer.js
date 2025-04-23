@@ -871,6 +871,21 @@ docReady(function () {
               },
             },
           },
+          legend: {
+            position: "right",
+            horizontalAlign: "center",
+            floating: false,
+            offsetX: 10,
+            offsetY: 0,
+            markers: {
+              width: 12,
+              height: 12,
+              radius: 12,
+            },
+            labels: {
+              useSeriesColors: false,
+            },
+          },
         };
         var chart;
         if (counter == 0) {
