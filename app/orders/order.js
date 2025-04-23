@@ -2598,6 +2598,21 @@ docReady(function () {
               },
             },
           },
+          legend: {
+            position: "right",
+            horizontalAlign: "center",
+            floating: false,
+            offsetX: 10,
+            offsetY: 0,
+            markers: {
+              width: 12,
+              height: 12,
+              radius: 12,
+            },
+            labels: {
+              useSeriesColors: false,
+            },
+          },
         };
         if (counter == 0) {
           var chart = new ApexCharts(document.getElementById("chart"), options);
