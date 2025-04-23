@@ -348,6 +348,8 @@ docReady(function () {
 
           if (isAddressEmpty && areEmailsEmpty && arePhonesEmpty) {
             $("#editShopModal").show();
+            $("#shopNameEdit").val(data.name || "");
+            $("#shopNameEdit").prop("disabled", false);
             return reject(
               new Error("Brak danych kontaktowych sklepu – wymagana edycja.")
             );
