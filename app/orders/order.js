@@ -580,7 +580,7 @@ docReady(function () {
               } else {
                 return `
                   <div style="display: flex; justify-content: space-between; align-items: center;" 
-                       data-tippy-content="Brak minimum logistycznego">
+                       data-tippy-content="Nie ustalono wymaganego minimum logistycznego">
                     <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6809fa36962ab80daf4029f0_horizontal-rule.svg" 
                          alt="none" style="width: 16px; height: 16px;">
                     <span>${data}zł</span>
@@ -1406,7 +1406,7 @@ docReady(function () {
           dom: '<"top"fB>rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
-          pageLength: 25,
+          pageLength: 500,
           orderCellsTop: true,
           fixedHeader: true,
           orderMulti: true,
