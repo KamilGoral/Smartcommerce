@@ -782,22 +782,47 @@ docReady(function () {
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
-      // Wykonujemy żądanie AJAX
       console.log("dots show");
-      $("#waitingdots").show(); // Pokazujemy spinner na początku
-      const response = await $.ajax({
-        type: "GET",
-        url: action,
-        cors: true,
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4",
-        },
-      });
+      $("#waitingdots").show(); // Pokaż spinner
+
+      let isResponseReceived = false;
+
+      // Co sekundę upewniamy się, że spinner jest widoczny
+      const dotsChecker = setInterval(() => {
+        if (!isResponseReceived) {
+          if (!$("#waitingdots").is(":visible")) {
+            console.warn("Spinner nie był widoczny – ponownie pokazuję.");
+            $("#waitingdots").show();
+          }
+        }
+      }, 1000); // co 1 sekundę
+
+      try {
+        const response = await $.ajax({
+          type: "GET",
+          url: action,
+          cors: true,
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+        });
+
+        isResponseReceived = true;
+        clearInterval(dotsChecker); // Zatrzymaj sprawdzanie
+        $("#waitingdots").hide(); // Ukryj spinner
+        handleSplitResponse(response);
+      } catch (error) {
+        isResponseReceived = true;
+        clearInterval(dotsChecker); // Zatrzymaj sprawdzanie
+        $("#waitingdots").hide(); // Ukryj spinner nawet w przypadku błędu
+        console.error("Błąd w ajax:", error);
+        // obsłuż błąd zgodnie z Twoim kodem
+      }
 
       handleSplitResponse(response);
     } catch (error) {
