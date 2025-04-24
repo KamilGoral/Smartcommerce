@@ -1932,41 +1932,36 @@ docReady(function () {
             initializeSimpleTooltips();
             const table = this.api();
 
-            // === Filtr hurtowni ===
-            $("#CartwholesalerKeyIndicator").on("change", function () {
-              const selectedValue = $(this).val();
+            // Custom filters
+            $.fn.dataTable.ext.search.push(function (
+              settings,
+              data,
+              dataIndex
+            ) {
+              const selectedWholesaler = $("#CartwholesalerKeyIndicator").val();
+              const selectedRotation = $("#CartRotationIndicator").val();
 
-              table.rows().every(function () {
-                const cellNode = table.cell(this.index(), 8).node();
-                const selectedInRow = $(cellNode).find("select").val();
+              const wholesalerValue = $(table.cell(dataIndex, 8).node())
+                .find("select")
+                .val();
+              const rotationValue = $(table.cell(dataIndex, 12).node())
+                .text()
+                .trim();
 
-                if (selectedValue) {
-                  if (selectedInRow === selectedValue) {
-                    $(this.node()).show();
-                  } else {
-                    $(this.node()).hide();
-                  }
-                } else {
-                  $(this.node()).show();
-                }
-              });
+              const matchWholesaler =
+                !selectedWholesaler || wholesalerValue === selectedWholesaler;
+              const matchRotation =
+                !selectedRotation || rotationValue === selectedRotation;
+
+              return matchWholesaler && matchRotation;
             });
 
-            // === Filtr rotacji (kolumna 12 - <p>) ===
-            $("#CartRotationIndicator").on("change", function () {
-              const val = $.fn.dataTable.util.escapeRegex($(this).val());
-
-              table.rows().every(function () {
-                const cellText = $(table.cell(this.index(), 12).node())
-                  .text()
-                  .trim();
-                if (!val || new RegExp("^" + val + "$").test(cellText)) {
-                  $(this.node()).show();
-                } else {
-                  $(this.node()).hide();
-                }
-              });
-            });
+            $("#CartwholesalerKeyIndicator, #CartRotationIndicator").on(
+              "change",
+              function () {
+                table.draw(); // odświeżenie filtrowania
+              }
+            );
 
             // === Dodatki ===
             $("#lowerprice").removeClass("details-invisible");
