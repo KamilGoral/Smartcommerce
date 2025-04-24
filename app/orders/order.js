@@ -705,7 +705,6 @@ docReady(function () {
 
   async function CreateOrder() {
     console.log("Creating Order");
-    $("#waitingdots").show(); // Pokazujemy spinner na początku
 
     const tableId = "#spl_table";
 
@@ -784,6 +783,8 @@ docReady(function () {
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
       // Wykonujemy żądanie AJAX
+      console.log("dots show");
+      $("#waitingdots").show(); // Pokazujemy spinner na początku
       const response = await $.ajax({
         type: "GET",
         url: action,
@@ -866,6 +867,7 @@ docReady(function () {
         }
       }
     } finally {
+      console.log("dots hide");
       $("#waitingdots").hide(); // Ukrywamy spinner w końcu, niezależnie od wyniku
     }
   }
