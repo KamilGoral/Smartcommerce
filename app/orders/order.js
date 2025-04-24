@@ -4169,7 +4169,7 @@ docReady(function () {
 
       // orderSender
       $("#orderUserName").val(
-        (attributes["username"] || "") + (attributes["userfamilyname"] || "")
+        (attributes["username"] || "") + (attributes["familyname"] || "")
       );
       $("#orderUserName").prop("disabled", true);
 
