@@ -1406,7 +1406,7 @@ docReady(function () {
           dom: '<"top"fB>rt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
-          pageLength: 500,
+          pageLength: 25,
           orderCellsTop: true,
           fixedHeader: true,
           orderMulti: true,
