@@ -1932,12 +1932,14 @@ docReady(function () {
             initializeSimpleTooltips();
             const table = this.api();
 
-            // Custom filters
+            // Dodajemy filtr tylko dla #spl_table
             $.fn.dataTable.ext.search.push(function (
               settings,
               data,
               dataIndex
             ) {
+              if (settings.nTable.id !== "spl_table") return true;
+
               const selectedWholesaler = $("#CartwholesalerKeyIndicator").val();
               const selectedRotation = $("#CartRotationIndicator").val();
 
@@ -1959,7 +1961,7 @@ docReady(function () {
             $("#CartwholesalerKeyIndicator, #CartRotationIndicator").on(
               "change",
               function () {
-                table.draw(); // odświeżenie filtrowania
+                table.draw();
               }
             );
 
