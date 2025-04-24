@@ -4534,7 +4534,7 @@ docReady(function () {
           data: JSON.stringify(patchData),
           success: function (response) {
             console.log("Data updated successfully", response);
-            displayMessage("Success", "Bonus został zaktualizowany.");
+            displayMessage("Success", "Premia została zaktualizowana.");
             $input.attr("value", newValue).data("initialValue", newValue);
           },
           error: function (jqXHR, exception) {
