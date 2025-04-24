@@ -1916,7 +1916,7 @@ docReady(function () {
               data: "preferentialBonus",
               render: function (data, type, row) {
                 return (
-                  '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od 0 do 500 z dokładnością do dwóch miejsc dziesiętnych." min="0" max="500" value="' +
+                  '<input type="number" step="0.01" style="max-width: 80px" title="Wprowadź wartość od -99.99 do 500.0 z dokładnością do dwóch miejsc dziesiętnych." min="-99.99" max="500" value="' +
                   data +
                   '">'
                 );
