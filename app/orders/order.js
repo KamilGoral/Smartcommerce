@@ -768,18 +768,19 @@ docReady(function () {
       `);
     });
 
-    let UrlParameters = "";
-    const exludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
-    const exludedWholesalers = searchIDs.join("&exclude=");
+    let urlParams = [];
+    const excludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
+    const excludedWholesalers = searchIDs.join("&exclude=");
 
-    if (exludedWholesalersAlready.length > 0) {
-      UrlParameters += "&exclude=" + exludedWholesalersAlready;
+    if (excludedWholesalersAlready.length > 0) {
+      urlParams.push("exclude=" + excludedWholesalersAlready);
     }
-    if (exludedWholesalers.length > 0) {
-      UrlParameters += "&exclude=" + exludedWholesalers;
+    if (excludedWholesalers.length > 0) {
+      urlParams.push("exclude=" + excludedWholesalers);
     }
 
-    const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split?${UrlParameters}`;
+    const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
+    const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
     return new Promise((resolve, reject) => {
       $.ajax({
