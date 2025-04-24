@@ -705,91 +705,89 @@ docReady(function () {
 
   async function CreateOrder() {
     console.log("Creating Order");
-    $("#waitingdots").show(); // <- Pokaż spinner na samym początku
+    $("#waitingdots").show(); // Pokazujemy spinner na początku
 
     const tableId = "#spl_table";
 
-    if ($.fn.dataTable.isDataTable(tableId)) {
-      const tableToClear = $("#spl_table").DataTable();
-      tableToClear.clear().draw();
-      $("#spl_table_wrapper").hide();
-    }
+    try {
+      if ($.fn.dataTable.isDataTable(tableId)) {
+        const tableToClear = $("#spl_table").DataTable();
+        tableToClear.clear().draw();
+        $("#spl_table_wrapper").hide();
+      }
 
-    await makeChangesToOrder();
-    fetchDataFromEndpoint();
+      await makeChangesToOrder();
+      await fetchDataFromEndpoint(); // Dodajemy await, jeśli to asynchroniczna funkcja
 
-    const searchIDs = $("#table_splited_wh input:checkbox:checked")
-      .map(function () {
-        return $(this).val();
-      })
-      .toArray();
+      const searchIDs = $("#table_splited_wh input:checkbox:checked")
+        .map(function () {
+          return $(this).val();
+        })
+        .toArray();
 
-    const deletetedIds = $("#DeletedContainer input:checkbox:checked")
-      .map(function () {
-        return $(this).val();
-      })
-      .toArray();
+      const deletetedIds = $("#DeletedContainer input:checkbox:checked")
+        .map(function () {
+          return $(this).val();
+        })
+        .toArray();
 
-    const deletetedIdstoDelete = $(
-      "#DeletedContainer input:checkbox:not(:checked)"
-    )
-      .map(function () {
-        return $(this).val();
-      })
-      .toArray();
+      const deletetedIdstoDelete = $(
+        "#DeletedContainer input:checkbox:not(:checked)"
+      )
+        .map(function () {
+          return $(this).val();
+        })
+        .toArray();
 
-    const DeletedContainer = document.getElementById("DeletedContainer");
-    deletetedIds.forEach((wholesaler) => {
-      const objToDelete = document.getElementById("d" + wholesaler);
-      objToDelete.remove();
-    });
+      const DeletedContainer = document.getElementById("DeletedContainer");
+      deletetedIds.forEach((wholesaler) => {
+        const objToDelete = document.getElementById("d" + wholesaler);
+        objToDelete.remove();
+      });
 
-    searchIDs.forEach((wholesaler) => {
-      $("#DeletedContainer").append(`
-        <div class="deletedwh" id="d${wholesaler}">
-          ${wholesaler}
-          <input 
-            type="checkbox" 
-            class="theClass customicon" 
-            id="${wholesaler}" 
-            value="${wholesaler}" 
-            name="${wholesaler}"
-          />
-          <label 
-            class="mylabel customicon" 
-            for="${wholesaler}" 
-            data-tippy-content="Pomiń"
-          >
-            <span class="icon initial"></span>
-            <span class="icon loading"></span>
-            <span class="icon final"></span>
-          </label>
-        </div>
-      `);
-    });
+      searchIDs.forEach((wholesaler) => {
+        $("#DeletedContainer").append(`
+                <div class="deletedwh" id="d${wholesaler}">
+                    ${wholesaler}
+                    <input 
+                        type="checkbox" 
+                        class="theClass customicon" 
+                        id="${wholesaler}" 
+                        value="${wholesaler}" 
+                        name="${wholesaler}"
+                    />
+                    <label 
+                        class="mylabel customicon" 
+                        for="${wholesaler}" 
+                        data-tippy-content="Pomiń"
+                    >
+                        <span class="icon initial"></span>
+                        <span class="icon loading"></span>
+                        <span class="icon final"></span>
+                    </label>
+                </div>
+            `);
+      });
 
-    let urlParams = [];
-    const excludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
-    const excludedWholesalers = searchIDs.join("&exclude=");
+      let urlParams = [];
+      const excludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
+      const excludedWholesalers = searchIDs.join("&exclude=");
 
-    if (excludedWholesalersAlready.length > 0) {
-      urlParams.push("exclude=" + excludedWholesalersAlready);
-    }
-    if (excludedWholesalers.length > 0) {
-      urlParams.push("exclude=" + excludedWholesalers);
-    }
+      if (excludedWholesalersAlready.length > 0) {
+        urlParams.push("exclude=" + excludedWholesalersAlready);
+      }
+      if (excludedWholesalers.length > 0) {
+        urlParams.push("exclude=" + excludedWholesalers);
+      }
 
-    const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
-    const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
+      const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
+      const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
-    return new Promise((resolve, reject) => {
-      $.ajax({
+      // Wykonujemy żądanie AJAX
+      const response = await $.ajax({
         type: "GET",
         url: action,
         cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
         contentType: "application/json",
         dataType: "json",
         headers: {
@@ -798,87 +796,78 @@ docReady(function () {
           Authorization: orgToken,
           "Requested-By": "webflow-3-4",
         },
-        success: function (data) {
-          $("#waitingdots").hide();
-          handleSplitResponse(data);
-          resolve();
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          $("#waitingdots").hide();
-
-          const isAddProductsTabActive =
-            $("#addProducts").hasClass("w--current");
-          if (isAddProductsTabActive) {
-            console.log(
-              "Tab 'Dodaj produkty' jest aktywny — pomijam obsługę błędu."
-            );
-            reject(errorThrown);
-            return;
-          }
-
-          // Próbujemy sparsować dane z response
-          if (jqXHR.responseText) {
-            try {
-              const parsed = JSON.parse(jqXHR.responseText);
-              if (parsed && parsed.items) {
-                handleSplitResponse(parsed);
-                resolve();
-                return;
-              }
-
-              let translatedError = "";
-              if (
-                parsed.message ===
-                "Unable to split requested order: no products to split."
-              ) {
-                translatedError =
-                  "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
-              } else if (
-                parsed.message.includes(
-                  "Quantities of products exceed limit for GTINs"
-                )
-              ) {
-                const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
-                translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
-              } else if (
-                parsed.message.includes("Exceptions occurred for GTINs")
-              ) {
-                const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
-                translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
-              } else if (
-                parsed.message ===
-                "Total value for the order exceeded the available limit."
-              ) {
-                translatedError =
-                  "Całkowita wartość zamówienia przekroczyła dostępny limit.";
-              }
-
-              if (translatedError) {
-                console.error(translatedError);
-                displayMessage("Error", translatedError);
-              }
-            } catch (e) {
-              console.error(
-                "Nie udało się sparsować odpowiedzi JSON w error blocku",
-                e
-              );
-            }
-          }
-
-          if (jqXHR.status === 404) {
-            displayMessage(
-              "Error",
-              "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
-            );
-            window.setTimeout(() => {
-              window.location.href = `https://${DomainName}/app/shops/shop?shopKey=${shopKey}`;
-            }, 4000);
-          }
-
-          reject(errorThrown);
-        },
       });
-    });
+
+      handleSplitResponse(response);
+    } catch (error) {
+      console.error("Error in CreateOrder:", error);
+
+      const isAddProductsTabActive = $("#addProducts").hasClass("w--current");
+      if (isAddProductsTabActive) {
+        console.log(
+          "Tab 'Dodaj produkty' jest aktywny — pomijam obsługę błędu."
+        );
+        throw error;
+      }
+
+      // Obsługa błędów
+      if (error.responseJSON) {
+        const parsed = error.responseJSON;
+        if (parsed && parsed.items) {
+          handleSplitResponse(parsed);
+          return;
+        }
+
+        let translatedError = "";
+        if (
+          parsed.message ===
+          "Unable to split requested order: no products to split."
+        ) {
+          translatedError =
+            "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
+        } else if (
+          parsed.message.includes(
+            "Quantities of products exceed limit for GTINs"
+          )
+        ) {
+          const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
+          translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
+        } else if (parsed.message.includes("Exceptions occurred for GTINs")) {
+          const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
+          translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
+        } else if (
+          parsed.message ===
+          "Total value for the order exceeded the available limit."
+        ) {
+          translatedError =
+            "Całkowita wartość zamówienia przekroczyła dostępny limit.";
+        }
+
+        if (translatedError) {
+          console.error(translatedError);
+          displayMessage("Error", translatedError);
+        }
+      } else if (error.status === 404) {
+        displayMessage(
+          "Error",
+          "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
+        );
+        window.setTimeout(() => {
+          window.location.href = `https://${DomainName}/app/shops/shop?shopKey=${shopKey}`;
+        }, 4000);
+      } else if (error.responseText) {
+        try {
+          const parsed = JSON.parse(error.responseText);
+          if (parsed.message) {
+            displayMessage("Error", parsed.message);
+          }
+        } catch (e) {
+          console.error("Nie udało się sparsować odpowiedzi JSON", e);
+        }
+      }
+    } finally {
+      $("#waitingdots").hide(); // Ukrywamy spinner w końcu, niezależnie od wyniku
+    }
   }
 
   function handleSplitResponse(data) {
