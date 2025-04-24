@@ -707,16 +707,24 @@ docReady(function () {
     console.log("Creating Order");
 
     const tableId = "#spl_table";
+    const dotsCheckerInterval = 1000; // co ile ms sprawdzamy spinner
+    let dotsChecker = null;
+    let isResponseReceived = false;
+
+    function showGenericError() {
+      displayMessage("Error", "Oops. Coś poszło nie tak, spróbuj ponownie.");
+    }
 
     try {
+      // Ukryj tabelę jeśli istnieje
       if ($.fn.dataTable.isDataTable(tableId)) {
-        const tableToClear = $("#spl_table").DataTable();
+        const tableToClear = $(tableId).DataTable();
         tableToClear.clear().draw();
         $("#spl_table_wrapper").hide();
       }
 
       await makeChangesToOrder();
-      await fetchDataFromEndpoint(); // Dodajemy await, jeśli to asynchroniczna funkcja
+      await fetchDataFromEndpoint();
 
       const searchIDs = $("#table_splited_wh input:checkbox:checked")
         .map(function () {
@@ -738,67 +746,65 @@ docReady(function () {
         })
         .toArray();
 
-      const DeletedContainer = document.getElementById("DeletedContainer");
+      // Usuń zaznaczone do usunięcia
       deletetedIds.forEach((wholesaler) => {
         const objToDelete = document.getElementById("d" + wholesaler);
-        objToDelete.remove();
+        if (objToDelete) objToDelete.remove();
       });
 
+      // Dodaj zaznaczone do kontenera
       searchIDs.forEach((wholesaler) => {
         $("#DeletedContainer").append(`
-                <div class="deletedwh" id="d${wholesaler}">
-                    ${wholesaler}
-                    <input 
-                        type="checkbox" 
-                        class="theClass customicon" 
-                        id="${wholesaler}" 
-                        value="${wholesaler}" 
-                        name="${wholesaler}"
-                    />
-                    <label 
-                        class="mylabel customicon" 
-                        for="${wholesaler}" 
-                        data-tippy-content="Pomiń"
-                    >
-                        <span class="icon initial"></span>
-                        <span class="icon loading"></span>
-                        <span class="icon final"></span>
-                    </label>
-                </div>
-            `);
+          <div class="deletedwh" id="d${wholesaler}">
+            ${wholesaler}
+            <input 
+              type="checkbox" 
+              class="theClass customicon" 
+              id="${wholesaler}" 
+              value="${wholesaler}" 
+              name="${wholesaler}"
+            />
+            <label 
+              class="mylabel customicon" 
+              for="${wholesaler}" 
+              data-tippy-content="Pomiń"
+            >
+              <span class="icon initial"></span>
+              <span class="icon loading"></span>
+              <span class="icon final"></span>
+            </label>
+          </div>
+        `);
       });
 
-      let urlParams = [];
-      const excludedWholesalersAlready = deletetedIdstoDelete.join("&exclude=");
-      const excludedWholesalers = searchIDs.join("&exclude=");
+      const excludedAlready = deletetedIdstoDelete.join("&exclude=");
+      const excludedNow = searchIDs.join("&exclude=");
+      const urlParams = [];
 
-      if (excludedWholesalersAlready.length > 0) {
-        urlParams.push("exclude=" + excludedWholesalersAlready);
+      if (excludedAlready.length > 0) {
+        urlParams.push("exclude=" + excludedAlready);
       }
-      if (excludedWholesalers.length > 0) {
-        urlParams.push("exclude=" + excludedWholesalers);
+      if (excludedNow.length > 0) {
+        urlParams.push("exclude=" + excludedNow);
       }
 
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
       console.log("dots show");
-      $("#waitingdots").show(); // Pokaż spinner
+      $("#waitingdots").show();
 
-      let isResponseReceived = false;
-
-      // Co sekundę upewniamy się, że spinner jest widoczny
-      const dotsChecker = setInterval(() => {
-        if (!isResponseReceived) {
-          if (!$("#waitingdots").is(":visible")) {
-            console.warn("Spinner nie był widoczny – ponownie pokazuję.");
-            $("#waitingdots").show();
-          }
+      // Sprawdzanie spinnnera co sekundę
+      dotsChecker = setInterval(() => {
+        if (!isResponseReceived && !$("#waitingdots").is(":visible")) {
+          console.warn("Spinner nie był widoczny – ponownie pokazuję.");
+          $("#waitingdots").show();
         }
-      }, 1000); // co 1 sekundę
+      }, dotsCheckerInterval);
 
+      let response;
       try {
-        const response = await $.ajax({
+        response = await $.ajax({
           type: "GET",
           url: action,
           cors: true,
@@ -813,18 +819,22 @@ docReady(function () {
         });
 
         isResponseReceived = true;
-        clearInterval(dotsChecker); // Zatrzymaj sprawdzanie
-        $("#waitingdots").hide(); // Ukryj spinner
+        clearInterval(dotsChecker);
+        $("#waitingdots").hide();
         handleSplitResponse(response);
       } catch (error) {
         isResponseReceived = true;
-        clearInterval(dotsChecker); // Zatrzymaj sprawdzanie
-        $("#waitingdots").hide(); // Ukryj spinner nawet w przypadku błędu
+        clearInterval(dotsChecker);
+        $("#waitingdots").hide();
         console.error("Błąd w ajax:", error);
-        // obsłuż błąd zgodnie z Twoim kodem
-      }
 
-      handleSplitResponse(response);
+        if (error.status === 504) {
+          showGenericError();
+          return;
+        }
+
+        throw error;
+      }
     } catch (error) {
       console.error("Error in CreateOrder:", error);
 
@@ -836,7 +846,6 @@ docReady(function () {
         throw error;
       }
 
-      // Obsługa błędów
       if (error.responseJSON) {
         const parsed = error.responseJSON;
         if (parsed && parsed.items) {
@@ -856,10 +865,10 @@ docReady(function () {
             "Quantities of products exceed limit for GTINs"
           )
         ) {
-          const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
+          const gtins = parsed.message.match(/\[([^\]]+)\]/)?.[1];
           translatedError = `Ilości produktów przekraczają limit dla GTINów: ${gtins}.`;
         } else if (parsed.message.includes("Exceptions occurred for GTINs")) {
-          const gtins = parsed.message.match(/\[([^\]]+)\]/)[1];
+          const gtins = parsed.message.match(/\[([^\]]+)\]/)?.[1];
           translatedError = `Wystąpiły wyjątki dla GTINów: ${gtins}.`;
         } else if (
           parsed.message ===
@@ -878,7 +887,7 @@ docReady(function () {
           "Error",
           "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
         );
-        window.setTimeout(() => {
+        setTimeout(() => {
           window.location.href = `https://${DomainName}/app/shops/shop?shopKey=${shopKey}`;
         }, 4000);
       } else if (error.responseText) {
@@ -890,10 +899,13 @@ docReady(function () {
         } catch (e) {
           console.error("Nie udało się sparsować odpowiedzi JSON", e);
         }
+      } else {
+        showGenericError();
       }
     } finally {
+      clearInterval(dotsChecker);
+      $("#waitingdots").hide();
       console.log("dots hide");
-      $("#waitingdots").hide(); // Ukrywamy spinner w końcu, niezależnie od wyniku
     }
   }
 
