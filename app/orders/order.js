@@ -3408,7 +3408,7 @@ docReady(function () {
                 setTimeout(function () {
                   $("#editShopModal").hide();
                   location.reload();
-                }, 3000);
+                }, 1000);
               },
               error: function () {
                 if (typeof errorCallback === "function") {
