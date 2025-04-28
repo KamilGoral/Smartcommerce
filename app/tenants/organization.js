@@ -1572,6 +1572,12 @@ docReady(function () {
           toParse = toParse.filter((item) =>
             allowedTaxIds.includes(item.taxId)
           );
+        } else if (organizationName === "Delko") {
+          // Dla Delko filtruj tylko swoje rekordy
+          const found = toParse.some((item) => item.taxId === currentTaxId);
+          if (found) {
+            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+          }
         } else {
           // Dla innych pozostaw bez zmian
           toParse = toParse;
