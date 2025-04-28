@@ -1548,6 +1548,7 @@ docReady(function () {
           Distribev: "5213681831",
           "Alco-Trade": "6670004078",
           "PGD-Polska": "7792272047",
+          Delko: "6792106727",
         };
 
         // Pobierz TaxId na podstawie nazwy organizacji
