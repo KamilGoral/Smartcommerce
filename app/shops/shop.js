@@ -915,13 +915,13 @@ docReady(function () {
 
         switch (whichColumns) {
           case 1:
-            whichColumns = "createDate:";
+            whichColumns = "updatedAt:";
             break;
           case 2:
-            whichColumns = "createDate:";
+            whichColumns = "updatedAt:";
             break;
           default:
-            whichColumns = "createDate:";
+            whichColumns = "updatedAt:";
         }
 
         var sort = "" + whichColumns + direction;
