@@ -1067,6 +1067,7 @@ docReady(function () {
                 minute: "2-digit",
                 second: "2-digit",
                 hour12: false,
+                timeZone: "Europe/Warsaw", // Dodaj jawnie strefę
               });
             }
             return "-";
