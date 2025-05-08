@@ -1055,7 +1055,7 @@ docReady(function () {
         },
         {
           orderable: true,
-          data: "createDate",
+          data: "updatedAt",
           render: function (data) {
             if (data === null) {
               var currentDate = new Date();
