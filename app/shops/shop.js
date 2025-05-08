@@ -850,16 +850,13 @@ docReady(function () {
   }
 
   function getOffers() {
-    // Clear existing intervals
     if (refreshInterval) clearInterval(refreshInterval);
     if (counterInterval) clearInterval(counterInterval);
 
-    // Check if the DataTable instance exists and destroy it
     if ($.fn.DataTable.isDataTable("#table_offers")) {
       $("#table_offers").DataTable().clear().destroy();
     }
 
-    // Initialize DataTable
     var tableOffers = $("#table_offers").DataTable({
       pagingType: "full_numbers",
       order: [],
@@ -902,20 +899,11 @@ docReady(function () {
           },
         });
 
-        var whichColumns = "";
-        var direction = "desc";
-
-        if (data.order.length == 0) {
-          whichColumns = 0;
-        } else {
-          whichColumns = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-        }
+        var whichColumns = data.order.length == 0 ? 0 : data.order[0]["column"];
+        var direction = data.order.length == 0 ? "desc" : data.order[0]["dir"];
 
         switch (whichColumns) {
           case 1:
-            whichColumns = "updatedAt:";
-            break;
           case 2:
             whichColumns = "updatedAt:";
             break;
@@ -923,7 +911,7 @@ docReady(function () {
             whichColumns = "updatedAt:";
         }
 
-        var sort = "" + whichColumns + direction;
+        var sort = whichColumns + direction;
 
         $.get(
           InvokeURL + "shops/" + shopKey + "/offers",
@@ -933,48 +921,30 @@ docReady(function () {
             page: (data.start + data.length) / data.length,
           },
           function (res) {
-            // Tworzenie słownika do grupowania ofert według daty
             const groupedData = {};
 
             res.items.forEach((item) => {
-              if (item.updatedAt) {
-                const updatedAt = item.updatedAt.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-                const timePart = item.updatedAt.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+              const dateOnly = item.updatedAt
+                ? item.updatedAt.substring(0, 10)
+                : new Date().toISOString().substring(0, 10);
 
-                if (!groupedData[updatedAt]) {
-                  groupedData[updatedAt] = [];
-                }
-
-                groupedData[updatedAt].push({
-                  offerId: item.offerId,
-                  status: item.status,
-                  updatedAt: updatedAt + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
-                });
-              } else {
-                const todayDate = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
-                var currentDateTime = new Date().toISOString();
-                const updatedAt = currentDateTime.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-                const timePart = currentDateTime.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
-
-                if (!groupedData[todayDate]) {
-                  groupedData[todayDate] = [];
-                }
-                groupedData[todayDate].push({
-                  offerId: item.offerId,
-                  status: item.status,
-                  updatedAt: updatedAt + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
-                });
+              if (!groupedData[dateOnly]) {
+                groupedData[dateOnly] = [];
               }
+
+              groupedData[dateOnly].push({
+                offerId: item.offerId,
+                status: item.status,
+                updatedAt: item.updatedAt || new Date().toISOString(),
+              });
             });
 
-            // Sortowanie ofert w każdym dniu od najświeższej do najstarszej
             for (const date in groupedData) {
               groupedData[date].sort((a, b) =>
                 a.updatedAt > b.updatedAt ? -1 : 1
               );
             }
 
-            // Tworzenie końcowej struktury
             const finalStructure = {
               items: Object.keys(groupedData).map((date) => ({
                 updatedAt: date,
@@ -982,25 +952,14 @@ docReady(function () {
               })),
             };
 
-            // Sprawdzenie obecności ofert "in progress", "batching" lub "forced"
-            var hasInProgressOrBatchingOrForced = finalStructure.items.some(
-              (row) =>
-                row.offers.some(
-                  (offer) =>
-                    offer.status === "in progress" ||
-                    offer.status === "batching" ||
-                    offer.status === "forced"
-                )
+            const hasSpecialStatuses = finalStructure.items.some((row) =>
+              row.offers.some((offer) =>
+                ["in progress", "batching", "forced"].includes(offer.status)
+              )
             );
 
-            if (hasInProgressOrBatchingOrForced) {
-              $("#refreshCounter").show(); // Pokaż licznik
-            } else {
-              $("#refreshCounter").hide(); // Ukryj licznik
-            }
+            $("#refreshCounter").toggle(hasSpecialStatuses);
 
-            // map your server's response to the DataTables format and pass it to
-            // DataTables' callback
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
@@ -1010,13 +969,7 @@ docReady(function () {
         );
       },
       processing: true,
-      search: {
-        return: true,
-      },
       serverSide: true,
-      search: {
-        return: true,
-      },
       columns: [
         {
           data: null,
@@ -1026,7 +979,6 @@ docReady(function () {
             if (rowData.offers && rowData.offers.length > 1) {
               $(cell).addClass("details-control");
             } else {
-              // Tworzenie elementu <img>
               const imgElement = $("<img>", {
                 src: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg",
                 alt: "offer",
@@ -1044,12 +996,7 @@ docReady(function () {
           visible: false,
           data: null,
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "";
-            }
+            return data || "";
           },
         },
         {
@@ -1062,7 +1009,7 @@ docReady(function () {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
-                timeZone: "Europe/Warsaw", // Dodaj jawnie strefę
+                timeZone: "Europe/Warsaw",
               });
             }
             return "-";
@@ -1080,35 +1027,24 @@ docReady(function () {
               batching: '<span class="informative">W kolejce</span>',
               forced: '<span class="informative">W kolejce</span>',
             };
-            if (data && data.offers && data.offers[0]) {
-              return statusMap[data.offers[0].status] || "-";
-            }
-            return "-";
+            return data?.offers?.[0]
+              ? statusMap[data.offers[0].status] || "-"
+              : "-";
           },
         },
-
         {
           orderable: false,
           data: null,
           width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
-              if (row.offers[0].status == "error") {
-                return (
-                  '<div class="action-container" style="opacity: 0.5;"><a href="#" status="' +
-                  row.offers[0]["status"] +
-                  '" offerId="' +
-                  row.offers[0]["offerId"] +
-                  '" class="buttonoutline editme w-button">Brak</a></div>'
-                );
-              }
-              return (
-                '<div class="action-container"><a href="#" status="' +
-                row.offers[0]["status"] +
-                '" offerId="' +
-                row.offers[0]["offerId"] +
-                '" class="buttonoutline editme w-button">Przejdź</a></div>'
-              );
+              const offer = row.offers[0];
+              const label = offer.status === "error" ? "Brak" : "Przejdź";
+              const opacity = offer.status === "error" ? "opacity: 0.5;" : "";
+              return `
+                <div class="action-container" style="${opacity}">
+                  <a href="#" status="${offer.status}" offerId="${offer.offerId}" class="buttonoutline editme w-button">${label}</a>
+                </div>`;
             }
             return "-";
           },
@@ -1119,54 +1055,37 @@ docReady(function () {
         var textBox = $("#table_offers_filter label input");
         textBox.unbind();
         textBox.bind("keyup input", function (e) {
-          if (
-            (e.keyCode == 8 && !textBox.val()) ||
-            (e.keyCode == 46 && !textBox.val())
-          ) {
-          } else if (e.keyCode == 13 || !textBox.val()) {
+          if ((e.keyCode === 8 || e.keyCode === 46) && !textBox.val()) {
+          } else if (e.keyCode === 13 || !textBox.val()) {
             api.search(this.value).draw();
           }
           toggleEmptyState();
         });
       },
-      drawCallback: function (settings) {
+      drawCallback: function () {
         toggleEmptyState();
       },
     });
 
     function toggleEmptyState() {
-      // Check if the table has any entries
       var hasEntries = tableOffers.data().any();
-      // If the table is empty, show the custom empty state div
-      // Otherwise, hide it
-      if (!hasEntries) {
-        $("#emptystateoffers").show();
-        $("#offerscontainer").hide();
-      } else {
-        $("#emptystateoffers").hide();
-        $("#offerscontainer").show();
-      }
+      $("#emptystateoffers").toggle(!hasEntries);
+      $("#offerscontainer").toggle(hasEntries);
     }
 
-    // Set up refresh interval
     refreshInterval = setInterval(function () {
       if (counter <= 0) {
         refreshTable();
       }
-    }, 1000); // Check every second
+    }, 1000);
 
-    // Decrement counter every second
     counterInterval = setInterval(function () {
       if (counter > 0) {
         counter--;
 
-        // Zmiana tekstu w zależności od wartości licznika
-        var counterText = "sekund"; // Domyślnie dla 5 i więcej
-        if (counter === 1) {
-          counterText = "sekundę"; // 1 sekunda
-        } else if (counter > 1 && counter <= 4) {
-          counterText = "sekundy"; // 2-4 sekundy
-        }
+        var counterText = "sekund";
+        if (counter === 1) counterText = "sekundę";
+        else if (counter > 1 && counter <= 4) counterText = "sekundy";
 
         $("#refreshCounter").text(
           "Następne odświeżenie tabeli ofert za " + counter + " " + counterText
@@ -1174,42 +1093,30 @@ docReady(function () {
       }
     }, 1000);
 
-    // Reset counter
     counter = 60;
 
     $("#table_offers").on("click", "a", function () {
-      var clikedEl = this;
-      if (clikedEl.getAttribute("status") == "in progress") {
+      var el = this;
+      const status = el.getAttribute("status");
+      const offerId = el.getAttribute("offerId");
+
+      if (status === "in progress") {
         displayMessage(
           "Error",
           "Oferta w trakcie tworzenia. Proszę poczekaj..."
         );
-      }
-      if (clikedEl.getAttribute("status") == "error") {
+      } else if (status === "error") {
         displayMessage(
           "Error",
           "Oops! Coś poszło nie tak. Spróbuj ponownie..."
         );
-      }
-      if (clikedEl.getAttribute("status") == "ready") {
+      } else if (status === "ready") {
         window.location.replace(
-          "https://" +
-            DomainName +
-            "/app/offers/offer?shopKey=" +
-            shopKey +
-            "&offerId=" +
-            clikedEl.getAttribute("offerId")
+          `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`
         );
-      }
-      if (clikedEl.getAttribute("status") == "incomplete") {
+      } else if (status === "incomplete") {
         $.ajax({
-          url:
-            InvokeURL +
-            "shops/" +
-            shopKey +
-            "/offers/" +
-            clikedEl.getAttribute("offerId") +
-            "/status",
+          url: `${InvokeURL}shops/${shopKey}/offers/${offerId}/status`,
           beforeSend: function (xhr) {
             xhr.setRequestHeader("Authorization", orgToken);
           },
@@ -1218,13 +1125,7 @@ docReady(function () {
               "Error",
               "Uwaga! Oferta nie jest kompletna " + data.messages
             );
-            document.location =
-              "https://" +
-              DomainName +
-              "/app/offers/offer?shopKey=" +
-              shopKey +
-              "&offerId=" +
-              clikedEl.getAttribute("offerId");
+            document.location = `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`;
           },
         });
       }
