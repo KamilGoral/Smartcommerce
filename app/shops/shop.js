@@ -750,8 +750,8 @@ docReady(function () {
     for (var i = 0; i < offers.length; i++) {
       var formattedDate = "-";
       if (offers[i].updatedAt) {
-        var utcDate = new Date(offers[i].updatedAt.replace(" ", "T") + "Z");
-        formattedDate = utcDate.toLocaleString("pl-PL", {
+        var localDate = new Date(offers[i].updatedAt.replace(" ", "T"));
+        formattedDate = localDate.toLocaleString("pl-PL", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
@@ -759,6 +759,7 @@ docReady(function () {
           minute: "2-digit",
           second: "2-digit",
           hour12: false,
+          timeZone: "Europe/Warsaw",
         });
       } else {
         // If updatedAt is null, use current date and time
@@ -771,6 +772,7 @@ docReady(function () {
           minute: "2-digit",
           second: "2-digit",
           hour12: false,
+          timeZone: "Europe/Warsaw",
         });
       }
 
@@ -791,23 +793,20 @@ docReady(function () {
         "</td>" +
         '<td style="width:' +
         columnWidths[3] +
-        ';"><div class="action-container"';
-
-      if (offers[i].status == "error") {
-        toDisplayHtml +=
-          ' style="opacity: 0.5;"><a href="#" status="' +
-          offers[i].status +
-          '" offerId="' +
-          offers[i].offerId +
-          '" class="buttonoutline editme w-button">Brak</a></div></td></tr>';
-      } else {
-        toDisplayHtml +=
-          '><a href="#" status="' +
-          offers[i].status +
-          '" offerId="' +
-          offers[i].offerId +
-          '" class="buttonoutline editme w-button">Przejdź</a></div></td></tr>';
-      }
+        ';">' +
+        '<div class="action-container"' +
+        (offers[i].status == "error"
+          ? ' style="opacity: 0.5;"><a href="#" status="' +
+            offers[i].status +
+            '" offerId="' +
+            offers[i].offerId +
+            '" class="buttonoutline editme w-button">Brak</a></div>'
+          : '><a href="#" status="' +
+            offers[i].status +
+            '" offerId="' +
+            offers[i].offerId +
+            '" class="buttonoutline editme w-button">Przejdź</a></div>') +
+        "</td></tr>";
     }
 
     // Close the offers table
