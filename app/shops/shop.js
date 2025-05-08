@@ -1055,11 +1055,16 @@ docReady(function () {
         },
         {
           orderable: true,
-          data: "updatedAt",
+          data: null, // bo ręcznie wyciągasz dane z zagnieżdżonej struktury
           render: function (data) {
-            if (data === null) {
-              var currentDate = new Date();
-              formattedDate = currentDate.toLocaleString("pl-PL", {
+            if (
+              data &&
+              data.offers &&
+              data.offers[0] &&
+              data.offers[0].createDate
+            ) {
+              const dateObj = new Date(data.offers[0].createDate);
+              return dateObj.toLocaleString("pl-PL", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -1068,18 +1073,6 @@ docReady(function () {
                 second: "2-digit",
                 hour12: false,
               });
-              return formattedDate;
-            }
-            if (data !== "-" && data !== null) {
-              const creationDate = new Date(data);
-
-              const startDate = creationDate.toLocaleDateString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              });
-
-              return startDate;
             }
             return "-";
           },
