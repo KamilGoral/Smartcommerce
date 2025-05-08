@@ -1055,15 +1055,10 @@ docReady(function () {
         },
         {
           orderable: true,
-          data: null, // bo ręcznie wyciągasz dane z zagnieżdżonej struktury
+          data: "updatedAt",
           render: function (data) {
-            if (
-              data &&
-              data.offers &&
-              data.offers[0] &&
-              data.offers[0].updatedAt
-            ) {
-              const dateObj = new Date(data.offers[0].updatedAt);
+            if (data) {
+              const dateObj = new Date(data);
               return dateObj.toLocaleString("pl-PL", {
                 year: "numeric",
                 month: "2-digit",
