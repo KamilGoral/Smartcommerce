@@ -761,7 +761,7 @@ docReady(function () {
           hour12: false,
         });
       } else {
-        // If createDate is null, use current date and time
+        // If updatedAt is null, use current date and time
         var currentDate = new Date();
         formattedDate = currentDate.toLocaleString("pl-PL", {
           year: "numeric",
@@ -939,22 +939,22 @@ docReady(function () {
 
             res.items.forEach((item) => {
               if (item.updatedAt) {
-                const createDate = item.updatedAt.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+                const updatedAt = item.updatedAt.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
                 const timePart = item.updatedAt.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
-                if (!groupedData[createDate]) {
-                  groupedData[createDate] = [];
+                if (!groupedData[updatedAt]) {
+                  groupedData[updatedAt] = [];
                 }
 
-                groupedData[createDate].push({
+                groupedData[updatedAt].push({
                   offerId: item.offerId,
                   status: item.status,
-                  createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
+                  updatedAt: updatedAt + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               } else {
                 const todayDate = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
                 var currentDateTime = new Date().toISOString();
-                const createDate = currentDateTime.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+                const updatedAt = currentDateTime.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
                 const timePart = currentDateTime.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
                 if (!groupedData[todayDate]) {
@@ -963,7 +963,7 @@ docReady(function () {
                 groupedData[todayDate].push({
                   offerId: item.offerId,
                   status: item.status,
-                  createDate: createDate + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
+                  updatedAt: updatedAt + " " + timePart, // Dodaj czas (minuty, sekundy i strefę czasową)
                 });
               }
             });
@@ -978,7 +978,7 @@ docReady(function () {
             // Tworzenie końcowej struktury
             const finalStructure = {
               items: Object.keys(groupedData).map((date) => ({
-                createDate: date,
+                updatedAt: date,
                 offers: groupedData[date],
               })),
             };
