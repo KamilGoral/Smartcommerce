@@ -1099,36 +1099,40 @@ docReady(function () {
       var el = this;
       const status = el.getAttribute("status");
       const offerId = el.getAttribute("offerId");
+      console.log("offerId");
+      window.location.replace(
+        `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`
+      );
 
-      if (status === "in progress") {
-        displayMessage(
-          "Error",
-          "Oferta w trakcie tworzenia. Proszę poczekaj..."
-        );
-      } else if (status === "error") {
-        displayMessage(
-          "Error",
-          "Oops! Coś poszło nie tak. Spróbuj ponownie..."
-        );
-      } else if (status === "ready") {
-        window.location.replace(
-          `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`
-        );
-      } else if (status === "incomplete") {
-        $.ajax({
-          url: `${InvokeURL}shops/${shopKey}/offers/${offerId}/status`,
-          beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", orgToken);
-          },
-          success: function (data) {
-            displayMessage(
-              "Error",
-              "Uwaga! Oferta nie jest kompletna " + data.messages
-            );
-            document.location = `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`;
-          },
-        });
-      }
+      // if (status === "in progress") {
+      //   displayMessage(
+      //     "Error",
+      //     "Oferta w trakcie tworzenia. Proszę poczekaj..."
+      //   );
+      // } else if (status === "error") {
+      //   displayMessage(
+      //     "Error",
+      //     "Oops! Coś poszło nie tak. Spróbuj ponownie..."
+      //   );
+      // } else if (status === "ready") {
+      //   window.location.replace(
+      //     `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`
+      //   );
+      // } else if (status === "incomplete") {
+      //   $.ajax({
+      //     url: `${InvokeURL}shops/${shopKey}/offers/${offerId}/status`,
+      //     beforeSend: function (xhr) {
+      //       xhr.setRequestHeader("Authorization", orgToken);
+      //     },
+      //     success: function (data) {
+      //       displayMessage(
+      //         "Error",
+      //         "Uwaga! Oferta nie jest kompletna " + data.messages
+      //       );
+      //       document.location = `https://${DomainName}/app/offers/offer?shopKey=${shopKey}&offerId=${offerId}`;
+      //     },
+      //   });
+      // }
     });
   }
 
