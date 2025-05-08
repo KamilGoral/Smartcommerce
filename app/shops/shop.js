@@ -586,7 +586,7 @@ docReady(function () {
           data: null,
           render: function (data, type, row) {
             // Sprawdź, czy createDate jest przed 2025-04-10
-            var createDate = new Date(row.createDate);
+            var createDate = new Date(row.createdAt);
             var cutoffDate = new Date("2025-04-24");
 
             if (createDate < cutoffDate) {
@@ -749,8 +749,8 @@ docReady(function () {
     // Iterate through the array of offers
     for (var i = 0; i < offers.length; i++) {
       var formattedDate = "-";
-      if (offers[i].createDate) {
-        var utcDate = new Date(offers[i].createDate.replace(" ", "T") + "Z");
+      if (offers[i].updatedAt) {
+        var utcDate = new Date(offers[i].updatedAt.replace(" ", "T") + "Z");
         formattedDate = utcDate.toLocaleString("pl-PL", {
           year: "numeric",
           month: "2-digit",
@@ -938,9 +938,9 @@ docReady(function () {
             const groupedData = {};
 
             res.items.forEach((item) => {
-              if (item.createDate) {
-                const createDate = item.createDate.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
-                const timePart = item.createDate.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
+              if (item.updatedAt) {
+                const createDate = item.updatedAt.substring(0, 10); // Wyciągnij datę i godzinę w formacie "YYYY-MM-DDTHH:mm"
+                const timePart = item.updatedAt.split("T")[1].slice(0, -1); // Dzieli datę, a następnie usuwa ostatni znak "Z"
 
                 if (!groupedData[createDate]) {
                   groupedData[createDate] = [];
@@ -971,7 +971,7 @@ docReady(function () {
             // Sortowanie ofert w każdym dniu od najświeższej do najstarszej
             for (const date in groupedData) {
               groupedData[date].sort((a, b) =>
-                a.createDate > b.createDate ? -1 : 1
+                a.updatedAt > b.updatedAt ? -1 : 1
               );
             }
 
@@ -1061,9 +1061,9 @@ docReady(function () {
               data &&
               data.offers &&
               data.offers[0] &&
-              data.offers[0].createDate
+              data.offers[0].updatedAt
             ) {
-              const dateObj = new Date(data.offers[0].createDate);
+              const dateObj = new Date(data.offers[0].updatedAt);
               return dateObj.toLocaleString("pl-PL", {
                 year: "numeric",
                 month: "2-digit",
