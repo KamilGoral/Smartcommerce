@@ -61,6 +61,7 @@ docReady(function () {
   const phoneNumberElement = document.getElementById("phoneNumber");
   phoneNumberElement.value = attributes["phonenumber"];
   const orderEmailForm = $("#wf-form-Order-Email-Form");
+  var organizationName = getCookie("OrganizationName");
 
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
@@ -1029,6 +1030,10 @@ docReady(function () {
     orderEmailForm.trigger("submit");
     console.log("click");
   });
+
+  const loginValue = (organizationName + "." + wholesalerKey).toLowerCase();
+
+  $("#Wholesaler-Login").prop("disabled", true).val(loginValue);
 
   makeWebflowFormAjaxServerWh($(formIdNewServer));
   makeWebflowFormAjaxResetPassword($(formIdResetPassword));
