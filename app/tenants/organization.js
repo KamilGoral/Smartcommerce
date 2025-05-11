@@ -567,35 +567,58 @@ docReady(function () {
     });
   }
 
+  // Mapa: email użytkownika → lista shopKey do których ma dostęp
+  const userEmailToShopKeys = {
+    "megasam@spolem.czest.pl": ["701"],
+    "sezam@spolem.czest.pl": ["600"],
+    "sklep105@spolem.czest.pl": ["105"],
+    "sklep128@spolem.czest.pl": ["128"],
+    "sklep129@spolem.czest.pl": ["129"],
+    "sklep157@spolem.czest.pl": ["157"],
+    "sklep250@spolem.czest.pl": ["250"],
+    "sklep284@spolem.czest.pl": ["284"],
+    "sklep285@spolem.czest.pl": ["285"],
+    "sklep401@spolem.czest.pl": ["401"],
+    "sklep54@spolem.czest.pl": ["54"],
+    "sklep90@spolem.czest.pl": ["90"],
+    "sklep94@spolem.czest.pl": ["94"],
+    "sklep95@spolem.czest.pl": ["95"],
+  };
+
   function getShops() {
-    let url = new URL(InvokeURL + "shops?perPage=20");
+    let url = new URL(InvokeURL + "shops?perPage=50");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
-    // request.setRequestHeader("Requested-By", "webflow-3-4");
+
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(this.response);
-        var toParse = data.items;
-        var shopNumber = data.total;
+        const data = JSON.parse(this.response);
+        const allShops = data.items;
+
+        const userEmail = attributes["email"];
+        const allowedShopKeys = userEmailToShopKeys[userEmail] || [];
+
+        // Filtrowanie sklepów przypisanych do danego użytkownika
+        const toParse = allShops.filter((shop) =>
+          allowedShopKeys.includes(shop.shopKey)
+        );
+        const shopNumber = toParse.length;
 
         if (shopNumber > 0) {
           const deleteButton = document.getElementById(
             "deleteOrganizationButton"
           );
-
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
           $("#deleteTenantMessage").show();
         }
 
         const shopContainer = document.getElementById("Shops-Container");
-
-        // Code for documents
-
         const shopContainerDocuments = document.getElementById("documentShop");
+
         toParse.forEach((shop) => {
-          var opt = document.createElement("option");
+          const opt = document.createElement("option");
           opt.value = shop.shopKey;
           opt.innerHTML = shop.shopKey;
           shopContainerDocuments.appendChild(opt);
@@ -614,21 +637,16 @@ docReady(function () {
           if (shopKeyElement) shopKeyElement.textContent = shop.shopKey;
 
           row.href = `https://${DomainName}/app/shops/shop?shopKey=${shop.shopKey}`;
-
           shopContainer.appendChild(row);
         });
 
-        // Call the search setup function after shops are loaded
         setupShopSearch();
 
-        if (data.total === 0) {
-          const tablecontentshops =
-            document.getElementById("tablecontentshops");
-          tablecontentshops.style.display = "none";
-          const emptystateshops = document.getElementById("emptystateshops");
-          emptystateshops.style.display = "flex";
+        if (toParse.length === 0) {
+          document.getElementById("tablecontentshops").style.display = "none";
+          document.getElementById("emptystateshops").style.display = "flex";
         }
-      } else if (request.status == 401) {
+      } else if (request.status === 401) {
         console.log("Unauthorized");
       } else {
         console.error("Error loading shop info:", request.status);
