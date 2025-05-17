@@ -310,7 +310,6 @@ docReady(function () {
   if (userRole !== "admin") {
     console.log("Actions not permitted for non-admin users.");
     $("#deleteShopContainer").hide();
-    $("#refreshOfferButton").hide();
   }
 
   function getShop() {
@@ -815,44 +814,7 @@ docReady(function () {
     return toDisplayHtml;
   }
 
-  var refreshInterval;
-  var counterInterval;
-  var counter = 60; // 60 seconds for each refresh
-
-  function refreshTable() {
-    var hasInProgressOrBatchingOrForced = $("#table_offers")
-      .DataTable()
-      .data()
-      .toArray()
-      .some((row) =>
-        row.offers.some(
-          (offer) =>
-            offer.status === "in progress" ||
-            offer.status === "batching" ||
-            offer.status === "forced"
-        )
-      );
-    console.log(hasInProgressOrBatchingOrForced);
-
-    if (hasInProgressOrBatchingOrForced) {
-      console.log("Calling getOffers");
-      getOffers(); // Call getOffers instead of reloading the table
-      counter = 60; // Reset counter
-    } else {
-      console.log("Everything is working");
-      clearInterval(refreshInterval); // Clear the interval if no 'in progress' or 'batching' status
-      clearInterval(counterInterval); // Clear the counter interval as well
-      $("#refreshCounter").hide(); // Ukryj licznik
-      $("#refreshCounter").text(""); // Clear the counter display
-      $("#emptystateoffers").hide();
-      $("#offerscontainer").show();
-    }
-  }
-
   function getOffers() {
-    if (refreshInterval) clearInterval(refreshInterval);
-    if (counterInterval) clearInterval(counterInterval);
-
     if ($.fn.DataTable.isDataTable("#table_offers")) {
       $("#table_offers").DataTable().clear().destroy();
     }
@@ -934,7 +896,6 @@ docReady(function () {
 
               groupedData[dateOnly].push({
                 offerId: item.offerId,
-                status: item.status,
                 updatedAt: item.updatedAt || new Date().toISOString(),
               });
             });
@@ -951,14 +912,6 @@ docReady(function () {
                 offers: groupedData[date],
               })),
             };
-
-            const hasSpecialStatuses = finalStructure.items.some((row) =>
-              row.offers.some((offer) =>
-                ["in progress", "batching", "forced"].includes(offer.status)
-              )
-            );
-
-            $("#refreshCounter").toggle(hasSpecialStatuses);
 
             callback({
               recordsTotal: res.total,
@@ -992,14 +945,6 @@ docReady(function () {
           orderable: false,
         },
         {
-          orderable: false,
-          visible: false,
-          data: null,
-          render: function (data) {
-            return data || "";
-          },
-        },
-        {
           orderable: true,
           data: "updatedAt",
           render: function (data) {
@@ -1018,32 +963,13 @@ docReady(function () {
         {
           orderable: false,
           data: null,
-          render: function (data) {
-            const statusMap = {
-              ready: '<span class="positive">Gotowa</span>',
-              error: '<span class="negative">Problem</span>',
-              "in progress": '<span class="informative">W trakcie</span>',
-              incomplete: '<span class="medium">Niekompletna</span>',
-              batching: '<span class="informative">W kolejce</span>',
-              forced: '<span class="informative">W kolejce</span>',
-            };
-            return data?.offers?.[0]
-              ? statusMap[data.offers[0].status] || "-"
-              : "-";
-          },
-        },
-        {
-          orderable: false,
-          data: null,
           width: "72px",
           render: function (data, type, row) {
             if (type === "display") {
               const offer = row.offers[0];
-              const label = offer.status === "error" ? "Brak" : "Przejdź";
-              const opacity = offer.status === "error" ? "opacity: 0.5;" : "";
               return `
-                <div class="action-container" style="${opacity}">
-                  <a href="#" status="${offer.status}" offerId="${offer.offerId}" class="buttonoutline editme w-button">${label}</a>
+                <div class="action-container">
+                  <a href="#" offerId="${offer.offerId}" class="buttonoutline editme w-button">Przejdź</a>
                 </div>`;
             }
             return "-";
@@ -1072,28 +998,6 @@ docReady(function () {
       $("#emptystateoffers").toggle(!hasEntries);
       $("#offerscontainer").toggle(hasEntries);
     }
-
-    refreshInterval = setInterval(function () {
-      if (counter <= 0) {
-        refreshTable();
-      }
-    }, 1000);
-
-    counterInterval = setInterval(function () {
-      if (counter > 0) {
-        counter--;
-
-        var counterText = "sekund";
-        if (counter === 1) counterText = "sekundę";
-        else if (counter > 1 && counter <= 4) counterText = "sekundy";
-
-        $("#refreshCounter").text(
-          "Następne odświeżenie tabeli ofert za " + counter + " " + counterText
-        );
-      }
-    }, 1000);
-
-    counter = 60;
 
     $("#table_offers").on("click", "a", function () {
       var el = this;
@@ -1658,91 +1562,6 @@ docReady(function () {
 
     return patchData;
   }
-
-  makeWebflowFormAjaxRefreshOffer = function (
-    forms,
-    successCallback,
-    errorCallback
-  ) {
-    forms.each(function () {
-      var form = $(this);
-      form.on("submit", function (event) {
-        var action = InvokeURL + "shops/" + shopKey + "/offers";
-        var method = "POST";
-        var data = "";
-
-        $.ajax({
-          type: method,
-          url: action,
-          cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-          contentType: "application/json",
-          dataType: "json",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          data: JSON.stringify(data),
-          success: function (resultData) {
-            if (typeof successCallback === "function") {
-              result = successCallback(resultData);
-              if (!result) {
-                form.show();
-                displayMessage(
-                  "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
-                );
-                return;
-              }
-            }
-            form.show();
-            displayMessage(
-              "Success",
-              "Oferta w trakcie tworzenia. Proszę poczekaj..."
-            );
-            window.setTimeout(function () {
-              location.reload();
-            }, 3500);
-          },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(exception);
-            var msg = "";
-
-            if (jqXHR.status === 0) {
-              msg = "Not connect.\n Verify Network.";
-            } else if (jqXHR.status === 403) {
-              msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
-            } else if (jqXHR.status === 429) {
-              msg =
-                "Oferta dla tego sklepu została utworzona mniej niż 5 minut temu lub jest w trakcie tworzenia.";
-            } else if (jqXHR.status === 500) {
-              msg = "Internal Server Error [500].";
-            } else if (exception === "parsererror") {
-              msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-              msg = "Time out error.";
-            } else if (exception === "abort") {
-              msg = "Ajax request aborted.";
-            } else {
-              msg = "" + jqXHR.responseJSON.message;
-            }
-            displayMessage("Error", msg);
-            form.show();
-          },
-        });
-        event.preventDefault();
-        return false;
-      });
-    });
-  };
 
   // Function to handle tab switch
   $(".in-page-menu-link").on("click", function () {

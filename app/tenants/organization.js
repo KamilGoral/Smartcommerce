@@ -567,7 +567,7 @@ docReady(function () {
     });
   }
 
-  // Mapa: email użytkownika → lista shopKey do których ma dostęp
+  // Mapa: email użytkownika → lista shopKey do których ma dostęp do czasu ogarniecia tematu przez backend
   const userEmailToShopKeys = {
     "megasam@spolem.czest.pl": ["701"],
     "sezam@spolem.czest.pl": ["600"],
@@ -583,7 +583,6 @@ docReady(function () {
     "sklep90@spolem.czest.pl": ["090"],
     "sklep94@spolem.czest.pl": ["094"],
     "sklep95@spolem.czest.pl": ["095"],
-    "kamiltesterhej@tempemail.co": ["NO11"],
   };
 
   function getShops() {
