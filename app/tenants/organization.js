@@ -579,10 +579,10 @@ docReady(function () {
     "sklep284@spolem.czest.pl": ["284"],
     "sklep285@spolem.czest.pl": ["285"],
     "sklep401@spolem.czest.pl": ["401"],
-    "sklep54@spolem.czest.pl": ["54"],
-    "sklep90@spolem.czest.pl": ["90"],
-    "sklep94@spolem.czest.pl": ["94"],
-    "sklep95@spolem.czest.pl": ["95"],
+    "sklep54@spolem.czest.pl": ["054"],
+    "sklep90@spolem.czest.pl": ["090"],
+    "sklep94@spolem.czest.pl": ["094"],
+    "sklep95@spolem.czest.pl": ["095"],
   };
 
   function getShops() {
@@ -597,12 +597,13 @@ docReady(function () {
         const allShops = data.items;
 
         const userEmail = attributes["email"];
-        const allowedShopKeys = userEmailToShopKeys[userEmail] || [];
+        const allowedShopKeys = userEmailToShopKeys[userEmail];
 
-        // Filtrowanie sklepów przypisanych do danego użytkownika
-        const toParse = allShops.filter((shop) =>
-          allowedShopKeys.includes(shop.shopKey)
-        );
+        // Jeśli email jest w mapie, filtruj, inaczej pokaż wszystkie
+        const toParse = allowedShopKeys
+          ? allShops.filter((shop) => allowedShopKeys.includes(shop.shopKey))
+          : allShops;
+
         const shopNumber = toParse.length;
 
         if (shopNumber > 0) {
