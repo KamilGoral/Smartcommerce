@@ -1842,7 +1842,6 @@ docReady(function () {
 
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
-  makeWebflowFormAjaxRefreshOffer($("#wf-form-RefreshOfferForm"));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
