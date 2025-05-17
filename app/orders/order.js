@@ -1562,36 +1562,37 @@ docReady(function () {
               orderable: true,
               data: "netPrice",
               render: function (data, type, row) {
-                // Sprawdź, czy istnieją segmenty zakupu
                 if (row.purchaseSegments && row.purchaseSegments.length > 1) {
-                  // Oblicz cenę ważoną
                   let totalQuantity = 0;
                   let totalValue = 0;
-                  let tooltipContent = "Otrzymasz: ";
+                  let breakdown = [];
 
-                  row.purchaseSegments.forEach((segment, index) => {
+                  row.purchaseSegments.forEach((segment) => {
                     totalQuantity += segment.quantity;
                     totalValue += segment.netPrice * segment.quantity;
-                    tooltipContent += `${
-                      segment.quantity
-                    } sztuk po ${segment.netPrice.toFixed(2)} zł`;
-                    if (index < row.purchaseSegments.length - 1) {
-                      tooltipContent += " oraz ";
-                    }
+                    breakdown.push(
+                      `${segment.quantity} szt. × ${segment.netPrice.toFixed(
+                        2
+                      )} zł`
+                    );
                   });
 
                   const weightedPrice = (totalValue / totalQuantity).toFixed(2);
+                  const breakdownText = breakdown.join("\n");
 
-                  // Zwróć sformatowaną komórkę z tooltipem i pogrubioną ceną ważoną
-                  return `<td class="tippy" data-tippy-content="${tooltipContent}">
-                            <strong>${weightedPrice}</strong>
-                          </td>`;
+                  // Używamy onclick bezpiecznie z JSON.stringify
+                  return `
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <strong>${weightedPrice} zł</strong>
+          <span style="cursor: pointer;" onclick="alert('Cena ważona z segmentów:\\n${breakdownText}')">ℹ️</span>
+        </div>
+      `;
                 }
 
-                // Jeśli jest tylko jeden segment lub brak segmentów, zwróć standardową cenę
                 if (data !== null) {
-                  return data.toFixed(2);
+                  return `<strong>${data.toFixed(2)} zł</strong>`;
                 }
+
                 return "0";
               },
             },
