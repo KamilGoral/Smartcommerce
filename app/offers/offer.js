@@ -401,10 +401,19 @@ docReady(function () {
     });
   }
 
-  function getOfferStatus() {
-    let url = new URL(
-      InvokeURL + "shops/" + shopKey + "/offers/" + offerId + "/status"
+  function isToday(isoDateStr) {
+    if (!isoDateStr) return false;
+    const date = new Date(isoDateStr);
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
     );
+  }
+
+  function getOfferStatus() {
+    let url = new URL(InvokeURL + "shops/" + shopKey + "/offers/latest/status");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -1317,6 +1326,17 @@ docReady(function () {
       $.get(
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
         function (res) {
+          if (isToday(res.offerDate)) {
+            getOfferStatus();
+          } else {
+            // Ukryj wszystkie elementy powiązane z informacją o statusie
+            document
+              .querySelectorAll(".offerdate, .offerstatus, .offermessage")
+              .forEach((el) => {
+                el.style.display = "none";
+              });
+          }
+
           callback({
             recordsTotal: res.total,
             recordsFiltered: res.total,
@@ -1827,7 +1847,6 @@ docReady(function () {
     });
   }
 
-  getOfferStatus();
   getWholesalersSh();
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
