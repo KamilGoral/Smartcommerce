@@ -1327,9 +1327,14 @@ docReady(function () {
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
         function (res) {
           if (isToday(res.offerDate)) {
-            getOfferStatus();
+            // getOfferStatus(); — currently disabled because the backend does not yet return the expected response (still under development)
+            document
+              .querySelectorAll(".offerdate, .offerstatus, .offermessage")
+              .forEach((el) => {
+                el.style.display = "none";
+              });
           } else {
-            // Ukryj wszystkie elementy powiązane z informacją o statusie
+            // Hide all elements related to offer status information
             document
               .querySelectorAll(".offerdate, .offerstatus, .offermessage")
               .forEach((el) => {
