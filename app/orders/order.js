@@ -490,30 +490,18 @@ docReady(function () {
     return date.toLocaleString("pl-PL", options).replace(",", "");
   }
 
-  function createPopup() {
-    const overlay = document.createElement("div");
-    overlay.className = "popup-overlay";
+  function createPopup(clickedElement) {
+    const $el = $(clickedElement);
 
-    const popup = document.createElement("div");
-    popup.className = "custom-popup";
-    popup.innerHTML = `
-      <p>Czy chcesz cofnąć to zamówienie do dostawcy?</p>
-      <button data-action="yes">Tak</button>
-      <button data-action="no">Nie</button>
-      <button data-action="cancel">Anuluj</button>
-    `;
+    const offerId = $el.data("offer-id");
+    const wholesalerKey = $el.data("wholesaler-key");
+    const wholesalerName = $el.data("wholesaler-name");
+    const confirmedDate = $el.data("confirmed-date");
 
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-
-    popup.querySelectorAll("button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const action = btn.getAttribute("data-action");
-        console.log("Wybrano:", action);
-        popup.remove();
-        overlay.remove();
-      });
-    });
+    // Wypełnienie treści modala
+    $("#undoText").text(wholesalerName);
+    // Wyświetlenie modala
+    $("#undoOrderModal").css("display", "flex");
   }
 
   // Wywołanie po załadowaniu tabeli
@@ -685,34 +673,43 @@ docReady(function () {
           data: null,
           name: "statusColumn",
           width: "48px",
+          className: "dt-center status-column",
+
           render: function (data) {
             if (data.wholesalerName === "unassigned") return "";
 
             const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
 
             if (data.confirmedAt) {
-              const confirmedDate = formatDateToPolishTime(data.confirmedAt);
+              const confirmedDate = formatDateToPolishTime(data.confirmedAt); // Np. 23.04.2025 13:10:39
 
               return `
-      <span 
-        class="cofnij-action" 
-        data-tippy-content="Cofnij" 
-        data-confirmed-date="${confirmedDate}"
-      >
-        <img 
-          class="cofnij-icon" 
-          src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" 
-          alt="confirmed" 
-          style="cursor:pointer;"
-        />
-      </span>
-    `;
+        <div class="status-icon-wrap" style="text-align:center;">
+          <span 
+            class="cofnij-action" 
+            data-tippy-content="Cofnij"
+            title="Potwierdzono ${confirmedDate}"
+            data-confirmed-date="${confirmedDate}"
+            data-wholesaler-key="${data.wholesalerKey}"
+            data-wholesaler-name="${data.wholesalerName}"
+            data-offer-id="${data.offerId || ""}"
+            style="display:inline-block; cursor:pointer;"
+          >
+            <img 
+              class="cofnij-icon" 
+              src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" 
+              alt="confirmed"
+            />
+          </span>
+          <div class="confirmed-date" style="font-size:10px; color:#666;">${
+            confirmedDate.split(" ")[0]
+          }</div>
+        </div>
+      `;
             }
 
             return `<span data-tippy-content="W edycji">${editIcon}</span>`;
           },
-
-          className: "dt-center status-column",
         },
 
         {
