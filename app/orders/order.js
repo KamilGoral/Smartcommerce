@@ -490,6 +490,44 @@ docReady(function () {
     return date.toLocaleString("pl-PL", options).replace(",", "");
   }
 
+  function createPopup() {
+    const overlay = document.createElement("div");
+    overlay.className = "popup-overlay";
+
+    const popup = document.createElement("div");
+    popup.className = "custom-popup";
+    popup.innerHTML = `
+      <p>Czy chcesz cofnąć to zamówienie do dostawcy?</p>
+      <button data-action="yes">Tak</button>
+      <button data-action="no">Nie</button>
+      <button data-action="cancel">Anuluj</button>
+    `;
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+
+    popup.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const action = btn.getAttribute("data-action");
+        console.log("Wybrano:", action);
+        popup.remove();
+        overlay.remove();
+      });
+    });
+  }
+
+  // Wywołanie po załadowaniu tabeli
+  function bindStatusEvents() {
+    initializeSimpleTooltips();
+
+    document.querySelectorAll(".cofnij-action").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.stopPropagation(); // jeśli np. wiersz klikalny
+        createPopup();
+      });
+    });
+  }
+
   function buildSplittedTable(data = []) {
     var table = $("#table_splited_wh").DataTable({
       pagingType: "full_numbers",
@@ -633,16 +671,26 @@ docReady(function () {
             if (data.wholesalerName === "unassigned") return "";
 
             const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
-            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="pointer;" />`;
+            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="cursor:pointer;" />`;
 
-            return data.confirmedAt
-              ? `<span data-tippy-content="Potwierdzono ${formatDateToPolishTime(
-                  data.confirmedAt
-                )}">${confirmedIcon}</span>`
-              : `<span data-tippy-content="W edycji">${editIcon}</span>`;
+            if (data.confirmedAt) {
+              const confirmedDate = formatDateToPolishTime(data.confirmedAt);
+
+              return `
+        <span 
+          class="cofnij-action" 
+          data-tippy-content="Cofnij"
+          data-confirmed-date="${confirmedDate}"
+        >
+          ${confirmedIcon}
+        </span>`;
+            }
+
+            return `<span data-tippy-content="W edycji">${editIcon}</span>`;
           },
           className: "dt-center status-column",
         },
+
         {
           orderable: false,
           data: "wholesalerKey",
@@ -703,7 +751,7 @@ docReady(function () {
         },
       ],
       initComplete: function () {
-        initializeSimpleTooltips();
+        bindStatusEvents();
 
         const api = this.api();
         const allData = api.rows().data().toArray();
@@ -3090,7 +3138,6 @@ docReady(function () {
         var action = InvokeURL + "van/orders";
         var method = "POST";
 
-        // Funkcja do wysłania PATCH requesta
         const updateEmailAndFormats = () => {
           return new Promise((resolve, reject) => {
             if (isEmailDisabled || !orderEmail) {
