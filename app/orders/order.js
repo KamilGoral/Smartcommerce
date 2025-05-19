@@ -492,7 +492,7 @@ docReady(function () {
 
   function createPopup(clickedElement) {
     const $el = $(clickedElement);
-    console.log(el);
+    console.log($el);
 
     const offerId = $el.data("offer-id");
     const wholesalerKey = $el.data("wholesaler-key");
