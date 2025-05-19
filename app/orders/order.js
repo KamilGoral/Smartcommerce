@@ -520,11 +520,29 @@ docReady(function () {
   function bindStatusEvents() {
     initializeSimpleTooltips();
 
-    document.querySelectorAll(".cofnij-action").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        e.stopPropagation(); // jeśli np. wiersz klikalny
-        createPopup();
-      });
+    // Hover: zmiana ikonki
+    $(".cofnij-action").off("mouseenter mouseleave click");
+
+    $(".cofnij-action").on("mouseenter", function () {
+      const img = $(this).find("img");
+      img.attr(
+        "src",
+        "https://cdn.prod.website-files.com/6041108bece36760b4e14016/61ae00c4ab4adcab0c3d35e6_chevron-left-large.svg"
+      );
+    });
+
+    $(".cofnij-action").on("mouseleave", function () {
+      const img = $(this).find("img");
+      img.attr(
+        "src",
+        "https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg"
+      );
+    });
+
+    // Click: popup
+    $(".cofnij-action").on("click", function (e) {
+      e.stopPropagation();
+      createPopup();
     });
   }
 
@@ -671,23 +689,29 @@ docReady(function () {
             if (data.wholesalerName === "unassigned") return "";
 
             const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
-            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" loading="lazy" alt="confirmed" style="cursor:pointer;" />`;
 
             if (data.confirmedAt) {
               const confirmedDate = formatDateToPolishTime(data.confirmedAt);
 
               return `
-        <span 
-          class="cofnij-action" 
-          data-tippy-content="Cofnij"
-          data-confirmed-date="${confirmedDate}"
-        >
-          ${confirmedIcon}
-        </span>`;
+      <span 
+        class="cofnij-action" 
+        data-tippy-content="Cofnij" 
+        data-confirmed-date="${confirmedDate}"
+      >
+        <img 
+          class="cofnij-icon" 
+          src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" 
+          alt="confirmed" 
+          style="cursor:pointer;"
+        />
+      </span>
+    `;
             }
 
             return `<span data-tippy-content="W edycji">${editIcon}</span>`;
           },
+
           className: "dt-center status-column",
         },
 
