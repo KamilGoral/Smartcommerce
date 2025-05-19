@@ -3148,7 +3148,7 @@ docReady(function () {
 
             if (e.status === 409) {
               displayMessage(
-                "Błąd",
+                "Error",
                 "Nie można cofnąć – zamówienie zostało już zrealizowane lub wysłano e-mail."
               );
             } else {
