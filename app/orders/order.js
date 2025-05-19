@@ -3131,7 +3131,7 @@ docReady(function () {
               setTimeout(function () {
                 $("#editShopModal").hide();
                 location.reload();
-              }, 1000);
+              }, 3000);
             } else {
               form.show();
               displayMessage(
