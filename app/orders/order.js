@@ -3136,7 +3136,10 @@ docReady(function () {
               form.show();
               $("#Edit-Success").hide();
               $("#Edit-Fail").show();
-              $("#WarningMessage").text("Nie udało się cofnąć zamówienia.");
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
+              );
             }
           },
           error: function (e) {
@@ -3149,12 +3152,14 @@ docReady(function () {
             $("#Edit-Fail").show();
 
             if (e.status === 409) {
-              $("#WarningMessage").text(
-                "Nie można cofnąć – zamówienie zostało już przetworzone lub wysłano e-mail."
+              displayMessage(
+                "Błąd",
+                "Nie można cofnąć – zamówienie zostało już zrealizowane lub wysłano e-mail."
               );
             } else {
-              $("#WarningMessage").text(
-                "Oops! Coś poszło nie tak. Spróbuj ponownie."
+              displayMessage(
+                "Error",
+                "Oops. Coś poszło nie tak, spróbuj ponownie."
               );
             }
 
