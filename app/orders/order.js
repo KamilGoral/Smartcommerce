@@ -493,6 +493,7 @@ docReady(function () {
   function createPopup(clickedElement) {
     // Upewniamy się, że zawsze pracujemy na elemencie z danymi (span)
     const el = $(clickedElement).closest(".cofnij-action");
+    console.log(el);
 
     const wholesalerKey = el.data("wholesaler-key");
     const wholesalerName = el.data("wholesaler-name");
