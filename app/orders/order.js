@@ -491,18 +491,22 @@ docReady(function () {
   }
 
   function createPopup(clickedElement) {
-    const $el = $(clickedElement);
-    console.log($el);
+    // Upewniamy się, że zawsze pracujemy na elemencie z danymi (span)
+    const el = $(clickedElement).closest(".cofnij-action");
 
-    const offerId = $el.data("offer-id");
-    const wholesalerKey = $el.data("wholesaler-key");
-    const wholesalerName = $el.data("wholesaler-name");
-    const confirmedDate = $el.data("confirmed-date");
+    const wholesalerKey = el.data("wholesaler-key");
+    const wholesalerName = el.data("wholesaler-name");
 
-    // Wypełnienie treści modala
-    $("#undotText").text(wholesalerName);
-    // Wyświetlenie modala
+    $("#undotText").text(
+      `Czy na pewno chcesz cofnąć zamówienie od dostawcy ${wholesalerName}?`
+    );
+
     $("#undoOrderModal").css("display", "flex");
+    $("#undoOrderModal").data({
+      shopKey: shopKey,
+      orderId: orderId,
+      wholesalerKey: wholesalerKey,
+    });
   }
 
   // Wywołanie po załadowaniu tabeli
