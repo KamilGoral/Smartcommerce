@@ -687,7 +687,7 @@ docReady(function () {
         <div class="status-icon-wrap" style="text-align:center;margin-bottom: -8px;">
           <span 
             class="cofnij-action" 
-            data-tippy-content="Cofnij?"
+            data-tippy-content="Cofnij ?"
             data-confirmed-date="${confirmedDate}"
             data-wholesaler-key="${data.wholesalerKey}"
             data-wholesaler-name="${data.wholesalerName}"
