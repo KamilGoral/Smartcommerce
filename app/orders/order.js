@@ -3097,7 +3097,7 @@ docReady(function () {
           complete: function () {
             setTimeout(function () {
               $("#waitingdots").hide();
-            }, 3000);
+            }, 10);
           },
           contentType: "application/json",
           dataType: "json",
