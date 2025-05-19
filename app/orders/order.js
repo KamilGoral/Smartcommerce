@@ -536,7 +536,8 @@ docReady(function () {
     // Click: popup
     $(".cofnij-action").on("click", function (e) {
       e.stopPropagation();
-      createPopup();
+      createPopup(this);
+      console.log(this);
     });
   }
 
