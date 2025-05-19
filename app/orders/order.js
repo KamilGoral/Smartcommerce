@@ -499,7 +499,7 @@ docReady(function () {
     const confirmedDate = $el.data("confirmed-date");
 
     // Wypełnienie treści modala
-    $("#undoText").text(wholesalerName);
+    $("#undotText").text(wholesalerName);
     // Wyświetlenie modala
     $("#undoOrderModal").css("display", "flex");
   }
@@ -684,15 +684,13 @@ docReady(function () {
               const confirmedDate = formatDateToPolishTime(data.confirmedAt); // Np. 23.04.2025 13:10:39
 
               return `
-        <div class="status-icon-wrap" style="text-align:center;">
+        <div class="status-icon-wrap" style="text-align:center;margin-bottom: -8px;">
           <span 
             class="cofnij-action" 
-            data-tippy-content="Cofnij"
-            title="Potwierdzono ${confirmedDate}"
+            data-tippy-content="Cofnij?"
             data-confirmed-date="${confirmedDate}"
             data-wholesaler-key="${data.wholesalerKey}"
             data-wholesaler-name="${data.wholesalerName}"
-            data-offer-id="${data.offerId || ""}"
             style="display:inline-block; cursor:pointer;"
           >
             <img 
