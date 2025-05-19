@@ -537,7 +537,6 @@ docReady(function () {
     $(".cofnij-action").on("click", function (e) {
       e.stopPropagation();
       createPopup(this);
-      console.log(this);
     });
   }
 
@@ -3061,6 +3060,108 @@ docReady(function () {
     request.send();
   }
 
+  makeWebflowFormUndoOrder = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        event.preventDefault();
+
+        const modal = $("#undoOrderModal");
+        const wholesalerKey = modal.data("wholesaler-key");
+
+        const action =
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/orders/" +
+          orderId +
+          "/wholesalers/" +
+          wholesalerKey;
+
+        const method = "PATCH";
+        const payload = [
+          {
+            op: "replace",
+            path: "/confirmed",
+            value: false,
+          },
+        ];
+
+        $.ajax({
+          type: method,
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            setTimeout(function () {
+              $("#waitingdots").hide();
+            }, 3000);
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(payload),
+          success: function (resultData) {
+            if (resultData && resultData.success) {
+              if (typeof successCallback === "function") {
+                const result = successCallback(resultData);
+                if (!result) {
+                  form.show();
+                  displayMessage(
+                    "Error",
+                    "Wystąpił problem z cofnięciem zamówienia."
+                  );
+                  return;
+                }
+              }
+
+              displayMessage("Success", "Twoje dane zostały zaktualizowane.");
+              setTimeout(function () {
+                $("#editShopModal").hide();
+                location.reload();
+              }, 1000);
+            } else {
+              form.show();
+              $("#Edit-Success").hide();
+              $("#Edit-Fail").show();
+              $("#WarningMessage").text("Nie udało się cofnąć zamówienia.");
+            }
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+
+            form.show();
+            $("#Edit-Success").hide();
+            $("#Edit-Fail").show();
+
+            if (e.status === 409) {
+              $("#WarningMessage").text(
+                "Nie można cofnąć – zamówienie zostało już przetworzone lub wysłano e-mail."
+              );
+            } else {
+              $("#WarningMessage").text(
+                "Oops! Coś poszło nie tak. Spróbuj ponownie."
+              );
+            }
+
+            console.error(e);
+          },
+        });
+
+        return false;
+      });
+    });
+  };
+
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -5158,6 +5259,7 @@ docReady(function () {
   }
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+  makeWebflowFormUndoOrder($("#wf-form-undoFormContent"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteOrder"));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
