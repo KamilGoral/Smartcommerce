@@ -3108,8 +3108,10 @@ docReady(function () {
             "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(payload),
-          success: function (resultData) {
-            if (resultData && resultData.success) {
+          success: function (resultData, textStatus, jqXHR) {
+            const isNoContent = jqXHR.status === 204;
+
+            if (isNoContent || (resultData && resultData.success)) {
               if (typeof successCallback === "function") {
                 const result = successCallback(resultData);
                 if (!result) {
@@ -3122,7 +3124,10 @@ docReady(function () {
                 }
               }
 
-              displayMessage("Success", "Twoje dane zostały zaktualizowane.");
+              displayMessage(
+                "Success",
+                "Zamówienie do dostawcy zostało cofnięte. Za moment zamówienie zostanie ponownie podzielone."
+              );
               setTimeout(function () {
                 $("#editShopModal").hide();
                 location.reload();
