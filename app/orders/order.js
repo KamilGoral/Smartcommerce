@@ -3134,8 +3134,6 @@ docReady(function () {
               }, 1000);
             } else {
               form.show();
-              $("#Edit-Success").hide();
-              $("#Edit-Fail").show();
               displayMessage(
                 "Error",
                 "Oops. Coś poszło nie tak, spróbuj ponownie."
@@ -3146,10 +3144,7 @@ docReady(function () {
             if (typeof errorCallback === "function") {
               errorCallback(e);
             }
-
             form.show();
-            $("#Edit-Success").hide();
-            $("#Edit-Fail").show();
 
             if (e.status === 409) {
               displayMessage(
