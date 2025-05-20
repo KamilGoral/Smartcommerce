@@ -1311,6 +1311,9 @@ docReady(function () {
         QStr = QStr + sort;
       }
 
+      let lastOfferFetchTimestamp = 0;
+      const MIN_FETCH_INTERVAL_MS = 10;
+
       $.ajaxSetup({
         headers: {
           Authorization: orgToken,
@@ -1323,32 +1326,30 @@ docReady(function () {
           $("#waitingdots").hide();
         },
       });
-      $.get(
-        InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
-        function (res) {
-          if (isToday(res.offerDate)) {
-            getOfferStatus();
+      const now = Date.now();
+      if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
+        lastOfferFetchTimestamp = now;
+        $.get(
+          InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
+          function (res) {
+            if (isToday(res.offerDate) && !offerStatusLoaded) {
+              offerStatusLoaded = true;
+              getOfferStatus();
+            }
             document
               .querySelectorAll(".offerdate, .offerstatus, .offermessage")
               .forEach((el) => {
                 el.style.display = "none";
               });
-          } else {
-            // Hide all elements related to offer status information
-            document
-              .querySelectorAll(".offerdate, .offerstatus, .offermessage")
-              .forEach((el) => {
-                el.style.display = "none";
-              });
-          }
 
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        }
-      );
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          }
+        );
+      }
     },
     processing: false,
     serverSide: true,
@@ -1609,7 +1610,7 @@ docReady(function () {
         }
       });
 
-      $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw(false);
+      $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
 
       $("table.dataTable").on("show", function () {
         $(this).DataTable().columns.adjust();
