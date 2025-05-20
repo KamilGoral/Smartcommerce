@@ -1944,9 +1944,9 @@ docReady(function () {
     initializeSimpleTooltips();
   });
 
-  $("table.dataTable").on("page.dt", function () {
-    $(this).DataTable().draw(false);
-  });
+  // $("table.dataTable").on("page.dt", function () {
+  //   $(this).DataTable().draw(false);
+  // });
 
   $('div[role="tab"]').click(function () {
     if ($.fn.dataTable) {
