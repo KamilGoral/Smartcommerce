@@ -2022,7 +2022,6 @@ docReady(function () {
   }
 
   const policyLink = document.querySelector('a[data-w-tab="Policy"]');
-
   if (!policyLink) return;
 
   policyLink.addEventListener("click", async () => {
@@ -2032,8 +2031,6 @@ docReady(function () {
     $("#waitingdots").show();
 
     try {
-      await getWholesalers();
-
       // Odczekaj aż cookie "sprytnyUserRole" się pojawi (max 5 prób)
       while (!getCookie("sprytnyUserRole") && attempts < MAX_ATTEMPTS) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -2046,8 +2043,10 @@ docReady(function () {
         return;
       }
 
+      // Teraz dopiero wywołujemy getWholesalers
+      await getWholesalers();
       console.log("Getting wholesalers...");
-      // Tu możesz wykonać kolejne akcje jeśli użytkownik to admin
+      // Tu dalsze akcje jeśli trzeba
     } catch (error) {
       console.error(
         "An error occurred while processing the policy link:",
