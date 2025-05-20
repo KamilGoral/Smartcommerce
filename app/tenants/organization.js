@@ -2023,13 +2023,40 @@ docReady(function () {
 
   const policyLink = document.querySelector('a[data-w-tab="Policy"]');
 
-  if (policyLink) {
-    policyLink.addEventListener("click", async function () {
-      $("#waitingdots").show();
+  if (!policyLink) return;
+
+  policyLink.addEventListener("click", async () => {
+    const MAX_ATTEMPTS = 5;
+    let attempts = 0;
+
+    $("#waitingdots").show();
+
+    try {
       await getWholesalers();
-      console.log("Getting wH");
-    });
-  }
+
+      // Odczekaj aż cookie "sprytnyUserRole" się pojawi (max 5 prób)
+      while (!getCookie("sprytnyUserRole") && attempts < MAX_ATTEMPTS) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        attempts++;
+      }
+
+      const role = getCookie("sprytnyUserRole");
+      if (role !== "admin") {
+        console.warn("Action not permitted for non-admin users.");
+        return;
+      }
+
+      console.log("Getting wholesalers...");
+      // Tu możesz wykonać kolejne akcje jeśli użytkownik to admin
+    } catch (error) {
+      console.error(
+        "An error occurred while processing the policy link:",
+        error
+      );
+    } finally {
+      $("#waitingdots").hide();
+    }
+  });
 
   async function getIntegrations() {
     let attempts = 0;
