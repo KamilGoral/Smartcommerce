@@ -447,7 +447,7 @@ docReady(function () {
 
           entries.push({
             wholesalerKey: entry.wholesalerKey,
-            source: "Platforma ecommerce",
+            source: "E-hurt",
             status: latestEvent.extracting?.status || "unknown",
             statusLabel:
               statusMap[latestEvent.extracting?.status] || "Nieznany",
@@ -482,7 +482,7 @@ docReady(function () {
         if (res.integrations?.retroactive?.updatedAt) {
           entries.push({
             wholesalerKey: "-",
-            source: "Kontrakt z dostawcami",
+            source: "Kontrakty z dostawcami",
             status: "success",
             statusLabel: "Gotowa",
             updatedAt: new Date(
@@ -496,7 +496,7 @@ docReady(function () {
         (res.pricats || []).forEach((pricat) => {
           entries.push({
             wholesalerKey: pricat.wholesalerKey || "-",
-            source: "Nowy cennik",
+            source: "Cennik",
             status: "success",
             statusLabel: "Gotowa",
             updatedAt: new Date(pricat.updatedAt).toLocaleString("pl-PL"),
@@ -513,17 +513,23 @@ docReady(function () {
   }
 
   function formatStatusDetails(rowData) {
-    const messages = rowData.messages?.length
-      ? rowData.messages.join("<br>")
-      : "Brak komunikatów";
+    let content = "";
 
-    return `
-    <div style="padding: 10px 20px;">
-      <strong>Klucz dostawcy:</strong> ${rowData.wholesalerKey}<br>
+    // Tylko najnowszy event z błędem
+    if (rowData.status === "error" && rowData.messages.length > 0) {
+      content += `
       <strong>Status extractingu:</strong> ${rowData.status}<br>
-      <strong>Komunikaty:</strong><br>${messages}
-    </div>
-  `;
+      <strong>Komunikaty:</strong><br>
+      ${rowData.messages.join("<br>")}
+    `;
+    } else {
+      content += `
+      <strong>Status extractingu:</strong> ${rowData.status}<br>
+      <strong>Komunikaty:</strong> Brak komunikatów
+    `;
+    }
+
+    return `<div style="padding: 10px 20px;">${content}</div>`;
   }
 
   let tableStatus;
@@ -531,7 +537,7 @@ docReady(function () {
   function initOfferStatusTable() {
     tableStatus = $("#table_status").DataTable({
       pagingType: "full_numbers",
-      dom: '<"top"fB>rt<"bottom"lip>',
+      dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 25,
@@ -560,7 +566,25 @@ docReady(function () {
         },
         { data: "wholesalerKey", title: "Dostawca" },
         { data: "source", title: "Źródło" },
-        { data: "statusLabel", title: "Status" },
+        {
+          data: "statusLabel",
+          title: "Status",
+          render: function (data, type, row) {
+            let baseClass = "";
+            switch (row.status) {
+              case "success":
+                baseClass += "positive";
+                break;
+              case "error":
+                baseClass += "negative";
+                break;
+              default:
+                baseClass += "noneexisting";
+            }
+            return `<span class="${baseClass}">${data}</span>`;
+          },
+        },
+
         { data: "updatedAt", title: "Ost. Zmiana" },
       ],
     });
