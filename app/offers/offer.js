@@ -436,6 +436,7 @@ docReady(function () {
 
         const entries = [];
 
+        // ========== 1. ECOMMERCE ==========
         (res.ecommerce || []).forEach((entry) => {
           const events = entry.events || [];
           if (events.length === 0) return;
@@ -446,7 +447,7 @@ docReady(function () {
 
           entries.push({
             wholesalerKey: entry.wholesalerKey,
-            source: "ecommerce",
+            source: "Platforma ecommerce",
             status: latestEvent.extracting?.status || "unknown",
             statusLabel:
               statusMap[latestEvent.extracting?.status] || "Nieznany",
@@ -455,7 +456,55 @@ docReady(function () {
           });
         });
 
-        // nadpisanie danych w tabeli
+        // ========== 2. INTEGRATIONS.WMS ==========
+        if (res.integrations?.wms) {
+          const wms = res.integrations.wms;
+          const wmsEvents = wms.events || [];
+          if (wmsEvents.length > 0) {
+            const latestWmsEvent = wmsEvents
+              .slice()
+              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+            entries.push({
+              wholesalerKey: wms.key || "pc-market",
+              source: "Program magazynowy",
+              status: latestWmsEvent.extracting?.status || "unknown",
+              statusLabel:
+                statusMap[latestWmsEvent.extracting?.status] || "Nieznany",
+              updatedAt: new Date(latestWmsEvent.updatedAt).toLocaleString(
+                "pl-PL"
+              ),
+              messages: latestWmsEvent.extracting?.messages || [],
+            });
+          }
+        }
+
+        // ========== 3. INTEGRATIONS.RETROACTIVE ==========
+        if (res.integrations?.retroactive?.updatedAt) {
+          entries.push({
+            wholesalerKey: "-",
+            source: "Kontrakt z dostawcami",
+            status: "success",
+            statusLabel: "Gotowa",
+            updatedAt: new Date(
+              res.integrations.retroactive.updatedAt
+            ).toLocaleString("pl-PL"),
+            messages: [],
+          });
+        }
+
+        // ========== 4. PRICATS ==========
+        (res.pricats || []).forEach((pricat) => {
+          entries.push({
+            wholesalerKey: pricat.wholesalerKey || "-",
+            source: "Nowy cennik",
+            status: "success",
+            statusLabel: "Gotowa",
+            updatedAt: new Date(pricat.updatedAt).toLocaleString("pl-PL"),
+            messages: [],
+          });
+        });
+
+        // ========== Wstaw dane do tabeli ==========
         tableStatus.clear().rows.add(entries).draw();
       })
       .catch((err) => {
