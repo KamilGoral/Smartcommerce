@@ -417,95 +417,150 @@ docReady(function () {
   }
 
   function getOfferStatus() {
-    let url = new URL(InvokeURL + "shops/" + shopKey + "/offers/latest/status");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
+    fetch(`${InvokeURL}shops/${shopKey}/offers/latest/status`, {
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const statusMap = {
+          success: "Gotowa",
+          error: "Problem",
+          "in progress": "W trakcie",
+          incomplete: "Niekompletna",
+          batching: "W kolejce",
+          forced: "W kolejce",
+        };
 
-      // Get all elements with the class 'offerdate' and 'offerStatus'
-      const offerDateElements = document.getElementsByClassName("offerdate");
-      const offerStatusElements =
-        document.getElementsByClassName("offerstatus");
-      const offerMessageElements =
-        document.getElementsByClassName("offermessage");
+        const entries = [];
 
-      // Format the createDate nicely
-      const createDate = new Date(data.createDate).toLocaleString("pl-PL", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+        (res.ecommerce || []).forEach((entry) => {
+          const events = entry.events || [];
+          if (events.length === 0) return;
 
-      // Function to determine status text
-      const getStatusText = (status) => {
-        switch (status) {
-          case "ready":
-            return "Gotowa";
-          case "error":
-            return "Problem";
-          case "in progress":
-            return "W trakcie";
-          case "incomplete":
-            return "Niekompletna";
-          case "batching":
-            return "W kolejce";
-          case "forced":
-            return "W kolejce";
-          default:
-            return "Nieznany";
-        }
-      };
+          const latestEvent = events
+            .slice()
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
 
-      // Update all elements with class 'offerdate' and 'offerStatus'
-      Array.from(offerDateElements).forEach((element) => {
-        element.innerHTML = "Data oferty: " + createDate;
-      });
-      Array.from(offerStatusElements).forEach((element) => {
-        element.textContent = "Status: " + getStatusText(data.status);
-      });
-      // Update offermessage elements
-      if (data.messages && data.messages.length > 0) {
-        let messageContent = Array.isArray(data.messages)
-          ? data.messages.join(" ")
-          : data.messages;
-
-        // Translate specific error message
-        if (messageContent.includes("Internal server error -")) {
-          messageContent = messageContent.replace(
-            "Internal server error -",
-            "Wewnętrzny błąd serwera -"
-          );
-        }
-
-        // Add handling for the specific timeout error
-        if (
-          messageContent.includes(
-            "The online offer download operation failed to complete within the desired time"
-          )
-        ) {
-          messageContent = messageContent.replace(
-            "The online offer download operation failed to complete within the desired time",
-            "Czas pobierania oferty został przekroczony"
-          );
-        }
-
-        Array.from(offerMessageElements).forEach((element) => {
-          element.style.display = "block";
-          element.textContent = "Powód: " + messageContent;
+          entries.push({
+            wholesalerKey: entry.wholesalerKey,
+            source: "ecommerce",
+            status: latestEvent.extracting?.status || "unknown",
+            statusLabel:
+              statusMap[latestEvent.extracting?.status] || "Nieznany",
+            updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
+            messages: latestEvent.extracting?.messages || [],
+          });
         });
+
+        // nadpisanie danych w tabeli
+        tableStatus.clear().rows.add(entries).draw();
+      })
+      .catch((err) => {
+        console.error("Błąd ładowania statusów ofert:", err);
+      });
+  }
+
+  function formatStatusDetails(rowData) {
+    const messages = rowData.messages?.length
+      ? rowData.messages.join("<br>")
+      : "Brak komunikatów";
+
+    return `
+    <div style="padding: 10px 20px;">
+      <strong>Klucz dostawcy:</strong> ${rowData.wholesalerKey}<br>
+      <strong>Status extractingu:</strong> ${rowData.status}<br>
+      <strong>Komunikaty:</strong><br>${messages}
+    </div>
+  `;
+  }
+
+  let tableStatus;
+
+  function initOfferStatusTable() {
+    tableStatus = $("#table_status").DataTable({
+      pagingType: "full_numbers",
+      dom: '<"top"fB>rt<"bottom"lip>',
+      buttons: [
+        {
+          text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
+          titleAttr: "Rozwiń wszystkie",
+          action: function (e, dt, node, config) {
+            dt.rows().every(function () {
+              var row = this;
+              if (!row.child.isShown()) {
+                row.child(format(row.data())).show();
+                $(row.node()).addClass("shown");
+              }
+            });
+          },
+        },
+        {
+          text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
+          titleAttr: "Zwiń wszystkie",
+          action: function (e, dt, node, config) {
+            dt.rows().every(function () {
+              var row = this;
+              if (row.child.isShown()) {
+                row.child.hide();
+                $(row.node()).removeClass("shown");
+              }
+            });
+          },
+        },
+        {
+          extend: "copyHtml5",
+          text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+          titleAttr: "Copy",
+        },
+        {
+          extend: "excelHtml5",
+          text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+          titleAttr: "Excel",
+        },
+        // ,
+        // {
+        //   extend: "pdfHtml5",
+        //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+        //   titleAttr: "PDF",
+        // },
+      ],
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 25,
+      language: {
+        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/pl.json",
+      },
+      columns: [
+        {
+          className: "details-control",
+          orderable: false,
+          data: null,
+          defaultContent: "",
+          width: "20px",
+        },
+        { data: "wholesalerKey", title: "Dostawca" },
+        { data: "source", title: "Źródło" },
+        { data: "statusLabel", title: "Status" },
+        { data: "updatedAt", title: "Ost. Zmiana" },
+      ],
+    });
+
+    // toggle pojedynczy wiersz
+    $("#table_status tbody").on("click", "td.details-control", function () {
+      var tr = $(this).closest("tr");
+      var row = tableStatus.row(tr);
+
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass("shown");
       } else {
-        Array.from(offerMessageElements).forEach((element) => {
-          element.style.display = "none";
-        });
+        row.child(formatStatusDetails(row.data())).show();
+        tr.addClass("shown");
       }
-    };
-    request.send();
+    });
   }
 
   function getProductHistory(rowData) {
@@ -1855,6 +1910,7 @@ docReady(function () {
   }
 
   getWholesalersSh();
+  initOfferStatusTable();
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
