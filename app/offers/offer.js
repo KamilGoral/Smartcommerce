@@ -47,6 +47,10 @@ docReady(function () {
     return result;
   }
 
+  let offerStatusLoaded = false;
+  let lastOfferFetchTimestamp = 0;
+  const MIN_FETCH_INTERVAL_MS = 10;
+
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
@@ -1310,9 +1314,6 @@ docReady(function () {
       if (whichColumns != "null") {
         QStr = QStr + sort;
       }
-
-      let lastOfferFetchTimestamp = 0;
-      const MIN_FETCH_INTERVAL_MS = 10;
 
       $.ajaxSetup({
         headers: {
