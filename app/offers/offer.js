@@ -1327,7 +1327,7 @@ docReady(function () {
         InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
         function (res) {
           if (isToday(res.offerDate)) {
-            // getOfferStatus(); — currently disabled because the backend does not yet return the expected response (still under development)
+            getOfferStatus();
             document
               .querySelectorAll(".offerdate, .offerstatus, .offermessage")
               .forEach((el) => {
