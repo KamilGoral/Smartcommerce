@@ -665,7 +665,7 @@ docReady(function () {
           orderable: false,
           width: "20px",
           render: function (data, type, row) {
-            return row.expandable;
+            return ""; // bez strzałki
           },
           createdCell: function (td, cellData, rowData, row, col) {
             if (rowData.expandable) {
