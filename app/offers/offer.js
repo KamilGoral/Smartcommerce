@@ -661,17 +661,23 @@ docReady(function () {
       },
       columns: [
         {
-          className: "details-control",
-          orderable: false,
           data: null,
+          orderable: false,
           width: "20px",
           render: function (data, type, row) {
-            if (row.expandable) {
-              return `<span style="cursor:pointer;">▾</span>`; // lub inna ikonka jeśli chcesz
+            return row.expandable
+              ? `<span style="cursor:pointer;">▾</span>`
+              : "";
+          },
+          createdCell: function (td, cellData, rowData, row, col) {
+            if (rowData.expandable) {
+              $(td).addClass("details-control");
+            } else {
+              $(td).removeClass("details-control");
             }
-            return ""; // brak renderowania strzałki
           },
         },
+
         { data: "wholesalerKey", title: "Dostawca" },
         { data: "source", title: "Źródło" },
         {
