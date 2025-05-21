@@ -505,77 +505,88 @@ docReady(function () {
         });
 
         // ====================== STATYSTYKI ======================
+        const setText = (id, text) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = text;
+        };
+
+        // Zbierz wszystkie daty updatedAt
+        const updatedAtList = [];
+
+        // z ecommerce
+        (res.ecommerce || []).forEach((entry) => {
+          (entry.events || []).forEach((ev) => {
+            if (ev.updatedAt) updatedAtList.push(new Date(ev.updatedAt));
+          });
+          if (entry.lastMutation?.updatedAt)
+            updatedAtList.push(new Date(entry.lastMutation.updatedAt));
+        });
+
+        // z integrations.wms
+        if (res.integrations?.wms) {
+          (res.integrations.wms.events || []).forEach((ev) => {
+            if (ev.updatedAt) updatedAtList.push(new Date(ev.updatedAt));
+          });
+          if (res.integrations.wms.lastMutation?.updatedAt)
+            updatedAtList.push(
+              new Date(res.integrations.wms.lastMutation.updatedAt)
+            );
+        }
+
+        // z integrations.retroactive
+        if (res.integrations?.retroactive?.updatedAt) {
+          updatedAtList.push(new Date(res.integrations.retroactive.updatedAt));
+        }
+
+        // z pricats
+        (res.pricats || []).forEach((pricat) => {
+          if (pricat.updatedAt) updatedAtList.push(new Date(pricat.updatedAt));
+        });
+
+        // Najświeższa data
+        const latestUpdatedAt =
+          updatedAtList.length > 0
+            ? new Date(Math.max(...updatedAtList.map((d) => d.getTime())))
+            : null;
+
+        setText(
+          "offerDateUpdate",
+          "Ost. zmiana: " +
+            (latestUpdatedAt
+              ? latestUpdatedAt.toLocaleString("pl-PL")
+              : "Brak danych")
+        );
+
+        // Statystyki
         let successCount = 0;
         let errorCount = 0;
         let inProgressCount = 0;
-        let allCount = 0;
-        let latestUpdatedAt = null;
-        let latestOfferDate = null;
+        let allCount = entries.length;
 
         entries.forEach((entry) => {
-          allCount++;
           if (entry.status === "success") successCount++;
           else if (entry.status === "error") errorCount++;
           else if (entry.status === "in progress") inProgressCount++;
-
-          const updatedAtDate = new Date(entry.updatedAt);
-          if (!latestUpdatedAt || updatedAtDate > latestUpdatedAt) {
-            latestUpdatedAt = updatedAtDate;
-          }
         });
 
-        // Poszukaj konkretnej daty oferty (jeśli występuje)
-        (res.ecommerce || []).forEach((entry) => {
-          if (entry.lastMutation?.offerTimestamp) {
-            const offerDate = new Date(entry.lastMutation.offerTimestamp);
-            if (!latestOfferDate || offerDate > latestOfferDate) {
-              latestOfferDate = offerDate;
-            }
-          }
-        });
-
-        // ====================== UZUPEŁNIANIE ELEMENTÓW DOM ======================
-        document.getElementById("offerDateRight").innerText =
-          "Data oferty: " +
-          (latestOfferDate
-            ? latestOfferDate.toLocaleString("pl-PL")
-            : "Brak dostępnej daty");
-
-        document.getElementById("offerDateUpdate").innerText =
-          "Ost. zmiana: " +
-          (latestUpdatedAt
-            ? latestUpdatedAt.toLocaleString("pl-PL")
-            : "Brak danych");
-
-        // Liczniki
-        document.getElementById("offerSuccessCounter").innerText = successCount;
-        document.getElementById("offerErrorCounter").innerText = errorCount;
-        document.getElementById("offerInProgreessCounter").innerText =
-          inProgressCount;
-        document.getElementById("offerHealthCounter").innerText = allCount;
+        // Ustawienie liczników
+        setText("offerSuccessCounter", successCount);
+        setText("offerErrorCounter", errorCount);
+        setText("offerInProgreessCounter", inProgressCount);
+        setText("offerHealthCounter", allCount);
 
         // Nagłówki zbiorcze
-        document.getElementById(
-          "offerAllStatus"
-        ).innerText = `Wszystkie (${allCount})`;
-        document.getElementById(
-          "offerActionStatus"
-        ).innerText = `Problematyczne (${errorCount})`;
-        document.getElementById(
-          "offerSuccessStatus"
-        ).innerText = `Sukces (${successCount})`;
+        setText("offerAllStatus", `Wszystkie (${allCount})`);
+        setText("offerActionStatus", `Problematyczne (${errorCount})`);
+        setText("offerSuccessStatus", `Sukces (${successCount})`);
 
-        // Kompletność oferty
-        let conditionLabel = "Brak danych";
+        // Kompletność oferty w %
+        let completenessLabel = "-";
         if (allCount > 0) {
-          const completeness = Math.round((successCount / allCount) * 100);
-          if (completeness === 100) conditionLabel = "Oferta kompletna";
-          else if (completeness >= 80)
-            conditionLabel = `Prawie kompletna (${completeness}%)`;
-          else conditionLabel = `Braki w ofercie (${completeness}%)`;
+          const percentage = Math.round((successCount / allCount) * 100);
+          completenessLabel = `${percentage}%`;
         }
-        document.getElementById("offerCondition").innerText =
-          "Kompletność oferty: " + conditionLabel;
+        setText("offerCondition", completenessLabel);
 
         // ========== Wstaw dane do tabeli ==========
         tableStatus.clear().rows.add(entries).draw();
@@ -614,6 +625,7 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 25,
+      order: [[4, "desc"]], // This is column that contain values "Status"
       language: {
         emptyTable: "Brak danych do wyswietlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
