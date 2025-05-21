@@ -664,8 +664,13 @@ docReady(function () {
           className: "details-control",
           orderable: false,
           data: null,
-          defaultContent: "",
           width: "20px",
+          render: function (data, type, row) {
+            if (row.expandable) {
+              return `<span style="cursor:pointer;">▾</span>`; // lub inna ikonka jeśli chcesz
+            }
+            return ""; // brak renderowania strzałki
+          },
         },
         { data: "wholesalerKey", title: "Dostawca" },
         { data: "source", title: "Źródło" },
@@ -702,24 +707,24 @@ docReady(function () {
               tr.addClass("shown");
             }
           });
+
+        // toggle pojedynczy wiersz
+        $("#table_status tbody").on("click", "td.details-control", function () {
+          const tr = $(this).closest("tr");
+          const row = tableStatus.row(tr);
+          const rowData = row.data();
+
+          if (!rowData.expandable) return;
+
+          if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass("shown");
+          } else {
+            row.child(formatStatusDetails(rowData)).show();
+            tr.addClass("shown");
+          }
+        });
       },
-    });
-
-    // toggle pojedynczy wiersz
-    $("#table_status tbody").on("click", "td.details-control", function () {
-      var tr = $(this).closest("tr");
-      var row = tableStatus.row(tr);
-      var rowData = row.data();
-
-      if (!rowData.expandable) return;
-
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass("shown");
-      } else {
-        row.child(formatStatusDetails(rowData)).show();
-        tr.addClass("shown");
-      }
     });
   }
 
