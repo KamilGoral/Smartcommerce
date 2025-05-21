@@ -612,20 +612,31 @@ docReady(function () {
       .slice()
       .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
+    const statusMap = {
+      success: { label: "Sukces", class: "positive" },
+      error: { label: "Problem", class: "negative" },
+      "in progress": { label: "W trakcie", class: "inprogress" },
+      incomplete: { label: "Niekompletna", class: "noneexisting" },
+      batching: { label: "W kolejce", class: "noneexisting" },
+      forced: { label: "W kolejce", class: "noneexisting" },
+      unknown: { label: "Nieznany", class: "noneexisting" },
+    };
+
     let content = `<div style="padding: 10px 20px;">`;
 
     sortedEvents.forEach((event) => {
       const date = new Date(event.updatedAt).toLocaleString("pl-PL");
-      const status = event.status;
+      const statusKey = event.status || "unknown";
+      const status = statusMap[statusKey] || statusMap["unknown"];
       const messages = event.messages.length
         ? event.messages.join("<br>")
-        : "Brak komunikatów";
+        : "Brak komunikatu";
 
       content += `
       <div style="margin-bottom:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
         <strong>Czas zdarzenia:</strong> ${date}<br>
-        <strong>Status extractingu:</strong> ${status}<br>
-        <strong>Komunikaty:</strong><br>${messages}
+        <strong>Status:</strong> <span class="${status.class}">${status.label}</span><br>
+        <strong>Komunikat:</strong> ${messages}
       </div>
     `;
     });
