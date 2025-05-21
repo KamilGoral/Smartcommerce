@@ -665,9 +665,7 @@ docReady(function () {
           orderable: false,
           width: "20px",
           render: function (data, type, row) {
-            return row.expandable
-              ? `<span style="cursor:pointer;">▾</span>`
-              : "";
+            return row.expandable;
           },
           createdCell: function (td, cellData, rowData, row, col) {
             if (rowData.expandable) {
