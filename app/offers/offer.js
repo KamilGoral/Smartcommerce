@@ -445,6 +445,12 @@ docReady(function () {
             .slice()
             .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
 
+          const enrichedEvents = events.map((e) => ({
+            updatedAt: e.updatedAt,
+            status: e.extracting?.status || "unknown",
+            messages: e.extracting?.messages || [],
+          }));
+
           entries.push({
             wholesalerKey: entry.wholesalerKey,
             source: "E-hurt",
@@ -453,6 +459,9 @@ docReady(function () {
               statusMap[latestEvent.extracting?.status] || "Nieznany",
             updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
             messages: latestEvent.extracting?.messages || [],
+            allEvents: enrichedEvents,
+            expandable:
+              enrichedEvents.length > 1 || enrichedEvents[0].status === "error",
           });
         });
 
@@ -597,23 +606,32 @@ docReady(function () {
   }
 
   function formatStatusDetails(rowData) {
-    let content = "";
+    if (!rowData.allEvents || rowData.allEvents.length === 0) return "";
 
-    // Tylko najnowszy event z błędem
-    if (rowData.status === "error" && rowData.messages.length > 0) {
-      content += `
-      <strong>Status extractingu:</strong> ${rowData.status}<br>
-      <strong>Komunikaty:</strong><br>
-      ${rowData.messages.join("<br>")}
-    `;
-    } else {
-      content += `
-      <strong>Status extractingu:</strong> ${rowData.status}<br>
-      <strong>Komunikaty:</strong> Brak komunikatów
-    `;
-    }
+    const sortedEvents = rowData.allEvents
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-    return `<div style="padding: 10px 20px;">${content}</div>`;
+    let content = `<div style="padding: 10px 20px;">`;
+
+    sortedEvents.forEach((event) => {
+      const date = new Date(event.updatedAt).toLocaleString("pl-PL");
+      const status = event.status;
+      const messages = event.messages.length
+        ? event.messages.join("<br>")
+        : "Brak komunikatów";
+
+      content += `
+      <div style="margin-bottom:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
+        <strong>Czas zdarzenia:</strong> ${date}<br>
+        <strong>Status extractingu:</strong> ${status}<br>
+        <strong>Komunikaty:</strong><br>${messages}
+      </div>
+    `;
+    });
+
+    content += `</div>`;
+    return content;
   }
 
   let tableStatus;
@@ -672,18 +690,34 @@ docReady(function () {
 
         { data: "updatedAt", title: "Ost. Zmiana" },
       ],
+      initComplete: function () {
+        this.api()
+          .rows()
+          .every(function () {
+            const rowData = this.data();
+            const tr = $(this.node());
+
+            if (rowData.status === "error" && rowData.expandable) {
+              this.child(formatStatusDetails(rowData)).show();
+              tr.addClass("shown");
+            }
+          });
+      },
     });
 
     // toggle pojedynczy wiersz
     $("#table_status tbody").on("click", "td.details-control", function () {
       var tr = $(this).closest("tr");
       var row = tableStatus.row(tr);
+      var rowData = row.data();
+
+      if (!rowData.expandable) return;
 
       if (row.child.isShown()) {
         row.child.hide();
         tr.removeClass("shown");
       } else {
-        row.child(formatStatusDetails(row.data())).show();
+        row.child(formatStatusDetails(rowData)).show();
         tr.addClass("shown");
       }
     });
