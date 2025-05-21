@@ -504,6 +504,79 @@ docReady(function () {
           });
         });
 
+        // ====================== STATYSTYKI ======================
+        let successCount = 0;
+        let errorCount = 0;
+        let inProgressCount = 0;
+        let allCount = 0;
+        let latestUpdatedAt = null;
+        let latestOfferDate = null;
+
+        entries.forEach((entry) => {
+          allCount++;
+          if (entry.status === "success") successCount++;
+          else if (entry.status === "error") errorCount++;
+          else if (entry.status === "in progress") inProgressCount++;
+
+          const updatedAtDate = new Date(entry.updatedAt);
+          if (!latestUpdatedAt || updatedAtDate > latestUpdatedAt) {
+            latestUpdatedAt = updatedAtDate;
+          }
+        });
+
+        // Poszukaj konkretnej daty oferty (jeśli występuje)
+        (res.ecommerce || []).forEach((entry) => {
+          if (entry.lastMutation?.offerTimestamp) {
+            const offerDate = new Date(entry.lastMutation.offerTimestamp);
+            if (!latestOfferDate || offerDate > latestOfferDate) {
+              latestOfferDate = offerDate;
+            }
+          }
+        });
+
+        // ====================== UZUPEŁNIANIE ELEMENTÓW DOM ======================
+        document.getElementById("offerDateRight").innerText =
+          "Data oferty: " +
+          (latestOfferDate
+            ? latestOfferDate.toLocaleString("pl-PL")
+            : "Brak dostępnej daty");
+
+        document.getElementById("offerDateUpdate").innerText =
+          "Ost. zmiana: " +
+          (latestUpdatedAt
+            ? latestUpdatedAt.toLocaleString("pl-PL")
+            : "Brak danych");
+
+        // Liczniki
+        document.getElementById("offerSuccessCounter").innerText = successCount;
+        document.getElementById("offerErrorCounter").innerText = errorCount;
+        document.getElementById("offerInProgreessCounter").innerText =
+          inProgressCount;
+        document.getElementById("offerHealthCounter").innerText = allCount;
+
+        // Nagłówki zbiorcze
+        document.getElementById(
+          "offerAllStatus"
+        ).innerText = `Wszystkie (${allCount})`;
+        document.getElementById(
+          "offerActionStatus"
+        ).innerText = `Problematyczne (${errorCount})`;
+        document.getElementById(
+          "offerSuccessStatus"
+        ).innerText = `Sukces (${successCount})`;
+
+        // Kompletność oferty
+        let conditionLabel = "Brak danych";
+        if (allCount > 0) {
+          const completeness = Math.round((successCount / allCount) * 100);
+          if (completeness === 100) conditionLabel = "Oferta kompletna";
+          else if (completeness >= 80)
+            conditionLabel = `Prawie kompletna (${completeness}%)`;
+          else conditionLabel = `Braki w ofercie (${completeness}%)`;
+        }
+        document.getElementById("offerCondition").innerText =
+          "Kompletność oferty: " + conditionLabel;
+
         // ========== Wstaw dane do tabeli ==========
         tableStatus.clear().rows.add(entries).draw();
       })
