@@ -573,7 +573,6 @@ docReady(function () {
         setText("offerSuccessCounter", successCount);
         setText("offerErrorCounter", errorCount);
         setText("offerInProgreessCounter", inProgressCount);
-        setText("offerHealthCounter", allCount);
 
         // Nagłówki zbiorcze
         setText("offerAllStatus", `Wszystkie (${allCount})`);
@@ -586,7 +585,8 @@ docReady(function () {
           const percentage = Math.round((successCount / allCount) * 100);
           completenessLabel = `${percentage}%`;
         }
-        setText("offerCondition", completenessLabel);
+        setText("offerCondition", "Kompletność oferty: " + completenessLabel);
+        setText("offerHealthCounter", completenessLabel);
 
         // ========== Wstaw dane do tabeli ==========
         tableStatus.clear().rows.add(entries).draw();
@@ -625,7 +625,7 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 25,
-      order: [[4, "desc"]], // This is column that contain values "Status"
+      order: [[3, "desc"]], // This is column that contain values "Status"
       language: {
         emptyTable: "Brak danych do wyswietlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
@@ -2135,6 +2135,18 @@ docReady(function () {
   $('div[role="tab"]').click(function () {
     if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, delay);
+      });
+    }
+  });
+
+  $("#seeRightPanel").on("click", function () {
+    if ($.fn.dataTable) {
+      const delays = [50, 200, 500]; // możesz zmodyfikować w razie potrzeby
 
       delays.forEach((delay) => {
         setTimeout(() => {
