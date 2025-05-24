@@ -2207,32 +2207,5 @@ ${offerTimestampLine}
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
     $(".dataTables_filter input").attr("maxLength", 60);
-    // NOWE: Wyrównaj kolumny po 3 sekundach od załadowania strony
-    function columnsAreUneven(table) {
-      const headers = $(table).find("thead th");
-      if (headers.length === 0) return false;
-
-      const widths = headers
-        .map(function () {
-          return $(this).outerWidth();
-        })
-        .get();
-
-      const min = Math.min(...widths);
-      const max = Math.max(...widths);
-
-      return (max - min) / max > 0.1; // różnica większa niż 10%
-    }
-
-    setInterval(() => {
-      if (!$.fn.dataTable) return;
-
-      $.fn.dataTable.tables({ visible: true, api: true }).every(function () {
-        const tableNode = this.table().node();
-        if (columnsAreUneven(tableNode)) {
-          this.columns.adjust();
-        }
-      });
-    }, 3000); // sprawdzaj co 3 sekundy
   });
 });
