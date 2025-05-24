@@ -426,7 +426,7 @@ docReady(function () {
       .then((res) => res.json())
       .then((res) => {
         const statusMap = {
-          success: "Gotowa",
+          success: "Sukces",
           error: "Problem",
           "in progress": "W trakcie",
           incomplete: "Niekompletna",
