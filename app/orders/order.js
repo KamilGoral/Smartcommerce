@@ -2323,6 +2323,326 @@ docReady(function () {
     });
   }
 
+  function isToday(isoDateStr) {
+    if (!isoDateStr) return false;
+    const date = new Date(isoDateStr);
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  }
+
+  function getOfferStatus() {
+    fetch(`${InvokeURL}shops/${shopKey}/offers/latest/status`, {
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const statusMap = {
+          success: "Sukces",
+          error: "Problem",
+          "in progress": "W trakcie",
+          incomplete: "Niekompletna",
+          batching: "W kolejce",
+          forced: "W kolejce",
+        };
+
+        const entries = [];
+
+        // ========== 1. ECOMMERCE ==========
+        (res.ecommerce || []).forEach((entry) => {
+          const events = entry.events || [];
+          if (events.length === 0) return;
+
+          const latestEvent = events
+            .slice()
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+
+          const enrichedEvents = events.map((e) => ({
+            updatedAt: e.updatedAt,
+            status: e.extracting?.status || "unknown",
+            messages: e.extracting?.messages || [],
+            offerTimestamp: entry.lastMutation?.offerTimestamp || null,
+          }));
+
+          entries.push({
+            wholesalerKey: entry.wholesalerKey,
+            source: "E-hurt",
+            status: latestEvent.extracting?.status || "unknown",
+            statusLabel:
+              statusMap[latestEvent.extracting?.status] || "Nieznany",
+            updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
+            messages: latestEvent.extracting?.messages || [],
+            allEvents: enrichedEvents,
+            expandable:
+              enrichedEvents.length > 1 || enrichedEvents[0].status === "error",
+          });
+        });
+
+        // ========== 2. INTEGRATIONS.WMS ==========
+        if (res.integrations?.wms) {
+          const wms = res.integrations.wms;
+          const wmsEvents = wms.events || [];
+          if (wmsEvents.length > 0) {
+            const latestWmsEvent = wmsEvents
+              .slice()
+              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+            entries.push({
+              wholesalerKey: wms.key || "pc-market",
+              source: "Program magazynowy",
+              status: latestWmsEvent.extracting?.status || "unknown",
+              statusLabel:
+                statusMap[latestWmsEvent.extracting?.status] || "Nieznany",
+              updatedAt: new Date(latestWmsEvent.updatedAt).toLocaleString(
+                "pl-PL"
+              ),
+              messages: latestWmsEvent.extracting?.messages || [],
+            });
+          }
+        }
+
+        // ========== 3. INTEGRATIONS.RETROACTIVE ==========
+        if (res.integrations?.retroactive?.updatedAt) {
+          entries.push({
+            wholesalerKey: "-",
+            source: "Kontrakty z dostawcami",
+            status: "success",
+            statusLabel: "Sukces",
+            updatedAt: new Date(
+              res.integrations.retroactive.updatedAt
+            ).toLocaleString("pl-PL"),
+            messages: [],
+          });
+        }
+
+        // ========== 4. PRICATS ==========
+        (res.pricats || []).forEach((pricat) => {
+          const isPending = !pricat.updatedAt;
+          entries.push({
+            wholesalerKey: pricat.wholesalerKey || "-",
+            source: "Cennik",
+            status: isPending ? "in progress" : "success",
+            statusLabel: isPending ? "W trakcie" : "Sukces",
+            updatedAt: isPending
+              ? "Brak danych"
+              : new Date(pricat.updatedAt).toLocaleString("pl-PL"),
+            messages: [],
+          });
+        });
+
+        // ====================== STATYSTYKI ======================
+        const setText = (id, text) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = text;
+        };
+
+        // Statystyki
+        let successCount = 0;
+        let errorCount = 0;
+        let inProgressCount = 0;
+        let allCount = entries.length;
+
+        entries.forEach((entry) => {
+          if (entry.status === "success") successCount++;
+          else if (entry.status === "error") errorCount++;
+          else if (entry.status === "in progress") inProgressCount++;
+        });
+
+        // Ustawienie liczników
+        setText("offerSuccessCounter", successCount);
+        setText("offerErrorCounter", errorCount);
+        setText("offerInProgreessCounter", inProgressCount);
+
+        // Nagłówki zbiorcze
+        setText("offerAllStatus", `Wszystkie (${allCount})`);
+        setText("offerActionStatus", `Problematyczne (${errorCount})`);
+        setText("offerSuccessStatus", `Sukces (${successCount})`);
+
+        // Kompletność oferty w %
+        let completenessLabel = "-";
+        if (allCount > 0) {
+          const percentage = Math.round((successCount / allCount) * 100);
+          completenessLabel = `${percentage}%`;
+        }
+        setText("offerCondition", "Kompletność oferty: " + completenessLabel);
+        setText("offerHealthCounter", completenessLabel);
+
+        // ========== Wstaw dane do tabeli ==========
+        tableStatus.clear().rows.add(entries).draw();
+      })
+      .catch((err) => {
+        console.error("Błąd ładowania statusów ofert:", err);
+      });
+  }
+
+  function formatStatusDetails(rowData) {
+    if (!rowData.allEvents || rowData.allEvents.length === 0) return "";
+
+    const sortedEvents = rowData.allEvents
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    const statusMap = {
+      success: { label: "Sukces", class: "positive" },
+      error: { label: "Problem", class: "negative" },
+      "in progress": { label: "W trakcie", class: "inprogress" },
+      incomplete: { label: "Niekompletna", class: "noneexisting" },
+      batching: { label: "W kolejce", class: "noneexisting" },
+      forced: { label: "W kolejce", class: "noneexisting" },
+      unknown: { label: "Nieznany", class: "noneexisting" },
+    };
+
+    let content = `<div style="padding: 10px 20px;">`;
+
+    sortedEvents.forEach((event) => {
+      const date = new Date(event.updatedAt).toLocaleString("pl-PL");
+      const statusKey = event.status || "unknown";
+      const status = statusMap[statusKey] || statusMap["unknown"];
+      const offerTimestampLine = event.offerTimestamp
+        ? `<strong>Data źródłowa oferty:</strong> ${new Date(
+            event.offerTimestamp
+          ).toLocaleString("pl-PL")}<br>`
+        : "";
+
+      const messages = event.messages.length
+        ? event.messages.join("<br>")
+        : "-";
+
+      content += `
+      <div style="margin-bottom:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
+        <strong>Czas zdarzenia:</strong> ${date}<br>
+        <strong>Status:</strong> <span class="${status.class}">${status.label}</span><br>
+${offerTimestampLine}
+<strong>Komunikat:</strong> ${messages}
+      </div>
+    `;
+    });
+
+    content += `</div>`;
+    return content;
+  }
+
+  let tableStatus;
+
+  function initOfferStatusTable() {
+    tableStatus = $("#table_status").DataTable({
+      pagingType: "full_numbers",
+      dom: '<"top"f>rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 25,
+      order: [
+        [3, "asc"],
+        [4, "desc"],
+      ], // najpierw Status (asc), potem Ost. Zmiana (desc)
+      language: {
+        emptyTable: "Brak danych do wyswietlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatow)",
+        lengthMenu: "Pokaz _MENU_ rezulatow",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujacych rezultatow",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+      },
+      columns: [
+        {
+          data: null,
+          orderable: false,
+          width: "20px",
+          render: function (data, type, row) {
+            return ""; // bez strzałki
+          },
+          createdCell: function (td, cellData, rowData, row, col) {
+            if (rowData.expandable) {
+              $(td).addClass("details-control");
+            } else {
+              $(td).removeClass("details-control");
+            }
+          },
+        },
+
+        { data: "wholesalerKey", title: "Dostawca" },
+        { data: "source", title: "Źródło" },
+        {
+          data: "statusLabel",
+          title: "Status",
+          render: function (data, type, row) {
+            let baseClass = "";
+            switch (row.status) {
+              case "success":
+                baseClass += "positive";
+                break;
+              case "error":
+                baseClass += "negative";
+                break;
+              default:
+                baseClass += "noneexisting";
+            }
+            return `<span class="${baseClass}">${data}</span>`;
+          },
+        },
+
+        { data: "updatedAt", title: "Ost. Zmiana" },
+      ],
+      initComplete: function () {
+        this.api()
+          .rows()
+          .every(function () {
+            const rowData = this.data();
+            const tr = $(this.node());
+
+            if (rowData.status === "error" && rowData.expandable) {
+              this.child(formatStatusDetails(rowData)).show();
+              tr.addClass("shown");
+            }
+          });
+
+        // toggle pojedynczy wiersz
+        $("#table_status tbody").on("click", "td.details-control", function () {
+          const tr = $(this).closest("tr");
+          const row = tableStatus.row(tr);
+          const rowData = row.data();
+
+          if (!rowData.expandable) return;
+
+          if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass("shown");
+          } else {
+            row.child(formatStatusDetails(rowData)).show();
+            tr.addClass("shown");
+          }
+        });
+      },
+    });
+  }
+
+  // Wszystkie
+  $('[data-w-tab="Tab 1"]').on("click", function () {
+    tableStatus.column(3).search("").draw(); // Pokaż wszystkie
+  });
+
+  // Problematyczne (error)
+  $('[data-w-tab="Tab 2"]').on("click", function () {
+    tableStatus.column(3).search("Problem", true, false).draw(); // Tylko error
+  });
+
+  // Sukces (success)
+  $('[data-w-tab="Tab 3"]').on("click", function () {
+    tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
+  });
+
   function getProductHistory(rowData) {
     return new Promise((resolve, reject) => {
       if (rowData.stock === null) {
@@ -5275,6 +5595,34 @@ docReady(function () {
   $("table.dataTable").on("init.dt xhr.dt page.dt draw.dt", function () {
     $(this).DataTable().columns.adjust();
     initializeSimpleTooltips();
+  });
+
+  $("table.dataTable").on("page.dt", function () {
+    $(this).DataTable().draw(false);
+  });
+
+  $('div[role="tab"]').click(function () {
+    if ($.fn.dataTable) {
+      const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, delay);
+      });
+    }
+  });
+
+  $("#seeRightPanel").on("click", function () {
+    if ($.fn.dataTable) {
+      const delays = [50, 200, 500]; // możesz zmodyfikować w razie potrzeby
+
+      delays.forEach((delay) => {
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, delay);
+      });
+    }
   });
 
   $(document).ready(function ($) {
