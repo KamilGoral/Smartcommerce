@@ -48,6 +48,10 @@ docReady(function () {
     return result;
   }
 
+  let offerStatusLoaded = false;
+  let lastOfferFetchTimestamp = 0;
+  const MIN_FETCH_INTERVAL_MS = 10;
+
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
