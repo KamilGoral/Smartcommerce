@@ -797,8 +797,6 @@ docReady(function () {
   }
 
   async function CreateOrder() {
-    console.log("Creating Order");
-
     const tableId = "#spl_table";
     const dotsCheckerInterval = 1000; // co ile ms sprawdzamy spinner
     let dotsChecker = null;
@@ -996,7 +994,6 @@ docReady(function () {
     } finally {
       clearInterval(dotsChecker);
       $("#waitingdots").hide();
-      console.log("dots hide");
     }
   }
 
@@ -4181,16 +4178,47 @@ ${offerTimestampLine}
           $("#waitingdots").hide();
         },
       });
-      $.get(
-        InvokeURL + "shops/" + shopKey + "/offers/latest" + QStr,
-        function (res) {
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        }
-      );
+      const now = Date.now();
+      if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
+        lastOfferFetchTimestamp = now;
+        $.get(
+          InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
+          function (res) {
+            // Ustawienie daty oferty
+            if (res.offerDate) {
+              const formattedDate = new Date(res.offerDate).toLocaleString(
+                "pl-PL"
+              );
+              $("#offerDate").text("Data oferty: " + formattedDate);
+              $("#offerDate2").text("Data oferty: " + formattedDate);
+            } else {
+              $("#offerDate").text("Data oferty: brak danych");
+              $("#offerDate2").text("Data oferty: brak danych");
+            }
+
+            if (isToday(res.offerDate)) {
+              if (!offerStatusLoaded) {
+                offerStatusLoaded = true;
+                getOfferStatus();
+              }
+
+              $("#offerCondition").show();
+              $("#seeRightPanel").show();
+              $("#offerDate2").show();
+            } else {
+              $("#offerCondition").hide();
+              $(".seeRightPanel").hide();
+              $("#offerDate2").show();
+            }
+
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          }
+        );
+      }
     },
     processing: false,
     serverSide: true,
