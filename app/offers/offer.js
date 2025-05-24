@@ -1562,11 +1562,15 @@ ${offerTimestampLine}
               $("#offerDate2").text("Data oferty: brak danych");
             }
 
-            if (isToday(res.offerDate) && !offerStatusLoaded) {
-              offerStatusLoaded = true;
-              getOfferStatus();
+            if (isToday(res.offerDate)) {
+              if (!offerStatusLoaded) {
+                offerStatusLoaded = true;
+                getOfferStatus();
+              }
+
               $("#offerCondition").show();
               $(".seeRightPanel").show();
+              $("#offerDate2").hide();
             } else {
               $("#offerCondition").hide();
               $(".seeRightPanel").hide();
