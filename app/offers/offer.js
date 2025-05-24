@@ -1582,6 +1582,16 @@ ${offerTimestampLine}
         $.get(
           InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
           function (res) {
+            // Ustawienie daty oferty
+            if (res.offerDate) {
+              const formattedDate = new Date(res.offerDate).toLocaleString(
+                "pl-PL"
+              );
+              $("#offerDate").text("Data oferty: " + formattedDate);
+            } else {
+              $("#offerDate").text("Data oferty: brak danych");
+            }
+
             if (isToday(res.offerDate) && !offerStatusLoaded) {
               offerStatusLoaded = true;
               getOfferStatus();
