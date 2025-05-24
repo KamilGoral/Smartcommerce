@@ -757,6 +757,21 @@ ${offerTimestampLine}
     });
   }
 
+  // Wszystkie
+  $('[data-w-tab="Tab 1"]').on("click", function () {
+    tableStatus.column(3).search("").draw(); // Pokaż wszystkie
+  });
+
+  // Problematyczne (error)
+  $('[data-w-tab="Tab 2"]').on("click", function () {
+    tableStatus.column(3).search("Problem", true, false).draw(); // Tylko error
+  });
+
+  // Sukces (success)
+  $('[data-w-tab="Tab 3"]').on("click", function () {
+    tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
+  });
+
   function getProductHistory(rowData) {
     return new Promise((resolve, reject) => {
       if (rowData.stock === null) {
