@@ -1569,8 +1569,8 @@ ${offerTimestampLine}
               }
 
               $("#offerCondition").show();
-              $(".seeRightPanel").show();
-              $("#offerDate2").hide();
+              $("#seeRightPanel").show();
+              $("#offerDate2").show();
             } else {
               $("#offerCondition").hide();
               $(".seeRightPanel").hide();
