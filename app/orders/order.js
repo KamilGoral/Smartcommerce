@@ -884,13 +884,11 @@ docReady(function () {
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
-      console.log("dots show");
       $("#waitingdots").show();
 
       // Sprawdzanie spinnnera co sekundę
       dotsChecker = setInterval(() => {
         if (!isResponseReceived && !$("#waitingdots").is(":visible")) {
-          console.warn("Spinner nie był widoczny – ponownie pokazuję.");
           $("#waitingdots").show();
         }
       }, dotsCheckerInterval);
@@ -5397,7 +5395,6 @@ ${offerTimestampLine}
 
   // Pobierz wartość parametru "data-w-tab" z URL
   var tabToClick = getParameterByName("data-w-tab");
-  console.log("Parametr 'data-w-tab' z URL:", tabToClick);
 
   // Funkcja do kliknięcia w zakładkę na podstawie atrybutu data-w-tab
   function clickTab(tabName) {
@@ -5421,9 +5418,6 @@ ${offerTimestampLine}
       CreateOrder();
     }, 500);
   } else {
-    console.log(
-      "Parametr 'data-w-tab' nie jest równy 'add' – wywołuję CreateOrder()"
-    );
     CreateOrder();
   }
 
