@@ -5454,6 +5454,7 @@ ${offerTimestampLine}
   }
 
   getWholesalersSh();
+  initOfferStatusTable();
   getOfferStatus();
   fetchDataFromEndpoint();
 
