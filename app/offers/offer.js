@@ -523,53 +523,6 @@ docReady(function () {
           if (el) el.innerText = text;
         };
 
-        // Zbierz wszystkie daty updatedAt
-        const updatedAtList = [];
-
-        // z ecommerce
-        (res.ecommerce || []).forEach((entry) => {
-          (entry.events || []).forEach((ev) => {
-            if (ev.updatedAt) updatedAtList.push(new Date(ev.updatedAt));
-          });
-          if (entry.lastMutation?.updatedAt)
-            updatedAtList.push(new Date(entry.lastMutation.updatedAt));
-        });
-
-        // z integrations.wms
-        if (res.integrations?.wms) {
-          (res.integrations.wms.events || []).forEach((ev) => {
-            if (ev.updatedAt) updatedAtList.push(new Date(ev.updatedAt));
-          });
-          if (res.integrations.wms.lastMutation?.updatedAt)
-            updatedAtList.push(
-              new Date(res.integrations.wms.lastMutation.updatedAt)
-            );
-        }
-
-        // z integrations.retroactive
-        if (res.integrations?.retroactive?.updatedAt) {
-          updatedAtList.push(new Date(res.integrations.retroactive.updatedAt));
-        }
-
-        // z pricats
-        (res.pricats || []).forEach((pricat) => {
-          if (pricat.updatedAt) updatedAtList.push(new Date(pricat.updatedAt));
-        });
-
-        // Najświeższa data
-        const latestUpdatedAt =
-          updatedAtList.length > 0
-            ? new Date(Math.max(...updatedAtList.map((d) => d.getTime())))
-            : null;
-
-        setText(
-          "offerDateUpdate",
-          "Ost. zmiana: " +
-            (latestUpdatedAt
-              ? latestUpdatedAt.toLocaleString("pl-PL")
-              : "Brak danych")
-        );
-
         // Statystyki
         let successCount = 0;
         let errorCount = 0;
