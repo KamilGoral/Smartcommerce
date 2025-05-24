@@ -1556,19 +1556,22 @@ ${offerTimestampLine}
                 "pl-PL"
               );
               $("#offerDate").text("Data oferty: " + formattedDate);
+              $("#offerDate2").text("Data oferty: " + formattedDate);
             } else {
               $("#offerDate").text("Data oferty: brak danych");
+              $("#offerDate2").text("Data oferty: brak danych");
             }
 
             if (isToday(res.offerDate) && !offerStatusLoaded) {
               offerStatusLoaded = true;
               getOfferStatus();
+              $("#offerCondition").show();
+              $(".seeRightPanel").show();
+            } else {
+              $("#offerCondition").hide();
+              $(".seeRightPanel").hide();
+              $("#offerDate2").show();
             }
-            document
-              .querySelectorAll(".offerdate, .offerstatus, .offermessage")
-              .forEach((el) => {
-                el.style.display = "none";
-              });
 
             callback({
               recordsTotal: res.total,
