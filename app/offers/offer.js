@@ -494,7 +494,7 @@ docReady(function () {
             wholesalerKey: "-",
             source: "Kontrakty z dostawcami",
             status: "success",
-            statusLabel: "Gotowa",
+            statusLabel: "Sukces",
             updatedAt: new Date(
               res.integrations.retroactive.updatedAt
             ).toLocaleString("pl-PL"),
@@ -509,7 +509,7 @@ docReady(function () {
             wholesalerKey: pricat.wholesalerKey || "-",
             source: "Cennik",
             status: isPending ? "in progress" : "success",
-            statusLabel: isPending ? "W trakcie" : "Gotowa",
+            statusLabel: isPending ? "W trakcie" : "Sukces",
             updatedAt: isPending
               ? "Brak danych"
               : new Date(pricat.updatedAt).toLocaleString("pl-PL"),
