@@ -418,7 +418,7 @@ docReady(function () {
 
           resolve(data);
         } else {
-          console.error("Błąd podczas pobierania danych sklepu.");
+          console.log("Błąd podczas pobierania danych sklepu.");
           reject(new Error("Błąd podczas pobierania danych sklepu."));
         }
       };
@@ -919,7 +919,7 @@ docReady(function () {
         isResponseReceived = true;
         clearInterval(dotsChecker);
         $("#waitingdots").hide();
-        console.error("Błąd w ajax:", error);
+        console.log("Błąd w ajax:", error);
 
         if (error.status === 504) {
           showGenericError();
@@ -929,7 +929,7 @@ docReady(function () {
         throw error;
       }
     } catch (error) {
-      console.error("Error in CreateOrder:", error);
+      console.log("Error in CreateOrder:", error);
 
       const isAddProductsTabActive = $("#addProducts").hasClass("w--current");
       if (isAddProductsTabActive) {
@@ -972,7 +972,7 @@ docReady(function () {
         }
 
         if (translatedError) {
-          console.error(translatedError);
+          console.log(translatedError);
           displayMessage("Error", translatedError);
         }
       } else if (error.status === 404) {
@@ -990,7 +990,7 @@ docReady(function () {
             displayMessage("Error", parsed.message);
           }
         } catch (e) {
-          console.error("Nie udało się sparsować odpowiedzi JSON", e);
+          console.log("Nie udało się sparsować odpowiedzi JSON", e);
         }
       } else {
         showGenericError();
@@ -2275,7 +2275,7 @@ docReady(function () {
         try {
           data = JSON.parse(this.response);
         } catch (e) {
-          console.error("Error parsing response JSON:", e);
+          console.log("Error parsing response JSON:", e);
           reject("Parse error");
           return;
         }
@@ -2315,7 +2315,7 @@ docReady(function () {
       };
 
       request.onerror = function () {
-        console.error("Network error while fetching product details.");
+        console.log("Network error while fetching product details.");
         reject("Network error");
       };
 
@@ -2476,7 +2476,7 @@ docReady(function () {
         tableStatus.clear().rows.add(entries).draw();
       })
       .catch((err) => {
-        console.error("Błąd ładowania statusów ofert:", err);
+        console.log("Błąd ładowania statusów ofert:", err);
       });
   }
 
@@ -3198,7 +3198,7 @@ ${offerTimestampLine}
 
           resolve(data2);
         } else if (request2.status >= 400) {
-          console.error("Błąd: ", request2.status, this.response);
+          console.log("Błąd: ", request2.status, this.response);
           reject(new Error("Błąd HTTP: " + request2.status));
         } else {
           console.log("Nieoczekiwany błąd");
@@ -3277,7 +3277,7 @@ ${offerTimestampLine}
         saveToSessionStorage(productsData);
         calculateAndDisplayTimeSavings(productsData); // Dodane wywołanie funkcji
       } else {
-        console.error("Błąd podczas pobierania danych z endpointu.");
+        console.log("Błąd podczas pobierania danych z endpointu.");
       }
     };
     request.send();
@@ -3381,7 +3381,7 @@ ${offerTimestampLine}
               );
             }
 
-            console.error(e);
+            console.log(e);
           },
         });
 
@@ -3621,7 +3621,7 @@ ${offerTimestampLine}
                   console.log("Callback returned:", result); // Log callback result
 
                   if (!result) {
-                    console.error(
+                    console.log(
                       "Callback returned false, showing error message"
                     ); // Log error case
                     form.show();
@@ -3717,7 +3717,7 @@ ${offerTimestampLine}
                 }
 
                 form.show();
-                console.error("Błąd podczas wysyłania emaila:", jqXHR);
+                console.log("Błąd podczas wysyłania emaila:", jqXHR);
                 reject(jqXHR);
               },
             });
@@ -3728,7 +3728,7 @@ ${offerTimestampLine}
         updateEmailAndFormats()
           .then(() => sendOrderEmail())
           .catch((error) => {
-            console.error("Error in sequence:", error);
+            console.log("Error in sequence:", error);
             // Błąd już został obsłużony w odpowiednich funkcjach
           });
 
@@ -4596,7 +4596,7 @@ ${offerTimestampLine}
       // Pokaż okno dopiero po załadowaniu danych
       $("#SendOrderSMTP").css("display", "flex");
     } catch (error) {
-      console.error("Błąd podczas pobierania danych:", error);
+      console.log("Błąd podczas pobierania danych:", error);
     } finally {
       // Zawsze schowaj animację niezależnie od powodzenia
       $("#waitingdots").hide();
@@ -4684,7 +4684,7 @@ ${offerTimestampLine}
             h.includes("filename=")
           );
           if (!filenameHeader) {
-            console.error("Filename not found in the response headers.");
+            console.log("Filename not found in the response headers.");
             return;
           }
 
@@ -4699,7 +4699,7 @@ ${offerTimestampLine}
         })
         .catch((error) => {
           $("#waitingdots").hide();
-          console.error("Error fetching the file:", error);
+          console.log("Error fetching the file:", error);
         });
     };
 
@@ -4907,7 +4907,7 @@ ${offerTimestampLine}
     const input = dataToDisplay.data("content");
 
     if (!input) {
-      console.error("Brak danych do wyświetlenia.");
+      console.log("Brak danych do wyświetlenia.");
       return;
     }
 
@@ -4991,7 +4991,7 @@ ${offerTimestampLine}
         $("#ProductCard").css("display", "flex");
       })
       .catch((err) => {
-        console.error("Błąd ładowania danych:", err);
+        console.log("Błąd ładowania danych:", err);
         $("#waitingdots").hide();
         alert("Nie udało się załadować danych.");
       });
@@ -5122,7 +5122,7 @@ ${offerTimestampLine}
         $("#ProductCard").css("display", "flex");
       })
       .catch((err) => {
-        console.error("Błąd ładowania danych:", err);
+        console.log("Błąd ładowania danych:", err);
         $("#waitingdots").hide();
         alert("Nie udało się załadować danych.");
       });
@@ -5325,7 +5325,7 @@ ${offerTimestampLine}
           await CreateOrder();
           console.log("CreateOrder completed successfully.");
         } catch (err) {
-          console.error("Błąd przy tworzeniu zamówienia (Cart):", err);
+          console.log("Błąd przy tworzeniu zamówienia (Cart):", err);
         } finally {
           console.log("Calling GetSplittedProducts() (Cart - finally)");
           GetSplittedProducts();
@@ -5345,7 +5345,7 @@ ${offerTimestampLine}
           await CreateOrder();
           console.log("CreateOrder completed successfully (AddProducts).");
         } catch (err) {
-          console.error("Błąd przy tworzeniu zamówienia (AddProducts):", err);
+          console.log("Błąd przy tworzeniu zamówienia (AddProducts):", err);
         }
       } else {
         console.log(
@@ -5362,7 +5362,7 @@ ${offerTimestampLine}
           await CreateOrder();
           console.log("CreateOrder completed successfully (Details).");
         } catch (err) {
-          console.error("Błąd przy tworzeniu zamówienia (Details):", err);
+          console.log("Błąd przy tworzeniu zamówienia (Details):", err);
         }
       } else {
         console.log("No changes. Skipping CreateOrder (Details).");

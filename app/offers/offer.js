@@ -357,7 +357,7 @@ docReady(function () {
         try {
           data = JSON.parse(this.response);
         } catch (e) {
-          console.error("Error parsing response JSON:", e);
+          console.log("Error parsing response JSON:", e);
           reject("Parse error");
           return;
         }
@@ -397,7 +397,7 @@ docReady(function () {
       };
 
       request.onerror = function () {
-        console.error("Network error while fetching product details.");
+        console.log("Network error while fetching product details.");
         reject("Network error");
       };
 
@@ -558,7 +558,7 @@ docReady(function () {
         tableStatus.clear().rows.add(entries).draw();
       })
       .catch((err) => {
-        console.error("Błąd ładowania statusów ofert:", err);
+        console.log("Błąd ładowania statusów ofert:", err);
       });
   }
 
@@ -1982,7 +1982,7 @@ ${offerTimestampLine}
         $("#ProductCard").css("display", "flex");
       })
       .catch((err) => {
-        console.error("Błąd ładowania danych:", err);
+        console.log("Błąd ładowania danych:", err);
         $("#waitingdots").hide();
         alert("Nie udało się załadować danych.");
       });
