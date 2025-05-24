@@ -449,6 +449,7 @@ docReady(function () {
             updatedAt: e.updatedAt,
             status: e.extracting?.status || "unknown",
             messages: e.extracting?.messages || [],
+            offerTimestamp: entry.lastMutation?.offerTimestamp || null,
           }));
 
           entries.push({
@@ -503,12 +504,15 @@ docReady(function () {
 
         // ========== 4. PRICATS ==========
         (res.pricats || []).forEach((pricat) => {
+          const isPending = !pricat.updatedAt;
           entries.push({
             wholesalerKey: pricat.wholesalerKey || "-",
             source: "Cennik",
-            status: "success",
-            statusLabel: "Gotowa",
-            updatedAt: new Date(pricat.updatedAt).toLocaleString("pl-PL"),
+            status: isPending ? "in progress" : "success",
+            statusLabel: isPending ? "W trakcie" : "Gotowa",
+            updatedAt: isPending
+              ? "Brak danych"
+              : new Date(pricat.updatedAt).toLocaleString("pl-PL"),
             messages: [],
           });
         });
@@ -628,15 +632,22 @@ docReady(function () {
       const date = new Date(event.updatedAt).toLocaleString("pl-PL");
       const statusKey = event.status || "unknown";
       const status = statusMap[statusKey] || statusMap["unknown"];
+      const offerTimestampLine = event.offerTimestamp
+        ? `<strong>Data źródłowa oferty:</strong> ${new Date(
+            event.offerTimestamp
+          ).toLocaleString("pl-PL")}<br>`
+        : "";
+
       const messages = event.messages.length
         ? event.messages.join("<br>")
-        : "Brak komunikatu";
+        : "-";
 
       content += `
       <div style="margin-bottom:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
         <strong>Czas zdarzenia:</strong> ${date}<br>
         <strong>Status:</strong> <span class="${status.class}">${status.label}</span><br>
-        <strong>Komunikat:</strong> ${messages}
+${offerTimestampLine}
+<strong>Komunikat:</strong> ${messages}
       </div>
     `;
     });
@@ -654,7 +665,10 @@ docReady(function () {
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 25,
-      order: [[3, "desc"]], // This is column that contain values "Status"
+      order: [
+        [3, "asc"],
+        [4, "desc"],
+      ], // najpierw Status (asc), potem Ost. Zmiana (desc)
       language: {
         emptyTable: "Brak danych do wyswietlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
