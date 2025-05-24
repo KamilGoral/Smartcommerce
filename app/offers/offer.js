@@ -1884,14 +1884,11 @@ ${offerTimestampLine}
 
       function checkFilters() {
         var searchValue = api.search();
-        console.log(searchValue);
         var anyFilterActive =
           searchValue !== "" ||
           $(".filterinput").filter(function () {
             return this.value !== "";
           }).length > 2; // Two checkboxes are allways active
-
-        console.log(anyFilterActive);
 
         if (anyFilterActive) {
           $("#ClearAllButton").show();
@@ -2210,5 +2207,11 @@ ${offerTimestampLine}
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
     $(".dataTables_filter input").attr("maxLength", 60);
+    // NOWE: Wyrównaj kolumny po 3 sekundach od załadowania strony
+    setTimeout(() => {
+      if ($.fn.dataTable) {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+      }
+    }, 3000);
   });
 });
