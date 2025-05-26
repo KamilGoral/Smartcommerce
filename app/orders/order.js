@@ -705,41 +705,40 @@ docReady(function () {
             const events = row.events || [];
             const hasDownloaded = events.some((e) => e.type === "downloaded");
             const hasEmailed = events.some((e) => e.type === "emailed");
+            const currentStatus = row.confirmedAt ? "potwierdzono" : "w edycji";
+
+            const baseStyle =
+              "font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #666;";
 
             if (hasEmailed) {
-              // Status wysłano — nie można zmieniać
               return `
-      <button disabled title="Nie można zmienić statusu po wysyłce"
-              style="background-color: #e0e0e0; color: #666; border: none; padding: 4px 8px; border-radius: 4px;">
-        Wysłano
-      </button>`;
+      <select disabled class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}"
+              title="Nie można zmienić statusu po wysyłce"
+              style="${baseStyle}">
+        <option selected>Wysłano</option>
+      </select>`;
             }
 
             if (hasDownloaded) {
-              // Dropdown – można cofnąć lub zatwierdzić
-              const currentStatus = row.confirmedAt
-                ? "potwierdzono"
-                : "w edycji";
-
               return `
-      <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}"
-              style="font-size: 12px; padding: 2px 6px;">
+      <select class="status-dropdown" data-wholesaler-key="${
+        row.wholesalerKey
+      }" style="${baseStyle}">
         <option value="w edycji" ${
           currentStatus === "w edycji" ? "selected" : ""
         }>W edycji</option>
         <option value="potwierdzono" ${
           currentStatus === "potwierdzono" ? "selected" : ""
         }>Potwierdzono</option>
-      </select>
-    `;
+      </select>`;
             }
 
-            // Domyślny przycisk „W edycji”
             return `
-    <button disabled title="Brak działań – dokument w edycji"
-            style="background-color: #f0f0f0; color: #333; border: none; padding: 4px 8px; border-radius: 4px;">
-      W edycji
-    </button>`;
+    <select disabled class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}"
+            title="Dokument jest w edycji"
+            style="${baseStyle}">
+      <option selected>W edycji</option>
+    </select>`;
           },
         },
 
