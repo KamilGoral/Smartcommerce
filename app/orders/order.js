@@ -494,55 +494,83 @@ docReady(function () {
     return date.toLocaleString("pl-PL", options).replace(",", "");
   }
 
-  function createPopup(clickedElement) {
-    // Upewniamy się, że zawsze pracujemy na elemencie z danymi (span)
-    const el = $(clickedElement).closest(".cofnij-action");
-    console.log(el);
-
-    const wholesalerKey = el.data("wholesaler-key");
-    const wholesalerName = el.data("wholesaler-name");
-
-    $("#undotText").text(
-      `Czy na pewno chcesz cofnąć zamówienie od dostawcy ${wholesalerName}?`
-    );
-
-    $("#undoOrderModal").css("display", "flex");
-    $("#undoOrderModal").data({
-      shopKey: shopKey,
-      orderId: orderId,
-      wholesalerKey: wholesalerKey,
-    });
-  }
-
-  // Wywołanie po załadowaniu tabeli
   function bindStatusEvents() {
     initializeSimpleTooltips();
 
-    // Hover: zmiana ikonki
-    $(".cofnij-action").off("mouseenter mouseleave click");
-
-    $(".cofnij-action").on("mouseenter", function () {
-      const img = $(this).find("img");
-      img.attr(
-        "src",
-        "https://cdn.prod.website-files.com/6041108bece36760b4e14016/61ae00c4ab4adcab0c3d35e6_chevron-left-large.svg"
-      );
+    // Inicjalizacja wartości początkowej dla każdego dropdownu
+    $(".status-dropdown").each(function () {
+      const currentVal = $(this).val();
+      $(this).data("previous-value", currentVal);
     });
 
-    $(".cofnij-action").on("mouseleave", function () {
-      const img = $(this).find("img");
-      img.attr(
-        "src",
-        "https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg"
-      );
-    });
+    // Obsługa zmiany statusu
+    $(".status-dropdown")
+      .off("change")
+      .on("change", function () {
+        const selectedValue = $(this).val();
+        const previousValue = $(this).data("previous-value");
+        const wholesalerKey = $(this).data("wholesaler-key");
+        const wholesalerName = $(this).find("option:selected").text();
 
-    // Click: popup
-    $(".cofnij-action").on("click", function (e) {
-      e.stopPropagation();
-      createPopup(this);
-    });
+        // Jeśli próbujemy cofnąć z potwierdzono → w edycji
+        if (previousValue === "potwierdzono" && selectedValue === "w edycji") {
+          // Pokaż popup z potwierdzeniem cofnięcia
+          $("#undotText").text(
+            `Czy na pewno chcesz cofnąć zamówienie od dostawcy ${wholesalerName}?`
+          );
+
+          $("#undoOrderModal").css("display", "flex").data({
+            shopKey: shopKey,
+            orderId: orderId,
+            wholesalerKey: wholesalerKey,
+            selectElement: this,
+          });
+        } else {
+          // W każdej innej sytuacji zapisujemy nową wartość
+          $(this).data("previous-value", selectedValue);
+        }
+      });
   }
+
+  // Obsługa potwierdzenia w modalu cofania statusu
+  $("#confirmUndoButton").on("click", function () {
+    const modalData = $("#undoOrderModal").data();
+    const selectElement = modalData.selectElement;
+
+    // Zmień wartość selecta
+    $(selectElement).val("w edycji").data("previous-value", "w edycji");
+
+    // Aktualizuj dane w DataTable
+    const table = $("#table_splited_wh").DataTable();
+    table.rows().every(function () {
+      const rowData = this.data();
+      if (rowData.wholesalerKey === modalData.wholesalerKey) {
+        rowData.confirmedAt = null;
+
+        // Usuwamy event 'downloaded' lub inne jeśli potrzeba
+        if (Array.isArray(rowData.events)) {
+          rowData.events = rowData.events.filter(
+            (e) => e.type !== "downloaded"
+          );
+        }
+
+        this.data(rowData).invalidate().draw(false);
+        return false; // break
+      }
+    });
+
+    $("#undoOrderModal").hide();
+  });
+
+  // Obsługa anulowania cofnięcia
+  $("#cancelUndoButton").on("click", function () {
+    const modalData = $("#undoOrderModal").data();
+    const selectElement = modalData.selectElement;
+
+    // Przywróć poprzednią wartość
+    $(selectElement).val("potwierdzono");
+    $("#undoOrderModal").hide();
+  });
 
   function buildSplittedTable(data = []) {
     var table = $("#table_splited_wh").DataTable({
