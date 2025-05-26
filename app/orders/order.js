@@ -733,48 +733,55 @@ docReady(function () {
             if (row.wholesalerName === "unassigned") return "";
 
             const events = row.events || [];
-            const hasDownloaded = events.some((e) => e.type === "downloaded");
-            const hasEmailed = events.some((e) => e.type === "emailed");
 
-            const currentStatus = hasEmailed
-              ? "wysłano"
-              : row.confirmedAt
-              ? "potwierdzono"
-              : "w edycji";
+            // Szukamy najnowszego eventu
+            const latestEvent = events
+              .slice()
+              .sort(
+                (a, b) => new Date(b.created.at) - new Date(a.created.at)
+              )[0];
+
+            const latestType = latestEvent?.type || null;
 
             const style =
               "width: 107px; height: 28px; font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #333; border-radius: 6px;";
 
-            if (hasEmailed) {
+            // Wysłano – tylko jedna opcja, nieedytowalna
+            if (latestType === "emailed") {
               return `
-      <select class="status-dropdown status-disabled" disabled
-              data-tippy-content="Status Wysłano – nie można już go zmienić"
-              data-wholesaler-key="${row.wholesalerKey}" style="${style}">
-        <option selected class="status-sent">Wysłano</option>
-      </select>`;
+        <select class="status-dropdown status-disabled" disabled
+                data-tippy-content="Status Wysłano – nie można już go zmienić"
+                data-wholesaler-key="${row.wholesalerKey}" style="${style}">
+          <option selected class="status-sent">Wysłano</option>
+        </select>`;
             }
 
-            if (hasDownloaded) {
+            // Pobrano – możemy wybrać między "w edycji" i "potwierdzono"
+            if (latestType === "downloaded") {
+              const currentStatus = row.confirmedAt
+                ? "potwierdzono"
+                : "w edycji";
+
               return `
-      <select class="status-dropdown" data-wholesaler-key="${
-        row.wholesalerKey
-      }" style="${style}">
-        <option value="w edycji" ${
-          currentStatus === "w edycji" ? "selected" : ""
-        } class="status-edit">W edycji</option>
-        <option value="potwierdzono" ${
-          currentStatus === "potwierdzono" ? "selected" : ""
-        } class="status-confirmed">Potwierdzono</option>
-      </select>`;
+        <select class="status-dropdown" data-wholesaler-key="${
+          row.wholesalerKey
+        }" style="${style}">
+          <option value="w edycji" ${
+            currentStatus === "w edycji" ? "selected" : ""
+          } class="status-edit">W edycji</option>
+          <option value="potwierdzono" ${
+            currentStatus === "potwierdzono" ? "selected" : ""
+          } class="status-confirmed">Potwierdzono</option>
+        </select>`;
             }
 
+            // Brak działań – tylko "w edycji"
             return `
-    <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
-      <option selected class="status-edit">W edycji</option>
-    </select>`;
+      <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
+        <option selected class="status-edit">W edycji</option>
+      </select>`;
           },
         },
-
         {
           orderable: false,
           data: "wholesalerKey",
