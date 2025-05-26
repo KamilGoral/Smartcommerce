@@ -713,12 +713,14 @@ docReady(function () {
               : "w edycji";
 
             const style =
-              "width: 107px; height: 22px; font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #333;";
+              "width: 107px; height: 28px; font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #333; border-radius: 6px;";
 
             if (hasEmailed) {
               return `
-      <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
-        <option selected>Wysłano</option>
+      <select class="status-dropdown status-disabled" disabled
+              data-tippy-content="Status Wysłano – nie można już go zmienić"
+              data-wholesaler-key="${row.wholesalerKey}" style="${style}">
+        <option selected class="status-sent">Wysłano</option>
       </select>`;
             }
 
@@ -729,16 +731,16 @@ docReady(function () {
       }" style="${style}">
         <option value="w edycji" ${
           currentStatus === "w edycji" ? "selected" : ""
-        }>W edycji</option>
+        } class="status-edit">W edycji</option>
         <option value="potwierdzono" ${
           currentStatus === "potwierdzono" ? "selected" : ""
-        }>Potwierdzono</option>
+        } class="status-confirmed">Potwierdzono</option>
       </select>`;
             }
 
             return `
     <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
-      <option selected>W edycji</option>
+      <option selected class="status-edit">W edycji</option>
     </select>`;
           },
         },
