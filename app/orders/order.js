@@ -593,20 +593,24 @@ docReady(function () {
           width: "auto",
           data: null,
           render: function (data, type, row) {
-            let name = data === "unassigned" ? "Nieprzydzielone" : data;
+            let name =
+              row.wholesalerName === "unassigned"
+                ? "Nieprzydzielone"
+                : row.wholesalerName;
             const bonus = row.preferentialBonus;
             const showBonus = bonus !== 0 && bonus !== null;
 
             const badge = showBonus
               ? `<span class="badge badge-bonus" data-tippy-content="Premia preferencyjna" 
-         style="margin-left: 8px; background: #1E90FF; color: white; padding: 2px 6px; font-size: 10px; border-radius: 8px;">
-         ${bonus > 0 ? "+" : ""}${bonus}%
-       </span>`
+           style="margin-left: 8px; background: #1E90FF; color: white; padding: 2px 6px; font-size: 10px; border-radius: 8px;">
+           ${bonus > 0 ? "+" : ""}${bonus}%
+         </span>`
               : "";
 
             return `${name} ${badge}`;
           },
         },
+
         {
           orderable: true,
           data: "netValue",
@@ -767,16 +771,22 @@ docReady(function () {
         {
           orderable: false,
           width: "48px",
-          data: "wholesalerKey",
+          data: null,
           render: function (data, type, row) {
-            if (data === "unassigned") return "";
+            if (row.wholesalerKey === "unassigned") return "";
+
+            const wasEmailed = row.events?.some((e) => e.type === "emailed");
+            if (wasEmailed) return ""; // nie pokazuj ikonki
+
             return `
-              <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
-              </div>`;
+      <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg" 
+             data-tippy-content="Wyślij - email" class="sendemail" style="cursor: pointer;" />
+      </div>`;
           },
           className: "dt-center",
         },
+
         {
           orderable: false,
           width: "48px",
