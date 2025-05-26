@@ -509,12 +509,15 @@ docReady(function () {
       .on("change", function () {
         const selectedValue = $(this).val();
         const previousValue = $(this).data("previous-value");
-        const wholesalerKey = $(this).data("wholesaler-key");
-        const wholesalerName = $(this).find("option:selected").text();
 
-        // Jeśli próbujemy cofnąć z potwierdzono → w edycji
+        const table = $("#table_splited_wh").DataTable();
+        const row = $(this).closest("tr");
+        const rowData = table.row(row).data();
+        const wholesalerKey = rowData.wholesalerKey;
+        const wholesalerName = rowData.wholesalerName || wholesalerKey;
+
         if (previousValue === "potwierdzono" && selectedValue === "w edycji") {
-          // Pokaż popup z potwierdzeniem cofnięcia
+          // Poprawiony tekst popupu
           $("#undotText").text(
             `Czy na pewno chcesz cofnąć zamówienie od dostawcy ${wholesalerName}?`
           );
@@ -526,7 +529,6 @@ docReady(function () {
             selectElement: this,
           });
         } else {
-          // W każdej innej sytuacji zapisujemy nową wartość
           $(this).data("previous-value", selectedValue);
         }
       });
