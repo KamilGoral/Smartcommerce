@@ -603,7 +603,7 @@ docReady(function () {
             const badge = showBonus
               ? `<span data-tippy-content="Premia preferencyjna"
                 class="${bonus >= 0 ? "positive" : "negative"}"
-                style="margin-left: 6px; font-size: 11px; white-space: nowrap; display: inline-block;">
+                style="margin-left: 6px; font-size: 10px; white-space: nowrap; display: inline-block;">
              ${bonus > 0 ? "+" : ""}${bonus}%
          </span>`
               : "";
@@ -3682,7 +3682,23 @@ ${offerTimestampLine}
                       found = true;
 
                       // Ustawienie daty potwierdzenia
-                      rowData.confirmedAt = new Date().toISOString();
+                      const now = new Date().toISOString();
+                      rowData.confirmedAt = now;
+
+                      // Upewnij się, że `events` istnieje jako tablica
+                      if (!Array.isArray(rowData.events)) {
+                        rowData.events = [];
+                      }
+
+                      // Dodaj event `downloaded`
+                      rowData.events.push({
+                        type: "downloaded",
+                        created: {
+                          by: currentUser || "system",
+                          at: now,
+                        },
+                      });
+
                       this.data(rowData); // zaktualizuj dane
                       table.row(this.index()).invalidate(); // zaktualizuj widok
 
@@ -4768,21 +4784,30 @@ ${offerTimestampLine}
 
         if (!matchFn(rowData)) return;
 
-        // Modyfikujemy dane, żeby zaktualizować `confirmedAt`
-        rowData.confirmedAt = new Date().toISOString();
+        const now = new Date().toISOString();
+        rowData.confirmedAt = now;
 
-        // Aktualizujemy dane w wierszu
+        // Dodanie eventu `downloaded`
+        if (!Array.isArray(rowData.events)) {
+          rowData.events = [];
+        }
+        rowData.events.push({
+          type: "downloaded",
+          created: {
+            by: currentUser || "system", // <- Ustaw swoją zmienną użytkownika tutaj
+            at: now,
+          },
+        });
+
         this.data(rowData);
-
-        // Przerysowujemy tylko ten wiersz
         const rowIndex = this.index();
         table.row(rowIndex).invalidate().draw(false);
 
-        // Hide AddProducts Tab
         $('a[data-w-tab="AddProducts"]').hide();
 
-        return false; // przerywa pętlę po pierwszym dopasowaniu
+        return false;
       });
+
       updateStatusBadge();
     };
 
