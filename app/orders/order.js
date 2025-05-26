@@ -592,10 +592,19 @@ docReady(function () {
           orderable: true,
           width: "auto",
           data: null,
-          render: function (data) {
-            return data.wholesalerName === "unassigned"
-              ? "Nieprzydzielone"
-              : data.wholesalerName;
+          render: function (data, type, row) {
+            let name = data === "unassigned" ? "Nieprzydzielone" : data;
+            const bonus = row.preferentialBonus;
+            const showBonus = bonus !== 0 && bonus !== null;
+
+            const badge = showBonus
+              ? `<span class="badge badge-bonus" data-tippy-content="Premia preferencyjna" 
+         style="margin-left: 8px; background: #1E90FF; color: white; padding: 2px 6px; font-size: 10px; border-radius: 8px;">
+         ${bonus > 0 ? "+" : ""}${bonus}%
+       </span>`
+              : "";
+
+            return `${name} ${badge}`;
           },
         },
         {
@@ -685,38 +694,47 @@ docReady(function () {
           width: "48px",
           className: "dt-center status-column",
 
-          render: function (data) {
-            if (data.wholesalerName === "unassigned") return "";
+          render: function (data, type, row) {
+            if (row.wholesalerName === "unassigned") return "";
 
-            const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit"/>`;
+            const events = row.events || [];
+            const hasDownloaded = events.some((e) => e.type === "downloaded");
+            const hasEmailed = events.some((e) => e.type === "emailed");
 
-            if (data.confirmedAt) {
-              const confirmedDate = formatDateToPolishTime(data.confirmedAt); // Np. 23.04.2025 13:10:39
-
+            if (hasEmailed) {
+              // Status wysłano — nie można zmieniać
               return `
-        <div class="status-icon-wrap" style="text-align:center;margin-bottom: -8px;">
-          <span 
-            class="cofnij-action" 
-            data-tippy-content="Cofnij ?"
-            data-confirmed-date="${confirmedDate}"
-            data-wholesaler-key="${data.wholesalerKey}"
-            data-wholesaler-name="${data.wholesalerName}"
-            style="display:inline-block; cursor:pointer;"
-          >
-            <img 
-              class="cofnij-icon" 
-              src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6800f9b6bbe7d5534c5d8244_check-circle-outline.svg" 
-              alt="confirmed"
-            />
-          </span>
-          <div class="confirmed-date" style="font-size:10px; color:#666;">${
-            confirmedDate.split(" ")[0]
-          }</div>
-        </div>
-      `;
+      <button disabled title="Nie można zmienić statusu po wysyłce"
+              style="background-color: #e0e0e0; color: #666; border: none; padding: 4px 8px; border-radius: 4px;">
+        Wysłano
+      </button>`;
             }
 
-            return `<span data-tippy-content="W edycji">${editIcon}</span>`;
+            if (hasDownloaded) {
+              // Dropdown – można cofnąć lub zatwierdzić
+              const currentStatus = row.confirmedAt
+                ? "potwierdzono"
+                : "w edycji";
+
+              return `
+      <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}"
+              style="font-size: 12px; padding: 2px 6px;">
+        <option value="w edycji" ${
+          currentStatus === "w edycji" ? "selected" : ""
+        }>W edycji</option>
+        <option value="potwierdzono" ${
+          currentStatus === "potwierdzono" ? "selected" : ""
+        }>Potwierdzono</option>
+      </select>
+    `;
+            }
+
+            // Domyślny przycisk „W edycji”
+            return `
+    <button disabled title="Brak działań – dokument w edycji"
+            style="background-color: #f0f0f0; color: #333; border: none; padding: 4px 8px; border-radius: 4px;">
+      W edycji
+    </button>`;
           },
         },
 
