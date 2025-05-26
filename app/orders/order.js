@@ -705,16 +705,19 @@ docReady(function () {
             const events = row.events || [];
             const hasDownloaded = events.some((e) => e.type === "downloaded");
             const hasEmailed = events.some((e) => e.type === "emailed");
-            const currentStatus = row.confirmedAt ? "potwierdzono" : "w edycji";
 
-            const baseStyle =
-              "font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #666;";
+            const currentStatus = hasEmailed
+              ? "wysłano"
+              : row.confirmedAt
+              ? "potwierdzono"
+              : "w edycji";
+
+            const style =
+              "width: 107px; height: 22px; font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #333;";
 
             if (hasEmailed) {
               return `
-      <select disabled class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}"
-              title="Nie można zmienić statusu po wysyłce"
-              style="${baseStyle}">
+      <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
         <option selected>Wysłano</option>
       </select>`;
             }
@@ -723,7 +726,7 @@ docReady(function () {
               return `
       <select class="status-dropdown" data-wholesaler-key="${
         row.wholesalerKey
-      }" style="${baseStyle}">
+      }" style="${style}">
         <option value="w edycji" ${
           currentStatus === "w edycji" ? "selected" : ""
         }>W edycji</option>
@@ -734,9 +737,7 @@ docReady(function () {
             }
 
             return `
-    <select disabled class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}"
-            title="Dokument jest w edycji"
-            style="${baseStyle}">
+    <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
       <option selected>W edycji</option>
     </select>`;
           },
