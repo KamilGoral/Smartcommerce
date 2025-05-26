@@ -3742,7 +3742,7 @@ ${offerTimestampLine}
 
                       // Dodaj event `downloaded`
                       rowData.events.push({
-                        type: "downloaded",
+                        type: "emailed",
                         created: {
                           by: currentUser || "system",
                           at: now,
@@ -4829,6 +4829,8 @@ ${offerTimestampLine}
     };
 
     const updateRowStatus = (matchFn = () => true) => {
+      const table = $("#table_splited_wh").DataTable();
+
       table.rows().every(function () {
         const rowData = this.data();
 
@@ -4837,25 +4839,20 @@ ${offerTimestampLine}
         const now = new Date().toISOString();
         rowData.confirmedAt = now;
 
-        // Dodanie eventu `downloaded`
         if (!Array.isArray(rowData.events)) {
           rowData.events = [];
         }
+
         rowData.events.push({
           type: "downloaded",
           created: {
-            by: currentUser || "system", // <- Ustaw swoją zmienną użytkownika tutaj
+            by: currentUser || "system",
             at: now,
           },
         });
 
-        this.data(rowData);
-        const rowIndex = this.index();
-        table.row(rowIndex).invalidate().draw(false);
-
-        $('a[data-w-tab="AddProducts"]').hide();
-
-        return false;
+        this.data(rowData).invalidate().draw(false);
+        return false; // tylko jeden wiersz
       });
 
       updateStatusBadge();
