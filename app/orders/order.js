@@ -765,8 +765,8 @@ docReady(function () {
             const disabledAttr = isEditable ? "" : "disabled";
             const tooltip =
               currentStatus === "wysłano"
-                ? "Status Wysłano – nie można już go zmienić"
-                : "Status w edycji – brak działań, zmiana niedostępna";
+                ? "Zamówienie wysłane. Dalsze zmiany nie są możliwe."
+                : "Wyślij lub pobierz zamówienie, aby zmienić status";
 
             if (isEditable) {
               return `
