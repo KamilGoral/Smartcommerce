@@ -734,7 +734,7 @@ docReady(function () {
 
             const events = row.events || [];
 
-            // Szukamy najnowszego eventu
+            // Pobierz najnowszy event
             const latestEvent = events
               .slice()
               .sort(
@@ -743,42 +743,53 @@ docReady(function () {
 
             const latestType = latestEvent?.type || null;
 
-            const style =
-              "width: 107px; height: 28px; font-size: 12px; padding: 2px 6px; background-color: #f9f9f9; color: #333; border-radius: 6px;";
+            const isEmailed = latestType === "emailed";
+            const isDownloaded = latestType === "downloaded";
+            const isEditable = isDownloaded;
 
-            // Wysłano – tylko jedna opcja, nieedytowalna
-            if (latestType === "emailed") {
+            const currentStatus = isEmailed
+              ? "wysłano"
+              : row.confirmedAt
+              ? "potwierdzono"
+              : "w edycji";
+
+            const styleBase =
+              "width: 107px; height: 28px; font-size: 12px; padding: 2px 6px; border-radius: 6px;";
+            const styleDisabled =
+              "background-color: #f5f5f5; color: #666; appearance: none; -moz-appearance: none; -webkit-appearance: none;";
+            const styleEnabled =
+              "background-color: #fff; color: #333; cursor: pointer;";
+
+            const finalStyle =
+              styleBase + (isEditable ? styleEnabled : styleDisabled);
+            const disabledAttr = isEditable ? "" : "disabled";
+            const tooltip =
+              currentStatus === "wysłano"
+                ? "Status Wysłano – nie można już go zmienić"
+                : "Status w edycji – brak działań, zmiana niedostępna";
+
+            if (isEditable) {
               return `
-        <select class="status-dropdown status-disabled" disabled
-                data-tippy-content="Status Wysłano – nie można już go zmienić"
-                data-wholesaler-key="${row.wholesalerKey}" style="${style}">
-          <option selected class="status-sent">Wysłano</option>
-        </select>`;
-            }
-
-            // Pobrano – możemy wybrać między "w edycji" i "potwierdzono"
-            if (latestType === "downloaded") {
-              const currentStatus = row.confirmedAt
-                ? "potwierdzono"
-                : "w edycji";
-
-              return `
-        <select class="status-dropdown" data-wholesaler-key="${
-          row.wholesalerKey
-        }" style="${style}">
+        <select class="status-dropdown"
+                data-wholesaler-key="${row.wholesalerKey}" 
+                style="${finalStyle}">
           <option value="w edycji" ${
             currentStatus === "w edycji" ? "selected" : ""
-          } class="status-edit">W edycji</option>
+          }>W edycji</option>
           <option value="potwierdzono" ${
             currentStatus === "potwierdzono" ? "selected" : ""
-          } class="status-confirmed">Potwierdzono</option>
+          }>Potwierdzono</option>
         </select>`;
             }
 
-            // Brak działań – tylko "w edycji"
             return `
-      <select class="status-dropdown" data-wholesaler-key="${row.wholesalerKey}" style="${style}">
-        <option selected class="status-edit">W edycji</option>
+      <select class="status-dropdown status-disabled" ${disabledAttr}
+              data-tippy-content="${tooltip}" 
+              data-wholesaler-key="${row.wholesalerKey}" 
+              style="${finalStyle}">
+        <option selected>${
+          currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)
+        }</option>
       </select>`;
           },
         },
