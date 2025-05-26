@@ -601,13 +601,14 @@ docReady(function () {
             const showBonus = bonus !== 0 && bonus !== null;
 
             const badge = showBonus
-              ? `<span class="badge badge-bonus" data-tippy-content="Premia preferencyjna" 
-           style="margin-left: 8px; background: #1E90FF; color: white; padding: 2px 6px; font-size: 10px; border-radius: 8px;">
-           ${bonus > 0 ? "+" : ""}${bonus}%
+              ? `<span data-tippy-content="Premia preferencyjna"
+                class="${bonus >= 0 ? "positive" : "negative"}"
+                style="margin-left: 6px; font-size: 11px; white-space: nowrap; display: inline-block;">
+             ${bonus > 0 ? "+" : ""}${bonus}%
          </span>`
               : "";
 
-            return `${name} ${badge}`;
+            return `<span style="white-space: nowrap;">${name}${badge}</span>`;
           },
         },
 
