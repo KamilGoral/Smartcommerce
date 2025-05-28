@@ -2011,26 +2011,37 @@ docReady(function () {
 
   policyLink.addEventListener("click", async () => {
     try {
+      console.log("▶️ Kliknięto Policy. Pokazuję spinner...");
       $("#waitingdots").show();
+      console.log("🟢 waitingdots visible?", $("#waitingdots").is(":visible"));
 
-      // 👇 Daj przeglądarce czas na render
+      // Wymuś render (tick event loop)
       await new Promise((resolve) => setTimeout(resolve, 0));
+      console.log("⏱️ Render zakończony. Zaczynam pobieranie...");
 
-      console.log("Getting wholesalers...");
+      const t0 = performance.now();
+      console.log("📦 Rozpoczynam getWholesalers()");
       await getWholesalers();
-
-      console.log("Getting exclusive products...");
-      await getExclusiveProducts();
-
-      console.log("Getting pricats...");
-      await getPricats();
-    } catch (error) {
-      console.error(
-        "An error occurred while processing the policy link:",
-        error
+      const t1 = performance.now();
+      console.log(
+        `✅ getWholesalers() zakończony. Czas trwania: ${(t1 - t0).toFixed(
+          2
+        )} ms`
       );
+
+      console.log("📦 Rozpoczynam getExclusiveProducts()");
+      await getExclusiveProducts();
+      console.log("✅ getExclusiveProducts() zakończony");
+
+      console.log("📦 Rozpoczynam getPricats()");
+      await getPricats();
+      console.log("✅ getPricats() zakończony");
+    } catch (error) {
+      console.error("❌ Błąd:", error);
     } finally {
+      console.log("🛑 Ukrywam spinner...");
       $("#waitingdots").hide();
+      console.log("⚪ waitingdots hidden?", !$("#waitingdots").is(":visible"));
     }
   });
 
