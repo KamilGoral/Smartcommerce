@@ -3879,9 +3879,7 @@ docReady(function () {
         getUsers(),
         getInvoices(),
         navigateToInvoiceStateInvoices(),
-        getPricats(),
         getIntegrations(),
-        getExclusiveProducts(),
         controlTabVisibility(),
       ]);
     })
