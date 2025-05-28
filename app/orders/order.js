@@ -1440,36 +1440,69 @@ docReady(function () {
   }
 
   function formatEvents(data) {
-    const events = data.events || [];
-    if (events.length === 0)
-      return "<div style='padding: 10px;'>Brak zdarzeń.</div>";
+    const events = (data.events || [])
+      .slice()
+      .sort((a, b) => new Date(a.created.at) - new Date(b.created.at));
+
+    if (events.length === 0) {
+      return `<div style="padding: 12px;">Brak zdarzeń.</div>`;
+    }
 
     const eventTypeMap = {
-      downloaded: { label: "Pobrano", icon: "📥", color: "#007bff" },
-      emailed: { label: "Wysłano mailem", icon: "✉️", color: "#28a745" },
-      unconfirmed: { label: "Niepotwierdzone", icon: "⚠️", color: "#dc3545" },
+      downloaded: {
+        label: "Pobrano",
+        icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fd56c85fd56efbd5b_download.svg",
+        tooltip: "Zamówienie zostało pobrane z systemu",
+      },
+      emailed: {
+        label: "Wysłano",
+        icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg",
+        tooltip: "Zamówienie zostało wysłane e-mailem",
+      },
+      unconfirmed: {
+        label: "Niepotwierdzone",
+        icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg",
+        tooltip: "Zamówienie w trakcie edycji",
+      },
     };
 
-    const html = events
+    const rowsHtml = events
       .map((e) => {
         const type = eventTypeMap[e.type] || {
           label: e.type,
-          icon: "❓",
-          color: "#6c757d",
+          icon: "",
+          tooltip: "Nieznany typ zdarzenia",
         };
+        const date = new Date(e.created.at).toLocaleString("pl-PL");
+
         return `
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #eee;">
-          <span style="color: ${type.color}; font-weight: 500;">${type.icon} ${
-          type.label
-        }</span>
-          <span>${new Date(e.created.at).toLocaleString("pl-PL")}</span>
-          <span style="font-style: italic;">${e.created.by}</span>
-        </div>
-      `;
+        <tr>
+          <td>${date}</td>
+          <td class="tippy" data-tippy-content="${type.tooltip}">
+            <img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />
+            <span>${type.label}</span>
+          </td>
+          <td>${e.created.by}</td>
+        </tr>`;
       })
       .join("");
 
-    return `<div style="background: #f9f9f9; border-left: 4px solid #007bff; padding: 10px 0;">${html}</div>`;
+    return `
+    <div style="padding: 8px 16px;">
+      <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid #ccc;">
+            <th style="padding: 6px 4px;">Data</th>
+            <th style="padding: 6px 4px;">Zdarzenie</th>
+            <th style="padding: 6px 4px;">Użytkownik</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
   }
 
   function generateWholesalerSelect(
