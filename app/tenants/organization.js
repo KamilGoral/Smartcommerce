@@ -1520,16 +1520,6 @@ docReady(function () {
   }
 
   async function getWholesalers() {
-    while (!getCookie("sprytnyUserRole") && attempts < 5) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      attempts++;
-    }
-
-    if (getCookie("sprytnyUserRole") !== "admin") {
-      console.log("Action not permitted for non-admin users.");
-      return;
-    }
-
     let url = new URL(InvokeURL + "wholesalers?perPage=1000");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
