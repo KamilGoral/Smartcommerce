@@ -2580,7 +2580,155 @@ docReady(function () {
         });
       },
       columns: [
-        /* <- tu wstaw swoje kolumny tak jak masz je zdefiniowane */
+        {
+          visible: false,
+          orderable: false,
+          data: "uuid",
+        },
+        {
+          visible: false,
+          orderable: false,
+          data: "created.at",
+        },
+        {
+          visible: false,
+          orderable: false,
+          data: "created.by",
+        },
+        {
+          orderable: true,
+          data: "gtin",
+        },
+        {
+          orderable: true,
+          data: "name",
+        },
+        {
+          orderable: false,
+          data: "countryDistributorName",
+          defaultContent: "-",
+        },
+        {
+          orderable: true,
+          data: null,
+          render: function (data) {
+            if (
+              data.wholesalerName !== null &&
+              data.hasOwnProperty("wholesalerName") &&
+              typeof data.wholesalerName !== "undefined"
+            ) {
+              return data.wholesalerName;
+            } else {
+              return "BLOKADA";
+            }
+          },
+        },
+        {
+          visible: false,
+          orderable: false,
+          data: "wholesalerKey",
+          render: function (data) {
+            if (data !== null) {
+              return data;
+            }
+            if (data === null) {
+              return "BLOKADA";
+            }
+          },
+        },
+        {
+          orderable: true,
+          data: "startDate",
+          render: function (data) {
+            if (data !== null) {
+              var startDate = new Date(data);
+              return startDate.toLocaleDateString("pl-PL");
+            }
+            if (data === null) {
+              return "";
+            }
+          },
+        },
+        {
+          orderable: true,
+          data: null,
+          render: function (data) {
+            if (
+              data.endDate !== null &&
+              typeof data.endDate !== "undefined" &&
+              data.endDate !== "infinity"
+            ) {
+              myendDate = new Date(data.endDate).toLocaleDateString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              });
+              if (data.endDate >= nowDate) {
+                return '<span class="positive">' + myendDate + "</span>";
+              } else {
+                return '<span class="noneexisting">' + myendDate + "</span>";
+              }
+            }
+
+            if (data.endDate === "infinity") {
+              return '<span class="positive">Nigdy</span>';
+            }
+          },
+        },
+
+        {
+          orderable: true,
+          data: "modified",
+          render: function (data) {
+            if (
+              data !== null &&
+              data.hasOwnProperty("by") &&
+              data.by !== null
+            ) {
+              return data.by;
+            } else {
+              return "-";
+            }
+          },
+        },
+        {
+          orderable: true,
+          data: "modified",
+          render: function (data) {
+            if (
+              data !== null &&
+              data.hasOwnProperty("at") &&
+              data.at !== null
+            ) {
+              var lastModificationDate = new Date(data.at);
+              var formattedDate = lastModificationDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+              return formattedDate;
+            }
+            if (data === null) {
+              return "";
+            }
+          },
+        },
+        {
+          orderable: false,
+          data: null,
+          width: "48px",
+          render: function (data) {
+            if (nowDate >= data.endDate && nowDate >= data.startDate) {
+              return "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+            } else {
+              return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+            }
+          },
+        },
       ],
       initComplete: function () {
         const api = this.api();
