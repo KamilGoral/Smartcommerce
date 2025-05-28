@@ -497,32 +497,37 @@ docReady(function () {
   function bindStatusEvents() {
     initializeSimpleTooltips();
 
-    // Delegacja eventów na elemencie nadrzędnym tabeli
+    // Obsługa zdarzenia zmiany statusu
     $("#table_splited_wh")
       .off("change", ".status-dropdown")
       .on("change", ".status-dropdown", function () {
         const selectedValue = $(this).val();
         const previousValue = $(this).data("previous-value");
 
+        const selectElement = $(this);
         const table = $("#table_splited_wh").DataTable();
-        const row = $(this).closest("tr");
+        const row = selectElement.closest("tr");
         const rowData = table.row(row).data();
         const wholesalerKey = rowData.wholesalerKey;
         const wholesalerName = rowData.wholesalerName || wholesalerKey;
 
         if (previousValue === "potwierdzono" && selectedValue === "w edycji") {
+          // Ustawienie tekstu modala
           $("#undotText").text(
-            `Czy na pewno chcesz cofnąć zamówienie od dostawcy ${wholesalerName}?`
+            `Czy na pewno chcesz cofnąć zamówienie do dostawcy ${wholesalerName}?`
           );
 
+          // Pokaż modal i przekaż dane
           $("#undoOrderModal").css("display", "flex").data({
-            shopKey: shopKey,
-            orderId: orderId,
-            wholesalerKey: wholesalerKey,
-            selectElement: this,
+            shopKey,
+            orderId,
+            wholesalerKey,
+            selectElement,
+            previousValue,
+            selectedValue,
           });
         } else {
-          $(this).data("previous-value", selectedValue);
+          selectElement.data("previous-value", selectedValue);
         }
       });
 
@@ -530,47 +535,58 @@ docReady(function () {
     $("#table_splited_wh .status-dropdown").each(function () {
       $(this).data("previous-value", $(this).val());
     });
+
+    // Obsługa anulowania cofnięcia (X lub przycisk "Nie")
+    $(".icon-close, #undoNo, #cancelUndoButton")
+      .off("click")
+      .on("click", function (e) {
+        e.preventDefault();
+        const modal = $("#undoOrderModal");
+        const selectElement = modal.data("selectElement");
+        const previousValue = modal.data("previousValue");
+
+        $(selectElement).val(previousValue);
+        modal.hide();
+      });
+
+    // Obsługa potwierdzenia cofnięcia ("Tak")
+    $("#undoForm")
+      .off("submit")
+      .on("submit", function (e) {
+        e.preventDefault();
+
+        const modal = $("#undoOrderModal");
+        const modalData = modal.data();
+        const selectElement = modalData.selectElement;
+        const selectedValue = modalData.selectedValue;
+
+        $(selectElement).data("previous-value", selectedValue);
+        modal.hide();
+
+        const table = $("#table_splited_wh").DataTable();
+
+        // Aktualizacja danych w tabeli DataTables
+        table.rows().every(function () {
+          const rowData = this.data();
+          if (rowData.wholesalerKey === modalData.wholesalerKey) {
+            // Ustawienie pola potwierdzenia na null
+            rowData.confirmedAt = null;
+
+            // Usunięcie zdarzeń typu "downloaded"
+            if (Array.isArray(rowData.events)) {
+              rowData.events = rowData.events.filter(
+                (event) => event.type !== "downloaded"
+              );
+            }
+
+            this.data(rowData).invalidate().draw(false);
+            return false; // zakończenie iteracji
+          }
+        });
+
+        // Opcjonalnie: tutaj AJAX do backendu o cofnięciu zamówienia
+      });
   }
-
-  // Obsługa potwierdzenia w modalu cofania statusu
-  $("#confirmUndoButton").on("click", function () {
-    const modalData = $("#undoOrderModal").data();
-    const selectElement = modalData.selectElement;
-
-    // Zmień wartość selecta
-    $(selectElement).val("w edycji").data("previous-value", "w edycji");
-
-    // Aktualizuj dane w DataTable
-    const table = $("#table_splited_wh").DataTable();
-    table.rows().every(function () {
-      const rowData = this.data();
-      if (rowData.wholesalerKey === modalData.wholesalerKey) {
-        rowData.confirmedAt = null;
-
-        // Usuwamy event 'downloaded' lub inne jeśli potrzeba
-        if (Array.isArray(rowData.events)) {
-          rowData.events = rowData.events.filter(
-            (e) => e.type !== "downloaded"
-          );
-        }
-
-        this.data(rowData).invalidate().draw(false);
-        return false; // break
-      }
-    });
-
-    $("#undoOrderModal").hide();
-  });
-
-  // Obsługa anulowania cofnięcia
-  $("#cancelUndoButton").on("click", function () {
-    const modalData = $("#undoOrderModal").data();
-    const selectElement = modalData.selectElement;
-
-    // Przywróć poprzednią wartość
-    $(selectElement).val("potwierdzono");
-    $("#undoOrderModal").hide();
-  });
 
   function buildSplittedTable(data = []) {
     var table = $("#table_splited_wh").DataTable({
