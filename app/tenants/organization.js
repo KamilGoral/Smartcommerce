@@ -2462,6 +2462,165 @@ docReady(function () {
     });
   };
 
+  async function getExclusiveProducts() {
+    let attempts = 0;
+    while (!getCookie("sprytnyUserRole") && attempts < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    if (getCookie("sprytnyUserRole") !== "admin") {
+      console.log("Action not permitted for non-admin users.");
+      return;
+    }
+
+    const nowDate = new Date();
+    let initialrecords = null;
+
+    // Jeśli tabela już istnieje, zniszcz ją i stwórz od nowa
+    if ($.fn.dataTable.isDataTable("#table_id")) {
+      $("#table_id").DataTable().clear().destroy();
+    }
+
+    $("#table_id").DataTable({
+      pagingType: "full_numbers",
+      order: [],
+      dom: '<"top">rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 25,
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rezultatów",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+      },
+      serverSide: true,
+      processing: false,
+      search: { return: true },
+      ajax: function (data, callback, settings) {
+        let QStr = `?perPage=${data.length}&page=${
+          (data.start + data.length) / data.length
+        }`;
+
+        const searchBox = $("#gtinName").val().trim();
+        if (/^\d+$/.test(searchBox)) {
+          QStr += `&gtin=${searchBox}`;
+        } else if (searchBox) {
+          QStr += `&name=like:${searchBox}`;
+        }
+
+        const wholesaler = $("#wholesalerPicker")
+          .map(function () {
+            return this.value;
+          })
+          .get()
+          .toString();
+        if (wholesaler) QStr += `&wholesalerKey=${wholesaler}`;
+
+        const startDate = $("#startDate").val();
+        if (startDate) QStr += `&startDate=gte:${startDate}T00:00:00Z`;
+
+        const endDate = $("#endDate").val();
+        if (endDate) QStr += `&endDate=lte:${endDate}T00:00:00Z`;
+
+        const sortColumnMap = {
+          3: "gtin:",
+          4: "name:",
+          6: "wholesalerKey:",
+          8: "startDate:",
+          9: "endDate:",
+          10: "modified.by:",
+          11: "modified.at:",
+        };
+        let sortColumn = "null",
+          direction = "desc";
+        if (data.order.length > 0) {
+          sortColumn = sortColumnMap[data.order[0].column] || "null";
+          direction = data.order[0].dir;
+        }
+        if (sortColumn !== "null") QStr += `&sort=${sortColumn}${direction}`;
+
+        $.ajaxSetup({
+          headers: {
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          beforeSend: () => $("#waitingdots").show(),
+          complete: () => $("#waitingdots").hide(),
+        });
+
+        $.get(InvokeURL + "exclusive-products" + QStr, function (res) {
+          if (initialrecords === null) initialrecords = res.total;
+
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+
+          const empty = res.total === 0;
+          $("#emptystateexclusive").css("display", empty ? "flex" : "none");
+          $("#fullstateexclusive").css("display", empty ? "none" : "flex");
+
+          setTimeout(() => {
+            $.fn.dataTable
+              .tables({ visible: true, api: true })
+              .columns.adjust();
+          }, 400);
+        });
+      },
+      columns: [
+        /* <- tu wstaw swoje kolumny tak jak masz je zdefiniowane */
+      ],
+      initComplete: function () {
+        const api = this.api();
+        const textBox = $("#table_id_filter label input");
+
+        $("#wholesalerPicker").on("change", () => api.draw());
+
+        let typingTimer;
+        const typingDelay = 3000;
+        $("#gtinName")
+          .on("input", function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => api.draw(), typingDelay);
+          })
+          .on("keypress", function (e) {
+            if (e.key === "Enter") {
+              clearTimeout(typingTimer);
+              api.draw();
+            }
+          });
+
+        $("#startDate, #endDate").each(function () {
+          $(this)
+            .datepicker({
+              onSelect: () => $(this).change(),
+            })
+            .on("change", () => api.draw());
+        });
+
+        $(".dataTables_filter input").on("focusout", () => api.draw());
+
+        textBox.unbind().bind("keyup input", function (e) {
+          if (e.keyCode == 13) api.search(this.value).draw();
+        });
+
+        $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+      },
+    });
+  }
+
   async function getPricats() {
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -3611,6 +3770,7 @@ docReady(function () {
         navigateToInvoiceStateInvoices(),
         getPricats(),
         getIntegrations(),
+        getExclusiveProducts(),
       ]);
     })
     .then(() => {
@@ -3690,495 +3850,6 @@ docReady(function () {
   }
 
   setupDatePickers();
-
-  var initialrecords = null;
-
-  var table = $("#table_id").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top">rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 25,
-    language: {
-      emptyTable: "Brak danych do wyswietlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatow)",
-      lengthMenu: "Pokaz _MENU_ rezulatow",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujacych rezultatow",
-      paginate: {
-        first: "<<",
-        last: ">>",
-        next: " >",
-        previous: "< ",
-      },
-    },
-    ajax: function (data, callback, settings) {
-      var QStr =
-        "?perPage=" +
-        data.length +
-        "&page=" +
-        (data.start + data.length) / data.length;
-
-      let searchBox = $("#gtinName").val().trim(); // This will remove whitespace from both ends
-
-      if (/^\d+$/.test(searchBox)) {
-        /// this need to be changed to gtin
-        QStr = QStr + "&gtin=" + searchBox;
-      } else if (searchBox) {
-        QStr = QStr + "&name=like:" + searchBox;
-      } else {
-      }
-
-      var whKeyIndi = $("#wholesalerPicker")
-        .map(function () {
-          return this.value;
-        })
-        .get();
-      var whKeyIndiStr = whKeyIndi.toString();
-      if (whKeyIndiStr != "") {
-        QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
-      }
-
-      // This is usefull
-      var nowTime = new Date(Date.now()).toISOString().split("T")[0];
-
-      var startDatePicker = $("#startDate")
-        .map(function () {
-          return this.value;
-        })
-        .get();
-      var startDatePickerStr = startDatePicker.toString();
-      if (startDatePickerStr != "") {
-        QStr = QStr + "&startDate=gte:" + startDatePickerStr + "T00:00:00Z";
-      }
-
-      var endDatePicker = $("#endDate")
-        .map(function () {
-          return this.value;
-        })
-        .get();
-      var endDatePickerStr = endDatePicker.toString();
-      if (endDatePickerStr != "") {
-        QStr = QStr + "&endDate=lte:" + endDatePickerStr + "T00:00:00Z";
-      }
-
-      var whichColumns = "";
-      var direction = "desc";
-
-      if (data.order.length == 0) {
-        whichColumns = 0;
-      } else {
-        whichColumns = data.order[0]["column"];
-        direction = data.order[0]["dir"];
-      }
-      console.log(whichColumns);
-
-      switch (whichColumns) {
-        case 3:
-          whichColumns = "gtin:";
-          break;
-        case 4:
-          whichColumns = "name:";
-          break;
-        case 6:
-          whichColumns = "wholesalerKey:";
-          break;
-        case 8:
-          whichColumns = "startDate:";
-          break;
-        case 9:
-          whichColumns = "endDate:";
-          break;
-        case 10:
-          whichColumns = "modified.by:";
-          break;
-        case 11:
-          whichColumns = "modified.at:";
-          break;
-        default:
-          whichColumns = "null";
-      }
-
-      var sort = "&sort=" + whichColumns + direction;
-      if (whichColumns != "null") {
-        QStr = QStr + sort;
-      }
-
-      $.ajaxSetup({
-        headers: {
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4",
-        },
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-      });
-      $.get(InvokeURL + "exclusive-products" + QStr, function (res) {
-        if (initialrecords === null) {
-          initialrecords = res.total;
-        }
-
-        callback({
-          recordsTotal: res.total,
-          recordsFiltered: res.total,
-          data: res.items,
-        });
-        if (initialrecords === 0) {
-          $("#emptystateexclusive").css("display", "flex");
-          $("#fullstateexclusive").css("display", "none");
-        } else {
-          $("#emptystateexclusive").css("display", "none");
-          $("#fullstateexclusive").css("display", "flex");
-          setTimeout(function () {
-            // Your code to adjust DataTable columns
-            $.fn.dataTable
-              .tables({ visible: true, api: true })
-              .columns.adjust();
-          }, 400);
-        }
-      });
-    },
-    processing: false,
-    serverSide: true,
-    search: {
-      return: true,
-    },
-    columns: [
-      {
-        visible: false,
-        orderable: false,
-        data: "uuid",
-      },
-      {
-        visible: false,
-        orderable: false,
-        data: "created.at",
-      },
-      {
-        visible: false,
-        orderable: false,
-        data: "created.by",
-      },
-      {
-        orderable: true,
-        data: "gtin",
-      },
-      {
-        orderable: true,
-        data: "name",
-      },
-      {
-        orderable: false,
-        data: "countryDistributorName",
-        defaultContent: "-",
-      },
-      {
-        orderable: true,
-        data: null,
-        render: function (data) {
-          if (
-            data.wholesalerName !== null &&
-            data.hasOwnProperty("wholesalerName") &&
-            typeof data.wholesalerName !== "undefined"
-          ) {
-            return data.wholesalerName;
-          } else {
-            return "BLOKADA";
-          }
-        },
-      },
-      {
-        visible: false,
-        orderable: false,
-        data: "wholesalerKey",
-        render: function (data) {
-          if (data !== null) {
-            return data;
-          }
-          if (data === null) {
-            return "BLOKADA";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "startDate",
-        render: function (data) {
-          if (data !== null) {
-            var startDate = new Date(data);
-            return startDate.toLocaleDateString("pl-PL");
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: null,
-        render: function (data) {
-          if (
-            data.endDate !== null &&
-            typeof data.endDate !== "undefined" &&
-            data.endDate !== "infinity"
-          ) {
-            myendDate = new Date(data.endDate).toLocaleDateString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            });
-            if (data.endDate >= nowDate) {
-              return '<span class="positive">' + myendDate + "</span>";
-            } else {
-              return '<span class="noneexisting">' + myendDate + "</span>";
-            }
-          }
-
-          if (data.endDate === "infinity") {
-            return '<span class="positive">Nigdy</span>';
-          }
-        },
-      },
-
-      {
-        orderable: true,
-        data: "modified",
-        render: function (data) {
-          if (data !== null && data.hasOwnProperty("by") && data.by !== null) {
-            return data.by;
-          } else {
-            return "-";
-          }
-        },
-      },
-      {
-        orderable: true,
-        data: "modified",
-        render: function (data) {
-          if (data !== null && data.hasOwnProperty("at") && data.at !== null) {
-            var lastModificationDate = new Date(data.at);
-            var formattedDate = lastModificationDate.toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            });
-            return formattedDate;
-          }
-          if (data === null) {
-            return "";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: null,
-        width: "48px",
-        render: function (data) {
-          if (nowDate >= data.endDate && nowDate >= data.startDate) {
-            return "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
-          } else {
-            return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
-          }
-        },
-      },
-    ],
-    initComplete: function (settings, json) {
-      var api = this.api();
-      var textBox = $("#table_id_filter label input");
-      $("#wholesalerPicker").on("change", function () {
-        table.draw();
-      });
-
-      let typingTimer;
-      const typingDelay = 3000; // 3 seconds
-
-      $("#gtinName").on("input", function () {
-        clearTimeout(typingTimer); // Clear the timer if the user is still typing
-        typingTimer = setTimeout(function () {
-          table.draw(); // Redraw the table after 3 seconds of inactivity
-        }, typingDelay);
-      });
-
-      // Also trigger table draw if the user presses Enter
-      $("#gtinName").on("keypress", function (e) {
-        if (e.key === "Enter") {
-          clearTimeout(typingTimer); // Clear any pending timer
-          table.draw(); // Draw table immediately on Enter
-        }
-      });
-
-      $("#startDate")
-        .datepicker({
-          onSelect: function (dateText) {
-            WholesalerSelector;
-            console.log(
-              "Selected date: " +
-                dateText +
-                "; input's current value: " +
-                this.value
-            );
-            $(this).change();
-          },
-        })
-        .on("change", function () {
-          console.log("Got change event from field");
-          table.draw();
-        });
-
-      $("#endDate")
-        .datepicker({
-          onSelect: function (dateText) {
-            console.log(
-              "Selected date: " +
-                dateText +
-                "; input's current value: " +
-                this.value
-            );
-            $(this).change();
-          },
-        })
-        .on("change", function () {
-          console.log("Got change event from field");
-          table.draw();
-        });
-
-      $("#table_id").on("click", "img", function () {
-        //Get the cell of the input
-        var table = $("#table_id").DataTable();
-        var data = table.row($(this).parents("tr")).data();
-        var action = $(this).attr("action");
-
-        if (action === "delete") {
-          $.ajax({
-            type: "DELETE",
-            url: InvokeURL + "exclusive-products/" + data.uuid,
-            cors: true,
-            beforeSend: function () {
-              $("#waitingdots").show();
-            },
-            complete: function () {
-              $("#waitingdots").hide();
-            },
-            contentType: "application/json",
-            dataType: "json",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
-            success: function (resultData) {
-              table.row($(this).parents("tr")).remove().draw();
-              displayMessage("Success", "Blokada została usunięta.");
-            },
-            error: function (jqXHR, exception) {
-              console.log(jqXHR);
-              console.log(jqXHR);
-              console.log(exception);
-              displayMessage(
-                "Error",
-                "Oops. Coś poszło nie tak, spróbuj ponownie."
-              );
-              return;
-            },
-          });
-        }
-        if (action === "edit") {
-          $("#EditExclusivePopup").css("display", "flex");
-
-          var offset = new Date().getTimezoneOffset();
-          var localeTime = new Date(
-            Date.parse(data.created.at) - offset * 60 * 1000
-          ).toISOString();
-          var creationDate = localeTime.split("T");
-          var creationTime = creationDate[1].split("Z");
-          CreatedTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
-
-          $("#GTINInputEdit")
-            .prop("disabled", true)
-            .css("opacity", "0.6")
-            .val(data.gtin);
-          $("#Creator")
-            .prop("disabled", true)
-            .css("opacity", "0.6")
-            .val(data.created.by);
-          $("#Created")
-            .prop("disabled", true)
-            .css("opacity", "0.6")
-            .val(CreatedTime);
-
-          $("#exclusiveProductId").val(data.uuid);
-          $("#WholesalerSelector-Exclusive-Edit")
-            .val(data.wholesalerKey)
-            .change();
-
-          if (nowDate > data.endDate && nowDate >= startDate) {
-            $("#WholesalerSelector-Exclusive-Edit")
-              .prop("disabled", true)
-              .css("opacity", "0.6")
-              .val(CreatedTime);
-          }
-
-          if (nowDate > data.endDate || data.endDate == "infinity") {
-            if (data.endDate != "infinity") {
-              $("#endDate-Exclusive-Edit").datepicker(
-                "setDate",
-                new Date(Date.parse(data.endDate))
-              );
-              $("#endDate-Exclusive-Edit").prop("disabled", true);
-              $("#endDate-Exclusive-Edit").css("opacity", "0.6");
-            } else {
-              console.log("infinity");
-              //$("#NeverSingleEdit").prop("checked", true);
-            }
-          }
-
-          if (nowDate <= data.endDate) {
-            $("#endDate-Exclusive-Edit").datepicker(
-              "setDate",
-              new Date(Date.parse(data.endDate))
-            );
-          } else {
-          }
-
-          if (nowDate >= data.startDate) {
-            $("#startDate-Exclusive-Edit").css("opacity", "0.6");
-            $("#startDate-Exclusive-Edit").datepicker(
-              "setDate",
-              new Date(Date.parse(data.startDate))
-            );
-            $("#startDate-Exclusive-Edit").prop("disabled", true);
-          } else {
-            $("#startDate-Exclusive-Edit").datepicker(
-              "setDate",
-              new Date(Date.now())
-            );
-          }
-        }
-      });
-
-      $(".dataTables_filter input").on("focusout", function () {
-        table.draw();
-      });
-      textBox.unbind();
-      textBox.bind("keyup input", function (e) {
-        if (e.keyCode == 13) {
-          api.search(this.value).draw();
-        }
-      });
-      $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
-    },
-  });
 
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
