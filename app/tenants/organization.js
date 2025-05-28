@@ -1534,7 +1534,7 @@ docReady(function () {
         // Ukrycie loadera dopiero po 1sek
         setTimeout(function () {
           $("#waitingdots").hide();
-        }, 1000); // 1000 milliseconds = 1 second
+        }, 2000); // 1000 milliseconds = 1 second
 
         var data = JSON.parse(this.response);
         var toParse = data.items;
