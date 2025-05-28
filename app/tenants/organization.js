@@ -2011,12 +2011,12 @@ docReady(function () {
 
   policyLink.addEventListener("click", async () => {
     $("#waitingdots").show();
-
     try {
       // Teraz dopiero wywołujemy getWholesalers
       await getWholesalers();
       console.log("Getting wholesalers...");
-      // Tu dalsze akcje jeśli trzeba
+      await getExclusiveProducts();
+      console.log("Getting exclusive products...");
     } catch (error) {
       console.error(
         "An error occurred while processing the policy link:",
@@ -2433,17 +2433,6 @@ docReady(function () {
   };
 
   async function getExclusiveProducts() {
-    let attempts = 0;
-    while (!getCookie("sprytnyUserRole") && attempts < 5) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      attempts++;
-    }
-
-    if (getCookie("sprytnyUserRole") !== "admin") {
-      console.log("Action not permitted for non-admin users.");
-      return;
-    }
-
     const nowDate = new Date();
     let initialrecords = null;
 
