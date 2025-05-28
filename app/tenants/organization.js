@@ -2011,14 +2011,19 @@ docReady(function () {
 
   policyLink.addEventListener("click", async () => {
     try {
-      // Teraz dopiero wywołujemy getWholesalers
       $("#waitingdots").show();
-      await getWholesalers();
+
+      // 🔁 Daj przeglądarce szansę na wyrenderowanie spinnera
+      await new Promise(requestAnimationFrame);
+
       console.log("Getting wholesalers...");
-      await getExclusiveProducts();
+      await getWholesalers();
+
       console.log("Getting exclusive products...");
-      await getPricats();
+      await getExclusiveProducts();
+
       console.log("Getting pricats...");
+      await getPricats();
     } catch (error) {
       console.error(
         "An error occurred while processing the policy link:",
