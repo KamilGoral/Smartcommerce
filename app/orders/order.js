@@ -1442,7 +1442,7 @@ docReady(function () {
   function formatEvents(data) {
     const events = (data.events || [])
       .slice()
-      .sort((a, b) => new Date(a.created.at) - new Date(b.created.at));
+      .sort((a, b) => new Date(b.created.at) - new Date(a.created.at));
 
     if (events.length === 0) {
       return `<div style="padding: 12px 44px;">Brak zdarzeń.</div>`;
