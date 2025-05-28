@@ -632,7 +632,10 @@ docReady(function () {
           width: "20px",
           className: "details-control",
           createdCell: function (cell, cellData, rowData) {
-            if (rowData.events && rowData.events.length > 0) {
+            if (
+              rowData.wholesalerName !== "unassigned" &&
+              rowData.events?.length > 0
+            ) {
               $(cell).addClass("details-control");
             }
           },
@@ -1441,18 +1444,32 @@ docReady(function () {
     if (events.length === 0)
       return "<div style='padding: 10px;'>Brak zdarzeń.</div>";
 
+    const eventTypeMap = {
+      downloaded: { label: "Pobrano", icon: "📥", color: "#007bff" },
+      emailed: { label: "Wysłano mailem", icon: "✉️", color: "#28a745" },
+      unconfirmed: { label: "Niepotwierdzone", icon: "⚠️", color: "#dc3545" },
+    };
+
     const html = events
-      .map(
-        (e) => `
-      <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid #eee;">
-        <span><strong>${e.type}</strong></span>
-        <span>${new Date(e.created.at).toLocaleString("pl-PL")}</span>
-        <span>${e.created.by}</span>
-      </div>`
-      )
+      .map((e) => {
+        const type = eventTypeMap[e.type] || {
+          label: e.type,
+          icon: "❓",
+          color: "#6c757d",
+        };
+        return `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #eee;">
+          <span style="color: ${type.color}; font-weight: 500;">${type.icon} ${
+          type.label
+        }</span>
+          <span>${new Date(e.created.at).toLocaleString("pl-PL")}</span>
+          <span style="font-style: italic;">${e.created.by}</span>
+        </div>
+      `;
+      })
       .join("");
 
-    return `<div style="padding: 10px; background: #fafafa;">${html}</div>`;
+    return `<div style="background: #f9f9f9; border-left: 4px solid #007bff; padding: 10px 0;">${html}</div>`;
   }
 
   function generateWholesalerSelect(
