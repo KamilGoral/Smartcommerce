@@ -3930,16 +3930,21 @@ docReady(function () {
     });
 
   async function controlTabVisibility() {
-    const tabConfig = {
-      admin: ["Shops", "Policy", "Integrations", "Settings"],
-      user: ["Shops", "Policy"],
-    };
+    const hiddenTabsForAdmin = ["Documents"];
+    const visibleTabsForUser = [
+      "Shops",
+      "Policy",
+      "Wholesalers",
+      "Pricelists",
+      "Exclusive",
+      "Premium",
+    ];
 
     const maxAttempts = 10;
     let attempts = 0;
     let role = null;
 
-    // Czekaj na załadowanie ciasteczka z rolą
+    // Czekaj na ciasteczko z rolą
     while (!role && attempts < maxAttempts) {
       role = getCookie("sprytnyUserRole");
       if (!role) {
@@ -3948,18 +3953,32 @@ docReady(function () {
       }
     }
 
-    if (!role || !tabConfig[role]) {
-      console.warn("Nieznana rola lub brak konfiguracji dla roli:", role);
+    if (!role) {
+      console.warn("Nie udało się ustalić roli użytkownika.");
       return;
     }
 
-    // Ukryj wszystkie zakładki
-    $("a[data-w-tab]").hide();
+    const $allTabs = $("a[data-w-tab]");
 
-    // Pokaż tylko zakładki zdefiniowane dla roli
-    tabConfig[role].forEach((tabName) => {
-      $(`a[data-w-tab="${tabName}"]`).show();
-    });
+    if (role === "admin") {
+      // Pokaż wszystkie
+      $allTabs.show();
+
+      // Ukryj tylko wybrane
+      hiddenTabsForAdmin.forEach((tab) => {
+        $(`a[data-w-tab="${tab}"]`).hide();
+      });
+    } else if (role === "user") {
+      // Ukryj wszystkie
+      $allTabs.hide();
+
+      // Pokaż tylko wybrane
+      visibleTabsForUser.forEach((tab) => {
+        $(`a[data-w-tab="${tab}"]`).show();
+      });
+    } else {
+      console.warn("Nieznana rola:", role);
+    }
   }
 
   // Wywołaj funkcję przy inicjalizacji
