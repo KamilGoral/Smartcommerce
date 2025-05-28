@@ -472,7 +472,7 @@ docReady(function () {
     if (isSuspended) {
       displaySuspendedMessage();
     } else {
-      showAllTabs();
+      console.log("here");
     }
   }
 
@@ -499,11 +499,6 @@ docReady(function () {
     const tabsToHide = ["Policy", "Integrations", "Documents"];
     tabsToHide.forEach((tab) => $(`a[data-w-tab="${tab}"]`).hide());
     $('a[data-w-tab="Settings"]').show();
-  }
-
-  function showAllTabs() {
-    const tabsToShow = ["Policy", "Integrations", "Settings"];
-    tabsToShow.forEach((tab) => $(`a[data-w-tab="${tab}"]`).show());
   }
 
   function navigateToInvoiceRow() {
