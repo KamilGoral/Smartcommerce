@@ -1445,7 +1445,7 @@ docReady(function () {
       .sort((a, b) => new Date(a.created.at) - new Date(b.created.at));
 
     if (events.length === 0) {
-      return `<div style="padding: 12px;">Brak zdarzeń.</div>`;
+      return `<div style="padding: 12px 44px;">Brak zdarzeń.</div>`;
     }
 
     const eventTypeMap = {
@@ -1477,32 +1477,37 @@ docReady(function () {
 
         return `
         <tr>
-          <td>${date}</td>
-          <td class="tippy" data-tippy-content="${type.tooltip}">
-            <img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />
-            <span>${type.label}</span>
+          <td style="padding: 6px 8px;">${date}</td>
+          <td style="padding: 6px 8px;" class="tippy" data-tippy-content="${
+            type.tooltip
+          }">
+            ${
+              type.icon
+                ? `<img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />`
+                : ""
+            }
+            ${type.label}
           </td>
-          <td>${e.created.by}</td>
+          <td style="padding: 6px 8px;">${e.created.by}</td>
         </tr>`;
       })
       .join("");
 
     return `
-    <div style="padding: 8px 16px;">
-      <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+    <div style="padding: 0 0 8px 44px;">
+      <table style="width: auto; border-collapse: collapse; font-size: 13px;">
         <thead>
-          <tr style="text-align: left; border-bottom: 1px solid #ccc;">
-            <th style="padding: 6px 4px;">Data</th>
-            <th style="padding: 6px 4px;">Zdarzenie</th>
-            <th style="padding: 6px 4px;">Użytkownik</th>
+          <tr style="border-bottom: 1px solid #ccc;">
+            <th style="text-align: left; padding: 6px 8px;">Data</th>
+            <th style="text-align: left; padding: 6px 8px;">Zdarzenie</th>
+            <th style="text-align: left; padding: 6px 8px;">Użytkownik</th>
           </tr>
         </thead>
         <tbody>
           ${rowsHtml}
         </tbody>
       </table>
-    </div>
-  `;
+    </div>`;
   }
 
   function generateWholesalerSelect(
