@@ -2775,6 +2775,11 @@ docReady(function () {
         $("#emptystatepricelists").toggle(!hasEntries);
         $("#pricelistscontainer").toggle(hasEntries);
 
+        // 🛠 Zniszcz istniejącą instancję, jeśli istnieje
+        if ($.fn.DataTable.isDataTable("#table_pricelists_list")) {
+          $("#table_pricelists_list").DataTable().clear().destroy();
+        }
+
         const table = $("#table_pricelists_list").DataTable({
           data: toParse,
           pagingType: "full_numbers",
