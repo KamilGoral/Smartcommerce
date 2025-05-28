@@ -3934,6 +3934,42 @@ docReady(function () {
       // Handle error if necessary
     });
 
+  async function controlTabVisibility() {
+    const tabConfig = {
+      admin: ["Shops", "Policy", "Integrations", "Settings"],
+      user: ["Shops", "Policy"],
+    };
+
+    const maxAttempts = 10;
+    let attempts = 0;
+    let role = null;
+
+    // Czekaj na załadowanie ciasteczka z rolą
+    while (!role && attempts < maxAttempts) {
+      role = getCookie("sprytnyUserRole");
+      if (!role) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        attempts++;
+      }
+    }
+
+    if (!role || !tabConfig[role]) {
+      console.warn("Nieznana rola lub brak konfiguracji dla roli:", role);
+      return;
+    }
+
+    // Ukryj wszystkie zakładki
+    $("a[data-w-tab]").hide();
+
+    // Pokaż tylko zakładki zdefiniowane dla roli
+    tabConfig[role].forEach((tabName) => {
+      $(`a[data-w-tab="${tabName}"]`).show();
+    });
+  }
+
+  // Wywołaj funkcję przy inicjalizacji
+  controlTabVisibility();
+
   var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
   var formIdEditSingleExclusive = "#wf-form-SingleExclusiveForm-Edit-2";
   var nowDateFull = new Date();
