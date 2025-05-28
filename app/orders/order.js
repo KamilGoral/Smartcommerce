@@ -3740,11 +3740,11 @@ ${offerTimestampLine}
                         rowData.events = [];
                       }
 
-                      // Dodaj event `downloaded`
+                      // Dodaj event `emailed`
                       rowData.events.push({
                         type: "emailed",
                         created: {
-                          by: currentUser || "system",
+                          by: "system",
                           at: now,
                         },
                       });
@@ -4846,7 +4846,7 @@ ${offerTimestampLine}
         rowData.events.push({
           type: "downloaded",
           created: {
-            by: currentUser || "system",
+            by: "system",
             at: now,
           },
         });
