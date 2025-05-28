@@ -2010,24 +2010,9 @@ docReady(function () {
   if (!policyLink) return;
 
   policyLink.addEventListener("click", async () => {
-    const MAX_ATTEMPTS = 5;
-    let attempts = 0;
-
     $("#waitingdots").show();
 
     try {
-      // Odczekaj aż cookie "sprytnyUserRole" się pojawi (max 5 prób)
-      while (!getCookie("sprytnyUserRole") && attempts < MAX_ATTEMPTS) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        attempts++;
-      }
-
-      const role = getCookie("sprytnyUserRole");
-      if (role !== "admin") {
-        console.warn("Action not permitted for non-admin users.");
-        return;
-      }
-
       // Teraz dopiero wywołujemy getWholesalers
       await getWholesalers();
       console.log("Getting wholesalers...");
