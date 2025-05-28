@@ -2477,9 +2477,8 @@ docReady(function () {
     const nowDate = new Date();
     let initialrecords = null;
 
-    // Jeśli tabela już istnieje, zniszcz ją i stwórz od nowa
     if ($.fn.dataTable.isDataTable("#table_id")) {
-      $("#table_id").DataTable().clear().destroy();
+      $("#table_id").DataTable().clear().destroy(); // <--- to rozwiązuje problem powielonych nagłówków
     }
 
     $("#table_id").DataTable({
@@ -2506,6 +2505,7 @@ docReady(function () {
       },
       serverSide: true,
       processing: false,
+      destroy: true,
       search: { return: true },
       ajax: function (data, callback, settings) {
         let QStr = `?perPage=${data.length}&page=${
