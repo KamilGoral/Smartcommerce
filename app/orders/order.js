@@ -497,16 +497,10 @@ docReady(function () {
   function bindStatusEvents() {
     initializeSimpleTooltips();
 
-    // Inicjalizacja wartości początkowej dla każdego dropdownu
-    $(".status-dropdown").each(function () {
-      const currentVal = $(this).val();
-      $(this).data("previous-value", currentVal);
-    });
-
-    // Obsługa zmiany statusu
-    $(".status-dropdown")
-      .off("change")
-      .on("change", function () {
+    // Delegacja eventów na elemencie nadrzędnym tabeli
+    $("#table_splited_wh")
+      .off("change", ".status-dropdown")
+      .on("change", ".status-dropdown", function () {
         const selectedValue = $(this).val();
         const previousValue = $(this).data("previous-value");
 
@@ -517,7 +511,6 @@ docReady(function () {
         const wholesalerName = rowData.wholesalerName || wholesalerKey;
 
         if (previousValue === "potwierdzono" && selectedValue === "w edycji") {
-          // Poprawiony tekst popupu
           $("#undotText").text(
             `Czy na pewno chcesz cofnąć zamówienie od dostawcy ${wholesalerName}?`
           );
@@ -532,6 +525,11 @@ docReady(function () {
           $(this).data("previous-value", selectedValue);
         }
       });
+
+    // Inicjalizacja wartości początkowej dla istniejących dropdownów
+    $("#table_splited_wh .status-dropdown").each(function () {
+      $(this).data("previous-value", $(this).val());
+    });
   }
 
   // Obsługa potwierdzenia w modalu cofania statusu
