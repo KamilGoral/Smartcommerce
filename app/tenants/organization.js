@@ -2010,13 +2010,15 @@ docReady(function () {
   if (!policyLink) return;
 
   policyLink.addEventListener("click", async () => {
-    $("#waitingdots").show();
     try {
       // Teraz dopiero wywołujemy getWholesalers
+      $("#waitingdots").show();
       await getWholesalers();
       console.log("Getting wholesalers...");
       await getExclusiveProducts();
       console.log("Getting exclusive products...");
+      await getPricats();
+      console.log("Getting pricats...");
     } catch (error) {
       console.error(
         "An error occurred while processing the policy link:",
@@ -2729,15 +2731,6 @@ docReady(function () {
   }
 
   async function getPricats() {
-    while (!getCookie("sprytnyUserRole") && attempts < 5) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      attempts++;
-    }
-
-    if (getCookie("sprytnyUserRole") !== "admin") {
-      console.log("Action not permitted for non-admin users.");
-      return;
-    }
     let url = new URL(InvokeURL + "van/pricats?perPage=1000");
     fetch(url, {
       headers: {
