@@ -1454,17 +1454,22 @@ docReady(function () {
     };
 
     const rowsHtml = events
-      .map((e) => {
+      .map((e, index) => {
         const label = eventTypeMap[e.type] || e.type;
         const date = new Date(e.created.at).toLocaleString("pl-PL");
         const user = e.created.by;
 
         return `
-        <div style="margin-bottom: 12px;">
-          <div><strong>${label}:</strong> ${date}</div>
-          <div><strong>Użytkownik:</strong> ${user}</div>
-        </div>
-        <div style="border-top: 1px solid #ccc; margin: 8px 0;"></div>`;
+      <div style="margin-bottom: 12px;">
+        <div><strong>${label}:</strong> ${date}</div>
+        <div><strong>Użytkownik:</strong> ${user}</div>
+      </div>
+      ${
+        index < events.length - 1
+          ? `<div style="border-top: 1px solid #ccc; margin: 8px 0;"></div>`
+          : ""
+      }
+    `;
       })
       .join("");
 
