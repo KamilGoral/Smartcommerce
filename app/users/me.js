@@ -47,7 +47,6 @@ docReady(function () {
   var smartToken = getCookie("sprytnycookie");
   var accessToken = smartToken.split("Bearer ")[1];
   const emailElement = document.getElementById("useremail");
-  emailElement.textContent = getCookie("sprytnyUser");
   const welcomeMessage = document.getElementById("WelcomeMessage");
 
   function parseAttributes(cookieValue) {
@@ -812,6 +811,7 @@ docReady(function () {
 
         const emailElement = document.getElementById("emailadressUser");
         if (emailElement) emailElement.value = email;
+        emailElement.textContent = email;
 
         const phoneElement = document.getElementById("phoneNumber");
         if (phoneElement) phoneElement.value = trimmedPhoneNumber;
