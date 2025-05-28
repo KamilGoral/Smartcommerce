@@ -811,7 +811,12 @@ docReady(function () {
 
         const emailElement = document.getElementById("emailadressUser");
         if (emailElement) emailElement.value = email;
-        emailElement.textContent = email;
+
+        const emailElement2 = document.getElementById("useremail");
+
+        if (emailElement2) {
+          emailElement2.textContent = "Email: " + email;
+        }
 
         const phoneElement = document.getElementById("phoneNumber");
         if (phoneElement) phoneElement.value = trimmedPhoneNumber;
