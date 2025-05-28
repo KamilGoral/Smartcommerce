@@ -750,24 +750,14 @@ docReady(function () {
 
             const events = row.events || [];
 
-            // Pobierz najnowszy event
-            const latestEvent = events
-              .slice()
-              .sort(
-                (a, b) => new Date(b.created.at) - new Date(a.created.at)
-              )[0];
-
-            const latestType = latestEvent?.type || null;
-
-            const isEmailed = latestType === "emailed";
-            const isDownloaded = latestType === "downloaded";
-            const isEditable = isDownloaded;
-
-            const currentStatus = isEmailed
+            const wasEmailed = events.some((e) => e.type === "emailed");
+            const currentStatus = wasEmailed
               ? "wysłano"
               : row.confirmedAt
               ? "potwierdzono"
               : "w edycji";
+
+            const isEditable = !wasEmailed;
 
             const styleBase =
               "width: 107px; height: 28px; font-size: 12px; padding: 2px 6px; border-radius: 6px;";
@@ -786,27 +776,27 @@ docReady(function () {
 
             if (isEditable) {
               return `
-        <select class="status-dropdown"
-                data-wholesaler-key="${row.wholesalerKey}" 
-                style="${finalStyle}">
-          <option value="w edycji" ${
-            currentStatus === "w edycji" ? "selected" : ""
-          }>W edycji</option>
-          <option value="potwierdzono" ${
-            currentStatus === "potwierdzono" ? "selected" : ""
-          }>Potwierdzono</option>
-        </select>`;
+      <select class="status-dropdown"
+              data-wholesaler-key="${row.wholesalerKey}" 
+              style="${finalStyle}">
+        <option value="w edycji" ${
+          currentStatus === "w edycji" ? "selected" : ""
+        }>W edycji</option>
+        <option value="potwierdzono" ${
+          currentStatus === "potwierdzono" ? "selected" : ""
+        }>Potwierdzono</option>
+      </select>`;
             }
 
             return `
-      <select class="status-dropdown status-disabled" ${disabledAttr}
-              data-tippy-content="${tooltip}" 
-              data-wholesaler-key="${row.wholesalerKey}" 
-              style="${finalStyle}">
-        <option selected>${
-          currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)
-        }</option>
-      </select>`;
+    <select class="status-dropdown status-disabled" ${disabledAttr}
+            data-tippy-content="${tooltip}" 
+            data-wholesaler-key="${row.wholesalerKey}" 
+            style="${finalStyle}">
+      <option selected>${
+        currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)
+      }</option>
+    </select>`;
           },
         },
         {
