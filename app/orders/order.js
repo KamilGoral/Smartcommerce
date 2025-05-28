@@ -503,6 +503,8 @@ docReady(function () {
       .on("change", ".status-dropdown", function () {
         const selectedValue = $(this).val();
         const previousValue = $(this).data("previous-value");
+        console.log(selectedValue);
+        console.log(previousValue);
 
         const selectElement = $(this);
         const table = $("#table_splited_wh").DataTable();
@@ -3443,8 +3445,8 @@ ${offerTimestampLine}
                 "Success",
                 "Zamówienie do dostawcy zostało cofnięte. Za moment zamówienie zostanie ponownie podzielone."
               );
+              $("#editShopModal").hide();
               setTimeout(function () {
-                $("#editShopModal").hide();
                 location.reload();
               }, 3000);
             } else {
@@ -3765,6 +3767,14 @@ ${offerTimestampLine}
 
                       this.data(rowData); // zaktualizuj dane
                       table.row(this.index()).invalidate(); // zaktualizuj widok
+
+                      // ✅ Aktualizacja selecta i previous-value
+                      const selectElement = $(this.node()).find(
+                        ".status-dropdown"
+                      );
+                      selectElement
+                        .val("potwierdzono")
+                        .data("previous-value", "potwierdzono");
 
                       // Wyłączenie przycisku wysyłki
                       const rowNode = this.node();
@@ -4866,6 +4876,12 @@ ${offerTimestampLine}
         });
 
         this.data(rowData).invalidate().draw(false);
+
+        // ✅ Aktualizacja selecta i previous-value
+        const selectElement = $(this.node()).find(".status-dropdown");
+        selectElement
+          .val("potwierdzono")
+          .data("previous-value", "potwierdzono");
         return false; // tylko jeden wiersz
       });
 
