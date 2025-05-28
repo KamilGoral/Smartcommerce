@@ -3445,7 +3445,7 @@ ${offerTimestampLine}
                 "Success",
                 "Zamówienie do dostawcy zostało cofnięte. Za moment zamówienie zostanie ponownie podzielone."
               );
-              $("#editShopModal").hide();
+              $("#undoOrderModal").hide();
               setTimeout(function () {
                 location.reload();
               }, 3000);
