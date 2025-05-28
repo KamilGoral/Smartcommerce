@@ -630,7 +630,6 @@ docReady(function () {
           orderable: false,
           defaultContent: "",
           width: "20px",
-          className: "details-control",
           createdCell: function (cell, cellData, rowData) {
             if (
               rowData.wholesalerName !== "unassigned" &&
@@ -1442,7 +1441,7 @@ docReady(function () {
   function formatEvents(data) {
     const events = (data.events || [])
       .slice()
-      .sort((a, b) => new Date(b.created.at) - new Date(a.created.at));
+      .sort((a, b) => new Date(b.created.at) - new Date(a.created.at)); // najnowsze na górze
 
     if (events.length === 0) {
       return `<div style="padding: 12px 44px;">Brak zdarzeń.</div>`;
@@ -1476,38 +1475,38 @@ docReady(function () {
         const date = new Date(e.created.at).toLocaleString("pl-PL");
 
         return `
-      <tr>
-        <td style="padding: 6px 8px; width: 156px;">${date}</td>
-        <td style="padding: 6px 8px; width: 156px;" class="tippy" data-tippy-content="${
-          type.tooltip
-        }">
-          ${
-            type.icon
-              ? `<img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />`
-              : ""
-          }
-          ${type.label}
-        </td>
-        <td style="padding: 6px 8px; width: 156px;">${e.created.by}</td>
-      </tr>`;
+        <tr>
+          <td style="padding: 6px 8px; width: 156px;">${date}</td>
+          <td style="padding: 6px 8px; width: 156px;" class="tippy" data-tippy-content="${
+            type.tooltip
+          }">
+            ${
+              type.icon
+                ? `<img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />`
+                : ""
+            }
+            ${type.label}
+          </td>
+          <td style="padding: 6px 8px; width: 156px;">${e.created.by}</td>
+        </tr>`;
       })
       .join("");
 
     return `
-  <div style="padding: 0 0 8px 34px;">
-    <table style="width: auto; border-collapse: collapse; font-size: 13px;">
-      <thead>
-        <tr style="border-bottom: 1px solid #ccc;">
-          <th style="text-align: left; padding: 6px 8px; width: 156px;">Data</th>
-          <th style="text-align: left; padding: 6px 8px; width: 156px;">Zdarzenie</th>
-          <th style="text-align: left; padding: 6px 8px; width: 156px;">Użytkownik</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
-    </table>
-  </div>`;
+    <div style="padding: 0 0 8px 34px; display: inline-block; min-width: 500px;">
+      <table style="border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="border-bottom: 1px solid #ccc;">
+            <th style="text-align: left; padding: 6px 8px; width: 156px;">Data</th>
+            <th style="text-align: left; padding: 6px 8px; width: 156px;">Zdarzenie</th>
+            <th style="text-align: left; padding: 6px 8px; width: 156px;">Użytkownik</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>`;
   }
 
   function generateWholesalerSelect(
