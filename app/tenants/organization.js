@@ -2013,8 +2013,8 @@ docReady(function () {
     try {
       $("#waitingdots").show();
 
-      // 🔁 Daj przeglądarce szansę na wyrenderowanie spinnera
-      await new Promise(requestAnimationFrame);
+      // 👇 Daj przeglądarce czas na render
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       console.log("Getting wholesalers...");
       await getWholesalers();
