@@ -1476,38 +1476,38 @@ docReady(function () {
         const date = new Date(e.created.at).toLocaleString("pl-PL");
 
         return `
-        <tr>
-          <td style="padding: 6px 8px;">${date}</td>
-          <td style="padding: 6px 8px;" class="tippy" data-tippy-content="${
-            type.tooltip
-          }">
-            ${
-              type.icon
-                ? `<img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />`
-                : ""
-            }
-            ${type.label}
-          </td>
-          <td style="padding: 6px 8px;">${e.created.by}</td>
-        </tr>`;
+      <tr>
+        <td style="padding: 6px 8px; width: 156px;">${date}</td>
+        <td style="padding: 6px 8px; width: 156px;" class="tippy" data-tippy-content="${
+          type.tooltip
+        }">
+          ${
+            type.icon
+              ? `<img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />`
+              : ""
+          }
+          ${type.label}
+        </td>
+        <td style="padding: 6px 8px; width: 156px;">${e.created.by}</td>
+      </tr>`;
       })
       .join("");
 
     return `
-    <div style="padding: 0 0 8px 44px;">
-      <table style="width: auto; border-collapse: collapse; font-size: 13px;">
-        <thead>
-          <tr style="border-bottom: 1px solid #ccc;">
-            <th style="text-align: left; padding: 6px 8px;">Data</th>
-            <th style="text-align: left; padding: 6px 8px;">Zdarzenie</th>
-            <th style="text-align: left; padding: 6px 8px;">Użytkownik</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
-    </div>`;
+  <div style="padding: 0 0 8px 34px;">
+    <table style="width: auto; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="border-bottom: 1px solid #ccc;">
+          <th style="text-align: left; padding: 6px 8px; width: 156px;">Data</th>
+          <th style="text-align: left; padding: 6px 8px; width: 156px;">Zdarzenie</th>
+          <th style="text-align: left; padding: 6px 8px; width: 156px;">Użytkownik</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  </div>`;
   }
 
   function generateWholesalerSelect(
