@@ -1457,11 +1457,12 @@ docReady(function () {
       .map((e) => {
         const label = eventTypeMap[e.type] || e.type;
         const date = new Date(e.created.at).toLocaleString("pl-PL");
+        const user = e.created.by;
 
         return `
-        <div style="margin-bottom: 12px; padding-left: 0;">
-          <div style="font-weight: 600; font-size: 14px;">${label} – ${date}</div>
-          <div style="font-size: 13px; color: #555;">Użytkownik: ${e.created.by}</div>
+        <div style="margin-bottom: 12px;">
+          <div><strong>${label}:</strong> ${date}</div>
+          <div><strong>Użytkownik:</strong> ${user}</div>
         </div>
         <div style="border-top: 1px solid #ccc; margin: 8px 0;"></div>`;
       })
