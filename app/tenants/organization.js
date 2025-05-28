@@ -2013,21 +2013,13 @@ docReady(function () {
     try {
       console.log("▶️ Kliknięto Policy. Pokazuję spinner...");
       $("#waitingdots").show();
-      console.log("🟢 waitingdots visible?", $("#waitingdots").is(":visible"));
 
       // Wymuś render (tick event loop)
       await new Promise((resolve) => setTimeout(resolve, 0));
-      console.log("⏱️ Render zakończony. Zaczynam pobieranie...");
 
       const t0 = performance.now();
       console.log("📦 Rozpoczynam getWholesalers()");
       await getWholesalers();
-      const t1 = performance.now();
-      console.log(
-        `✅ getWholesalers() zakończony. Czas trwania: ${(t1 - t0).toFixed(
-          2
-        )} ms`
-      );
 
       console.log("📦 Rozpoczynam getExclusiveProducts()");
       await getExclusiveProducts();
@@ -2040,7 +2032,13 @@ docReady(function () {
       console.error("❌ Błąd:", error);
     } finally {
       console.log("🛑 Ukrywam spinner...");
+      const t1 = performance.now();
       $("#waitingdots").hide();
+      console.log(
+        `✅ getWholesalers() zakończony. Czas trwania: ${(t1 - t0).toFixed(
+          2
+        )} ms`
+      );
       console.log("⚪ waitingdots hidden?", !$("#waitingdots").is(":visible"));
     }
   });
