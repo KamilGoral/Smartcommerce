@@ -3882,6 +3882,7 @@ docReady(function () {
         getPricats(),
         getIntegrations(),
         getExclusiveProducts(),
+        controlTabVisibility(),
       ]);
     })
     .then(() => {
@@ -3948,9 +3949,6 @@ docReady(function () {
       console.warn("Nieznana rola:", role);
     }
   }
-
-  // Wywołaj funkcję przy inicjalizacji
-  controlTabVisibility();
 
   var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
   var formIdEditSingleExclusive = "#wf-form-SingleExclusiveForm-Edit-2";
