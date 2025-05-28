@@ -762,7 +762,7 @@ docReady(function () {
             const finalStructure = {
               items: Object.keys(groupedData).map((date) => ({
                 updatedAt: date,
-                offers: groupedData[date],
+                offers: [groupedData[date][0]], // tylko najnowsza oferta danego dnia
               })),
             };
 
@@ -1688,18 +1688,4 @@ docReady(function () {
       });
     }
   );
-
-  $("#table_offers").on("click", "td.details-control", function () {
-    //Get the righ table
-    var table = $("#table_offers").DataTable();
-    var tr = $(this).closest("tr");
-    var row = table.row(tr);
-    if (row.child.isShown()) {
-      row.child.hide();
-      tr.removeClass("shown");
-    } else {
-      row.child(format(row.data())).show();
-      tr.addClass("shown");
-    }
-  });
 });
