@@ -1448,65 +1448,26 @@ docReady(function () {
     }
 
     const eventTypeMap = {
-      downloaded: {
-        label: "Pobrano",
-        icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fd56c85fd56efbd5b_download.svg",
-        tooltip: "Zamówienie zostało pobrane z systemu",
-      },
-      emailed: {
-        label: "Wysłano",
-        icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6801fc11461d703c6d72b187_send%20email.svg",
-        tooltip: "Zamówienie zostało wysłane e-mailem",
-      },
-      unconfirmed: {
-        label: "Niepotwierdzone",
-        icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg",
-        tooltip: "Zamówienie w trakcie edycji",
-      },
+      downloaded: "Pobrano",
+      emailed: "Wysłano",
+      unconfirmed: "Niepotwierdzone",
     };
 
     const rowsHtml = events
       .map((e) => {
-        const type = eventTypeMap[e.type] || {
-          label: e.type,
-          icon: "",
-          tooltip: "Nieznany typ zdarzenia",
-        };
+        const label = eventTypeMap[e.type] || e.type;
         const date = new Date(e.created.at).toLocaleString("pl-PL");
 
         return `
-        <tr>
-          <td style="padding: 6px 8px; width: 156px;">${date}</td>
-          <td style="padding: 6px 8px; width: 156px;" class="tippy" data-tippy-content="${
-            type.tooltip
-          }">
-            ${
-              type.icon
-                ? `<img src="${type.icon}" style="height: 16px; width: 16px; margin-right: 4px; vertical-align: middle;" />`
-                : ""
-            }
-            ${type.label}
-          </td>
-          <td style="padding: 6px 8px; width: 156px;">${e.created.by}</td>
-        </tr>`;
+        <div style="margin-bottom: 12px; padding-left: 0;">
+          <div style="font-weight: 600; font-size: 14px;">${label} – ${date}</div>
+          <div style="font-size: 13px; color: #555;">Użytkownik: ${e.created.by}</div>
+        </div>
+        <div style="border-top: 1px solid #ccc; margin: 8px 0;"></div>`;
       })
       .join("");
 
-    return `
-    <div style="padding: 0 0 8px 34px; display: inline-block; min-width: 500px;">
-      <table style="border-collapse: collapse; font-size: 13px;">
-        <thead>
-          <tr style="border-bottom: 1px solid #ccc;">
-            <th style="text-align: left; padding: 6px 8px; width: 156px;">Data</th>
-            <th style="text-align: left; padding: 6px 8px; width: 156px;">Zdarzenie</th>
-            <th style="text-align: left; padding: 6px 8px; width: 156px;">Użytkownik</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
-    </div>`;
+    return `<div style="padding: 0 0 8px 44px;">${rowsHtml}</div>`;
   }
 
   function generateWholesalerSelect(
