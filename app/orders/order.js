@@ -626,14 +626,18 @@ docReady(function () {
       },
       columns: [
         {
-          orderable: false,
-          width: "32px",
           data: null,
-          render: function (data) {
-            if (data.wholesalerName === "unassigned") return "";
-            return '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61ae41350933c525ec8ea03a_office-building.svg" loading="lazy" style="width: 24px;height: 24px;">';
+          orderable: false,
+          defaultContent: "",
+          width: "20px",
+          className: "details-control",
+          createdCell: function (cell, cellData, rowData) {
+            if (rowData.events && rowData.events.length > 0) {
+              $(cell).addClass("details-control");
+            }
           },
         },
+
         {
           orderable: true,
           width: "auto",
@@ -881,6 +885,24 @@ docReady(function () {
         });
 
         updateStatusBadge(api);
+
+        // Obsługa rozwijania wierszy
+        $("#table_splited_wh tbody").on(
+          "click",
+          "td.details-control",
+          function () {
+            var tr = $(this).closest("tr");
+            var row = $("#table_splited_wh").DataTable().row(tr);
+
+            if (row.child.isShown()) {
+              row.child.hide();
+              tr.removeClass("shown");
+            } else {
+              row.child(formatEvents(row.data())).show();
+              tr.addClass("shown");
+            }
+          }
+        );
       },
     });
   }
@@ -1412,6 +1434,25 @@ docReady(function () {
       ${toDisplayHtml}
     </table>
   `;
+  }
+
+  function formatEvents(data) {
+    const events = data.events || [];
+    if (events.length === 0)
+      return "<div style='padding: 10px;'>Brak zdarzeń.</div>";
+
+    const html = events
+      .map(
+        (e) => `
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid #eee;">
+        <span><strong>${e.type}</strong></span>
+        <span>${new Date(e.created.at).toLocaleString("pl-PL")}</span>
+        <span>${e.created.by}</span>
+      </div>`
+      )
+      .join("");
+
+    return `<div style="padding: 10px; background: #fafafa;">${html}</div>`;
   }
 
   function generateWholesalerSelect(
@@ -3438,7 +3479,7 @@ ${offerTimestampLine}
               $("#undoOrderModal").hide();
               setTimeout(function () {
                 location.reload();
-              }, 3000);
+              }, 1500);
             } else {
               form.show();
               displayMessage(
