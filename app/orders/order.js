@@ -2496,6 +2496,8 @@ docReady(function () {
           incomplete: "Niekompletna",
           batching: "W kolejce",
           forced: "W kolejce",
+          queued: "W kolejce",
+          unknown: "Nieznany",
         };
 
         const entries = [];
@@ -2503,7 +2505,20 @@ docReady(function () {
         // ========== 1. ECOMMERCE ==========
         (res.ecommerce || []).forEach((entry) => {
           const events = entry.events || [];
-          if (events.length === 0) return;
+
+          if (events.length === 0) {
+            entries.push({
+              wholesalerKey: entry.wholesalerKey,
+              source: "E-hurt",
+              status: "unknown",
+              statusLabel: statusMap["unknown"],
+              updatedAt: "Brak danych",
+              messages: [],
+              allEvents: [],
+              expandable: false,
+            });
+            return;
+          }
 
           const latestEvent = events
             .slice()
@@ -2521,7 +2536,7 @@ docReady(function () {
             source: "E-hurt",
             status: latestEvent.extracting?.status || "unknown",
             statusLabel:
-              statusMap[latestEvent.extracting?.status] || "Nieznany",
+              statusMap[latestEvent.extracting?.status] || statusMap["unknown"],
             updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
             messages: latestEvent.extracting?.messages || [],
             allEvents: enrichedEvents,
