@@ -666,51 +666,57 @@ docReady(function () {
 
         {
           orderable: true,
-          data: "netValue",
           width: "108px",
           className: "dt-right",
+          data: null,
+          type: "num",
           render: function (data, type, row) {
-            if (type === "display" || type === "filter") {
-              const netValue = parseFloat(row.netValue);
-              const logisticMin = parseFloat(row.logisticMinimum);
+            let netValue = parseFloat(row.netValue);
 
+            if (type === "sort") {
+              // Dla sortowania - jeśli "Nieprzydzielone", to daj -Infinity
+              return row.wholesalerKey === "unassigned" ? -Infinity : netValue;
+            }
+
+            if (type === "display" || type === "filter") {
+              const logisticMin = parseFloat(row.logisticMinimum);
               if (logisticMin > 0) {
                 const toGo = (logisticMin - netValue).toFixed(2);
                 if (toGo > 0) {
                   return `
-                    <div style="display: flex; justify-content: space-between; align-items: center;" 
-                         data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
-                      <span style="color: #8E1212; display: flex; align-items: center;">
-                        <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
-                             alt="warning" style="width: 16px; height: 16px; margin-right: 4px;">
-                      </span>
-                      <span>${data}zł</span>
-                    </div>
-                  `;
+          <div style="display: flex; justify-content: space-between; align-items: center;" 
+               data-tippy-content="Brakuje ${toGo}zł do minimum logistycznego">
+            <span style="color: #8E1212; display: flex; align-items: center;">
+              <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67e7b1c29157ff0d17d559a4_tabler_alert-triangle.svg" 
+                   alt="warning" style="width: 16px; height: 16px; margin-right: 4px;">
+            </span>
+            <span>${netValue}zł</span>
+          </div>
+        `;
                 } else {
                   return `
-                    <div style="display: flex; justify-content: space-between; align-items: center;" 
-                         data-tippy-content="Minimum logistyczne spełnione">
-                      <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6809fa36f03d6d306438d2f2_done.svg" 
-                           alt="done" style="width: 16px; height: 16px;">
-                      <span>${data}zł</span>
-                    </div>
-                  `;
+          <div style="display: flex; justify-content: space-between; align-items: center;" 
+               data-tippy-content="Minimum logistyczne spełnione">
+            <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6809fa36f03d6d306438d2f2_done.svg" 
+                 alt="done" style="width: 16px; height: 16px;">
+            <span>${netValue}zł</span>
+          </div>
+        `;
                 }
               } else {
                 return `
-                  <div style="display: flex; justify-content: space-between; align-items: center;" 
-                       data-tippy-content="Nie ustalono wymaganego minimum logistycznego">
-                    <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6809fa36962ab80daf4029f0_horizontal-rule.svg" 
-                         alt="none" style="width: 16px; height: 16px;">
-                    <span>${data}zł</span>
-                  </div>
-                `;
+        <div style="display: flex; justify-content: space-between; align-items: center;" 
+             data-tippy-content="Nie ustalono wymaganego minimum logistycznego">
+          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6809fa36962ab80daf4029f0_horizontal-rule.svg" 
+               alt="none" style="width: 16px; height: 16px;">
+          <span>${netValue}zł</span>
+        </div>
+      `;
               }
             }
-            return data;
+
+            return netValue;
           },
-          type: "num",
         },
         {
           orderable: true,
