@@ -3839,9 +3839,12 @@ ${offerTimestampLine}
                       const selectElement = $(this.node()).find(
                         ".status-dropdown"
                       );
-                      selectElement
-                        .val("potwierdzono")
-                        .data("previous-value", "potwierdzono");
+                      selectElement.find("option").each(function () {
+                        if ($(this).text().trim() === "Wysłano") {
+                          $(this).prop("selected", true);
+                        }
+                      });
+                      selectElement.data("previous-value", "Wysłano");
 
                       // Wyłączenie przycisku wysyłki
                       const rowNode = this.node();
