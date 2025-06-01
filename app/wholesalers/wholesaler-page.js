@@ -907,7 +907,7 @@ docReady(function () {
     }
   }
 
-  checkCookiePresenceAndLogout();
+  setTimeout(checkCookiePresenceAndLogout, 5000);
 
   // Obsługa formularza logout
   $("#wf-form-LogoutUser").on("submit", function (e) {
