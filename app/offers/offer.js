@@ -1964,7 +1964,7 @@ ${offerTimestampLine}
     for (var i = 0; i < values.length; i++) {
       // Start a new row every 5 items
       if (i % 5 === 0) {
-        output += "<p class='text-size-tiny'>";
+        output += "<p class='text-size-tiny text-color-grey'>";
       }
 
       // Add code with a space after it
