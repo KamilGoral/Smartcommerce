@@ -285,7 +285,7 @@ docReady(function () {
     // Komunikat dla użytkownika
     displayMessage(
       "Success",
-      "Zostałeś wylogowany. Za chwilę nastąpi przekierowanie..."
+      "Wylogowano pomyślnie. Za chwilę nastąpi przekierowanie..."
     );
 
     // Przekierowanie
