@@ -1952,7 +1952,7 @@ docReady(function () {
             {
               orderable: true,
               data: null,
-              width: "90px",
+              width: "80px",
               // class: "details-invisible",
               render: function (data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
