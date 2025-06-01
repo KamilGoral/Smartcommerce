@@ -5315,32 +5315,35 @@ ${offerTimestampLine}
       initializeSimpleTooltips();
     }
   });
+
   $("#table_id tbody").on("click", "img.showdata", function () {
-    var dataToDisplay = $(this);
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
-    var input = dataToDisplay.attr("data-content");
-    var values = input.split(",");
-    var output = "";
+    const input = $(this).attr("data-content");
+    const values = input.split(",");
+    let output = "";
 
-    for (var i = 0; i < values.length; i++) {
-      // Start a new row every 5 items
-      if (i % 5 === 0) {
-        output +=
-          "<p class='text-size-tiny text-color-grey offerstatus nomargin'>";
-      }
+    for (let i = 0; i < values.length; i++) {
+      if (i % 5 === 0) output += "<p class='text-size-tiny text-color-grey'>";
 
-      // Add code with a space after it
-      output += values[i] + " ";
+      const trimmedCode = values[i].trim();
+      output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${trimmedCode}">${trimmedCode}</span>`;
 
-      // Close the row after 5 items or at the end
-      if ((i + 1) % 5 === 0 || i === values.length - 1) {
-        output += "</p>";
-      }
+      if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
     }
 
     popupContent.innerHTML = output;
     popupContainer.style.display = "flex";
+
+    // Dodanie nasłuchu do każdego <span>
+    popupContent.querySelectorAll(".related-product-code").forEach((el) => {
+      el.addEventListener("click", function () {
+        const code = this.getAttribute("data-code");
+        const table = $("#table_id").DataTable();
+        table.search(code).draw();
+        popupContainer.style.display = "none";
+      });
+    });
   });
 
   // Close the popup when clicking outside of the popup content
