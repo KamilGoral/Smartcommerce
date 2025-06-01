@@ -765,7 +765,6 @@ docReady(function () {
             let netValue = parseFloat(row.netValue);
 
             if (type === "sort") {
-              // Dla sortowania - jeśli "Nieprzydzielone", to daj -Infinity
               return row.wholesalerKey === "unassigned" ? -Infinity : netValue;
             }
 
@@ -1953,7 +1952,7 @@ docReady(function () {
             {
               orderable: true,
               data: null,
-              width: "72px",
+              width: "90px",
               // class: "details-invisible",
               render: function (data) {
                 if (data.hasOwnProperty("asks") && data.asks !== null) {
