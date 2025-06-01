@@ -271,6 +271,42 @@ docReady(function () {
     });
   };
 
+  function postLogoutUser() {
+    // Usuń wszystkie cookies z path=/
+    document.cookie.split(";").forEach((cookie) => {
+      const name = cookie.split("=")[0].trim();
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+    });
+
+    // Wyczyść storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Komunikat dla użytkownika
+    displayMessage(
+      "Success",
+      "Zostałeś wylogowany. Za chwilę nastąpi przekierowanie..."
+    );
+
+    // Przekierowanie
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 2000);
+  }
+
+  // Obsługa formularza logout
+  $("#wf-form-LogoutUser").on("submit", function (e) {
+    e.preventDefault();
+    logoutUser();
+    return false;
+  });
+
+  $("#wf-form-LogoutUser").on("submit", function (e) {
+    e.preventDefault();
+    postLogoutUser();
+    return false;
+  });
+
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
