@@ -460,12 +460,19 @@ docReady(function () {
             .slice()
             .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
 
-          const enrichedEvents = events.map((e) => ({
-            updatedAt: e.updatedAt,
-            status: e.extracting?.status || "unknown",
-            messages: e.extracting?.messages || [],
-            offerTimestamp: entry.lastMutation?.offerTimestamp || null,
-          }));
+          const enrichedEvents = events.map((e) => {
+            const isLatestSuccess =
+              e.updatedAt === latestEvent.updatedAt &&
+              latestEvent.extracting?.status === "success";
+            return {
+              updatedAt: e.updatedAt,
+              status: e.extracting?.status || "unknown",
+              messages: e.extracting?.messages || [],
+              offerTimestamp: isLatestSuccess
+                ? entry.lastMutation?.offerTimestamp || null
+                : null,
+            };
+          });
 
           entries.push({
             wholesalerKey: entry.wholesalerKey,
@@ -600,11 +607,11 @@ docReady(function () {
       const date = new Date(event.updatedAt).toLocaleString("pl-PL");
       const statusKey = event.status || "unknown";
       const status = statusMap[statusKey] || statusMap["unknown"];
-      const offerTimestampLine = event.offerTimestamp
-        ? `<strong>Data źródłowa oferty:</strong> ${new Date(
-            event.offerTimestamp
-          ).toLocaleString("pl-PL")}<br>`
-        : "";
+      const offerTimestampLine = `<strong>Data źródłowa oferty:</strong> ${
+        event.offerTimestamp
+          ? new Date(event.offerTimestamp).toLocaleString("pl-PL")
+          : "-"
+      }<br>`;
 
       const messages = event.messages.length
         ? event.messages.join("<br>")
@@ -1957,8 +1964,7 @@ ${offerTimestampLine}
     for (var i = 0; i < values.length; i++) {
       // Start a new row every 5 items
       if (i % 5 === 0) {
-        output +=
-          "<p class='text-size-tiny text-color-grey offerstatus nomargin'>";
+        output += "<p class='text-size-tiny'>";
       }
 
       // Add code with a space after it
