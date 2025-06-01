@@ -273,6 +273,97 @@ docReady(function () {
     });
   };
 
+  function logoutUser(accessToken, domainToRedirect) {
+    // Global SignOut z Cognito
+    $.ajax({
+      type: "POST",
+      url: "https://cognito-idp.us-east-1.amazonaws.com/",
+      headers: {
+        "x-amz-target": "AWSCognitoIdentityProviderService.GlobalSignOut",
+        "Content-Type": "application/x-amz-json-1.1",
+        authorization: accessToken,
+      },
+      data: JSON.stringify({ AccessToken: accessToken }),
+      contentType: "application/json",
+      dataType: "json",
+      success: function () {
+        // Usuń cookies
+        document.cookie.split(";").forEach((cookie) => {
+          const name = cookie.split("=")[0].trim();
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+        });
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        displayMessage("Success", "Wylogowano. Do zobaczenia wkrótce!");
+
+        setTimeout(function () {
+          window.location.replace(`https://${domainToRedirect}`);
+        }, 3000);
+      },
+      error: function () {
+        displayMessage("Error", "Błąd podczas wylogowywania.");
+        setTimeout(function () {
+          window.location.replace(`https://${domainToRedirect}`);
+        }, 3000);
+      },
+    });
+  }
+
+  function checkCookiePresenceAndLogout() {
+    const cookiesToCheck = [
+      "sprytnyUser",
+      "sprytnyUsername",
+      "sprytnyDomainName",
+      "sprytnyOrganizationclientId",
+      "sprytnyInvokeURL",
+      "sprytnycookie",
+    ];
+
+    const missing = cookiesToCheck.some(
+      (name) => !document.cookie.includes(`${name}=`)
+    );
+
+    if (missing) {
+      const modal = document.getElementById("logout-modal");
+      modal.style.display = "flex";
+
+      const smartToken = getCookie("sprytnycookie");
+      const accessToken = smartToken?.split("Bearer ")[1];
+      const domainName = getCookie("sprytnyDomainName");
+
+      document
+        .getElementById("logout-button")
+        .addEventListener("click", function () {
+          logoutUser(accessToken, domainName || window.location.hostname);
+        });
+
+      setTimeout(function () {
+        logoutUser(accessToken, domainName || window.location.hostname);
+      }, 10000);
+    }
+  }
+
+  checkCookiePresenceAndLogout();
+
+  // Obsługa formularza logout
+  $("#wf-form-LogoutUser").on("submit", function (e) {
+    e.preventDefault();
+
+    const smartToken = getCookie("sprytnycookie");
+    const accessToken = smartToken?.split("Bearer ")[1];
+    const domainName = getCookie("sprytnyDomainName");
+
+    if (accessToken && domainName) {
+      logoutUser(accessToken, domainName);
+    } else {
+      displayMessage("Error", "Brak danych do wylogowania.");
+    }
+
+    return false;
+  });
+
   function setCookie(cName, cValue, expirationSec) {
     let date = new Date();
     date.setTime(date.getTime() + expirationSec * 1000);
