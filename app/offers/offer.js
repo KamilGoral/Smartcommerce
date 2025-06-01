@@ -297,12 +297,6 @@ docReady(function () {
   // Obsługa formularza logout
   $("#wf-form-LogoutUser").on("submit", function (e) {
     e.preventDefault();
-    logoutUser();
-    return false;
-  });
-
-  $("#wf-form-LogoutUser").on("submit", function (e) {
-    e.preventDefault();
     postLogoutUser();
     return false;
   });
