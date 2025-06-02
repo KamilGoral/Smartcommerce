@@ -54,12 +54,18 @@ docReady(function () {
   const welcomeMessage = document.getElementById("WelcomeMessage");
 
   function parseAttributes(cookieValue) {
+    if (!cookieValue) return {};
     const decodedValue = decodeURIComponent(cookieValue);
     const attributes = decodedValue.split("|");
     const result = {};
     attributes.forEach((attribute) => {
-      const [key, value] = attribute.split(":");
-      result[key.trim()] = value.trim();
+      const parts = attribute.split(":");
+      if (parts.length === 2) {
+        const [key, value] = parts;
+        result[key.trim()] = value.trim();
+      } else {
+        console.warn("Nieprawidłowy atrybut cookie:", attribute);
+      }
     });
     return result;
   }
