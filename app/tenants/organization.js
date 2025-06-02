@@ -39,7 +39,22 @@ docReady(function () {
     document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
   }
 
-  parseAttributes;
+  function parseAttributes(cookieValue) {
+    if (!cookieValue) return {};
+    const decodedValue = decodeURIComponent(cookieValue);
+    const attributes = decodedValue.split("|");
+    const result = {};
+    attributes.forEach((attribute) => {
+      const parts = attribute.split(":");
+      if (parts.length === 2) {
+        const [key, value] = parts;
+        result[key.trim()] = value.trim();
+      } else {
+        console.warn("Nieprawidłowy atrybut cookie:", attribute);
+      }
+    });
+    return result;
+  }
   var smartToken = getCookie("sprytnycookie");
   var accessToken = null;
 
