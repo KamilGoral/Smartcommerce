@@ -49,7 +49,13 @@ docReady(function () {
   }
 
   var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
+  var accessToken = null;
+
+  if (smartToken && smartToken.includes("Bearer ")) {
+    accessToken = smartToken.split("Bearer ")[1];
+  } else {
+    console.warn("Brak poprawnego tokena w ciasteczku 'sprytnycookie'");
+  }
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
   const username = document.getElementById("firstNameUser");
   username.value = attributes["username"];
@@ -381,7 +387,6 @@ docReady(function () {
   var shopKey = new URL(location.href).searchParams.get("shopKey");
   var offerId = new URL(location.href).searchParams.get("offerId");
   var integrationKeyId = "merchant-console";
-  var smartToken = getCookie("sprytnycookie");
   document.getElementById("waitingdots").style.display = "flex";
   document.getElementById("Sample-Integration").style.display = "none";
   var ClientID = getCookieNameByValue(orgToken);

@@ -50,7 +50,13 @@ docReady(function () {
     return result;
   }
   var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
+  var accessToken = null;
+
+  if (smartToken && smartToken.includes("Bearer ")) {
+    accessToken = smartToken.split("Bearer ")[1];
+  } else {
+    console.warn("Brak poprawnego tokena w ciasteczku 'sprytnycookie'");
+  }
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
   const username = document.getElementById("firstNameUser");
   username.value = attributes["username"];

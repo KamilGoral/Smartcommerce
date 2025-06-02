@@ -40,12 +40,16 @@ docReady(function () {
   }
 
   var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
+  var accessToken = null;
+
+  if (smartToken && smartToken.includes("Bearer ")) {
+    accessToken = smartToken.split("Bearer ")[1];
+  } else {
+    console.warn("Brak poprawnego tokena w ciasteczku 'sprytnycookie'");
+  }
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var formId = "#wf-form-Create-Organization-Form";
-  var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
   const emailElement = document.getElementById("useremail");
   const welcomeMessage = document.getElementById("WelcomeMessage");
 

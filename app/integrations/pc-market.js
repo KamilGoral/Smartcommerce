@@ -49,7 +49,13 @@ docReady(function () {
   }
 
   var smartToken = getCookie("sprytnycookie");
-  var accessToken = smartToken.split("Bearer ")[1];
+  var accessToken = null;
+
+  if (smartToken && smartToken.includes("Bearer ")) {
+    accessToken = smartToken.split("Bearer ")[1];
+  } else {
+    console.warn("Brak poprawnego tokena w ciasteczku 'sprytnycookie'");
+  }
   const attributes = parseAttributes(getCookie("SpytnyUserAttributes"));
   const username = document.getElementById("firstNameUser");
   username.value = attributes["username"];
@@ -379,7 +385,6 @@ docReady(function () {
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var DomainName = getCookie("sprytnyDomainName");
   var integrationKeyId = "pc-market";
-  var smartToken = getCookie("sprytnycookie");
   document.getElementById("waitingdots").style.display = "flex";
   document.getElementById("integrationcontainer").style.display = "none";
   var ClientID = getCookieNameByValue(orgToken);
