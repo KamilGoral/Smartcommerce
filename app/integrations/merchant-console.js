@@ -37,16 +37,7 @@ docReady(function () {
     document.cookie = `${cName}=${encodedValue}; ${expires}; path=/`;
   }
 
-  function parseAttributes(cookieValue) {
-    const decodedValue = decodeURIComponent(cookieValue);
-    const attributes = decodedValue.split("|");
-    const result = {};
-    attributes.forEach((attribute) => {
-      const [key, value] = attribute.split(":");
-      result[key.trim()] = value.trim();
-    });
-    return result;
-  }
+  parseAttributes;
 
   var smartToken = getCookie("sprytnycookie");
   var accessToken = null;
