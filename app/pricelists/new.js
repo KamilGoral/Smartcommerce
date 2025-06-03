@@ -581,7 +581,7 @@ docReady(function () {
             "Error",
             "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
           );
-          resetButton();
+          resetButton(button);
           return false;
         }
 
@@ -683,7 +683,7 @@ docReady(function () {
                     "Error",
                     "Oops. Coś poszło nie tak, spróbuj ponownie."
                   );
-                  resetButton();
+                  resetButton(button);
                   return;
                 }
               }
@@ -726,7 +726,7 @@ docReady(function () {
               } else {
                 const friendlyMessage = getFriendlyErrorMessage(error);
                 displayMessage("Error", friendlyMessage);
-                resetButton();
+                resetButton(button);
                 if (typeof errorCallback === "function") {
                   errorCallback(error);
                 }
@@ -750,6 +750,7 @@ docReady(function () {
         `;
         // Hide the delete button
         const deleteFileButton = document.getElementById("deleteFileButton");
+        if (deleteFileButton) deleteFileButton.style.display = "none";
         deleteFileButton.style.display = "none";
       }
     });
