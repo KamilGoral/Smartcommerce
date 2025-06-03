@@ -56,6 +56,9 @@ docReady(function () {
   var smartToken = getCookie("sprytnycookie");
   var accessToken = null;
 
+  // Znajdź przycisk, który ma klasę "file-selected"
+  const buttonFileSelected = form3.find(".file-selected")[0];
+
   if (smartToken && smartToken.includes("Bearer ")) {
     accessToken = smartToken.split("Bearer ")[1];
   } else {
@@ -581,7 +584,7 @@ docReady(function () {
             "Error",
             "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
           );
-          resetButton(button);
+          resetButton(buttonFileSelected);
           return false;
         }
 
@@ -684,7 +687,7 @@ docReady(function () {
                     response.data.errorMessage ||
                     "Błąd podczas przetwarzania pliku.";
                   displayMessage("Error", `Błąd serwera: ${message}`);
-                  resetButton(button);
+                  resetButton(buttonFileSelected);
                   return;
                 }
 
@@ -704,7 +707,7 @@ docReady(function () {
                     "Error",
                     "Oops. Coś poszło nie tak, spróbuj ponownie."
                   );
-                  resetButton(button);
+                  resetButton(buttonFileSelected);
                   return;
                 }
               }
@@ -753,7 +756,7 @@ docReady(function () {
               } else {
                 const friendlyMessage = getFriendlyErrorMessage(error);
                 displayMessage("Error", friendlyMessage);
-                resetButton(button);
+                resetButton(buttonFileSelected);
                 if (typeof errorCallback === "function") {
                   errorCallback(error);
                 }
