@@ -675,6 +675,27 @@ docReady(function () {
             })
             .then(function (response) {
               $("#waitingdots").hide();
+
+              // Obsługa statusu 201
+              if (response.status === 201) {
+                // Jeśli zawiera błąd w danych
+                if (response.data?.errorType || response.data?.errorMessage) {
+                  const message =
+                    response.data.errorMessage ||
+                    "Błąd podczas przetwarzania pliku.";
+                  displayMessage("Error", `Błąd serwera: ${message}`);
+                  resetButton(button);
+                  return;
+                }
+
+                displayMessage(
+                  "Success",
+                  "Cennik został przyjęty do przetwarzania."
+                );
+                return;
+              }
+
+              // Status 200 i normalna odpowiedź
               if (typeof successCallback === "function") {
                 var result = successCallback(response.data);
                 if (!result) {
@@ -687,15 +708,21 @@ docReady(function () {
                   return;
                 }
               }
+
               displayMessage("Success", "Cennik został dodany.");
-              var pricelistUrl =
-                "https://" +
-                DomainName +
-                "/app/van/pricats/pricat?uuid=" +
-                response.data.items[0].uuid;
-              setTimeout(function () {
-                window.location.href = pricelistUrl;
-              }, 1500);
+              const uuid = response?.data?.items?.[0]?.uuid;
+
+              if (uuid) {
+                const pricelistUrl = `https://${DomainName}/app/van/pricats/pricat?uuid=${uuid}`;
+                setTimeout(function () {
+                  window.location.href = pricelistUrl;
+                }, 1500);
+              } else {
+                displayMessage(
+                  "Info",
+                  "Cennik dodany, ale nie udało się pobrać linku."
+                );
+              }
             })
             .catch(function (error) {
               $("#waitingdots").hide();
@@ -722,7 +749,7 @@ docReady(function () {
                   uploadedFile.name
                 );
 
-                sendRequest(retryFormData); // Retry the request
+                sendRequest(retryFormData);
               } else {
                 const friendlyMessage = getFriendlyErrorMessage(error);
                 displayMessage("Error", friendlyMessage);
