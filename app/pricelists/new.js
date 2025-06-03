@@ -57,7 +57,7 @@ docReady(function () {
   var accessToken = null;
 
   // Znajdź przycisk, który ma klasę "file-selected"
-  const buttonFileSelected = form3.find(".file-selected")[0];
+  const buttonFileSelected = $("#wf-form-NewPricingList .file-selected")[0];
 
   if (smartToken && smartToken.includes("Bearer ")) {
     accessToken = smartToken.split("Bearer ")[1];
