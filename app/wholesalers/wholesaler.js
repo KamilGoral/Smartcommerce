@@ -406,19 +406,21 @@ docReady(function () {
 
         if (
           data2 &&
-          data2.credentials &&
-          data2.credentials.extraFields &&
-          data2.credentials.extraFields.company
+          data2.authorization.credentials &&
+          data2.authorization.credentials.extraFields &&
+          data2.authorization.credentials.extraFields.company
         ) {
           // Dane istnieją, ustawiamy tekst i pokazujemy pole
           setText(
             "extrafield",
-            data2.credentials.extraFields.company,
+            data2.authorization.credentials.extraFields.company,
             "Firma: "
           );
           document.getElementById("specialServiceBoxCompany").style.display =
             "flex"; // Zakładając, że extrafield to ID pola
-          $("#CompanyNameEdit").val(data2.credentials.extraFields.company);
+          $("#CompanyNameEdit").val(
+            data2.authorization.credentials.extraFields.company
+          );
           // Brak danych, ukrywamy pole
           document.getElementById("specialServiceBoxProfile").style.display =
             "none";
@@ -426,16 +428,22 @@ docReady(function () {
         }
         setText(
           "username",
-          data2.credentials ? data2.credentials.username : "",
+          data2.authorization.credentials
+            ? data2.authorization.credentials.username
+            : "",
           "Login: "
         );
-        $("#Username-Edit").val(data2.credentials.username);
+        $("#Username-Edit").val(data2.authorization.credentials.username);
 
         setText("password", "******", "Hasło: ");
-        setText("profile", data2.profile ? data2.profile.name : "", "Profil: ");
+        setText(
+          "profile",
+          data2.authorization.profile ? data2.authorization.profile.name : "",
+          "Profil: "
+        );
 
-        if (data2.lastDownload !== null) {
-          var firstData = data2.lastDownload;
+        if (data2.modules.offer.lastDownload !== null) {
+          var firstData = data2.modules.offer.lastDownload;
           var firstCreateDate = "";
           var firstStatus = "";
           var firstMessage = "";
@@ -992,12 +1000,12 @@ docReady(function () {
           data = [
             {
               op: "add",
-              path: "/credentials/username",
+              path: "/authorization/credentials/username",
               value: $("#Username").val().trim(),
             },
             {
               op: "add",
-              path: "/credentials/password",
+              path: "/authorization/credentials/password",
               value: $("#Password").val(),
             },
             {
@@ -1014,12 +1022,12 @@ docReady(function () {
           data = [
             {
               op: "add",
-              path: "/credentials/username",
+              path: "/authorization/credentials/username",
               value: $("#Username").val().trim(),
             },
             {
               op: "add",
-              path: "/credentials/password",
+              path: "/authorization/credentials/password",
               value: $("#Password").val(),
             },
           ];
@@ -1027,7 +1035,7 @@ docReady(function () {
           if ($("#CompanyName").val()) {
             data.push({
               op: "add",
-              path: "/credentials/extraFields",
+              path: "/authorization/credentials/extraFields",
               value: {
                 company: $("#CompanyName").val(),
               },
@@ -1068,7 +1076,7 @@ docReady(function () {
               return;
             }
 
-            if (resultData.profile === null) {
+            if (resultData.authorization.profile === null) {
               console.log("Brak profilu, pobieram profile...");
               getProfile()
                 .then(function (profileData) {
@@ -1188,17 +1196,17 @@ docReady(function () {
           var data = [
             {
               op: "add",
-              path: "/credentials/username",
+              path: "/authorization/credentials/username",
               value: $("#Username-Edit").val().trim(),
             },
             {
               op: "add",
-              path: "/credentials/password",
+              path: "/authorization/credentials/password",
               value: $("#Password-Edit").val(),
             },
             {
               op: "add",
-              path: "/credentials/extraFields",
+              path: "/authorization/credentials/extraFields",
               value: {
                 company: $("#CompanyEdit").val(),
               },
@@ -1210,12 +1218,12 @@ docReady(function () {
             var data = [
               {
                 op: "add",
-                path: "/credentials/username",
+                path: "/authorization/credentials/username",
                 value: $("#Username-Edit").val().trim(),
               },
               {
                 op: "add",
-                path: "/credentials/password",
+                path: "/authorization/credentials/password",
                 value: $("#Password-Edit").val(),
               },
               {
@@ -1234,12 +1242,12 @@ docReady(function () {
             var data = [
               {
                 op: "add",
-                path: "/credentials/username",
+                path: "/authorization/credentials/username",
                 value: $("#Username-Edit").val().trim(),
               },
               {
                 op: "add",
-                path: "/credentials/password",
+                path: "/authorization/credentials/password",
                 value: $("#Password-Edit").val(),
               },
             ];

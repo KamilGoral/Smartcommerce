@@ -99,10 +99,10 @@ function getWholesaler() {
     if (request2.status >= 200 && request2.status < 400) {
       $("#login-credentials-container").removeClass("hide");
       const statusmessagebox = document.getElementById("statusmessagebox");
-      $("#UsernameEdit").val(data2.credentials.username).change();
+      $("#UsernameEdit").val(data2.authorization.credentials.username).change();
       $("#logisticMinimumEdit").val(data2).change();
-      if (data2.lastDownload !== null) {
-        var firstData = data2.lastDownload;
+      if (data2.modules.offer.lastDownload !== null) {
+        var firstData = data2.modules.offer.lastDownload;
         var firstCreateDate = "";
         var firstStatus = "";
         var firstMessage = "";
@@ -238,17 +238,17 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
         var data = [
           {
             op: "add",
-            path: "/credentials/username",
+            path: "/authorization/credentials/username",
             value: $("#UsernameEdit").val().trim(),
           },
           {
             op: "add",
-            path: "/credentials/password",
+            path: "/authorization/credentials/password",
             value: $("#PasswordEdit").val(),
           },
           {
             op: "add",
-            path: "/credentials/extraFields",
+            path: "/authorization/credentials/extraFields",
             value: {
               company: $("#CompanyEdit").val(),
             },
@@ -260,12 +260,12 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
           var data = [
             {
               op: "add",
-              path: "/credentials/username",
+              path: "/authorization/credentials/username",
               value: $("#UsernameEdit").val().trim(),
             },
             {
               op: "add",
-              path: "/credentials/password",
+              path: "/authorization/credentials/password",
               value: $("#PasswordEdit").val(),
             },
             {
@@ -282,12 +282,12 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
           var data = [
             {
               op: "add",
-              path: "/credentials/username",
+              path: "/authorization/credentials/username",
               value: $("#UsernameEdit").val().trim(),
             },
             {
               op: "add",
-              path: "/credentials/password",
+              path: "/authorization/credentials/password",
               value: $("#PasswordEdit").val(),
             },
           ];
