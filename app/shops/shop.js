@@ -1276,9 +1276,9 @@ docReady(function () {
       var selectedOrderId = null;
 
       // Klik w ikonę kosza -> zapamiętaj dane i pokaż modal
-      $("#table_id").on("click", "td.details-control4", function () {
+      $("#table_orders").on("click", "td.details-control4", function () {
         var tr = $(this).closest("tr");
-        var rowData = $("#table_id").DataTable().row(tr).data();
+        var rowData = $("#table_orders").DataTable().row(tr).data();
 
         if (!rowData || !rowData.orderId || !shopKey) {
           displayMessage("Error", "Brakuje danych zamówienia lub sklepu.");
@@ -1289,11 +1289,6 @@ docReady(function () {
         selectedOrderId = rowData.orderId;
 
         $("#deleteOrderModal").css("display", "flex");
-      });
-
-      // Zamknięcie modala
-      $(".icon-close").on("click", function () {
-        $("#deleteOrderModal").css("display", "none");
       });
 
       // Submit formularza modala
@@ -1336,7 +1331,7 @@ docReady(function () {
             }
 
             if (selectedRow) {
-              $("#table_id").DataTable().row(selectedRow).remove().draw();
+              $("#table_orders").DataTable().row(selectedRow).remove().draw();
             }
 
             displayMessage("Success", "Zamówienie zostało usunięte.");
