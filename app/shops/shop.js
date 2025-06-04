@@ -1272,7 +1272,10 @@ docReady(function () {
     errorCallback
   ) {
     const table = $(tableSelector).DataTable();
+    let selectedRow = null;
+    let selectedOrderId = null;
 
+    // Kliknięcie ikony kosza — otwórz modal
     $(tableSelector).on("click", "td.details-control4", function () {
       const tr = $(this).closest("tr");
       const rowData = table.row(tr).data();
@@ -1282,15 +1285,31 @@ docReady(function () {
         return;
       }
 
-      const action = `${InvokeURL}shops/${shopKey}/orders/${rowData.orderId}`;
-      const method = "DELETE";
+      selectedRow = tr;
+      selectedOrderId = rowData.orderId;
 
-      if (!confirm("Czy na pewno chcesz usunąć to zamówienie?")) {
+      // Otwórz modal
+      $("#deleteOrderModal").fadeIn(200);
+    });
+
+    // Zamknięcie modala po kliknięciu "Zamknij"
+    $(".icon-close").on("click", function () {
+      $("#deleteOrderModal").fadeOut(200);
+    });
+
+    // Obsługa formularza usuwania
+    $("#wf-form-DeleteOrder").on("submit", function (event) {
+      event.preventDefault();
+
+      if (!selectedOrderId || !shopKey) {
+        displayMessage("Error", "Brakuje danych zamówienia.");
         return;
       }
 
+      const action = `${InvokeURL}shops/${shopKey}/orders/${selectedOrderId}`;
+
       $.ajax({
-        type: method,
+        type: "DELETE",
         url: action,
         cors: true,
         beforeSend: function () {
@@ -1309,14 +1328,21 @@ docReady(function () {
         },
         success: function () {
           if (typeof successCallback === "function") {
-            const result = successCallback(rowData);
+            const result = successCallback();
             if (!result) {
               displayMessage("Error", "Usunięcie nie powiodło się.");
               return;
             }
           }
-          table.row(tr).remove().draw();
+
+          if (selectedRow) {
+            table.row(selectedRow).remove().draw();
+          }
+
           displayMessage("Success", "Zamówienie zostało usunięte.");
+          $("#deleteOrderModal").fadeOut(200);
+          selectedRow = null;
+          selectedOrderId = null;
         },
         error: function (e) {
           if (typeof errorCallback === "function") {
