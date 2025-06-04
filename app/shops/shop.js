@@ -749,7 +749,6 @@ docReady(function () {
             api.search(this.value).draw();
           }
         });
-        makeWebflowFormAjaxDeleteOrder("#table_orders");
       },
       drawCallback: function (settings) {
         toggleEmptyState();
@@ -1266,47 +1265,51 @@ docReady(function () {
     }
   });
 
-  function makeWebflowFormAjaxDeleteOrder(
-    tableSelector,
+  makeWebflowFormAjaxDeleteOrder = function (
+    forms,
     successCallback,
     errorCallback
   ) {
-    const table = $(tableSelector).DataTable();
-    let selectedRow = null;
-    let selectedOrderId = null;
+    forms.each(function () {
+      var form = $(this);
+      var selectedRow = null;
+      var selectedOrderId = null;
 
-    // Otwórz modal po kliknięciu ikony kosza
-    $(tableSelector).on("click", "td.details-control4", function () {
-      const tr = $(this).closest("tr");
-      const rowData = table.row(tr).data();
+      // Klik w ikonę kosza -> zapamiętaj dane i pokaż modal
+      $("#table_id").on("click", "td.details-control4", function () {
+        var tr = $(this).closest("tr");
+        var rowData = $("#table_id").DataTable().row(tr).data();
 
-      if (!rowData || !rowData.orderId || !shopKey) {
-        displayMessage("Error", "Brakuje danych zamówienia lub sklepu.");
-        return;
-      }
-
-      selectedRow = tr;
-      selectedOrderId = rowData.orderId;
-
-      // Pokaż modal (display: flex)
-      $("#deleteOrderModal").css("display", "flex");
-    });
-
-    // Zablokuj domyślne wysyłanie formularza przez Webflow
-    $("#wf-form-DeleteOrder")
-      .off("submit")
-      .on("submit", function (event) {
-        event.preventDefault();
-
-        if (!selectedOrderId || !shopKey) {
-          displayMessage("Error", "Brakuje danych zamówienia.");
+        if (!rowData || !rowData.orderId || !shopKey) {
+          displayMessage("Error", "Brakuje danych zamówienia lub sklepu.");
           return;
         }
 
-        const action = `${InvokeURL}shops/${shopKey}/orders/${selectedOrderId}`;
+        selectedRow = tr;
+        selectedOrderId = rowData.orderId;
+
+        $("#deleteOrderModal").css("display", "flex");
+      });
+
+      // Zamknięcie modala
+      $(".icon-close").on("click", function () {
+        $("#deleteOrderModal").css("display", "none");
+      });
+
+      // Submit formularza modala
+      form.on("submit", function (event) {
+        event.preventDefault();
+
+        if (!selectedOrderId || !shopKey) {
+          displayMessage("Error", "Brakuje danych do usunięcia.");
+          return false;
+        }
+
+        var action = `${InvokeURL}shops/${shopKey}/orders/${selectedOrderId}`;
+        var method = "DELETE";
 
         $.ajax({
-          type: "DELETE",
+          type: method,
           url: action,
           cors: true,
           beforeSend: function () {
@@ -1325,15 +1328,15 @@ docReady(function () {
           },
           success: function () {
             if (typeof successCallback === "function") {
-              const result = successCallback();
+              var result = successCallback();
               if (!result) {
-                displayMessage("Error", "Usunięcie nie powiodło się.");
-                return;
+                displayMessage("Error", "Nie udało się usunąć zamówienia.");
+                return false;
               }
             }
 
             if (selectedRow) {
-              table.row(selectedRow).remove().draw();
+              $("#table_id").DataTable().row(selectedRow).remove().draw();
             }
 
             displayMessage("Success", "Zamówienie zostało usunięte.");
@@ -1349,8 +1352,11 @@ docReady(function () {
             console.log(e);
           },
         });
+
+        return false;
       });
-  }
+    });
+  };
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -1852,6 +1858,7 @@ docReady(function () {
     }
   });
 
+  makeWebflowFormAjaxDeleteOrder($("#wf-form-DeleteOrder"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));
   postChangePassword($("#wf-form-Form-Change-Password"));
