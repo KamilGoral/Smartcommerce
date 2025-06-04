@@ -1292,11 +1292,6 @@ docReady(function () {
       $("#deleteOrderModal").fadeIn(200);
     });
 
-    // Zamknięcie modala po kliknięciu "Zamknij"
-    $(".icon-close").on("click", function () {
-      $("#deleteOrderModal").fadeOut(200);
-    });
-
     // Obsługa formularza usuwania
     $("#wf-form-DeleteOrder").on("submit", function (event) {
       event.preventDefault();
