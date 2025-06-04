@@ -1010,7 +1010,7 @@ docReady(function () {
             },
             {
               op: "add",
-              path: "/profile",
+              path: "/authorization/profile",
               value: {
                 id: profileId,
                 name: profileName,
@@ -1228,7 +1228,7 @@ docReady(function () {
               },
               {
                 op: "add",
-                path: "/profile",
+                path: "/authorization/profile",
                 value: {
                   id: $("#Wholesaler-profile-Selector").val(),
                   name: $(

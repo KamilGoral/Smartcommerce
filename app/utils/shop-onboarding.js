@@ -270,7 +270,7 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
             },
             {
               op: "add",
-              path: "/profile",
+              path: "/authorization/profile",
               value: {
                 id: $("#Wholesaler-profile-Selector").val(),
                 name: $("#Wholesaler-profile-Selector option:selected").text(),
