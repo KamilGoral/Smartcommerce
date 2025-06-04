@@ -389,7 +389,7 @@ docReady(function () {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "/online-offer"
+        "/e-commerce"
     );
     let request2 = new XMLHttpRequest();
     request2.open("GET", url2, true);
@@ -730,7 +730,7 @@ docReady(function () {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "/online-offer/profiles"
+        "/e-commerce/profiles"
     );
     console.log("GetProfile");
 
@@ -821,7 +821,7 @@ docReady(function () {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "/online-offer/status-history?sort=createDate:asc&perPage=30"
+        "/e-commerce/status-history?sort=createDate:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -977,7 +977,7 @@ docReady(function () {
           shopKey +
           "/wholesalers/" +
           wholesalerKey +
-          "/online-offer";
+          "/e-commerce";
         var method = "PATCH";
 
         let profileId = $("#WholesalerProfileSelector").val();
@@ -1180,7 +1180,7 @@ docReady(function () {
           shopKey +
           "/wholesalers/" +
           wholesalerKey +
-          "/online-offer";
+          "/e-commerce";
         var method = "PATCH";
 
         if ($("#CompanyEdit").val()) {
@@ -1292,7 +1292,7 @@ docReady(function () {
                   shopKey +
                   "/wholesalers/" +
                   wholesalerKey +
-                  "/online-offer/profiles"
+                  "/e-commerce/profiles"
               );
 
               let request = new XMLHttpRequest();
@@ -1795,7 +1795,7 @@ docReady(function () {
           shopKey +
           "/wholesalers/" +
           wholesalerKey +
-          "/online-offer";
+          "/e-commerce";
         var method = "PATCH";
 
         var data = [

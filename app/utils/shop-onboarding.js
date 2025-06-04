@@ -89,7 +89,7 @@ function getWholesaler() {
       shopKey +
       "/wholesalers/" +
       wholesalerKey +
-      "/online-offer"
+      "/e-commerce"
   );
   let request2 = new XMLHttpRequest();
   request2.open("GET", url2, true);
@@ -230,7 +230,7 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "/online-offer";
+        "/e-commerce";
       var method = "PATCH";
 
       if ($("#CompanyEdit").val()) {
@@ -338,7 +338,7 @@ patchWholesalersCredential = function (forms, successCallback, errorCallback) {
                 shopKey +
                 "/wholesalers/" +
                 wholesalerKey +
-                "/online-offer/profiles"
+                "/e-commerce/profiles"
             );
 
             let request = new XMLHttpRequest();
@@ -496,7 +496,7 @@ function getProfile() {
       shopKey +
       "/wholesalers/" +
       wholesalerKey +
-      "/online-offer/profiles"
+      "/e-commerce/profiles"
   );
 
   let request = new XMLHttpRequest();
