@@ -1275,7 +1275,7 @@ docReady(function () {
     let selectedRow = null;
     let selectedOrderId = null;
 
-    // Kliknięcie ikony kosza — otwórz modal
+    // Otwórz modal po kliknięciu ikony kosza
     $(tableSelector).on("click", "td.details-control4", function () {
       const tr = $(this).closest("tr");
       const rowData = table.row(tr).data();
@@ -1288,66 +1288,68 @@ docReady(function () {
       selectedRow = tr;
       selectedOrderId = rowData.orderId;
 
-      // Otwórz modal
-      $("#deleteOrderModal").fadeIn(200);
+      // Pokaż modal (display: flex)
+      $("#deleteOrderModal").css("display", "flex");
     });
 
-    // Obsługa formularza usuwania
-    $("#wf-form-DeleteOrder").on("submit", function (event) {
-      event.preventDefault();
+    // Zablokuj domyślne wysyłanie formularza przez Webflow
+    $("#wf-form-DeleteOrder")
+      .off("submit")
+      .on("submit", function (event) {
+        event.preventDefault();
 
-      if (!selectedOrderId || !shopKey) {
-        displayMessage("Error", "Brakuje danych zamówienia.");
-        return;
-      }
+        if (!selectedOrderId || !shopKey) {
+          displayMessage("Error", "Brakuje danych zamówienia.");
+          return;
+        }
 
-      const action = `${InvokeURL}shops/${shopKey}/orders/${selectedOrderId}`;
+        const action = `${InvokeURL}shops/${shopKey}/orders/${selectedOrderId}`;
 
-      $.ajax({
-        type: "DELETE",
-        url: action,
-        cors: true,
-        beforeSend: function () {
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        contentType: "application/json",
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4",
-        },
-        success: function () {
-          if (typeof successCallback === "function") {
-            const result = successCallback();
-            if (!result) {
-              displayMessage("Error", "Usunięcie nie powiodło się.");
-              return;
+        $.ajax({
+          type: "DELETE",
+          url: action,
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          success: function () {
+            if (typeof successCallback === "function") {
+              const result = successCallback();
+              if (!result) {
+                displayMessage("Error", "Usunięcie nie powiodło się.");
+                return;
+              }
             }
-          }
 
-          if (selectedRow) {
-            table.row(selectedRow).remove().draw();
-          }
+            if (selectedRow) {
+              table.row(selectedRow).remove().draw();
+            }
 
-          displayMessage("Success", "Zamówienie zostało usunięte.");
-          $("#deleteOrderModal").fadeOut(200);
-          selectedRow = null;
-          selectedOrderId = null;
-        },
-        error: function (e) {
-          if (typeof errorCallback === "function") {
-            errorCallback(e);
-          }
-          displayMessage("Error", "Błąd podczas usuwania zamówienia.");
-          console.log(e);
-        },
+            displayMessage("Success", "Zamówienie zostało usunięte.");
+            $("#deleteOrderModal").css("display", "none");
+            selectedRow = null;
+            selectedOrderId = null;
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            displayMessage("Error", "Błąd podczas usuwania zamówienia.");
+            console.log(e);
+          },
+        });
       });
-    });
   }
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
