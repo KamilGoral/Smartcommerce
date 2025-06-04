@@ -749,6 +749,7 @@ docReady(function () {
             api.search(this.value).draw();
           }
         });
+        makeWebflowFormAjaxDeleteOrder("#table_orders");
       },
       drawCallback: function (settings) {
         toggleEmptyState();
@@ -1264,6 +1265,69 @@ docReady(function () {
       );
     }
   });
+
+  function makeWebflowFormAjaxDeleteOrder(
+    tableSelector,
+    successCallback,
+    errorCallback
+  ) {
+    const table = $(tableSelector).DataTable();
+
+    $(tableSelector).on("click", "td.details-control4", function () {
+      const tr = $(this).closest("tr");
+      const rowData = table.row(tr).data();
+
+      if (!rowData || !rowData.orderId || !shopKey) {
+        displayMessage("Error", "Brakuje danych zamówienia lub sklepu.");
+        return;
+      }
+
+      const action = `${InvokeURL}shops/${shopKey}/orders/${rowData.orderId}`;
+      const method = "DELETE";
+
+      if (!confirm("Czy na pewno chcesz usunąć to zamówienie?")) {
+        return;
+      }
+
+      $.ajax({
+        type: method,
+        url: action,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        success: function () {
+          if (typeof successCallback === "function") {
+            const result = successCallback(rowData);
+            if (!result) {
+              displayMessage("Error", "Usunięcie nie powiodło się.");
+              return;
+            }
+          }
+          table.row(tr).remove().draw();
+          displayMessage("Success", "Zamówienie zostało usunięte.");
+        },
+        error: function (e) {
+          if (typeof errorCallback === "function") {
+            errorCallback(e);
+          }
+          displayMessage("Error", "Błąd podczas usuwania zamówienia.");
+          console.log(e);
+        },
+      });
+    });
+  }
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
