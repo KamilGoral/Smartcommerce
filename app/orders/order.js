@@ -695,15 +695,6 @@ docReady(function () {
       });
   }
 
-  function switchToPreviewTabWithFilter(key) {
-    $('a[data-w-tab="Preview"]').click();
-
-    // Delikatne opóźnienie na zmianę zakładki i render UI
-    setTimeout(() => {
-      $("#CartwholesalerKeyIndicator").val(key).trigger("change");
-    }, 200);
-  }
-
   function buildSplittedTable(data = []) {
     var table = $("#table_splited_wh").DataTable({
       pagingType: "full_numbers",
@@ -775,8 +766,7 @@ docReady(function () {
       <span style="white-space: nowrap;">
         Nieprzydzielone
         <a href="#" 
-           style="margin-left: 6px; text-decoration: underline; font-size: 11px;"
-           onclick="switchToPreviewTabWithFilter('unassigned')">
+           style="margin-left: 6px; text-decoration: underline; font-size: 11px;" class="go-to-unassigned">
           Zobacz produkty
         </a>
       </span>`;
@@ -1036,6 +1026,11 @@ docReady(function () {
       },
     });
   }
+
+  $("#table_splited_wh").on("click", ".go-to-unassigned", function (e) {
+    e.preventDefault();
+    switchToPreviewTabWithFilter("unassigned");
+  });
 
   async function CreateOrder() {
     const tableId = "#spl_table";
