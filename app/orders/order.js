@@ -1009,6 +1009,8 @@ docReady(function () {
         $("#table_splited_wh").on("click", ".go-to-unassigned", function (e) {
           e.preventDefault();
 
+          $("#CartwholesalerKeyIndicator").val("unassigned").trigger("change");
+
           // 1. Kliknij zakładkę
           const $tab = $('a[data-w-tab="Cart"]');
           $tab.trigger("click");
@@ -1024,13 +1026,6 @@ docReady(function () {
           // Aktywuj wybraną
           $tab.addClass("w--current");
           $tabPane.addClass("w--tab-active");
-
-          // 3. Ustaw filtr po krótkim czasie
-          setTimeout(() => {
-            $("#CartwholesalerKeyIndicator")
-              .val("unassigned")
-              .trigger("change");
-          }, 300);
         });
 
         // Klikanie w szczegóły – TO JEST DOBRE MIEJSCE!
@@ -1793,7 +1788,10 @@ docReady(function () {
 
   function GetSplittedProducts() {
     let resultProducts = { items: [] }; // <- domyślna wartość, nawet jeśli nie przyjdzie nic z serwera
-    $("#CartwholesalerKeyIndicator").val("");
+    if (!$("#CartwholesalerKeyIndicator").val()) {
+      $("#CartwholesalerKeyIndicator").val("");
+    }
+
     $("#CartRotationIndicator").val("");
     $("#spl_table_wrapper").show();
     $.ajax({
