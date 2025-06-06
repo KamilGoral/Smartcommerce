@@ -1694,7 +1694,7 @@ docReady(function () {
     }
   }
 
-  function populateWholesalerDropdown(wholesalerItems) {
+  function populateWholesalerDropdownFromItems(items) {
     const dropdown = document.getElementById("CartwholesalerKeyIndicator");
 
     // Wyczyść poprzednie opcje
@@ -1703,41 +1703,49 @@ docReady(function () {
     // Opcja "Wszyscy" na górze
     const allOption = document.createElement("option");
     allOption.value = "";
-    allOption.textContent = "Wszyscy";
+    allOption.textContent = "Wszyscy dostawcy";
     dropdown.appendChild(allOption);
 
-    // Wyodrębnij unassigned osobno
-    const unassignedItem = wholesalerItems.find(
-      (item) => item.wholesalerKey === "unassigned"
+    // Grupowanie i sumowanie ilości produktów
+    const grouped = {};
+
+    items.forEach((item) => {
+      const key = item.wholesalerKey || "unassigned";
+      if (!grouped[key]) {
+        grouped[key] = {
+          quantity: 0,
+          wholesalerKey: key,
+          wholesalerName: item.countryDistributorName || key,
+        };
+      }
+      grouped[key].quantity += item.quantity || 0;
+    });
+
+    // Przekształcamy do tablicy
+    const groupedArray = Object.values(grouped);
+
+    // Oddziel "unassigned" na później
+    const normalWholesalers = groupedArray
+      .filter((w) => w.wholesalerKey !== "unassigned")
+      .sort((a, b) => b.quantity - a.quantity);
+
+    const unassigned = groupedArray.find(
+      (w) => w.wholesalerKey === "unassigned"
     );
 
-    // Filtrowanie i sortowanie właściwych dostawców
-    const filtered = wholesalerItems
-      .filter(
-        (item) =>
-          item.wholesalerKey !== "unassigned" &&
-          item.products &&
-          item.products.bestMatch > 0
-      )
-      .sort((a, b) => b.products.bestMatch - a.products.bestMatch);
-
-    // Dodaj właściwych dostawców
-    filtered.forEach((item) => {
+    // Dodajemy zwykłych dostawców
+    normalWholesalers.forEach((wholesaler) => {
       const option = document.createElement("option");
-      option.value = item.wholesalerKey;
-      option.textContent = `${item.wholesalerName} (${item.products.bestMatch})`;
+      option.value = wholesaler.wholesalerKey;
+      option.textContent = `${wholesaler.wholesalerName} (${wholesaler.quantity})`;
       dropdown.appendChild(option);
     });
 
-    // Dodaj "Nieprzydzielone" na końcu, jeśli istnieje
-    if (
-      unassignedItem &&
-      unassignedItem.products &&
-      unassignedItem.products.bestMatch > 0
-    ) {
+    // Dodajemy "Nieprzydzielone" na końcu
+    if (unassigned && unassigned.quantity > 0) {
       const option = document.createElement("option");
       option.value = "unassigned";
-      option.textContent = "Nieprzydzielone";
+      option.textContent = `Nieprzydzielone (${unassigned.quantity})`;
       dropdown.appendChild(option);
     }
   }
@@ -2364,7 +2372,7 @@ docReady(function () {
       },
       success: function (response) {
         resultProducts = response;
-        populateWholesalerDropdown(response.items);
+        populateWholesalerDropdownFromItems(response.items);
 
         if (typeof successCallback === "function") {
           const result = successCallback(resultProducts);
