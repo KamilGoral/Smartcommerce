@@ -5946,16 +5946,15 @@ ${offerTimestampLine}
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
+    window.switchToPreviewTabWithFilter = function (key) {
+      // Przełączenie zakładki
+      $('a[data-w-tab="Preview"]').click();
+
+      // Po przełączeniu ustaw filtr
+      setTimeout(() => {
+        $("#CartwholesalerKeyIndicator").val(key).trigger("change");
+      }, 200);
+    };
     $(".dataTables_filter input").attr("maxLength", 60);
   });
 });
-
-window.switchToPreviewTabWithFilter = function (key) {
-  // Przełączenie zakładki
-  $('a[data-w-tab="Preview"]').click();
-
-  // Po przełączeniu ustaw filtr
-  setTimeout(() => {
-    $("#CartwholesalerKeyIndicator").val(key).trigger("change");
-  }, 200);
-};
