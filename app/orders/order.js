@@ -1010,7 +1010,7 @@ docReady(function () {
           e.preventDefault();
 
           // Przełącz zakładkę
-          clickTab("Cart");
+          clickTab("cart");
 
           // Ustaw filtr po chwili (zakładka może się ładować asynchronicznie)
           setTimeout(() => {
