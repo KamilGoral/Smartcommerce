@@ -5821,6 +5821,12 @@ ${offerTimestampLine}
     adjustDataTablesColumns();
     console.log("Updating previousTab to:", tab);
     previousTab = tab;
+
+    // Ręczne przełączenie aktywnej zakładki i panela (Webflow-style)
+    $(".w-tab-link").removeClass("w--current");
+    $(".w-tab-pane").removeClass("w--tab-active");
+    $(this).addClass("w--current");
+    $(`.w-tab-pane[data-w-tab="${tab}"]`).addClass("w--tab-active");
   });
 
   $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
