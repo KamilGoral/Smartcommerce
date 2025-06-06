@@ -695,6 +695,15 @@ docReady(function () {
       });
   }
 
+  function switchToPreviewTabWithFilter(key) {
+    $('a[data-w-tab="Preview"]').click();
+
+    // Delikatne opóźnienie na zmianę zakładki i render UI
+    setTimeout(() => {
+      $("#CartwholesalerKeyIndicator").val(key).trigger("change");
+    }, 200);
+  }
+
   function buildSplittedTable(data = []) {
     var table = $("#table_splited_wh").DataTable({
       pagingType: "full_numbers",
@@ -5000,15 +5009,6 @@ ${offerTimestampLine}
       $("#waitingdots").hide();
     }
   });
-
-  function switchToPreviewTabWithFilter(key) {
-    $('a[data-w-tab="Preview"]').click();
-
-    // Delikatne opóźnienie na zmianę zakładki i render UI
-    setTimeout(() => {
-      $("#CartwholesalerKeyIndicator").val(key).trigger("change");
-    }, 200);
-  }
 
   $("#formats").on("mousedown", "option", function (event) {
     // Zapobiegaj domyślnej akcji przeglądarki
