@@ -991,14 +991,15 @@ docReady(function () {
 
         $('a[data-w-tab="AddProducts"]').toggle(confirmedCount === 0);
 
-        const textBox = $("#table_splited_wh filter label input");
+        // Naprawione! Tu był błąd
+        const textBox = $("#table_splited_wh_filter input");
         textBox.off().on("keyup input", function (e) {
           if (e.keyCode === 13) api.search(this.value).draw();
         });
 
         updateStatusBadge(api);
 
-        // Obsługa rozwijania wierszy
+        // Klikanie w szczegóły – TO JEST DOBRE MIEJSCE!
         $("#table_splited_wh tbody").on(
           "click",
           "td.details-control",
