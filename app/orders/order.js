@@ -1010,7 +1010,7 @@ docReady(function () {
           e.preventDefault();
 
           // Przełącz zakładkę
-          $('a[data-w-tab="Preview"]').click();
+          clickTab("Cart");
 
           // Ustaw filtr po chwili (zakładka może się ładować asynchronicznie)
           setTimeout(() => {
