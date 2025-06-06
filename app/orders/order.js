@@ -1006,24 +1006,20 @@ docReady(function () {
 
         updateStatusBadge(api);
 
-        $("#table_splited_wh").on("click", ".go-to-unassigned", function (e) {
-          e.preventDefault();
-
+        $("#table_splited_wh").on("click", ".go-to-unassigned", function () {
+          // Ustaw filtr
           $("#CartwholesalerKeyIndicator").val("unassigned").trigger("change");
 
-          // 1. Kliknij zakładkę
+          // Znajdź zakładkę i kontener
           const $tab = $('a[data-w-tab="Cart"]');
-          $tab.trigger("click");
-
-          // 2. Pokaż odpowiadający tab-pane (Webflow-style)
           const tabName = $tab.attr("data-w-tab");
           const $tabPane = $(`.w-tab-pane[data-w-tab="${tabName}"]`);
 
-          // Dezaktywuj inne zakładki
+          // Dezaktywuj inne zakładki i panele
           $(".w-tab-link").removeClass("w--current");
           $(".w-tab-pane").removeClass("w--tab-active");
 
-          // Aktywuj wybraną
+          // Aktywuj tę zakładkę i jej panel
           $tab.addClass("w--current");
           $tabPane.addClass("w--tab-active");
         });
