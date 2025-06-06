@@ -1006,6 +1006,20 @@ docReady(function () {
 
         updateStatusBadge(api);
 
+        $("#table_splited_wh").on("click", ".go-to-unassigned", function (e) {
+          e.preventDefault();
+
+          // Przełącz zakładkę
+          $('a[data-w-tab="Preview"]').click();
+
+          // Ustaw filtr po chwili (zakładka może się ładować asynchronicznie)
+          setTimeout(() => {
+            $("#CartwholesalerKeyIndicator")
+              .val("unassigned")
+              .trigger("change");
+          }, 300);
+        });
+
         // Klikanie w szczegóły – TO JEST DOBRE MIEJSCE!
         $("#table_splited_wh tbody").on(
           "click",
@@ -5946,15 +5960,6 @@ ${offerTimestampLine}
     $("tableSelector").DataTable({
       dom: '<"pull-left"f><"pull-right"l>tip',
     });
-    window.switchToPreviewTabWithFilter = function (key) {
-      // Przełączenie zakładki
-      $('a[data-w-tab="Preview"]').click();
-
-      // Po przełączeniu ustaw filtr
-      setTimeout(() => {
-        $("#CartwholesalerKeyIndicator").val(key).trigger("change");
-      }, 200);
-    };
     $(".dataTables_filter input").attr("maxLength", 60);
   });
 });
