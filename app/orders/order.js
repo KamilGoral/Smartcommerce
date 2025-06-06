@@ -750,22 +750,30 @@ docReady(function () {
           width: "auto",
           data: null,
           render: function (data, type, row) {
-            let name =
-              row.wholesalerName === "unassigned"
-                ? "Nieprzydzielone"
-                : row.wholesalerName;
             const bonus = row.preferentialBonus;
             const showBonus = bonus !== 0 && bonus !== null;
 
             const badge = showBonus
               ? `<span data-tippy-content="Premia preferencyjna"
-                class="${bonus >= 0 ? "positive" : "negative"}"
-                style="margin-left: 6px; font-size: 10px; white-space: nowrap; display: inline-block;">
-             ${bonus > 0 ? "+" : ""}${bonus}%
-         </span>`
+              class="${bonus >= 0 ? "positive" : "negative"}"
+              style="margin-left: 6px; font-size: 10px; white-space: nowrap; display: inline-block;">
+         ${bonus > 0 ? "+" : ""}${bonus}%
+       </span>`
               : "";
 
-            return `<span style="white-space: nowrap;">${name}${badge}</span>`;
+            if (row.wholesalerKey === "unassigned") {
+              return `
+      <span style="white-space: nowrap;">
+        Nieprzydzielone
+        <a href="#" 
+           style="margin-left: 6px; text-decoration: underline; font-size: 11px;"
+           onclick="switchToPreviewTabWithFilter('unassigned')">
+          Zobacz produkty
+        </a>
+      </span>`;
+            }
+
+            return `<span style="white-space: nowrap;">${row.wholesalerName}${badge}</span>`;
           },
         },
 
@@ -4992,6 +5000,15 @@ ${offerTimestampLine}
       $("#waitingdots").hide();
     }
   });
+
+  function switchToPreviewTabWithFilter(key) {
+    $('a[data-w-tab="Preview"]').click();
+
+    // Delikatne opóźnienie na zmianę zakładki i render UI
+    setTimeout(() => {
+      $("#CartwholesalerKeyIndicator").val(key).trigger("change");
+    }, 200);
+  }
 
   $("#formats").on("mousedown", "option", function (event) {
     // Zapobiegaj domyślnej akcji przeglądarki
