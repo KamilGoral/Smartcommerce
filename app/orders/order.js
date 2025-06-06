@@ -1009,10 +1009,23 @@ docReady(function () {
         $("#table_splited_wh").on("click", ".go-to-unassigned", function (e) {
           e.preventDefault();
 
-          // Przełącz zakładkę
-          clickTab("cart");
+          // 1. Kliknij zakładkę
+          const $tab = $('a[data-w-tab="Cart"]');
+          $tab.trigger("click");
 
-          // Ustaw filtr po chwili (zakładka może się ładować asynchronicznie)
+          // 2. Pokaż odpowiadający tab-pane (Webflow-style)
+          const tabName = $tab.attr("data-w-tab");
+          const $tabPane = $(`.w-tab-pane[data-w-tab="${tabName}"]`);
+
+          // Dezaktywuj inne zakładki
+          $(".w-tab-link").removeClass("w--current");
+          $(".w-tab-pane").removeClass("w--tab-active");
+
+          // Aktywuj wybraną
+          $tab.addClass("w--current");
+          $tabPane.addClass("w--tab-active");
+
+          // 3. Ustaw filtr po krótkim czasie
           setTimeout(() => {
             $("#CartwholesalerKeyIndicator")
               .val("unassigned")
