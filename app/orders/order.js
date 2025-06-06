@@ -38,19 +38,21 @@ docReady(function () {
   }
 
   function parseAttributes(cookieValue) {
-    if (!cookieValue) return {};
-    const decodedValue = decodeURIComponent(cookieValue);
+    const decodedValue = decodeURIComponent(cookieValue || "");
     const attributes = decodedValue.split("|");
     const result = {};
+
     attributes.forEach((attribute) => {
       const parts = attribute.split(":");
-      if (parts.length === 2) {
-        const [key, value] = parts;
-        result[key.trim()] = value.trim();
-      } else {
-        console.warn("Nieprawidłowy atrybut cookie:", attribute);
+      if (parts.length >= 2) {
+        const key = parts[0]?.trim();
+        const value = parts.slice(1).join(":").trim(); // obsługa wartości z dodatkowymi ":"
+        if (key) {
+          result[key] = value;
+        }
       }
     });
+
     return result;
   }
 
@@ -1692,6 +1694,54 @@ docReady(function () {
     }
   }
 
+  function populateWholesalerDropdown(wholesalerItems) {
+    const dropdown = document.getElementById("CartwholesalerKeyIndicator");
+
+    // Wyczyść poprzednie opcje
+    dropdown.innerHTML = "";
+
+    // Opcja "Wszyscy" na górze
+    const allOption = document.createElement("option");
+    allOption.value = "";
+    allOption.textContent = "Wszyscy";
+    dropdown.appendChild(allOption);
+
+    // Wyodrębnij unassigned osobno
+    const unassignedItem = wholesalerItems.find(
+      (item) => item.wholesalerKey === "unassigned"
+    );
+
+    // Filtrowanie i sortowanie właściwych dostawców
+    const filtered = wholesalerItems
+      .filter(
+        (item) =>
+          item.wholesalerKey !== "unassigned" &&
+          item.products &&
+          item.products.bestMatch > 0
+      )
+      .sort((a, b) => b.products.bestMatch - a.products.bestMatch);
+
+    // Dodaj właściwych dostawców
+    filtered.forEach((item) => {
+      const option = document.createElement("option");
+      option.value = item.wholesalerKey;
+      option.textContent = `${item.wholesalerName} (${item.products.bestMatch})`;
+      dropdown.appendChild(option);
+    });
+
+    // Dodaj "Nieprzydzielone" na końcu, jeśli istnieje
+    if (
+      unassignedItem &&
+      unassignedItem.products &&
+      unassignedItem.products.bestMatch > 0
+    ) {
+      const option = document.createElement("option");
+      option.value = "unassigned";
+      option.textContent = "Nieprzydzielone";
+      dropdown.appendChild(option);
+    }
+  }
+
   function GetSplittedProducts() {
     let resultProducts = { items: [] }; // <- domyślna wartość, nawet jeśli nie przyjdzie nic z serwera
     $("#CartwholesalerKeyIndicator").val("");
@@ -2314,6 +2364,7 @@ docReady(function () {
       },
       success: function (response) {
         resultProducts = response;
+        populateWholesalerDropdown(response.items);
 
         if (typeof successCallback === "function") {
           const result = successCallback(resultProducts);
@@ -3385,9 +3436,6 @@ ${offerTimestampLine}
         const wholesalerContainer = document.getElementById(
           "wholesalerKeyIndicator"
         );
-        const CartwholesalerContainer = document.getElementById(
-          "CartwholesalerKeyIndicator"
-        );
 
         toParse.forEach((wholesaler) => {
           if (wholesaler.enabled) {
@@ -3397,14 +3445,7 @@ ${offerTimestampLine}
             wholesalerContainer.appendChild(opt);
           }
         });
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.wholesalerKey;
-            CartwholesalerContainer.appendChild(opt);
-          }
-        });
+
         if (request.status == 401) {
           console.log("Unauthorized");
         }

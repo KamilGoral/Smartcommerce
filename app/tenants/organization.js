@@ -40,21 +40,24 @@ docReady(function () {
   }
 
   function parseAttributes(cookieValue) {
-    if (!cookieValue) return {};
-    const decodedValue = decodeURIComponent(cookieValue);
+    const decodedValue = decodeURIComponent(cookieValue || "");
     const attributes = decodedValue.split("|");
     const result = {};
+
     attributes.forEach((attribute) => {
       const parts = attribute.split(":");
-      if (parts.length === 2) {
-        const [key, value] = parts;
-        result[key.trim()] = value.trim();
-      } else {
-        console.warn("Nieprawidłowy atrybut cookie:", attribute);
+      if (parts.length >= 2) {
+        const key = parts[0]?.trim();
+        const value = parts.slice(1).join(":").trim(); // obsługa wartości z dodatkowymi ":"
+        if (key) {
+          result[key] = value;
+        }
       }
     });
+
     return result;
   }
+
   var smartToken = getCookie("sprytnycookie");
   var accessToken = null;
 
