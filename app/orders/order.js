@@ -1726,6 +1726,11 @@ docReady(function () {
 
   function populateWholesalerDropdownFromItems(items) {
     const dropdown = document.getElementById("CartwholesalerKeyIndicator");
+
+    // Zapisz aktualnie wybraną wartość
+    const previouslySelected = dropdown.value;
+
+    // Wyczyść dropdown
     dropdown.innerHTML = "";
 
     const wholesalersData =
@@ -1739,7 +1744,6 @@ docReady(function () {
 
     // Grupowanie po wholesalerKey
     const grouped = {};
-
     items.forEach((item) => {
       const key = item.wholesalerKey || "unassigned";
       if (!grouped[key]) {
@@ -1759,14 +1763,14 @@ docReady(function () {
       (a, b) => b.quantity - a.quantity
     );
 
-    // Wszyscy (pogrubione)
+    // Dodaj "Wszyscy"
     const allOption = document.createElement("option");
     allOption.value = "";
     allOption.textContent = "Wszyscy";
     allOption.style.fontWeight = "bold";
     dropdown.appendChild(allOption);
 
-    // Pozostali dostawcy
+    // Dodaj pozostali dostawcy
     sorted.forEach((entry) => {
       const name =
         wholesalerNameMap[entry.wholesalerKey] || entry.wholesalerKey;
@@ -1776,13 +1780,21 @@ docReady(function () {
       dropdown.appendChild(option);
     });
 
-    // Nieprzydzielone (na końcu, pogrubione)
+    // Dodaj "Nieprzydzielone"
     if (unassigned && unassigned.quantity > 0) {
       const unassignedOption = document.createElement("option");
       unassignedOption.value = "unassigned";
       unassignedOption.textContent = "Nieprzydzielone";
       unassignedOption.style.fontWeight = "bold";
       dropdown.appendChild(unassignedOption);
+    }
+
+    // Spróbuj ustawić z powrotem poprzednio wybraną wartość (jeśli nadal istnieje)
+    const stillExists = Array.from(dropdown.options).some(
+      (opt) => opt.value === previouslySelected
+    );
+    if (stillExists) {
+      dropdown.value = previouslySelected;
     }
   }
 
