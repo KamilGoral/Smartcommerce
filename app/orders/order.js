@@ -1700,53 +1700,49 @@ docReady(function () {
     // Wyczyść poprzednie opcje
     dropdown.innerHTML = "";
 
-    // Opcja "Wszyscy" na górze
+    // Dodaj opcję "Wszyscy"
     const allOption = document.createElement("option");
     allOption.value = "";
-    allOption.textContent = "Wszyscy dostawcy";
+    allOption.textContent = "Wszyscy";
     dropdown.appendChild(allOption);
 
-    // Grupowanie i sumowanie ilości produktów
+    // Grupowanie po wholesalerKey
     const grouped = {};
 
     items.forEach((item) => {
       const key = item.wholesalerKey || "unassigned";
       if (!grouped[key]) {
         grouped[key] = {
-          quantity: 0,
           wholesalerKey: key,
-          wholesalerName: item.countryDistributorName || key,
+          quantity: 0,
         };
       }
       grouped[key].quantity += item.quantity || 0;
     });
 
-    // Przekształcamy do tablicy
-    const groupedArray = Object.values(grouped);
+    // Oddzielenie unassigned
+    const unassigned = grouped["unassigned"];
+    delete grouped["unassigned"];
 
-    // Oddziel "unassigned" na później
-    const normalWholesalers = groupedArray
-      .filter((w) => w.wholesalerKey !== "unassigned")
-      .sort((a, b) => b.quantity - a.quantity);
-
-    const unassigned = groupedArray.find(
-      (w) => w.wholesalerKey === "unassigned"
+    // Sortowanie malejąco po ilości
+    const sorted = Object.values(grouped).sort(
+      (a, b) => b.quantity - a.quantity
     );
 
-    // Dodajemy zwykłych dostawców
-    normalWholesalers.forEach((wholesaler) => {
+    // Dodawanie opcji dostawców
+    sorted.forEach((entry) => {
       const option = document.createElement("option");
-      option.value = wholesaler.wholesalerKey;
-      option.textContent = `${wholesaler.wholesalerName} (${wholesaler.quantity})`;
+      option.value = entry.wholesalerKey;
+      option.textContent = entry.wholesalerKey;
       dropdown.appendChild(option);
     });
 
-    // Dodajemy "Nieprzydzielone" na końcu
+    // Dodanie "Nieprzydzielone" na końcu
     if (unassigned && unassigned.quantity > 0) {
-      const option = document.createElement("option");
-      option.value = "unassigned";
-      option.textContent = `Nieprzydzielone (${unassigned.quantity})`;
-      dropdown.appendChild(option);
+      const unassignedOption = document.createElement("option");
+      unassignedOption.value = "unassigned";
+      unassignedOption.textContent = "Nieprzydzielone";
+      dropdown.appendChild(unassignedOption);
     }
   }
 
