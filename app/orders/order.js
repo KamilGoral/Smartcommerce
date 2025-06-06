@@ -1041,11 +1041,6 @@ docReady(function () {
     });
   }
 
-  $("#table_splited_wh").on("click", ".go-to-unassigned", function (e) {
-    e.preventDefault();
-    switchToPreviewTabWithFilter("unassigned");
-  });
-
   async function CreateOrder() {
     const tableId = "#spl_table";
     const dotsCheckerInterval = 1000; // co ile ms sprawdzamy spinner
