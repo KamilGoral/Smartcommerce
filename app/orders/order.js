@@ -1696,15 +1696,16 @@ docReady(function () {
 
   function populateWholesalerDropdownFromItems(items) {
     const dropdown = document.getElementById("CartwholesalerKeyIndicator");
-
-    // Wyczyść poprzednie opcje
     dropdown.innerHTML = "";
 
-    // Dodaj opcję "Wszyscy"
-    const allOption = document.createElement("option");
-    allOption.value = "";
-    allOption.textContent = "Wszyscy";
-    dropdown.appendChild(allOption);
+    const wholesalersData =
+      JSON.parse(sessionStorage.getItem("wholesalersData")) || [];
+
+    // Mapa nazw: { wholesalerKey => wholesalerName }
+    const wholesalerNameMap = {};
+    wholesalersData.forEach((w) => {
+      wholesalerNameMap[w.wholesalerKey] = w.name;
+    });
 
     // Grupowanie po wholesalerKey
     const grouped = {};
@@ -1724,24 +1725,33 @@ docReady(function () {
     const unassigned = grouped["unassigned"];
     delete grouped["unassigned"];
 
-    // Sortowanie malejąco po ilości
     const sorted = Object.values(grouped).sort(
       (a, b) => b.quantity - a.quantity
     );
 
-    // Dodawanie opcji dostawców
+    // Wszyscy (pogrubione)
+    const allOption = document.createElement("option");
+    allOption.value = "";
+    allOption.textContent = "Wszyscy";
+    allOption.style.fontWeight = "bold";
+    dropdown.appendChild(allOption);
+
+    // Pozostali dostawcy
     sorted.forEach((entry) => {
+      const name =
+        wholesalerNameMap[entry.wholesalerKey] || entry.wholesalerKey;
       const option = document.createElement("option");
       option.value = entry.wholesalerKey;
-      option.textContent = entry.wholesalerKey;
+      option.textContent = name;
       dropdown.appendChild(option);
     });
 
-    // Dodanie "Nieprzydzielone" na końcu
+    // Nieprzydzielone (na końcu, pogrubione)
     if (unassigned && unassigned.quantity > 0) {
       const unassignedOption = document.createElement("option");
       unassignedOption.value = "unassigned";
       unassignedOption.textContent = "Nieprzydzielone";
+      unassignedOption.style.fontWeight = "bold";
       dropdown.appendChild(unassignedOption);
     }
   }
