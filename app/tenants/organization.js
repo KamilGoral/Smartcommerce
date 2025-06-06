@@ -4573,6 +4573,119 @@ docReady(function () {
     $input.val(value).attr("value", value).data("initialValue", value);
   }
 
+  $("#table_id").on("click", "img", function () {
+    //Get the cell of the input
+    var table = $("#table_id").DataTable();
+    var data = table.row($(this).parents("tr")).data();
+    var action = $(this).attr("action");
+
+    if (action === "delete") {
+      $.ajax({
+        type: "DELETE",
+        url: InvokeURL + "exclusive-products/" + data.uuid,
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        success: function (resultData) {
+          console.log(resultData);
+          table.row($(this).parents("tr")).remove().draw();
+          $("#deleteInline-Success").show();
+          $("#deleteInline-Success").fadeOut(4000);
+        },
+        error: function (jqXHR, exception) {
+          console.log(jqXHR);
+          console.log(jqXHR);
+          console.log(exception);
+          $("#deleteInline-Fail").show();
+          $("#deleteInline-Fail").fadeOut(4000);
+          return;
+        },
+      });
+    }
+    if (action === "edit") {
+      $("#EditExclusivePopup").css("display", "flex");
+
+      var offset = new Date().getTimezoneOffset();
+      var localeTime = new Date(
+        Date.parse(data.created.at) - offset * 60 * 1000
+      ).toISOString();
+      var creationDate = localeTime.split("T");
+      var creationTime = creationDate[1].split("Z");
+      CreatedTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
+
+      $("#GTINInputEdit")
+        .prop("disabled", true)
+        .css("opacity", "0.6")
+        .val(data.gtin);
+      $("#Creator")
+        .prop("disabled", true)
+        .css("opacity", "0.6")
+        .val(data.created.by);
+      $("#Created")
+        .prop("disabled", true)
+        .css("opacity", "0.6")
+        .val(CreatedTime);
+
+      $("#exclusiveProductId").val(data.uuid);
+      $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
+
+      if (nowDate > data.endDate && nowDate >= startDate) {
+        $("#WholesalerSelector-Exclusive-Edit")
+          .prop("disabled", true)
+          .css("opacity", "0.6")
+          .val(CreatedTime);
+      }
+
+      if (nowDate > data.endDate || data.endDate == "infinity") {
+        if (data.endDate != "infinity") {
+          $("#endDate-Exclusive-Edit").datepicker(
+            "setDate",
+            new Date(Date.parse(data.endDate))
+          );
+          $("#endDate-Exclusive-Edit").prop("disabled", true);
+          $("#endDate-Exclusive-Edit").css("opacity", "0.6");
+        } else {
+          console.log("infinity");
+          //$("#NeverSingleEdit").prop("checked", true);
+        }
+      }
+
+      if (nowDate <= data.endDate) {
+        $("#endDate-Exclusive-Edit").datepicker(
+          "setDate",
+          new Date(Date.parse(data.endDate))
+        );
+      } else {
+      }
+
+      if (nowDate >= data.startDate) {
+        $("#startDate-Exclusive-Edit").css("opacity", "0.6");
+        $("#startDate-Exclusive-Edit").datepicker(
+          "setDate",
+          new Date(Date.parse(data.startDate))
+        );
+        $("#startDate-Exclusive-Edit").prop("disabled", true);
+      } else {
+        $("#startDate-Exclusive-Edit").datepicker(
+          "setDate",
+          new Date(Date.now())
+        );
+      }
+    }
+  });
+
   $('a[role="tab"]').click(function (e) {
     if ($.fn.dataTable) {
       const delays = [1, 49, 151, 901];
