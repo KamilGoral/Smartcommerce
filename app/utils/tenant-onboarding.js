@@ -19,6 +19,13 @@ docReady(function () {
     if (parts.length === 2)
       return decodeURIComponent(parts.pop().split(";").shift());
   }
+
+  $(document).on("click", ".modal-wrapper", function (e) {
+    // Jeśli kliknięto bezpośrednio w wrapper (a nie w sam modal lub jego dzieci)
+    if ($(e.target).is(".modal-wrapper")) {
+      $(this).hide(); // lub np. fadeOut() jeśli chcesz efekt
+    }
+  });
   // DOM is loaded and ready for manipulation here
 
   function setCookieAndSession(cName, cValue, expirationSec) {

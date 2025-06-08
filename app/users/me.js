@@ -21,6 +21,13 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
+  $(document).on("click", ".modal-wrapper", function (e) {
+    // Jeśli kliknięto bezpośrednio w wrapper (a nie w sam modal lub jego dzieci)
+    if ($(e.target).is(".modal-wrapper")) {
+      $(this).hide(); // lub np. fadeOut() jeśli chcesz efekt
+    }
+  });
+
   function getCookieNameByValue(searchValue) {
     // Get all cookies as a single string and split it into individual cookies
     const cookies = document.cookie.split("; ");
