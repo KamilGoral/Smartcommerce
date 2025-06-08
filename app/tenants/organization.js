@@ -1659,6 +1659,7 @@ docReady(function () {
           "Alco-Trade": "6670004078",
           "PGD-Polska": "7792272047",
           Delko: "6792106727",
+          Specjal: "5170199121",
         };
 
         // Pobierz TaxId na podstawie nazwy organizacji
@@ -1684,6 +1685,12 @@ docReady(function () {
           );
         } else if (organizationName === "Delko") {
           // Dla Delko filtruj tylko swoje rekordy
+          const found = toParse.some((item) => item.taxId === currentTaxId);
+          if (found) {
+            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+          }
+        } else if (organizationName === "Specjal") {
+          // Dla Specjal filtruj tylko swoje rekordy
           const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
             toParse = toParse.filter((item) => item.taxId === currentTaxId);
