@@ -1811,7 +1811,7 @@ docReady(function () {
         var data = [
           {
             op: "remove",
-            path: "/credentials",
+            path: "/authorization/credentials",
           },
         ];
         $.ajax({
