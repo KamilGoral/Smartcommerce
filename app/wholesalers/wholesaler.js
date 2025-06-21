@@ -483,9 +483,20 @@ docReady(function () {
             firstStatus = "Problem";
             firstMessage = firstData.message;
 
-            if ((firstMessage = "Profile for wholesaler have to be set.")) {
+            if (firstMessage === "Profile for wholesaler have to be set.") {
               firstMessage = "Proszę wybrać profil dla dostawcy z listy";
             }
+
+            // Sprawdzamy, czy są dostępne eventy i czy nie są null lub puste
+            if (
+              firstData.events &&
+              Array.isArray(firstData.events) &&
+              firstData.events.length > 0
+            ) {
+              const lastEvent = firstData.events[firstData.events.length - 1]; // Ostatni event
+              firstMessage += ` | Zdarzenie: ${lastEvent.type} - ${lastEvent.message}`;
+            }
+
             var LastStatusMessage =
               document.getElementById("LastStatusMessage");
             LastStatusMessage.textContent =
