@@ -21,42 +21,41 @@ docReady(function () {
   }
 
   function enablePasswordToggle() {
-    // Znajdujemy wszystkie inputy typu password
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Dodajemy padding, żeby nie zasłaniać tekstu
+        // Dodajemy padding na input
         input.style.paddingRight = "40px";
 
-        // Dodajemy ikonę tylko jeśli jeszcze jej nie ma
-        if (input.parentNode.querySelector(".eye-icon")) return;
+        // Sprawdzamy czy dla tego konkretnego inputa już nie ma ikonki
+        if (
+          input.parentNode.querySelector(
+            '.eye-icon[data-for="' + input.id + '"]'
+          )
+        )
+          return;
 
         const eyeIcon = document.createElement("img");
         eyeIcon.src =
           "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
         eyeIcon.alt = "Pokaż hasło";
         eyeIcon.className = "eye-icon";
+        eyeIcon.setAttribute("data-for", input.id);
         eyeIcon.style.position = "absolute";
         eyeIcon.style.right = "10px";
+        eyeIcon.style.top = "50%";
+        eyeIcon.style.transform = "translateY(-50%)";
         eyeIcon.style.cursor = "pointer";
         eyeIcon.style.width = "20px";
         eyeIcon.style.height = "20px";
         eyeIcon.style.objectFit = "contain";
 
-        // Upewniamy się, że rodzic ma relative
+        // Rodzic musi mieć relative
         const parent = input.parentNode;
         if (getComputedStyle(parent).position === "static") {
           parent.style.position = "relative";
         }
         parent.appendChild(eyeIcon);
-
-        // Czekamy aż wszystko będzie narysowane i dopiero liczymy wysokość
-        const observer = new ResizeObserver(() => {
-          const inputHeight = input.offsetHeight;
-          const iconHeight = 20;
-          eyeIcon.style.top = `50%`;
-        });
-        observer.observe(input);
 
         // Obsługa kliknięcia
         eyeIcon.addEventListener("click", function () {
