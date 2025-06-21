@@ -444,10 +444,11 @@ docReady(function () {
   const orderNameFromCookie = getCookie("orderName");
 
   const orderNameElement = document.getElementById("OrderNameBread");
-  const orderNameBig = document.getElemenentById("OrderIdBig");
+  const orderNameBig = document.getElementById("OrderIdBig");
+
   if (orderNameFromCookie) {
     orderNameElement.textContent = orderNameFromCookie;
-    orderNameBig.textContent = orderNameBig;
+    orderNameBig.textContent = orderNameFromCookie;
   } else {
     orderNameElement.textContent = "Twoje zamówienie";
     orderNameBig.textContent = "Twoje zamówienie";
