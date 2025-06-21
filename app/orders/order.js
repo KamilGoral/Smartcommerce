@@ -441,6 +441,18 @@ docReady(function () {
       shopKey
   );
 
+  const orderNameFromCookie = getCookie("orderName");
+
+  const orderNameElement = document.getElementById("OrderNameBread");
+  const orderNameBig = document.getElemenentById("OrderIdBig");
+  if (orderNameFromCookie) {
+    orderNameElement.textContent = orderNameFromCookie;
+    orderNameBig.textContent = orderNameBig;
+  } else {
+    orderNameElement.textContent = "Twoje zamówienie";
+    orderNameBig.textContent = "Twoje zamówienie";
+  }
+
   function getShop() {
     return new Promise((resolve, reject) => {
       var request = new XMLHttpRequest();
