@@ -1042,12 +1042,12 @@ docReady(function () {
             },
           ];
 
-          if ($("#CompanyName").val()) {
+          if ($("#CompanyNameEdit").val()) {
             data.push({
               op: "add",
               path: "/authorization/credentials/extraFields",
               value: {
-                company: $("#CompanyName").val(),
+                company: $("#CompanyNameEdit").val(),
               },
             });
           }
@@ -1118,7 +1118,7 @@ docReady(function () {
                       );
                     });
 
-                    $("#Username, #Password, #CompanyName")
+                    $("#Username, #Password, #CompanyNameEdit")
                       .closest(".field-wrapper")
                       .hide();
 
