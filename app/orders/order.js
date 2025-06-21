@@ -443,7 +443,7 @@ docReady(function () {
 
   const orderNameFromCookie = getCookie("orderName");
 
-  const orderNameElement = document.getElementById("OrderNameBread");
+  const orderNameElement = document.getElementById("OrderIdBread");
   const orderNameBig = document.getElementById("OrderIdBig");
 
   if (orderNameFromCookie) {
