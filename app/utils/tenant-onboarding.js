@@ -54,8 +54,7 @@ docReady(function () {
         const observer = new ResizeObserver(() => {
           const inputHeight = input.offsetHeight;
           const iconHeight = 20;
-          const topPosition = (inputHeight - iconHeight) / 2;
-          eyeIcon.style.top = `${topPosition}px`;
+          eyeIcon.style.top = `50%`;
         });
         observer.observe(input);
 
