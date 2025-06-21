@@ -68,8 +68,6 @@ docReady(function () {
 
   enablePasswordToggle();
 
-  enablePasswordToggle();
-
   $(document).on("click", ".modal-wrapper", function (e) {
     // Jeśli kliknięto bezpośrednio w wrapper (a nie w sam modal lub jego dzieci)
     if ($(e.target).is(".modal-wrapper")) {
