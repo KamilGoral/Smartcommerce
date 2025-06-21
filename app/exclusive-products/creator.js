@@ -24,56 +24,53 @@ docReady(function () {
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Tworzymy wrapper
-        const wrapper = document.createElement("div");
-        wrapper.style.position = "relative";
-        wrapper.style.display = "block"; // lub inline-block dla pełnej kontroli
+        const parent = input.parentNode;
 
-        // Wstawiamy wrapper przed inputem
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
+        // Dodajemy padding na input, jeśli jeszcze nie ma
+        if (!input.style.paddingRight) {
+          input.style.paddingRight = "40px";
+        }
 
-        // Dodajemy padding na prawo w input
-        input.style.paddingRight = "40px";
-        input.style.width = "100%"; // ważne: niech input zajmuje 100% szerokości wrappera
+        // Tworzymy ikonę tylko jeśli jeszcze jej nie ma
+        if (!parent.querySelector(".eye-icon")) {
+          const eyeIcon = document.createElement("img");
+          eyeIcon.src =
+            "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
+          eyeIcon.alt = "Pokaż hasło";
+          eyeIcon.className = "eye-icon";
+          eyeIcon.style.position = "absolute";
+          eyeIcon.style.right = "10px";
+          eyeIcon.style.cursor = "pointer";
+          eyeIcon.style.width = "20px";
+          eyeIcon.style.height = "20px";
+          eyeIcon.style.objectFit = "contain";
+          parent.appendChild(eyeIcon);
 
-        // Tworzymy ikonę
-        const eyeIcon = document.createElement("img");
-        eyeIcon.src =
-          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
-        eyeIcon.alt = "Pokaż hasło";
-        eyeIcon.style.position = "absolute";
-        eyeIcon.style.right = "10px";
-        eyeIcon.style.cursor = "pointer";
-        eyeIcon.style.width = "20px";
-        eyeIcon.style.height = "20px";
-        eyeIcon.style.objectFit = "contain";
+          // Precyzyjne wycentrowanie po wyrenderowaniu
+          requestAnimationFrame(() => {
+            const inputHeight = input.offsetHeight;
+            const iconHeight = 20;
+            const topPosition = (inputHeight - iconHeight) / 2;
+            eyeIcon.style.top = `${topPosition}px`;
+          });
 
-        wrapper.appendChild(eyeIcon);
-
-        // Centrowanie po renderze
-        requestAnimationFrame(() => {
-          const inputHeight = input.offsetHeight;
-          const iconHeight = 20;
-          const topPosition = (inputHeight - iconHeight) / 2;
-          eyeIcon.style.top = `${topPosition}px`;
-        });
-
-        // Obsługa przełączania
-        eyeIcon.addEventListener("click", function () {
-          if (input.type === "password") {
-            input.type = "text";
-            eyeIcon.src =
-              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg";
-          } else {
-            input.type = "password";
-            eyeIcon.src =
-              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
-          }
-        });
+          // Obsługa kliknięcia
+          eyeIcon.addEventListener("click", function () {
+            if (input.type === "password") {
+              input.type = "text";
+              eyeIcon.src =
+                "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg";
+            } else {
+              input.type = "password";
+              eyeIcon.src =
+                "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
+            }
+          });
+        }
       });
   }
 
+  // Wywołanie funkcji
   enablePasswordToggle();
 
   $(document).on("click", ".modal-wrapper", function (e) {
