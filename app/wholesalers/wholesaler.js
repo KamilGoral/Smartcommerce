@@ -24,12 +24,6 @@ docReady(function () {
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Zrób miejsce na ikonę
-        input.style.paddingRight = "40px";
-
-        // Ustaw rodzica na relative
-        input.parentNode.style.position = "relative";
-
         // Tworzymy ikonę
         const eyeIcon = document.createElement("img");
         eyeIcon.src =
@@ -37,15 +31,23 @@ docReady(function () {
         eyeIcon.alt = "Pokaż hasło";
         eyeIcon.style.position = "absolute";
         eyeIcon.style.right = "10px";
-        eyeIcon.style.top = "50%";
-        eyeIcon.style.transform = "translateY(-50%)";
         eyeIcon.style.cursor = "pointer";
         eyeIcon.style.width = "20px";
         eyeIcon.style.height = "20px";
-        eyeIcon.style.objectFit = "contain"; // żeby nie było rozciągania
+        eyeIcon.style.objectFit = "contain";
 
-        // Dodajemy ikonę
+        // Dodajemy miejsce w input na ikonę
+        input.style.paddingRight = "40px";
+
+        // Ustawiamy rodzica na relative
+        input.parentNode.style.position = "relative";
         input.parentNode.appendChild(eyeIcon);
+
+        // Precyzyjne centrowanie
+        const inputHeight = input.offsetHeight;
+        const iconHeight = 20;
+        const topPosition = (inputHeight - iconHeight) / 2;
+        eyeIcon.style.top = `${topPosition}px`;
 
         // Przełączanie
         eyeIcon.addEventListener("click", function () {
