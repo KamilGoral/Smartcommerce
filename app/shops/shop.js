@@ -24,27 +24,30 @@ docReady(function () {
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Ustawiamy input na relative, by można było wstawić ikonę jako absolutną
-        input.style.position = "relative";
-        input.style.paddingRight = "40px"; // Robimy miejsce na ikonę po prawej
+        // Zrób miejsce na ikonę
+        input.style.paddingRight = "40px";
+
+        // Ustaw rodzica na relative
+        input.parentNode.style.position = "relative";
 
         // Tworzymy ikonę
         const eyeIcon = document.createElement("img");
         eyeIcon.src =
           "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
-        eyeIcon.alt = "Toggle password visibility";
+        eyeIcon.alt = "Pokaż hasło";
         eyeIcon.style.position = "absolute";
         eyeIcon.style.right = "10px";
         eyeIcon.style.top = "50%";
         eyeIcon.style.transform = "translateY(-50%)";
         eyeIcon.style.cursor = "pointer";
+        eyeIcon.style.width = "20px";
         eyeIcon.style.height = "20px";
+        eyeIcon.style.objectFit = "contain"; // żeby nie było rozciągania
 
-        // Dodajemy ikonę do rodzica inputa
-        input.parentNode.style.position = "relative"; // rodzic musi mieć relative
+        // Dodajemy ikonę
         input.parentNode.appendChild(eyeIcon);
 
-        // Funkcja przełączania
+        // Przełączanie
         eyeIcon.addEventListener("click", function () {
           if (input.type === "password") {
             input.type = "text";
@@ -58,6 +61,8 @@ docReady(function () {
         });
       });
   }
+
+  enablePasswordToggle();
 
   enablePasswordToggle();
 
