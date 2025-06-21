@@ -547,6 +547,11 @@ docReady(function () {
     request.send();
   }
 
+  function handleGoToOrder(url, orderName) {
+    setCookie("orderName", orderName, 3600); // np. 1 godzina ważności
+    window.location.href = url;
+  }
+
   function getOrders() {
     var tableOrders = $("#table_orders").DataTable({
       pagingType: "full_numbers",
@@ -725,15 +730,19 @@ docReady(function () {
         },
         {
           orderable: false,
-          data: "orderId",
+          data: null,
           width: "72px",
           render: function (data, type, row) {
-            if (type === "display" && data) {
-              let url = `https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}`;
-              let orderName = row.name || "";
+            if (type === "display" && row.orderId) {
+              let url = `https://${DomainName}/app/orders/order?orderId=${row.orderId}&shopKey=${shopKey}`;
+              let orderName = row.name ? encodeURIComponent(row.name) : "";
               return `<div class="action-container">
-                <a href="#" class="buttonoutline editme w-button" onclick="handleGoToOrder('${url}', '${orderName}')">Przejdź</a>
-              </div>`;
+                      <a href="#" class="buttonoutline editme w-button go-to-order" 
+                        data-url="${url}" 
+                        data-name="${orderName}">
+                        Przejdź
+                      </a>
+                    </div>`;
             }
             return "";
           },
@@ -765,6 +774,15 @@ docReady(function () {
       },
       drawCallback: function (settings) {
         toggleEmptyState();
+        // Dodaj eventy do przycisków "Przejdź"
+        $(".go-to-order")
+          .off("click")
+          .on("click", function (e) {
+            e.preventDefault();
+            const url = $(this).data("url");
+            const orderName = decodeURIComponent($(this).data("name"));
+            handleGoToOrder(url, orderName);
+          });
       },
     });
 
@@ -781,11 +799,6 @@ docReady(function () {
         $("#orderscontainer").show();
       }
     }
-  }
-
-  function handleGoToOrder(url, orderName) {
-    setCookie("orderName", orderName, 3600); // np. 1 godzina ważności
-    window.location.href = url;
   }
 
   function getOffers() {
