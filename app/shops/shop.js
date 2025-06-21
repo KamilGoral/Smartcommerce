@@ -729,7 +729,7 @@ docReady(function () {
           width: "72px",
           render: function (data, type, row) {
             if (type === "display" && data) {
-              let url = `https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}$orderName=${row.name}`;
+              let url = `https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}`;
               return `<div class="action-container"><a href="${url}" class="buttonoutline editme w-button">Przejdź</a></div>`;
             }
             return "";
