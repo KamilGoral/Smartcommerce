@@ -21,48 +21,41 @@ docReady(function () {
   }
 
   function enablePasswordToggle() {
-    // Funkcja do przełączania widoczności hasła
-    function togglePassword(event) {
-      const passwordField = event.target.previousElementSibling;
-      const eyeIcon = event.target;
-
-      // Jeśli pole jest typu 'password', zmieniamy je na 'text' i zmieniamy ikonę
-      if (passwordField.type === "password") {
-        passwordField.type = "text";
-        eyeIcon.src =
-          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg"; // Otwórz oko
-      } else {
-        passwordField.type = "password";
-        eyeIcon.src =
-          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg"; // Zamknięte oko
-      }
-    }
-
-    // Szukamy wszystkich pól typu 'password'
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Tworzymy ikonkę oka obok każdego pola 'password'
+        // Ustawiamy input na relative, by można było wstawić ikonę jako absolutną
+        input.style.position = "relative";
+        input.style.paddingRight = "40px"; // Robimy miejsce na ikonę po prawej
+
+        // Tworzymy ikonę
         const eyeIcon = document.createElement("img");
         eyeIcon.src =
-          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg"; // Ikona zamkniętego oka
+          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
         eyeIcon.alt = "Toggle password visibility";
         eyeIcon.style.position = "absolute";
         eyeIcon.style.right = "10px";
         eyeIcon.style.top = "50%";
         eyeIcon.style.transform = "translateY(-50%)";
         eyeIcon.style.cursor = "pointer";
+        eyeIcon.style.height = "20px";
 
-        // Tworzymy wrapper dla inputa i ikony
-        const wrapper = document.createElement("div");
-        wrapper.style.position = "relative";
-        wrapper.style.width = input.offsetWidth + "px"; // Szerokość inputa
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
-        wrapper.appendChild(eyeIcon);
+        // Dodajemy ikonę do rodzica inputa
+        input.parentNode.style.position = "relative"; // rodzic musi mieć relative
+        input.parentNode.appendChild(eyeIcon);
 
-        // Przypisujemy funkcję do kliknięcia na ikonę
-        eyeIcon.addEventListener("click", togglePassword);
+        // Funkcja przełączania
+        eyeIcon.addEventListener("click", function () {
+          if (input.type === "password") {
+            input.type = "text";
+            eyeIcon.src =
+              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg";
+          } else {
+            input.type = "password";
+            eyeIcon.src =
+              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
+          }
+        });
       });
   }
 
