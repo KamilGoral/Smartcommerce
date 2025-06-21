@@ -24,23 +24,30 @@ docReady(function () {
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Dodajemy padding na input
+        // Sprawdź, czy input już ma wrapper (żeby nie dublować)
+        if (input.parentNode.classList.contains("password-wrapper")) return;
+
+        // Tworzymy wrapper wokół inputa
+        const wrapper = document.createElement("div");
+        wrapper.className = "password-wrapper";
+        wrapper.style.position = "relative";
+        wrapper.style.display = "block"; // zachowuje szerokość inputa automatycznie
+        wrapper.style.width = "100%";
+
+        // Podmieniamy inputa na wrapper
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // Dodajemy padding na input, żeby tekst nie wchodził pod ikonę
         input.style.paddingRight = "40px";
+        input.style.width = "100%";
 
-        // Sprawdzamy czy dla tego konkretnego inputa już nie ma ikonki
-        if (
-          input.parentNode.querySelector(
-            '.eye-icon[data-for="' + input.id + '"]'
-          )
-        )
-          return;
-
+        // Tworzymy ikonę
         const eyeIcon = document.createElement("img");
         eyeIcon.src =
           "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
         eyeIcon.alt = "Pokaż hasło";
         eyeIcon.className = "eye-icon";
-        eyeIcon.setAttribute("data-for", input.id);
         eyeIcon.style.position = "absolute";
         eyeIcon.style.right = "10px";
         eyeIcon.style.top = "50%";
@@ -50,12 +57,7 @@ docReady(function () {
         eyeIcon.style.height = "20px";
         eyeIcon.style.objectFit = "contain";
 
-        // Rodzic musi mieć relative
-        const parent = input.parentNode;
-        if (getComputedStyle(parent).position === "static") {
-          parent.style.position = "relative";
-        }
-        parent.appendChild(eyeIcon);
+        wrapper.appendChild(eyeIcon);
 
         // Obsługa kliknięcia
         eyeIcon.addEventListener("click", function () {
