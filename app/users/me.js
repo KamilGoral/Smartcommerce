@@ -22,52 +22,56 @@ docReady(function () {
   }
 
   function enablePasswordToggle() {
+    // Znajdujemy wszystkie inputy typu password
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
+        // Dodajemy padding, żeby nie zasłaniać tekstu
+        input.style.paddingRight = "40px";
+
+        // Dodajemy ikonę tylko jeśli jeszcze jej nie ma
+        if (input.parentNode.querySelector(".eye-icon")) return;
+
+        const eyeIcon = document.createElement("img");
+        eyeIcon.src =
+          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
+        eyeIcon.alt = "Pokaż hasło";
+        eyeIcon.className = "eye-icon";
+        eyeIcon.style.position = "absolute";
+        eyeIcon.style.right = "10px";
+        eyeIcon.style.cursor = "pointer";
+        eyeIcon.style.width = "20px";
+        eyeIcon.style.height = "20px";
+        eyeIcon.style.objectFit = "contain";
+
+        // Upewniamy się, że rodzic ma relative
         const parent = input.parentNode;
-
-        // Dodajemy padding na input, jeśli jeszcze nie ma
-        if (!input.style.paddingRight) {
-          input.style.paddingRight = "40px";
+        if (getComputedStyle(parent).position === "static") {
+          parent.style.position = "relative";
         }
+        parent.appendChild(eyeIcon);
 
-        // Tworzymy ikonę tylko jeśli jeszcze jej nie ma
-        if (!parent.querySelector(".eye-icon")) {
-          const eyeIcon = document.createElement("img");
-          eyeIcon.src =
-            "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
-          eyeIcon.alt = "Pokaż hasło";
-          eyeIcon.className = "eye-icon";
-          eyeIcon.style.position = "absolute";
-          eyeIcon.style.right = "10px";
-          eyeIcon.style.cursor = "pointer";
-          eyeIcon.style.width = "20px";
-          eyeIcon.style.height = "20px";
-          eyeIcon.style.objectFit = "contain";
-          parent.appendChild(eyeIcon);
+        // Czekamy aż wszystko będzie narysowane i dopiero liczymy wysokość
+        const observer = new ResizeObserver(() => {
+          const inputHeight = input.offsetHeight;
+          const iconHeight = 20;
+          const topPosition = (inputHeight - iconHeight) / 2;
+          eyeIcon.style.top = `${topPosition}px`;
+        });
+        observer.observe(input);
 
-          // Precyzyjne wycentrowanie po wyrenderowaniu
-          requestAnimationFrame(() => {
-            const inputHeight = input.offsetHeight;
-            const iconHeight = 20;
-            const topPosition = (inputHeight - iconHeight) / 2;
-            eyeIcon.style.top = `${topPosition}px`;
-          });
-
-          // Obsługa kliknięcia
-          eyeIcon.addEventListener("click", function () {
-            if (input.type === "password") {
-              input.type = "text";
-              eyeIcon.src =
-                "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg";
-            } else {
-              input.type = "password";
-              eyeIcon.src =
-                "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
-            }
-          });
-        }
+        // Obsługa kliknięcia
+        eyeIcon.addEventListener("click", function () {
+          if (input.type === "password") {
+            input.type = "text";
+            eyeIcon.src =
+              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg";
+          } else {
+            input.type = "password";
+            eyeIcon.src =
+              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg";
+          }
+        });
       });
   }
 
