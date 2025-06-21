@@ -66,7 +66,8 @@ docReady(function () {
       });
   }
 
-  // Wywołaj funkcję po załadowaniu strony, jeśli to potrzebne
+  enablePasswordToggle();
+
   enablePasswordToggle();
 
   $(document).on("click", ".modal-wrapper", function (e) {

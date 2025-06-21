@@ -21,6 +21,54 @@ docReady(function () {
       return decodeURIComponent(parts.pop().split(";").shift());
   }
 
+  function enablePasswordToggle() {
+    // Funkcja do przełączania widoczności hasła
+    function togglePassword(event) {
+      const passwordField = event.target.previousElementSibling;
+      const eyeIcon = event.target;
+
+      // Jeśli pole jest typu 'password', zmieniamy je na 'text' i zmieniamy ikonę
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        eyeIcon.src =
+          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64a10152fd5bcfa2fb16b3e6_watch.svg"; // Otwórz oko
+      } else {
+        passwordField.type = "password";
+        eyeIcon.src =
+          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg"; // Zamknięte oko
+      }
+    }
+
+    // Szukamy wszystkich pól typu 'password'
+    document
+      .querySelectorAll('input[type="password"]')
+      .forEach(function (input) {
+        // Tworzymy ikonkę oka obok każdego pola 'password'
+        const eyeIcon = document.createElement("img");
+        eyeIcon.src =
+          "https://cdn.prod.website-files.com/6041108bece36760b4e14016/68563a97a30070647f1763d1_watch-crossed.svg"; // Ikona zamkniętego oka
+        eyeIcon.alt = "Toggle password visibility";
+        eyeIcon.style.position = "absolute";
+        eyeIcon.style.right = "10px";
+        eyeIcon.style.top = "50%";
+        eyeIcon.style.transform = "translateY(-50%)";
+        eyeIcon.style.cursor = "pointer";
+
+        // Tworzymy wrapper dla inputa i ikony
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.width = input.offsetWidth + "px"; // Szerokość inputa
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        wrapper.appendChild(eyeIcon);
+
+        // Przypisujemy funkcję do kliknięcia na ikonę
+        eyeIcon.addEventListener("click", togglePassword);
+      });
+  }
+
+  enablePasswordToggle();
+
   $(document).on("click", ".modal-wrapper", function (e) {
     // Jeśli kliknięto bezpośrednio w wrapper (a nie w sam modal lub jego dzieci)
     if ($(e.target).is(".modal-wrapper")) {
