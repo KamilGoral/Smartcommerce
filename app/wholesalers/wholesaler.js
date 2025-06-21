@@ -39,17 +39,22 @@ docReady(function () {
         // Dodajemy miejsce w input na ikonę
         input.style.paddingRight = "40px";
 
-        // Ustawiamy rodzica na relative
-        input.parentNode.style.position = "relative";
-        input.parentNode.appendChild(eyeIcon);
+        // Ustawiamy rodzica na relative, jeśli nie ma
+        const parent = input.parentNode;
+        if (getComputedStyle(parent).position === "static") {
+          parent.style.position = "relative";
+        }
+        parent.appendChild(eyeIcon);
 
-        // Precyzyjne centrowanie
-        const inputHeight = input.offsetHeight;
-        const iconHeight = 20;
-        const topPosition = (inputHeight - iconHeight) / 2;
-        eyeIcon.style.top = `${topPosition}px`;
+        // Centrowanie po wyrenderowaniu
+        requestAnimationFrame(() => {
+          const inputHeight = input.offsetHeight;
+          const iconHeight = 20;
+          const topPosition = (inputHeight - iconHeight) / 2;
+          eyeIcon.style.top = `${topPosition}px`;
+        });
 
-        // Przełączanie
+        // Przełączanie widoczności hasła
         eyeIcon.addEventListener("click", function () {
           if (input.type === "password") {
             input.type = "text";
@@ -64,6 +69,7 @@ docReady(function () {
       });
   }
 
+  // Wywołanie funkcji
   enablePasswordToggle();
 
   $(document).on("click", ".modal-wrapper", function (e) {
