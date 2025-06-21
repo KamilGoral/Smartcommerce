@@ -730,12 +730,16 @@ docReady(function () {
           render: function (data, type, row) {
             if (type === "display" && data) {
               let url = `https://${DomainName}/app/orders/order?orderId=${data}&shopKey=${shopKey}`;
-              return `<div class="action-container"><a href="${url}" class="buttonoutline editme w-button">Przejdź</a></div>`;
+              let orderName = row.name || "";
+              return `<div class="action-container">
+                <a href="#" class="buttonoutline editme w-button" onclick="handleGoToOrder('${url}', '${orderName}')">Przejdź</a>
+              </div>`;
             }
             return "";
           },
           defaultContent: "",
         },
+
         {
           orderable: false,
           class: "details-control4",
@@ -777,6 +781,11 @@ docReady(function () {
         $("#orderscontainer").show();
       }
     }
+  }
+
+  function handleGoToOrder(url, orderName) {
+    setCookie("orderName", orderName, 3600); // np. 1 godzina ważności
+    window.location.href = url;
   }
 
   function getOffers() {
