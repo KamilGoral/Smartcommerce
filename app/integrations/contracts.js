@@ -25,18 +25,18 @@ docReady(function () {
     document
       .querySelectorAll('input[type="password"]')
       .forEach(function (input) {
-        // Tworzymy wrapper, który otoczy tylko input
+        // Tworzymy wrapper
         const wrapper = document.createElement("div");
         wrapper.style.position = "relative";
-        wrapper.style.display = "inline-block";
-        wrapper.style.width = input.offsetWidth + "px";
+        wrapper.style.display = "block"; // lub inline-block dla pełnej kontroli
 
         // Wstawiamy wrapper przed inputem
         input.parentNode.insertBefore(wrapper, input);
         wrapper.appendChild(input);
 
-        // Dodajemy miejsce w input na ikonę
+        // Dodajemy padding na prawo w input
         input.style.paddingRight = "40px";
+        input.style.width = "100%"; // ważne: niech input zajmuje 100% szerokości wrappera
 
         // Tworzymy ikonę
         const eyeIcon = document.createElement("img");
@@ -52,7 +52,7 @@ docReady(function () {
 
         wrapper.appendChild(eyeIcon);
 
-        // Centrowanie dokładne po wysokości inputa
+        // Centrowanie po renderze
         requestAnimationFrame(() => {
           const inputHeight = input.offsetHeight;
           const iconHeight = 20;
@@ -60,7 +60,7 @@ docReady(function () {
           eyeIcon.style.top = `${topPosition}px`;
         });
 
-        // Przełączanie widoczności hasła
+        // Obsługa przełączania
         eyeIcon.addEventListener("click", function () {
           if (input.type === "password") {
             input.type = "text";
