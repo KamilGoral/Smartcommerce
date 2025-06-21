@@ -1201,7 +1201,7 @@ docReady(function () {
           "/e-commerce";
         var method = "PATCH";
 
-        if ($("#CompanyEdit").val()) {
+        if ($("#CompanyNameEdit").val()) {
           //mirex, smakosz, gniezno case
           var data = [
             {
@@ -1218,7 +1218,7 @@ docReady(function () {
               op: "add",
               path: "/authorization/credentials/extraFields",
               value: {
-                company: $("#CompanyEdit").val(),
+                company: $("#CompanyNameEdit").val(),
               },
             },
           ];
