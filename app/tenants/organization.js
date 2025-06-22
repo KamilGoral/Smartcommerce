@@ -735,22 +735,26 @@ docReady(function () {
   // Mapa: email użytkownika → lista shopKey do których ma dostęp do czasu ogarniecia tematu przez backend
   function getAllowedShopKeys(userEmail) {
     const domain = "@spolem.czest.pl";
+
     if (!userEmail.endsWith(domain)) {
-      return null; // email spoza organizacji
+      return null; // Użytkownik spoza organizacji - pełny dostęp
     }
 
     const prefix = userEmail.split("@")[0];
 
+    // Specjalne przypadki na sztywno
     if (prefix === "megasam") return ["701"];
     if (prefix === "sezam") return ["600"];
 
+    // Obsługa sklepów
     if (prefix.startsWith("sklep")) {
       let num = prefix.slice(5);
       num = num.padStart(3, "0");
       return [num];
     }
 
-    return null; // default - brak przypisanego sklepu
+    // Jeśli nie pasuje do niczego powyżej, traktujemy jako użytkownika personalnego — dostęp do wszystkich sklepów
+    return null;
   }
 
   function getShops() {
@@ -764,13 +768,11 @@ docReady(function () {
         const data = JSON.parse(this.response);
         const allShops = data.items;
 
-        const userEmail = attributes["email"];
-        const allowedShopKeys = getAllowedShopKeys(userEmail);
+        const allowedShopKeys = getAllowedShopKeys(attributes["email"]);
 
-        // Jeśli email jest w mapie, filtruj, inaczej pokaż wszystkie
         const toParse = allowedShopKeys
           ? allShops.filter((shop) => allowedShopKeys.includes(shop.shopKey))
-          : allShops;
+          : allShops; // null oznacza pełny dostęp
 
         const shopNumber = toParse.length;
 
