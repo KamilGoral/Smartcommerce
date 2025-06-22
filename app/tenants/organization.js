@@ -733,22 +733,25 @@ docReady(function () {
   }
 
   // Mapa: email użytkownika → lista shopKey do których ma dostęp do czasu ogarniecia tematu przez backend
-  const userEmailToShopKeys = {
-    "megasam@spolem.czest.pl": ["701"],
-    "sezam@spolem.czest.pl": ["600"],
-    "sklep105@spolem.czest.pl": ["105"],
-    "sklep128@spolem.czest.pl": ["128"],
-    "sklep129@spolem.czest.pl": ["129"],
-    "sklep157@spolem.czest.pl": ["157"],
-    "sklep250@spolem.czest.pl": ["250"],
-    "sklep284@spolem.czest.pl": ["284"],
-    "sklep285@spolem.czest.pl": ["285"],
-    "sklep401@spolem.czest.pl": ["401"],
-    "sklep54@spolem.czest.pl": ["054"],
-    "sklep90@spolem.czest.pl": ["090"],
-    "sklep94@spolem.czest.pl": ["094"],
-    "sklep95@spolem.czest.pl": ["095"],
-  };
+  function getAllowedShopKeys(userEmail) {
+    const domain = "@spolem.czest.pl";
+    if (!userEmail.endsWith(domain)) {
+      return null; // email spoza organizacji
+    }
+
+    const prefix = userEmail.split("@")[0];
+
+    if (prefix === "megasam") return ["701"];
+    if (prefix === "sezam") return ["600"];
+
+    if (prefix.startsWith("sklep")) {
+      let num = prefix.slice(5);
+      num = num.padStart(3, "0");
+      return [num];
+    }
+
+    return null; // default - brak przypisanego sklepu
+  }
 
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=50");
@@ -762,7 +765,7 @@ docReady(function () {
         const allShops = data.items;
 
         const userEmail = attributes["email"];
-        const allowedShopKeys = userEmailToShopKeys[userEmail];
+        const allowedShopKeys = getAllowedShopKeys(userEmail);
 
         // Jeśli email jest w mapie, filtruj, inaczej pokaż wszystkie
         const toParse = allowedShopKeys
