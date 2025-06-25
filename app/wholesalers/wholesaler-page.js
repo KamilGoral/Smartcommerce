@@ -215,17 +215,17 @@ docReady(function () {
         whLogo.style.objectFit = "contain";
         wholesalerName.textContent = data.company;
 
-        // mapa badge -> warunek
+        // logika dla każdego badge
         const badgeMap = {
           enabled: data.enabled === true,
           Iehurt: data.connections?.ecommerce?.enabled === true,
-          Iftp: data.smartvan?.ftp?.enabled === true,
+          Iftp: data.smartvan?.ftp != null, // ważne: jeżeli ftp istnieje (czyli jest nie null)
           Iwms: data.connections?.wms?.enabled === true,
         };
 
         for (const [badgeId, shouldShow] of Object.entries(badgeMap)) {
           const badge = document.getElementById(badgeId);
-          if (!badge) continue; // nie ma takiego elementu
+          if (!badge) continue;
 
           if (shouldShow) {
             badge.classList.remove("hide");
