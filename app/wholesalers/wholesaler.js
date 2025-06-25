@@ -1020,6 +1020,16 @@ docReady(function () {
           $('div[wholesalerdata="logisticMinimum"]').html("Wartość: -");
         }
 
+        // Sprawdzenie wartości connections.wms.enabled
+        if (
+          foundWholesaler.connections &&
+          foundWholesaler.connections.wms &&
+          foundWholesaler.connections.wms.enabled
+        ) {
+          // Pokazujemy element
+          document.getElementById("Iwms").classList.remove("hide");
+        }
+
         if (
           foundWholesaler &&
           foundWholesaler.connections &&
