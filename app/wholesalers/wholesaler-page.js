@@ -218,8 +218,8 @@ docReady(function () {
         // logika dla każdego badge
         const badgeMap = {
           enabled: data.enabled === true,
-          Iehurt: data.connections?.ecommerce?.enabled === true,
-          Iftp: data.smartvan?.ftp != null, // ważne: jeżeli ftp istnieje (czyli jest nie null)
+          Iehurt: data.platformUrl != null,
+          Iftp: data.smartvan?.ftp != null,
           Iwms: data.connections?.wms?.enabled === true,
         };
 
