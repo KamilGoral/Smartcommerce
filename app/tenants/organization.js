@@ -2255,13 +2255,13 @@ docReady(function () {
   function processIntegration(integration) {
     const $row = $("#Sample-Integration").clone().css("display", "flex");
 
-    $row.find("h6").eq(1).text(integration.name);
+    $row.find("h6").eq(0).text(integration.name);
     $row
       .find("img")
       .eq(0)
       .attr("src", `data:image/png;base64,${integration.image}`);
 
-    const $integrationStatus = $row.find("h6").eq(3);
+    const $integrationStatus = $row.find("h6").eq(2);
 
     if (integration.enabled === true) {
       updateIntegrationStatus($integrationStatus, "Succeeded", "green");
