@@ -3902,12 +3902,15 @@ docReady(function () {
 
     // Address
     var newAddress = {
-      country: "PL", // Assuming the country is always Poland
+      country: "PL", // zakładam że zawsze Polska
       line1: $("#tenantAdressEdit").val(),
-      line2: $("#tenantAdressEdit2").val(),
       town: $("#tenantTownEdit").val(),
       postcode: $("#tenantPostcodeEdit").val(),
     };
+
+    if ($("#tenantAdressEdit2").val().trim() !== "") {
+      newAddress.line2 = $("#tenantAdressEdit2").val();
+    }
 
     // Compare each property to see if any part of the address has changed
     var addressChanged = false;
@@ -3936,9 +3939,12 @@ docReady(function () {
     for (let i = 1; i <= 3; i++) {
       let email = $(`#tenantEmailEdit${i}`).val();
       let description = $(`#tenantEmailEditDescription${i}`).val();
-      if (email || description) {
-        // Add if either field is filled
-        newEmails.push({ email: email, description: description });
+      if (email) {
+        let emailObj = { email: email };
+        if (description && description.trim() !== "") {
+          emailObj.description = description;
+        }
+        newEmails.push(emailObj);
       }
     }
 
