@@ -215,6 +215,27 @@ docReady(function () {
         whLogo.style.objectFit = "contain";
         wholesalerName.textContent = data.company;
 
+        // mapa badge -> warunek
+        const badgeMap = {
+          enabled: data.enabled === true,
+          Iehurt: data.connections?.ecommerce?.enabled === true,
+          Iftp: data.smartvan?.ftp?.enabled === true,
+          Iwms: data.connections?.wms?.enabled === true,
+        };
+
+        for (const [badgeId, shouldShow] of Object.entries(badgeMap)) {
+          const badge = document.getElementById(badgeId);
+          if (!badge) continue; // nie ma takiego elementu
+
+          if (shouldShow) {
+            badge.classList.remove("hide");
+            badge.classList.add("show");
+          } else {
+            badge.classList.add("hide");
+            badge.classList.remove("show");
+          }
+        }
+
         if (
           data &&
           data.smartvan &&
