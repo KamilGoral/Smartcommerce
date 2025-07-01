@@ -1106,12 +1106,12 @@ docReady(function () {
             },
           ];
 
-          if ($("#CompanyNameEdit").val()) {
+          if ($("#CompanyName").val()) {
             data.push({
               op: "add",
               path: "/authorization/credentials/extraFields",
               value: {
-                company: $("#CompanyNameEdit").val(),
+                company: $("#CompanyName").val(),
               },
             });
           }
@@ -1130,12 +1130,12 @@ docReady(function () {
             },
           ];
 
-          if ($("#CompanyNameEdit").val()) {
+          if ($("#CompanyName").val()) {
             data.push({
               op: "add",
               path: "/authorization/credentials/extraFields",
               value: {
-                company: $("#CompanyNameEdit").val(),
+                company: $("#CompanyName").val(),
               },
             });
           }
@@ -1206,7 +1206,7 @@ docReady(function () {
                       );
                     });
 
-                    $("#Username, #Password, #CompanyNameEdit")
+                    $("#Username, #Password, #CompanyName")
                       .closest(".field-wrapper")
                       .hide();
 
