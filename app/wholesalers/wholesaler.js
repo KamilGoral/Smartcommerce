@@ -1105,6 +1105,16 @@ docReady(function () {
               },
             },
           ];
+
+          if ($("#CompanyNameEdit").val()) {
+            data.push({
+              op: "add",
+              path: "/authorization/credentials/extraFields",
+              value: {
+                company: $("#CompanyNameEdit").val(),
+              },
+            });
+          }
         } else {
           // Pierwsze podejście bez profilu, dodaj firmę jeśli istnieje
           data = [
