@@ -2918,10 +2918,6 @@ docReady(function () {
     });
   }
 
-  /**
-   * Pobiera listę cenników, mapuje dane na potrzeby UI
-   * i buduje tabelę DataTables z czytelniejszymi etykietami statusu.
-   */
   async function getPricats() {
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -2996,6 +2992,7 @@ docReady(function () {
         return {
           ...item,
           diffDays,
+          bucket, // <── DODANE
           status,
           label,
           ageClass,
@@ -3057,6 +3054,8 @@ docReady(function () {
             // Dostawca
             data: "wholesalerKey",
           },
+          /* 3 ─ Bucket (0/1) – UKRYTY, ale sortuje całe zestawienie ─ */
+          { title: "Bucket", visible: false, data: "bucket", type: "num" },
           {
             // Status (kolor + ikonka) (ukryty)
             data: "status",
