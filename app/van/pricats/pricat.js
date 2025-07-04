@@ -992,7 +992,7 @@ docReady(function () {
           data: "asks",
           title: "Promocja",
           defaultContent: "-",
-          orderable: false,
+          orderable: true,
           render: function (data) {
             if (data && data[0] && data[0].promotion) {
               return `${data[0].promotion.type} (threshold: ${data[0].promotion.threshold})`;
@@ -1004,7 +1004,7 @@ docReady(function () {
           data: "asks",
           title: "Wiadomość",
           defaultContent: "-",
-          orderable: false,
+          orderable: true,
           render: function (data) {
             // Sprawdź, czy są jakieś wiadomości w pierwszym elemencie tablicy asks
             if (
