@@ -3107,7 +3107,7 @@ docReady(function () {
                 }[data[0].status] || "noneexisting";
 
               if (data.length === 1) {
-                return `<span class="${statusClass}" data-tippy-content="${translate(
+                return `<span class="tippy" data-tippy-content="${translate(
                   data[0].status
                 )}">${data[0].key}</span>`;
               }
