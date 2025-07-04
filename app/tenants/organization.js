@@ -2972,7 +2972,7 @@ docReady(function () {
           status = "Kończy się";
           label = "Wygasa dziś";
         } else if (diffDays === -1) {
-          status = "Zakończony";
+          status = "Zakończony wczoraj";
           label = "Wygasł wczoraj";
         } else {
           status = "Przeszły";
