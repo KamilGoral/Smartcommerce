@@ -3116,7 +3116,7 @@ docReady(function () {
                 .map((s) => `${s.key} – ${translate(s.status)}`)
                 .join(", ");
 
-              return `<span class="tippy ${statusClass}" data-tippy-content="${tooltip}">${data.length}</span>`;
+              return `<span class="tippy" data-tippy-content="${tooltip}">${data.length}</span>`;
             },
           },
           {
