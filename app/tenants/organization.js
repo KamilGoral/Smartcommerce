@@ -2988,7 +2988,7 @@ docReady(function () {
           diffDays > 3
             ? "positive"
             : diffDays >= 0
-            ? "warning" // 0-3 dni
+            ? "medium" // 0-3 dni
             : diffDays >= -3
             ? "negative"
             : "negative";
