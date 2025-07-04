@@ -2918,319 +2918,277 @@ docReady(function () {
     });
   }
 
+  /**
+   * Pobiera listę cenników, mapuje dane na potrzeby UI
+   * i buduje tabelę DataTables z czytelniejszymi etykietami statusu.
+   */
   async function getPricats() {
-    let url = new URL(InvokeURL + "van/pricats?perPage=1000");
-    fetch(url, {
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const toParse = data.items.map((item) => {
-          const now = new Date().setHours(0, 0, 0, 0);
-          const startDate = new Date(item.startDate).setHours(0, 0, 0, 0);
-          const endDate = new Date(item.endDate).setHours(0, 0, 0, 0);
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-          const daysValid = (endDate - now) / (1000 * 60 * 60 * 24);
-          let status;
-          if (now < startDate) {
-            status = "Przyszły";
-          } else if (now <= endDate && daysValid == 0) {
-            status = "Kończy się";
-          } else if (now > endDate && daysValid == -1) {
-            status = "Zakończony";
-          } else if (now <= endDate) {
-            status = "Aktywny";
-          } else {
-            status = "Przeszły";
-          }
+    // Prosty pluralizer – „1 dzień” / „2 dni”
+    const plural = (n, sing, plur) => (n === 1 ? sing : plur);
 
-          return {
-            ...item,
-            status: status,
-            daysValid: daysValid,
-          };
-        });
+    // ===================== 1. FETCH =====================
+    const url = new URL(`${InvokeURL}van/pricats?perPage=1000`);
 
-        const hasEntries = toParse.length > 0;
-        $("#emptystatepricelists").toggle(!hasEntries);
-        $("#pricelistscontainer").toggle(hasEntries);
-
-        // 🛠 Zniszcz istniejącą instancję, jeśli istnieje
-        if ($.fn.DataTable.isDataTable("#table_pricelists_list")) {
-          $("#table_pricelists_list").DataTable().clear().destroy();
-        }
-
-        const table = $("#table_pricelists_list").DataTable({
-          data: toParse,
-          pagingType: "full_numbers",
-          order: [[4, "desc"]],
-          dom: '<"top">rt<"bottom"lip>',
-          scrollY: "60vh",
-          scrollCollapse: true,
-          pageLength: 10,
-          language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-            infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
-            loadingRecords: "<div class='spinner'></div>",
-            processing: "<div class='spinner'></div>",
-            search: "Szukaj:",
-            zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
-            aria: {
-              sortAscending: ": Sortowanie rosnące",
-              sortDescending: ": Sortowanie malejące",
-            },
-          },
-          columns: [
-            {
-              orderable: false,
-              data: null,
-              width: "36px",
-              defaultContent:
-                "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
-            },
-            {
-              orderable: false,
-              visible: false,
-              data: "uuid",
-              render: function (data) {
-                return data !== null ? data : "";
-              },
-            },
-            {
-              orderable: true,
-              data: "wholesalerKey",
-              render: function (data) {
-                return data !== null ? data : "";
-              },
-            },
-            {
-              orderable: true,
-              data: "status",
-              render: function (data) {
-                let className;
-                switch (data) {
-                  case "Aktywny":
-                    className = "positive";
-                    break;
-                  case "Przyszły":
-                    className = "positive";
-                    break;
-                  case "Przeszły":
-                    className = "negative";
-                    break;
-                  case "Kończy się":
-                    className = "medium";
-                    break;
-                  case "Zakończony":
-                    className = "negative";
-                    break;
-                }
-                return `<span class="${className}">${data}</span>`;
-              },
-            },
-            {
-              orderable: true,
-              data: "daysValid",
-              type: "num",
-              render: function (data, type, row) {
-                // Truncate data to remove decimal part
-                const daysValid = Math.trunc(data);
-
-                // For sorting, return the numeric value
-                if (type === "sort") {
-                  return daysValid;
-                }
-
-                // For display, format the text and apply styling
-                let className;
-                let displayText;
-
-                if (daysValid === 1 || daysValid === -1) {
-                  displayText = `${daysValid} dzień`;
-                } else {
-                  displayText = `${daysValid} dni`;
-                }
-
-                if (daysValid > 3) {
-                  className = "positive";
-                } else if (daysValid >= 1) {
-                  className = "positive";
-                } else if (daysValid == 0) {
-                  className = "medium";
-                } else if (daysValid >= -3) {
-                  className = "negative";
-                } else {
-                  className = "negative";
-                }
-
-                return `<span class="${className}">${displayText}</span>`;
-              },
-            },
-            {
-              orderable: false,
-              data: "shops",
-              render: function (data) {
-                if (data && data.length > 0) {
-                  // Tłumaczenie statusów na polski
-                  const translateStatus = (status) =>
-                    ({
-                      success: "Gotowa",
-                      error: "Błąd",
-                      waiting: "Oczekująca",
-                      "in progress": "W trakcie",
-                    }[status] || "Brak danych");
-
-                  // Mapowanie statusów do klas CSS
-                  const getStatusClass = (status) =>
-                    ({
-                      success: "positive",
-                      error: "negative",
-                      waiting: "medium",
-                      "in progress": "medium",
-                    }[status] || "noneexisting");
-
-                  // Określa klasę dla elementu w zależności od statusu sklepów
-                  const statusClass =
-                    data.length === 1
-                      ? getStatusClass(data[0].status)
-                      : new Set(data.map((shop) => getStatusClass(shop.status)))
-                          .size === 1
-                      ? getStatusClass(data[0].status)
-                      : "noneexisting";
-
-                  // Mapuje sklepy do formatu "Sklep - Stan po polsku"
-                  const shopDetails = data
-                    .map(
-                      (shop) => `${shop.key} - ${translateStatus(shop.status)}`
-                    )
-                    .join(", ");
-
-                  // Renderuje inne dane dla pojedynczego sklepu
-                  if (data.length === 1) {
-                    var pricatStatus = translateStatus(data[0].status);
-                    return `<span class="${statusClass}" data-tippy-content="${pricatStatus}">${data[0].key}</span>`;
-                  }
-
-                  // Liczba sklepów i detale w tooltipie dla wielu sklepów
-                  return `<span class="tippy ${statusClass}" data-tippy-content="${shopDetails}">${data.length}</span>`;
-                } else {
-                  // Wyświetla 0, jeśli nie ma sklepów
-                  return `<span class="tippy noneexisting">Brak</span>`;
-                }
-              },
-            },
-
-            {
-              orderable: true,
-              data: "startDate",
-              render: function (data) {
-                if (data !== null) {
-                  var utcDate = new Date(Date.parse(data));
-                  return utcDate.toLocaleDateString("pl-PL");
-                }
-                return "";
-              },
-            },
-            {
-              orderable: true,
-              data: "endDate",
-              type: "date",
-              render: function (data) {
-                if (data !== null) {
-                  var utcDate = new Date(Date.parse(data));
-                  return utcDate.toLocaleDateString("pl-PL");
-                }
-                return "";
-              },
-            },
-            {
-              orderable: true,
-              data: "created.by",
-              render: function (data) {
-                return data !== null ? data : "";
-              },
-            },
-            {
-              orderable: false,
-              data: null,
-              defaultContent:
-                '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
-            },
-            {
-              orderable: false,
-              class: "details-control4",
-              width: "20px",
-              data: null,
-              defaultContent:
-                "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-            },
-          ],
-          initComplete: function (settings, json) {
-            const filtersToAdd = [
-              {
-                column: 2,
-                name: "Dostawca",
-                elementId: "wholesalerKeyIndicator",
-              },
-              { column: 3, name: "Status", elementId: "statusIndicator" },
-              { column: 8, name: "Autor", elementId: "authorIndicator" },
-            ];
-
-            filtersToAdd.forEach((filter) => {
-              const column = this.api().column(filter.column);
-              const select = $(`#${filter.elementId}`);
-
-              // Clear existing options
-              select.empty().append('<option value=""></option>');
-
-              // Add new options
-              column
-                .data()
-                .unique()
-                .sort()
-                .each(function (d, j) {
-                  select.append(`<option value="${d}">${d}</option>`);
-                });
-
-              // Add change event listener
-              select.on("change", function () {
-                const val = $.fn.dataTable.util.escapeRegex($(this).val());
-                column.search(val ? `^${val}$` : "", true, false).draw();
-              });
-            });
-          },
-        });
-
-        // Add global search functionality
-        $(".dataTables_filter input")
-          .unbind()
-          .bind("input", function () {
-            table.search(this.value).draw();
-          });
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-        if (error.message === "Unauthorized") {
-          console.log("Unauthorized");
-        }
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
       });
+
+      if (!response.ok) throw new Error(response.status);
+
+      const data = await response.json();
+
+      // ================= 2. MAPOWANIE ===================
+      const nowStart = new Date().setHours(0, 0, 0, 0); // dzisiejsza północ
+
+      const parsed = data.items.map((item) => {
+        const startDate = new Date(item.startDate);
+        const endDate = new Date(item.endDate);
+
+        // Koniec dnia – 23:59:59, żeby „dziś” nie przepadało o północy
+        endDate.setHours(23, 59, 59, 999);
+
+        const diffDays = Math.ceil((endDate - nowStart) / MS_PER_DAY); // całe dni w górę
+
+        // ---------- 2a. Teksty dla kolumn ----------
+        let status, label;
+
+        if (diffDays > 3) {
+          status = "Aktywny";
+          label = `Ważny jeszcze ${diffDays} ${plural(
+            diffDays,
+            "dzień",
+            "dni"
+          )}`;
+        } else if (diffDays > 0) {
+          status = "Kończy się";
+          label = `Wygasa za ${diffDays} ${plural(diffDays, "dzień", "dni")}`;
+        } else if (diffDays === 0) {
+          status = "Kończy się";
+          label = "Wygasa dziś";
+        } else if (diffDays === -1) {
+          status = "Zakończony";
+          label = "Wygasł wczoraj";
+        } else {
+          status = "Przeszły";
+          label = `Wygasł ${Math.abs(diffDays)} ${plural(
+            Math.abs(diffDays),
+            "dzień",
+            "dni"
+          )} temu`;
+        }
+
+        // ---------- 2b. Klasy kolorystyczne ----------
+        const ageClass =
+          diffDays > 3
+            ? "positive"
+            : diffDays >= 0
+            ? "warning" // 0-3 dni
+            : diffDays >= -3
+            ? "negative"
+            : "negative";
+
+        return {
+          ...item,
+          diffDays,
+          status,
+          label,
+          ageClass,
+          startDate, // przyda się później do sortowania
+          endDate,
+        };
+      });
+
+      // Pokaż/ukryj pusty stan
+      $("#emptystatepricelists").toggle(parsed.length === 0);
+      $("#pricelistscontainer").toggle(parsed.length > 0);
+
+      // ========= 3. (Re)INIT DATATABLE ===============
+      if ($.fn.DataTable.isDataTable("#table_pricelists_list")) {
+        $("#table_pricelists_list").DataTable().clear().destroy();
+      }
+
+      const table = $("#table_pricelists_list").DataTable({
+        data: parsed,
+        order: [[4, "desc"]], // sortuj po dacie końcowej
+        pagingType: "full_numbers",
+        scrollY: "60vh",
+        scrollCollapse: true,
+        pageLength: 10,
+        dom: '<"top">rt<"bottom"lip>',
+        language: {
+          emptyTable: "Brak danych do wyświetlenia",
+          info: "Pokazuje _START_ – _END_ z _TOTAL_ rezultatów",
+          infoEmpty: "Brak danych",
+          infoFiltered: "(z _MAX_ rezultatów)",
+          lengthMenu: "Pokaż _MENU_ rekordów",
+          loadingRecords: "<div class='spinner'></div>",
+          processing: "<div class='spinner'></div>",
+          search: "Szukaj:",
+          zeroRecords: "Brak pasujących rezultatów",
+          paginate: { first: "<<", last: ">>", next: " >", previous: "< " },
+          aria: {
+            sortAscending: ": Sortowanie rosnące",
+            sortDescending: ": Sortowanie malejące",
+          },
+        },
+
+        // =========== 4. DEFINICJE KOLUMN ==============
+        columns: [
+          {
+            // ikona dokumentu
+            orderable: false,
+            data: null,
+            width: "36px",
+            defaultContent:
+              "<div class='details-container2'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></div>",
+          },
+          {
+            // uuid (ukryty)
+            visible: false,
+            data: "uuid",
+          },
+          {
+            // Dostawca
+            data: "wholesalerKey",
+          },
+          {
+            // Status (kolor + ikonka)
+            data: "status",
+            render: (data) => {
+              const map = {
+                Aktywny: "positive",
+                "Kończy się": "warning",
+                Zakończony: "negative",
+                Przyszły: "positive",
+                Przeszły: "negative",
+              };
+              return `<span class="${
+                map[data] || "noneexisting"
+              }">${data}</span>`;
+            },
+          },
+          {
+            // Etap – linkuje label + klasa do diffDays
+            data: "label",
+            type: "num", // sortujemy wg diffDays
+            render: (data, type, row) => {
+              if (type === "sort") return row.diffDays;
+              return `<span class="${row.ageClass}" data-tippy-content="${row.label}">${row.label}</span>`;
+            },
+          },
+          {
+            // Sklepy (bez zmian, przeniesione z pierwotnego kodu)
+            data: "shops",
+            orderable: false,
+            render: function (data) {
+              if (!data || !data.length)
+                return `<span class="tippy noneexisting">Brak</span>`;
+
+              const translate = (s) =>
+                ({
+                  success: "Gotowa",
+                  error: "Błąd",
+                  waiting: "Oczekująca",
+                  "in progress": "W trakcie",
+                }[s] || "Brak danych");
+
+              const statusClass =
+                {
+                  success: "positive",
+                  error: "negative",
+                  waiting: "warning",
+                  "in progress": "warning",
+                }[data[0].status] || "noneexisting";
+
+              if (data.length === 1) {
+                return `<span class="${statusClass}" data-tippy-content="${translate(
+                  data[0].status
+                )}">${data[0].key}</span>`;
+              }
+
+              const tooltip = data
+                .map((s) => `${s.key} – ${translate(s.status)}`)
+                .join(", ");
+
+              return `<span class="tippy ${statusClass}" data-tippy-content="${tooltip}">${data.length}</span>`;
+            },
+          },
+          {
+            // Obowiązuje od
+            data: "startDate",
+            render: (d) => new Date(d).toLocaleDateString("pl-PL"),
+          },
+          {
+            // Obowiązuje do
+            data: "endDate",
+            render: (d) => new Date(d).toLocaleDateString("pl-PL"),
+          },
+          {
+            // Autor
+            data: "created.by",
+          },
+          {
+            // Przejdź
+            orderable: false,
+            data: null,
+            defaultContent:
+              '<div class="action-container"><a href="#" class="buttonoutline editme w-button">Przejdź</a></div>',
+          },
+          {
+            // Kosz
+            orderable: false,
+            class: "details-control4",
+            width: "20px",
+            data: null,
+            defaultContent:
+              "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='trash'>",
+          },
+        ],
+
+        // =========== 5. FILTRY SELECT ================
+        initComplete: function () {
+          const filters = [
+            { column: 2, elementId: "wholesalerKeyIndicator" }, // Dostawca
+            { column: 3, elementId: "statusIndicator" }, // Status
+            { column: 8, elementId: "authorIndicator" }, // Autor
+          ];
+
+          filters.forEach(({ column, elementId }) => {
+            const col = this.api().column(column);
+            const select = $(`#${elementId}`)
+              .empty()
+              .append('<option value=""></option>');
+
+            col
+              .data()
+              .unique()
+              .sort()
+              .each((d) => select.append(`<option value="${d}">${d}</option>`));
+
+            select.on("change", function () {
+              const val = $.fn.dataTable.util.escapeRegex($(this).val());
+              col.search(val ? `^${val}$` : "", true, false).draw();
+            });
+          });
+        },
+      });
+
+      // Globalne wyszukiwanie
+      $(".dataTables_filter input")
+        .off()
+        .on("input", function () {
+          table.search(this.value).draw();
+        });
+    } catch (err) {
+      console.error("getPricats() error:", err);
+      if (err.message === "401") console.log("Unauthorized");
+    }
   }
 
   function getDocuments() {
