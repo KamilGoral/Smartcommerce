@@ -2950,6 +2950,7 @@ docReady(function () {
         endDate.setHours(23, 59, 59, 999);
 
         const diffDays = Math.ceil((endDate - nowStart) / MS_PER_DAY); // całe dni w górę
+        const bucket = diffDays < 0 ? 1 : 0; // 0 = nadal ważny, 1 = wygasły
 
         // ---------- 2a. Teksty dla kolumn ----------
         let status, label;
