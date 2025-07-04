@@ -947,7 +947,7 @@ docReady(function () {
           return {
             perPage: d.length, // Number of records per page
             page: Math.floor(d.start / d.length) + 1, // Calculate page number
-            valid: "true", // Additional filters
+            // valid: "true", // Additional filters
             restricted: "false", // Additional filters
             sort: `${d.columns[d.order[0].column].data}:${d.order[0].dir}`, // Sort field and direction
             ...searchParams, // Spread search parameters directly into the object
