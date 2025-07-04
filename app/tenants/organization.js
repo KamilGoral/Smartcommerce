@@ -3058,8 +3058,9 @@ docReady(function () {
             data: "wholesalerKey",
           },
           {
-            // Status (kolor + ikonka)
+            // Status (kolor + ikonka) (ukryty)
             data: "status",
+            visible: false,
             render: (data) => {
               const map = {
                 Aktywny: "positive",
