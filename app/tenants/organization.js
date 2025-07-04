@@ -3157,8 +3157,8 @@ docReady(function () {
         initComplete: function () {
           const filters = [
             { column: 2, elementId: "wholesalerKeyIndicator" }, // Dostawca
-            { column: 3, elementId: "statusIndicator" }, // Status
-            { column: 8, elementId: "authorIndicator" }, // Autor
+            { column: 4, elementId: "statusIndicator" }, // Status
+            { column: 9, elementId: "authorIndicator" }, // Autor
           ];
 
           filters.forEach(({ column, elementId }) => {
