@@ -947,7 +947,7 @@ docReady(function () {
           return {
             perPage: d.length, // Number of records per page
             page: Math.floor(d.start / d.length) + 1, // Calculate page number
-            // valid: "true", // Additional filters
+            valid: "true", // Additional filters
             restricted: "false", // Additional filters
             sort: `${d.columns[d.order[0].column].data}:${d.order[0].dir}`, // Sort field and direction
             ...searchParams, // Spread search parameters directly into the object
@@ -992,7 +992,7 @@ docReady(function () {
           data: "asks",
           title: "Promocja",
           defaultContent: "-",
-          orderable: true,
+          orderable: false,
           render: function (data) {
             if (data && data[0] && data[0].promotion) {
               return `${data[0].promotion.type} (threshold: ${data[0].promotion.threshold})`;
@@ -1004,7 +1004,7 @@ docReady(function () {
           data: "asks",
           title: "Wiadomość",
           defaultContent: "-",
-          orderable: true,
+          orderable: false,
           render: function (data) {
             // Sprawdź, czy są jakieś wiadomości w pierwszym elemencie tablicy asks
             if (
@@ -1025,6 +1025,169 @@ docReady(function () {
     });
     // Attach keypress event listener for the search input
     $("#pricelistproducts_filter input")
+      .off("input")
+      .on("keypress", function (e) {
+        if (e.which === 13) {
+          // Enter key is pressed
+          table.search(this.value).draw(); // Trigger search manually
+        }
+      });
+  }
+
+  function initializeProductTableNotValid(priceListId) {
+    // Sprawdzenie, czy tabela już istnieje, i jej zniszczenie, aby odświeżyć dane
+    if ($.fn.DataTable.isDataTable("#pricelistproductsnotvalid")) {
+      $("#pricelistproductsnotvalid").DataTable().destroy();
+    }
+
+    $.ajaxSetup({
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+    });
+    // Inicjalizacja DataTable z obsługą po stronie serwera
+    $("#pricelistproductsnotvalid").DataTable({
+      serverSide: true,
+      processing: true,
+      pagingType: "full_numbers",
+      order: [[1, "asc"]], // domyślne sortowanie po GTIN
+      dom: '<"top"f>rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 10,
+      searchDelay: 3000, // Delay to prevent search on each keystroke
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rekordów",
+        loadingRecords: "<div class='spinner'></div>",
+        processing: "<div class='spinner'></div>",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
+        },
+      },
+
+      ajax: {
+        url: `${InvokeURL}van/pricats/${priceListId}/products`,
+        type: "GET",
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        data: function (d) {
+          // Trim whitespace from search input
+          let searchBox = d.search.value.trim();
+          let searchParams = {};
+
+          // Check if searchBox is a numeric GTIN or a name
+          if (/^\d+$/.test(searchBox)) {
+            // If searchBox is numeric, treat it as a GTIN
+            searchParams.gtin = searchBox;
+          } else if (searchBox) {
+            // If searchBox is non-numeric, treat it as a name search with 'like' filter
+            searchParams.name = `like:${searchBox}`;
+          }
+
+          // Return DataTables parameters along with search-specific query parameters
+          return {
+            perPage: d.length, // Number of records per page
+            page: Math.floor(d.start / d.length) + 1, // Calculate page number
+            valid: "false", // Additional filters
+            restricted: "false", // Additional filters
+            sort: `${d.columns[d.order[0].column].data}:${d.order[0].dir}`, // Sort field and direction
+            ...searchParams, // Spread search parameters directly into the object
+          };
+        },
+
+        dataSrc: function (json) {
+          json.recordsTotal = json.total;
+          json.recordsFiltered = json.total;
+          console.log("API Response:", json);
+          return json.items || [];
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error(
+            "Wystąpił błąd podczas pobierania danych: ",
+            textStatus,
+            errorThrown
+          );
+        },
+      },
+      columns: [
+        { data: "gtin", title: "GTIN" },
+        { data: "name", title: "Nazwa", defaultContent: "-" },
+        {
+          data: "countryDistributorName",
+          title: "Dystrybutor",
+          defaultContent: "-",
+          orderable: false,
+        },
+        {
+          // Access netPrice inside the asks array
+          data: "asks",
+          title: "Cena",
+          defaultContent: "-",
+          orderable: false,
+          render: function (data) {
+            return data && data[0] && data[0].netPrice ? data[0].netPrice : "-";
+          },
+        },
+        {
+          // Check promotion in the asks array
+          data: "asks",
+          title: "Promocja",
+          defaultContent: "-",
+          orderable: false,
+          render: function (data) {
+            if (data && data[0] && data[0].promotion) {
+              return `${data[0].promotion.type} (threshold: ${data[0].promotion.threshold})`;
+            }
+            return "-";
+          },
+        },
+        {
+          data: "asks",
+          title: "Wiadomość",
+          defaultContent: "-",
+          orderable: false,
+          render: function (data) {
+            // Sprawdź, czy są jakieś wiadomości w pierwszym elemencie tablicy asks
+            if (
+              data &&
+              data.length > 0 &&
+              data[0].messages &&
+              data[0].messages.length > 0
+            ) {
+              // Połącz wszystkie wiadomości w jedną listę z odpowiednimi znacznikami HTML
+              return data[0].messages
+                .map((message) => `<div>${message}</div>`)
+                .join("");
+            }
+            return ""; // Zwróć pusty ciąg, jeśli nie ma wiadomości
+          },
+        },
+      ],
+    });
+    // Attach keypress event listener for the search input
+    $("#pricelistproductsnotvalid_filter input")
       .off("input")
       .on("keypress", function (e) {
         if (e.which === 13) {
@@ -1098,6 +1261,7 @@ docReady(function () {
   // Wywołanie funkcji po załadowaniu dokumentu
   $(document).ready(function () {
     initializeProductTable(priceListId);
+    initializeProductTableNotValid(priceListId);
   });
 
   makeWebflowFormAjaxDeletePriceList = function (
