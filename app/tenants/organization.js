@@ -3064,10 +3064,9 @@ docReady(function () {
             render: (data) => {
               const map = {
                 Aktywny: "positive",
-                "Kończy się": "warning",
-                Zakończony: "negative",
-                Przyszły: "positive",
-                Przeszły: "negative",
+                "Kończy się": "medium",
+                Przyszły: "noneexisting",
+                Przeszły: "noneexisting",
               };
               return `<span class="${
                 map[data] || "noneexisting"
@@ -3102,9 +3101,9 @@ docReady(function () {
               const statusClass =
                 {
                   success: "positive",
-                  error: "negative",
-                  waiting: "warning",
-                  "in progress": "warning",
+                  error: "noneexisting",
+                  waiting: "medium",
+                  "in progress": "negative",
                 }[data[0].status] || "noneexisting";
 
               if (data.length === 1) {
