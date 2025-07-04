@@ -2975,7 +2975,7 @@ docReady(function () {
           status = "Zakończony wczoraj";
           label = "Zakończony wczoraj";
         } else {
-          status = "Przeszły";
+          status = "Zakończony";
           label = `Skończył się ${Math.abs(diffDays)} ${plural(
             Math.abs(diffDays),
             "dzień",
