@@ -1184,12 +1184,6 @@ docReady(function () {
           },
         },
       ],
-      drawCallback() {
-        $("#pricelistproductsnotvalid tbody tr").css(
-          "background-color",
-          "#fff3f3"
-        ); // jasny czerwony
-      },
     });
     // Attach keypress event listener for the search input
     $("#pricelistproductsnotvalid_filter input")
