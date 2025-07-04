@@ -2963,16 +2963,20 @@ docReady(function () {
           )}`;
         } else if (diffDays > 0) {
           status = "Kończy się";
-          label = `Wygasa za ${diffDays} ${plural(diffDays, "dzień", "dni")}`;
+          label = `Kończy się za ${diffDays} ${plural(
+            diffDays,
+            "dzień",
+            "dni"
+          )}`;
         } else if (diffDays === 0) {
           status = "Kończy się";
-          label = "Wygasa dziś";
+          label = "Kończy się dziś";
         } else if (diffDays === -1) {
           status = "Zakończony wczoraj";
-          label = "Wygasł wczoraj";
+          label = "Zakończony wczoraj";
         } else {
           status = "Przeszły";
-          label = `Wygasł ${Math.abs(diffDays)} ${plural(
+          label = `Skończył się ${Math.abs(diffDays)} ${plural(
             Math.abs(diffDays),
             "dzień",
             "dni"
