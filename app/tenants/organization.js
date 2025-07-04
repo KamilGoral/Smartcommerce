@@ -2940,8 +2940,7 @@ docReady(function () {
       const data = await response.json();
 
       // ================= 2. MAPOWANIE ===================
-      const nowStart = new Date().setHours(0, 0, 0, 0); // dzisiejsza północ
-
+      const now = new Date(); // bieżąca chwila
       const parsed = data.items.map((item) => {
         const startDate = new Date(item.startDate);
         const endDate = new Date(item.endDate);
@@ -2949,7 +2948,7 @@ docReady(function () {
         // Koniec dnia – 23:59:59, żeby „dziś” nie przepadało o północy
         endDate.setHours(23, 59, 59, 999);
 
-        const diffDays = Math.ceil((endDate - nowStart) / MS_PER_DAY); // całe dni w górę
+        const diffDays = Math.floor((endDate - now) / MS_PER_DAY); // pełne dni w dół
         const bucket = diffDays < 0 ? 1 : 0; // 0 = nadal ważny, 1 = wygasły
 
         // ---------- 2a. Teksty dla kolumn ----------
