@@ -1184,7 +1184,12 @@ docReady(function () {
           },
         },
       ],
-      rowCallback: (row) => (row.style.backgroundColor = "#fff3f3"), // pudrowo-czerwone tło
+      drawCallback() {
+        $("#pricelistproductsnotvalid tbody tr").css(
+          "background-color",
+          "#fff3f3"
+        ); // jasny czerwony
+      },
     });
     // Attach keypress event listener for the search input
     $("#pricelistproductsnotvalid_filter input")
