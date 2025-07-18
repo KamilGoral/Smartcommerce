@@ -483,8 +483,16 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       console.log(data);
+      // Obsługa logo
+      const whLogo = document.querySelector('[wholesalerdata="logo"]');
+      if (whLogo && data.image) {
+        whLogo.src = `data:image/png;base64,${data.image}`;
+        whLogo.style.objectFit = "contain";
+      } else {
+        console.log("error");
+      }
+      request.send();
     };
-    request.send();
   }
 
   function setupShopSearch() {
