@@ -487,6 +487,53 @@ docReady(function () {
     request.send();
   }
 
+  function setupShopSearch() {
+    const searchContainer = document.getElementById("search-shops");
+    if (!searchContainer) return;
+
+    const searchInput = searchContainer.querySelector("input[type='search']");
+    if (!searchInput) return;
+
+    let debounceTimer;
+    searchInput.addEventListener("input", function () {
+      clearTimeout(debounceTimer);
+
+      if (searchInput.value.length < 2 && searchInput.value.length > 0) {
+        return;
+      }
+
+      debounceTimer = setTimeout(() => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const shopContainer = document.getElementById("Shops-Container");
+        if (!shopContainer) return;
+
+        console.log("Filtering shops for term:", searchTerm);
+        const shopRows = shopContainer.children;
+
+        for (let row of shopRows) {
+          if (row.id === "sampleRowShops") {
+            row.style.display = "none";
+            continue;
+          }
+
+          const shopNameElement = row.querySelector("[shopdata='shopName']");
+          const shopKeyElement = row.querySelector("[shopdata='shopKey']");
+
+          if (shopNameElement && shopKeyElement) {
+            const shopName = shopNameElement.textContent.toLowerCase();
+            const shopKey = shopKeyElement.textContent.toLowerCase();
+
+            if (shopName.includes(searchTerm) || shopKey.includes(searchTerm)) {
+              row.style.display = "flex";
+            } else {
+              row.style.display = "none";
+            }
+          }
+        }
+      }, 1); // Debounce to delay execution
+    });
+  }
+
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=50");
     let request = new XMLHttpRequest();
@@ -496,34 +543,7 @@ docReady(function () {
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         const data = JSON.parse(this.response);
-        const allShops = data.items;
-
-        const allowedShopKeys = getAllowedShopKeys(attributes["email"]);
-
-        const toParse = allowedShopKeys
-          ? allShops.filter((shop) => allowedShopKeys.includes(shop.shopKey))
-          : allShops; // null oznacza pełny dostęp
-
-        const shopNumber = toParse.length;
-
-        if (shopNumber > 0) {
-          const deleteButton = document.getElementById(
-            "deleteOrganizationButton"
-          );
-          deleteButton.disabled = true;
-          deleteButton.style.opacity = "0.4";
-          $("#deleteTenantMessage").show();
-        }
-
         const shopContainer = document.getElementById("Shops-Container");
-        const shopContainerDocuments = document.getElementById("documentShop");
-
-        toParse.forEach((shop) => {
-          const opt = document.createElement("option");
-          opt.value = shop.shopKey;
-          opt.innerHTML = shop.shopKey;
-          shopContainerDocuments.appendChild(opt);
-        });
 
         toParse.forEach((shop) => {
           const style = document.getElementById("sampleRowShops");
