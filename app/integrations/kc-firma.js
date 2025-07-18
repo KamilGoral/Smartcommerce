@@ -543,6 +543,7 @@ docReady(function () {
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         const data = JSON.parse(this.response);
+        const toParse = data.items;
         const shopContainer = document.getElementById("Shops-Container");
 
         toParse.forEach((shop) => {
