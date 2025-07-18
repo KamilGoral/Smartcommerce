@@ -2318,6 +2318,8 @@ docReady(function () {
         return `https://${DomainName}/app/integrations/merchant-console`;
       case "pc-market":
         return `https://${DomainName}/app/integrations/pc-market`;
+      case "kc-firma":
+        return `https://${DomainName}/app/integrations/kc-firma`;
       default:
         return "#"; // Default href if needed
     }
