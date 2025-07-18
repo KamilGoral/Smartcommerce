@@ -3565,26 +3565,28 @@ ${offerTimestampLine}
     request.setRequestHeader("Authorization", orgToken);
     request.setRequestHeader("Requested-By", "webflow-3-4");
     request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
+      if (request.status === 401) {
+        console.log("Unauthorized");
+        return;
+      }
       if (request.status >= 200 && request.status < 400) {
-        sessionStorage.setItem("wholesalersData", JSON.stringify(toParse));
-        const wholesalerContainer = document.getElementById(
-          "wholesalerKeyIndicator"
-        );
+        const data = JSON.parse(this.response);
+        const select = document.getElementById("wholesalerKeyIndicator");
 
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.wholesalerKey;
-            wholesalerContainer.appendChild(opt);
-          }
+        const sorted = data.items
+          .filter((w) => w.enabled)
+          .sort((a, b) =>
+            (a.name || "").localeCompare(b.name || "", "pl", {
+              sensitivity: "base",
+            })
+          );
+
+        sorted.forEach((w) => {
+          const opt = document.createElement("option");
+          opt.value = w.wholesalerKey; // wartość formularza
+          opt.textContent = w.wholesalerKey; // etykieta widoczna dla użytkownika
+          select.appendChild(opt);
         });
-
-        if (request.status == 401) {
-          console.log("Unauthorized");
-        }
       }
     };
     request.send();
