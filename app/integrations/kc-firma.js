@@ -484,7 +484,7 @@ docReady(function () {
       var data = JSON.parse(this.response);
       console.log(data);
       // Obsługa logo
-      const whLogo = document.querySelector('[wholesalerdata="logo"]');
+      const whLogo = document.getElementById("whLogo");
       if (whLogo && data.image) {
         whLogo.src = `data:image/png;base64,${data.image}`;
         whLogo.style.objectFit = "contain";
