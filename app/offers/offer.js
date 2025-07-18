@@ -2221,7 +2221,7 @@ ${offerTimestampLine}
         sorted.forEach((w) => {
           const opt = document.createElement("option");
           opt.value = w.wholesalerKey; // wartość formularza
-          opt.textContent = w.name || w.wholesalerKey; // etykieta widoczna dla użytkownika
+          opt.textContent = w.wholesalerKey; // etykieta widoczna dla użytkownika
           select.appendChild(opt);
         });
       }
