@@ -3572,7 +3572,6 @@ ${offerTimestampLine}
       if (request.status >= 200 && request.status < 400) {
         const data = JSON.parse(this.response);
         const select = document.getElementById("wholesalerKeyIndicator");
-
         const sorted = data.items
           .filter((w) => w.enabled)
           .sort((a, b) =>
@@ -3580,6 +3579,7 @@ ${offerTimestampLine}
               sensitivity: "base",
             })
           );
+        sessionStorage.setItem("wholesalersData", JSON.stringify(sorted));
 
         sorted.forEach((w) => {
           const opt = document.createElement("option");
