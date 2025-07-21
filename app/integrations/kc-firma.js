@@ -612,19 +612,34 @@ docReady(function () {
       beforeSend: function () {
         $(buttonElement).text("Przetwarzanie...");
       },
-      success: function () {
-        // Zmiana statusu wizualnego po aktywacji
+      success: function (response) {
         const parent = $(buttonElement).closest(".stacked-list3_item");
-        parent
-          .find("#enabled")
+
+        // 1. Dezaktywacja przycisku i zmiana stylu
+        $(buttonElement)
           .text("Aktywna")
-          .removeClass("badge-red")
-          .addClass("badge-green");
-        $(buttonElement).text("Aktywowana").prop("disabled", true);
+          .addClass("disabled secondary")
+          .prop("disabled", true);
+
+        // 2. Zmiana statusu (badge)
+        const badge = parent.find("#enabled");
+        badge
+          .text("Aktywna")
+          .removeClass("badge-red wider")
+          .addClass("badge enabled");
+
+        // 3. Pokaż ikonkę trzech kropek (usuniecie klasy defaulthide)
+        parent.find(".stacked-list3_content-right").removeClass("defaulthide");
+
+        // 4. Zmiana klasy głównego boxa
+        parent.removeClass("preenabled").addClass("enabled");
+
         displayMessage(
           "Success",
           `Integracja KC-Firma została aktywowana dla sklepu ${shopKey}.`
         );
+
+        console.log("🔐 Dane dostępowe:", response.credentials);
       },
       error: function (jqXHR) {
         let msg = "Wystąpił błąd.";
