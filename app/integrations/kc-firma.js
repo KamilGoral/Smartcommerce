@@ -718,6 +718,9 @@ docReady(function () {
   }
 
   function getShops() {
+    const style = document.getElementById("sampleRowShops");
+    style.style.display = "none"; // <- ukryj oryginał
+
     const shopsUrl = new URL(InvokeURL + "shops?perPage=50");
     const integrationsUrl = new URL(InvokeURL + "integrations/kc-firma/shops");
 
