@@ -902,6 +902,14 @@ docReady(function () {
   });
 
   function resetKcFirmaPasswordForShop(shopKey, triggerElement) {
+    // 1. Pokaż loading
+    $("#waitingdots").show();
+
+    // 2. Schowaj dropdown (jeśli otwarty)
+    const dropdown = $(triggerElement).closest(".w-dropdown");
+    dropdown.removeClass("w--open");
+
+    // 3. Zapytanie o nowe dane dostępowe
     $.ajax({
       type: "GET",
       url:
@@ -914,17 +922,14 @@ docReady(function () {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
       },
-      beforeSend: function () {
-        displayMessage("Loading", "Trwa resetowanie hasła...");
-      },
       success: function (response) {
         const { username, password } = response.credentials;
 
-        // Wyświetlenie danych dostępowych – możesz zamiast tego pokazać modal
+        // 4. Komunikat końcowy
         displayMessage(
-          "Nowe dane logowania",
+          "Success",
           `
-        <strong>Sklep:</strong> ${response.shopKey}<br>
+        <strong>Nowe dane logowania dla sklepu ${response.shopKey}:</strong><br>
         <strong>Użytkownik:</strong> ${username}<br>
         <strong>Hasło:</strong> ${password}
       `
@@ -939,6 +944,10 @@ docReady(function () {
         }
         displayMessage("Error", msg);
         console.error("Błąd resetowania hasła:", msg);
+      },
+      complete: function () {
+        // 5. Ukryj loading zawsze
+        $("#waitingdots").hide();
       },
     });
   }
