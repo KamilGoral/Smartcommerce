@@ -790,6 +790,9 @@ docReady(function () {
             }
 
             shopContainer.appendChild(row);
+            // Odśwież interakcje Webflowa
+            Webflow.destroy();
+            Webflow.ready();
           });
 
           setupShopSearch();
