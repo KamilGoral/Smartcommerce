@@ -901,6 +901,61 @@ docReady(function () {
     deactivateKcFirmaIntegrationForShop(shopKey, this);
   });
 
+  function resetKcFirmaPasswordForShop(shopKey, triggerElement) {
+    $.ajax({
+      type: "GET",
+      url:
+        InvokeURL +
+        "integrations/kc-firma/shops/" +
+        shopKey +
+        "/reset-password",
+      headers: {
+        Accept: "application/json",
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      beforeSend: function () {
+        displayMessage("Loading", "Trwa resetowanie hasła...");
+      },
+      success: function (response) {
+        const { username, password } = response.credentials;
+
+        // Wyświetlenie danych dostępowych – możesz zamiast tego pokazać modal
+        displayMessage(
+          "Nowe dane logowania",
+          `
+        <strong>Sklep:</strong> ${response.shopKey}<br>
+        <strong>Użytkownik:</strong> ${username}<br>
+        <strong>Hasło:</strong> ${password}
+      `
+        );
+
+        console.log("🔐 Nowe dane logowania:", response.credentials);
+      },
+      error: function (jqXHR) {
+        let msg = "Wystąpił błąd podczas resetowania hasła.";
+        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+          msg = jqXHR.responseJSON.message;
+        }
+        displayMessage("Error", msg);
+        console.error("Błąd resetowania hasła:", msg);
+      },
+    });
+  }
+
+  $("#Shops-Container").on("click", "[step='reset-password']", function (e) {
+    e.preventDefault();
+    const parent = $(this).closest(".stacked-list3_item");
+    const shopKey = parent.find("[shopdata='shopKey']").text().trim();
+
+    if (!shopKey) {
+      displayMessage("Error", "Nie można znaleźć klucza sklepu.");
+      return;
+    }
+
+    resetKcFirmaPasswordForShop(shopKey, this);
+  });
+
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
