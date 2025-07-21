@@ -511,7 +511,7 @@ docReady(function () {
       // 🔄 Zmiana tekstu etykiety (np. Aktywuj / Integracja aktywna)
       const $label = $(".text-block-64"); // lub bardziej precyzyjnie: $('form#KC-Integration-Form').closest('.div-block-69').find('.text-block-64')
       $label.text(isEnabled ? "Integracja aktywna:" : "Aktywuj:");
-      $("#integrationGrid").show();
+      $("#integrationGrid").css("display", "grid");
     };
     request.send();
   }
