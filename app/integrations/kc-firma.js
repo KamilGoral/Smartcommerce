@@ -495,6 +495,45 @@ docReady(function () {
     request.send();
   }
 
+  function putKcFirmaIntegration(enabled) {
+    const url = new URL(InvokeURL + "integrations/kc-firma");
+    const request = new XMLHttpRequest();
+
+    request.open("PUT", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.setRequestHeader("Content-Type", "application/json");
+
+    request.onload = function () {
+      if (request.status === 200) {
+        const data = JSON.parse(this.response);
+        $("#KC-Integration-Switch").prop("checked", data.enabled);
+        displayMessage(
+          "Success",
+          "Integracja KC-Firma została pomyślnie aktywowana."
+        );
+      } else {
+        displayMessage(
+          "Error",
+          "Wystąpił błąd podczas aktywacji integracji KC-Firma."
+        );
+        console.error("Error activating KC-Firma integration:", this.response);
+      }
+    };
+
+    request.onerror = function () {
+      displayMessage("Error", "Błąd połączenia z serwerem. Spróbuj ponownie.");
+      console.error("Connection error");
+    };
+
+    request.send(JSON.stringify({ enabled: enabled }));
+  }
+
+  $("#KC-Integration-Switch").change(function () {
+    const isChecked = $(this).is(":checked");
+    putKcFirmaIntegration(isChecked);
+  });
+
   function setupShopSearch() {
     const searchContainer = document.getElementById("search-shops");
     if (!searchContainer) return;
