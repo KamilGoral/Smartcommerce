@@ -846,9 +846,10 @@ docReady(function () {
         "Requested-By": "webflow-3-4",
       },
       beforeSend: function () {
-        displayMessage("Loading", "Trwa dezaktywacja integracji...");
+        $("#waitingdots").show();
       },
       success: function () {
+        $("#waitingdots").hide();
         const parent = $(triggerElement).closest(".stacked-list3_item");
 
         // 1. Zmiana klas głównych
@@ -881,6 +882,7 @@ docReady(function () {
         );
       },
       error: function (jqXHR) {
+        $("#waitingdots").hide();
         let msg = "Wystąpił błąd podczas usuwania integracji.";
         if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
           msg = jqXHR.responseJSON.message;
