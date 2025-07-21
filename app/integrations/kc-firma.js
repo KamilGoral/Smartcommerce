@@ -622,19 +622,6 @@ docReady(function () {
     });
   }
 
-  $(".stacked-list3_item .buttonmain").click(function (e) {
-    e.preventDefault();
-    const parent = $(this).closest(".stacked-list3_item");
-    const shopKey = parent.find('[shopdata="shopKey"]').text().trim();
-
-    if (!shopKey) {
-      displayMessage("Error", "Nie można znaleźć klucza sklepu.");
-      return;
-    }
-
-    activateKcFirmaIntegrationForShop(shopKey, this);
-  });
-
   function setupShopSearch() {
     const searchContainer = document.getElementById("search-shops");
     if (!searchContainer) return;
@@ -730,6 +717,19 @@ docReady(function () {
     };
 
     request.send();
+
+    $(".stacked-list3_item .buttonmain").click(function (e) {
+      e.preventDefault();
+      const parent = $(this).closest(".stacked-list3_item");
+      const shopKey = parent.find('[shopdata="shopKey"]').text().trim();
+
+      if (!shopKey) {
+        displayMessage("Error", "Nie można znaleźć klucza sklepu.");
+        return;
+      }
+
+      activateKcFirmaIntegrationForShop(shopKey, this);
+    });
   }
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
