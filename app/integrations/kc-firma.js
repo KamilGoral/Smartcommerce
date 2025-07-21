@@ -513,6 +513,10 @@ docReady(function () {
   }
 
   function putKcFirmaIntegration(enabled) {
+    const $checkbox = $("#KC-Integration-Switch");
+    const $customSwitch = $checkbox.siblings(".w-checkbox-input");
+    const $label = $checkbox.closest(".div-block-69").find(".text-block-64");
+
     if (!enabled) {
       // Wywołanie DELETE do wyłączenia integracji KC-Firma
       $.ajax({
@@ -532,10 +536,13 @@ docReady(function () {
         },
         success: function () {
           displayMessage("Success", "Integracja KC-Firma została wyłączona.");
-          $("#KC-Integration-Switch").prop("checked", false);
+
+          $checkbox.prop("checked", false);
+          $customSwitch.removeClass("w--redirected-checked");
+          $label.text("Aktywuj:");
           $("#kc-alert").show();
         },
-        error: function (jqXHR, exception) {
+        error: function (jqXHR) {
           var msg =
             "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
           displayMessage("Error", msg);
@@ -565,14 +572,19 @@ docReady(function () {
         "Requested-By": "webflow-3-4",
       },
       success: function (resultData) {
-        $("#KC-Integration-Switch").prop("checked", resultData.enabled);
+        const isEnabled = resultData.enabled === true;
+
+        $checkbox.prop("checked", isEnabled);
+        $customSwitch.toggleClass("w--redirected-checked", isEnabled);
+        $label.text(isEnabled ? "Integracja aktywna:" : "Aktywuj:");
+        $("#kc-alert").toggle(!isEnabled);
+
         displayMessage(
           "Success",
           "Integracja KC-Firma została pomyślnie aktywowana."
         );
-        $("#kc-alert").hide();
       },
-      error: function (jqXHR, exception) {
+      error: function (jqXHR) {
         var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
         displayMessage("Error", msg);
         console.error("Error activating KC-Firma integration:", msg);
