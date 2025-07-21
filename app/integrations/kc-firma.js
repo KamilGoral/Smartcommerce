@@ -515,12 +515,11 @@ docReady(function () {
         const shopContainer = document.getElementById("Shops-Container");
         if (!shopContainer) return;
 
-        console.log("Filtering shops for term:", searchTerm);
         const shopRows = shopContainer.children;
 
         for (let row of shopRows) {
+          // Skip the template/sample row
           if (row.id === "sampleRowShops") {
-            row.style.display = "none";
             continue;
           }
 
@@ -538,7 +537,7 @@ docReady(function () {
             }
           }
         }
-      }, 1); // Debounce to delay execution
+      }, 1);
     });
   }
 
