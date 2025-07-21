@@ -493,20 +493,21 @@ docReady(function () {
         console.log("Brak logo lub niepoprawny obrazek.");
       }
 
-      // Ustawienie przełącznika checkbox + stylizacja Webflow
+      // Elementy przełącznika
       const isEnabled = data.enabled === true;
       const $checkbox = $("#KC-Integration-Switch");
       const $customSwitch = $checkbox.siblings(".w-checkbox-input");
 
+      // Ustawienie stanu checkboxa i klasy Webflow
       $checkbox.prop("checked", isEnabled);
+      $customSwitch.toggleClass("w--redirected-checked", isEnabled);
 
-      if (isEnabled) {
-        $customSwitch.addClass("w--redirected-checked");
-        $("#kc-alert").hide();
-      } else {
-        $customSwitch.removeClass("w--redirected-checked");
-        $("#kc-alert").show();
-      }
+      // Ukrycie/pokazanie alertu
+      $("#kc-alert").toggle(!isEnabled);
+
+      // 🔄 Zmiana tekstu etykiety (np. Aktywuj / Integracja aktywna)
+      const $label = $(".text-block-64"); // lub bardziej precyzyjnie: $('form#KC-Integration-Form').closest('.div-block-69').find('.text-block-64')
+      $label.text(isEnabled ? "Integracja aktywna:" : "Aktywuj:");
     };
     request.send();
   }
