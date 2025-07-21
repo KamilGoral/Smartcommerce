@@ -518,8 +518,11 @@ docReady(function () {
         const shopRows = shopContainer.children;
 
         for (let row of shopRows) {
-          // Skip the template/sample row
-          if (row.id === "sampleRowShops") {
+          // Pomijamy wiersze szablonów
+          if (
+            row.id === "sampleRowShops" ||
+            row.id === "sampleRowShopsActive"
+          ) {
             continue;
           }
 
