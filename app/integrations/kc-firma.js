@@ -597,7 +597,30 @@ docReady(function () {
     putKcFirmaIntegration(isChecked);
   });
 
+  // Mapa aktywnych żądań do sklepów
+  const activeShopRequests = new Map();
+
   function activateKcFirmaIntegrationForShop(shopKey, buttonElement) {
+    const now = Date.now();
+    const cooldownMs = 5000; // 5 sekund
+
+    // Sprawdź, czy trwa lub niedawno trwało inne zapytanie
+    if (activeShopRequests.has(shopKey)) {
+      const lastRequestTime = activeShopRequests.get(shopKey);
+      if (now - lastRequestTime < cooldownMs) {
+        console.log(
+          `⛔ Blokada aktywacji: sklep ${shopKey} — spróbuj ponownie za ${(
+            (cooldownMs - (now - lastRequestTime)) /
+            1000
+          ).toFixed(1)}s`
+        );
+        return;
+      }
+    }
+
+    // Zarejestruj rozpoczęcie żądania
+    activeShopRequests.set(shopKey, now);
+
     $.ajax({
       type: "POST",
       url: InvokeURL + "integrations/kc-firma/shops",
@@ -615,23 +638,18 @@ docReady(function () {
       success: function (response) {
         const parent = $(buttonElement).closest(".stacked-list3_item");
 
-        // 1. Dezaktywacja przycisku i zmiana stylu
         $(buttonElement)
           .text("Aktywna")
           .addClass("disabled secondary")
           .prop("disabled", true);
 
-        // 2. Zmiana statusu (badge)
         const badge = parent.find("#enabled");
         badge
           .text("Aktywna")
           .removeClass("badge-red wider")
           .addClass("badge enabled");
 
-        // 3. Pokaż ikonkę trzech kropek (usuniecie klasy defaulthide)
         parent.find(".stacked-list3_content-right").removeClass("defaulthide");
-
-        // 4. Zmiana klasy głównego boxa
         parent.removeClass("preenabled").addClass("enabled");
 
         displayMessage(
@@ -651,6 +669,12 @@ docReady(function () {
         $(buttonElement).text("Aktywuj");
         displayMessage("Error", msg);
         console.error("Błąd aktywacji:", msg);
+      },
+      complete: function () {
+        // Po 5 sekundach zdejmij blokadę
+        setTimeout(() => {
+          activeShopRequests.delete(shopKey);
+        }, cooldownMs);
       },
     });
   }
