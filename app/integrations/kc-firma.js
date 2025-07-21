@@ -483,6 +483,7 @@ docReady(function () {
     request.onload = function () {
       var data = JSON.parse(this.response);
       console.log(data);
+
       // Obsługa logo
       const whLogo = document.getElementById("whLogo");
       if (whLogo && data.image) {
@@ -490,6 +491,16 @@ docReady(function () {
         whLogo.style.objectFit = "contain";
       } else {
         console.log("error");
+      }
+
+      // Ustawienie przełącznika i alertu na podstawie stanu integracji
+      const isEnabled = data.enabled === true;
+      $("#KC-Integration-Switch").prop("checked", isEnabled);
+
+      if (isEnabled) {
+        $("#kc-alert").hide();
+      } else {
+        $("#kc-alert").show();
       }
     };
     request.send();
