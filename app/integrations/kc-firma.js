@@ -829,6 +829,7 @@ docReady(function () {
           });
 
           setupShopSearch();
+          shopsPanel.style.display = "flex";
 
           if (toParse.length === 0) {
             document.getElementById("tablecontentshops").style.display = "none";
@@ -1140,6 +1141,7 @@ docReady(function () {
   };
 
   getIntegrations();
+  $("#waitingdots").hide();
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
   postChangePassword($("#wf-form-Form-Change-Password"));
