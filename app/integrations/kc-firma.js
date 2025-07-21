@@ -495,6 +495,9 @@ docReady(function () {
 
       // Elementy przełącznika
       const isEnabled = data.enabled === true;
+      if (isEnabled === true) {
+        getShops();
+      }
       const $checkbox = $("#KC-Integration-Switch");
       const $customSwitch = $checkbox.siblings(".w-checkbox-input");
 
@@ -578,7 +581,7 @@ docReady(function () {
         $customSwitch.toggleClass("w--redirected-checked", isEnabled);
         $label.text(isEnabled ? "Integracja aktywna:" : "Aktywuj:");
         $("#kc-alert").toggle(!isEnabled);
-
+        getShops();
         displayMessage(
           "Success",
           "Integracja KC-Firma została pomyślnie aktywowana."
@@ -743,6 +746,8 @@ docReady(function () {
 
   function getShops() {
     const style = document.getElementById("sampleRowShops");
+    const shopsPanel = document.getElementById("shopsPanel");
+
     style.style.display = "none"; // <- ukryj oryginał
 
     const shopsUrl = new URL(InvokeURL + "shops?perPage=50");
