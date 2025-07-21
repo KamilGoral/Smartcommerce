@@ -490,16 +490,21 @@ docReady(function () {
         whLogo.src = `data:image/png;base64,${data.image}`;
         whLogo.style.objectFit = "contain";
       } else {
-        console.log("error");
+        console.log("Brak logo lub niepoprawny obrazek.");
       }
 
-      // Ustawienie przełącznika i alertu na podstawie stanu integracji
+      // Ustawienie przełącznika checkbox + stylizacja Webflow
       const isEnabled = data.enabled === true;
-      $("#KC-Integration-Switch").prop("checked", isEnabled);
+      const $checkbox = $("#KC-Integration-Switch");
+      const $customSwitch = $checkbox.siblings(".w-checkbox-input");
+
+      $checkbox.prop("checked", isEnabled);
 
       if (isEnabled) {
+        $customSwitch.addClass("w--redirected-checked");
         $("#kc-alert").hide();
       } else {
+        $customSwitch.removeClass("w--redirected-checked");
         $("#kc-alert").show();
       }
     };
