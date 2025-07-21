@@ -579,6 +579,62 @@ docReady(function () {
     putKcFirmaIntegration(isChecked);
   });
 
+  function activateKcFirmaIntegrationForShop(shopKey, buttonElement) {
+    $.ajax({
+      type: "POST",
+      url: InvokeURL + "integrations/kc-firma/shops",
+      contentType: "application/json",
+      dataType: "json",
+      headers: {
+        Accept: "application/json",
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      data: JSON.stringify({ shopKey: shopKey }),
+      beforeSend: function () {
+        $(buttonElement).text("Przetwarzanie...");
+      },
+      success: function () {
+        // Zmiana statusu wizualnego po aktywacji
+        const parent = $(buttonElement).closest(".stacked-list3_item");
+        parent
+          .find("#enabled")
+          .text("Aktywna")
+          .removeClass("badge-red")
+          .addClass("badge-green");
+        $(buttonElement).text("Aktywowana").prop("disabled", true);
+        displayMessage(
+          "Success",
+          `Integracja KC-Firma została aktywowana dla sklepu ${shopKey}.`
+        );
+      },
+      error: function (jqXHR) {
+        let msg = "Wystąpił błąd.";
+        if (jqXHR.status === 409) {
+          msg = `Sklep ${shopKey} jest już przypisany do innej integracji WMS.`;
+        } else if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+          msg = jqXHR.responseJSON.message;
+        }
+        $(buttonElement).text("Aktywuj");
+        displayMessage("Error", msg);
+        console.error("Błąd aktywacji:", msg);
+      },
+    });
+  }
+
+  $(".stacked-list3_item .buttonmain").click(function (e) {
+    e.preventDefault();
+    const parent = $(this).closest(".stacked-list3_item");
+    const shopKey = parent.find('[shopdata="shopKey"]').text().trim();
+
+    if (!shopKey) {
+      displayMessage("Error", "Nie można znaleźć klucza sklepu.");
+      return;
+    }
+
+    activateKcFirmaIntegrationForShop(shopKey, this);
+  });
+
   function setupShopSearch() {
     const searchContainer = document.getElementById("search-shops");
     if (!searchContainer) return;
