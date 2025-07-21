@@ -839,7 +839,7 @@ docReady(function () {
   function deactivateKcFirmaIntegrationForShop(shopKey, triggerElement) {
     $.ajax({
       type: "DELETE",
-      url: InvokeURL + "integrations/kc-firma/" + shopKey,
+      url: InvokeURL + "integrations/kc-firma/shops/" + shopKey,
       headers: {
         Accept: "application/json",
         Authorization: orgToken,
