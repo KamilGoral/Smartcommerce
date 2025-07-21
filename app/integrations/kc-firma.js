@@ -718,51 +718,116 @@ docReady(function () {
   }
 
   function getShops() {
-    let url = new URL(InvokeURL + "shops?perPage=50");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
+    const shopsUrl = new URL(InvokeURL + "shops?perPage=50");
+    const integrationsUrl = new URL(InvokeURL + "integrations/kc-firma/shops");
 
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        const data = JSON.parse(this.response);
-        const toParse = data.items;
-        const shopContainer = document.getElementById("Shops-Container");
+    const requestShops = new XMLHttpRequest();
+    const requestIntegrations = new XMLHttpRequest();
 
-        toParse.forEach((shop) => {
-          const style = document.getElementById("sampleRowShops");
-          const row = style.cloneNode(true);
-          row.style.display = "flex";
-          row.removeAttribute("id");
-
-          const shopNameElement = row.querySelector("[shopdata='shopName']");
-          if (shopNameElement) shopNameElement.textContent = shop.name;
-
-          const shopKeyElement = row.querySelector("[shopdata='shopKey']");
-          if (shopKeyElement) shopKeyElement.textContent = shop.shopKey;
-
-          row.href = `https://${DomainName}/app/shops/shop?shopKey=${shop.shopKey}`;
-          shopContainer.appendChild(row);
+    // Etap 1: pobierz listę aktywowanych integracji
+    requestIntegrations.open("GET", integrationsUrl, true);
+    requestIntegrations.setRequestHeader("Authorization", orgToken);
+    requestIntegrations.onload = function () {
+      let activeShopKeys = new Set();
+      if (
+        requestIntegrations.status >= 200 &&
+        requestIntegrations.status < 400
+      ) {
+        const integrationData = JSON.parse(this.response);
+        integrationData.items.forEach((entry) => {
+          activeShopKeys.add(entry.shopKey);
         });
-
-        setupShopSearch();
-
-        if (toParse.length === 0) {
-          document.getElementById("tablecontentshops").style.display = "none";
-          document.getElementById("emptystateshops").style.display = "flex";
-        }
-      } else if (request.status === 401) {
-        console.log("Unauthorized");
-      } else {
-        console.error("Error loading shop info:", request.status);
       }
+
+      // Etap 2: pobierz listę sklepów
+      requestShops.open("GET", shopsUrl, true);
+      requestShops.setRequestHeader("Authorization", orgToken);
+      requestShops.onload = function () {
+        if (requestShops.status >= 200 && requestShops.status < 400) {
+          const data = JSON.parse(this.response);
+          const toParse = data.items;
+          const shopContainer = document.getElementById("Shops-Container");
+
+          toParse.forEach((shop) => {
+            const style = document.getElementById("sampleRowShops");
+            const row = style.cloneNode(true);
+            row.style.display = "flex";
+            row.removeAttribute("id");
+
+            const shopNameElement = row.querySelector("[shopdata='shopName']");
+            if (shopNameElement) shopNameElement.textContent = shop.name;
+
+            const shopKeyElement = row.querySelector("[shopdata='shopKey']");
+            if (shopKeyElement) shopKeyElement.textContent = shop.shopKey;
+
+            row.href = `https://${DomainName}/app/shops/shop?shopKey=${shop.shopKey}`;
+
+            const isActive = activeShopKeys.has(shop.shopKey);
+
+            if (isActive) {
+              // Aktywny: zmień klasę, pokaż trzy kropki, zablokuj przycisk
+              row.classList.remove("preenabled");
+              row.classList.add("enabled");
+
+              const badge = row.querySelector("#enabled");
+              if (badge) {
+                badge.textContent = "Aktywna";
+                badge.classList.remove("wider");
+                badge.classList.add("enabled");
+              }
+
+              const btn = row.querySelector(".buttonmain");
+              if (btn) {
+                btn.textContent = "Aktywna";
+                btn.classList.add("disabled", "secondary");
+                btn.disabled = true;
+              }
+
+              const dots = row.querySelector(".stacked-list3_content-right");
+              if (dots) {
+                dots.classList.remove("defaulthide");
+              }
+            }
+
+            shopContainer.appendChild(row);
+          });
+
+          setupShopSearch();
+
+          if (toParse.length === 0) {
+            document.getElementById("tablecontentshops").style.display = "none";
+            document.getElementById("emptystateshops").style.display = "flex";
+          }
+        } else {
+          console.error("Błąd pobierania sklepów:", requestShops.status);
+        }
+      };
+
+      requestShops.send();
     };
 
-    request.onerror = function () {
-      console.error("Error loading shop info:", request.statusText);
+    requestIntegrations.onerror = function () {
+      console.error(
+        "Błąd pobierania statusów integracji:",
+        requestIntegrations.statusText
+      );
     };
 
-    request.send();
+    requestIntegrations.send();
+
+    // Delegacja kliknięć do aktywacji integracji
+    $("#Shops-Container").on("click", ".buttonmain", function (e) {
+      e.preventDefault();
+      const parent = $(this).closest(".stacked-list3_item");
+      const shopKey = parent.find('[shopdata="shopKey"]').text().trim();
+
+      if (!shopKey) {
+        displayMessage("Error", "Nie można znaleźć klucza sklepu.");
+        return;
+      }
+
+      activateKcFirmaIntegrationForShop(shopKey, this);
+    });
   }
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
