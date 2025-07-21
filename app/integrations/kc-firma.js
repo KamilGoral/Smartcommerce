@@ -545,6 +545,9 @@ docReady(function () {
           $customSwitch.removeClass("w--redirected-checked");
           $label.text("Aktywuj:");
           $("#kc-alert").show();
+          window.setTimeout(function () {
+            location.reload();
+          }, 1000);
         },
         error: function (jqXHR) {
           var msg =
