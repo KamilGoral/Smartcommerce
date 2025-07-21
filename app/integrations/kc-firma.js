@@ -836,6 +836,71 @@ docReady(function () {
     });
   }
 
+  function deactivateKcFirmaIntegrationForShop(shopKey, triggerElement) {
+    $.ajax({
+      type: "DELETE",
+      url: InvokeURL + "integrations/kc-firma/" + shopKey,
+      headers: {
+        Accept: "application/json",
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      beforeSend: function () {
+        displayMessage("Loading", "Trwa dezaktywacja integracji...");
+      },
+      success: function () {
+        const parent = $(triggerElement).closest(".stacked-list3_item");
+
+        // 1. Zmiana klas głównych
+        parent.removeClass("enabled").addClass("preenabled");
+
+        // 2. Zmiana badge'a
+        const badge = parent.find("#enabled");
+        badge.text("Nieaktywna").removeClass("enabled").addClass("wider");
+
+        // 3. Przycisk: Aktywuj + odblokuj
+        const btn = parent.find(".buttonmain");
+        btn
+          .text("Aktywuj")
+          .removeClass("disabled secondary")
+          .prop("disabled", false);
+
+        // 4. Ukryj trzy kropki (dropdown)
+        parent.find(".stacked-list3_content-right").addClass("defaulthide");
+
+        // 5. Schowaj otwarty dropdown (jeśli był otwarty)
+        const dropdown = parent.find(".w-dropdown");
+        dropdown.removeClass("w--open");
+
+        displayMessage(
+          "Success",
+          `Integracja KC-Firma została usunięta dla sklepu ${shopKey}.`
+        );
+      },
+      error: function (jqXHR) {
+        let msg = "Wystąpił błąd podczas usuwania integracji.";
+        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+          msg = jqXHR.responseJSON.message;
+        }
+        displayMessage("Error", msg);
+        console.error("Błąd dezaktywacji:", msg);
+      },
+    });
+  }
+
+  $("#Shops-Container").on("click", "[step='delete']", function (e) {
+    e.preventDefault();
+    const parent = $(this).closest(".stacked-list3_item");
+    const shopKey = parent.find("[shopdata='shopKey']").text().trim();
+
+    if (!shopKey) {
+      displayMessage("Error", "Nie można znaleźć klucza sklepu.");
+      return;
+    }
+
+    deactivateKcFirmaIntegrationForShop(shopKey, this);
+  });
+
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
