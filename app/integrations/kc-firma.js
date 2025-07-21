@@ -820,6 +820,12 @@ docReady(function () {
               if (dots) {
                 dots.classList.remove("defaulthide");
               }
+            } else {
+              // Dla nieaktywnych sklepów ukryj kropki (menu rozwijane)
+              const dots = row.querySelector(".stacked-list3_content-right");
+              if (dots) {
+                dots.classList.add("defaulthide"); // ← Dodaj klasę ukrywającą menu
+              }
             }
 
             shopContainer.appendChild(row);
