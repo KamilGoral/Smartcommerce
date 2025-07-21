@@ -491,8 +491,8 @@ docReady(function () {
       } else {
         console.log("error");
       }
-      request.send();
     };
+    request.send();
   }
 
   function setupShopSearch() {
