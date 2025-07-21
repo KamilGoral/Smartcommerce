@@ -865,6 +865,7 @@ docReady(function () {
 
       activateKcFirmaIntegrationForShop(shopKey, this);
     });
+    $("#waitingdots").hide();
   }
 
   function deactivateKcFirmaIntegrationForShop(shopKey, triggerElement) {
@@ -1141,7 +1142,6 @@ docReady(function () {
   };
 
   getIntegrations();
-  $("#waitingdots").hide();
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
   postChangePassword($("#wf-form-Form-Change-Password"));
