@@ -871,10 +871,10 @@ docReady(function () {
         // 5. Schowaj otwarty dropdown (jeśli był otwarty)
         const dropdown = $(triggerElement).closest(".w-dropdown");
         dropdown.removeClass("w--open");
+        dropdown.find(".w-dropdown-list").removeClass("w--open");
 
         const dropdownList = dropdown.find(".w-dropdown-list");
-        dropdownList.removeClass("w--open").css("display", "none");
-
+        dropdownList.removeClass("w--open");
         displayMessage(
           "Success",
           `Integracja KC-Firma została usunięta dla sklepu ${shopKey}.`
@@ -911,10 +911,10 @@ docReady(function () {
     // 2. Schowaj dropdown (jeśli otwarty)
     const dropdown = $(triggerElement).closest(".w-dropdown");
     dropdown.removeClass("w--open");
+    dropdown.find(".w-dropdown-list").removeClass("w--open");
 
     const dropdownList = dropdown.find(".w-dropdown-list");
-    dropdownList.removeClass("w--open").css("display", "none");
-
+    dropdownList.removeClass("w--open");
     // 3. Zapytanie o nowe dane dostępowe
     $.ajax({
       type: "GET",
