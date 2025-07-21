@@ -496,37 +496,37 @@ docReady(function () {
   }
 
   function putKcFirmaIntegration(enabled) {
-    const url = new URL(InvokeURL + "integrations/kc-firma");
-    const request = new XMLHttpRequest();
-
-    request.open("PUT", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.setRequestHeader("Content-Type", "application/json");
-
-    request.onload = function () {
-      if (request.status === 200) {
-        const data = JSON.parse(this.response);
-        $("#KC-Integration-Switch").prop("checked", data.enabled);
+    $.ajax({
+      type: "PUT",
+      url: InvokeURL + "integrations/kc-firma",
+      cors: true,
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      contentType: "application/json",
+      dataType: "json",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      success: function (resultData) {
+        $("#KC-Integration-Switch").prop("checked", resultData.enabled);
         displayMessage(
           "Success",
           "Integracja KC-Firma została pomyślnie aktywowana."
         );
-      } else {
-        displayMessage(
-          "Error",
-          "Wystąpił błąd podczas aktywacji integracji KC-Firma."
-        );
-        console.error("Error activating KC-Firma integration:", this.response);
-      }
-    };
-
-    request.onerror = function () {
-      displayMessage("Error", "Błąd połączenia z serwerem. Spróbuj ponownie.");
-      console.error("Connection error");
-    };
-
-    request.send(JSON.stringify({ enabled: enabled }));
+      },
+      error: function (jqXHR, exception) {
+        var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+        displayMessage("Error", msg);
+        console.error("Error activating KC-Firma integration:", msg);
+      },
+    });
   }
 
   $("#KC-Integration-Switch").change(function () {
