@@ -496,6 +496,39 @@ docReady(function () {
   }
 
   function putKcFirmaIntegration(enabled) {
+    if (!enabled) {
+      // Wywołanie DELETE do wyłączenia integracji KC-Firma
+      $.ajax({
+        type: "DELETE",
+        url: InvokeURL + "integrations/kc-firma",
+        cors: true,
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        headers: {
+          Accept: "application/json",
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        success: function () {
+          displayMessage("Success", "Integracja KC-Firma została wyłączona.");
+          $("#KC-Integration-Switch").prop("checked", false);
+          $("#kc-alert").show();
+        },
+        error: function (jqXHR, exception) {
+          var msg =
+            "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
+          displayMessage("Error", msg);
+          console.error("Error disabling KC-Firma integration:", msg);
+        },
+      });
+      return;
+    }
+
+    // Aktywacja integracji KC-Firma
     $.ajax({
       type: "PUT",
       url: InvokeURL + "integrations/kc-firma",
@@ -520,6 +553,7 @@ docReady(function () {
           "Success",
           "Integracja KC-Firma została pomyślnie aktywowana."
         );
+        $("#kc-alert").hide();
       },
       error: function (jqXHR, exception) {
         var msg = "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
