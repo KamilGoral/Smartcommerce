@@ -869,8 +869,11 @@ docReady(function () {
         parent.find(".stacked-list3_content-right").addClass("defaulthide");
 
         // 5. Schowaj otwarty dropdown (jeśli był otwarty)
-        const dropdown = parent.find(".w-dropdown");
+        const dropdown = $(triggerElement).closest(".w-dropdown");
         dropdown.removeClass("w--open");
+
+        const dropdownList = dropdown.find(".w-dropdown-list");
+        dropdownList.removeClass("w--open").css("display", "none");
 
         displayMessage(
           "Success",
@@ -908,6 +911,9 @@ docReady(function () {
     // 2. Schowaj dropdown (jeśli otwarty)
     const dropdown = $(triggerElement).closest(".w-dropdown");
     dropdown.removeClass("w--open");
+
+    const dropdownList = dropdown.find(".w-dropdown-list");
+    dropdownList.removeClass("w--open").css("display", "none");
 
     // 3. Zapytanie o nowe dane dostępowe
     $.ajax({
