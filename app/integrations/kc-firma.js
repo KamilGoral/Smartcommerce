@@ -1151,6 +1151,8 @@ docReady(function () {
   };
 
   getIntegrations();
+  $("#waitingdots").hide();
+
   makeWebflowFormAjaxCreate($("#wf-form-pcmarket"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
   postChangePassword($("#wf-form-Form-Change-Password"));
