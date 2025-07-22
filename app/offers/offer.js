@@ -666,7 +666,7 @@ docReady(function () {
               .slice()
               .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
             entries.push({
-              wholesalerKey: wms.key || "pc-market",
+              wholesalerKey: wms.key || "wms",
               source: "Program magazynowy",
               status: latestWmsEvent.extracting?.status || "unknown",
               statusLabel:
