@@ -2265,7 +2265,10 @@ docReady(function () {
 
     if (integration.enabled === true) {
       updateIntegrationStatus($integrationStatus, "Succeeded", "green");
-      checkIntegrationStatus(integration, $integrationStatus);
+
+      if (integration.integrationKey !== "kc-firma") {
+        checkIntegrationStatus(integration, $integrationStatus);
+      }
     } else {
       updateIntegrationStatus($integrationStatus, "Oczekuję", null);
     }
