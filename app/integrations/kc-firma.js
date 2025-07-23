@@ -642,9 +642,6 @@ docReady(function () {
       beforeSend: function () {
         $("#waitingdots").show();
       },
-      complete: function () {
-        $("#waitingdots").hide();
-      },
       success: function (response) {
         const parent = $(buttonElement).closest(".stacked-list3_item");
 
@@ -700,6 +697,7 @@ docReady(function () {
         console.error("Błąd aktywacji:", msg);
       },
       complete: function () {
+        $("#waitingdots").hide();
         // Po 5 sekundach zdejmij blokadę
         setTimeout(() => {
           activeShopRequests.delete(shopKey);
