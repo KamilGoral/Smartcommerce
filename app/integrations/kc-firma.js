@@ -1166,4 +1166,38 @@ docReady(function () {
   makeWebflowFormAjaxDelete($("#wf-form-DeleteIntegration"));
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("new-connection");
+
+    if (!modal) return;
+
+    // Funkcja do zamknięcia modala
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    // Selektor krzyżyka (div z klasą .icon-close)
+    const closeIcon = modal.querySelector(".modal-header .icon-close");
+
+    // Selektor przycisku "Rozumiem, zamknij" — ostatni .buttonmain w .buttonsplit
+    const closeButton = modal.querySelector(
+      ".buttonsplit .buttonmain:last-of-type"
+    );
+
+    // Obsługa kliknięcia w krzyżyk
+    if (closeIcon) {
+      closeIcon.addEventListener("click", function () {
+        closeModal();
+      });
+    }
+
+    // Obsługa kliknięcia w przycisk "Rozumiem, zamknij"
+    if (closeButton) {
+      closeButton.addEventListener("click", function (e) {
+        e.preventDefault(); // dla bezpieczeństwa
+        closeModal();
+      });
+    }
+  });
 });
