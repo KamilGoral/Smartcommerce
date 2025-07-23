@@ -981,19 +981,37 @@ docReady(function () {
         "Requested-By": "webflow-3-4",
       },
       success: function (response) {
-        const { username, password } = response.credentials;
-
-        // 4. Komunikat końcowy
         displayMessage(
           "Success",
-          `
-        <strong>Nowe dane logowania dla sklepu ${response.shopKey}:</strong><br>
-        <strong>Użytkownik:</strong> ${username}<br>
-        <strong>Hasło:</strong> ${password}
-      `
+          `Hasło dla sklepu ${shopKey} zostało zresetowane.`
         );
 
-        console.log("🔐 Nowe dane logowania:", response.credentials);
+        document.getElementById("new-connection").style.display = "flex";
+
+        console.log("🔐 Dane dostępowe:", response.credentials);
+        const kclogin = response.credentials.username;
+        const kcpass = response.credentials.password;
+        const kcshop = response.shopKey;
+
+        // Ustawienie wartości pola Login
+        const loginInput = document.getElementById("KC-Login");
+        if (loginInput) {
+          loginInput.value = kclogin;
+          loginInput.disabled = true;
+        }
+
+        // Ustawienie wartości pola Hasło
+        const passInput = document.getElementById("KC-Password");
+        if (passInput) {
+          passInput.value = kcpass;
+          passInput.disabled = true;
+        }
+
+        // Ustawienie wartości widocznego tekstu sklepu (jeśli potrzebne)
+        const shopKeySpan = document.getElementById("shopkeyintegration");
+        if (shopKeySpan) {
+          shopKeySpan.innerText = kcshop;
+        }
       },
       error: function (jqXHR) {
         let msg = "Wystąpił błąd podczas resetowania hasła.";
