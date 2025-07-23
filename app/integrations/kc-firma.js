@@ -640,7 +640,10 @@ docReady(function () {
       },
       data: JSON.stringify({ shopKey: shopKey }),
       beforeSend: function () {
-        $(buttonElement).text("Przetwarzanie...");
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
       },
       success: function (response) {
         const parent = $(buttonElement).closest(".stacked-list3_item");
@@ -650,12 +653,6 @@ docReady(function () {
           .addClass("disabled secondary")
           .prop("disabled", true);
 
-        const badge = parent.find("#enabled");
-        badge
-          .text("Aktywna")
-          .removeClass("badge-red wider")
-          .addClass("badge enabled");
-
         parent.find(".stacked-list3_content-right").removeClass("defaulthide");
         parent.removeClass("preenabled").addClass("enabled");
 
@@ -664,7 +661,32 @@ docReady(function () {
           `Integracja KC-Firma została aktywowana dla sklepu ${shopKey}.`
         );
 
+        document.getElementById("new-connection").style.display = "flex";
+
         console.log("🔐 Dane dostępowe:", response.credentials);
+        const kclogin = response.credentials.username;
+        const kcpass = response.credentials.password;
+        const kcshop = response.shopKey;
+
+        // Ustawienie wartości pola Login
+        const loginInput = document.getElementById("KC-Login");
+        if (loginInput) {
+          loginInput.value = kclogin;
+          loginInput.disabled = true;
+        }
+
+        // Ustawienie wartości pola Hasło
+        const passInput = document.getElementById("KC-Password");
+        if (passInput) {
+          passInput.value = kcpass;
+          passInput.disabled = true;
+        }
+
+        // Ustawienie wartości widocznego tekstu sklepu (jeśli potrzebne)
+        const shopKeySpan = document.getElementById("shopkeyintegration");
+        if (shopKeySpan) {
+          shopKeySpan.innerText = kcshop;
+        }
       },
       error: function (jqXHR) {
         let msg = "Wystąpił błąd.";
@@ -805,13 +827,6 @@ docReady(function () {
               row.classList.remove("preenabled");
               row.classList.add("enabled");
 
-              const badge = row.querySelector("#enabled");
-              if (badge) {
-                badge.textContent = "Aktywna";
-                badge.classList.remove("wider");
-                badge.classList.add("enabled");
-              }
-
               const btn = row.querySelector(".buttonmain");
               if (btn) {
                 btn.textContent = "Aktywna";
@@ -895,10 +910,6 @@ docReady(function () {
 
         // 1. Zmiana klas głównych
         parent.removeClass("enabled").addClass("preenabled");
-
-        // 2. Zmiana badge'a
-        const badge = parent.find("#enabled");
-        badge.text("Nieaktywna").removeClass("enabled").addClass("wider");
 
         // 3. Przycisk: Aktywuj + odblokuj
         const btn = parent.find(".buttonmain");
