@@ -1167,37 +1167,81 @@ docReady(function () {
   postChangePassword($("#wf-form-Form-Change-Password"));
   postEditUserProfile($("#wf-form-editProfile"));
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("new-connection");
+  (function () {
+    const MODAL_ID = "new-connection";
 
-    if (!modal) return;
-
-    // Funkcja do zamknięcia modala
-    function closeModal() {
-      modal.style.display = "none";
+    // Funkcja zamykająca modal
+    function closeModal(modal) {
+      modal.style.setProperty("display", "none", "important");
     }
 
-    // Selektor krzyżyka (div z klasą .icon-close)
-    const closeIcon = modal.querySelector(".modal-header .icon-close");
-
-    // Selektor przycisku "Rozumiem, zamknij" — ostatni .buttonmain w .buttonsplit
-    const closeButton = modal.querySelector(
-      ".buttonsplit .buttonmain:last-of-type"
-    );
-
-    // Obsługa kliknięcia w krzyżyk
-    if (closeIcon) {
-      closeIcon.addEventListener("click", function () {
-        closeModal();
-      });
+    // Helper: klonuje element, usuwając Webflowowe interakcje
+    function replaceElementWithClone(modal, selector) {
+      const el = modal.querySelector(selector);
+      if (!el) return null;
+      const clone = el.cloneNode(true);
+      el.parentNode.replaceChild(clone, el);
+      return clone;
     }
 
-    // Obsługa kliknięcia w przycisk "Rozumiem, zamknij"
-    if (closeButton) {
-      closeButton.addEventListener("click", function (e) {
-        e.preventDefault(); // dla bezpieczeństwa
-        closeModal();
-      });
+    // Główna funkcja inicjalizująca
+    function initModalCloseHandlers() {
+      const modal = document.getElementById(MODAL_ID);
+      if (!modal || modal.dataset._customHandled === "true") return;
+
+      // Zaznacz, że już obsłużyliśmy ten modal
+      modal.dataset._customHandled = "true";
+
+      // Obsługa zamknięcia krzyżykiem
+      const closeIcon = replaceElementWithClone(
+        modal,
+        ".modal-header .icon-close"
+      );
+      if (closeIcon) {
+        closeIcon.style.cursor = "pointer";
+        closeIcon.addEventListener("click", () => closeModal(modal));
+      }
+
+      // Obsługa przycisku "Rozumiem, zamknij"
+      const closeButton = replaceElementWithClone(
+        modal,
+        ".buttonsplit .buttonmain:last-of-type"
+      );
+      if (closeButton) {
+        closeButton.style.cursor = "pointer";
+        closeButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeModal(modal);
+        });
+      }
+
+      console.log("✅ Przejęto kontrolę nad zamykaniem modala.");
     }
-  });
+
+    // Obserwator do wykrywania dynamicznego pojawienia się modala
+    const observer = new MutationObserver(() => {
+      const modal = document.getElementById(MODAL_ID);
+      if (modal && modal.style.display !== "none") {
+        initModalCloseHandlers();
+      }
+    });
+
+    // Start obserwowania całego dokumentu
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Dodatkowo: próbuj cyklicznie (fallback jeśli MutationObserver nie zadziała)
+    const interval = setInterval(() => {
+      const modal = document.getElementById(MODAL_ID);
+      if (
+        modal &&
+        modal.style.display !== "none" &&
+        modal.dataset._customHandled !== "true"
+      ) {
+        initModalCloseHandlers();
+      }
+    }, 1000);
+  })();
 });
