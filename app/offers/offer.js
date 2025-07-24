@@ -714,6 +714,14 @@ docReady(function () {
           if (el) el.innerText = text;
         };
 
+        const setClass = (id, className) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.classList.remove("positive", "medium", "negative");
+            el.classList.add(className);
+          }
+        };
+
         // Statystyki
         let successCount = 0;
         let errorCount = 0;
@@ -737,12 +745,27 @@ docReady(function () {
         setText("offerSuccessStatus", `Sukces (${successCount})`);
 
         // Kompletność oferty w %
+
         let completenessLabel = "-";
+        let completenessClass = "";
+
         if (allCount > 0) {
           const percentage = Math.round((successCount / allCount) * 100);
           completenessLabel = `${percentage}%`;
+
+          // Przypisanie klasy w zależności od procentu
+          if (percentage >= 90) {
+            completenessClass = "positive";
+          } else if (percentage >= 80) {
+            completenessClass = "medium";
+          } else {
+            completenessClass = "negative";
+          }
         }
-        setText("offerCondition", "Kompletność oferty: " + completenessLabel);
+
+        // Ustaw tekst i klasę
+        setText("offerCondition", completenessLabel);
+        setClass("offerCondition", completenessClass);
         setText("offerHealthCounter", completenessLabel);
 
         // ========== Wstaw dane do tabeli ==========
