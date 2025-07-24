@@ -1783,10 +1783,12 @@ ${offerTimestampLine}
               }
 
               $("#offerCondition").show();
+              $("#offerTag").show();
               $("#seeRightPanel").show();
               $("#offerDate2").show();
             } else {
               $("#offerCondition").hide();
+              $("#offerTag").hide();
               $(".seeRightPanel").hide();
               $("#offerDate2").show();
             }
