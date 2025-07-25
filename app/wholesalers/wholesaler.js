@@ -464,7 +464,13 @@ docReady(function () {
     request2.open("GET", url2, true);
     request2.setRequestHeader("Authorization", orgToken);
     request2.onload = function () {
+      if (request2.status === 404) {
+        // Brak integracji - ustaw flagę
+        ehurtNotIntegrated = true;
+        return;
+      }
       var data2 = JSON.parse(this.response);
+
       if (request2.status >= 200 && request2.status < 400) {
         Iehurt.classList.add("enabled");
         Iehurt.classList.remove("hide");
@@ -611,8 +617,6 @@ docReady(function () {
           .end()
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
-      } else if (request2.status === 404) {
-        ehurtNotIntegrated = true;
       } else {
         console.log("bug");
       }
