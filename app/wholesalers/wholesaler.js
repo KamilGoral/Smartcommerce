@@ -459,6 +459,8 @@ docReady(function () {
         "/e-commerce"
     );
     let request2 = new XMLHttpRequest();
+    let ehurtNotIntegrated = false;
+
     request2.open("GET", url2, true);
     request2.setRequestHeader("Authorization", orgToken);
     request2.onload = function () {
@@ -597,7 +599,6 @@ docReady(function () {
           }
         } else {
           LastStatusMessage.textContent = "Dostawca gotowy do integracji.";
-          $("#ehurtStart").removeClass("hide");
           $("#ehurtBox").hide();
           $("#ehurtBoxDelete").hide();
         }
@@ -610,6 +611,8 @@ docReady(function () {
           .end()
           .append("<option value=null>Wybierz profil</option>")
           .val("null");
+      } else if (request2.status === 404) {
+        ehurtNotIntegrated = true;
       } else {
         console.log("bug");
       }
@@ -643,6 +646,12 @@ docReady(function () {
         if (data.platformUrl === null) {
           $("#ehurtBox").hide();
           $("#ehurtBoxDelete").hide();
+        }
+
+        if (data.platformUrl !== null && ehurtNotIntegrated) {
+          $("#ehurtStart").show(); // pokazujemy przycisk
+        } else {
+          $("#ehurtStart").hide(); // ukrywamy przycisk
         }
 
         // Ustawienia podstawowych danych
@@ -2054,7 +2063,7 @@ docReady(function () {
     $("#waitingdots").hide();
   }
 
-  //oniline Support not supported flow //
+  //online Support not supported flow //
 
   LogoutNonUser();
   makeWebflowFormAjaxDeleteWh($(formIdDelete));
