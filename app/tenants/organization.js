@@ -3869,6 +3869,19 @@ docReady(function () {
       taxIdChanged = true;
     }
 
+    // Phones (single input)
+    var newPhone = $("#tenantPhoneEdit").val();
+    var oldPhone = (currentData.phones && currentData.phones[0]?.phone) || "";
+
+    if (newPhone !== oldPhone) {
+      patchData.push({
+        op: "replace",
+        path: "/phones",
+        value: newPhone ? [{ phone: newPhone }] : [],
+      });
+      phoneChanged = true;
+    }
+
     // Address
     var newAddress = {
       country: "PL", // zakładam że zawsze Polska
