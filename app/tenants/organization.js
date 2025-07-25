@@ -3021,7 +3021,7 @@ docReady(function () {
 
       const table = $("#table_pricelists_list").DataTable({
         data: parsed,
-        order: [[5, "asc"]],
+        order: [[5, "desc"]],
         pagingType: "full_numbers",
         scrollY: "60vh",
         scrollCollapse: true,
