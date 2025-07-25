@@ -654,6 +654,8 @@ docReady(function () {
 
         if (data.platformUrl !== null && ehurtNotIntegrated) {
           $("#ehurtStart").show(); // pokazujemy przycisk
+          $("#ehurtBox").hide();
+          $("#ehurtBoxDelete").hide();
         } else {
           $("#ehurtStart").hide(); // ukrywamy przycisk
         }
