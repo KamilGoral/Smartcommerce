@@ -1,18 +1,25 @@
-console.log("Script Loaded v3");
-function docReady(fn) {
-  // see if DOM is already available
-  if (
-    document.readyState === "complete" ||
-    document.readyState === "interactive"
-  ) {
-    // call on next available tick1
-    setTimeout(fn, 1);
-  } else {
-    document.addEventListener("DOMContentLoaded", fn);
+function whenReadyAndDataTables(fn) {
+  function check() {
+    if (
+      document.readyState === "complete" ||
+      document.readyState === "interactive"
+    ) {
+      if (
+        typeof window.jQuery !== "undefined" &&
+        typeof $.fn.DataTable !== "undefined"
+      ) {
+        fn();
+      } else {
+        setTimeout(check, 100); // Poczekaj aż DataTables się załaduje
+      }
+    } else {
+      document.addEventListener("DOMContentLoaded", check);
+    }
   }
+  check();
 }
 
-docReady(function () {
+whenReadyAndDataTables(function () {
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -525,7 +532,7 @@ docReady(function () {
 
           var offset = new Date().getTimezoneOffset();
           var localeTime = new Date(
-            Date.parse(firstData.createDate) - offset * 60 * 1000
+            Date.parse(firstData.updatedAt) - offset * 60 * 1000
           ).toISOString();
           var creationDate = localeTime.split("T");
           var creationTime = creationDate[1].split("Z");
@@ -922,7 +929,7 @@ docReady(function () {
         shopKey +
         "/wholesalers/" +
         wholesalerKey +
-        "/e-commerce/status-history?sort=createDate:asc&perPage=30"
+        "/e-commerce/status-history?sort=updatedAt:asc&perPage=30"
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
