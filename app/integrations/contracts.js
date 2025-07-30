@@ -1,19 +1,25 @@
-console.log("Script Loaded v3");
-
-function docReady(fn) {
-  // see if DOM is already available
-  if (
-    document.readyState === "complete" ||
-    document.readyState === "interactive"
-  ) {
-    // call on next available tick1
-    setTimeout(fn, 1);
-  } else {
-    document.addEventListener("DOMContentLoaded", fn);
+function whenReadyAndDataTables(fn) {
+  function check() {
+    if (
+      document.readyState === "complete" ||
+      document.readyState === "interactive"
+    ) {
+      if (
+        typeof window.jQuery !== "undefined" &&
+        typeof $.fn.DataTable !== "undefined"
+      ) {
+        fn();
+      } else {
+        setTimeout(check, 100); // Poczekaj aż DataTables się załaduje
+      }
+    } else {
+      document.addEventListener("DOMContentLoaded", check);
+    }
   }
+  check();
 }
 
-docReady(function () {
+whenReadyAndDataTables(function () {
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
