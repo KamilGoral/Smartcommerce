@@ -964,7 +964,7 @@ whenReadyAndDataTables(function () {
 
             const offset = new Date().getTimezoneOffset();
             const localeTime = new Date(
-              Date.parse(item.createDate) - offset * 60 * 1000
+              Date.parse(item.updatedAt) - offset * 60 * 1000
             ).toISOString();
             const firstCreateDate = localeTime.split("T")[0];
 
