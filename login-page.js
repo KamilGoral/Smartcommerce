@@ -1,3 +1,4 @@
+$(document).off("submit"); // Remove default Webflow form handler
 function whenReadyAndDataTables(fn) {
   function check() {
     if (
@@ -139,7 +140,6 @@ whenReadyAndDataTables(function () {
     console.log("Production");
   }
 
-  $(document).off("submit"); // Remove default Webflow form handler
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
