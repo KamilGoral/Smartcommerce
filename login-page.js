@@ -139,6 +139,7 @@ whenReadyAndDataTables(function () {
     console.log("Production");
   }
 
+  $(document).off("submit"); // Remove default Webflow form handler
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -251,6 +252,7 @@ whenReadyAndDataTables(function () {
       });
     });
   };
+
   makeWebflowFormAjax($(formId));
 
   function initializeSimpleTooltips() {
