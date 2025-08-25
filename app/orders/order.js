@@ -819,10 +819,7 @@ whenReadyAndDataTables(function () {
           defaultContent: "",
           width: "20px",
           createdCell: function (cell, cellData, rowData) {
-            if (
-              rowData.wholesalerName !== "unassigned" &&
-              rowData.events?.length > 0
-            ) {
+            if (rowData.events?.length > 0) {
               $(cell).addClass("details-control");
             }
           },
@@ -952,8 +949,6 @@ whenReadyAndDataTables(function () {
           className: "dt-center status-column",
 
           render: function (data, type, row) {
-            if (row.wholesalerName === "unassigned") return "";
-
             const events = row.events || [];
 
             const wasEmailed = events.some((e) => e.type === "emailed");
