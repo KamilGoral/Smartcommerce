@@ -4755,10 +4755,10 @@ whenReadyAndDataTables(function () {
 
       // --- START DATE ---
       if (nowDate >= data.startDate) {
-        $("#startDate-Exclusive-Edit").css("opacity", "0.6");
         $("#startDate-Exclusive-Edit")
           .datepicker("setDate", new Date(Date.parse(data.startDate)))
-          .prop("disabled", true);
+          .prop("disabled", true)
+          .css("opacity", "0.6");
       } else {
         $("#startDate-Exclusive-Edit")
           .datepicker("setDate", new Date())
@@ -4769,34 +4769,57 @@ whenReadyAndDataTables(function () {
       // --- END DATE + CHECKBOX "NIGDY" ---
       let prevEndDateEdit = null;
 
-      // Jedyna prawda o stanie checkboxa + wizualka Webflow
-      function setNeverState(checked) {
-        $("#NeverSingleEdit").prop("checked", checked);
-        $("#NeverSingle-Edit .w-checkbox-input").toggleClass(
-          "w--redirected-checked",
-          checked
-        );
+      // PRECYZYJNY selektor „kwadracika” Webflow (może być .w-checkbox-input lub .never-checkbox)
+      const $neverVisual = $(
+        "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox"
+      );
 
+      function setNeverState(checked) {
+        // 1) Logiczny stan inputa
+        $("#NeverSingleEdit").prop("checked", checked);
+
+        // 2) Wizualka Webflow (klasa + aria-checked)
         if (checked) {
-          // zapamiętaj obecną datę zanim wyczyścisz
+          $neverVisual
+            .addClass("w--redirected-checked")
+            .attr("aria-checked", "true");
+        } else {
+          $neverVisual
+            .removeClass("w--redirected-checked")
+            .attr("aria-checked", "false");
+        }
+
+        // 3) Datepicker: poprawne enable/disable
+        if (checked) {
           const currentVal = $("#endDate-Exclusive-Edit").datepicker("getDate");
           if (currentVal) prevEndDateEdit = currentVal;
 
-          // wyczyść i ZABLOKUJ datepicker poprawnie (jQuery UI)
           $("#endDate-Exclusive-Edit")
             .datepicker("setDate", null)
             .datepicker("disable")
             .css("opacity", "0.6");
         } else {
-          // WŁĄCZ datepicker poprawnie (jQuery UI)
           $("#endDate-Exclusive-Edit")
             .datepicker("enable")
             .css("opacity", "1")
             .datepicker("setDate", prevEndDateEdit || new Date());
         }
+
+        // 4) Na wszelki wypadek – wymuś stan po cyklu eventów (gdyby Webflow nadpisał)
+        setTimeout(() => {
+          if (checked) {
+            $neverVisual
+              .addClass("w--redirected-checked")
+              .attr("aria-checked", "true");
+          } else {
+            $neverVisual
+              .removeClass("w--redirected-checked")
+              .attr("aria-checked", "false");
+          }
+        }, 0);
       }
 
-      // Inicjalizacja przy otwarciu
+      // Inicjalizacja przy otwarciu popupu
       if (data.endDate === "infinity") {
         setNeverState(true);
       } else {
@@ -4804,7 +4827,7 @@ whenReadyAndDataTables(function () {
         prevEndDateEdit = end;
         setNeverState(false);
 
-        // Jeżeli endDate minęła (i to nie "infinity"), zablokuj edycję końca
+        // Jeżeli endDate minęła (i to nie "infinity"), możesz zablokować edycję końca
         if (nowDate > data.endDate) {
           $("#endDate-Exclusive-Edit")
             .datepicker("disable")
@@ -4812,15 +4835,14 @@ whenReadyAndDataTables(function () {
         }
       }
 
-      // Reakcja na zmianę inputa (NIE zakładamy własnego handlera na label!)
+      // Reakcja na zmianę checkboxa (jedyna prawda – bez handlerów na <label>)
       $("#NeverSingleEdit")
         .off("change.Edit")
         .on("change.Edit", function () {
           setNeverState(this.checked);
         });
 
-      // Uwaga: usuwamy jakiekolwiek wcześniejsze „klik” na labelu,
-      // żeby nie podwajać toggle przez domyślne zachowanie <label>
+      // Na wszelki wypadek zdejmij ewentualne stare listenery klików na labelu
       $("#NeverSingle-Edit").off("click.syncNever");
     }
   });
