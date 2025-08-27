@@ -983,6 +983,8 @@ whenReadyAndDataTables(function () {
             } else if (jqXHR.status === 400) {
               if (/Invalid GTIN length/i.test(serverMsg)) {
                 msg = "Nieprawidłowa długość GTIN. Zweryfikuj numer.";
+              } else if (/Invalid request body/i.test(serverMsg)) {
+                msg = "Nieprawidłowe dane. Sprawdź formularz.";
               } else if (
                 /Field \[.*\] not supported for sorting/i.test(serverMsg)
               ) {
