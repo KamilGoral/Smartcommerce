@@ -986,6 +986,13 @@ whenReadyAndDataTables(function () {
               } else if (/Invalid request body/i.test(serverMsg)) {
                 msg = "Nieprawidłowe dane. Sprawdź formularz.";
               } else if (
+                /Validation error - gtin must be valid 8, 12, 13 or 14 digit GS1 gtin code/i.test(
+                  serverMsg
+                )
+              ) {
+                msg =
+                  "Podaj poprawny numer GTIN – powinien mieć 8, 12, 13 lub 14 cyfr.";
+              } else if (
                 /Field \[.*\] not supported for sorting/i.test(serverMsg)
               ) {
                 const match = serverMsg.match(/Supported fields:\s*\[(.+)\]/i);
