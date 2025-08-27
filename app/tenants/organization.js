@@ -2639,7 +2639,7 @@ whenReadyAndDataTables(function () {
     let initialrecords = null;
 
     if ($.fn.dataTable.isDataTable("#table_id")) {
-      $("#table_id").DataTable().clear().destroy(); // zapobiega dublowaniu nagłówków
+      $("#table_id").DataTable().clear().destroy();
     }
 
     $("#table_id").DataTable({
@@ -2706,42 +2706,106 @@ whenReadyAndDataTables(function () {
         }
         if (sortColumn !== "null") QStr += `&sort=${sortColumn}${direction}`;
 
-        $.ajaxSetup({
-          headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+        $.ajax({
+          url: InvokeURL + "exclusive-products" + QStr,
+          method: "GET",
+          headers: {
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
           beforeSend: () => $("#waitingdots").show(),
+          success: function (res) {
+            const isFirstRequest = initialrecords === null;
+            if (isFirstRequest) initialrecords = res.total;
+
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+
+            // Empty state tylko jeśli PIERWSZY request zwrócił 0
+            const showEmptyState = isFirstRequest && res.total === 0;
+            $("#emptystateexclusive").css(
+              "display",
+              showEmptyState ? "flex" : "none"
+            );
+            $("#fullstateexclusive").css(
+              "display",
+              showEmptyState ? "none" : "flex"
+            );
+
+            setTimeout(() => {
+              $.fn.dataTable
+                .tables({ visible: true, api: true })
+                .columns.adjust();
+            }, 400);
+          },
+          error: function (jqXHR, exception) {
+            // Zbuduj przyjazny komunikat błędu
+            let msg = "";
+            const serverMsg =
+              jqXHR?.responseJSON?.message || jqXHR?.responseText;
+
+            if (jqXHR.status === 0) {
+              msg = "Brak połączenia z siecią. Sprawdź internet.";
+            } else if (jqXHR.status === 403) {
+              msg = "Brak uprawnień do wykonania tej operacji (403).";
+            } else if (jqXHR.status === 400) {
+              // Specjalne przypadki 400 z Twoimi przykładami
+              if (typeof serverMsg === "string") {
+                if (/Invalid GTIN length/i.test(serverMsg)) {
+                  msg = "Nieprawidłowa długość GTIN. Zweryfikuj wpisany numer.";
+                } else if (
+                  /Field \[.*\] not supported for sorting/i.test(serverMsg)
+                ) {
+                  // Wyłuskaj listę wspieranych pól z komunikatu
+                  const match = serverMsg.match(
+                    /Supported fields:\s*\[(.+)\]/i
+                  );
+                  const supported = match
+                    ? match[1].replace(/\s*http:\/\/\s*/g, "").trim()
+                    : "";
+                  msg =
+                    "To pole nie jest obsługiwane do sortowania. Dozwolone pola: " +
+                    supported +
+                    ".";
+                } else {
+                  msg = serverMsg;
+                }
+              } else {
+                msg = "Nieprawidłowe dane zapytania (400).";
+              }
+            } else if (jqXHR.status === 500) {
+              msg = "Błąd serwera (500). Spróbuj ponownie później.";
+            } else if (exception === "parsererror") {
+              msg = "Błąd przetwarzania odpowiedzi (parsererror).";
+            } else if (exception === "timeout") {
+              msg = "Przekroczono czas oczekiwania (timeout).";
+            } else if (exception === "abort") {
+              msg = "Żądanie zostało przerwane (abort).";
+            } else {
+              msg = serverMsg || "Wystąpił nieznany błąd.";
+            }
+
+            console.log(jqXHR);
+            console.log(exception);
+            // Pokaż błąd w Twoim UI
+            if (typeof displayMessage === "function") {
+              displayMessage("Error", msg);
+            } else {
+              alert(msg); // awaryjnie
+            }
+
+            // NIE pokazujemy empty state na błędach – tylko komunikat.
+            // Zwróć pusty dataset, aby DataTables zakończyło request i pokazało UI.
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: [],
+            });
+          },
           complete: () => $("#waitingdots").hide(),
-        });
-
-        $.get(InvokeURL + "exclusive-products" + QStr, function (res) {
-          // Ustal, czy to pierwszy request (przed zapisaniem initialrecords)
-          const isFirstRequest = initialrecords === null;
-
-          if (isFirstRequest) initialrecords = res.total;
-
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-
-          // Pokaż empty state wyłącznie, jeśli PIERWSZY request zwrócił 0
-          const showEmptyState = isFirstRequest && res.total === 0;
-
-          $("#emptystateexclusive").css(
-            "display",
-            showEmptyState ? "flex" : "none"
-          );
-          // Gdy to nie pierwszy raz albo są rekordy — pokazuj normalny widok tabeli
-          $("#fullstateexclusive").css(
-            "display",
-            showEmptyState ? "none" : "flex"
-          );
-
-          setTimeout(() => {
-            $.fn.dataTable
-              .tables({ visible: true, api: true })
-              .columns.adjust();
-          }, 400);
         });
       },
       columns: [
