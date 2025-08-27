@@ -913,55 +913,34 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+
       form.on("submit", function (event) {
+        event.preventDefault();
+
         var action = InvokeURL + "exclusive-products";
         var method = "POST";
 
         var wholesalerKeyPOST = $("#WholesalerSelector-Exclusive-2").val();
+        if (wholesalerKeyPOST === "null") wholesalerKeyPOST = null;
 
-        if (wholesalerKeyPOST === "null") {
-          wholesalerKeyPOST = null;
-        }
+        var neverChecked = $("#NeverSingle").is(":checked");
 
-        console.log(wholesalerKeyPOST);
-
-        if ($("#NeverSingle").is(":checked")) {
-          var postData = [
-            {
-              gtin: $("#GTINInput").val(),
-              name: "name1",
-              wholesalerKey: wholesalerKeyPOST,
-              startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-              endDate: "infinity",
-            },
-          ];
-        } else {
-          var postData = [
-            {
-              gtin: $("#GTINInput").val(),
-              name: "name1",
-              wholesalerKey: wholesalerKeyPOST,
-              startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-              endDate: $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
-            },
-          ];
-        }
-
-        console.log(postData);
-        var existingBlocksDisplayed = false; // Flag to track if existing blocks are displayed
+        var postData = [
+          {
+            gtin: $("#GTINInput").val(),
+            name: "name1",
+            wholesalerKey: wholesalerKeyPOST,
+            startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
+            endDate: neverChecked
+              ? "infinity"
+              : $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+          },
+        ];
 
         $.ajax({
           type: method,
           url: action,
           cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            if (existingBlocksDisplayed) {
-              $("#waitingdots").hide();
-            }
-          },
           contentType: "application/json",
           dataType: "json",
           headers: {
@@ -971,36 +950,98 @@ whenReadyAndDataTables(function () {
             "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(postData),
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
           success: function (resultData) {
-            console.log(resultData);
+            if (typeof successCallback === "function") {
+              const proceed = successCallback(resultData);
+              if (!proceed) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Ups. Coś poszło nie tak, spróbuj ponownie."
+                );
+                return;
+              }
+            }
+
             form.show();
             displayMessage("Success", "Blokada została założona.");
-            $("#GTINInput").val("");
-            $("#waitingdots").hide();
+            $("#GTINInput").val(""); // reset pola po sukcesie
           },
           error: function (jqXHR, exception) {
+            let serverMsg =
+              jqXHR?.responseJSON?.message || jqXHR?.responseText || "";
+
+            let msg = "";
+
+            if (jqXHR.status === 0) {
+              msg = "Brak połączenia z siecią. Sprawdź internet.";
+            } else if (jqXHR.status === 403) {
+              msg = "Brak uprawnień do wykonania tej operacji (403).";
+            } else if (jqXHR.status === 400) {
+              if (/Invalid GTIN length/i.test(serverMsg)) {
+                msg = "Nieprawidłowa długość GTIN. Zweryfikuj numer.";
+              } else if (
+                /Field \[.*\] not supported for sorting/i.test(serverMsg)
+              ) {
+                const match = serverMsg.match(/Supported fields:\s*\[(.+)\]/i);
+                const supported = match
+                  ? match[1].replace(/\s*http:\/\/\s*/g, "").trim()
+                  : "";
+                msg =
+                  "To pole nie jest obsługiwane do sortowania. Dozwolone pola: " +
+                  supported +
+                  ".";
+              } else {
+                msg =
+                  serverMsg || "Nieprawidłowe dane (400). Sprawdź formularz.";
+              }
+            } else if (jqXHR.status === 409) {
+              msg =
+                "Blokada o podanych parametrach już istnieje. Ładuję szczegóły…";
+              displayMessage("Info", msg);
+
+              try {
+                getExclusiveProduct(postData, function () {
+                  form.show();
+                });
+              } catch (e) {
+                console.warn("getExclusiveProduct nie powiodło się:", e);
+              }
+
+              if (typeof errorCallback === "function") {
+                errorCallback(jqXHR, exception);
+              }
+              return;
+            } else if (jqXHR.status === 500) {
+              msg = "Błąd serwera (500). Spróbuj ponownie później.";
+            } else if (exception === "parsererror") {
+              msg = "Błąd przetwarzania odpowiedzi serwera.";
+            } else if (exception === "timeout") {
+              msg = "Przekroczono czas oczekiwania na odpowiedź.";
+            } else if (exception === "abort") {
+              msg = "Żądanie zostało przerwane.";
+            } else {
+              msg = serverMsg || "Wystąpił nieznany błąd.";
+            }
+
             console.log(jqXHR);
             console.log(exception);
-            if (jqXHR.status === 409) {
-              getExclusiveProduct(postData, function (msg) {
-                form.show();
-              });
-            } else {
-              msg = "" + jqXHR.responseJSON.message;
 
-              form.show();
-              displayMessage(
-                "Error",
-                "Oops. Coś poszło nie tak, spróbuj ponownie."
-              );
-
-              // Set the flag to indicate that existing blocks are displayed
-              existingBlocksDisplayed = true;
-              return;
+            if (typeof errorCallback === "function") {
+              errorCallback(jqXHR, exception, msg);
             }
+
+            form.show();
+            displayMessage("Error", msg);
+          },
+          complete: function () {
+            $("#waitingdots").hide();
           },
         });
-        event.preventDefault();
+
         return false;
       });
     });
