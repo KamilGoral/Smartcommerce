@@ -4769,39 +4769,33 @@ whenReadyAndDataTables(function () {
       }
 
       // --- END DATE + CHECKBOX "NIGDY" ---
-      // przechowamy ostatnią "normalną" datę, żeby móc ją przywrócić
       let prevEndDateEdit = null;
 
-      function syncNeverVisualEdit(isChecked) {
-        // jeśli masz customowy wygląd checkboxa (div.never-checkbox), zsynchronizuj klasę
-        $("#NeverSingle-Edit .never-checkbox").toggleClass(
+      // Funkcja synchronizująca input i "kwadracik" Webflow
+      function setNeverState(isChecked) {
+        $("#NeverSingleEdit").prop("checked", isChecked);
+        $("#NeverSingle-Edit .w-checkbox-input").toggleClass(
           "w--redirected-checked",
           isChecked
         );
       }
 
+      // Inicjalizacja przy otwieraniu popupu
       if (data.endDate === "infinity") {
-        // Bezterminowo: zaznacz checkbox, wyczyść i zablokuj datę
-        $("#NeverSingleEdit").prop("checked", true);
-        syncNeverVisualEdit(true);
+        setNeverState(true);
         $("#endDate-Exclusive-Edit")
           .val("")
           .prop("disabled", true)
           .css("opacity", "0.6");
       } else {
-        // Zwykła data: odznacz checkbox, ustaw i odblokuj datę
-        $("#NeverSingleEdit").prop("checked", false);
-        syncNeverVisualEdit(false);
-
+        setNeverState(false);
         const end = new Date(Date.parse(data.endDate));
         prevEndDateEdit = end;
-
         $("#endDate-Exclusive-Edit")
           .datepicker("setDate", end)
           .prop("disabled", false)
           .css("opacity", "1");
 
-        // Jeżeli endDate minęła (i to nie "infinity"), zablokuj edycję
         if (nowDate > data.endDate) {
           $("#endDate-Exclusive-Edit")
             .prop("disabled", true)
@@ -4809,15 +4803,14 @@ whenReadyAndDataTables(function () {
         }
       }
 
-      // Reakcja na zmianę checkboxa "Nigdy" (czyści/blokuje albo przywraca/włącza datę)
+      // Reakcja na zmianę checkboxa (kliknięcie inputa)
       $("#NeverSingleEdit")
         .off("change.Edit")
         .on("change.Edit", function () {
           const checked = this.checked;
-          syncNeverVisualEdit(checked);
+          setNeverState(checked);
 
           if (checked) {
-            // zapamiętaj obecną datę (jeśli jest), potem wyczyść i zablokuj
             const currentVal = $("#endDate-Exclusive-Edit").datepicker(
               "getDate"
             );
@@ -4828,13 +4821,22 @@ whenReadyAndDataTables(function () {
               .prop("disabled", true)
               .css("opacity", "0.6");
           } else {
-            // przywróć poprzednią datę, a jeśli brak – ustaw dzisiaj i odblokuj
-            const restored = prevEndDateEdit || new Date(Date.now());
+            const restored = prevEndDateEdit || new Date();
             $("#endDate-Exclusive-Edit")
               .prop("disabled", false)
               .css("opacity", "1")
               .datepicker("setDate", restored);
           }
+        });
+
+      // Reakcja na kliknięcie w cały label (np. kwadracik lub tekst)
+      $("#NeverSingle-Edit")
+        .off("click.syncNever")
+        .on("click.syncNever", function (e) {
+          if (e.target.id === "NeverSingleEdit") return; // input obsłużony wyżej
+          const next = !$("#NeverSingleEdit").prop("checked");
+          setNeverState(next);
+          $("#NeverSingleEdit").trigger("change"); // uruchom logikę jak wyżej
         });
     }
   });
