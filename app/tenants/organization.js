@@ -2689,6 +2689,9 @@ whenReadyAndDataTables(function () {
         const endDate = $("#endDate").val();
         if (endDate) QStr += `&endDate=lte:${endDate}T00:00:00Z`;
 
+        const status = $("#statusPicker").val();
+        if (status) QStr += `&status=${status}`;
+
         const sortColumnMap = {
           3: "gtin:",
           4: "name:",
@@ -2934,6 +2937,7 @@ whenReadyAndDataTables(function () {
         const textBox = $("#table_id_filter label input");
 
         $("#wholesalerPicker").on("change", () => api.draw());
+        $("#statusPicker").on("change", () => api.draw());
 
         let typingTimer;
         const typingDelay = 3000;
