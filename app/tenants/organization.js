@@ -2812,8 +2812,8 @@ whenReadyAndDataTables(function () {
         { visible: false, orderable: false, data: "uuid" },
         { visible: false, orderable: false, data: "created.at" },
         { visible: false, orderable: false, data: "created.by" },
-        { orderable: true, data: "gtin" },
-        { orderable: true, data: "name" },
+        { orderable: true, orderable: false, data: "gtin" },
+        { orderable: true, orderable: false, data: "name" },
         {
           orderable: false,
           data: "countryDistributorName",
@@ -2836,7 +2836,7 @@ whenReadyAndDataTables(function () {
         },
         {
           visible: false,
-          orderable: false,
+          orderable: true,
           data: "wholesalerKey",
           render: function (data) {
             if (data !== null) return data;
@@ -2893,7 +2893,7 @@ whenReadyAndDataTables(function () {
           },
         },
         {
-          orderable: true,
+          orderable: false,
           data: "modified",
           render: function (data) {
             if (
