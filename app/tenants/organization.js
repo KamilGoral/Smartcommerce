@@ -4762,7 +4762,7 @@ whenReadyAndDataTables(function () {
           $("#endDate-Exclusive-Edit").css("opacity", "0.6");
         } else {
           console.log("infinity");
-          //$("#NeverSingleEdit").prop("checked", true);
+          $("#NeverSingleEdit").prop("checked", true);
         }
       }
 
