@@ -2639,7 +2639,7 @@ whenReadyAndDataTables(function () {
     let initialrecords = null;
 
     if ($.fn.dataTable.isDataTable("#table_id")) {
-      $("#table_id").DataTable().clear().destroy(); // <--- to rozwiązuje problem powielonych nagłówków
+      $("#table_id").DataTable().clear().destroy(); // zapobiega dublowaniu nagłówków
     }
 
     $("#table_id").DataTable({
@@ -2657,12 +2657,7 @@ whenReadyAndDataTables(function () {
         lengthMenu: "Pokaż _MENU_ rezultatów",
         search: "Szukaj:",
         zeroRecords: "Brak pasujących rezultatów",
-        paginate: {
-          first: "<<",
-          last: ">>",
-          next: " >",
-          previous: "< ",
-        },
+        paginate: { first: "<<", last: ">>", next: " >", previous: "< " },
       },
       serverSide: true,
       processing: false,
@@ -2712,16 +2707,16 @@ whenReadyAndDataTables(function () {
         if (sortColumn !== "null") QStr += `&sort=${sortColumn}${direction}`;
 
         $.ajaxSetup({
-          headers: {
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
+          headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
           beforeSend: () => $("#waitingdots").show(),
           complete: () => $("#waitingdots").hide(),
         });
 
         $.get(InvokeURL + "exclusive-products" + QStr, function (res) {
-          if (initialrecords === null) initialrecords = res.total;
+          // Ustal, czy to pierwszy request (przed zapisaniem initialrecords)
+          const isFirstRequest = initialrecords === null;
+
+          if (isFirstRequest) initialrecords = res.total;
 
           callback({
             recordsTotal: res.total,
@@ -2729,9 +2724,18 @@ whenReadyAndDataTables(function () {
             data: res.items,
           });
 
-          const empty = res.total === 0;
-          $("#emptystateexclusive").css("display", empty ? "flex" : "none");
-          $("#fullstateexclusive").css("display", empty ? "none" : "flex");
+          // Pokaż empty state wyłącznie, jeśli PIERWSZY request zwrócił 0
+          const showEmptyState = isFirstRequest && res.total === 0;
+
+          $("#emptystateexclusive").css(
+            "display",
+            showEmptyState ? "flex" : "none"
+          );
+          // Gdy to nie pierwszy raz albo są rekordy — pokazuj normalny widok tabeli
+          $("#fullstateexclusive").css(
+            "display",
+            showEmptyState ? "none" : "flex"
+          );
 
           setTimeout(() => {
             $.fn.dataTable
@@ -2741,29 +2745,11 @@ whenReadyAndDataTables(function () {
         });
       },
       columns: [
-        {
-          visible: false,
-          orderable: false,
-          data: "uuid",
-        },
-        {
-          visible: false,
-          orderable: false,
-          data: "created.at",
-        },
-        {
-          visible: false,
-          orderable: false,
-          data: "created.by",
-        },
-        {
-          orderable: true,
-          data: "gtin",
-        },
-        {
-          orderable: true,
-          data: "name",
-        },
+        { visible: false, orderable: false, data: "uuid" },
+        { visible: false, orderable: false, data: "created.at" },
+        { visible: false, orderable: false, data: "created.by" },
+        { orderable: true, data: "gtin" },
+        { orderable: true, data: "name" },
         {
           orderable: false,
           data: "countryDistributorName",
@@ -2789,12 +2775,8 @@ whenReadyAndDataTables(function () {
           orderable: false,
           data: "wholesalerKey",
           render: function (data) {
-            if (data !== null) {
-              return data;
-            }
-            if (data === null) {
-              return "BLOKADA";
-            }
+            if (data !== null) return data;
+            if (data === null) return "BLOKADA";
           },
         },
         {
@@ -2805,9 +2787,7 @@ whenReadyAndDataTables(function () {
               var startDate = new Date(data);
               return startDate.toLocaleDateString("pl-PL");
             }
-            if (data === null) {
-              return "";
-            }
+            if (data === null) return "";
           },
         },
         {
@@ -2819,24 +2799,20 @@ whenReadyAndDataTables(function () {
               typeof data.endDate !== "undefined" &&
               data.endDate !== "infinity"
             ) {
-              myendDate = new Date(data.endDate).toLocaleDateString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              });
+              const myendDate = new Date(data.endDate).toLocaleDateString(
+                "pl-PL",
+                { year: "numeric", month: "2-digit", day: "2-digit" }
+              );
               if (data.endDate >= nowDate) {
                 return '<span class="positive">' + myendDate + "</span>";
               } else {
                 return '<span class="noneexisting">' + myendDate + "</span>";
               }
             }
-
-            if (data.endDate === "infinity") {
+            if (data.endDate === "infinity")
               return '<span class="positive">Nigdy</span>';
-            }
           },
         },
-
         {
           orderable: true,
           data: "modified",
@@ -2873,9 +2849,7 @@ whenReadyAndDataTables(function () {
               });
               return formattedDate;
             }
-            if (data === null) {
-              return "";
-            }
+            if (data === null) return "";
           },
         },
         {
@@ -2913,9 +2887,7 @@ whenReadyAndDataTables(function () {
 
         $("#startDate, #endDate").each(function () {
           $(this)
-            .datepicker({
-              onSelect: () => $(this).change(),
-            })
+            .datepicker({ onSelect: () => $(this).change() })
             .on("change", () => api.draw());
         });
 
