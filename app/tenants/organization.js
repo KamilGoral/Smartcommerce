@@ -4721,22 +4721,25 @@ whenReadyAndDataTables(function () {
     if (action === "edit") {
       $("#EditExclusivePopup").css("display", "flex");
 
+      // --- USTAWIENIA PÓL Z DANYCH WIERSZA ---
       var offset = new Date().getTimezoneOffset();
       var localeTime = new Date(
         Date.parse(data.created.at) - offset * 60 * 1000
       ).toISOString();
       var creationDate = localeTime.split("T");
       var creationTime = creationDate[1].split("Z");
-      CreatedTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
+      var CreatedTime = creationDate[0] + " " + creationTime[0].slice(0, -4);
 
       $("#GTINInputEdit")
         .prop("disabled", true)
         .css("opacity", "0.6")
         .val(data.gtin);
+
       $("#Creator")
         .prop("disabled", true)
         .css("opacity", "0.6")
         .val(data.created.by);
+
       $("#Created")
         .prop("disabled", true)
         .css("opacity", "0.6")
@@ -4745,48 +4748,94 @@ whenReadyAndDataTables(function () {
       $("#exclusiveProductId").val(data.uuid);
       $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
 
+      // Jeśli wpis już się skończył, zablokuj wybór hurtowni
       if (nowDate > data.endDate && nowDate >= startDate) {
         $("#WholesalerSelector-Exclusive-Edit")
           .prop("disabled", true)
-          .css("opacity", "0.6")
-          .val(CreatedTime);
+          .css("opacity", "0.6");
       }
 
-      if (nowDate > data.endDate || data.endDate == "infinity") {
-        if (data.endDate != "infinity") {
-          $("#endDate-Exclusive-Edit").datepicker(
-            "setDate",
-            new Date(Date.parse(data.endDate))
-          );
-          $("#endDate-Exclusive-Edit").prop("disabled", true);
-          $("#endDate-Exclusive-Edit").css("opacity", "0.6");
-        } else {
-          console.log("infinity");
-          $("#NeverSingleEdit").prop("checked", true);
+      // --- START DATE ---
+      if (nowDate >= data.startDate) {
+        $("#startDate-Exclusive-Edit").css("opacity", "0.6");
+        $("#startDate-Exclusive-Edit")
+          .datepicker("setDate", new Date(Date.parse(data.startDate)))
+          .prop("disabled", true);
+      } else {
+        $("#startDate-Exclusive-Edit")
+          .datepicker("setDate", new Date(Date.now()))
+          .prop("disabled", false)
+          .css("opacity", "1");
+      }
+
+      // --- END DATE + CHECKBOX "NIGDY" ---
+      // przechowamy ostatnią "normalną" datę, żeby móc ją przywrócić
+      let prevEndDateEdit = null;
+
+      function syncNeverVisualEdit(isChecked) {
+        // jeśli masz customowy wygląd checkboxa (div.never-checkbox), zsynchronizuj klasę
+        $("#NeverSingle-Edit .never-checkbox").toggleClass(
+          "w--redirected-checked",
+          isChecked
+        );
+      }
+
+      if (data.endDate === "infinity") {
+        // Bezterminowo: zaznacz checkbox, wyczyść i zablokuj datę
+        $("#NeverSingleEdit").prop("checked", true);
+        syncNeverVisualEdit(true);
+        $("#endDate-Exclusive-Edit")
+          .val("")
+          .prop("disabled", true)
+          .css("opacity", "0.6");
+      } else {
+        // Zwykła data: odznacz checkbox, ustaw i odblokuj datę
+        $("#NeverSingleEdit").prop("checked", false);
+        syncNeverVisualEdit(false);
+
+        const end = new Date(Date.parse(data.endDate));
+        prevEndDateEdit = end;
+
+        $("#endDate-Exclusive-Edit")
+          .datepicker("setDate", end)
+          .prop("disabled", false)
+          .css("opacity", "1");
+
+        // Jeżeli endDate minęła (i to nie "infinity"), zablokuj edycję
+        if (nowDate > data.endDate) {
+          $("#endDate-Exclusive-Edit")
+            .prop("disabled", true)
+            .css("opacity", "0.6");
         }
       }
 
-      if (nowDate <= data.endDate) {
-        $("#endDate-Exclusive-Edit").datepicker(
-          "setDate",
-          new Date(Date.parse(data.endDate))
-        );
-      } else {
-      }
+      // Reakcja na zmianę checkboxa "Nigdy" (czyści/blokuje albo przywraca/włącza datę)
+      $("#NeverSingleEdit")
+        .off("change.Edit")
+        .on("change.Edit", function () {
+          const checked = this.checked;
+          syncNeverVisualEdit(checked);
 
-      if (nowDate >= data.startDate) {
-        $("#startDate-Exclusive-Edit").css("opacity", "0.6");
-        $("#startDate-Exclusive-Edit").datepicker(
-          "setDate",
-          new Date(Date.parse(data.startDate))
-        );
-        $("#startDate-Exclusive-Edit").prop("disabled", true);
-      } else {
-        $("#startDate-Exclusive-Edit").datepicker(
-          "setDate",
-          new Date(Date.now())
-        );
-      }
+          if (checked) {
+            // zapamiętaj obecną datę (jeśli jest), potem wyczyść i zablokuj
+            const currentVal = $("#endDate-Exclusive-Edit").datepicker(
+              "getDate"
+            );
+            if (currentVal) prevEndDateEdit = currentVal;
+
+            $("#endDate-Exclusive-Edit")
+              .val("")
+              .prop("disabled", true)
+              .css("opacity", "0.6");
+          } else {
+            // przywróć poprzednią datę, a jeśli brak – ustaw dzisiaj i odblokuj
+            const restored = prevEndDateEdit || new Date(Date.now());
+            $("#endDate-Exclusive-Edit")
+              .prop("disabled", false)
+              .css("opacity", "1")
+              .datepicker("setDate", restored);
+          }
+        });
     }
   });
 
