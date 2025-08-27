@@ -4734,12 +4734,10 @@ whenReadyAndDataTables(function () {
         .prop("disabled", true)
         .css("opacity", "0.6")
         .val(data.gtin);
-
       $("#Creator")
         .prop("disabled", true)
         .css("opacity", "0.6")
         .val(data.created.by);
-
       $("#Created")
         .prop("disabled", true)
         .css("opacity", "0.6")
@@ -4763,7 +4761,7 @@ whenReadyAndDataTables(function () {
           .prop("disabled", true);
       } else {
         $("#startDate-Exclusive-Edit")
-          .datepicker("setDate", new Date(Date.now()))
+          .datepicker("setDate", new Date())
           .prop("disabled", false)
           .css("opacity", "1");
       }
@@ -4771,73 +4769,59 @@ whenReadyAndDataTables(function () {
       // --- END DATE + CHECKBOX "NIGDY" ---
       let prevEndDateEdit = null;
 
-      // Funkcja synchronizująca input i "kwadracik" Webflow
-      function setNeverState(isChecked) {
-        $("#NeverSingleEdit").prop("checked", isChecked);
+      // Jedyna prawda o stanie checkboxa + wizualka Webflow
+      function setNeverState(checked) {
+        $("#NeverSingleEdit").prop("checked", checked);
         $("#NeverSingle-Edit .w-checkbox-input").toggleClass(
           "w--redirected-checked",
-          isChecked
+          checked
         );
+
+        if (checked) {
+          // zapamiętaj obecną datę zanim wyczyścisz
+          const currentVal = $("#endDate-Exclusive-Edit").datepicker("getDate");
+          if (currentVal) prevEndDateEdit = currentVal;
+
+          // wyczyść i ZABLOKUJ datepicker poprawnie (jQuery UI)
+          $("#endDate-Exclusive-Edit")
+            .datepicker("setDate", null)
+            .datepicker("disable")
+            .css("opacity", "0.6");
+        } else {
+          // WŁĄCZ datepicker poprawnie (jQuery UI)
+          $("#endDate-Exclusive-Edit")
+            .datepicker("enable")
+            .css("opacity", "1")
+            .datepicker("setDate", prevEndDateEdit || new Date());
+        }
       }
 
-      // Inicjalizacja przy otwieraniu popupu
+      // Inicjalizacja przy otwarciu
       if (data.endDate === "infinity") {
         setNeverState(true);
-        $("#endDate-Exclusive-Edit")
-          .val("")
-          .prop("disabled", true)
-          .css("opacity", "0.6");
       } else {
-        setNeverState(false);
         const end = new Date(Date.parse(data.endDate));
         prevEndDateEdit = end;
-        $("#endDate-Exclusive-Edit")
-          .datepicker("setDate", end)
-          .prop("disabled", false)
-          .css("opacity", "1");
+        setNeverState(false);
 
+        // Jeżeli endDate minęła (i to nie "infinity"), zablokuj edycję końca
         if (nowDate > data.endDate) {
           $("#endDate-Exclusive-Edit")
-            .prop("disabled", true)
+            .datepicker("disable")
             .css("opacity", "0.6");
         }
       }
 
-      // Reakcja na zmianę checkboxa (kliknięcie inputa)
+      // Reakcja na zmianę inputa (NIE zakładamy własnego handlera na label!)
       $("#NeverSingleEdit")
         .off("change.Edit")
         .on("change.Edit", function () {
-          const checked = this.checked;
-          setNeverState(checked);
-
-          if (checked) {
-            const currentVal = $("#endDate-Exclusive-Edit").datepicker(
-              "getDate"
-            );
-            if (currentVal) prevEndDateEdit = currentVal;
-
-            $("#endDate-Exclusive-Edit")
-              .val("")
-              .prop("disabled", true)
-              .css("opacity", "0.6");
-          } else {
-            const restored = prevEndDateEdit || new Date();
-            $("#endDate-Exclusive-Edit")
-              .prop("disabled", false)
-              .css("opacity", "1")
-              .datepicker("setDate", restored);
-          }
+          setNeverState(this.checked);
         });
 
-      // Reakcja na kliknięcie w cały label (np. kwadracik lub tekst)
-      $("#NeverSingle-Edit")
-        .off("click.syncNever")
-        .on("click.syncNever", function (e) {
-          if (e.target.id === "NeverSingleEdit") return; // input obsłużony wyżej
-          const next = !$("#NeverSingleEdit").prop("checked");
-          setNeverState(next);
-          $("#NeverSingleEdit").trigger("change"); // uruchom logikę jak wyżej
-        });
+      // Uwaga: usuwamy jakiekolwiek wcześniejsze „klik” na labelu,
+      // żeby nie podwajać toggle przez domyślne zachowanie <label>
+      $("#NeverSingle-Edit").off("click.syncNever");
     }
   });
 
