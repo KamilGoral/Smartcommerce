@@ -910,6 +910,56 @@ whenReadyAndDataTables(function () {
     });
   };
 
+  // --- Helpers: walidacja GTIN (GS1 modulo-10) i dat ---
+  function normalizeGTIN(value) {
+    return (value || "").toString().replace(/\s+/g, ""); // bez spacji
+  }
+
+  function isValidGTIN(gtinRaw) {
+    const gtin = normalizeGTIN(gtinRaw);
+    if (!/^\d+$/.test(gtin))
+      return { ok: false, reason: "Niedozwolone znaki." };
+
+    const len = gtin.length;
+    if (![8, 12, 13, 14].includes(len)) {
+      return { ok: false, reason: "Nieprawidłowa długość." };
+    }
+
+    // Sprawdzenie cyfry kontrolnej (ostatnia cyfra)
+    const digits = gtin.split("").map(Number);
+    const check = digits.pop(); // ostatnia
+    // Liczymy wagami 3 i 1 od PRAWEJ strony (bez cyfry kontrolnej)
+    let sum = 0;
+    // Indeks 0 = najbliżej prawej (bez check)
+    for (let i = digits.length - 1, pos = 0; i >= 0; i--, pos++) {
+      const weight = pos % 2 === 0 ? 3 : 1; // co druga 3, start od prawej
+      sum += digits[i] * weight;
+    }
+    const calcCheck = (10 - (sum % 10)) % 10;
+    if (calcCheck !== check) {
+      return { ok: false, reason: "Nieprawidłowa cyfra kontrolna." };
+    }
+    return { ok: true };
+  }
+
+  function isValidDateOrder(startISO, endISO) {
+    if (!startISO) return { ok: false, reason: "Wybierz datę rozpoczęcia." };
+    if (!endISO) return { ok: false, reason: "Wybierz datę zakończenia." };
+    const s = new Date(startISO);
+    const e = new Date(endISO);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) {
+      return { ok: false, reason: "Nieprawidłowy format daty." };
+    }
+    if (e < s) {
+      return {
+        ok: false,
+        reason: "Data zakończenia nie może być wcześniejsza niż rozpoczęcia.",
+      };
+    }
+    return { ok: true };
+  }
+
+  // --- Główna funkcja z walidacją frontową ---
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -925,15 +975,69 @@ whenReadyAndDataTables(function () {
 
         var neverChecked = $("#NeverSingle").is(":checked");
 
+        // --- Walidacja GTIN przed requestem ---
+        const gtinInputRaw = $("#GTINInput").val();
+        const gtinNormalized = normalizeGTIN(gtinInputRaw);
+
+        if (!gtinNormalized) {
+          displayMessage("Error", "Podaj numer GTIN.");
+          return false;
+        }
+        const gtinCheck = isValidGTIN(gtinNormalized);
+        if (!gtinCheck.ok) {
+          let reason = gtinCheck.reason || "";
+          if (reason === "Nieprawidłowa długość.") {
+            displayMessage(
+              "Error",
+              "Podaj poprawny numer GTIN – powinien mieć 8, 12, 13 lub 14 cyfr."
+            );
+          } else if (reason === "Niedozwolone znaki.") {
+            displayMessage(
+              "Error",
+              "GTIN może zawierać wyłącznie cyfry (bez spacji i znaków specjalnych)."
+            );
+          } else if (reason === "Nieprawidłowa cyfra kontrolna.") {
+            displayMessage(
+              "Error",
+              "Nieprawidłowy GTIN – cyfra kontrolna się nie zgadza. Sprawdź numer."
+            );
+          } else {
+            displayMessage(
+              "Error",
+              "Nieprawidłowy numer GTIN. Sprawdź i spróbuj ponownie."
+            );
+          }
+          return false;
+        }
+
+        // --- Walidacja dat po stronie frontu ---
+        const startLocal = $("#startDate-Exclusive-2").val(); // format: YYYY-MM-DD (z inputa)
+        const endLocal = $("#endDate-Exclusive-2").val();
+
+        // Dla „Nigdy” nie wymagamy endDate
+        if (!neverChecked) {
+          const dateCheck = isValidDateOrder(
+            startLocal + "T00:00:01.00Z",
+            endLocal + "T00:00:01.00Z"
+          );
+          if (!dateCheck.ok) {
+            displayMessage("Error", dateCheck.reason);
+            return false;
+          }
+        } else {
+          if (!startLocal) {
+            displayMessage("Error", "Wybierz datę rozpoczęcia.");
+            return false;
+          }
+        }
+
         var postData = [
           {
-            gtin: $("#GTINInput").val(),
+            gtin: gtinNormalized, // używamy znormalizowanego (bez spacji)
             name: "name1",
             wholesalerKey: wholesalerKeyPOST,
-            startDate: $("#startDate-Exclusive-2").val() + "T00:00:01.00Z",
-            endDate: neverChecked
-              ? "infinity"
-              : $("#endDate-Exclusive-2").val() + "T00:00:01.00Z",
+            startDate: startLocal + "T00:00:01.00Z",
+            endDate: neverChecked ? "infinity" : endLocal + "T00:00:01.00Z",
           },
         ];
 
