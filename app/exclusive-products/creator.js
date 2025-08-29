@@ -1005,29 +1005,24 @@ whenReadyAndDataTables(function () {
     });
   };
 
-  // --- Helpers: walidacja GTIN (GS1 modulo-10) i dat ---
+  // --- Helpers: walidacja GTIN (GS1 modulo-10) i dat, escapowanie ---
+  // Usuwa spacje i separatory
   function normalizeGTIN(value) {
-    return (value || "").toString().replace(/\s+/g, ""); // bez spacji
+    return (value || "").toString().replace(/\s+/g, "");
   }
-
   function isValidGTIN(gtinRaw) {
     const gtin = normalizeGTIN(gtinRaw);
     if (!/^\d+$/.test(gtin))
       return { ok: false, reason: "Niedozwolone znaki." };
-
     const len = gtin.length;
     if (![8, 12, 13, 14].includes(len)) {
       return { ok: false, reason: "Nieprawidłowa długość." };
     }
-
-    // Sprawdzenie cyfry kontrolnej (ostatnia cyfra)
     const digits = gtin.split("").map(Number);
-    const check = digits.pop(); // ostatnia
-    // Liczymy wagami 3 i 1 od PRAWEJ strony (bez cyfry kontrolnej)
+    const check = digits.pop();
     let sum = 0;
-    // Indeks 0 = najbliżej prawej (bez check)
     for (let i = digits.length - 1, pos = 0; i >= 0; i--, pos++) {
-      const weight = pos % 2 === 0 ? 3 : 1; // co druga 3, start od prawej
+      const weight = pos % 2 === 0 ? 3 : 1;
       sum += digits[i] * weight;
     }
     const calcCheck = (10 - (sum % 10)) % 10;
@@ -1037,24 +1032,69 @@ whenReadyAndDataTables(function () {
     return { ok: true };
   }
 
-  function isValidDateOrder(startISO, endISO) {
-    if (!startISO) return { ok: false, reason: "Wybierz datę rozpoczęcia." };
-    if (!endISO) return { ok: false, reason: "Wybierz datę zakończenia." };
-    const s = new Date(startISO);
-    const e = new Date(endISO);
-    if (isNaN(s.getTime()) || isNaN(e.getTime())) {
-      return { ok: false, reason: "Nieprawidłowy format daty." };
-    }
-    if (e < s) {
+  // Zwraca YYYY-MM-DD (tylko część daty)
+  function toDateOnlyString(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  // Walidacja dat (czas ignorowany). Wymagania:
+  // - startDate istnieje i jest >= dzisiaj (wg lokalnego czasu)
+  // - jeśli nie „Nigdy”, to endDate istnieje i > startDate (ściśle późniejsza data)
+  function validateDateRange(startLocal, endLocal, neverChecked) {
+    if (!startLocal) return { ok: false, reason: "Wybierz datę rozpoczęcia." };
+
+    const todayLocal = toDateOnlyString(new Date());
+    if (startLocal < todayLocal) {
       return {
         ok: false,
-        reason: "Data zakończenia nie może być wcześniejsza niż rozpoczęcia.",
+        reason: "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.",
+      };
+    }
+
+    if (neverChecked) return { ok: true };
+
+    if (!endLocal) return { ok: false, reason: "Wybierz datę zakończenia." };
+    if (endLocal <= startLocal) {
+      return {
+        ok: false,
+        reason: "Data zakończenia musi być późniejsza niż data rozpoczęcia.",
       };
     }
     return { ok: true };
   }
 
-  // --- Główna funkcja z walidacją frontową ---
+  // Escapowanie nazwy (XSS / znaków specjalnych)
+  function escapeName(str) {
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Parsowanie wielu GTIN-ów (enter, przecinek, średnik, spacja)
+  function parseMultipleGTINs(raw) {
+    const tokens = (raw || "")
+      .split(/[\s,;]+/g)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    // unikalne, w oryginalnej kolejności
+    const seen = new Set();
+    const out = [];
+    for (const t of tokens) {
+      if (!seen.has(t)) {
+        seen.add(t);
+        out.push(t);
+      }
+    }
+    return out;
+  }
+
+  // --- Główna funkcja z walidacją frontową i nowym body POST ---
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -1062,95 +1102,102 @@ whenReadyAndDataTables(function () {
       form.on("submit", function (event) {
         event.preventDefault();
 
-        var action = InvokeURL + "exclusive-products";
-        var method = "POST";
+        const action = InvokeURL + "exclusive-products";
+        const method = "POST";
 
-        var wholesalerKeyPOST = $("#WholesalerSelector-Exclusive-2").val();
+        // wholesalerKey: "null" → null (tworzy blokadę)
+        let wholesalerKeyPOST = $("#WholesalerSelector-Exclusive-2").val();
         if (wholesalerKeyPOST === "null") wholesalerKeyPOST = null;
 
-        var neverChecked = $("#NeverSingle").is(":checked");
+        const neverChecked = $("#NeverSingle").is(":checked");
 
-        // NEW — pobierz i sprawdź próg
+        // --- threshold: jeśli podany, to > 0 i < 999999.99 ---
         const thresholdRaw = ($("#priceThresholdInput").val() || "")
           .replace(",", ".")
           .trim();
         let thresholdNum = null;
         if (thresholdRaw !== "") {
           const n = Number(thresholdRaw);
-          if (!isFinite(n) || n < 0) {
-            displayMessage("Error", "Próg ceny musi być liczbą ≥ 0.");
+          if (!isFinite(n) || n <= 0) {
+            displayMessage("Error", "Próg ceny musi być liczbą większą od 0.");
             return false;
           }
-          thresholdNum = n;
+          if (n >= 999999.99) {
+            displayMessage(
+              "Error",
+              "Próg ceny musi być mniejszy niż 999999.99."
+            );
+            return false;
+          }
+          // Zaokrąglenie do 2 miejsc jeśli trzeba (serwer i tak zweryfikuje)
+          thresholdNum = Math.round(n * 100) / 100;
         }
 
-        // --- Walidacja GTIN przed requestem ---
+        // --- Nazwa (escapowana) ---
+        const nameRaw = $("#NameInput").val();
+        const escapedName = escapeName(nameRaw);
+        if (!escapedName) {
+          displayMessage("Error", "Podaj nazwę produktu.");
+          return false;
+        }
+
+        // --- Wielokrotne GTIN-y ---
         const gtinInputRaw = $("#GTINInput").val();
-        const gtinNormalized = normalizeGTIN(gtinInputRaw);
-
-        if (!gtinNormalized) {
-          displayMessage("Error", "Podaj numer GTIN.");
+        const gtinsRawList = parseMultipleGTINs(gtinInputRaw);
+        if (!gtinsRawList.length) {
+          displayMessage("Error", "Podaj przynajmniej jeden numer GTIN.");
           return false;
         }
-        const gtinCheck = isValidGTIN(gtinNormalized);
-        if (!gtinCheck.ok) {
-          let reason = gtinCheck.reason || "";
-          if (reason === "Nieprawidłowa długość.") {
-            displayMessage(
-              "Error",
-              "Podaj poprawny numer GTIN – powinien mieć 8, 12, 13 lub 14 cyfr."
-            );
-          } else if (reason === "Niedozwolone znaki.") {
-            displayMessage(
-              "Error",
-              "GTIN może zawierać wyłącznie cyfry (bez spacji i znaków specjalnych)."
-            );
-          } else if (reason === "Nieprawidłowa cyfra kontrolna.") {
-            displayMessage(
-              "Error",
-              "Nieprawidłowy GTIN – cyfra kontrolna się nie zgadza. Sprawdź numer."
-            );
+
+        // Walidacja każdego GTIN-a
+        const invalids = [];
+        const items = [];
+        for (const raw of gtinsRawList) {
+          const gtinNormalized = normalizeGTIN(raw);
+          const check = isValidGTIN(gtinNormalized);
+          if (!check.ok) {
+            invalids.push(`${raw} (${check.reason})`);
           } else {
-            displayMessage(
-              "Error",
-              "Nieprawidłowy numer GTIN. Sprawdź i spróbuj ponownie."
+            items.push(
+              Object.assign(
+                {
+                  gtin: gtinNormalized,
+                  name: escapedName,
+                },
+                thresholdNum !== null ? { priceThreshold: thresholdNum } : {}
+              )
             );
           }
+        }
+
+        if (invalids.length) {
+          displayMessage(
+            "Error",
+            "Nieprawidłowe GTIN-y:\n• " + invalids.join("\n• ")
+          );
           return false;
         }
 
-        // --- Walidacja dat po stronie frontu ---
-        const startLocal = $("#startDate-Exclusive-2").val(); // format: YYYY-MM-DD (z inputa)
-        const endLocal = $("#endDate-Exclusive-2").val();
-
-        // Dla „Nigdy” nie wymagamy endDate
-        if (!neverChecked) {
-          const dateCheck = isValidDateOrder(
-            startLocal + "T00:00:01.00Z",
-            endLocal + "T00:00:01.00Z"
-          );
-          if (!dateCheck.ok) {
-            displayMessage("Error", dateCheck.reason);
-            return false;
-          }
-        } else {
-          if (!startLocal) {
-            displayMessage("Error", "Wybierz datę rozpoczęcia.");
-            return false;
-          }
+        // --- Walidacja dat: tylko część dzienna ma znaczenie ---
+        const startLocal = $("#startDate-Exclusive-2").val(); // YYYY-MM-DD
+        const endLocal = $("#endDate-Exclusive-2").val(); // YYYY-MM-DD
+        const dateCheck = validateDateRange(startLocal, endLocal, neverChecked);
+        if (!dateCheck.ok) {
+          displayMessage("Error", dateCheck.reason);
+          return false;
         }
 
-        var postData = [
-          {
-            gtin: gtinNormalized, // używamy znormalizowanego (bez spacji)
-            name: "name1",
-            wholesalerKey: wholesalerKeyPOST,
-            startDate: startLocal + "T00:00:01.00Z",
-            endDate: neverChecked ? "infinity" : endLocal + "T00:00:01.00Z",
-            // NEW — tylko jeśli podano
-            ...(thresholdNum !== null ? { priceThreshold: thresholdNum } : {}),
-          },
-        ];
+        // Serwer „ignoruje” godzinę → wyślij RFC3339 z północy UTC.
+        const startISO = startLocal + "T00:00:00.000Z";
+        const endISO = neverChecked ? "infinity" : endLocal + "T00:00:00.000Z";
+
+        // --- NOWY KSZTAŁT BODY ---
+        const postData = {
+          wholesalerKey: wholesalerKeyPOST, // null → tworzy blokadę
+          startDate: startISO, // RFC3339 (czas i tak ignorowany)
+          endDate: endISO, // RFC3339 lub 'infinity'
+          items: items, // [{ gtin, name, priceThreshold? }, ...]
+        };
 
         $.ajax({
           type: method,
@@ -1180,44 +1227,46 @@ whenReadyAndDataTables(function () {
                 return;
               }
             }
-
             form.show();
-            displayMessage("Success", "Blokada została założona.");
-            $("#GTINInput").val(""); // reset pola po sukcesie
+            displayMessage(
+              "Success",
+              `Blokada została założona dla ${items.length} GTIN ${
+                items.length === 1 ? "" : "ów"
+              }.`
+            );
+            $("#GTINInput").val("");
           },
           error: function (jqXHR, exception) {
-            let serverMsg =
+            const serverMsg =
               jqXHR?.responseJSON?.message || jqXHR?.responseText || "";
 
             let msg = "";
-
             if (jqXHR.status === 0) {
               msg = "Brak połączenia z siecią. Sprawdź internet.";
-            } else if (jqXHR.status === 403) {
-              msg = "Brak uprawnień do wykonania tej operacji (403).";
+            } else if (jqXHR.status === 401 || jqXHR.status === 403) {
+              // Admin only / brak uprawnień
+              if (/admin/i.test(serverMsg)) {
+                msg = "Operacja dostępna wyłącznie dla administratora.";
+              } else {
+                msg = "Brak uprawnień do wykonania tej operacji.";
+              }
             } else if (jqXHR.status === 400) {
-              if (/Invalid GTIN length/i.test(serverMsg)) {
-                msg = "Nieprawidłowa długość GTIN. Zweryfikuj numer.";
+              if (/wholesaler.*not enabled/i.test(serverMsg)) {
+                msg =
+                  "Wybrany wholesalerKey nie jest włączony dla tego tenant'a.";
+              } else if (/Invalid GTIN length/i.test(serverMsg)) {
+                msg = "Nieprawidłowa długość GTIN. Zweryfikuj numery.";
+              } else if (/gtin must be valid/i.test(serverMsg)) {
+                msg =
+                  "Co najmniej jeden GTIN jest nieprawidłowy (8/12/13/14 cyfr).";
+              } else if (/start.*before.*end/i.test(serverMsg)) {
+                msg = "Data zakończenia musi być późniejsza niż rozpoczęcia.";
+              } else if (/start.*must be.*now/i.test(serverMsg)) {
+                msg = "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.";
+              } else if (/threshold/i.test(serverMsg)) {
+                msg = "Próg ceny musi być > 0 i < 999999.99.";
               } else if (/Invalid request body/i.test(serverMsg)) {
                 msg = "Nieprawidłowe dane. Sprawdź formularz.";
-              } else if (
-                /Validation error - gtin must be valid 8, 12, 13 or 14 digit GS1 gtin code/i.test(
-                  serverMsg
-                )
-              ) {
-                msg =
-                  "Podaj poprawny numer GTIN – powinien mieć 8, 12, 13 lub 14 cyfr.";
-              } else if (
-                /Field \[.*\] not supported for sorting/i.test(serverMsg)
-              ) {
-                const match = serverMsg.match(/Supported fields:\s*\[(.+)\]/i);
-                const supported = match
-                  ? match[1].replace(/\s*http:\/\/\s*/g, "").trim()
-                  : "";
-                msg =
-                  "To pole nie jest obsługiwane do sortowania. Dozwolone pola: " +
-                  supported +
-                  ".";
               } else {
                 msg =
                   serverMsg || "Nieprawidłowe dane (400). Sprawdź formularz.";
@@ -1226,15 +1275,14 @@ whenReadyAndDataTables(function () {
               msg =
                 "Blokada o podanych parametrach już istnieje. Ładuję szczegóły…";
               displayMessage("Info", msg);
-
               try {
+                // Jeśli masz swoją funkcję pobierającą istniejący wpis:
                 getExclusiveProduct(postData, function () {
                   form.show();
                 });
               } catch (e) {
                 console.warn("getExclusiveProduct nie powiodło się:", e);
               }
-
               if (typeof errorCallback === "function") {
                 errorCallback(jqXHR, exception);
               }
