@@ -4431,16 +4431,6 @@ ${offerTimestampLine}
           });
         },
       },
-      {
-        extend: "copyHtml5",
-        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
-        titleAttr: "Copy",
-      },
-      {
-        extend: "excelHtml5",
-        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
-        titleAttr: "Excel",
-      },
     ],
     scrollY: "60vh",
     scrollCollapse: true,
