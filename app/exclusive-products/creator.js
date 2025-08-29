@@ -912,65 +912,116 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+
       form.on("submit", function (event) {
-        var action = InvokeURL + "exclusive-products";
-        var method = "POST";
-        var table = $("#validproducts").DataTable();
-        var productsFromTable = table.rows().data().toArray();
+        event.preventDefault();
 
-        var wholesalerKeyPOST = $("#WholesalerSelector").val();
+        const action = InvokeURL + "exclusive-products";
+        const method = "POST";
 
-        if (wholesalerKeyPOST === "null") {
-          wholesalerKeyPOST = null;
+        // Dane z tabeli (każdy wiersz powinien zawierać przynajmniej gtin, name, opcjonalnie priceThreshold)
+        const table = $("#validproducts").DataTable();
+        const productsFromTable = table.rows().data().toArray();
+
+        // wholesalerKey: "null" → null (tworzy blokadę)
+        let wholesalerKeyPOST = $("#WholesalerSelector").val();
+        if (wholesalerKeyPOST === "null") wholesalerKeyPOST = null;
+
+        const neverChecked = $("#Never").is(":checked");
+
+        // Daty jako YYYY-MM-DD; serwer ignoruje czas (wysyłamy T00:00:00.000Z)
+        const startLocal = $("#startDate").val();
+        const endLocal = $("#endDate").val();
+
+        // Walidacja zakresu dat (start ≥ dzisiaj, end > start jeśli nie 'Nigdy')
+        const dateCheck = validateDateRange(startLocal, endLocal, neverChecked);
+        if (!dateCheck.ok) {
+          displayMessage("Error", dateCheck.reason);
+          return false;
+        }
+        const startISO = startLocal + "T00:00:00.000Z";
+        const endISO = neverChecked ? "infinity" : endLocal + "T00:00:00.000Z";
+
+        // Zbuduj items z tabeli + walidacje GTIN/threshold oraz escapowanie nazw
+        const invalids = [];
+        const items = [];
+
+        for (const el of productsFromTable) {
+          // Nazwa może być w różnych polach — wybierz pierwszą niepustą
+          const nameRaw =
+            el.name ??
+            el.productName ??
+            el.product_name ??
+            el.Name ??
+            el.nazwa ??
+            "";
+
+          const escapedName = escapeName(String(nameRaw || "").trim());
+          if (!escapedName) {
+            invalids.push("Brak nazwy produktu dla jednego z wierszy.");
+            continue;
+          }
+
+          // GTIN
+          const gtinRaw =
+            el.gtin ?? el.GTIN ?? el.code ?? el.kod ?? el.productGtin ?? "";
+          const gtinNormalized = normalizeGTIN(gtinRaw);
+          const gtinCheck = isValidGTIN(gtinNormalized);
+          if (!gtinNormalized || !gtinCheck.ok) {
+            invalids.push(
+              `${gtinRaw || "(pusty)"}${
+                gtinCheck.reason ? " (" + gtinCheck.reason + ")" : ""
+              }`
+            );
+            continue;
+          }
+
+          // Threshold (opcjonalny): > 0 i < 999999.99
+          let item = { gtin: gtinNormalized, name: escapedName };
+
+          if (
+            el.priceThreshold !== null &&
+            el.priceThreshold !== undefined &&
+            el.priceThreshold !== ""
+          ) {
+            const n = Number(String(el.priceThreshold).replace(",", "."));
+            if (!isFinite(n) || n <= 0 || n >= 999999.99) {
+              invalids.push(
+                `${gtinNormalized} (nieprawidłowy priceThreshold: musi być > 0 i < 999999.99)`
+              );
+              continue;
+            }
+            item.priceThreshold = Math.round(n * 100) / 100;
+          }
+
+          items.push(item);
         }
 
-        if ($("#Never").is(":checked")) {
-          var postData = productsFromTable.map(function (el) {
-            var o = Object.assign({}, el);
-            o.wholesalerKey = wholesalerKeyPOST;
-            o.startDate = $("#startDate").val() + "T00:00:01.00Z";
-            o.endDate = "infinity";
-            // NEW — tylko jeśli jest prawidłową liczbą
-            if (
-              el.priceThreshold !== null &&
-              el.priceThreshold !== undefined &&
-              el.priceThreshold !== ""
-            ) {
-              const num = Number(el.priceThreshold);
-              if (isFinite(num)) o.priceThreshold = num;
-            }
-            return o;
-          });
-        } else {
-          var postData = productsFromTable.map(function (el) {
-            var o = Object.assign({}, el);
-            o.wholesalerKey = wholesalerKeyPOST;
-            o.startDate = $("#startDate").val() + "T00:00:01.00Z";
-            o.endDate = $("#endDate").val() + "T23:59:59.00Z";
-            // NEW — tylko jeśli jest prawidłową liczbą
-            if (
-              el.priceThreshold !== null &&
-              el.priceThreshold !== undefined &&
-              el.priceThreshold !== ""
-            ) {
-              const num = Number(el.priceThreshold);
-              if (isFinite(num)) o.priceThreshold = num;
-            }
-            return o;
-          });
+        if (invalids.length) {
+          displayMessage(
+            "Error",
+            "Nieprawidłowe rekordy:\n• " + invalids.join("\n• ")
+          );
+          return false;
         }
-        console.log(postData);
+
+        if (!items.length) {
+          displayMessage("Error", "Brak poprawnych pozycji do wysłania.");
+          return false;
+        }
+
+        // NOWY FORMAT BODY
+        const postData = {
+          wholesalerKey: wholesalerKeyPOST, // null → blokada
+          startDate: startISO, // RFC3339, czas ignorowany po stronie backendu
+          endDate: endISO, // RFC3339 lub 'infinity'
+          items: items, // [{ gtin, name, priceThreshold? }, ...]
+        };
 
         $.ajax({
           type: method,
           url: action,
           cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
           contentType: "application/json",
           dataType: "json",
           headers: {
@@ -980,26 +1031,128 @@ whenReadyAndDataTables(function () {
             "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(postData),
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
           success: function (resultData) {
-            console.log(resultData);
-            displayMessage("Success", "Cennik został pomyślnie dodany.");
+            if (typeof successCallback === "function") {
+              const proceed = successCallback(resultData);
+              if (!proceed) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Ups. Coś poszło nie tak, spróbuj ponownie."
+                );
+                return;
+              }
+            }
+
+            displayMessage(
+              "Success",
+              `Dodano/zmodyfikowano pozycje: ${items.length}.`
+            );
             window.setTimeout(function () {
               location.reload();
-            }, 3000);
+            }, 2000);
           },
           error: function (jqXHR, exception) {
-            console.log(jqXHR);
+            // --- lepsze wyciąganie komunikatu
+            const extractMsg = () => {
+              let msg = jqXHR?.responseJSON?.message || "";
+              if (!msg && jqXHR?.responseText) {
+                try {
+                  const parsed = JSON.parse(jqXHR.responseText);
+                  msg = parsed?.message || jqXHR.responseText;
+                } catch {
+                  msg = jqXHR.responseText;
+                }
+              }
+              return (msg || "").toString().trim();
+            };
+            const parseConflictGtins = (txt) => {
+              if (!txt) return [];
+              const matches = txt.match(/\b\d{8,14}\b/g) || [];
+              return [...new Set(matches)];
+            };
+
+            const serverMsg = extractMsg();
+            let msg = "";
+
+            if (jqXHR.status === 0) {
+              msg = "Brak połączenia z siecią. Sprawdź internet.";
+            } else if (jqXHR.status === 401 || jqXHR.status === 403) {
+              msg = /admin/i.test(serverMsg)
+                ? "Operacja dostępna wyłącznie dla administratora."
+                : "Brak uprawnień do wykonania tej operacji.";
+            } else if (jqXHR.status === 400) {
+              if (/wholesaler.*not enabled/i.test(serverMsg)) {
+                msg =
+                  "Wybrany wholesalerKey nie jest włączony dla tego tenant'a.";
+              } else if (/gtin.*valid/i.test(serverMsg)) {
+                msg =
+                  "Co najmniej jeden GTIN jest nieprawidłowy (8/12/13/14 cyfr).";
+              } else if (/start.*before.*end/i.test(serverMsg)) {
+                msg = "Data zakończenia musi być późniejsza niż rozpoczęcia.";
+              } else if (/start.*must be.*now/i.test(serverMsg)) {
+                msg = "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.";
+              } else if (/threshold/i.test(serverMsg)) {
+                msg = "Próg ceny musi być > 0 i < 999999.99.";
+              } else if (/Invalid request body/i.test(serverMsg)) {
+                msg = "Nieprawidłowe dane. Sprawdź formularz.";
+              } else {
+                msg = serverMsg || "Nieprawidłowe dane (400).";
+              }
+            } else if (jqXHR.status === 409) {
+              // Konflikt: wypisz listę GTIN-ów z komunikatu
+              const conflicts = parseConflictGtins(serverMsg);
+              msg = conflicts.length
+                ? "Konflikt z istniejącymi rekordami dla GTIN:\n• " +
+                  conflicts.join("\n• ")
+                : serverMsg || "Konflikt z istniejącymi rekordami (409).";
+
+              // Pokaż i spróbuj doładować szczegóły (jeśli masz funkcję)
+              displayMessage("Error", msg);
+              try {
+                if (typeof getExclusiveProduct === "function") {
+                  getExclusiveProduct(
+                    { gtins: conflicts, wholesalerKey: wholesalerKeyPOST },
+                    function () {}
+                  );
+                }
+              } catch (e) {
+                console.warn("getExclusiveProduct nie powiodło się:", e);
+              }
+
+              if (typeof errorCallback === "function") {
+                errorCallback(jqXHR, exception, msg);
+              }
+              return;
+            } else if (jqXHR.status === 500) {
+              msg = "Błąd serwera (500). Spróbuj ponownie później.";
+            } else if (exception === "parsererror") {
+              msg = "Błąd przetwarzania odpowiedzi serwera.";
+            } else if (exception === "timeout") {
+              msg = "Przekroczono czas oczekiwania na odpowiedź.";
+            } else if (exception === "abort") {
+              msg = "Żądanie zostało przerwane.";
+            } else {
+              msg = serverMsg || "Wystąpił nieznany błąd.";
+            }
+
             console.log(jqXHR);
             console.log(exception);
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
 
-            form.show();
+            if (typeof errorCallback === "function") {
+              errorCallback(jqXHR, exception, msg);
+            }
+
             displayMessage("Error", msg);
-            return;
           },
         });
-        event.preventDefault();
+
         return false;
       });
     });
