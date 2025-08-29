@@ -2473,13 +2473,6 @@ whenReadyAndDataTables(function () {
               return matchWholesaler && matchRotation;
             });
 
-            $("#CartwholesalerKeyIndicator, #CartRotationIndicator").on(
-              "change",
-              function () {
-                table.draw();
-              }
-            );
-
             // === Dodatki ===
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
@@ -2530,6 +2523,13 @@ whenReadyAndDataTables(function () {
       },
     });
   }
+
+  $("#CartwholesalerKeyIndicator, #CartRotationIndicator").on(
+    "change",
+    function () {
+      table.draw();
+    }
+  );
 
   function makeChangesToOrder() {
     return new Promise((resolve, reject) => {
