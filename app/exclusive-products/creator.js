@@ -1274,7 +1274,7 @@ whenReadyAndDataTables(function () {
             } else if (jqXHR.status === 409) {
               msg =
                 "Blokada o podanych parametrach już istnieje. Ładuję szczegóły…";
-              displayMessage("Info", msg);
+              displayMessage("Error", msg);
               try {
                 // Jeśli masz swoją funkcję pobierającą istniejący wpis:
                 getExclusiveProduct(postData, function () {
