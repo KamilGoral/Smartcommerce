@@ -1134,7 +1134,7 @@ whenReadyAndDataTables(function () {
         }
 
         // --- Nazwa (escapowana) ---
-        const nameRaw = $("#NameInput").val();
+        const nameRaw = "name";
         const escapedName = escapeName(nameRaw);
         if (!escapedName) {
           displayMessage("Error", "Podaj nazwę produktu.");
