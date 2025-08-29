@@ -1272,17 +1272,9 @@ whenReadyAndDataTables(function () {
                   serverMsg || "Nieprawidłowe dane (400). Sprawdź formularz.";
               }
             } else if (jqXHR.status === 409) {
-              msg =
-                "Blokada o podanych parametrach już istnieje. Ładuję szczegóły…";
+              msg = "Blokada o podanych parametrach już istnieje.";
               displayMessage("Error", msg);
-              try {
-                // Jeśli masz swoją funkcję pobierającą istniejący wpis:
-                getExclusiveProduct(postData, function () {
-                  form.show();
-                });
-              } catch (e) {
-                console.warn("getExclusiveProduct nie powiodło się:", e);
-              }
+
               if (typeof errorCallback === "function") {
                 errorCallback(jqXHR, exception);
               }
