@@ -4406,16 +4406,13 @@ ${offerTimestampLine}
       {
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
         titleAttr: "Rozwiń wszystkie",
-        action: function (e, dt, node, config) {
+        action: function (e, dt) {
           dt.rows().every(function () {
             var row = this;
-            var rowData = row.data();
-            if (
-              Array.isArray(rowData.asks) &&
-              rowData.asks.length > 0 &&
-              !row.child.isShown()
-            ) {
-              row.child(format(rowData)).show();
+            if (!row.child.isShown()) {
+              // jeśli masz kolumnę-uchwyt, możesz też sprawdzić klasę na wierszu:
+              // if ($(row.node()).find('.details-control').length) { ... }
+              row.child(format(row.data())).show();
               $(row.node()).addClass("shown");
             }
           });
@@ -4424,7 +4421,7 @@ ${offerTimestampLine}
       {
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
         titleAttr: "Zwiń wszystkie",
-        action: function (e, dt, node, config) {
+        action: function (e, dt) {
           dt.rows().every(function () {
             var row = this;
             if (row.child.isShown()) {
@@ -4434,23 +4431,16 @@ ${offerTimestampLine}
           });
         },
       },
-      // ,
-      // {
-      //   extend: "copyHtml5",
-      //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
-      //   titleAttr: "Copy",
-      // },
-      // {
-      //   extend: "excelHtml5",
-      //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="spreadsheet">',
-      //   titleAttr: "Excel",
-      // },
-      // ,
-      // {
-      //   extend: "pdfHtml5",
-      //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" alt="pdf">',
-      //   titleAttr: "PDF",
-      // },
+      {
+        extend: "copyHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+        titleAttr: "Copy",
+      },
+      {
+        extend: "excelHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+        titleAttr: "Excel",
+      },
     ],
     scrollY: "60vh",
     scrollCollapse: true,
