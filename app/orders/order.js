@@ -4416,7 +4416,7 @@ ${offerTimestampLine}
 
         var data = {
           organization: OrganizationName,
-          organizationId: organizationId,
+          organizationId: OrganizationName,
           data: {
             gtin: $("#gtin").val(),
             "old-name": oldname.textContent,
