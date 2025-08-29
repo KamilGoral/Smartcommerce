@@ -1876,23 +1876,17 @@ whenReadyAndDataTables(function () {
     }
   }
 
-  function GetSplittedProducts() {
-    let resultProducts = { items: [] }; // <- domyślna wartość, nawet jeśli nie przyjdzie nic z serwera
+  function GetSplittedProducts(successCallback) {
+    let resultProducts = { items: [] }; // domyślne dane
     if (!$("#CartwholesalerKeyIndicator").val()) {
       $("#CartwholesalerKeyIndicator").val("");
     }
-
     $("#CartRotationIndicator").val("");
     $("#spl_table_wrapper").show();
+
     $.ajax({
       type: "GET",
-      url:
-        InvokeURL +
-        "shops/" +
-        shopKey +
-        "/orders/" +
-        orderId +
-        "/wholesalers?perPage=10000",
+      url: `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers?perPage=10000`,
       cors: true,
       contentType: "application/json",
       dataType: "json",
@@ -1902,19 +1896,77 @@ whenReadyAndDataTables(function () {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
       },
+
       beforeSend: function () {
         $("#waitingdots").show();
       },
+
+      success: function (response) {
+        resultProducts = response || { items: [] };
+        if (!Array.isArray(resultProducts.items)) resultProducts.items = [];
+
+        // dropdown z listy dostawców
+        populateWholesalerDropdownFromItems(resultProducts.items);
+
+        // callback jeśli podany
+        if (typeof successCallback === "function") {
+          const proceed = successCallback(resultProducts);
+          if (!proceed) return;
+        }
+
+        // Zapis do sesji + odtworzenie inputów
+        saveToSessionStorage(resultProducts);
+        updateTableInputsFromSessionStorage(orderId);
+
+        $("#splittedProductsSection").show();
+        initializeSimpleTooltips();
+      },
+
+      error: function (jqXHR, exception) {
+        console.warn("Błąd pobierania danych:", jqXHR.status);
+        resultProducts = { items: [] }; // pokaż pustą tabelę
+        $("#splittedProductsSection").show();
+      },
+
       complete: function () {
         $("#waitingdots").hide();
 
-        // Usunięcie starej tabeli jeśli istnieje
+        // Zniszcz poprzednią instancję DataTable
         if ($.fn.DataTable.isDataTable("#spl_table")) {
           $("#spl_table").DataTable().destroy();
         }
 
-        var table = $("#spl_table").DataTable({
-          order: [[10, "desc"]], // This is column that contain values "Obniz Cene"
+        // === FILTR: jedna, globalna instancja, oparta o row.data() ===
+        // Usuń poprzedni filtr jeśli istniał
+        if (window._splFilter) {
+          const i = $.fn.dataTable.ext.search.indexOf(window._splFilter);
+          if (i > -1) $.fn.dataTable.ext.search.splice(i, 1);
+        }
+
+        window._splFilter = function (settings, data, dataIndex) {
+          if (settings.nTable.id !== "spl_table") return true;
+
+          const api = new $.fn.dataTable.Api(settings);
+          const rowData = api.row(dataIndex).data() || {};
+
+          const selectedWh = (
+            $("#CartwholesalerKeyIndicator").val() || ""
+          ).trim();
+          const selectedRot = ($("#CartRotationIndicator").val() || "").trim();
+
+          const wholesalerValue = (rowData.wholesalerKey || "").trim();
+          const rotationValue = ((rowData.rotationIndicator || "") + "").trim();
+
+          const matchWh = !selectedWh || wholesalerValue === selectedWh;
+          const matchRot = !selectedRot || rotationValue === selectedRot;
+
+          return matchWh && matchRot;
+        };
+        $.fn.dataTable.ext.search.push(window._splFilter);
+
+        // === Inicjalizacja tabeli ===
+        const table = $("#spl_table").DataTable({
+          order: [[10, "desc"]], // kolumna "Obniż cenę"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"fB>rt<"bottom"lip>',
@@ -1928,10 +1980,10 @@ whenReadyAndDataTables(function () {
             {
               text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
               titleAttr: "Rozwiń wszystkie",
-              action: function (e, dt, node, config) {
+              action: function (e, dt) {
                 dt.rows().every(function () {
-                  var row = this;
-                  var rowData = row.data();
+                  const row = this;
+                  const rowData = row.data();
                   if (
                     Array.isArray(rowData.asks) &&
                     rowData.asks.length > 0 &&
@@ -1946,9 +1998,9 @@ whenReadyAndDataTables(function () {
             {
               text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
               titleAttr: "Zwiń wszystkie",
-              action: function (e, dt, node, config) {
+              action: function (e, dt) {
                 dt.rows().every(function () {
-                  var row = this;
+                  const row = this;
                   if (row.child.isShown()) {
                     row.child.hide();
                     $(row.node()).removeClass("shown");
@@ -1956,23 +2008,6 @@ whenReadyAndDataTables(function () {
                 });
               },
             },
-            // ,
-            // {
-            //   extend: "copyHtml5",
-            //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
-            //   titleAttr: "Kopiuj",
-            // },
-            // {
-            //   extend: "excelHtml5",
-            //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="spreadsheet">',
-            //   titleAttr: "Excel",
-            // },
-            // ,
-            // {
-            //   extend: "pdfHtml5",
-            //   text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b64cc69ba2b8b48d5a_8f2324ed696253428b3cd9809eddb252_document-PDF.svg" alt="pdf">',
-            //   titleAttr: "PDF",
-            // },
           ],
           language: {
             emptyTable: "Brak danych do wyświetlenia",
@@ -1984,79 +2019,54 @@ whenReadyAndDataTables(function () {
             processing: "<div class='spinner'</div>",
             search: "Szukaj:",
             zeroRecords: "Brak pasujących rezultatów",
-            paginate: {
-              first: "<<",
-              last: ">>",
-              next: " >",
-              previous: "< ",
-            },
+            paginate: { first: "<<", last: ">>", next: " >", previous: "< " },
             aria: {
               sortAscending: ": Sortowanie rosnące",
               sortDescending: ": Sortowanie malejące",
             },
           },
           data: resultProducts.items,
-          search: {
-            return: true,
-          },
+          search: { return: true },
+
           columns: [
             {
               data: null,
               defaultContent: "",
-              createdCell: function (
-                cell,
-                cellData,
-                rowData,
-                rowIndex,
-                colIndex
-              ) {
+              createdCell: function (cell, cellData, rowData) {
                 if (rowData.asks && rowData.asks.length > 0) {
                   $(cell).addClass("details-control");
                 }
               },
               orderable: false,
             },
-            {
-              orderable: true,
-              data: "name",
-            },
+            { orderable: true, data: "name" },
             {
               orderable: true,
               data: "countryDistributorName",
               defaultContent: "-",
             },
-            {
-              orderable: true,
-              data: "gtin",
-            },
+            { orderable: true, data: "gtin" },
             {
               orderable: true,
               data: "stock",
               render: function (data) {
-                if (data !== null) {
-                  return "" + data.value;
-                }
-                if (data === null) {
-                  return "0";
-                }
+                if (data !== null) return "" + data.value;
+                return "0";
               },
             },
             {
-              orderable: true, // pozwala sortować
-              data: "quantity", // dane używane do sortowania
-              render: function (data, type, row) {
-                // Jeśli typ to 'display', renderujemy input
+              orderable: true,
+              data: "quantity",
+              render: function (data, type) {
                 if (type === "display") {
                   return (
                     '<input type="number" style="max-width: 80px" ' +
                     'onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" ' +
                     'min="0" max="999999" value="' +
-                    data +
+                    (data ?? "") +
                     '" onpaste="handlePaste(event)">'
                   );
                 }
-
-                // W innych przypadkach (np. sortowanie, wyszukiwanie), zwróć wartość surową
                 return data;
               },
             },
@@ -2064,12 +2074,8 @@ whenReadyAndDataTables(function () {
               orderable: true,
               data: "standardPrice",
               render: function (data) {
-                if (data !== null) {
-                  return "" + data.value.toFixed(2);
-                }
-                if (data === null) {
-                  return "0";
-                }
+                if (data !== null) return "" + data.value.toFixed(2);
+                return "0";
               },
             },
             {
@@ -2080,7 +2086,6 @@ whenReadyAndDataTables(function () {
                   let totalQuantity = 0;
                   let totalValue = 0;
                   let breakdown = [];
-
                   row.purchaseSegments.forEach((segment) => {
                     totalQuantity += segment.quantity;
                     totalValue += segment.netPrice * segment.quantity;
@@ -2090,23 +2095,17 @@ whenReadyAndDataTables(function () {
                       )} zł`
                     );
                   });
-
                   const weightedPrice = (totalValue / totalQuantity).toFixed(2);
                   const breakdownText = breakdown.join("\n");
-
-                  // Używamy onclick bezpiecznie z JSON.stringify
                   return `
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <strong>${weightedPrice} zł</strong>
-          <span style="cursor: pointer;" onclick="alert('Cena ważona z segmentów:\\n${breakdownText}')">ℹ️</span>
-        </div>
-      `;
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <strong>${weightedPrice} zł</strong>
+                    <span style="cursor: pointer;" onclick="alert('Cena ważona z segmentów:\\n${breakdownText}')">ℹ️</span>
+                  </div>
+                `;
                 }
-
-                if (data !== null) {
+                if (data !== null)
                   return `<strong>${data.toFixed(2)} zł</strong>`;
-                }
-
                 return "0";
               },
             },
@@ -2117,7 +2116,7 @@ whenReadyAndDataTables(function () {
               render: function (data) {
                 return (
                   '<p style="font-size: 0;display: none">' +
-                  data.wholesalerKey +
+                  (data.wholesalerKey || "") +
                   "</p>" +
                   generateWholesalerSelect(
                     data.wholesalerKey,
@@ -2152,10 +2151,9 @@ whenReadyAndDataTables(function () {
               orderable: true,
               data: null,
               width: "80px",
-              // class: "details-invisible",
               render: function (data) {
-                if (data.hasOwnProperty("asks") && data.asks !== null) {
-                  // Wybór niższej wartości, ale nie null
+                let currentPrice = null;
+                if (data && data.hasOwnProperty("asks") && data.asks !== null) {
                   if (data.netNetPrice !== null && data.netPrice !== null) {
                     currentPrice = Math.min(data.netNetPrice, data.netPrice);
                   } else {
@@ -2164,35 +2162,24 @@ whenReadyAndDataTables(function () {
                         ? data.netNetPrice
                         : data.netPrice;
                   }
+                  if (currentPrice === null) return "<td>0.00%</td>";
 
-                  // Jeśli obie wartości są null, przerywamy dalsze działanie
-                  if (currentPrice === null) {
-                    return "<td>0.00%</td>";
-                  }
-                  // Znajdowanie najniższych wartości dla netPrice i netNetPrice, pomijając null dla netNetPrice
                   let lowestNetPrice = Infinity;
                   let lowestNetNetPrice = Infinity;
 
                   data.asks.forEach((ask) => {
-                    if (ask.confirmed === true) return; // pomijamy zatwierdzonych
-
-                    if (ask.netPrice !== null) {
+                    if (ask.confirmed === true) return;
+                    if (ask.netPrice !== null)
                       lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
-                    }
-                    if (ask.netNetPrice !== null) {
+                    if (ask.netNetPrice !== null)
                       lowestNetNetPrice = Math.min(
                         lowestNetNetPrice,
                         ask.netNetPrice
                       );
-                    }
                   });
 
-                  // Pomijanie wartości null dla netNetPrice
-                  if (lowestNetNetPrice === Infinity) {
-                    lowestNetNetPrice = null;
-                  }
+                  if (lowestNetNetPrice === Infinity) lowestNetNetPrice = null;
 
-                  // Wybór najniższej wartości spośród najniższych asków
                   let lowestPrice;
                   if (
                     lowestNetPrice !== Infinity &&
@@ -2200,34 +2187,21 @@ whenReadyAndDataTables(function () {
                   ) {
                     lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
                   } else {
-                    // Używamy tylko netPrice, jeśli netNetPrice jest null
                     lowestPrice =
                       lowestNetPrice !== Infinity ? lowestNetPrice : null;
                   }
 
-                  // Sprawdzanie, czy najniższa cena jest skończona i różna od null
                   if (lowestPrice !== null && currentPrice > lowestPrice) {
-                    var diffPercent = (
+                    const diffPercent = (
                       ((currentPrice - lowestPrice) / currentPrice) *
                       100
                     ).toFixed(2);
-                    return (
-                      "<td>" +
-                      diffPercent +
-                      '%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;">' +
-                      "</td>"
-                    );
+                    return `<td>${diffPercent}%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22f025b6529660dda_lower%20the%20price.svg" style="margin-left: 4px;"></td>`;
                   } else {
-                    return (
-                      '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                      "</td>"
-                    );
+                    return '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;"></td>';
                   }
                 } else {
-                  return (
-                    '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;">' +
-                    "</td>"
-                  );
+                  return '<td>0.00%<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/63beccb22e2647577ef4fd95_lowest%20price.svg" style="margin-left: 4px;"></td>';
                 }
               },
             },
@@ -2261,7 +2235,6 @@ whenReadyAndDataTables(function () {
               render: function (data) {
                 var tippyContent;
                 var baseClass = "tippy";
-
                 switch (data) {
                   case "AX":
                     tippyContent =
@@ -2323,7 +2296,6 @@ whenReadyAndDataTables(function () {
                       baseClass +
                       '" data-tippy-content="Niewystarczająca historia" alt=""';
                 }
-
                 return "<p" + tippyContent + ">" + (data || "-") + "</p>";
               },
             },
@@ -2332,38 +2304,25 @@ whenReadyAndDataTables(function () {
               width: "80px",
               data: "confirmed",
               type: "boolean",
-              render: function (data, type, row) {
+              render: function (data, type) {
                 if (type === "display") {
                   const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" style="cursor: pointer;" />`;
                   const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
                   const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
-
+                  const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="Potwierdzono" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
                   if (data === true) {
-                    return `
-                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                        ${detailsIcon}
-                        ${editIcon}
-                        ${confirmedIcon}
-                      </div>
-                    `;
+                    return `<div style="text-align: left; display: flex; align-items: center; gap: 5px;">${detailsIcon}${editIcon}${confirmedIcon}</div>`;
                   } else {
-                    return `
-                      <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                        ${detailsIcon}
-                        ${editIcon}
-                        ${trashIcon}
-                      </div>
-                    `;
+                    return `<div style="text-align: left; display: flex; align-items: center; gap: 5px;">${detailsIcon}${editIcon}${trashIcon}</div>`;
                   }
                 }
                 return data;
               },
             },
           ],
+
           rowCallback: function (row, data) {
-            if (data.hasOwnProperty("asks") && data.asks !== null) {
-              // Choose the lower value, but not null
+            if (data && data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice;
               if (data.netNetPrice !== null && data.netPrice !== null) {
                 currentPrice = Math.min(data.netNetPrice, data.netPrice);
@@ -2371,70 +2330,46 @@ whenReadyAndDataTables(function () {
                 currentPrice =
                   data.netNetPrice !== null ? data.netNetPrice : data.netPrice;
               }
+              if (currentPrice !== null) {
+                let lowestNetPrice = Infinity;
+                let lowestNetNetPrice = Infinity;
+                data.asks.forEach((ask) => {
+                  if (ask.confirmed === true) return;
+                  if (ask.netPrice !== null)
+                    lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                  if (ask.netNetPrice !== null)
+                    lowestNetNetPrice = Math.min(
+                      lowestNetNetPrice,
+                      ask.netNetPrice
+                    );
+                });
+                if (lowestNetNetPrice === Infinity) lowestNetNetPrice = null;
 
-              // If both values are null, do not change the row
-              if (currentPrice === null) {
-                return;
-              }
-
-              // Find the lowest values for netPrice and netNetPrice, excluding null for netNetPrice
-              let lowestNetPrice = Infinity;
-              let lowestNetNetPrice = Infinity;
-
-              data.asks.forEach((ask) => {
-                if (ask.confirmed === true) return; // pomijamy zatwierdzonych
-
-                if (ask.netPrice !== null) {
-                  lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                let lowestPrice;
+                if (lowestNetPrice !== Infinity && lowestNetNetPrice !== null) {
+                  lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
+                } else {
+                  lowestPrice =
+                    lowestNetPrice !== Infinity ? lowestNetPrice : null;
                 }
-                if (ask.netNetPrice !== null) {
-                  lowestNetNetPrice = Math.min(
-                    lowestNetNetPrice,
-                    ask.netNetPrice
-                  );
+
+                if (lowestPrice !== null && currentPrice > lowestPrice) {
+                  $("td", row).css("background-color", "#FFFAE6");
                 }
-              });
-
-              // Ignore null for netNetPrice
-              if (lowestNetNetPrice === Infinity) {
-                lowestNetNetPrice = null;
-              }
-
-              // Choose the lowest value from the lowest asks
-              let lowestPrice;
-              if (lowestNetPrice !== Infinity && lowestNetNetPrice !== null) {
-                lowestPrice = Math.min(lowestNetPrice, lowestNetNetPrice);
-              } else {
-                // Use only netPrice if netNetPrice is null
-                lowestPrice =
-                  lowestNetPrice !== Infinity ? lowestNetPrice : null;
-              }
-
-              // Check if the lowest price is finite and not null, then change the row color
-              if (lowestPrice !== null && currentPrice > lowestPrice) {
-                var diffPercent = (
-                  ((currentPrice - lowestPrice) / currentPrice) *
-                  100
-                ).toFixed(2);
-                $("td", row).css("background-color", "#FFFAE6");
               }
             }
+
             if (data.confirmed === true) {
-              // Usuń tło i ustaw styl wiersza
               $(row).css({
                 "background-color": "transparent",
                 "font-style": "italic",
                 "font-weight": "300",
                 cursor: "not-allowed",
               });
-
-              // Ustaw tooltip na wierszu
               $(row).attr(
                 "data-tippy-content",
                 "Produkt zamówiony, edycja jest niemożliwa"
               );
-
-              // Znajdź i dezaktywuj wszystkie inputy, selecty, buttony i obrazki w wierszu
               $(row).find("input, select, button").attr("disabled", true).css({
                 "pointer-events": "none",
                 opacity: "0.6",
@@ -2443,93 +2378,69 @@ whenReadyAndDataTables(function () {
             }
           },
 
-          initComplete: function (settings, json) {
+          initComplete: function () {
             initializeSimpleTooltips();
-            const table = this.api();
+            const api = this.api();
 
-            // Dodajemy filtr tylko dla #spl_table
-            $.fn.dataTable.ext.search.push(function (
-              settings,
-              data,
-              dataIndex
-            ) {
-              if (settings.nTable.id !== "spl_table") return true;
+            // Zdarzenia filtrów
+            $("#CartwholesalerKeyIndicator, #CartRotationIndicator")
+              .off("change._spl")
+              .on("change._spl", function () {
+                api.draw();
+              });
 
-              const selectedWholesaler = $("#CartwholesalerKeyIndicator").val();
-              const selectedRotation = $("#CartRotationIndicator").val();
+            // Upewnij się, że selekt w kolumnie ma klasę (na wypadek gdyby helper jej nie dodał)
+            $("#spl_table")
+              .find("select")
+              .each(function () {
+                $(this).addClass("wh-picker");
+                const $row = $(this).closest("tr");
+                const d = api.row($row).data() || {};
+                $(this).data("initialValue", d.wholesalerKey || "");
+              });
 
-              const wholesalerValue = $(table.cell(dataIndex, 8).node())
-                .find("select")
-                .val();
-              const rotationValue = $(table.cell(dataIndex, 12).node())
-                .text()
-                .trim();
+            // Delegowany handler zmiany selekta — synchronizacja row.data().wholesalerKey
+            $("#spl_table")
+              .off("change._wh", "select.wh-picker")
+              .on("change._wh", "select.wh-picker", function (e) {
+                const $sel = $(this);
+                const row = api.row($sel.closest("tr"));
+                const d = row.data() || {};
+                const val = String($sel.val() || "");
 
-              const matchWholesaler =
-                !selectedWholesaler || wholesalerValue === selectedWholesaler;
-              const matchRotation =
-                !selectedRotation || rotationValue === selectedRotation;
+                // Aktualizujemy tylko pole wholesalerKey (logikę addChange masz u siebie gdzie indziej)
+                if (val === "remove") {
+                  d.wholesalerKey = "";
+                } else if (val === "unassigned" || val === "enabled") {
+                  // nie zmieniamy wholesalerKey
+                } else {
+                  d.wholesalerKey = val;
+                }
 
-              return matchWholesaler && matchRotation;
-            });
+                row.data(d).invalidate().draw(false); // odśwież, żeby filtr zadziałał natychmiast
+                $sel.data("initialValue", val);
+              });
 
-            // === Dodatki ===
+            // Dodatki UI
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
               "<div style='overflow:auto; width:100%;position:relative;'></div>"
             );
 
-            table.columns.adjust().draw();
+            api.columns.adjust().draw();
 
             // ENTER uruchamia globalne filtrowanie
             const textBox = $("#spl_table_filter label input");
-            textBox.off();
-            textBox.on("keyup input", function (e) {
+            textBox.off(".enter").on("keyup.enter input.enter", function (e) {
               if (e.keyCode === 13) {
-                table.search(this.value).draw();
+                api.search(this.value).draw();
               }
             });
           },
         });
       },
-      success: function (response) {
-        resultProducts = response;
-        populateWholesalerDropdownFromItems(response.items);
-
-        if (typeof successCallback === "function") {
-          const result = successCallback(resultProducts);
-          if (!result) {
-            return;
-          }
-        }
-
-        // Jeśli przyszła pusta tablica, nadal pokazujemy tabelę z pustym stanem
-        if (!resultProducts.items || resultProducts.items.length === 0) {
-          resultProducts.items = [];
-        }
-
-        // Zapis do sesji + odtworzenie inputów z localStorage
-        saveToSessionStorage(resultProducts);
-        updateTableInputsFromSessionStorage(orderId);
-
-        $("#splittedProductsSection").show();
-        initializeSimpleTooltips();
-      },
-
-      error: function (jqXHR, exception) {
-        console.warn("Błąd pobierania danych:", jqXHR.status);
-        resultProducts = { items: [] }; // <- kluczowy moment: ustawiam pusty zbiór
-        $("#splittedProductsSection").show(); // opcjonalnie: nadal pokaż sekcję
-      },
     });
   }
-
-  $("#CartwholesalerKeyIndicator, #CartRotationIndicator").on(
-    "change",
-    function () {
-      table.draw();
-    }
-  );
 
   function makeChangesToOrder() {
     return new Promise((resolve, reject) => {
