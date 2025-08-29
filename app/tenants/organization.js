@@ -2866,23 +2866,50 @@ whenReadyAndDataTables(function () {
           orderable: true,
           data: null,
           render: function (data) {
-            if (
-              data.endDate !== null &&
-              typeof data.endDate !== "undefined" &&
-              data.endDate !== "infinity"
-            ) {
-              const myendDate = new Date(data.endDate).toLocaleDateString(
-                "pl-PL",
-                { year: "numeric", month: "2-digit", day: "2-digit" }
-              );
-              if (data.endDate >= nowDate) {
-                return '<span class="positive">' + myendDate + "</span>";
-              } else {
-                return '<span class="noneexisting">' + myendDate + "</span>";
-              }
-            }
-            if (data.endDate === "infinity")
+            const val = data?.endDate;
+
+            // Infinity → zawsze zielone
+            if (val === "infinity")
               return '<span class="positive">Nigdy</span>';
+
+            // Brak daty
+            if (!val) return "";
+
+            // endDate jako Date
+            const end = new Date(val);
+            if (isNaN(end.getTime()))
+              return '<span class="noneexisting">—</span>';
+
+            // Dzisiejsza data UTC (północ)
+            const now = new Date();
+            const todayUTC = new Date(
+              Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate()
+              )
+            );
+
+            // endDate też sprowadzone do północy UTC
+            const endDateUTC = new Date(
+              Date.UTC(
+                end.getUTCFullYear(),
+                end.getUTCMonth(),
+                end.getUTCDate()
+              )
+            );
+
+            // Wyświetlanie w PL
+            const myendDate = endDateUTC.toLocaleDateString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            });
+
+            // Jeśli endDate >= dziś (UTC) → zielone, w przeciwnym razie szare
+            return endDateUTC >= todayUTC
+              ? '<span class="positive">' + myendDate + "</span>"
+              : '<span class="noneexisting">' + myendDate + "</span>";
           },
         },
         {
