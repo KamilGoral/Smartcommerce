@@ -597,11 +597,23 @@ whenReadyAndDataTables(function () {
         myValidProducts.products.push({
           gtin: "" + validateGTIN(element.gtin),
           name: element.name,
+          // NEW — zachowaj wartość, jeśli jest liczbą
+          priceThreshold:
+            element.priceThreshold === null ||
+            element.priceThreshold === undefined
+              ? null
+              : Number(element.priceThreshold),
         });
       } else {
         myInvalidProducts.products.push({
           gtin: "" + element.gtin,
           name: element.name,
+          // opcjonalnie pokaż też co było w progu przy błędnym GTIN
+          priceThreshold:
+            element.priceThreshold === null ||
+            element.priceThreshold === undefined
+              ? null
+              : Number(element.priceThreshold),
         });
       }
     }
@@ -685,6 +697,12 @@ whenReadyAndDataTables(function () {
           {
             data: "name",
           },
+          {
+            data: "priceThreshold",
+            render: function (v) {
+              return v === null || v === undefined || v === "" ? "" : String(v);
+            },
+          },
         ],
       });
       var invalidproductsTable = $("#invalidproducts").DataTable({
@@ -725,6 +743,13 @@ whenReadyAndDataTables(function () {
           {
             data: "name",
           },
+          {
+            data: "priceThreshold",
+            title: "Próg ceny",
+            render: function (v) {
+              return v === null || v === undefined || v === "" ? "" : String(v);
+            },
+          },
         ],
       });
     });
@@ -734,6 +759,7 @@ whenReadyAndDataTables(function () {
     var file = evt.target.files[0];
 
     if (file) {
+      // UPDATED — w Papa.parse(...)
       Papa.parse(file, {
         quotes: true,
         header: true,
@@ -741,26 +767,33 @@ whenReadyAndDataTables(function () {
         transform: function (h, i) {
           switch (i) {
             case "price":
-              var value = parseFloat(h.replace(",", "."));
-              return value;
+            case "priceThreshold": {
+              if (h === null || h === undefined || h === "") return null;
+              const v = ("" + h).replace(",", ".").trim();
+              const num = Number(v);
+              return isFinite(num) ? num : null;
+            }
             default:
               return h;
           }
         },
         transformHeader: function (h, i) {
-          switch (h.trim().toLowerCase()) {
+          const key = (h || "").toLowerCase().trim();
+          switch (key) {
             case "ean":
-              return "gtin";
             case "kod":
-              return "gtin";
             case "kod ean":
               return "gtin";
             case "nazwa":
-              return "name";
             case "nazwa_indeksu":
               return "name";
+            // NEW — obsługa wielu wariantów nazwy kolumny
+            case "prog":
+            case "próg":
+            case "threshold":
+              return "priceThreshold";
             default:
-              console.log("Sorry");
+              return h;
           }
         },
         dynamicTyping: true,
@@ -832,6 +865,50 @@ whenReadyAndDataTables(function () {
   // Initialize tooltips on page load
   initializeSimpleTooltips();
 
+  // NEW — helper do PATCH priceThreshold
+  function patchExclusivePriceThreshold(
+    exclusiveId,
+    op,
+    value,
+    onDone,
+    onFail
+  ) {
+    // op: "add" | "replace" | "remove"
+    // jeśli op === "remove", value pomiń
+    const body =
+      op === "remove"
+        ? [{ op: "remove", path: "/priceThreshold" }]
+        : [{ op, path: "/priceThreshold", value }];
+
+    $.ajax({
+      type: "PATCH",
+      url: InvokeURL + "exclusive-products/" + encodeURIComponent(exclusiveId),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      data: JSON.stringify(body),
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function (res) {
+        displayMessage("Success", "Zaktualizowano próg ceny.");
+        if (typeof onDone === "function") onDone(res);
+      },
+      error: function (jqXHR) {
+        const msg =
+          jqXHR?.responseJSON?.message || "Nie udało się zaktualizować progu.";
+        displayMessage("Error", msg);
+        if (typeof onFail === "function") onFail(jqXHR);
+      },
+    });
+  }
+
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
@@ -853,6 +930,15 @@ whenReadyAndDataTables(function () {
             o.wholesalerKey = wholesalerKeyPOST;
             o.startDate = $("#startDate").val() + "T00:00:01.00Z";
             o.endDate = "infinity";
+            // NEW — tylko jeśli jest prawidłową liczbą
+            if (
+              el.priceThreshold !== null &&
+              el.priceThreshold !== undefined &&
+              el.priceThreshold !== ""
+            ) {
+              const num = Number(el.priceThreshold);
+              if (isFinite(num)) o.priceThreshold = num;
+            }
             return o;
           });
         } else {
@@ -861,6 +947,15 @@ whenReadyAndDataTables(function () {
             o.wholesalerKey = wholesalerKeyPOST;
             o.startDate = $("#startDate").val() + "T00:00:01.00Z";
             o.endDate = $("#endDate").val() + "T23:59:59.00Z";
+            // NEW — tylko jeśli jest prawidłową liczbą
+            if (
+              el.priceThreshold !== null &&
+              el.priceThreshold !== undefined &&
+              el.priceThreshold !== ""
+            ) {
+              const num = Number(el.priceThreshold);
+              if (isFinite(num)) o.priceThreshold = num;
+            }
             return o;
           });
         }
@@ -975,6 +1070,20 @@ whenReadyAndDataTables(function () {
 
         var neverChecked = $("#NeverSingle").is(":checked");
 
+        // NEW — pobierz i sprawdź próg
+        const thresholdRaw = ($("#priceThresholdInput").val() || "")
+          .replace(",", ".")
+          .trim();
+        let thresholdNum = null;
+        if (thresholdRaw !== "") {
+          const n = Number(thresholdRaw);
+          if (!isFinite(n) || n < 0) {
+            displayMessage("Error", "Próg ceny musi być liczbą ≥ 0.");
+            return false;
+          }
+          thresholdNum = n;
+        }
+
         // --- Walidacja GTIN przed requestem ---
         const gtinInputRaw = $("#GTINInput").val();
         const gtinNormalized = normalizeGTIN(gtinInputRaw);
@@ -1038,6 +1147,8 @@ whenReadyAndDataTables(function () {
             wholesalerKey: wholesalerKeyPOST,
             startDate: startLocal + "T00:00:01.00Z",
             endDate: neverChecked ? "infinity" : endLocal + "T00:00:01.00Z",
+            // NEW — tylko jeśli podano
+            ...(thresholdNum !== null ? { priceThreshold: thresholdNum } : {}),
           },
         ];
 
