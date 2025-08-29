@@ -5151,6 +5151,7 @@ whenReadyAndDataTables(function () {
         .val(CreatedTime);
 
       $("#exclusiveProductId").val(data.uuid);
+      $("#priceThresholdInput-Edit").val(data.priceThreshold);
       $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
 
       // Jeśli wpis już się skończył, zablokuj wybór hurtowni
