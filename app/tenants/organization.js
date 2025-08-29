@@ -2838,6 +2838,11 @@ whenReadyAndDataTables(function () {
           },
         },
         {
+          orderable: false,
+          data: "priceThreshold",
+          defaultContent: "-",
+        },
+        {
           visible: false,
           orderable: true,
           data: "wholesalerKey",
