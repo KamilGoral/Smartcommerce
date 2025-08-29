@@ -4259,55 +4259,169 @@ whenReadyAndDataTables(function () {
 
   setupDatePickers();
 
+  // Walidacja dat (czas ignorowany). Wymagania:
+  // - startDate istnieje i jest >= dzisiaj (wg lokalnego czasu)
+  // - jeśli nie „Nigdy”, to endDate istnieje i > startDate (ściśle późniejsza data)
+  function validateDateRange(startLocal, endLocal, neverChecked) {
+    if (!startLocal) return { ok: false, reason: "Wybierz datę rozpoczęcia." };
+
+    const todayLocal = toDateOnlyString(new Date());
+    if (startLocal < todayLocal) {
+      return {
+        ok: false,
+        reason: "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.",
+      };
+    }
+
+    if (neverChecked) return { ok: true };
+
+    if (!endLocal) return { ok: false, reason: "Wybierz datę zakończenia." };
+    if (endLocal <= startLocal) {
+      return {
+        ok: false,
+        reason: "Data zakończenia musi być późniejsza niż data rozpoczęcia.",
+      };
+    }
+    return { ok: true };
+  }
+
+  // Escapowanie nazwy (XSS / znaków specjalnych)
+  function escapeName(str) {
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Parsowanie wielu GTIN-ów (enter, przecinek, średnik, spacja)
+  function parseMultipleGTINs(raw) {
+    const tokens = (raw || "")
+      .split(/[\s,;]+/g)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    // unikalne, w oryginalnej kolejności
+    const seen = new Set();
+    const out = [];
+    for (const t of tokens) {
+      if (!seen.has(t)) {
+        seen.add(t);
+        out.push(t);
+      }
+    }
+    return out;
+  }
+
+  // --- Główna funkcja z walidacją frontową i nowym body POST ---
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+
       form.on("submit", function (event) {
-        var action = InvokeURL + "exclusive-products";
-        var method = "POST";
+        event.preventDefault();
 
-        var wholesalerKeyPOST = $("#WholesalerSelector-Exclusive-2").val();
+        const action = InvokeURL + "exclusive-products";
+        const method = "POST";
 
-        if (wholesalerKeyPOST === "null") {
-          wholesalerKeyPOST = null;
+        // wholesalerKey: "null" → null (tworzy blokadę)
+        let wholesalerKeyPOST = $("#WholesalerSelector-Exclusive-2").val();
+        if (wholesalerKeyPOST === "null") wholesalerKeyPOST = null;
+
+        const neverChecked = $("#NeverSingle").is(":checked");
+
+        // --- threshold: jeśli podany, to > 0 i < 999999.99 ---
+        const thresholdRaw = ($("#priceThresholdInput").val() || "")
+          .replace(",", ".")
+          .trim();
+        let thresholdNum = null;
+        if (thresholdRaw !== "") {
+          const n = Number(thresholdRaw);
+          if (!isFinite(n) || n <= 0) {
+            displayMessage("Error", "Próg ceny musi być liczbą większą od 0.");
+            return false;
+          }
+          if (n >= 999999.99) {
+            displayMessage(
+              "Error",
+              "Próg ceny musi być mniejszy niż 999999.99."
+            );
+            return false;
+          }
+          // Zaokrąglenie do 2 miejsc jeśli trzeba (serwer i tak zweryfikuje)
+          thresholdNum = Math.round(n * 100) / 100;
         }
 
-        console.log(wholesalerKeyPOST);
-
-        if ($("#NeverSingle").is(":checked")) {
-          var postData = [
-            {
-              gtin: $("#GTINInput").val(),
-              name: "name1",
-              wholesalerKey: wholesalerKeyPOST,
-              startDate: $("#startDate-Exclusive-2").val() + "T00:00:00.00Z",
-              endDate: "infinity",
-            },
-          ];
-        } else {
-          var postData = [
-            {
-              gtin: $("#GTINInput").val(),
-              name: "name1",
-              wholesalerKey: wholesalerKeyPOST,
-              startDate: $("#startDate-Exclusive-2").val() + "T00:00:00.00Z",
-              endDate: $("#endDate-Exclusive-2").val() + "T00:00:00.00Z",
-            },
-          ];
+        // --- Nazwa (escapowana) ---
+        const nameRaw = "name";
+        const escapedName = escapeName(nameRaw);
+        if (!escapedName) {
+          displayMessage("Error", "Podaj nazwę produktu.");
+          return false;
         }
 
-        console.log(postData);
+        // --- Wielokrotne GTIN-y ---
+        const gtinInputRaw = $("#GTINInput").val();
+        const gtinsRawList = parseMultipleGTINs(gtinInputRaw);
+        if (!gtinsRawList.length) {
+          displayMessage("Error", "Podaj przynajmniej jeden numer GTIN.");
+          return false;
+        }
+
+        // Walidacja każdego GTIN-a
+        const invalids = [];
+        const items = [];
+        for (const raw of gtinsRawList) {
+          const gtinNormalized = normalizeGTIN(raw);
+          const check = isValidGTIN(gtinNormalized);
+          if (!check.ok) {
+            invalids.push(`${raw} (${check.reason})`);
+          } else {
+            items.push(
+              Object.assign(
+                {
+                  gtin: gtinNormalized,
+                  name: escapedName,
+                },
+                thresholdNum !== null ? { priceThreshold: thresholdNum } : {}
+              )
+            );
+          }
+        }
+
+        if (invalids.length) {
+          displayMessage(
+            "Error",
+            "Nieprawidłowe GTIN-y:\n• " + invalids.join("\n• ")
+          );
+          return false;
+        }
+
+        // --- Walidacja dat: tylko część dzienna ma znaczenie ---
+        const startLocal = $("#startDate-Exclusive-2").val(); // YYYY-MM-DD
+        const endLocal = $("#endDate-Exclusive-2").val(); // YYYY-MM-DD
+        const dateCheck = validateDateRange(startLocal, endLocal, neverChecked);
+        if (!dateCheck.ok) {
+          displayMessage("Error", dateCheck.reason);
+          return false;
+        }
+
+        // Serwer „ignoruje” godzinę → wyślij RFC3339 z północy UTC.
+        const startISO = startLocal + "T00:00:00.000Z";
+        const endISO = neverChecked ? "infinity" : endLocal + "T00:00:00.000Z";
+
+        // --- NOWY KSZTAŁT BODY ---
+        const postData = {
+          wholesalerKey: wholesalerKeyPOST, // null → tworzy blokadę
+          startDate: startISO, // RFC3339 (czas i tak ignorowany)
+          endDate: endISO, // RFC3339 lub 'infinity'
+          items: items, // [{ gtin, name, priceThreshold? }, ...]
+        };
 
         $.ajax({
           type: method,
           url: action,
           cors: true,
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
           contentType: "application/json",
           dataType: "json",
           headers: {
@@ -4317,33 +4431,100 @@ whenReadyAndDataTables(function () {
             "Requested-By": "webflow-3-4",
           },
           data: JSON.stringify(postData),
-          success: function (resultData) {
-            console.log(resultData);
-            form.show();
-            displayMessage("Success", "Blokada została założona.");
-            refreshTable();
-            $("#GTINInput").val("");
+          beforeSend: function () {
+            $("#waitingdots").show();
           },
-          error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            console.log(jqXHR);
-            console.log(exception);
-            var msg =
-              "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-            var elements =
-              document.getElementsByClassName("warningmessagetext");
-            for (var i = 0; i < elements.length; i++) {
-              elements[i].textContent = msg;
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              const proceed = successCallback(resultData);
+              if (!proceed) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Ups. Coś poszło nie tak, spróbuj ponownie."
+                );
+                return;
+              }
             }
             form.show();
             displayMessage(
-              "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Success",
+              `Blokada została założona dla ${items.length} GTIN ${
+                items.length === 1 ? "" : "ów"
+              }.`
             );
-            return;
+            $("#GTINInput").val("");
+          },
+          error: function (jqXHR, exception) {
+            const serverMsg =
+              jqXHR?.responseJSON?.message || jqXHR?.responseText || "";
+
+            let msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Brak połączenia z siecią. Sprawdź internet.";
+            } else if (jqXHR.status === 401 || jqXHR.status === 403) {
+              // Admin only / brak uprawnień
+              if (/admin/i.test(serverMsg)) {
+                msg = "Operacja dostępna wyłącznie dla administratora.";
+              } else {
+                msg = "Brak uprawnień do wykonania tej operacji.";
+              }
+            } else if (jqXHR.status === 400) {
+              if (/wholesaler.*not enabled/i.test(serverMsg)) {
+                msg =
+                  "Wybrany wholesalerKey nie jest włączony dla tego tenant'a.";
+              } else if (/Invalid GTIN length/i.test(serverMsg)) {
+                msg = "Nieprawidłowa długość GTIN. Zweryfikuj numery.";
+              } else if (/gtin must be valid/i.test(serverMsg)) {
+                msg =
+                  "Co najmniej jeden GTIN jest nieprawidłowy (8/12/13/14 cyfr).";
+              } else if (/start.*before.*end/i.test(serverMsg)) {
+                msg = "Data zakończenia musi być późniejsza niż rozpoczęcia.";
+              } else if (/start.*must be.*now/i.test(serverMsg)) {
+                msg = "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.";
+              } else if (/threshold/i.test(serverMsg)) {
+                msg = "Próg ceny musi być > 0 i < 999999.99.";
+              } else if (/Invalid request body/i.test(serverMsg)) {
+                msg = "Nieprawidłowe dane. Sprawdź formularz.";
+              } else {
+                msg =
+                  serverMsg || "Nieprawidłowe dane (400). Sprawdź formularz.";
+              }
+            } else if (jqXHR.status === 409) {
+              msg = "Blokada o podanych parametrach już istnieje.";
+              displayMessage("Error", msg);
+
+              if (typeof errorCallback === "function") {
+                errorCallback(jqXHR, exception);
+              }
+              return;
+            } else if (jqXHR.status === 500) {
+              msg = "Błąd serwera (500). Spróbuj ponownie później.";
+            } else if (exception === "parsererror") {
+              msg = "Błąd przetwarzania odpowiedzi serwera.";
+            } else if (exception === "timeout") {
+              msg = "Przekroczono czas oczekiwania na odpowiedź.";
+            } else if (exception === "abort") {
+              msg = "Żądanie zostało przerwane.";
+            } else {
+              msg = serverMsg || "Wystąpił nieznany błąd.";
+            }
+
+            console.log(jqXHR);
+            console.log(exception);
+
+            if (typeof errorCallback === "function") {
+              errorCallback(jqXHR, exception, msg);
+            }
+
+            form.show();
+            displayMessage("Error", msg);
+          },
+          complete: function () {
+            $("#waitingdots").hide();
           },
         });
-        event.preventDefault();
+
         return false;
       });
     });
@@ -4354,38 +4535,125 @@ whenReadyAndDataTables(function () {
     successCallback,
     errorCallback
   ) {
+    // --- helpery lokalne ---
+    const dateOnlyUTC = (d) =>
+      new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+
+    const todayDateOnlyUTC = () => {
+      const now = new Date();
+      return dateOnlyUTC(
+        new Date(
+          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+        )
+      );
+    };
+
+    const validateDateRangeUTC = (startLocalStr, endLocalStr, never) => {
+      if (!startLocalStr)
+        return { ok: false, reason: "Wybierz datę rozpoczęcia." };
+
+      const startUTC = new Date(startLocalStr + "T00:00:00.000Z");
+      if (isNaN(startUTC.getTime()))
+        return { ok: false, reason: "Nieprawidłowy format daty rozpoczęcia." };
+
+      const startOnly = dateOnlyUTC(startUTC);
+      const todayOnly = todayDateOnlyUTC();
+      if (startOnly < todayOnly) {
+        return {
+          ok: false,
+          reason: "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.",
+        };
+      }
+
+      if (never) return { ok: true };
+
+      if (!endLocalStr)
+        return { ok: false, reason: "Wybierz datę zakończenia." };
+      const endUTC = new Date(endLocalStr + "T00:00:00.000Z");
+      if (isNaN(endUTC.getTime()))
+        return { ok: false, reason: "Nieprawidłowy format daty zakończenia." };
+
+      const endOnly = dateOnlyUTC(endUTC);
+      if (endOnly <= startOnly) {
+        return {
+          ok: false,
+          reason: "Data zakończenia musi być późniejsza niż data rozpoczęcia.",
+        };
+      }
+      return { ok: true };
+    };
+
+    const extractMsg = (jqXHR) => {
+      let msg = jqXHR?.responseJSON?.message || "";
+      if (!msg && jqXHR?.responseText) {
+        try {
+          const parsed = JSON.parse(jqXHR.responseText);
+          msg = parsed?.message || jqXHR.responseText;
+        } catch {
+          msg = jqXHR.responseText;
+        }
+      }
+      return (msg || "").toString().trim();
+    };
+
     forms.each(function () {
       var form = $(this);
+
       form.on("submit", function (event) {
         event.preventDefault();
 
-        var exclusiveProductId = $("#exclusiveProductId").val();
-        var action = InvokeURL + "exclusive-products/" + exclusiveProductId;
-        var method = "PATCH";
+        const exclusiveProductId = $("#exclusiveProductId").val();
+        const action = InvokeURL + "exclusive-products/" + exclusiveProductId;
+        const method = "PATCH";
 
-        var newValues = {
-          startDate: $("#startDate-Exclusive-Edit").val() + "T00:00:00.00Z",
-          endDate: $("#NeverSingleEdit").is(":checked")
-            ? "infinity"
-            : $("#endDate-Exclusive-Edit").val() + "T00:00:00.00Z",
+        const never = $("#NeverSingleEdit").is(":checked");
+        const startLocal = $("#startDate-Exclusive-Edit").val(); // YYYY-MM-DD
+        const endLocal = $("#endDate-Exclusive-Edit").val(); // YYYY-MM-DD
+
+        // walidacja dat wg nowych reguł (UTC, część dzienna)
+        const dateCheck = validateDateRangeUTC(startLocal, endLocal, never);
+        if (!dateCheck.ok) {
+          displayMessage("Error", dateCheck.reason);
+          return false;
+        }
+
+        // przygotuj wartości do porównania/wysłania
+        const newValues = {
+          startDate: startLocal + "T00:00:00.000Z",
+          endDate: never ? "infinity" : endLocal + "T00:00:00.000Z",
           wholesalerKey: $("#WholesalerSelector-Exclusive-Edit").val(),
         };
 
-        // Fetch current values
+        // threshold z pola (opcjonalnie)
+        const thrInput = document.querySelector("#priceThresholdInput-Edit");
+        let thresholdRaw = null;
+        if (thrInput) {
+          thresholdRaw = (thrInput.value || "").replace(",", ".").trim();
+        }
+
+        // pobierz aktualne wartości, aby zbudować PATCH tylko dla zmian
         $.ajax({
           type: "GET",
           url: action,
-          headers: {
-            Authorization: orgToken,
-            Accept: "application/json",
-          },
+          headers: { Authorization: orgToken, Accept: "application/json" },
           success: function (currentValues) {
-            var postData = [];
-            var currentDate = new Date().toISOString();
+            const postData = [];
+            const nowOnlyUTC = todayDateOnlyUTC();
 
-            // Only allow changing startDate if the current date is before the startDate
+            // startDate: można zmienić tylko jeśli DZISIAJ < current.startDate (po części dziennej UTC)
+            const currentStart = new Date(currentValues.startDate || "");
+            const currentStartOnly = isNaN(currentStart.getTime())
+              ? null
+              : dateOnlyUTC(currentStart);
+
+            const newStart = new Date(newValues.startDate);
+            const newStartOnly = dateOnlyUTC(newStart);
+
+            const canChangeStart =
+              currentStartOnly && nowOnlyUTC < currentStartOnly;
+
             if (
-              new Date(currentDate) < new Date(currentValues.startDate) &&
+              canChangeStart &&
               newValues.startDate !== currentValues.startDate
             ) {
               postData.push({
@@ -4395,6 +4663,7 @@ whenReadyAndDataTables(function () {
               });
             }
 
+            // endDate: zwykła zmiana + obsługa 'infinity'
             if (newValues.endDate !== currentValues.endDate) {
               postData.push({
                 op: "replace",
@@ -4403,6 +4672,7 @@ whenReadyAndDataTables(function () {
               });
             }
 
+            // wholesalerKey: zmieniamy tylko jeśli != "null"
             if (
               newValues.wholesalerKey !== currentValues.wholesalerKey &&
               newValues.wholesalerKey !== "null"
@@ -4414,12 +4684,79 @@ whenReadyAndDataTables(function () {
               });
             }
 
-            if (postData.length === 0) {
-              displayMessage("Info", "No changes detected.");
+            // priceThreshold: add/replace/remove
+            const curThr = currentValues.priceThreshold;
+            if (thresholdRaw === null) {
+              // brak pola w formularzu → nic nie zmieniamy
+            } else if (thresholdRaw === "") {
+              // puste: usuń jeżeli było ustawione
+              if (typeof curThr !== "undefined" && curThr !== null) {
+                postData.push({ op: "remove", path: "/priceThreshold" });
+              }
+            } else {
+              const n = Number(thresholdRaw);
+              if (!isFinite(n) || n <= 0 || n >= 999999.99) {
+                displayMessage(
+                  "Error",
+                  "Próg ceny musi być > 0 i < 999999.99."
+                );
+                return false;
+              }
+              const rounded = Math.round(n * 100) / 100;
+              if (curThr !== rounded) {
+                // jeśli wcześniej nie było → serwer potraktuje replace jak add
+                postData.push({
+                  op: "replace",
+                  path: "/priceThreshold",
+                  value: rounded,
+                });
+              }
+            }
+
+            if (!postData.length) {
+              displayMessage("Warning", "Brak zmian do zapisania.");
               return;
             }
 
-            // Send PATCH request
+            // dodatkowe bezpieczeństwo: relacja start/end po finalnej zmianie
+            // (jeśli startu nie zmieniamy, porównuj z currentValues.startDate)
+            const effectiveStartISO =
+              postData.find((p) => p.path === "/startDate")?.value ||
+              currentValues.startDate;
+            const effectiveEndISO =
+              postData.find((p) => p.path === "/endDate")?.value ||
+              currentValues.endDate;
+
+            if (effectiveEndISO !== "infinity") {
+              const sOnly = dateOnlyUTC(new Date(effectiveStartISO));
+              const eOnly = dateOnlyUTC(new Date(effectiveEndISO));
+              if (eOnly <= sOnly) {
+                displayMessage(
+                  "Error",
+                  "Data zakończenia musi być późniejsza niż data rozpoczęcia."
+                );
+                return;
+              }
+              if (sOnly < todayDateOnlyUTC()) {
+                displayMessage(
+                  "Error",
+                  "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj."
+                );
+                return;
+              }
+            } else {
+              // end = infinity → nadal pilnuj start >= dziś
+              const sOnly = dateOnlyUTC(new Date(effectiveStartISO));
+              if (sOnly < todayDateOnlyUTC()) {
+                displayMessage(
+                  "Error",
+                  "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj."
+                );
+                return;
+              }
+            }
+
+            // wyślij PATCH
             $.ajax({
               type: method,
               url: action,
@@ -4439,30 +4776,64 @@ whenReadyAndDataTables(function () {
               },
               data: JSON.stringify(postData),
               success: function (resultData) {
-                console.log(resultData);
-                form.show();
+                if (typeof successCallback === "function") {
+                  const proceed = successCallback(resultData);
+                  if (!proceed) {
+                    displayMessage(
+                      "Error",
+                      "Ups. Coś poszło nie tak, spróbuj ponownie."
+                    );
+                    return;
+                  }
+                }
                 displayMessage("Success", "Blokada została zmieniona.");
-                refreshTable();
+                if (typeof refreshTable === "function") refreshTable();
               },
               error: function (jqXHR, exception) {
-                console.log(jqXHR);
-                var msg =
-                  "Uncaught Error.\n" + JSON.parse(jqXHR.responseText).message;
-                var elements =
-                  document.getElementsByClassName("warningmessagetext");
-                for (var i = 0; i < elements.length; i++) {
-                  elements[i].textContent = msg;
+                const serverMsg = extractMsg(jqXHR);
+                let msg = "";
+                if (jqXHR.status === 0) {
+                  msg = "Brak połączenia z siecią. Sprawdź internet.";
+                } else if (jqXHR.status === 401 || jqXHR.status === 403) {
+                  msg = /admin/i.test(serverMsg)
+                    ? "Operacja dostępna wyłącznie dla administratora."
+                    : "Brak uprawnień do wykonania tej operacji.";
+                } else if (jqXHR.status === 400) {
+                  if (/start.*before.*end/i.test(serverMsg)) {
+                    msg =
+                      "Data zakończenia musi być późniejsza niż rozpoczęcia.";
+                  } else if (/start.*must be.*now/i.test(serverMsg)) {
+                    msg =
+                      "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.";
+                  } else if (/threshold/i.test(serverMsg)) {
+                    msg = "Próg ceny musi być > 0 i < 999999.99.";
+                  } else {
+                    msg = serverMsg || "Nieprawidłowe dane (400).";
+                  }
+                } else if (jqXHR.status === 409) {
+                  msg = serverMsg || "Konflikt z istniejącymi rekordami (409).";
+                } else if (jqXHR.status === 500) {
+                  msg = "Błąd serwera (500). Spróbuj ponownie później.";
+                } else if (exception === "parsererror") {
+                  msg = "Błąd przetwarzania odpowiedzi serwera.";
+                } else if (exception === "timeout") {
+                  msg = "Przekroczono czas oczekiwania na odpowiedź.";
+                } else if (exception === "abort") {
+                  msg = "Żądanie zostało przerwane.";
+                } else {
+                  msg = serverMsg || "Wystąpił nieznany błąd.";
                 }
-                form.show();
+
+                if (typeof errorCallback === "function") {
+                  errorCallback(jqXHR, exception, msg);
+                }
                 displayMessage("Error", msg);
               },
             });
           },
           error: function (jqXHR, exception) {
-            console.log(jqXHR);
-            var msg =
-              "Failed to fetch current product data.\n" +
-              JSON.parse(jqXHR.responseText).message;
+            const msg =
+              "Nie udało się pobrać danych produktu.\n" + extractMsg(jqXHR);
             displayMessage("Error", msg);
           },
         });
