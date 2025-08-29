@@ -5325,33 +5325,33 @@ ${offerTimestampLine}
     $(this).data("initialValue", $(this).val());
   });
 
-  $("#spl_table").on("focusout", "select", function () {
-    console.log("Focusout event triggered on select element");
+  // Zalecane: reaguj na faktyczną zmianę wyboru
+  $("#spl_table").on("change", "select", function () {
+    console.log("Change event triggered on select element");
 
-    // Get the right table
-    var table = $("#spl_table").DataTable();
-    var $select = $(this);
-    var newValue = $select.val();
-    var initialValue = $select.data("initialValue");
+    const table = $("#spl_table").DataTable();
+    const $select = $(this);
+    const row = table.row($select.closest("tr"));
+    const data = row.data();
+
+    const newValue = String($select.val());
+    const initialValue = String($select.data("initialValue") ?? "");
 
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
-    // Check if the value has changed
+    // Bez zmian → wyjście
     if (newValue === initialValue) {
       console.log("No change in value, no action taken.");
       return;
     }
 
-    $select.attr("value", newValue); // Update the value
-    var data = table.row($select.parents("tr")).data();
-    console.log("Row data:", data);
-
-    if (!data?.gtin) {
+    if (!data || !data.gtin) {
       console.log("GTIN is null, cannot proceed.");
       return;
     }
 
+    // helpery
     const addChange = (op, path, value) => {
       const change = { op, path };
       if (value !== undefined) change.value = value;
@@ -5363,45 +5363,55 @@ ${offerTimestampLine}
       $("#waitingdots").show(1).delay(150).hide(1);
     };
 
-    // Process based on newValue
+    function updateAssignmentIconToUser(row) {
+      const d = row.data();
+      d.assignmentSource = "user"; // zmieniamy TYLKO źródło
+      row.data(d).invalidate().draw(false); // odśwież ikonkę bez resetu paginacji
+    }
+
+    // Logika zmian
     switch (newValue) {
       case "remove":
         if (data.active === false) {
           console.log(
-            "Option 'remove' selected for inactive product. Enabling product."
+            "Option 'remove' for inactive product → enabling product."
           );
           addChange("replace", `/${data.gtin}/active`, true);
         } else {
-          console.log("Option 'remove' selected. Removing wholesaler key.");
+          console.log("Option 'remove' → removing wholesalerKey.");
           addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
+          // UWAGA: nie dotykamy ikonki, bo to nie jest przypisanie do konkretnego dostawcy
         }
         emulateChangeForUser();
         break;
 
       case "unassigned":
-        console.log(
-          "Option 'unassigned' or 'disabled' selected. Disabling product."
-        );
+        console.log("Option 'unassigned' → disabling product.");
         addChange("replace", `/${data.gtin}/active`, false);
         emulateChangeForUser();
         break;
 
       case "enabled":
-        console.log("Option 'enabled' selected. Enabling product.");
+        console.log("Option 'enabled' → enabling product.");
         addChange("replace", `/${data.gtin}/active`, true);
         emulateChangeForUser();
         break;
 
       default:
+        // Realna zmiana dostawcy → ustaw ikonę na „użytkownik”
         console.log("Assigning new wholesalerKey:", newValue);
         addChange(
           "replace",
           `/${data.gtin}/rigidAssignment/wholesalerKey`,
           newValue
         );
+        updateAssignmentIconToUser(row); // TYLKO tutaj
         emulateChangeForUser();
         break;
     }
+
+    // Zaktualizuj „initialValue” po obsłużeniu zmiany
+    $select.data("initialValue", newValue);
   });
 
   window.handlePaste = function (event) {
