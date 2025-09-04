@@ -5079,6 +5079,7 @@ whenReadyAndDataTables(function () {
     var table = $("#table_id").DataTable();
     var data = table.row($(this).parents("tr")).data();
     var action = $(this).attr("action");
+    console.log(data);
 
     if (action === "delete") {
       $.ajax({
@@ -5142,7 +5143,9 @@ whenReadyAndDataTables(function () {
 
       $("#exclusiveProductId").val(data.uuid);
       $("#priceThresholdInput-Edit").val(data.priceThreshold);
-      $("#WholesalerSelector-Exclusive-Edit").val(data.wholesalerKey).change();
+      $("#WholesalerSelector-Exclusive-Edit")
+        .val(data.wholesalerKey ?? "null")
+        .change();
 
       // Jeśli wpis już się skończył, zablokuj wybór hurtowni
       if (nowDate > data.endDate && nowDate >= startDate) {
