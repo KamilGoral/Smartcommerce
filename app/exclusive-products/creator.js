@@ -543,53 +543,30 @@ whenReadyAndDataTables(function () {
     };
 
     function validateGTIN(barcode) {
-      if (typeof barcode == "number") {
-        var x = barcode.toString().length;
-        if (x >= 5 && x <= 13) {
-          if (x <= 8) {
-            var zeroesToadd = 8 - x;
-            barcode = "0".repeat(zeroesToadd) + barcode;
-          } else {
-            var zeroesToadd = 13 - x;
-            barcode = "0".repeat(zeroesToadd) + barcode;
-          }
+      if (barcode === null || barcode === undefined) return false;
+      barcode = String(barcode).replace(/\D/g, ""); // tylko cyfry
 
-          var lastDigit = Number(barcode.substring(barcode.length - 1));
-          var checkSum = 0;
-          if (isNaN(lastDigit)) {
-            return false;
-          } // not a valid upc/GTIN
+      const x = barcode.length;
+      if (x < 5 || x > 13) return false;
 
-          var arr = barcode
-            .substring(0, barcode.length - 1)
-            .split("")
-            .reverse();
-          var oddTotal = 0,
-            evenTotal = 0;
+      // dopełnienie do 8/13
+      barcode =
+        x <= 8 ? "0".repeat(8 - x) + barcode : "0".repeat(13 - x) + barcode;
 
-          for (var i = 0; i < arr.length; i++) {
-            if (isNaN(arr[i])) {
-              return false;
-            } // can't be a valid upc/GTIN we're checking for
+      const lastDigit = Number(barcode.slice(-1));
+      if (Number.isNaN(lastDigit)) return false;
 
-            if (i % 2 == 0) {
-              oddTotal += Number(arr[i]) * 3;
-            } else {
-              evenTotal += Number(arr[i]);
-            }
-          }
-          checkSum = (10 - ((evenTotal + oddTotal) % 10)) % 10;
-
-          // true if they are equal
-          if (checkSum == lastDigit) {
-            return barcode;
-          } else {
-            return false;
-          }
-        }
-      } else {
-        return false;
+      const arr = barcode.slice(0, -1).split("").reverse();
+      let oddTotal = 0,
+        evenTotal = 0;
+      for (let i = 0; i < arr.length; i++) {
+        const d = Number(arr[i]);
+        if (Number.isNaN(d)) return false;
+        if (i % 2 === 0) oddTotal += d * 3;
+        else evenTotal += d;
       }
+      const checkSum = (10 - ((evenTotal + oddTotal) % 10)) % 10;
+      return checkSum === lastDigit ? barcode : false;
     }
 
     function validateProduct(element) {
@@ -755,56 +732,123 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  function handleFileSelect(evt) {
-    var file = evt.target.files[0];
+  // normalizacja nagłówków -> bez ogonków, lower, bez spacji
+  function normalizeHeader(h) {
+    return String(h || "")
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // usuń diakrytyki
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+  }
 
-    if (file) {
-      // UPDATED — w Papa.parse(...)
-      Papa.parse(file, {
-        quotes: true,
-        header: true,
-        encoding: "iso-8859-2",
-        transform: function (h, i) {
-          switch (i) {
-            case "price":
-            case "priceThreshold": {
-              if (h === null || h === undefined || h === "") return null;
-              const v = ("" + h).replace(",", ".").trim();
-              const num = Number(v);
-              return isFinite(num) ? num : null;
-            }
-            default:
-              return h;
-          }
-        },
-        transformHeader: function (h, i) {
-          const key = (h || "").toLowerCase().trim();
-          switch (key) {
-            case "ean":
-            case "kod":
-            case "kod ean":
-              return "gtin";
-            case "nazwa":
-            case "nazwa_indeksu":
-              return "name";
-            // NEW — obsługa wielu wariantów nazwy kolumny
-            case "prog":
-            case "próg":
-            case "threshold":
-              return "priceThreshold";
-            default:
-              return h;
-          }
-        },
-        dynamicTyping: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-          printPapaObject(results);
-        },
-      });
-    } else {
-      alert("Dozwolony format pliku to .csv");
+  // mapowanie różnych wariantów nagłówków do spójnych kluczy
+  function mapHeaderToKey(hNorm) {
+    if (["ean", "kod", "kod_ean", "gtin", "barcode", "code"].includes(hNorm))
+      return "gtin";
+    if (
+      ["nazwa", "name", "produkt", "product", "nazwa_indeksu"].includes(hNorm)
+    )
+      return "name";
+    if (
+      [
+        "prog",
+        "prog_ceny",
+        "prog_cen",
+        "prog_cenowy",
+        "próg",
+        "próg_ceny",
+        "threshold",
+        "price",
+        "price_threshold",
+      ].includes(hNorm)
+    )
+      return "priceThreshold";
+    return hNorm; // zostaw inne jak są
+  }
+
+  // heurystyka „krzaków” (mojibake) w nagłówkach
+  function looksMojibake(headers) {
+    const s = headers.join(" ");
+    return /Ã|Â|Ă|�/.test(s);
+  }
+
+  // transform wartości kolumn
+  function transformCell(value, column) {
+    if (column === "gtin") return String(value || "").replace(/\D/g, "");
+    if (column === "priceThreshold") {
+      if (value === null || value === undefined || value === "") return null;
+      const v = String(value).replace(",", ".").trim();
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
     }
+    return value;
+  }
+
+  // wspólna konfiguracja Papa dla znanego contentu (stringa)
+  function parseCsvString(content, delimiter, onComplete) {
+    Papa.parse(content, {
+      header: true,
+      delimiter,
+      skipEmptyLines: "greedy",
+      transformHeader: (h) => mapHeaderToKey(normalizeHeader(h)),
+      transform: transformCell,
+      dynamicTyping: false, // trzymamy kontrolę nad konwersjami
+      complete: onComplete,
+    });
+  }
+
+  function handleFileSelect(evt) {
+    const file = evt.target.files[0];
+    if (!file) {
+      alert("Dozwolony format pliku to .csv");
+      return;
+    }
+
+    // 1) Spróbuj UTF-8, potem Windows-1250
+    const tryEncodings = ["utf-8", "windows-1250"];
+
+    (function tryNextEncoding(idx) {
+      if (idx >= tryEncodings.length) {
+        displayMessage("Error", "Nie udało się odczytać pliku (kodowanie).");
+        return;
+      }
+
+      const enc = tryEncodings[idx];
+      const fr = new FileReader();
+      fr.onload = () => {
+        const text = fr.result || "";
+
+        // 2) Najpierw średnik, jak nie wyjdzie — przecinek
+        const tryDelims = [";", ","];
+        (function tryNextDelim(di) {
+          if (di >= tryDelims.length) {
+            // spróbuj kolejne kodowanie
+            tryNextEncoding(idx + 1);
+            return;
+          }
+          const delim = tryDelims[di];
+
+          parseCsvString(text, delim, (results) => {
+            const headers = results.meta?.fields || [];
+            const haveCore =
+              headers.includes("gtin") && headers.includes("name"); // próg opcjonalny
+
+            // jeśli krzaki w nagłówkach albo nie mamy required pól -> próbuj dalej
+            if (!haveCore || looksMojibake(headers)) {
+              tryNextDelim(di + 1);
+              return;
+            }
+
+            // OK — mamy sensowne nagłówki
+            printPapaObject(results);
+          });
+        })(0);
+      };
+
+      fr.onerror = () => tryNextEncoding(idx + 1);
+      fr.readAsText(file, enc);
+    })(0);
   }
 
   function initializeSimpleTooltips() {
