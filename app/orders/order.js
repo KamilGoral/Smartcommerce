@@ -912,30 +912,64 @@ whenReadyAndDataTables(function () {
         {
           orderable: true,
           data: "products",
-          width: "64px",
+          width: "96px",
           render: function (data, type, row) {
-            const bestMatch = data.bestMatch || 0;
-            const exclusive = data.exclusive || 0;
-            const order = data.order || 0;
-            const total = bestMatch + exclusive + order;
+            const bm = Number((data && data.bestMatch) || 0);
+            const ex = Number((data && data.exclusive) || 0);
+            const ord = Number((data && data.order) || 0);
+            const total = bm + ex + ord;
 
-            if (type === "sort" || type === "type") {
-              return total;
+            if (type === "sort" || type === "type") return total;
+
+            const onlyBest = bm > 0 && ex === 0 && ord === 0;
+
+            // 1) Tylko bestMatch → sam numer + prosty tooltip
+            if (onlyBest) {
+              const tooltip =
+                row.wholesalerName === "unassigned"
+                  ? "Nieprzydzielono"
+                  : `Najlepszy wybór: ${bm}`;
+              return `<div data-tippy-content="${tooltip}" style="text-align:center;">${bm}</div>`;
             }
 
-            const tooltip =
-              row.wholesalerName === "unassigned"
-                ? "Nieprzydzielono"
-                : exclusive > 0 || order > 0
-                ? `Najlepszy wybór: ${bestMatch}, Blokada: ${exclusive}, Wybór użytkownika: ${order}`
-                : `Najlepszy wybór: ${bestMatch}`;
+            // 2) Mieszanka typów → ikonki + liczby z tooltipem
+            const items = [];
 
-            const displayText =
-              exclusive > 0 || order > 0
-                ? `${bestMatch}/${exclusive}/${order}`
-                : `${bestMatch}`;
+            if (bm > 0) {
+              items.push({
+                label: "Najlepszy wybór",
+                count: bm,
+                icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg",
+              });
+            }
+            if (ex > 0) {
+              items.push({
+                label: "Blokada (exclusive)",
+                count: ex,
+                icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg",
+              });
+            }
+            if (ord > 0) {
+              items.push({
+                label: "Wybór użytkownika",
+                count: ord,
+                icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg",
+              });
+            }
 
-            return `<div data-tippy-content="${tooltip}">${displayText}</div>`;
+            const chips = items
+              .map(
+                (it) => `
+        <span data-tippy-content="${it.label}: ${it.count}" 
+              style="display:inline-flex;align-items:center;gap:4px;margin:0 2px;">
+          <img loading="lazy" src="${it.icon}" alt="" 
+               style="width:14px;height:14px;display:block;" />
+          <span style="font-size:11px;line-height:1;">${it.count}</span>
+        </span>`
+              )
+              .join("");
+
+            return `<div style="display:flex;justify-content:center;align-items:center;gap:6px;">${chips}</div>`;
           },
           type: "num",
           defaultContent: "",
