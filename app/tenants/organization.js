@@ -4603,237 +4603,167 @@ whenReadyAndDataTables(function () {
         event.preventDefault();
 
         const exclusiveProductId = $("#exclusiveProductId").val();
-        const action = InvokeURL + "exclusive-products/" + exclusiveProductId;
+        const action =
+          InvokeURL +
+          "exclusive-products/" +
+          encodeURIComponent(exclusiveProductId);
         const method = "PATCH";
 
         const never = $("#NeverSingleEdit").is(":checked");
-        const startLocal = $("#startDate-Exclusive-Edit").val(); // YYYY-MM-DD
+
+        // start date – jeżeli input jest disabled, ustaw mu wcześniej data-iso-date="YYYY-MM-DD"
+        const startLocal =
+          $("#startDate-Exclusive-Edit").data("isoDate") ||
+          $("#startDate-Exclusive-Edit").val(); // YYYY-MM-DD
+
         const endLocal = $("#endDate-Exclusive-Edit").val(); // YYYY-MM-DD
 
-        // walidacja dat wg nowych reguł (UTC, część dzienna)
+        // walidacja dat (UTC, część dzienna)
         const dateCheck = validateDateRangeUTC(startLocal, endLocal, never);
         if (!dateCheck.ok) {
           displayMessage("Error", dateCheck.reason);
           return false;
         }
 
-        // przygotuj wartości do porównania/wysłania
-        const newValues = {
-          startDate: startLocal + "T00:00:00.000Z",
-          endDate: never ? "infinity" : endLocal + "T00:00:00.000Z",
-          wholesalerKey: $("#WholesalerSelector-Exclusive-Edit").val(),
-        };
+        // docelowe wartości
+        const startISO = startLocal + "T00:00:00.000Z";
+        const endISO = never ? "infinity" : endLocal + "T00:00:00.000Z";
 
-        // threshold z pola (opcjonalnie)
+        // wholesalerKey: "null" (string) → null
+        const wkRaw = $("#WholesalerSelector-Exclusive-Edit").val();
+        const wk = wkRaw === "null" ? null : wkRaw;
+
+        // priceThreshold (opcjonalnie)
         const thrInput = document.querySelector("#priceThresholdInput-Edit");
-        let thresholdRaw = null;
-        if (thrInput) {
-          thresholdRaw = (thrInput.value || "").replace(",", ".").trim();
+        const thrRaw = thrInput
+          ? (thrInput.value || "").replace(",", ".").trim()
+          : null;
+
+        // budujemy JSON Patch — ZAWSZE 3 op'y dla start/end/wholesaler
+        const postData = [
+          { op: "replace", path: "/startDate", value: startISO },
+          { op: "replace", path: "/endDate", value: endISO },
+          { op: "replace", path: "/wholesalerKey", value: wk },
+        ];
+
+        // próg ceny: replace lub remove (jeśli pole istnieje w formularzu)
+        if (thrRaw !== null) {
+          if (thrRaw === "") {
+            postData.push({ op: "remove", path: "/priceThreshold" });
+          } else {
+            const n = Number(thrRaw);
+            if (!isFinite(n) || n <= 0 || n >= 999999.99) {
+              displayMessage("Error", "Próg ceny musi być > 0 i < 999999.99.");
+              return false;
+            }
+            const rounded = Math.round(n * 100) / 100;
+            postData.push({
+              op: "replace",
+              path: "/priceThreshold",
+              value: rounded,
+            });
+          }
         }
 
-        // pobierz aktualne wartości, aby zbudować PATCH tylko dla zmian
+        // ostateczna sanity-check relacji dat (dla end != infinity)
+        if (endISO !== "infinity") {
+          const sOnly = dateOnlyUTC(new Date(startISO));
+          const eOnly = dateOnlyUTC(new Date(endISO));
+          if (eOnly <= sOnly) {
+            displayMessage(
+              "Error",
+              "Data zakończenia musi być późniejsza niż data rozpoczęcia."
+            );
+            return false;
+          }
+          if (sOnly < todayDateOnlyUTC()) {
+            displayMessage(
+              "Error",
+              "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj."
+            );
+            return false;
+          }
+        } else {
+          const sOnly = dateOnlyUTC(new Date(startISO));
+          if (sOnly < todayDateOnlyUTC()) {
+            displayMessage(
+              "Error",
+              "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj."
+            );
+            return false;
+          }
+        }
+
+        // wyślij PATCH
         $.ajax({
-          type: "GET",
+          type: method,
           url: action,
-          headers: { Authorization: orgToken, Accept: "application/json" },
-          success: function (currentValues) {
-            const postData = [];
-            const nowOnlyUTC = todayDateOnlyUTC();
-
-            // startDate: można zmienić tylko jeśli DZISIAJ < current.startDate (po części dziennej UTC)
-            const currentStart = new Date(currentValues.startDate || "");
-            const currentStartOnly = isNaN(currentStart.getTime())
-              ? null
-              : dateOnlyUTC(currentStart);
-
-            const newStart = new Date(newValues.startDate);
-            const newStartOnly = dateOnlyUTC(newStart);
-
-            const canChangeStart =
-              currentStartOnly && nowOnlyUTC < currentStartOnly;
-
-            if (
-              canChangeStart &&
-              newValues.startDate !== currentValues.startDate
-            ) {
-              postData.push({
-                op: "replace",
-                path: "/startDate",
-                value: newValues.startDate,
-              });
-            }
-
-            // endDate: zwykła zmiana + obsługa 'infinity'
-            if (newValues.endDate !== currentValues.endDate) {
-              postData.push({
-                op: "replace",
-                path: "/endDate",
-                value: newValues.endDate,
-              });
-            }
-
-            // wholesalerKey: zmieniamy tylko jeśli != "null"
-            if (
-              newValues.wholesalerKey !== currentValues.wholesalerKey &&
-              newValues.wholesalerKey !== "null"
-            ) {
-              postData.push({
-                op: "replace",
-                path: "/wholesalerKey",
-                value: newValues.wholesalerKey,
-              });
-            }
-
-            // priceThreshold: add/replace/remove
-            const curThr = currentValues.priceThreshold;
-            if (thresholdRaw === null) {
-              // brak pola w formularzu → nic nie zmieniamy
-            } else if (thresholdRaw === "") {
-              // puste: usuń jeżeli było ustawione
-              if (typeof curThr !== "undefined" && curThr !== null) {
-                postData.push({ op: "remove", path: "/priceThreshold" });
-              }
-            } else {
-              const n = Number(thresholdRaw);
-              if (!isFinite(n) || n <= 0 || n >= 999999.99) {
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(postData),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              const proceed = successCallback(resultData);
+              if (!proceed) {
                 displayMessage(
                   "Error",
-                  "Próg ceny musi być > 0 i < 999999.99."
-                );
-                return false;
-              }
-              const rounded = Math.round(n * 100) / 100;
-              if (curThr !== rounded) {
-                // jeśli wcześniej nie było → serwer potraktuje replace jak add
-                postData.push({
-                  op: "replace",
-                  path: "/priceThreshold",
-                  value: rounded,
-                });
-              }
-            }
-
-            if (!postData.length) {
-              displayMessage("Warning", "Brak zmian do zapisania.");
-              return;
-            }
-
-            // dodatkowe bezpieczeństwo: relacja start/end po finalnej zmianie
-            // (jeśli startu nie zmieniamy, porównuj z currentValues.startDate)
-            const effectiveStartISO =
-              postData.find((p) => p.path === "/startDate")?.value ||
-              currentValues.startDate;
-            const effectiveEndISO =
-              postData.find((p) => p.path === "/endDate")?.value ||
-              currentValues.endDate;
-
-            if (effectiveEndISO !== "infinity") {
-              const sOnly = dateOnlyUTC(new Date(effectiveStartISO));
-              const eOnly = dateOnlyUTC(new Date(effectiveEndISO));
-              if (eOnly <= sOnly) {
-                displayMessage(
-                  "Error",
-                  "Data zakończenia musi być późniejsza niż data rozpoczęcia."
-                );
-                return;
-              }
-              if (sOnly < todayDateOnlyUTC()) {
-                displayMessage(
-                  "Error",
-                  "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj."
-                );
-                return;
-              }
-            } else {
-              // end = infinity → nadal pilnuj start >= dziś
-              const sOnly = dateOnlyUTC(new Date(effectiveStartISO));
-              if (sOnly < todayDateOnlyUTC()) {
-                displayMessage(
-                  "Error",
-                  "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj."
+                  "Ups. Coś poszło nie tak, spróbuj ponownie."
                 );
                 return;
               }
             }
-
-            // wyślij PATCH
-            $.ajax({
-              type: method,
-              url: action,
-              cors: true,
-              beforeSend: function () {
-                $("#waitingdots").show();
-              },
-              complete: function () {
-                $("#waitingdots").hide();
-              },
-              contentType: "application/json",
-              dataType: "json",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: orgToken,
-              },
-              data: JSON.stringify(postData),
-              success: function (resultData) {
-                if (typeof successCallback === "function") {
-                  const proceed = successCallback(resultData);
-                  if (!proceed) {
-                    displayMessage(
-                      "Error",
-                      "Ups. Coś poszło nie tak, spróbuj ponownie."
-                    );
-                    return;
-                  }
-                }
-                displayMessage("Success", "Blokada została zmieniona.");
-                if (typeof refreshTable === "function") refreshTable();
-              },
-              error: function (jqXHR, exception) {
-                const serverMsg = extractMsg(jqXHR);
-                let msg = "";
-                if (jqXHR.status === 0) {
-                  msg = "Brak połączenia z siecią. Sprawdź internet.";
-                } else if (jqXHR.status === 401 || jqXHR.status === 403) {
-                  msg = /admin/i.test(serverMsg)
-                    ? "Operacja dostępna wyłącznie dla administratora."
-                    : "Brak uprawnień do wykonania tej operacji.";
-                } else if (jqXHR.status === 400) {
-                  if (/start.*before.*end/i.test(serverMsg)) {
-                    msg =
-                      "Data zakończenia musi być późniejsza niż rozpoczęcia.";
-                  } else if (/start.*must be.*now/i.test(serverMsg)) {
-                    msg =
-                      "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.";
-                  } else if (/threshold/i.test(serverMsg)) {
-                    msg = "Próg ceny musi być > 0 i < 999999.99.";
-                  } else {
-                    msg = serverMsg || "Nieprawidłowe dane (400).";
-                  }
-                } else if (jqXHR.status === 409) {
-                  msg = serverMsg || "Konflikt z istniejącymi rekordami (409).";
-                } else if (jqXHR.status === 500) {
-                  msg = "Błąd serwera (500). Spróbuj ponownie później.";
-                } else if (exception === "parsererror") {
-                  msg = "Błąd przetwarzania odpowiedzi serwera.";
-                } else if (exception === "timeout") {
-                  msg = "Przekroczono czas oczekiwania na odpowiedź.";
-                } else if (exception === "abort") {
-                  msg = "Żądanie zostało przerwane.";
-                } else {
-                  msg = serverMsg || "Wystąpił nieznany błąd.";
-                }
-
-                if (typeof errorCallback === "function") {
-                  errorCallback(jqXHR, exception, msg);
-                }
-                displayMessage("Error", msg);
-              },
-            });
+            displayMessage("Success", "Blokada została zmieniona.");
+            if (typeof refreshTable === "function") refreshTable();
           },
           error: function (jqXHR, exception) {
-            const msg =
-              "Nie udało się pobrać danych produktu.\n" + extractMsg(jqXHR);
+            const serverMsg = extractMsg(jqXHR);
+            let msg = "";
+            if (jqXHR.status === 0) {
+              msg = "Brak połączenia z siecią. Sprawdź internet.";
+            } else if (jqXHR.status === 401 || jqXHR.status === 403) {
+              msg = /admin/i.test(serverMsg)
+                ? "Operacja dostępna wyłącznie dla administratora."
+                : "Brak uprawnień do wykonania tej operacji.";
+            } else if (jqXHR.status === 400) {
+              if (/start.*before.*end/i.test(serverMsg)) {
+                msg = "Data zakończenia musi być późniejsza niż rozpoczęcia.";
+              } else if (/start.*must be.*now/i.test(serverMsg)) {
+                msg = "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.";
+              } else if (/threshold/i.test(serverMsg)) {
+                msg = "Próg ceny musi być > 0 i < 999999.99.";
+              } else {
+                msg = serverMsg || "Nieprawidłowe dane (400).";
+              }
+            } else if (jqXHR.status === 409) {
+              msg = serverMsg || "Konflikt z istniejącymi rekordami (409).";
+            } else if (jqXHR.status === 500) {
+              msg = "Błąd serwera (500). Spróbuj ponownie później.";
+            } else if (exception === "parsererror") {
+              msg = "Błąd przetwarzania odpowiedzi serwera.";
+            } else if (exception === "timeout") {
+              msg = "Przekroczono czas oczekiwania na odpowiedź.";
+            } else if (exception === "abort") {
+              msg = "Żądanie zostało przerwane.";
+            } else {
+              msg = serverMsg || "Wystąpił nieznany błąd.";
+            }
+
+            if (typeof errorCallback === "function") {
+              errorCallback(jqXHR, exception, msg);
+            }
             displayMessage("Error", msg);
           },
         });
