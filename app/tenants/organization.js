@@ -2870,7 +2870,7 @@ whenReadyAndDataTables(function () {
 
             // Infinity → zawsze zielone
             if (val === "infinity")
-              return '<span class="positive">Nigdy</span>';
+              return '<span class="positive">Bezterminowo</span>';
 
             // Brak daty
             if (!val) return "";
@@ -4618,7 +4618,7 @@ whenReadyAndDataTables(function () {
 
         const endLocal = $("#endDate-Exclusive-Edit").val(); // YYYY-MM-DD
 
-        // walidacja zakresu (UI) – zostawiamy, ale start finalnie i tak możemy pominąć w PATCH
+        // walidacja zakresu (UI)
         const dateCheck = validateDateRangeUTC(startLocal, endLocal, never);
         if (!dateCheck.ok) {
           displayMessage("Error", dateCheck.reason);
@@ -4629,7 +4629,7 @@ whenReadyAndDataTables(function () {
         const newStartISO = startLocal + "T00:00:00.000Z";
         const newEndISO = never ? "infinity" : endLocal + "T00:00:00.000Z";
 
-        // wholesalerKey: "null" → null
+        // wholesalerKey: "null" → null (BLOKADA)
         const wkRaw = $("#WholesalerSelector-Exclusive-Edit").val();
         const newWhKey = wkRaw === "null" ? null : wkRaw;
 
@@ -4639,7 +4639,7 @@ whenReadyAndDataTables(function () {
           ? (thrInput.value || "").replace(",", ".").trim()
           : null;
 
-        // najpierw pobierz bieżący rekord, żeby ustalić czy event jest "ongoing"
+        // najpierw pobierz bieżący rekord
         $.ajax({
           type: "GET",
           url: action,
@@ -4655,7 +4655,7 @@ whenReadyAndDataTables(function () {
               : dateOnlyUTC(curStart);
             const isOngoing = !!curStartOnly && curStartOnly <= todayOnly;
 
-            // --- /startDate: dodaj tylko jeżeli NIE jest ongoing i data faktycznie się zmienia
+            // /startDate: dodaj tylko jeżeli NIE jest ongoing i data faktycznie się zmienia
             if (!isOngoing) {
               if (newStartISO !== currentValues.startDate) {
                 postData.push({
@@ -4666,7 +4666,7 @@ whenReadyAndDataTables(function () {
               }
             }
 
-            // --- /endDate: zawsze możesz zmienić (także na "infinity")
+            // /endDate: można zmienić zawsze (także na "infinity")
             if (newEndISO !== currentValues.endDate) {
               postData.push({
                 op: "replace",
@@ -4675,16 +4675,21 @@ whenReadyAndDataTables(function () {
               });
             }
 
-            // --- /wholesalerKey: dorzuć jeśli zmieniasz (również na null)
+            // /wholesalerKey: zmiana = replace, BLOKADA (null) = delete
             if (newWhKey !== currentValues.wholesalerKey) {
-              postData.push({
-                op: "replace",
-                path: "/wholesalerKey",
-                value: newWhKey,
-              });
+              if (newWhKey === null) {
+                // ustaw null po stronie backendu
+                postData.push({ op: "delete", path: "/wholesalerKey" });
+              } else {
+                postData.push({
+                  op: "replace",
+                  path: "/wholesalerKey",
+                  value: newWhKey,
+                });
+              }
             }
 
-            // --- /priceThreshold: replace / remove
+            // /priceThreshold: replace / remove
             const curThr = currentValues.priceThreshold;
             if (thrRaw !== null) {
               if (thrRaw === "") {
@@ -4716,7 +4721,7 @@ whenReadyAndDataTables(function () {
               return;
             }
 
-            // sanity-check relacji dat dla przypadku, gdy jednak modyfikujemy end
+            // sanity-check relacji dat
             const effectiveStartISO =
               postData.find((p) => p.path === "/startDate")?.value ||
               currentValues.startDate;
