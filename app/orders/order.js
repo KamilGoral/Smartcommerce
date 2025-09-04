@@ -923,7 +923,7 @@ whenReadyAndDataTables(function () {
 
             const onlyBest = bm > 0 && ex === 0 && ord === 0;
 
-            // 1) Tylko bestMatch → sam numer + prosty tooltip
+            // 1) Tylko bestMatch → sam numer
             if (onlyBest) {
               const tooltip =
                 row.wholesalerName === "unassigned"
@@ -932,7 +932,7 @@ whenReadyAndDataTables(function () {
               return `<div data-tippy-content="${tooltip}" style="text-align:center;">${bm}</div>`;
             }
 
-            // 2) Mieszanka typów → ikonki + liczby z tooltipem
+            // 2) Mieszanka typów → ikonki + liczby
             const items = [];
 
             if (bm > 0) {
@@ -963,8 +963,8 @@ whenReadyAndDataTables(function () {
         <span data-tippy-content="${it.label}: ${it.count}" 
               style="display:inline-flex;align-items:center;gap:4px;margin:0 2px;">
           <img loading="lazy" src="${it.icon}" alt="" 
-               style="width:14px;height:14px;display:block;" />
-          <span style="font-size:11px;line-height:1;">${it.count}</span>
+               style="width:24px;height:24px;display:block;" />
+          <span style="font-size:.875em;line-height:1;">${it.count}</span>
         </span>`
               )
               .join("");
@@ -975,6 +975,7 @@ whenReadyAndDataTables(function () {
           defaultContent: "",
           className: "dt-center",
         },
+
         {
           orderable: true,
           data: null,
