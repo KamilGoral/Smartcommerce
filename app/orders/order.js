@@ -5257,16 +5257,23 @@ ${offerTimestampLine}
 
     const table = $("#spl_table").DataTable();
     const $select = $(this);
-    const row = table.row($select.closest("tr"));
-    const data = row.data();
 
+    // zabezpieczenie: weź główny <tr> (nie child)
+    const tr = $select.closest("tr");
+    const row = table.row(tr.hasClass("child") ? tr.prev() : tr);
+
+    if (!row.length) {
+      console.warn("Row not found in DataTables");
+      return;
+    }
+
+    const data = row.data();
     const newValue = String($select.val());
     const initialValue = String($select.data("initialValue") ?? "");
 
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
-    // Bez zmian → wyjście
     if (newValue === initialValue) {
       console.log("No change in value, no action taken.");
       return;
@@ -5284,7 +5291,6 @@ ${offerTimestampLine}
       console.log("Payload added:", change);
     };
 
-    // add vs replace dla JSON Patch
     const addOrReplace = (pathExists) => (pathExists ? "replace" : "add");
 
     const emulateChangeForUser = () => {
@@ -5294,7 +5300,7 @@ ${offerTimestampLine}
     function updateAssignmentIconToUser(r) {
       const d = r.data();
       d.assignmentSource = "user"; // tylko źródło
-      r.data(d).invalidate().draw(false); // bez resetu paginacji
+      r.data(d); // bez invalidate().draw(false)
     }
 
     const hasRigid = !!data.rigidAssignment;
@@ -5315,7 +5321,6 @@ ${offerTimestampLine}
         } else {
           console.log("Option 'remove' → removing wholesalerKey.");
           addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
-          // lokalnie wyzeruj assignment
           if (!data.rigidAssignment) data.rigidAssignment = {};
           data.rigidAssignment.wholesalerKey = null;
         }
@@ -5360,20 +5365,21 @@ ${offerTimestampLine}
           data.active = true; // lokalnie
         }
 
-        // 🔑 TU jest kluczowa zmiana:
         if (!data.rigidAssignment) data.rigidAssignment = {};
         data.rigidAssignment.wholesalerKey = newValue;
 
         updateAssignmentIconToUser(row);
-
-        // teraz DataTables dostanie już zmodyfikowane dane
-        row.data(data).invalidate().draw(false);
-
         emulateChangeForUser();
         break;
     }
 
-    // Zaktualizuj „initialValue” po obsłużeniu zmiany
+    // 🔑 kluczowa zmiana: nie robimy invalidate().draw(false)
+    row.data(data);
+
+    // zostaw selecta na nowym wyborze
+    $select.val(newValue);
+
+    // zapisz nową wartość
     $select.data("initialValue", newValue);
   });
 
