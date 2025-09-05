@@ -5258,10 +5258,9 @@ ${offerTimestampLine}
     const table = $("#spl_table").DataTable();
     const $select = $(this);
 
-    // zabezpieczenie: zawsze główny <tr>
+    // Zawsze główny wiersz (nie child)
     const tr = $select.closest("tr");
     const row = table.row(tr.hasClass("child") ? tr.prev() : tr);
-
     if (!row.length) {
       console.warn("Row not found in DataTables");
       return;
@@ -5274,12 +5273,12 @@ ${offerTimestampLine}
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
-    if (newValue === initialValue) {
-      console.log("No change in value, no action taken.");
-      return;
-    }
     if (!data || !data.gtin) {
       console.log("GTIN is null, cannot proceed.");
+      return;
+    }
+    if (newValue === initialValue) {
+      console.log("No change in value, no action taken.");
       return;
     }
 
@@ -5290,17 +5289,13 @@ ${offerTimestampLine}
       addObject(changesPayload, change);
       console.log("Payload added:", change);
     };
-
     const addOrReplace = (pathExists) => (pathExists ? "replace" : "add");
-
-    const emulateChangeForUser = () => {
+    const emulateChangeForUser = () =>
       $("#waitingdots").show(1).delay(150).hide(1);
-    };
-
     function updateAssignmentIconToUser(r) {
       const d = r.data();
-      d.assignmentSource = "user"; // tylko źródło
-      r.data(d); // zapis do pamięci, bez invalidate()
+      d.assignmentSource = "user";
+      r.data(d); // bez invalidate()
     }
 
     const hasRigid = !!data.rigidAssignment;
@@ -5309,17 +5304,13 @@ ${offerTimestampLine}
       data.rigidAssignment &&
       data.rigidAssignment.wholesalerKey != null;
 
-    // --- Logika zmian ---
+    // --- Logika zmian (Twoja) ---
     switch (newValue) {
       case "remove":
         if (data.active === false) {
-          console.log(
-            "Option 'remove' for inactive product → enabling product."
-          );
           addChange("replace", `/${data.gtin}/active`, true);
-          data.active = true; // lokalnie
+          data.active = true;
         } else {
-          console.log("Option 'remove' → removing wholesalerKey.");
           addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
           if (!data.rigidAssignment) data.rigidAssignment = {};
           data.rigidAssignment.wholesalerKey = null;
@@ -5328,26 +5319,22 @@ ${offerTimestampLine}
         break;
 
       case "unassigned":
-        console.log("Option 'unassigned' → disabling product.");
         addChange("replace", `/${data.gtin}/active`, false);
-        data.active = false; // lokalnie
+        data.active = false;
         emulateChangeForUser();
         break;
 
       case "enabled":
-        console.log("Option 'enabled' → enabling product.");
         addChange(
           addOrReplace(data.active !== undefined),
           `/${data.gtin}/active`,
           true
         );
-        data.active = true; // lokalnie
+        data.active = true;
         emulateChangeForUser();
         break;
 
       default:
-        console.log("Assigning new wholesalerKey:", newValue);
-
         if (!hasRigid) {
           addChange("add", `/${data.gtin}/rigidAssignment`, {
             wholesalerKey: newValue,
@@ -5359,29 +5346,34 @@ ${offerTimestampLine}
             newValue
           );
         }
-
         if (data.active === false) {
-          addChange(addOrReplace(true), `/${data.gtin}/active`, true);
-          data.active = true; // lokalnie
+          addChange("replace", `/${data.gtin}/active`, true);
+          data.active = true;
         }
-
         if (!data.rigidAssignment) data.rigidAssignment = {};
         data.rigidAssignment.wholesalerKey = newValue;
-
         updateAssignmentIconToUser(row);
         emulateChangeForUser();
         break;
     }
 
-    // 🔑 Zostaw selecta na nowej wartości (tylko w tym wierszu)
+    // --- TU MAGIA, żeby select NIE wracał do starej opcji ---
+    // 1) ustaw nową opcję w TYM selekcie
     $select.find("option").prop("selected", false);
     $select.find(`option[value="${newValue}"]`).prop("selected", true);
     $select.val(newValue);
 
-    // zapisz initialValue
+    // 2) zaktualizuj ukryty <p> w tej komórce (sort/filter helper)
+    const $cell = $select.closest("td");
+    $cell.find("p").first().text(newValue);
+
+    // 3) powiedz DataTables, że DOM tej komórki to prawda (nie nadpisuj cachem)
+    table.cell($cell).invalidate("dom");
+
+    // 4) zapisz initialValue na przyszłość
     $select.data("initialValue", newValue);
 
-    // podmień dane w pamięci DataTables (ale bez invalidate/redraw)
+    // 5) nie robimy invalidate/redraw w całym wierszu
     row.data(data);
   });
 
