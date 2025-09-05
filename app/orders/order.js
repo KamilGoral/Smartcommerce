@@ -5373,16 +5373,16 @@ ${offerTimestampLine}
         break;
     }
 
-    // 🔑 klucz: nie invalidate() → tylko update danych i zostaw selecta
-    row.data(data);
-
-    // 👇 zostaw nową wartość w tym konkretnym selectcie
+    // 🔑 Zostaw selecta na nowej wartości (tylko w tym wierszu)
     $select.find("option").prop("selected", false);
     $select.find(`option[value="${newValue}"]`).prop("selected", true);
     $select.val(newValue);
 
     // zapisz initialValue
     $select.data("initialValue", newValue);
+
+    // podmień dane w pamięci DataTables (ale bez invalidate/redraw)
+    row.data(data);
   });
 
   window.handlePaste = function (event) {
