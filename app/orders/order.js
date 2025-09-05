@@ -5341,18 +5341,13 @@ ${offerTimestampLine}
         break;
 
       default:
-        // --- ZMIANA DOSTAWCY ---
-        // 1) ustaw wholesalerKey (add/replace zależnie czy był)
         console.log("Assigning new wholesalerKey:", newValue);
 
-        // upewnij się, że istnieje rigidAssignment jako obiekt
         if (!hasRigid) {
-          // dodaj cały rigidAssignment, jeśli go nie było
           addChange("add", `/${data.gtin}/rigidAssignment`, {
             wholesalerKey: newValue,
           });
         } else {
-          // był rigidAssignment → ustaw sam klucz
           addChange(
             addOrReplace(hasWhKey),
             `/${data.gtin}/rigidAssignment/wholesalerKey`,
@@ -5360,17 +5355,18 @@ ${offerTimestampLine}
           );
         }
 
-        // 2) jeśli produkt był nieaktywny, włącz go (częsty case przy przypisaniu)
         if (data.active === false) {
           addChange(addOrReplace(true), `/${data.gtin}/active`, true);
           data.active = true; // lokalnie
         }
 
-        // 3) lokalnie zaktualizuj dane wiersza (dla tabeli/ikonki)
+        // 🔑 TU jest kluczowa zmiana:
         if (!data.rigidAssignment) data.rigidAssignment = {};
         data.rigidAssignment.wholesalerKey = newValue;
 
-        updateAssignmentIconToUser(row); // zmień ikonę na „user”
+        updateAssignmentIconToUser(row);
+
+        // teraz DataTables dostanie już zmodyfikowane dane
         row.data(data).invalidate().draw(false);
 
         emulateChangeForUser();
