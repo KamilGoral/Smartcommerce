@@ -2443,7 +2443,7 @@ whenReadyAndDataTables(function () {
                 const d = row.data() || {};
                 const val = String($sel.val() || "");
 
-                // Aktualizujemy tylko pole wholesalerKey (logikę addChange masz u siebie gdzie indziej)
+                // Aktualizujemy tylko pole wholesalerKey
                 if (val === "remove") {
                   d.wholesalerKey = "";
                 } else if (val === "unassigned" || val === "enabled") {
@@ -2452,7 +2452,7 @@ whenReadyAndDataTables(function () {
                   d.wholesalerKey = val;
                 }
 
-                row.data(d).invalidate().draw(false); // odśwież, żeby filtr zadziałał natychmiast
+                row.data(d).invalidate().draw(false);
                 $sel.data("initialValue", val);
               });
 
@@ -5271,13 +5271,12 @@ ${offerTimestampLine}
       console.log("No change in value, no action taken.");
       return;
     }
-
     if (!data || !data.gtin) {
       console.log("GTIN is null, cannot proceed.");
       return;
     }
 
-    // helpery
+    // --- helpery ---
     const addChange = (op, path, value) => {
       const change = { op, path };
       if (value !== undefined) change.value = value;
@@ -5285,17 +5284,26 @@ ${offerTimestampLine}
       console.log("Payload added:", change);
     };
 
+    // add vs replace dla JSON Patch
+    const addOrReplace = (pathExists) => (pathExists ? "replace" : "add");
+
     const emulateChangeForUser = () => {
       $("#waitingdots").show(1).delay(150).hide(1);
     };
 
-    function updateAssignmentIconToUser(row) {
-      const d = row.data();
-      d.assignmentSource = "user"; // zmieniamy TYLKO źródło
-      row.data(d).invalidate().draw(false); // odśwież ikonkę bez resetu paginacji
+    function updateAssignmentIconToUser(r) {
+      const d = r.data();
+      d.assignmentSource = "user"; // tylko źródło
+      r.data(d).invalidate().draw(false); // bez resetu paginacji
     }
 
-    // Logika zmian
+    const hasRigid = !!data.rigidAssignment;
+    const hasWhKey =
+      hasRigid &&
+      data.rigidAssignment &&
+      data.rigidAssignment.wholesalerKey != null;
+
+    // --- Logika zmian ---
     switch (newValue) {
       case "remove":
         if (data.active === false) {
@@ -5303,10 +5311,13 @@ ${offerTimestampLine}
             "Option 'remove' for inactive product → enabling product."
           );
           addChange("replace", `/${data.gtin}/active`, true);
+          data.active = true; // lokalnie
         } else {
           console.log("Option 'remove' → removing wholesalerKey.");
           addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
-          // UWAGA: nie dotykamy ikonki, bo to nie jest przypisanie do konkretnego dostawcy
+          // lokalnie wyzeruj assignment
+          if (!data.rigidAssignment) data.rigidAssignment = {};
+          data.rigidAssignment.wholesalerKey = null;
         }
         emulateChangeForUser();
         break;
@@ -5314,24 +5325,54 @@ ${offerTimestampLine}
       case "unassigned":
         console.log("Option 'unassigned' → disabling product.");
         addChange("replace", `/${data.gtin}/active`, false);
+        data.active = false; // lokalnie
         emulateChangeForUser();
         break;
 
       case "enabled":
         console.log("Option 'enabled' → enabling product.");
-        addChange("replace", `/${data.gtin}/active`, true);
+        addChange(
+          addOrReplace(data.active !== undefined),
+          `/${data.gtin}/active`,
+          true
+        );
+        data.active = true; // lokalnie
         emulateChangeForUser();
         break;
 
       default:
-        // Realna zmiana dostawcy → ustaw ikonę na „użytkownik”
+        // --- ZMIANA DOSTAWCY ---
+        // 1) ustaw wholesalerKey (add/replace zależnie czy był)
         console.log("Assigning new wholesalerKey:", newValue);
-        addChange(
-          "replace",
-          `/${data.gtin}/rigidAssignment/wholesalerKey`,
-          newValue
-        );
-        updateAssignmentIconToUser(row); // TYLKO tutaj
+
+        // upewnij się, że istnieje rigidAssignment jako obiekt
+        if (!hasRigid) {
+          // dodaj cały rigidAssignment, jeśli go nie było
+          addChange("add", `/${data.gtin}/rigidAssignment`, {
+            wholesalerKey: newValue,
+          });
+        } else {
+          // był rigidAssignment → ustaw sam klucz
+          addChange(
+            addOrReplace(hasWhKey),
+            `/${data.gtin}/rigidAssignment/wholesalerKey`,
+            newValue
+          );
+        }
+
+        // 2) jeśli produkt był nieaktywny, włącz go (częsty case przy przypisaniu)
+        if (data.active === false) {
+          addChange(addOrReplace(true), `/${data.gtin}/active`, true);
+          data.active = true; // lokalnie
+        }
+
+        // 3) lokalnie zaktualizuj dane wiersza (dla tabeli/ikonki)
+        if (!data.rigidAssignment) data.rigidAssignment = {};
+        data.rigidAssignment.wholesalerKey = newValue;
+
+        updateAssignmentIconToUser(row); // zmień ikonę na „user”
+        row.data(data).invalidate().draw(false);
+
         emulateChangeForUser();
         break;
     }
