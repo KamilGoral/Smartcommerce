@@ -5375,7 +5375,13 @@ ${offerTimestampLine}
 
     // 🔑 klucz: nie invalidate() → tylko update danych i zostaw selecta
     row.data(data);
+
+    // 👇 zostaw nową wartość w tym konkretnym selectcie
+    $select.find("option").prop("selected", false);
+    $select.find(`option[value="${newValue}"]`).prop("selected", true);
     $select.val(newValue);
+
+    // zapisz initialValue
     $select.data("initialValue", newValue);
   });
 
