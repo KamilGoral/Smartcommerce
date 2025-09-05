@@ -5255,126 +5255,90 @@ ${offerTimestampLine}
   $("#spl_table").on("change", "select", function () {
     console.log("Change event triggered on select element");
 
-    const table = $("#spl_table").DataTable();
     const $select = $(this);
+    const $tr = $select.closest("tr");
+    const $td = $select.closest("td");
 
-    // Zawsze główny wiersz (nie child)
-    const tr = $select.closest("tr");
-    const row = table.row(tr.hasClass("child") ? tr.prev() : tr);
-    if (!row.length) {
-      console.warn("Row not found in DataTables");
-      return;
-    }
+    // UWAGA: nie używamy row.data(...) – unikasz błędu _aData
+    // Jeśli jednak chcesz mieć dostęp do danych, trzymaj je w atrybutach data-* albo w changesPayload.
 
-    const data = row.data();
     const newValue = String($select.val());
     const initialValue = String($select.data("initialValue") ?? "");
 
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
-    if (!data || !data.gtin) {
+    if (newValue === initialValue) return;
+
+    // znajdź GTIN z wiersza po tekście w kolumnie "Kod" (4-ta kolumna u Ciebie)
+    // (bez DataTables API, czysty DOM)
+    const gtin = $tr.find("td").eq(3).text().trim();
+    if (!gtin) {
       console.log("GTIN is null, cannot proceed.");
       return;
     }
-    if (newValue === initialValue) {
-      console.log("No change in value, no action taken.");
-      return;
-    }
 
-    // --- helpery ---
+    // --- helper do payloadu ---
     const addChange = (op, path, value) => {
       const change = { op, path };
       if (value !== undefined) change.value = value;
       addObject(changesPayload, change);
       console.log("Payload added:", change);
     };
-    const addOrReplace = (pathExists) => (pathExists ? "replace" : "add");
-    const emulateChangeForUser = () =>
-      $("#waitingdots").show(1).delay(150).hide(1);
-    function updateAssignmentIconToUser(r) {
-      const d = r.data();
-      d.assignmentSource = "user";
-      r.data(d); // bez invalidate()
-    }
-
-    const hasRigid = !!data.rigidAssignment;
-    const hasWhKey =
-      hasRigid &&
-      data.rigidAssignment &&
-      data.rigidAssignment.wholesalerKey != null;
 
     // --- Logika zmian (Twoja) ---
     switch (newValue) {
       case "remove":
-        if (data.active === false) {
-          addChange("replace", `/${data.gtin}/active`, true);
-          data.active = true;
-        } else {
-          addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
-          if (!data.rigidAssignment) data.rigidAssignment = {};
-          data.rigidAssignment.wholesalerKey = null;
-        }
-        emulateChangeForUser();
+        // usuń przypisanie dostawcy
+        addChange("remove", `/${gtin}/rigidAssignment/wholesalerKey`);
         break;
 
       case "unassigned":
-        addChange("replace", `/${data.gtin}/active`, false);
-        data.active = false;
-        emulateChangeForUser();
+        // wyłącz produkt
+        addChange("replace", `/${gtin}/active`, false);
         break;
 
       case "enabled":
-        addChange(
-          addOrReplace(data.active !== undefined),
-          `/${data.gtin}/active`,
-          true
-        );
-        data.active = true;
-        emulateChangeForUser();
+        // włącz produkt
+        addChange("replace", `/${gtin}/active`, true);
         break;
 
       default:
-        if (!hasRigid) {
-          addChange("add", `/${data.gtin}/rigidAssignment`, {
-            wholesalerKey: newValue,
-          });
-        } else {
-          addChange(
-            addOrReplace(hasWhKey),
-            `/${data.gtin}/rigidAssignment/wholesalerKey`,
-            newValue
-          );
-        }
-        if (data.active === false) {
-          addChange("replace", `/${data.gtin}/active`, true);
-          data.active = true;
-        }
-        if (!data.rigidAssignment) data.rigidAssignment = {};
-        data.rigidAssignment.wholesalerKey = newValue;
-        updateAssignmentIconToUser(row);
-        emulateChangeForUser();
+        // ustaw nowego dostawcę; jeśli wcześniej nie było rigidAssignment – backend to obsłuży
+        addChange("add", `/${gtin}/rigidAssignment`, {
+          wholesalerKey: newValue,
+        });
+        // na wszelki wypadek drugi patch replace (jeśli obiekt istnieje):
+        addChange(
+          "replace",
+          `/${gtin}/rigidAssignment/wholesalerKey`,
+          newValue
+        );
+        // jeśli był nieaktywny – włącz
+        addChange("replace", `/${gtin}/active`, true);
         break;
     }
 
-    // --- TU MAGIA, żeby select NIE wracał do starej opcji ---
-    // 1) ustaw nową opcję w TYM selekcie
-    $select.find("option").prop("selected", false);
-    $select.find(`option[value="${newValue}"]`).prop("selected", true);
+    // --- TYLKO TEN SELECT: ustaw widok na nową opcję ---
+    // jeśli nie ma opcji z taką wartością (bywa), dodaj ją ad-hoc
+    if ($select.find(`option[value="${newValue}"]`).length === 0) {
+      $select.append(`<option value="${newValue}">${newValue}</option>`);
+    }
+
+    // wyczyść stare selected i ustaw nowe
+    $select.find("option[selected]").removeAttr("selected");
+    $select.find(`option[value="${newValue}"]`).attr("selected", "selected");
+    // ustaw value (ważne dla UI)
     $select.val(newValue);
 
-    // 2) zaktualizuj ukryty <p> w tej komórce (sort/filter helper)
-    const $cell = $select.closest("td");
-    $cell.find("p").first().text(newValue);
+    // zaktualizuj ukryty <p> używany do sortowania/filtrów
+    $td.find("p").first().text(newValue);
 
-    // 3) powiedz DataTables, że DOM tej komórki to prawda (nie nadpisuj cachem)
-    table.cell($cell).invalidate("dom");
-
-    // 4) zapisz initialValue na przyszłość
+    // zapamiętaj initialValue, żeby kolejne zmiany nie były ignorowane
     $select.data("initialValue", newValue);
 
-    // 5) nie robimy invalidate/redraw w całym wierszu
-    row.data(data);
+    // drobny feedback
+    $("#waitingdots").show(1).delay(150).hide(1);
   });
 
   window.handlePaste = function (event) {
