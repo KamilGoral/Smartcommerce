@@ -2624,15 +2624,14 @@ whenReadyAndDataTables(function () {
   }
 
   function addObject(changesPayload, newObj) {
-    const existingObj = changesPayload.find(
-      (item) => item.path === newObj.path
-    );
-
-    if (existingObj) {
-      existingObj.value = newObj.value;
-    } else {
-      changesPayload.push(newObj);
+    const i = changesPayload.findIndex((x) => x.path === newObj.path);
+    if (newObj.op === "remove" && "value" in newObj) {
+      const { value, ...rest } = newObj;
+      newObj = rest;
     }
+    if (i > -1) changesPayload[i] = newObj;
+    else changesPayload.push(newObj);
+    return changesPayload;
   }
 
   function getProductDetails(rowData) {
@@ -5333,6 +5332,25 @@ ${offerTimestampLine}
         );
         updateAssignmentIconToUser(row); // TYLKO tutaj
         emulateChangeForUser();
+        // 1) (opcjonalnie) upewnij się, że opcja istnieje i ma ładną etykietę
+        const wholesalers =
+          JSON.parse(sessionStorage.getItem("wholesalersData")) || [];
+        const wh = wholesalers.find((w) => w.wholesalerKey === newValue);
+        const label = wh ? wh.name : newValue;
+        if ($select.find(`option[value="${newValue}"]`).length === 0) {
+          $select.append(`<option value="${newValue}">${label}</option>`);
+        }
+
+        // 2) ustaw zaznaczenie użytkownikowi natychmiast
+        $select.val(newValue);
+
+        // 3) zaktualizuj dane w DataTables (kluczowe – inaczej render przy odświeżeniu przywróci starą wartość)
+        data.wholesalerKey = newValue;
+        row.data(data).invalidate().draw(false);
+
+        // 4) zapamiętaj nową wartość jako initial, żeby nie łapać „braku zmiany”
+        $select.data("initialValue", newValue);
+
         break;
     }
 
