@@ -975,6 +975,7 @@ whenReadyAndDataTables(function () {
           defaultContent: "",
           className: "dt-center",
         },
+
         {
           orderable: true,
           data: null,
@@ -5254,9 +5255,10 @@ ${offerTimestampLine}
   $("#spl_table").on("change", "select", function () {
     console.log("Change event triggered on select element");
 
+    const table = $("#spl_table").DataTable();
     const $select = $(this);
-    const $tr = $select.closest("tr");
-    const $td = $select.closest("td");
+    const row = table.row($select.closest("tr"));
+    const data = row.data();
 
     const newValue = String($select.val());
     const initialValue = String($select.data("initialValue") ?? "");
@@ -5264,15 +5266,17 @@ ${offerTimestampLine}
     console.log("New value selected:", newValue);
     console.log("Initial value:", initialValue);
 
-    if (newValue === initialValue) return;
-
-    const gtin = $tr.find("td").eq(3).text().trim();
-    if (!gtin) {
+    // Bez zmian → wyjście
+    if (newValue === initialValue) {
+      console.log("No change in value, no action taken.");
+      return;
+    }
+    if (!data || !data.gtin) {
       console.log("GTIN is null, cannot proceed.");
       return;
     }
 
-    // --- helper do payloadu ---
+    // --- helpery ---
     const addChange = (op, path, value) => {
       const change = { op, path };
       if (value !== undefined) change.value = value;
@@ -5280,68 +5284,101 @@ ${offerTimestampLine}
       console.log("Payload added:", change);
     };
 
-    // --- Logika zmian (Twoja) ---
+    // add vs replace dla JSON Patch
+    const addOrReplace = (pathExists) => (pathExists ? "replace" : "add");
+
+    const emulateChangeForUser = () => {
+      $("#waitingdots").show(1).delay(150).hide(1);
+    };
+
+    function updateAssignmentIconToUser(r) {
+      const d = r.data();
+      d.assignmentSource = "user"; // tylko źródło
+      r.data(d).invalidate().draw(false); // bez resetu paginacji
+    }
+
+    const hasRigid = !!data.rigidAssignment;
+    const hasWhKey =
+      hasRigid &&
+      data.rigidAssignment &&
+      data.rigidAssignment.wholesalerKey != null;
+
+    // --- Logika zmian ---
     switch (newValue) {
       case "remove":
-        // usuń przypisanie dostawcy
-        addChange("remove", `/${gtin}/rigidAssignment/wholesalerKey`);
+        if (data.active === false) {
+          console.log(
+            "Option 'remove' for inactive product → enabling product."
+          );
+          addChange("replace", `/${data.gtin}/active`, true);
+          data.active = true; // lokalnie
+        } else {
+          console.log("Option 'remove' → removing wholesalerKey.");
+          addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
+          // lokalnie wyzeruj assignment
+          if (!data.rigidAssignment) data.rigidAssignment = {};
+          data.rigidAssignment.wholesalerKey = null;
+        }
+        emulateChangeForUser();
         break;
 
       case "unassigned":
-        // wyłącz produkt
-        addChange("replace", `/${gtin}/active`, false);
+        console.log("Option 'unassigned' → disabling product.");
+        addChange("replace", `/${data.gtin}/active`, false);
+        data.active = false; // lokalnie
+        emulateChangeForUser();
         break;
 
       case "enabled":
-        // włącz produkt
-        addChange("replace", `/${gtin}/active`, true);
+        console.log("Option 'enabled' → enabling product.");
+        addChange(
+          addOrReplace(data.active !== undefined),
+          `/${data.gtin}/active`,
+          true
+        );
+        data.active = true; // lokalnie
+        emulateChangeForUser();
         break;
 
       default:
-        // ustaw nowego dostawcę; jeśli wcześniej nie było rigidAssignment – backend to obsłuży
-        addChange("add", `/${gtin}/rigidAssignment`, {
-          wholesalerKey: newValue,
-        });
-        // na wszelki wypadek drugi patch replace (jeśli obiekt istnieje):
-        addChange(
-          "replace",
-          `/${gtin}/rigidAssignment/wholesalerKey`,
-          newValue
-        );
-        // jeśli był nieaktywny – włącz
-        addChange("replace", `/${gtin}/active`, true);
+        // --- ZMIANA DOSTAWCY ---
+        // 1) ustaw wholesalerKey (add/replace zależnie czy był)
+        console.log("Assigning new wholesalerKey:", newValue);
+
+        // upewnij się, że istnieje rigidAssignment jako obiekt
+        if (!hasRigid) {
+          // dodaj cały rigidAssignment, jeśli go nie było
+          addChange("add", `/${data.gtin}/rigidAssignment`, {
+            wholesalerKey: newValue,
+          });
+        } else {
+          // był rigidAssignment → ustaw sam klucz
+          addChange(
+            addOrReplace(hasWhKey),
+            `/${data.gtin}/rigidAssignment/wholesalerKey`,
+            newValue
+          );
+        }
+
+        // 2) jeśli produkt był nieaktywny, włącz go (częsty case przy przypisaniu)
+        if (data.active === false) {
+          addChange(addOrReplace(true), `/${data.gtin}/active`, true);
+          data.active = true; // lokalnie
+        }
+
+        // 3) lokalnie zaktualizuj dane wiersza (dla tabeli/ikonki)
+        if (!data.rigidAssignment) data.rigidAssignment = {};
+        data.rigidAssignment.wholesalerKey = newValue;
+
+        updateAssignmentIconToUser(row); // zmień ikonę na „user”
+        row.data(data).invalidate().draw(false);
+
+        emulateChangeForUser();
         break;
     }
 
-    // jeśli nie ma opcji z taką wartością (bywa), dodaj ją ad-hoc
-    if ($select.find(`option[value="${newValue}"]`).length === 0) {
-      $select.append(`<option value="${newValue}">${newValue}</option>`);
-    }
-
-    // wyczyść stare selected i ustaw nowe
-    $select.find("option[selected]").removeAttr("selected");
-    $select.find(`option[value="${newValue}"]`).attr("selected", "selected");
-    // ustaw value (ważne dla UI)
-    $select.val(newValue);
-
-    // zaktualizuj ukryty <p> używany do sortowania/filtrów
-    $td.find("p").first().text(newValue);
-
-    // zapamiętaj initialValue, żeby kolejne zmiany nie były ignorowane
+    // Zaktualizuj „initialValue” po obsłużeniu zmiany
     $select.data("initialValue", newValue);
-
-    const $col9 = $tr.find("td").eq(9); // kolumna 9 (licząc od 0)
-
-    // podmień zawartość komórki na ikonkę użytkownika
-    $col9.html(`
-  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg"
-       alt="user"
-       title="Wybrane przez użytkownika"
-       style="width:24px;height:24px;display:block;margin:0 auto;" />
-`);
-
-    // drobny feedback
-    $("#waitingdots").show(1).delay(150).hide(1);
   });
 
   window.handlePaste = function (event) {
