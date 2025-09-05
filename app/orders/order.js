@@ -5258,7 +5258,7 @@ ${offerTimestampLine}
     const table = $("#spl_table").DataTable();
     const $select = $(this);
 
-    // zabezpieczenie: weź główny <tr> (nie child)
+    // zabezpieczenie: zawsze główny <tr>
     const tr = $select.closest("tr");
     const row = table.row(tr.hasClass("child") ? tr.prev() : tr);
 
@@ -5300,7 +5300,7 @@ ${offerTimestampLine}
     function updateAssignmentIconToUser(r) {
       const d = r.data();
       d.assignmentSource = "user"; // tylko źródło
-      r.data(d); // bez invalidate().draw(false)
+      r.data(d); // zapis do pamięci, bez invalidate()
     }
 
     const hasRigid = !!data.rigidAssignment;
@@ -5373,13 +5373,9 @@ ${offerTimestampLine}
         break;
     }
 
-    // 🔑 kluczowa zmiana: nie robimy invalidate().draw(false)
+    // 🔑 klucz: nie invalidate() → tylko update danych i zostaw selecta
     row.data(data);
-
-    // zostaw selecta na nowym wyborze
     $select.val(newValue);
-
-    // zapisz nową wartość
     $select.data("initialValue", newValue);
   });
 
