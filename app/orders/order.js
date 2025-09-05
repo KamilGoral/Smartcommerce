@@ -975,7 +975,6 @@ whenReadyAndDataTables(function () {
           defaultContent: "",
           className: "dt-center",
         },
-
         {
           orderable: true,
           data: null,
@@ -5259,9 +5258,6 @@ ${offerTimestampLine}
     const $tr = $select.closest("tr");
     const $td = $select.closest("td");
 
-    // UWAGA: nie używamy row.data(...) – unikasz błędu _aData
-    // Jeśli jednak chcesz mieć dostęp do danych, trzymaj je w atrybutach data-* albo w changesPayload.
-
     const newValue = String($select.val());
     const initialValue = String($select.data("initialValue") ?? "");
 
@@ -5270,8 +5266,6 @@ ${offerTimestampLine}
 
     if (newValue === initialValue) return;
 
-    // znajdź GTIN z wiersza po tekście w kolumnie "Kod" (4-ta kolumna u Ciebie)
-    // (bez DataTables API, czysty DOM)
     const gtin = $tr.find("td").eq(3).text().trim();
     if (!gtin) {
       console.log("GTIN is null, cannot proceed.");
@@ -5319,7 +5313,6 @@ ${offerTimestampLine}
         break;
     }
 
-    // --- TYLKO TEN SELECT: ustaw widok na nową opcję ---
     // jeśli nie ma opcji z taką wartością (bywa), dodaj ją ad-hoc
     if ($select.find(`option[value="${newValue}"]`).length === 0) {
       $select.append(`<option value="${newValue}">${newValue}</option>`);
@@ -5336,6 +5329,16 @@ ${offerTimestampLine}
 
     // zapamiętaj initialValue, żeby kolejne zmiany nie były ignorowane
     $select.data("initialValue", newValue);
+
+    const $col9 = $tr.find("td").eq(9); // kolumna 9 (licząc od 0)
+
+    // podmień zawartość komórki na ikonkę użytkownika
+    $col9.html(`
+  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg"
+       alt="user"
+       title="Wybrane przez użytkownika"
+       style="width:24px;height:24px;display:block;margin:0 auto;" />
+`);
 
     // drobny feedback
     $("#waitingdots").show(1).delay(150).hide(1);
