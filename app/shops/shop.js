@@ -1817,6 +1817,45 @@ whenReadyAndDataTables(function () {
     }
   });
 
+  function filenameBase(name) {
+    if (!name) return "";
+    return name.replace(/\.[^.]+$/, ""); // bez rozszerzenia
+  }
+
+  function normalizeOrderName(raw) {
+    if (!raw) return "";
+    let s = raw
+      .replace(/[_-]+/g, " ") // _ i - -> spacje
+      .replace(/\s+/g, " ") // wielokrotne spacje
+      .trim();
+    if (s.length > 100) s = s.slice(0, 100).trim();
+    return s;
+  }
+
+  // najdłuższy wspólny prefix tablicy stringów
+  function longestCommonPrefix(arr) {
+    if (!arr.length) return "";
+    let prefix = arr[0];
+    for (let i = 1; i < arr.length; i++) {
+      while (arr[i].indexOf(prefix) !== 0) {
+        prefix = prefix.slice(0, -1);
+        if (!prefix) return "";
+      }
+    }
+    return prefix;
+  }
+
+  // wyprowadź nazwę z listy plików
+  function deriveNameFromFiles(fileList) {
+    if (!fileList || !fileList.length) return "";
+    const bases = Array.from(fileList).map((f) => filenameBase(f.name));
+    let candidate = normalizeOrderName(longestCommonPrefix(bases));
+    if (!candidate) {
+      candidate = normalizeOrderName(bases[0]); // fallback: pierwszy plik
+    }
+    return candidate;
+  }
+
   function FileUpload(ignoreGTINs) {
     var xhr = new XMLHttpRequest();
     var formData = new FormData();
@@ -1828,10 +1867,10 @@ whenReadyAndDataTables(function () {
       "/orders" +
       (ignoreGTINs ? "?ignoreEmptyGtin=true" : "");
 
+    // tylko pliki – BEZ nazwy w multipart
     for (var i = 0; i < myUploadedFiles.length; i++) {
       formData.append("file", myUploadedFiles[i]);
     }
-    formData.append("name", $("#OrderName").val());
 
     $("#waitingdots").show();
     xhr.open("POST", action);
@@ -1842,7 +1881,29 @@ whenReadyAndDataTables(function () {
       if (xhr.readyState === XMLHttpRequest.DONE) {
         $("#waitingdots").hide();
         if (xhr.status === 201) {
-          handleSuccess(xhr);
+          var resp = JSON.parse(xhr.responseText || "{}");
+          var orderId = resp.orderId;
+          var orderUrl = InvokeURL + "shops/" + shopKey + "/orders/" + orderId;
+
+          // ustal nazwę: input > z plików
+          var inputName = ($("#OrderName").val() || "").trim();
+          var finalName = inputName || deriveNameFromFiles(myUploadedFiles);
+
+          if (finalName) {
+            updateOrderName(orderUrl, finalName, orderId); // redirect w success PATCH
+          } else {
+            // brak nazwy — sam redirect
+            setTimeout(function () {
+              window.location.replace(
+                "https://" +
+                  DomainName +
+                  "/app/orders/order?orderId=" +
+                  orderId +
+                  "&shopKey=" +
+                  shopKey
+              );
+            }, 1000);
+          }
         } else {
           handleError(xhr);
         }
@@ -1869,7 +1930,7 @@ whenReadyAndDataTables(function () {
     }, 1000);
   }
 
-  function updateOrderName(url, newName) {
+  function updateOrderName(url, newName, orderId) {
     $.ajax({
       type: "PATCH",
       url: url,
@@ -1894,7 +1955,7 @@ whenReadyAndDataTables(function () {
             "https://" +
               DomainName +
               "/app/orders/order?orderId=" +
-              response.orderId +
+              orderId +
               "&shopKey=" +
               shopKey
           );
