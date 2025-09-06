@@ -1818,42 +1818,100 @@ whenReadyAndDataTables(function () {
   });
 
   function filenameBase(name) {
-    if (!name) return "";
-    return name.replace(/\.[^.]+$/, ""); // bez rozszerzenia
+    return (name || "").replace(/\.[^.]+$/, "");
   }
 
   function normalizeOrderName(raw) {
     if (!raw) return "";
-    let s = raw
-      .replace(/[_-]+/g, " ") // _ i - -> spacje
-      .replace(/\s+/g, " ") // wielokrotne spacje
-      .trim();
+    let s = raw.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
     if (s.length > 100) s = s.slice(0, 100).trim();
     return s;
   }
 
-  // najdłuższy wspólny prefix tablicy stringów
   function longestCommonPrefix(arr) {
     if (!arr.length) return "";
-    let prefix = arr[0];
+    let p = arr[0];
     for (let i = 1; i < arr.length; i++) {
-      while (arr[i].indexOf(prefix) !== 0) {
-        prefix = prefix.slice(0, -1);
-        if (!prefix) return "";
+      while (arr[i].indexOf(p) !== 0) {
+        p = p.slice(0, -1);
+        if (!p) return "";
       }
     }
-    return prefix;
+    return p;
   }
 
-  // wyprowadź nazwę z listy plików
-  function deriveNameFromFiles(fileList) {
-    if (!fileList || !fileList.length) return "";
-    const bases = Array.from(fileList).map((f) => filenameBase(f.name));
-    let candidate = normalizeOrderName(longestCommonPrefix(bases));
-    if (!candidate) {
-      candidate = normalizeOrderName(bases[0]); // fallback: pierwszy plik
+  /**
+   * Zbuduj wieloplikową nazwę: "A + B + C + N plików…"
+   * - pilnuje limitu znaków
+   * - nie duplikuje nazw
+   */
+  function buildMultiFileName(bases, maxLen) {
+    const unique = Array.from(new Set(bases.map(normalizeOrderName))).filter(
+      Boolean
+    );
+    if (!unique.length) return "";
+
+    let result = "";
+    let used = 0;
+
+    for (let i = 0; i < unique.length; i++) {
+      const sep = result ? " + " : "";
+      const cand = result + sep + unique[i];
+
+      // ile zostanie znaków na ewentualny sufiks " + N plików…"
+      const remaining = unique.length - (i + 1);
+      const suffix = remaining > 0 ? ` + ${remaining} plików…` : "";
+
+      if (cand.length + suffix.length <= maxLen) {
+        result = cand;
+        used = i + 1;
+      } else {
+        // spróbuj zmieścić chociaż bieżący element skrócony
+        const roomForThis =
+          maxLen - (result ? result.length + sep.length : 0) - suffix.length;
+        if (roomForThis > 0 && remaining >= 0) {
+          const shortened = unique[i].slice(0, roomForThis).trim();
+          if (shortened) {
+            result = (result ? result + sep : "") + shortened + suffix;
+            used = i + 1;
+            break;
+          }
+        }
+        // nie zmieści się — domknij obecny wynik z sufiksem
+        if (remaining > 0) result = result + suffix;
+        break;
+      }
     }
-    return candidate;
+
+    // jeśli i tak nic nie weszło (np. pierwszy był ekstremalnie długi), tniemy pierwszy do maxLen
+    if (!result) result = unique[0].slice(0, maxLen).trim();
+    return result;
+  }
+
+  /**
+   * Wyprowadź nazwę z listy plików:
+   * 1) sensowny LCP (po normalizacji) → bierzemy,
+   * 2) inaczej: wieloplikowe "A + B + … + N plików…"
+   */
+  function deriveNameFromFiles(fileList, maxLen = 100) {
+    if (!fileList || !fileList.length) return "";
+    const rawBases = Array.from(fileList).map((f) => filenameBase(f.name));
+    const lcpRaw = longestCommonPrefix(rawBases);
+    const lcp = normalizeOrderName(lcpRaw);
+
+    // heurystyka "sensowności" LCP:
+    // - min 6 znaków i
+    // - krótszy niż 80% najkrótszej nazwy (żeby nie był praktycznie całą nazwą jednego pliku przypadkiem)
+    const minLen = Math.min(...rawBases.map((b) => b.length));
+    const lcpIsUseful =
+      lcp.length >= 6 && lcp.length <= Math.floor(minLen * 0.8);
+
+    if (lcpIsUseful) {
+      return lcp.slice(0, maxLen).trim();
+    }
+
+    // brak dobrego LCP → buduj nazwę wieloplikową
+    return buildMultiFileName(rawBases, maxLen);
   }
 
   function FileUpload(ignoreGTINs) {
@@ -1911,23 +1969,6 @@ whenReadyAndDataTables(function () {
     };
 
     xhr.send(formData);
-  }
-
-  function handleSuccess(xhr) {
-    var response = JSON.parse(xhr.responseText);
-    var orderUrl =
-      InvokeURL + "shops/" + shopKey + "/orders/" + response.orderId;
-    updateOrderName(orderUrl, $("#OrderName").val());
-    setTimeout(function () {
-      window.location.replace(
-        "https://" +
-          DomainName +
-          "/app/orders/order?orderId=" +
-          response.orderId +
-          "&shopKey=" +
-          shopKey
-      );
-    }, 1000);
   }
 
   function updateOrderName(url, newName, orderId) {
