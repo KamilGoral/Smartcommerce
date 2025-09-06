@@ -1991,6 +1991,7 @@ whenReadyAndDataTables(function () {
       },
       success: function () {
         displayMessage("Success", "Twoje zamówienie zostało stworzone.");
+        setCookie("orderName", newName, 3600);
         setTimeout(function () {
           window.location.replace(
             "https://" +
