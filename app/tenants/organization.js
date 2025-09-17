@@ -1736,6 +1736,7 @@ whenReadyAndDataTables(function () {
           "PGD-Polska": "7792272047",
           Delko: "6792106727",
           Specjal: "5170199121",
+          TediDystrybucja: "8440002668",
         };
 
         // Pobierz TaxId na podstawie nazwy organizacji
@@ -1766,6 +1767,12 @@ whenReadyAndDataTables(function () {
             toParse = toParse.filter((item) => item.taxId === currentTaxId);
           }
         } else if (organizationName === "Specjal") {
+          // Dla Specjal filtruj tylko swoje rekordy
+          const found = toParse.some((item) => item.taxId === currentTaxId);
+          if (found) {
+            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+          }
+        } else if (organizationName === "TediDystrybucja") {
           // Dla Specjal filtruj tylko swoje rekordy
           const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
