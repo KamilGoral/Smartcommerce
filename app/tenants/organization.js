@@ -2963,11 +2963,53 @@ whenReadyAndDataTables(function () {
           data: null,
           width: "48px",
           render: function (data) {
-            if (nowDate >= data.endDate && nowDate >= data.startDate) {
-              return "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
-            } else {
-              return "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img><img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+            // Only show EDIT for BLOCKS that are in progress (started and not finished).
+            // If a BLOCK is finished, show a "+" icon instead of edit. Always show delete.
+
+            // Detect BLOCK by missing wholesaler (wholesalerKey === null)
+            const isBlock = data && data.wholesalerKey === null;
+
+            // Helpers for dates
+            const now = new Date();
+            const toUTCDateMidnight = (d) => {
+              if (!d) return null;
+              if (d === "infinity") return "infinity";
+              const dt = new Date(d);
+              if (isNaN(dt.getTime())) return null;
+              return new Date(
+                Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate())
+              );
+            };
+
+            const start = data && data.startDate ? new Date(data.startDate) : null;
+            const endUTC = toUTCDateMidnight(data && data.endDate);
+            const todayUTC = new Date(
+              Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+            );
+
+            const hasStarted = !!start && start <= now;
+            const isEnded = endUTC !== "infinity" && endUTC !== null ? endUTC < todayUTC : false;
+            const inProgress = hasStarted && !isEnded;
+
+            // Icons
+            const editIcon =
+              "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='edit' alt='edit'></img>";
+            const plusIcon =
+              "<img style='cursor: pointer' src='https://cdn.prod.website-files.com/6041108bece36760b4e14016/64c8d07d6149a13907618b26_icon_plus.svg' alt='create'></img>";
+            const disabledEditIcon =
+              "<img style='opacity:0.4;cursor: not-allowed !important' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg' action='disabled' alt='disabled'></img>";
+            const deleteIcon =
+              "<img style='cursor: pointer' src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' action='delete' alt='delete'></img>";
+
+            if (isBlock) {
+              if (inProgress) return editIcon + deleteIcon; // in-progress BLOCK: show edit
+              if (isEnded) return plusIcon + deleteIcon; // finished BLOCK: show plus
+              return deleteIcon; // not yet started: no edit/plus
             }
+
+            // Non-blocks: keep existing behavior (edit disabled after end)
+            if (isEnded) return disabledEditIcon + deleteIcon;
+            return editIcon + deleteIcon;
           },
         },
       ],
