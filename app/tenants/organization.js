@@ -2641,257 +2641,383 @@ whenReadyAndDataTables(function () {
     });
   };
 
-async function getExclusiveProducts() {
-  const nowDate = new Date();
-  let initialrecords = null;
+  async function getExclusiveProducts() {
+    const nowDate = new Date();
+    let initialrecords = null;
 
-  if ($.fn.dataTable.isDataTable("#table_id")) {
-    $("#table_id").DataTable().clear().destroy();
-  }
+    if ($.fn.dataTable.isDataTable("#table_id")) {
+      $("#table_id").DataTable().clear().destroy();
+    }
 
-  $("#table_id").DataTable({
-    pagingType: "full_numbers",
-    order: [],
-    dom: '<"top">rt<"bottom"lip>',
-    scrollY: "60vh",
-    scrollCollapse: true,
-    pageLength: 25,
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ rezultatów)",
-      lengthMenu: "Pokaż _MENU_ rezultatów",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: { first: "<<", last: ">>", next: " >", previous: "< " },
-    },
-    serverSide: true,
-    processing: false,
-    destroy: true,
-    search: { return: true },
-    ajax: function (data, callback, settings) {
-      let QStr = `?perPage=${data.length}&page=${(data.start + data.length) / data.length}`;
+    $("#table_id").DataTable({
+      pagingType: "full_numbers",
+      order: [],
+      dom: '<"top">rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 25,
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rezultatów",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: { first: "<<", last: ">>", next: " >", previous: "< " },
+      },
+      serverSide: true,
+      processing: false,
+      destroy: true,
+      search: { return: true },
+      ajax: function (data, callback, settings) {
+        let QStr = `?perPage=${data.length}&page=${
+          (data.start + data.length) / data.length
+        }`;
 
-      const searchBox = $("#gtinName").val().trim();
-      if (/^\d+$/.test(searchBox)) {
-        QStr += `&gtin=${searchBox}`;
-      } else if (searchBox) {
-        QStr += `&name=like:${searchBox}`;
-      }
+        const searchBox = $("#gtinName").val().trim();
+        if (/^\d+$/.test(searchBox)) {
+          QStr += `&gtin=${searchBox}`;
+        } else if (searchBox) {
+          QStr += `&name=like:${searchBox}`;
+        }
 
-      const wholesaler = $("#wholesalerPicker")
-        .map(function () { return this.value; })
-        .get()
-        .toString();
-      if (wholesaler) QStr += `&wholesalerKey=${wholesaler}`;
+        const wholesaler = $("#wholesalerPicker")
+          .map(function () {
+            return this.value;
+          })
+          .get()
+          .toString();
+        if (wholesaler) QStr += `&wholesalerKey=${wholesaler}`;
 
-      const startDate = $("#startDate").val();
-      if (startDate) QStr += `&startDate=gte:${startDate}T00:00:00Z`;
+        const startDate = $("#startDate").val();
+        if (startDate) QStr += `&startDate=gte:${startDate}T00:00:00Z`;
 
-      const endDate = $("#endDate").val();
-      if (endDate) QStr += `&endDate=lte:${endDate}T00:00:00Z`;
+        const endDate = $("#endDate").val();
+        if (endDate) QStr += `&endDate=lte:${endDate}T00:00:00Z`;
 
-      const status = $("#statusPicker").val();
-      if (status) QStr += `&status=${status}`;
+        const status = $("#statusPicker").val();
+        if (status) QStr += `&status=${status}`;
 
-      const sortColumnMap = {
-        3: "gtin:",
-        4: "name:",
-        6: "wholesalerKey:",
-        8: "startDate:",
-        9: "endDate:",
-        10: "modified.by:",
-        11: "modified.at:",
-      };
-      let sortColumn = "null", direction = "desc";
-      if (data.order.length > 0) {
-        sortColumn = sortColumnMap[data.order[0].column] || "null";
-        direction = data.order[0].dir;
-      }
-      if (sortColumn !== "null") QStr += `&sort=${sortColumn}${direction}`;
+        const sortColumnMap = {
+          3: "gtin:",
+          4: "name:",
+          6: "wholesalerKey:",
+          8: "startDate:",
+          9: "endDate:",
+          10: "modified.by:",
+          11: "modified.at:",
+        };
+        let sortColumn = "null",
+          direction = "desc";
+        if (data.order.length > 0) {
+          sortColumn = sortColumnMap[data.order[0].column] || "null";
+          direction = data.order[0].dir;
+        }
+        if (sortColumn !== "null") QStr += `&sort=${sortColumn}${direction}`;
 
-      $.ajax({
-        url: InvokeURL + "exclusive-products" + QStr,
-        method: "GET",
-        headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
-        beforeSend: () => $("#waitingdots").show(),
-        success: function (res) {
-          const isFirstRequest = initialrecords === null;
-          if (isFirstRequest) initialrecords = res.total;
+        $.ajax({
+          url: InvokeURL + "exclusive-products" + QStr,
+          method: "GET",
+          headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+          beforeSend: () => $("#waitingdots").show(),
+          success: function (res) {
+            const isFirstRequest = initialrecords === null;
+            if (isFirstRequest) initialrecords = res.total;
 
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
 
-          const showEmptyState = isFirstRequest && res.total === 0;
-          $("#emptystateexclusive").css("display", showEmptyState ? "flex" : "none");
-          $("#fullstateexclusive").css("display", showEmptyState ? "none" : "flex");
+            const showEmptyState = isFirstRequest && res.total === 0;
+            $("#emptystateexclusive").css(
+              "display",
+              showEmptyState ? "flex" : "none"
+            );
+            $("#fullstateexclusive").css(
+              "display",
+              showEmptyState ? "none" : "flex"
+            );
 
-          setTimeout(() => {
-            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-          }, 400);
-        },
-        error: function (jqXHR, exception) {
-          let msg = "";
-          const serverMsg = jqXHR?.responseJSON?.message || jqXHR?.responseText;
+            setTimeout(() => {
+              $.fn.dataTable
+                .tables({ visible: true, api: true })
+                .columns.adjust();
+            }, 400);
+          },
+          error: function (jqXHR, exception) {
+            let msg = "";
+            const serverMsg =
+              jqXHR?.responseJSON?.message || jqXHR?.responseText;
 
-          if (jqXHR.status === 0) {
-            msg = "Brak połączenia z siecią. Sprawdź internet.";
-          } else if (jqXHR.status === 403) {
-            msg = "Brak uprawnień do wykonania tej operacji (403).";
-          } else if (jqXHR.status === 400) {
-            if (typeof serverMsg === "string") {
-              if (/Invalid GTIN length/i.test(serverMsg)) {
-                msg = "Nieprawidłowa długość GTIN. Zweryfikuj wpisany numer.";
-              } else if (/Field \[.*\] not supported for sorting/i.test(serverMsg)) {
-                const match = serverMsg.match(/Supported fields:\s*\[(.+)\]/i);
-                const supported = match ? match[1].replace(/\s*http:\/\/\s*/g, "").trim() : "";
-                msg = "To pole nie jest obsługiwane do sortowania. Dozwolone pola: " + supported + ".";
+            if (jqXHR.status === 0) {
+              msg = "Brak połączenia z siecią. Sprawdź internet.";
+            } else if (jqXHR.status === 403) {
+              msg = "Brak uprawnień do wykonania tej operacji (403).";
+            } else if (jqXHR.status === 400) {
+              if (typeof serverMsg === "string") {
+                if (/Invalid GTIN length/i.test(serverMsg)) {
+                  msg = "Nieprawidłowa długość GTIN. Zweryfikuj wpisany numer.";
+                } else if (
+                  /Field \[.*\] not supported for sorting/i.test(serverMsg)
+                ) {
+                  const match = serverMsg.match(
+                    /Supported fields:\s*\[(.+)\]/i
+                  );
+                  const supported = match
+                    ? match[1].replace(/\s*http:\/\/\s*/g, "").trim()
+                    : "";
+                  msg =
+                    "To pole nie jest obsługiwane do sortowania. Dozwolone pola: " +
+                    supported +
+                    ".";
+                } else {
+                  msg = serverMsg;
+                }
               } else {
-                msg = serverMsg;
+                msg = "Nieprawidłowe dane zapytania (400).";
               }
+            } else if (jqXHR.status === 500) {
+              msg = "Błąd serwera (500). Spróbuj ponownie później.";
+            } else if (exception === "parsererror") {
+              msg = "Błąd przetwarzania odpowiedzi (parsererror).";
+            } else if (exception === "timeout") {
+              msg = "Przekroczono czas oczekiwania (timeout).";
+            } else if (exception === "abort") {
+              msg = "Żądanie zostało przerwane (abort).";
             } else {
-              msg = "Nieprawidłowe dane zapytania (400).";
+              msg = serverMsg || "Wystąpił nieznany błąd.";
             }
-          } else if (jqXHR.status === 500) {
-            msg = "Błąd serwera (500). Spróbuj ponownie później.";
-          } else if (exception === "parsererror") {
-            msg = "Błąd przetwarzania odpowiedzi (parsererror).";
-          } else if (exception === "timeout") {
-            msg = "Przekroczono czas oczekiwania (timeout).";
-          } else if (exception === "abort") {
-            msg = "Żądanie zostało przerwane (abort).";
-          } else {
-            msg = serverMsg || "Wystąpił nieznany błąd.";
-          }
 
-          console.log(jqXHR);
-          console.log(exception);
+            console.log(jqXHR);
+            console.log(exception);
 
-          if (typeof displayMessage === "function") {
-            displayMessage("Error", msg);
-          } else {
-            alert(msg);
-          }
+            if (typeof displayMessage === "function") {
+              displayMessage("Error", msg);
+            } else {
+              alert(msg);
+            }
 
-          callback({ recordsTotal: 0, recordsFiltered: 0, data: [] });
-        },
-        complete: () => $("#waitingdots").hide(),
-      });
-    },
-    columns: [
-      { visible: false, orderable: false, data: "uuid" },
-      { visible: false, orderable: false, data: "created.at" },
-      { visible: false, orderable: false, data: "created.by" },
-      { orderable: true, data: "gtin" },
-      { orderable: true, data: "name" },
-      { orderable: false, data: "countryDistributorName", defaultContent: "-" },
-      {
-        orderable: true,
-        data: null,
-        render: function (data) {
-          if (data?.wholesalerName != null) return data.wholesalerName;
-          return "BLOKADA";
-        },
+            callback({ recordsTotal: 0, recordsFiltered: 0, data: [] });
+          },
+          complete: () => $("#waitingdots").hide(),
+        });
       },
-      { orderable: false, data: "priceThreshold", defaultContent: "-" },
-      {
-        visible: false,
-        orderable: true,
-        data: "wholesalerKey",
-        render: function (data) {
-          if (data !== null) return data;
-          return "BLOKADA";
+      columns: [
+        { visible: false, orderable: false, data: "uuid" },
+        { visible: false, orderable: false, data: "created.at" },
+        { visible: false, orderable: false, data: "created.by" },
+        { orderable: true, data: "gtin" },
+        { orderable: true, data: "name" },
+        {
+          orderable: false,
+          data: "countryDistributorName",
+          defaultContent: "-",
         },
-      },
-      {
-        orderable: true,
-        data: "startDate",
-        render: function (data) {
-          if (data !== null) {
-            const startDate = new Date(data);
-            return startDate.toLocaleDateString("pl-PL");
-          }
-          return "";
+        {
+          orderable: true,
+          data: null,
+          render: function (data) {
+            if (data?.wholesalerName != null) return data.wholesalerName;
+            return "BLOKADA";
+          },
         },
-      },
-      {
-        orderable: true,
-        data: null,
-        render: function (data) {
-          const val = data?.endDate;
-          if (val === "infinity") return '<span class="positive">Bezterminowo</span>';
-          if (!val) return "";
-          const end = new Date(val);
-          if (isNaN(end.getTime())) return '<span class="noneexisting">—</span>';
+        { orderable: false, data: "priceThreshold", defaultContent: "-" },
+        {
+          visible: false,
+          orderable: true,
+          data: "wholesalerKey",
+          render: function (data) {
+            if (data !== null) return data;
+            return "BLOKADA";
+          },
+        },
+        {
+          orderable: true,
+          data: "startDate",
+          render: function (data) {
+            if (data !== null) {
+              const startDate = new Date(data);
+              return startDate.toLocaleDateString("pl-PL");
+            }
+            return "";
+          },
+        },
+        {
+          orderable: true,
+          data: null,
+          render: function (data) {
+            const val = data?.endDate;
+            if (val === "infinity")
+              return '<span class="positive">Bezterminowo</span>';
+            if (!val) return "";
+            const end = new Date(val);
+            if (isNaN(end.getTime()))
+              return '<span class="noneexisting">—</span>';
 
-          const now = new Date();
-          const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-          const endDateUTC = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
+            const now = new Date();
+            const todayUTC = new Date(
+              Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate()
+              )
+            );
+            const endDateUTC = new Date(
+              Date.UTC(
+                end.getUTCFullYear(),
+                end.getUTCMonth(),
+                end.getUTCDate()
+              )
+            );
 
-          const myendDate = endDateUTC.toLocaleDateString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit" });
-          return endDateUTC >= todayUTC
-            ? '<span class="positive">' + myendDate + "</span>"
-            : '<span class="noneexisting">' + myendDate + "</span>";
-        },
-      },
-      {
-        orderable: true,
-        data: "modified",
-        render: function (data) {
-          if (data?.by) return data.by;
-          return "-";
-        },
-      },
-      {
-        orderable: false,
-        data: "modified",
-        render: function (data) {
-          if (data?.at) {
-            const d = new Date(data.at);
-            return d.toLocaleString("pl-PL", {
+            const myendDate = endDateUTC.toLocaleDateString("pl-PL", {
               year: "numeric",
               month: "2-digit",
               day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
             });
-          }
-          return "";
+            return endDateUTC >= todayUTC
+              ? '<span class="positive">' + myendDate + "</span>"
+              : '<span class="noneexisting">' + myendDate + "</span>";
+          },
         },
+        {
+          orderable: true,
+          data: "modified",
+          render: function (data) {
+            if (data?.by) return data.by;
+            return "-";
+          },
+        },
+        {
+          orderable: false,
+          data: "modified",
+          render: function (data) {
+            if (data?.at) {
+              const d = new Date(data.at);
+              return d.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+            }
+            return "";
+          },
+        },
+        {
+          orderable: false,
+          data: null,
+          width: "72px",
+          render: function (data) {
+            // Ikony – spójny rozmiar i wyrównanie
+            const ICON_SIZE = 18;
+            const wrapStart = `<span style="display:inline-flex;align-items:center;gap:8px">`;
+            const wrapEnd = `</span>`;
+            const iconStyle = `style="width:${ICON_SIZE}px;height:${ICON_SIZE}px;vertical-align:middle;cursor:pointer"`;
+            const iconStyleDisabled = `style="width:${ICON_SIZE}px;height:${ICON_SIZE}px;vertical-align:middle;opacity:.4;cursor:not-allowed"`;
+
+            const editIcon = `<img ${iconStyle} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">`;
+            const plusIcon = `<img ${iconStyle} src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/64c8d07d6149a13907618b26_icon_plus.svg" action="create" alt="create">`;
+            const disabledEditIcon = `<img ${iconStyleDisabled} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="disabled" alt="disabled">`;
+            const deleteIcon = `<img ${iconStyle} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">`;
+
+            // BLOKADA = wholesalerKey === null
+            const isBlock = data && data.wholesalerKey === null;
+
+            // Daty pomocnicze
+            const toUTCDateMidnight = (v) => {
+              if (!v) return null;
+              if (v === "infinity") return "infinity";
+              const dt = new Date(v);
+              if (isNaN(dt.getTime())) return null;
+              return new Date(
+                Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate())
+              );
+            };
+
+            const now = new Date();
+            const todayUTC = new Date(
+              Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate()
+              )
+            );
+            const start = data?.startDate ? new Date(data.startDate) : null;
+            const endUTC = toUTCDateMidnight(data?.endDate);
+            const isInfinity = endUTC === "infinity";
+            const hasStarted = !!start && start <= now;
+            const isActiveNow =
+              isInfinity ||
+              (endUTC !== null && endUTC >= todayUTC && hasStarted);
+            const isEnded =
+              endUTC !== "infinity" && endUTC !== null
+                ? endUTC < todayUTC
+                : false;
+
+            if (isBlock) {
+              // Nowa logika:
+              // - EDIT: bezterminowe lub aktywne teraz
+              // - PLUS: w przeciwnym razie (zakończone albo jeszcze nie rozpoczęte)
+              // - DELETE: zawsze
+              if (isActiveNow) {
+                return wrapStart + editIcon + deleteIcon + wrapEnd;
+              } else {
+                return wrapStart + plusIcon + deleteIcon + wrapEnd;
+              }
+            }
+
+            // Nie-blokady – jak dotąd: edit aktywny do końca, po zakończeniu edit disabled.
+            if (isEnded) {
+              return wrapStart + disabledEditIcon + deleteIcon + wrapEnd;
+            }
+            return wrapStart + editIcon + deleteIcon + wrapEnd;
+          },
+        },
+      ],
+      initComplete: function () {
+        const api = this.api();
+        const textBox = $("#table_id_filter label input");
+
+        $("#wholesalerPicker").on("change", () => api.draw());
+        $("#statusPicker").on("change", () => api.draw());
+
+        let typingTimer;
+        const typingDelay = 3000;
+        $("#gtinName")
+          .on("input", function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => api.draw(), typingDelay);
+          })
+          .on("keypress", function (e) {
+            if (e.key === "Enter") {
+              clearTimeout(typingTimer);
+              api.draw();
+            }
+          });
+
+        $("#startDate, #endDate").each(function () {
+          $(this)
+            .datepicker({ onSelect: () => $(this).change() })
+            .on("change", () => api.draw());
+        });
+
+        $(".dataTables_filter input").on("focusout", () => api.draw());
+
+        textBox.unbind().bind("keyup input", function (e) {
+          if (e.keyCode == 13) api.search(this.value).draw();
+        });
+
+        $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
       },
-      {
-        orderable: false,
-        data: null,
-        width: "72px",
-        render: function (data) {
-          // Ikony – spójny rozmiar i wyrównanie
-          const ICON_SIZE = 18;
-          const wrapStart = `<span style="display:inline-flex;align-items:center;gap:8px">`;
-          const wrapEnd = `</span>`;
-          const iconStyle = `style="width:${ICON_SIZE}px;height:${ICON_SIZE}px;vertical-align:middle;cursor:pointer"`;
-          const iconStyleDisabled = `style="width:${ICON_SIZE}px;height:${ICON_SIZE}px;vertical-align:middle;opacity:.4;cursor:not-allowed"`;
-
-          const editIcon = `<img ${iconStyle} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">`;
-          const plusIcon = `<img ${iconStyle} src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/64c8d07d6149a13907618b26_icon_plus.svg" action="create" alt="create">`;
-          const disabledEditIcon = `<img ${iconStyleDisabled} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="disabled" alt="disabled">`;
-          const deleteIcon = `<img ${iconStyle} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">`;
-
-          // BLOKADA = wholesalerKey === null
-          const isBlock = data && data.wholesalerKey === null;
-
-          // Daty pomocnicze
-          const toUTCDateMidnight = (v) => {
-            if (!v) return null;
-            if (v === "infinity") return "infinity";
-            const dt = new Date(v);
-            if (isNaN(d
-
+    });
+  }
 
   async function getPricats() {
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
