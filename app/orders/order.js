@@ -1643,7 +1643,7 @@ whenReadyAndDataTables(function () {
 
         const isConfirmed = confirmedKeys.includes(item.wholesalerKey);
 
-        // <=== 🔥 tu nowy warunek wyróżniający "twoją" cenę ===>
+        // <=== tu nowy warunek wyróżniający "twoją" cenę ===>
         const isUserAssigned =
           item.wholesalerKey === d.wholesalerKey &&
           item.netPrice === d.netPrice;

@@ -2986,16 +2986,9 @@ whenReadyAndDataTables(function () {
                 : WRAP(plusIcon + deleteIcon);
             }
 
-            // Nie-blokady: bez zmian (edit do końca, po zakończeniu – edit nieaktywny)
             if (isEnded) {
-              // Jeśli chcesz całkiem zrezygnować z disabled również tutaj, zamień na: return WRAP(plusIcon + deleteIcon);
-              const disabledEdit = ICON(
-                "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg",
-                "disabled",
-                true,
-                "Edycja niedostępna"
-              );
-              return WRAP(disabledEdit + deleteIcon);
+              // zakończone nie-blokady: pozwól utworzyć nową na podstawie starej
+              return WRAP(plusIcon + deleteIcon);
             }
             return WRAP(editIcon + deleteIcon);
           },
