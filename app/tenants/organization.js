@@ -2914,30 +2914,49 @@ whenReadyAndDataTables(function () {
           orderable: false,
           data: null,
           width: "72px",
-          render: function (data) {
-            // Ikony – spójny rozmiar i wyrównanie
-            const ICON_SIZE = 18;
-            const wrapStart = `<span style="display:inline-flex;align-items:center;gap:8px">`;
-            const wrapEnd = `</span>`;
-            const iconStyle = `style="width:${ICON_SIZE}px;height:${ICON_SIZE}px;vertical-align:middle;cursor:pointer"`;
-            const iconStyleDisabled = `style="width:${ICON_SIZE}px;height:${ICON_SIZE}px;vertical-align:middle;opacity:.4;cursor:not-allowed"`;
+          render: function (row) {
+            const ICON = (src, action, disabled = false, title = "") => {
+              const size = 18;
+              const base = `width:${size}px;height:${size}px;vertical-align:middle;`;
+              const extra = disabled
+                ? "opacity:.4;cursor:not-allowed"
+                : "cursor:pointer";
+              return `<img style="${base}${extra}" src="${src}" action="${action}" alt="${action}" title="${title}">`;
+            };
+            const WRAP = (html) =>
+              `<span style="display:inline-flex;align-items:center;gap:8px">${html}</span>`;
 
-            const editIcon = `<img ${iconStyle} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="edit" alt="edit">`;
-            const plusIcon = `<img ${iconStyle} src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/64c8d07d6149a13907618b26_icon_plus.svg" action="create" alt="create">`;
-            const disabledEditIcon = `<img ${iconStyleDisabled} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg" action="disabled" alt="disabled">`;
-            const deleteIcon = `<img ${iconStyle} src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" action="delete" alt="delete">`;
+            const editIcon = ICON(
+              "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg",
+              "edit",
+              false,
+              "Edytuj"
+            );
+            const plusIcon = ICON(
+              "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64c8d07d6149a13907618b26_icon_plus.svg",
+              "create",
+              false,
+              "Dodaj nową na podstawie"
+            );
+            const deleteIcon = ICON(
+              "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg",
+              "delete",
+              false,
+              "Usuń"
+            );
 
-            // BLOKADA = wholesalerKey === null
-            const isBlock = data && data.wholesalerKey === null;
+            // --- ROBUST: wykrywamy BLOKADĘ także gdy wholesalerKey jest undefined
+            const isBlock =
+              !("wholesalerKey" in row) || row.wholesalerKey == null;
 
-            // Daty pomocnicze
-            const toUTCDateMidnight = (v) => {
+            // Daty → północ UTC
+            const toUtcMidnight = (v) => {
               if (!v) return null;
               if (v === "infinity") return "infinity";
-              const dt = new Date(v);
-              if (isNaN(dt.getTime())) return null;
+              const d = new Date(v);
+              if (isNaN(d.getTime())) return null;
               return new Date(
-                Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate())
+                Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
               );
             };
 
@@ -2949,35 +2968,36 @@ whenReadyAndDataTables(function () {
                 now.getUTCDate()
               )
             );
-            const start = data?.startDate ? new Date(data.startDate) : null;
-            const endUTC = toUTCDateMidnight(data?.endDate);
+            const start = row?.startDate ? new Date(row.startDate) : null;
+            const endUTC = toUtcMidnight(row?.endDate);
             const isInfinity = endUTC === "infinity";
             const hasStarted = !!start && start <= now;
             const isActiveNow =
-              isInfinity ||
-              (endUTC !== null && endUTC >= todayUTC && hasStarted);
+              isInfinity || (endUTC && endUTC >= todayUTC && hasStarted);
             const isEnded =
-              endUTC !== "infinity" && endUTC !== null
-                ? endUTC < todayUTC
-                : false;
+              endUTC && endUTC !== "infinity" && endUTC < todayUTC;
 
             if (isBlock) {
-              // Nowa logika:
-              // - EDIT: bezterminowe lub aktywne teraz
-              // - PLUS: w przeciwnym razie (zakończone albo jeszcze nie rozpoczęte)
-              // - DELETE: zawsze
-              if (isActiveNow) {
-                return wrapStart + editIcon + deleteIcon + wrapEnd;
-              } else {
-                return wrapStart + plusIcon + deleteIcon + wrapEnd;
-              }
+              // BLOKADY:
+              //  - aktywne lub bezterminowe → EDIT
+              //  - zakończone lub jeszcze nieaktywne → PLUS
+              return isActiveNow
+                ? WRAP(editIcon + deleteIcon)
+                : WRAP(plusIcon + deleteIcon);
             }
 
-            // Nie-blokady – jak dotąd: edit aktywny do końca, po zakończeniu edit disabled.
+            // Nie-blokady: bez zmian (edit do końca, po zakończeniu – edit nieaktywny)
             if (isEnded) {
-              return wrapStart + disabledEditIcon + deleteIcon + wrapEnd;
+              // Jeśli chcesz całkiem zrezygnować z disabled również tutaj, zamień na: return WRAP(plusIcon + deleteIcon);
+              const disabledEdit = ICON(
+                "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg",
+                "disabled",
+                true,
+                "Edycja niedostępna"
+              );
+              return WRAP(disabledEdit + deleteIcon);
             }
-            return wrapStart + editIcon + deleteIcon + wrapEnd;
+            return WRAP(editIcon + deleteIcon);
           },
         },
       ],
