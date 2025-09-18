@@ -5154,61 +5154,65 @@ whenReadyAndDataTables(function () {
 
       // ====== EDIT POPUP ( #EditExclusivePopup ) ======
       if (action === "edit") {
-        const enableEditFields = () => {
-          $(
-            "#GTINInputEdit, #Creator, #Created, #WholesalerSelector-Exclusive-Edit, #priceThresholdInput-Edit"
-          )
-            .prop("disabled", false)
-            .css("opacity", "1");
-          $("#startDate-Exclusive-Edit, #endDate-Exclusive-Edit")
-            .datepicker("enable")
-            .css("opacity", "1");
+        // --- helpers tylko dla EDIT ---
+        const setDisabled = ($el, disabled, opacityIfDisabled = 0.6) => {
+          $el.prop("disabled", !!disabled);
+          if (disabled) $el.css("opacity", opacityIfDisabled);
+          else $el.css("opacity", "1");
         };
 
-        const setNeverStateEdit = (checked) => {
-          const $neverInput = $("#NeverSingleEdit");
-          const $neverVisual = $(
+        const today = new Date();
+        const toLocalDate = (d) => (d instanceof Date ? d : new Date(d));
+
+        // Twarde sterowanie stanem "Bezterminowo" (input + wizual)
+        const applyNeverStateEdit = (checked) => {
+          const $input = $("#NeverSingleEdit"); // ukryty checkbox
+          const $visual = $(
             "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox"
           );
-          $neverInput.prop("checked", checked);
+          const $end = $("#endDate-Exclusive-Edit");
+
+          // zsynchronizuj checkbox (ukryty) i wizual
+          $input.prop("checked", !!checked);
+          $visual.attr("aria-checked", checked ? "true" : "false");
+          $visual.toggleClass("w--redirected-checked", !!checked);
+
           if (checked) {
-            $neverVisual
-              .addClass("w--redirected-checked")
-              .attr("aria-checked", "true");
-            $("#endDate-Exclusive-Edit")
-              .datepicker("setDate", null)
-              .datepicker("disable")
-              .css("opacity", "0.6");
+            // Bezterminowo: wyczyść i zablokuj datę końca
+            $end.datepicker("setDate", null);
+            setDisabled($end, true); // disabled + opacity 0.6
           } else {
-            $neverVisual
-              .removeClass("w--redirected-checked")
-              .attr("aria-checked", "false");
-            $("#endDate-Exclusive-Edit")
-              .datepicker("enable")
-              .css("opacity", "1");
+            // Terminowe: odblokuj datę końca, podpowiedz dziś jeśli pusta
+            setDisabled($end, false);
+            const cur = $end.datepicker("getDate");
+            if (!cur) $end.datepicker("setDate", today);
           }
         };
 
         const bindNeverCheckboxEdit = () => {
+          // zmiana "prawdziwego" inputa
           $("#NeverSingleEdit")
             .off("change.Edit")
             .on("change.Edit", function () {
-              setNeverStateEdit(this.checked);
-              if (!this.checked) {
-                const current = $("#endDate-Exclusive-Edit").datepicker(
-                  "getDate"
-                );
-                if (!current)
-                  $("#endDate-Exclusive-Edit").datepicker(
-                    "setDate",
-                    new Date()
-                  );
+              applyNeverStateEdit(this.checked);
+            });
+
+          // klik w label / wizual (często Webflow używa div jako „checkboxa”)
+          $("#NeverSingle-Edit")
+            .off("click.toggleEdit")
+            .on("click.toggleEdit", function (e) {
+              // jeżeli klik nie pochodził bezpośrednio z inputa, ręcznie przełącz
+              if (e.target.id !== "NeverSingleEdit") {
+                const next = !$("#NeverSingleEdit").is(":checked");
+                applyNeverStateEdit(next);
+                // zapobiegaj podwójnemu przełączeniu, jeśli label kliknąłby input
+                e.preventDefault();
+                e.stopPropagation();
               }
             });
-          $("#NeverSingle-Edit").off("click.syncNever");
         };
 
-        const fillStaticMeta = (row) => {
+        const fillStaticMetaDisabled = (row) => {
           const createdLocal = (() => {
             const d = new Date(row?.created?.at);
             if (isNaN(d)) return "";
@@ -5223,36 +5227,57 @@ whenReadyAndDataTables(function () {
               })
               .replace(",", "");
           })();
+
+          // Ustaw wartości…
           $("#Creator").val(row?.created?.by || "");
           $("#Created").val(createdLocal);
+
+          // …i zablokuj na stałe (Twoje wymaganie)
+          setDisabled($("#Creator"), true);
+          setDisabled($("#Created"), true);
         };
 
-        // otwórz i przygotuj
+        // --- otwórz modal i przygotuj UI ---
         $("#EditExclusivePopup").css("display", "flex");
-        enableEditFields();
-        bindNeverCheckboxEdit();
 
-        // Pola
+        // Pola edytowalne w EDIT (poza Creator/Created)
+        $(
+          "#GTINInputEdit, #WholesalerSelector-Exclusive-Edit, #priceThresholdInput-Edit"
+        )
+          .prop("disabled", false)
+          .css("opacity", "1");
+        $("#startDate-Exclusive-Edit, #endDate-Exclusive-Edit")
+          .datepicker("enable")
+          .css("opacity", "1");
+
+        // Prefille
         $("#GTINInputEdit").val(row.gtin || "");
         $("#priceThresholdInput-Edit").val(row.priceThreshold ?? "");
         $("#WholesalerSelector-Exclusive-Edit")
           .val(row.wholesalerKey ?? "null")
           .change();
-        fillStaticMeta(row);
-
-        // Id rekordu
         $("#exclusiveProductId").val(row.uuid || "");
 
-        // Daty
-        const today = new Date();
-        const endUTC = toUtcMidnight(row?.endDate);
+        // Metadane → disabled
+        fillStaticMetaDisabled(row);
+
+        // Start date zawsze na dziś (automatycznie)
         $("#startDate-Exclusive-Edit").datepicker("setDate", today);
-        if (endUTC === "infinity") {
-          setNeverStateEdit(true);
+
+        // Podpięcie logiki „Bezterminowo”
+        bindNeverCheckboxEdit();
+
+        // Ustal stan końcowy wg rekordu: infinity => bezterminowo
+        const endIsInfinity =
+          row?.endDate === "infinity" ||
+          toUtcMidnight(row?.endDate) === "infinity";
+        if (endIsInfinity) {
+          applyNeverStateEdit(true);
         } else {
-          setNeverStateEdit(false);
-          const endLocal = row?.endDate ? new Date(row.endDate) : null;
-          $("#endDate-Exclusive-Edit").datepicker("setDate", endLocal || today);
+          // nie bezterminowo → odblokuj datę końca; jeśli jest w rekordzie, ustaw ją, inaczej dziś
+          applyNeverStateEdit(false);
+          const endLocal = row?.endDate ? toLocalDate(row.endDate) : today;
+          $("#endDate-Exclusive-Edit").datepicker("setDate", endLocal);
         }
 
         return;
