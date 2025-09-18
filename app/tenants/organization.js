@@ -5197,12 +5197,12 @@ whenReadyAndDataTables(function () {
     return nd;
   };
 
-  // maks(today + 25y, 2100-01-01)
+  // maks(today + 25y, 2050-01-01)
   const farFutureDate = () => {
     const today = new Date();
     const plus25 = addYears(today, 25);
-    const y2100 = new Date(Date.UTC(2100, 0, 1)); // 2100-01-01 UTC (datepicker i tak liczy lokalnie)
-    return plus25 > y2100 ? plus25 : y2100;
+    const y2050 = new Date(Date.UTC(2050, 0, 1)); // 2050-01-01 UTC (datepicker i tak liczy lokalnie)
+    return plus25 > y2050 ? plus25 : y2050;
   };
 
   // bezpieczne ustawienie disabled + opacity
