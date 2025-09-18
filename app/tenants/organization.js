@@ -4359,6 +4359,50 @@ whenReadyAndDataTables(function () {
       .replace(/'/g, "&#039;");
   }
 
+  // Zwraca YYYY-MM-DD (tylko część daty)
+  function toDateOnlyString(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  // Walidacja dat (czas ignorowany). Wymagania:
+  // - startDate istnieje i jest >= dzisiaj (wg lokalnego czasu)
+  // - jeśli nie „Nigdy”, to endDate istnieje i > startDate (ściśle późniejsza data)
+  function validateDateRange(startLocal, endLocal, neverChecked) {
+    if (!startLocal) return { ok: false, reason: "Wybierz datę rozpoczęcia." };
+
+    const todayLocal = toDateOnlyString(new Date());
+    if (startLocal < todayLocal) {
+      return {
+        ok: false,
+        reason: "Data rozpoczęcia nie może być wcześniejsza niż dzisiaj.",
+      };
+    }
+
+    if (neverChecked) return { ok: true };
+
+    if (!endLocal) return { ok: false, reason: "Wybierz datę zakończenia." };
+    if (endLocal <= startLocal) {
+      return {
+        ok: false,
+        reason: "Data zakończenia musi być późniejsza niż data rozpoczęcia.",
+      };
+    }
+    return { ok: true };
+  }
+
+  // Escapowanie nazwy (XSS / znaków specjalnych)
+  function escapeName(str) {
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   // Parsowanie wielu GTIN-ów (enter, przecinek, średnik, spacja)
   function parseMultipleGTINs(raw) {
     const tokens = (raw || "")
