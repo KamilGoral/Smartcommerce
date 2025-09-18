@@ -4327,6 +4327,28 @@ whenReadyAndDataTables(function () {
     return (value || "").toString().replace(/\s+/g, "");
   }
 
+  function isValidGTIN(gtinRaw) {
+    const gtin = normalizeGTIN(gtinRaw);
+    if (!/^\d+$/.test(gtin))
+      return { ok: false, reason: "Niedozwolone znaki." };
+    const len = gtin.length;
+    if (![8, 12, 13, 14].includes(len)) {
+      return { ok: false, reason: "Nieprawidłowa długość." };
+    }
+    const digits = gtin.split("").map(Number);
+    const check = digits.pop();
+    let sum = 0;
+    for (let i = digits.length - 1, pos = 0; i >= 0; i--, pos++) {
+      const weight = pos % 2 === 0 ? 3 : 1;
+      sum += digits[i] * weight;
+    }
+    const calcCheck = (10 - (sum % 10)) % 10;
+    if (calcCheck !== check) {
+      return { ok: false, reason: "Nieprawidłowa cyfra kontrolna." };
+    }
+    return { ok: true };
+  }
+
   // Escapowanie nazwy (XSS / znaków specjalnych)
   function escapeName(str) {
     return (str || "")
