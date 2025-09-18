@@ -4558,13 +4558,13 @@ whenReadyAndDataTables(function () {
               }
             }
             form.show();
-            displayMessage(
-              "Success",
-              `Blokada została założona dla ${items.length} GTIN ${
-                items.length === 1 ? "" : "ów"
-              }.`
-            );
+            displayMessage("Success", `Blokada została założona.`);
             $("#GTINInput").val("");
+            // 🚀 Odśwież tabelę
+            if ($.fn.DataTable.isDataTable("#table_id")) {
+              $("#table_id").DataTable().ajax.reload(null, false);
+              // drugi parametr = false → zostawia aktualną stronę i sortowanie
+            }
           },
           error: function (jqXHR, exception) {
             const serverMsg =
