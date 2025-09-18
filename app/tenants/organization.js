@@ -4884,6 +4884,11 @@ whenReadyAndDataTables(function () {
                   }
                 }
                 displayMessage("Success", "Blokada została zmieniona.");
+                // 🚀 Odśwież tabelę
+                if ($.fn.DataTable.isDataTable("#table_id")) {
+                  $("#table_id").DataTable().ajax.reload(null, false);
+                  // drugi parametr = false → zostawia aktualną stronę i sortowanie
+                }
                 if (typeof refreshTable === "function") refreshTable();
               },
               error: function (jqXHR, exception) {
