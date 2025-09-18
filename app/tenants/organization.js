@@ -1812,20 +1812,28 @@ whenReadyAndDataTables(function () {
           }
         });
 
-        const wholesalerContainer2 = document.getElementById(
-          "WholesalerSelector-Exclusive-Edit"
-        );
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer2.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer2.appendChild(opt);
-          }
+        [
+          "WholesalerSelector-Exclusive-2",
+          "WholesalerSelector-Exclusive-Edit",
+        ].forEach((id) => {
+          const container = document.getElementById(id);
+          container.innerHTML = "";
+
+          // Dodaj opcję BLOKADA
+          const blockOpt = document.createElement("option");
+          blockOpt.value = null;
+          blockOpt.innerHTML = "BLOKADA";
+          container.appendChild(blockOpt);
+
+          // Dodaj hurtowników
+          toParse.forEach((wholesaler) => {
+            if (wholesaler.enabled) {
+              const opt = document.createElement("option");
+              opt.value = wholesaler.wholesalerKey;
+              opt.innerHTML = wholesaler.name;
+              container.appendChild(opt);
+            }
+          });
         });
 
         var enabledWholesalers = toParse.filter(function (item) {
