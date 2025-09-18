@@ -4355,8 +4355,11 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjaxSingle = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
+      // ---- Wyłącz Webflow submit hijack ----
+      form.attr("data-wf-ignore", "true");
+      form.off("submit"); // zdejmuje webflow'owe bindy (np. .w-form)
 
-      form.on("submit", function (event) {
+      form.on("submit.sksingle", function (event) {
         event.preventDefault();
 
         const action = InvokeURL + "exclusive-products";
@@ -5112,6 +5115,27 @@ whenReadyAndDataTables(function () {
     $input.val(value).attr("value", value).data("initialValue", value);
   }
 
+  // --- WSPÓLNE POMOCNICZE ---
+  const addYears = (d, years) => {
+    const nd = new Date(d.getTime());
+    nd.setFullYear(nd.getFullYear() + years);
+    return nd;
+  };
+
+  // maks(today + 25y, 2100-01-01)
+  const farFutureDate = () => {
+    const today = new Date();
+    const plus25 = addYears(today, 25);
+    const y2100 = new Date(Date.UTC(2100, 0, 1)); // 2100-01-01 UTC (datepicker i tak liczy lokalnie)
+    return plus25 > y2100 ? plus25 : y2100;
+  };
+
+  // bezpieczne ustawienie disabled + opacity
+  const setDisabled = ($el, disabled, opacityIfDisabled = 0.6) => {
+    $el.prop("disabled", !!disabled);
+    $el.css("opacity", disabled ? opacityIfDisabled : "1");
+  };
+
   // Klik w ikonki akcji (edit / create / delete)
   $("#table_id")
     .off("click.actionImgs")
@@ -5174,26 +5198,26 @@ whenReadyAndDataTables(function () {
 
         // Twarde sterowanie stanem "Bezterminowo" (input + wizual)
         const applyNeverStateEdit = (checked) => {
-          const $input = $("#NeverSingleEdit"); // ukryty checkbox
+          const $input = $("#NeverSingleEdit");
           const $visual = $(
             "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox"
           );
           const $end = $("#endDate-Exclusive-Edit");
 
-          // zsynchronizuj checkbox (ukryty) i wizual
           $input.prop("checked", !!checked);
-          $visual.attr("aria-checked", checked ? "true" : "false");
-          $visual.toggleClass("w--redirected-checked", !!checked);
+          $visual
+            .attr("aria-checked", checked ? "true" : "false")
+            .toggleClass("w--redirected-checked", !!checked);
 
           if (checked) {
-            // Bezterminowo: wyczyść i zablokuj datę końca
-            $end.datepicker("setDate", null);
-            setDisabled($end, true); // disabled + opacity 0.6
+            // W EDIT też ustawiamy daleką datę dla spójności UX
+            const ff = farFutureDate();
+            $end.datepicker("setDate", ff);
+            setDisabled($end, true);
           } else {
-            // Terminowe: odblokuj datę końca, podpowiedz dziś jeśli pusta
             setDisabled($end, false);
             const cur = $end.datepicker("getDate");
-            if (!cur) $end.datepicker("setDate", today);
+            if (!cur) $end.datepicker("setDate", new Date());
           }
         };
 
@@ -5293,35 +5317,37 @@ whenReadyAndDataTables(function () {
 
       // ====== CREATE POPUP ( #singleexclusivemodal ) ======
       if (action === "create") {
-        // Enable pól create
         const enableCreateFields = () => {
-          $("#GTINInput, #WholesalerSelector-Exclusive-2, #priceThresholdInput")
-            .prop("disabled", false)
-            .css("opacity", "1");
+          // GTIN ma być disabled
+          setDisabled($("#GTINInput"), true); // <<<<<<<<<<<<<<<<< TU: disabled
+          setDisabled($("#WholesalerSelector-Exclusive-2"), false);
+          setDisabled($("#priceThresholdInput"), false);
           $("#startDate-Exclusive-2, #endDate-Exclusive-2")
             .datepicker("enable")
             .css("opacity", "1");
         };
 
-        const setNeverStateCreate = (checked) => {
-          const $neverInput = $("#NeverSingle");
-          const $neverVisual = $(
-            "#NeverSingle-2 .w-checkbox-input, #NeverSingle-2 .never-checkbox, #NeverSingle .w-checkbox-input"
+        const applyNeverStateCreate = (checked) => {
+          const $input = $("#NeverSingle");
+          const $visual = $(
+            "#singleexclusivemodal .never-checkbox, #singleexclusivemodal .w-checkbox-input"
           );
-          $neverInput.prop("checked", checked);
+          const $end = $("#endDate-Exclusive-2");
+
+          $input.prop("checked", !!checked);
+          $visual
+            .attr("aria-checked", checked ? "true" : "false")
+            .toggleClass("w--redirected-checked", !!checked);
+
           if (checked) {
-            $neverVisual
-              .addClass("w--redirected-checked")
-              .attr("aria-checked", "true");
-            $("#endDate-Exclusive-2")
-              .datepicker("setDate", null)
-              .datepicker("disable")
-              .css("opacity", "0.6");
+            // USTAWIAMY DALEKĄ DATĘ (wizualnie) i BLOKUJEMY POLE
+            const ff = farFutureDate();
+            $end.datepicker("setDate", ff);
+            setDisabled($end, true); // pole nieedytowalne
           } else {
-            $neverVisual
-              .removeClass("w--redirected-checked")
-              .attr("aria-checked", "false");
-            $("#endDate-Exclusive-2").datepicker("enable").css("opacity", "1");
+            setDisabled($end, false); // odblokuj
+            const cur = $end.datepicker("getDate");
+            if (!cur) $end.datepicker("setDate", new Date()); // podpowiedz dziś
           }
         };
 
@@ -5329,38 +5355,43 @@ whenReadyAndDataTables(function () {
           $("#NeverSingle")
             .off("change.Create")
             .on("change.Create", function () {
-              setNeverStateCreate(this.checked);
-              if (!this.checked) {
-                const current = $("#endDate-Exclusive-2").datepicker("getDate");
-                if (!current)
-                  $("#endDate-Exclusive-2").datepicker("setDate", new Date());
+              applyNeverStateCreate(this.checked);
+            });
+          // klik w label/ikonę
+          $("#singleexclusivemodal .nevercheckbox")
+            .off("click.toggleCreate")
+            .on("click.toggleCreate", function (e) {
+              if (e.target.id !== "NeverSingle") {
+                const next = !$("#NeverSingle").is(":checked");
+                applyNeverStateCreate(next);
+                e.preventDefault();
+                e.stopPropagation();
               }
             });
-          $("#NeverSingle-2").off("click.syncNever");
         };
 
         // otwórz modal create
         $("#singleexclusivemodal").css("display", "flex");
 
-        // prepare UI
+        // UI
         enableCreateFields();
         bindNeverCheckboxCreate();
 
-        // Prefille (opcjonalnie wykorzystujemy dane z wiersza, jeśli klik z tabeli)
-        $("#GTINInput").val(row?.gtin || ""); // pozwala szybko założyć blokadę dla klikniętego GTIN
+        // Prefill (GTIN disabled – ale nadal go ustawiamy z wiersza, jeśli jest)
+        $("#GTINInput").val(row?.gtin || "");
         $("#priceThresholdInput").val(row?.priceThreshold ?? "");
         $("#WholesalerSelector-Exclusive-2")
           .val(row?.wholesalerKey ?? "null")
           .change();
 
-        // Daty: start = dziś, end = dziś (użytkownik ustawi / lub "Nigdy")
+        // Daty
         const today = new Date();
         $("#startDate-Exclusive-2").datepicker("setDate", today);
-        setNeverStateCreate(false);
+
+        // Domyślnie NIE bezterminowo (aktywny end z dzisiejszą datą)
+        applyNeverStateCreate(false);
         $("#endDate-Exclusive-2").datepicker("setDate", today);
 
-        // W tym miejscu NIE wywołujemy submitu – obsłuży to funkcja makeWebflowFormAjaxSingle
-        // przypięta do formularza wewnątrz #singleexclusivemodal.
         return;
       }
     });
