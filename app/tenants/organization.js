@@ -4323,6 +4323,10 @@ whenReadyAndDataTables(function () {
     return { ok: true };
   }
 
+  function normalizeGTIN(value) {
+    return (value || "").toString().replace(/\s+/g, "");
+  }
+
   // Escapowanie nazwy (XSS / znaków specjalnych)
   function escapeName(str) {
     return (str || "")
