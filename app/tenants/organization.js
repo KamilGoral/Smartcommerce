@@ -5124,86 +5124,7 @@ whenReadyAndDataTables(function () {
         );
       };
 
-      const setNeverState = (checked) => {
-        const $neverInput = $("#NeverSingleEdit");
-        const $neverVisual = $(
-          "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox"
-        );
-
-        $neverInput.prop("checked", checked);
-        if (checked) {
-          $neverVisual
-            .addClass("w--redirected-checked")
-            .attr("aria-checked", "true");
-          // wyłącz endDate
-          $("#endDate-Exclusive-Edit")
-            .datepicker("setDate", null)
-            .datepicker("disable")
-            .css("opacity", "0.6");
-        } else {
-          $neverVisual
-            .removeClass("w--redirected-checked")
-            .attr("aria-checked", "false");
-          $("#endDate-Exclusive-Edit").datepicker("enable").css("opacity", "1");
-        }
-      };
-
-      const enableAllFields = () => {
-        $(
-          "#GTINInputEdit, #Creator, #Created, #WholesalerSelector-Exclusive-Edit, #priceThresholdInput-Edit"
-        )
-          .prop("disabled", false)
-          .css("opacity", "1");
-        $("#startDate-Exclusive-Edit, #endDate-Exclusive-Edit")
-          .datepicker("enable")
-          .css("opacity", "1");
-      };
-
-      const fillStaticMeta = (row) => {
-        // Jeśli chcesz zostawić metadane tylko do podglądu – zostawiamy wartości,
-        // ale i tak są edytowalne zgodnie z prośbą
-        const createdLocal = (() => {
-          const d = new Date(row?.created?.at);
-          if (isNaN(d)) return "";
-          // format YYYY-MM-DD HH:mm (lokalnie)
-          return d
-            .toLocaleString("pl-PL", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })
-            .replace(",", "");
-        })();
-
-        $("#Creator").val(row?.created?.by || "");
-        $("#Created").val(createdLocal);
-      };
-
-      const bindNeverCheckbox = () => {
-        $("#NeverSingleEdit")
-          .off("change.Edit")
-          .on("change.Edit", function () {
-            setNeverState(this.checked);
-            if (!this.checked) {
-              // jeśli odznaczono "Nigdy", a brak daty – ustaw jutrzejszą dla wygody
-              const current = $("#endDate-Exclusive-Edit").datepicker(
-                "getDate"
-              );
-              if (!current)
-                $("#endDate-Exclusive-Edit").datepicker("setDate", new Date());
-            }
-          });
-        $("#NeverSingle-Edit").off("click.syncNever"); // bezpieczeństwo
-      };
-
-      const openPopup = () => {
-        $("#EditExclusivePopup").css("display", "flex");
-      };
-
-      // --- DELETE ---
+      // ====== DELETE ======
       if (action === "delete") {
         $.ajax({
           type: "DELETE",
@@ -5220,7 +5141,6 @@ whenReadyAndDataTables(function () {
             "Requested-By": "webflow-3-4",
           },
           success: function () {
-            // Usuń wiersz i odśwież rysowanie
             table.row($img.closest("tr")).remove().draw(false);
             $("#deleteInline-Success").show().fadeOut(4000);
           },
@@ -5232,47 +5152,183 @@ whenReadyAndDataTables(function () {
         return;
       }
 
-      // --- EDIT / CREATE wspólne przygotowanie formularza ---
-      openPopup();
-      enableAllFields(); // wszystko edytowalne
-      bindNeverCheckbox(); // poprawny toggle „Nigdy”
-
-      // Pola wspólne
-      $("#GTINInputEdit").val(row.gtin || "");
-      $("#priceThresholdInput-Edit").val(row.priceThreshold ?? "");
-      $("#WholesalerSelector-Exclusive-Edit")
-        .val(row.wholesalerKey ?? "null")
-        .change();
-      fillStaticMeta(row);
-
-      // Ustaw ID rekordu (dla edit), a dla create wyczyść
+      // ====== EDIT POPUP ( #EditExclusivePopup ) ======
       if (action === "edit") {
+        const enableEditFields = () => {
+          $(
+            "#GTINInputEdit, #Creator, #Created, #WholesalerSelector-Exclusive-Edit, #priceThresholdInput-Edit"
+          )
+            .prop("disabled", false)
+            .css("opacity", "1");
+          $("#startDate-Exclusive-Edit, #endDate-Exclusive-Edit")
+            .datepicker("enable")
+            .css("opacity", "1");
+        };
+
+        const setNeverStateEdit = (checked) => {
+          const $neverInput = $("#NeverSingleEdit");
+          const $neverVisual = $(
+            "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox"
+          );
+          $neverInput.prop("checked", checked);
+          if (checked) {
+            $neverVisual
+              .addClass("w--redirected-checked")
+              .attr("aria-checked", "true");
+            $("#endDate-Exclusive-Edit")
+              .datepicker("setDate", null)
+              .datepicker("disable")
+              .css("opacity", "0.6");
+          } else {
+            $neverVisual
+              .removeClass("w--redirected-checked")
+              .attr("aria-checked", "false");
+            $("#endDate-Exclusive-Edit")
+              .datepicker("enable")
+              .css("opacity", "1");
+          }
+        };
+
+        const bindNeverCheckboxEdit = () => {
+          $("#NeverSingleEdit")
+            .off("change.Edit")
+            .on("change.Edit", function () {
+              setNeverStateEdit(this.checked);
+              if (!this.checked) {
+                const current = $("#endDate-Exclusive-Edit").datepicker(
+                  "getDate"
+                );
+                if (!current)
+                  $("#endDate-Exclusive-Edit").datepicker(
+                    "setDate",
+                    new Date()
+                  );
+              }
+            });
+          $("#NeverSingle-Edit").off("click.syncNever");
+        };
+
+        const fillStaticMeta = (row) => {
+          const createdLocal = (() => {
+            const d = new Date(row?.created?.at);
+            if (isNaN(d)) return "";
+            return d
+              .toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })
+              .replace(",", "");
+          })();
+          $("#Creator").val(row?.created?.by || "");
+          $("#Created").val(createdLocal);
+        };
+
+        // otwórz i przygotuj
+        $("#EditExclusivePopup").css("display", "flex");
+        enableEditFields();
+        bindNeverCheckboxEdit();
+
+        // Pola
+        $("#GTINInputEdit").val(row.gtin || "");
+        $("#priceThresholdInput-Edit").val(row.priceThreshold ?? "");
+        $("#WholesalerSelector-Exclusive-Edit")
+          .val(row.wholesalerKey ?? "null")
+          .change();
+        fillStaticMeta(row);
+
+        // Id rekordu
         $("#exclusiveProductId").val(row.uuid || "");
-      } else {
-        $("#exclusiveProductId").val(""); // create: nowy wpis
-      }
 
-      // --- DATY ---
-      const today = new Date(); // dziś lokalnie
-      const start = row?.startDate ? new Date(row.startDate) : null;
-      const endUTC = toUtcMidnight(row?.endDate);
-
-      if (action === "edit") {
-        // startDate = dziś (można zmienić)
+        // Daty
+        const today = new Date();
+        const endUTC = toUtcMidnight(row?.endDate);
         $("#startDate-Exclusive-Edit").datepicker("setDate", today);
-      } else {
-        // create
-        // start z rekordu (jeśli brak – dziś)
-        $("#startDate-Exclusive-Edit").datepicker("setDate", start || today);
+        if (endUTC === "infinity") {
+          setNeverStateEdit(true);
+        } else {
+          setNeverStateEdit(false);
+          const endLocal = row?.endDate ? new Date(row.endDate) : null;
+          $("#endDate-Exclusive-Edit").datepicker("setDate", endLocal || today);
+        }
+
+        return;
       }
 
-      if (endUTC === "infinity") {
-        setNeverState(true);
-      } else {
-        setNeverState(false);
-        // endDate z rekordu (jeśli brak – jutro)
-        const endLocal = row?.endDate ? new Date(row.endDate) : null;
-        $("#endDate-Exclusive-Edit").datepicker("setDate", endLocal || today);
+      // ====== CREATE POPUP ( #singleexclusivemodal ) ======
+      if (action === "create") {
+        // Enable pól create
+        const enableCreateFields = () => {
+          $("#GTINInput, #WholesalerSelector-Exclusive-2, #priceThresholdInput")
+            .prop("disabled", false)
+            .css("opacity", "1");
+          $("#startDate-Exclusive-2, #endDate-Exclusive-2")
+            .datepicker("enable")
+            .css("opacity", "1");
+        };
+
+        const setNeverStateCreate = (checked) => {
+          const $neverInput = $("#NeverSingle");
+          const $neverVisual = $(
+            "#NeverSingle-2 .w-checkbox-input, #NeverSingle-2 .never-checkbox, #NeverSingle .w-checkbox-input"
+          );
+          $neverInput.prop("checked", checked);
+          if (checked) {
+            $neverVisual
+              .addClass("w--redirected-checked")
+              .attr("aria-checked", "true");
+            $("#endDate-Exclusive-2")
+              .datepicker("setDate", null)
+              .datepicker("disable")
+              .css("opacity", "0.6");
+          } else {
+            $neverVisual
+              .removeClass("w--redirected-checked")
+              .attr("aria-checked", "false");
+            $("#endDate-Exclusive-2").datepicker("enable").css("opacity", "1");
+          }
+        };
+
+        const bindNeverCheckboxCreate = () => {
+          $("#NeverSingle")
+            .off("change.Create")
+            .on("change.Create", function () {
+              setNeverStateCreate(this.checked);
+              if (!this.checked) {
+                const current = $("#endDate-Exclusive-2").datepicker("getDate");
+                if (!current)
+                  $("#endDate-Exclusive-2").datepicker("setDate", new Date());
+              }
+            });
+          $("#NeverSingle-2").off("click.syncNever");
+        };
+
+        // otwórz modal create
+        $("#singleexclusivemodal").css("display", "flex");
+
+        // prepare UI
+        enableCreateFields();
+        bindNeverCheckboxCreate();
+
+        // Prefille (opcjonalnie wykorzystujemy dane z wiersza, jeśli klik z tabeli)
+        $("#GTINInput").val(row?.gtin || ""); // pozwala szybko założyć blokadę dla klikniętego GTIN
+        $("#priceThresholdInput").val(row?.priceThreshold ?? "");
+        $("#WholesalerSelector-Exclusive-2")
+          .val(row?.wholesalerKey ?? "null")
+          .change();
+
+        // Daty: start = dziś, end = dziś (użytkownik ustawi / lub "Nigdy")
+        const today = new Date();
+        $("#startDate-Exclusive-2").datepicker("setDate", today);
+        setNeverStateCreate(false);
+        $("#endDate-Exclusive-2").datepicker("setDate", today);
+
+        // W tym miejscu NIE wywołujemy submitu – obsłuży to funkcja makeWebflowFormAjaxSingle
+        // przypięta do formularza wewnątrz #singleexclusivemodal.
+        return;
       }
     });
 
