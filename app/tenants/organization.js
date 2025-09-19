@@ -1384,6 +1384,9 @@ whenReadyAndDataTables(function () {
   );
 
   async function GetTenantBilling() {
+    let attempts = 0;
+
+    // Poczekaj aż pojawi się rola w cookie (max 5s)
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -1402,166 +1405,123 @@ whenReadyAndDataTables(function () {
         const isTab1Active = document.querySelector(
           "#w-tabs-2-data-w-tab-1.w--current"
         );
-        document.querySelector(".nb1").classList.toggle("hidden", isTab4Active);
-        document
-          .querySelector(".nb2")
-          .classList.toggle("hidden", !isTab4Active || isTab1Active);
-        document
-          .querySelector(".nb3")
-          .classList.toggle("hidden", !isTab1Active);
-        document
-          .querySelector("#fillUpOrganizationDetail")
-          .classList.toggle("hidden", !isTab1Active);
-      }, 150); // Delay the execution by 150 milliseconds
+        const nb1 = document.querySelector(".nb1");
+        const nb2 = document.querySelector(".nb2");
+        const nb3 = document.querySelector(".nb3");
+        const fill = document.querySelector("#fillUpOrganizationDetail");
+
+        if (nb1) nb1.classList.toggle("hidden", !!isTab4Active);
+        if (nb2)
+          nb2.classList.toggle("hidden", !isTab4Active || !!isTab1Active);
+        if (nb3) nb3.classList.toggle("hidden", !isTab1Active);
+        if (fill) fill.classList.toggle("hidden", !isTab1Active);
+      }, 150);
     }
 
-    let url = new URL(InvokeURL + "billing");
-    let request = new XMLHttpRequest();
+    const url = new URL(InvokeURL + "billing");
+    const request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
     request.setRequestHeader("Requested-By", "webflow-3-4");
+
     request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(this.response);
-        const hasRequiredKeys =
-          data.taxId !== null &&
-          data.companyName !== null &&
-          data.address && // Check if address object itself exists
-          data.address.country !== null &&
-          data.address.line1 !== null && // 'line2' is not required
-          data.address.town !== null &&
-          data.address.postcode !== null; // 'phones' is not required
+      if (request.status < 200 || request.status >= 400) {
+        console.error("Error loading tenant billing info:", request.status);
+        return;
+      }
 
-        if (hasRequiredKeys) {
-          console.log("All is good");
-          function setCookieAndSession(cName, cValue, expirationSec) {
-            let date = new Date();
-            date.setTime(date.getTime() + expirationSec * 1000);
-            const expires = "expires=" + date.toUTCString();
-            document.cookie =
-              cName + "=" + cValue + "; " + expires + "; path=/";
-          }
-          setCookieAndSession("sprytnyOrganizationTaxId", data.taxId, 72000);
-        } else {
-          // Initial check and setup event listeners
+      /** ------------------ PARSING + BEZPIECZNE DOSTĘPY ------------------ **/
+      const data = JSON.parse(this.response) || {};
+      const address = data.address || {};
+      const pricing = data.pricing || {};
+      const mcb = data.monthCostBreakdown || {}; // może być null
+      const toDate = mcb.toDate || { total: 0, standard: 0, premium: 0 };
+      const forecast = mcb.forecast || { total: 0 };
 
-          showDotForActiveTab();
-          document.querySelectorAll("[data-w-tab]").forEach((link) => {
-            link.addEventListener("click", showDotForActiveTab);
-          });
+      // Czy wypełnione wymagane pola do „All is good”
+      const hasRequiredKeys =
+        data.taxId != null &&
+        data.companyName != null &&
+        data.address &&
+        data.address.country != null &&
+        data.address.line1 != null &&
+        data.address.town != null &&
+        data.address.postcode != null;
+
+      if (hasRequiredKeys) {
+        function setCookieAndSession(cName, cValue, expirationSec) {
+          const date = new Date();
+          date.setTime(date.getTime() + expirationSec * 1000);
+          document.cookie = `${cName}=${cValue}; expires=${date.toUTCString()}; path=/`;
         }
-        var toParse = data; // Assuming 'data' is the object shown in your example
-        // Directly mapping data to fields
-        $("#tenantNameEdit").val(data.companyName || "");
-        $("#tenantTaxIdEdit").val(data.taxId || "");
-        $("#firstName").val(data.firstName || "");
-        $("#lastName").val(data.lastName || "");
-        $("#tenantTownEdit").val((data.address && data.address.town) || "");
-        $("#tenantPostcodeEdit").val(
-          (data.address && data.address.postcode) || ""
-        );
-        $("#tenantAdressEdit").val((data.address && data.address.line1) || "");
-        $("#tenantAdressEdit2").val((data.address && data.address.line2) || "");
-        $("#tenantPhoneEdit").val((data.phones && data.phones[0]?.phone) || "");
-        // Set tenantActivityKind
-        $("#tenantActivityKind").val(data.activityKind || "other_business");
-
-        const totalCost = data.monthCostBreakdown.toDate.total;
-        const standardCost = data.monthCostBreakdown.toDate.standard;
-        const premiumCost = data.monthCostBreakdown.toDate.premium;
-
-        $("#deleteStandardToDate").html(
-          "Plan Podstawowy: " + premiumCost + "zł" || ""
-        );
-        $("#deletePremiumToDate").html(
-          "Plan Premium: " + standardCost + "zł" || ""
-        );
-        $("#deleteTotalToDate").html("Suma: " + totalCost + "zł" || "");
-
-        const deleteTenantDetails = `Kwota faktury do zapłacenia za bieżący okres wynosi ${totalCost} zł.`;
-
-        $("#deleteTenantDetails").html(
-          `<strong>${deleteTenantDetails}</strong>` || ""
-        );
-
-        function toggleSelfEploymentContainer() {
-          if (tenantActivityKind.value !== "other_business") {
-            selfEploymentContainer.style.display = "grid";
-          } else {
-            selfEploymentContainer.style.display = "none";
-          }
-        }
-
-        tenantActivityKind.addEventListener(
-          "change",
-          toggleSelfEploymentContainer
-        );
-
-        // Initial call to set the correct display based on the initial value
-        toggleSelfEploymentContainer();
-
-        // Inform the user about the days left and the exact end date
-        var trialEndDateText = "";
-        const now = new Date();
-        const trialEndDate = new Date(toParse.trialEndDate);
-        const nextInvoiceDate = new Date(
-          toParse.nextInvoiceDate
-        ).toLocaleDateString("pl-PL");
-        const diff = trialEndDate.getTime() - now.getTime();
-        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        const fakeTrialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-        var dots = document.querySelectorAll(".tooltip-dot");
-
-        function updateAnimationColors(daysLeft) {
-          var color;
-          if (daysLeft <= 3) {
-            color = "rgba(255, 0, 0, 0.8)"; // Red for high urgency
-          } else if (daysLeft <= 7) {
-            color = "rgba(255, 165, 0, 0.8)"; // Orange for moderate urgency
-          } else {
-            color = "rgba(42, 168, 255, 0.8)"; // Original blue for normal situation
-          }
-
-          var styleSheet = document.createElement("style");
-          styleSheet.type = "text/css";
-          styleSheet.innerText = `
-            @keyframes tourDot {
-              0%   { box-shadow: 0 0 0 0px ${color}; }
-              80% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
-              100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
-            }
-            .tooltip-dot {
-              animation: tourDot 2.0s ease-out infinite;
-            }
-          `;
-          document.head.appendChild(styleSheet);
-        }
-
-        updateAnimationColors(daysLeft);
-
-        dots.forEach(function (dot) {
-          if (daysLeft <= 1) {
-            // Red for high urgency
-            dot.style.backgroundColor = "rgb(255, 0, 0)";
-            dot.style.borderColor = "rgb(255, 0, 0)";
-            dot.style.boxShadow = "0 0 0 50px rgba(255, 0, 0, 0)";
-          } else if (daysLeft <= 7) {
-            // Orange for moderate urgency
-            dot.style.backgroundColor = "rgb(255, 165, 0)";
-            dot.style.borderColor = "rgb(255, 165, 0)";
-            dot.style.boxShadow = "0 0 0 50px rgba(255, 165, 0, 0)";
-          } else {
-            // Original blue for normal situation
-          }
+        setCookieAndSession("sprytnyOrganizationTaxId", data.taxId, 72000);
+      } else {
+        showDotForActiveTab();
+        document.querySelectorAll("[data-w-tab]").forEach((link) => {
+          link.addEventListener("click", showDotForActiveTab);
         });
+      }
 
+      /** ------------------ WYPEŁNIANIE FORMULARZA ------------------ **/
+      $("#tenantNameEdit").val(data.companyName || "");
+      $("#tenantTaxIdEdit").val(data.taxId || "");
+      $("#firstName").val(data.firstName || "");
+      $("#lastName").val(data.lastName || "");
+      $("#tenantTownEdit").val(address.town || "");
+      $("#tenantPostcodeEdit").val(address.postcode || "");
+      $("#tenantAdressEdit").val(address.line1 || "");
+      $("#tenantAdressEdit2").val(address.line2 || "");
+      $("#tenantPhoneEdit").val((data.phones && data.phones[0]?.phone) || "");
+      $("#tenantActivityKind").val(data.activityKind || "other_business");
+
+      /** ------------------ KOSZTY (odporne na null) ------------------ **/
+      const totalCost = Number(toDate.total || 0);
+      const standardCost = Number(toDate.standard || 0);
+      const premiumCost = Number(toDate.premium || 0);
+
+      // Uwaga: wcześniej był zamieniony opis planów (premiumCost opisywany jako Plan Podstawowy i odwrotnie)
+      const $std = $("#deleteStandardToDate");
+      if ($std.length) $std.html(`Plan Podstawowy: ${standardCost} zł`);
+      const $prem = $("#deletePremiumToDate");
+      if ($prem.length) $prem.html(`Plan Premium: ${premiumCost} zł`);
+      const $sum = $("#deleteTotalToDate");
+      if ($sum.length) $sum.html(`Suma: ${totalCost} zł`);
+
+      const deleteTenantDetails = `Kwota faktury do zapłacenia za bieżący okres wynosi ${totalCost} zł.`;
+      const $del = $("#deleteTenantDetails");
+      if ($del.length) $del.html(`<strong>${deleteTenantDetails}</strong>`);
+
+      /** ------------------ POKAŻ/UKRYJ specjalny cennik ------------------ **/
+      const hasSpecial = pricing.specialService != null;
+      const specialBox = document.getElementById("specialServiceBox");
+      const pricingStandardBox = document.getElementById("pricingStandard");
+      const pricingPremiumBox = document.getElementById("pricingPremium");
+      if (specialBox) specialBox.style.display = hasSpecial ? "flex" : "none";
+      if (pricingStandardBox)
+        pricingStandardBox.style.display = hasSpecial ? "none" : "";
+      if (pricingPremiumBox)
+        pricingPremiumBox.style.display = hasSpecial ? "none" : "";
+
+      /** ------------------ Trial / daty (odporne na null) ------------------ **/
+      const now = new Date();
+
+      // trialEndDate: jeśli null → pokaż „Aktywny” (lub brak okresu testowego)
+      let trialEndDateText = "Aktywny";
+      let daysLeft = 999; // neutralny kolor
+      if (data.trialEndDate) {
+        const trialEndDate = new Date(data.trialEndDate);
+        const diff = trialEndDate.getTime() - now.getTime();
+        daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         if (daysLeft < 0) {
           trialEndDateText = "Aktywny";
-        } else if (daysLeft === 1) {
-          trialEndDateText = `Twój bezpłatny okres testowy kończy się jutro.`;
         } else if (daysLeft === 0) {
-          trialEndDateText = `Twój bezpłatny okres testowy kończy się dzisiaj.`;
+          trialEndDateText = "Twój bezpłatny okres testowy kończy się dzisiaj.";
+        } else if (daysLeft === 1) {
+          trialEndDateText = "Twój bezpłatny okres testowy kończy się jutro.";
         } else if (daysLeft > 30) {
+          const fakeTrialEnd = new Date(
+            now.getTime() + 30 * 24 * 60 * 60 * 1000
+          );
           trialEndDateText = `Twój bezpłatny okres testowy kończy się za 30 dni - ${fakeTrialEnd.toLocaleDateString(
             "pl-PL"
           )}.`;
@@ -1570,127 +1530,156 @@ whenReadyAndDataTables(function () {
             "pl-PL"
           )}.`;
         }
+      }
 
-        if (data.emails && data.emails.length > 0) {
-          data.emails.forEach((email, index) => {
-            if (index < 3) {
-              $(`#tenantEmailEdit${index + 1}`).val(email.email || "");
-              $(`#tenantEmailEditDescription${index + 1}`).val(
-                email.description || ""
-              );
-            }
-          });
+      // nextInvoiceDate: „0001-01-01T00:00:00Z” traktuj jako brak/nieustawione
+      let nextInvoiceDateTxt = "—";
+      if (
+        data.nextInvoiceDate &&
+        data.nextInvoiceDate !== "0001-01-01T00:00:00Z"
+      ) {
+        nextInvoiceDateTxt = new Date(data.nextInvoiceDate).toLocaleDateString(
+          "pl-PL"
+        );
+      }
+
+      // Kolorowe kropki animacji (opcjonalnie)
+      (function updateAnimationColors(dl) {
+        let color = "rgba(42, 168, 255, 0.8)"; // domyślny
+        if (dl <= 3) color = "rgba(255, 0, 0, 0.8)";
+        else if (dl <= 7) color = "rgba(255, 165, 0, 0.8)";
+
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = `
+        @keyframes tourDot {
+          0%   { box-shadow: 0 0 0 0px ${color}; }
+          80%  { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+          100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
         }
+        .tooltip-dot { animation: tourDot 2.0s ease-out infinite; }
+      `;
+        document.head.appendChild(styleSheet);
 
-        // Iterate over elements with the 'tenantData' attribute
-        document.querySelectorAll("[tenantData]").forEach((element) => {
-          const dataType = element.getAttribute("tenantData");
-
-          if (toParse.pricing.specialService !== null) {
-            // If specialService is not null, show #specialServiceBox
-            document.getElementById("specialServiceBox").style.display = "flex";
-            document.getElementById("pricingStandard").style.display = "none";
-            document.getElementById("pricingPremium").style.display = "none";
-          } else {
-            // If specialService is null, hide #specialServiceBox
-            document.getElementById("specialServiceBox").style.display = "none";
-          }
-
-          switch (dataType) {
-            case "tenantTrialEndDate":
-              element.textContent = trialEndDateText || "Aktywny";
-              break;
-            case "tenantName":
-              element.textContent = data.companyName || "N/A";
-              break;
-            case "organizationName":
-              element.textContent = organizationName || "N/A";
-              break;
-            case "phone":
-              if (toParse.phones && toParse.phones.length > 0) {
-                element.textContent = toParse.phones[0].phone || "N/A";
-              } else {
-                element.textContent = "N/A";
-              }
-              break;
-            case "nextInvoiceDate":
-              element.textContent =
-                "Data odnowienia subskrypcji: " + nextInvoiceDate || "N/A";
-              break;
-            case "forecastTotal":
-              element.textContent =
-                "Szacowana kwota faktury: " +
-                  toParse.monthCostBreakdown.forecast.total +
-                  " zł" || "N/A";
-              break;
-
-            case "standard":
-              element.textContent =
-                toParse.pricing.standard + " zł za sklep/miesięcznie" || "N/A";
-              break;
-            case "premium":
-              element.textContent =
-                toParse.pricing.premium + " zł za sklep/miesięcznie" || "N/A";
-              break;
-            case "specialService":
-              // Safely accessing specialService fee
-              element.textContent =
-                toParse.pricing.specialService &&
-                toParse.pricing.specialService.fee
-                  ? toParse.pricing.specialService.description +
-                    " - " +
-                    toParse.pricing.specialService.fee +
-                    " zł/miesięcznie"
-                  : "N/A";
-              break;
-            case "name":
-              element.textContent = toParse.name || "N/A";
-              break;
-            case "taxId":
-              element.textContent = toParse.taxId || "N/A";
-              break;
-            case "address":
-              // Łączenie wszystkich części adresu w jeden ciąg
-              const addressParts = toParse.address
-                ? [
-                    toParse.address.town,
-                    toParse.address.postcode,
-                    toParse.address.line1,
-                    toParse.address.line2,
-                    toParse.address.country,
-                  ]
-                    .filter((part) => part)
-                    .join(", ")
-                : "N/A";
-              element.textContent = addressParts;
-              break;
-            case "country":
-              element.textContent =
-                toParse.address && toParse.address.country
-                  ? toParse.address.country
-                  : "N/A";
-              break;
-            case "town":
-              element.textContent =
-                toParse.address && toParse.address.town
-                  ? toParse.address.town
-                  : "N/A";
-              break;
-            case "postcode":
-              element.textContent =
-                toParse.address && toParse.address.postcode
-                  ? toParse.address.postcode
-                  : "N/A";
-              break;
-            case "emails":
-              const emails =
-                toParse.emails && toParse.emails.map((e) => e.email).join(", ");
-              element.textContent = emails || "N/A";
-              break;
+        document.querySelectorAll(".tooltip-dot").forEach((dot) => {
+          if (dl <= 1) {
+            dot.style.backgroundColor = "rgb(255, 0, 0)";
+            dot.style.borderColor = "rgb(255, 0, 0)";
+            dot.style.boxShadow = "0 0 0 50px rgba(255, 0, 0, 0)";
+          } else if (dl <= 7) {
+            dot.style.backgroundColor = "rgb(255, 165, 0)";
+            dot.style.borderColor = "rgb(255, 165, 0)";
+            dot.style.boxShadow = "0 0 0 50px rgba(255, 165, 0, 0)";
           }
         });
-      } else {
-        console.error("Error loading tenant billing info:", request.status);
+      })(daysLeft);
+
+      /** ------------------ E-MAILE ------------------ **/
+      if (Array.isArray(data.emails)) {
+        data.emails.slice(0, 3).forEach((email, idx) => {
+          $(`#tenantEmailEdit${idx + 1}`).val(email?.email || "");
+          $(`#tenantEmailEditDescription${idx + 1}`).val(
+            email?.description || ""
+          );
+        });
+      }
+
+      /** ------------------ DYNAMICZNE ELEMENTY [tenantData] ------------------ **/
+      document.querySelectorAll("[tenantData]").forEach((el) => {
+        const dataType = el.getAttribute("tenantData");
+        switch (dataType) {
+          case "tenantTrialEndDate":
+            el.textContent = trialEndDateText || "Aktywny";
+            break;
+          case "tenantName":
+            el.textContent = data.companyName || "N/A";
+            break;
+          case "organizationName":
+            el.textContent =
+              typeof organizationName !== "undefined" && organizationName
+                ? organizationName
+                : "N/A";
+            break;
+          case "phone":
+            el.textContent = (data.phones && data.phones[0]?.phone) || "N/A";
+            break;
+          case "nextInvoiceDate":
+            el.textContent = `Data odnowienia subskrypcji: ${nextInvoiceDateTxt}`;
+            break;
+          case "forecastTotal":
+            el.textContent = `Szacowana kwota faktury: ${Number(
+              forecast.total || 0
+            )} zł`;
+            break;
+          case "standard":
+            el.textContent = `${Number(
+              pricing.standard || 0
+            )} zł za sklep/miesięcznie`;
+            break;
+          case "premium":
+            el.textContent = `${Number(
+              pricing.premium || 0
+            )} zł za sklep/miesięcznie`;
+            break;
+          case "specialService":
+            if (pricing.specialService?.fee) {
+              el.textContent = `${pricing.specialService.description} - ${pricing.specialService.fee} zł/miesięcznie`;
+            } else {
+              el.textContent = "N/A";
+            }
+            break;
+          case "name":
+            el.textContent = data.name || "N/A";
+            break;
+          case "taxId":
+            el.textContent = data.taxId || "N/A";
+            break;
+          case "address": {
+            const parts = [
+              address.town,
+              address.postcode,
+              address.line1,
+              address.line2,
+              address.country,
+            ].filter(Boolean);
+            el.textContent = parts.length ? parts.join(", ") : "N/A";
+            break;
+          }
+          case "country":
+            el.textContent = address.country || "N/A";
+            break;
+          case "town":
+            el.textContent = address.town || "N/A";
+            break;
+          case "postcode":
+            el.textContent = address.postcode || "N/A";
+            break;
+          case "emails": {
+            const emails = Array.isArray(data.emails)
+              ? data.emails.map((e) => e.email).join(", ")
+              : "";
+            el.textContent = emails || "N/A";
+            break;
+          }
+        }
+      });
+
+      /** ------------------ Self-employment toggle (jeśli są elementy) ------------------ **/
+      const tenantActivityKind = document.getElementById("tenantActivityKind");
+      const selfEploymentContainer = document.getElementById(
+        "selfEploymentContainer"
+      );
+      function toggleSelfEploymentContainer() {
+        if (!tenantActivityKind || !selfEploymentContainer) return;
+        selfEploymentContainer.style.display =
+          tenantActivityKind.value !== "other_business" ? "grid" : "none";
+      }
+      if (tenantActivityKind) {
+        tenantActivityKind.addEventListener(
+          "change",
+          toggleSelfEploymentContainer
+        );
+        toggleSelfEploymentContainer();
       }
     };
 
