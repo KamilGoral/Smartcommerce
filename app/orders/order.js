@@ -1381,14 +1381,13 @@ whenReadyAndDataTables(function () {
       if ($bar.find("#download-order-json-footer").length) return;
 
       const $btn = $(`
-  <button id="download-order-json-footer"
-          class="json-download-btn"
-          title="JSON (SprytnyKupiec)"
-          style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; height:28px; width:28px;">
-    <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/68d0e8e381fd6b44c8c126f7_document-JSON.svg"
-         alt="JSON"
-         style="height:28px; width:28px;">
-  </button>
+  <img
+    id="download-order-json-footer"
+    src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/68d0e8e381fd6b44c8c126f7_document-JSON.svg"
+    alt="JSON"
+    data-tippy-content="JSON (SprytnyKupiec)"
+    style="height:28px; width:28px; cursor:pointer;"
+  >
 `);
 
       $bar.append($btn);
