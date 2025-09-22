@@ -1378,11 +1378,6 @@ whenReadyAndDataTables(function () {
     });
   });
 
-  const tenantActivityKind = document.getElementById("tenantActivityKind");
-  const selfEploymentContainer = document.getElementById(
-    "selfEploymentContainer"
-  );
-
   async function GetTenantBilling() {
     let attempts = 0;
 

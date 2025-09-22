@@ -1103,6 +1103,9 @@ whenReadyAndDataTables(function () {
       initComplete: function () {
         bindStatusEvents();
 
+        // dodanie formatu pobierania JSON dla organizacji Goral
+        addJsonFooterIconIfGoral();
+
         const api = this.api();
         const allData = api.rows().data().toArray();
         const confirmedCount = allData.filter(
@@ -1111,7 +1114,6 @@ whenReadyAndDataTables(function () {
 
         $('a[data-w-tab="AddProducts"]').toggle(confirmedCount === 0);
 
-        // Naprawione! Tu był błąd
         const textBox = $("#table_splited_wh_filter input");
         textBox.off().on("keyup input", function (e) {
           if (e.keyCode === 13) api.search(this.value).draw();
@@ -1360,6 +1362,184 @@ whenReadyAndDataTables(function () {
     } finally {
       clearInterval(dotsChecker);
       $("#waitingdots").hide();
+    }
+  }
+
+  function addJsonFooterIconIfGoral() {
+    try {
+      const orgName =
+        (typeof getCookie === "function"
+          ? getCookie("OrganizationName")
+          : "") || "";
+      if (orgName !== "Goral") return;
+
+      // Znajdź „belkę” z ikonami w tfoot (ten <div class="dt-center"...> z ikonami)
+      const $bar = $("#table_splited_wh tfoot .filedownloadicon")
+        .first()
+        .closest("div.dt-center");
+      if (!$bar.length) return;
+
+      // Nie duplikuj, jeśli już dodane
+      if ($bar.find("#download-order-json-footer").length) return;
+
+      // Stwórz przycisk z ikoną JSON (inline SVG, rozmiar jak pozostałe: 28x28)
+      const $btn = $(`
+        <button id="download-order-json-footer"
+                class="filedownloadicon"
+                style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; height:28px; width:28px;"
+                data-tippy-content="JSON (SprytnyKupiec)">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <path d="M7 3h6l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M13 3v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M8 17h8M12 9v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      `);
+
+      // Doklejamy NA KOŃCU listy ikon
+      $bar.append($btn);
+
+      // Klik = pobierz JSON (użyje details.createdBy jako username)
+      $btn.on("click", function () {
+        // Jeśli chcesz narzucić nazwę użytkownika, podaj string: fetchAndDownloadOrderJson("Mark Twain")
+        fetchAndDownloadOrderJson();
+      });
+
+      // Opcjonalnie odśwież tippy, jeśli używasz
+      if (typeof initializeSimpleTooltips === "function") {
+        initializeSimpleTooltips();
+      }
+    } catch (e) {
+      console.warn("addJsonFooterIconIfGoral() error:", e);
+    }
+  }
+
+  async function fetchAndDownloadOrderJson(opts = {}) {
+    const { usernameOverride, filenamePrefix } = opts;
+
+    if (
+      !window.InvokeURL ||
+      !window.shopKey ||
+      !window.orderId ||
+      !window.orgToken
+    ) {
+      console.error({ InvokeURL, shopKey, orderId, orgToken });
+      alert(
+        "Brak wymaganych zmiennych: InvokeURL, shopKey, orderId, orgToken."
+      );
+      return;
+    }
+
+    const base = `${InvokeURL}shops/${shopKey}/orders/${orderId}`;
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: orgToken,
+      "Requested-By": "webflow-3-4",
+    };
+
+    // prosta funkcja z retry dla fetch
+    const getJson = async (url, { retries = 1 } = {}) => {
+      let lastErr;
+      for (let i = 0; i <= retries; i++) {
+        try {
+          const res = await fetch(url, { headers });
+          if (!res.ok) {
+            // bardziej konkretne komunikaty dla popularnych statusów
+            if (res.status === 401)
+              throw new Error("401 Unauthorized – sprawdź token (orgToken).");
+            if (res.status === 403)
+              throw new Error("403 Forbidden – brak uprawnień do zasobu.");
+            if (res.status === 404)
+              throw new Error("404 Not Found – sprawdź shopKey/orderId.");
+            throw new Error(`${res.status} ${res.statusText}`);
+          }
+          return await res.json();
+        } catch (e) {
+          lastErr = e;
+          // retry tylko na błędy sieciowe lub 5xx
+          if (!(e.message.startsWith("5") || e.name === "TypeError")) break;
+        }
+      }
+      throw lastErr;
+    };
+
+    try {
+      // 1) równoległe pobranie danych
+      const [details, itemsPayload] = await Promise.all([
+        getJson(base, { retries: 1 }), // /orders/{id}
+        getJson(`${base}/wholesalers?perPage=10000`, { retries: 1 }), // /orders/{id}/wholesalers
+      ]);
+
+      const items = Array.isArray(itemsPayload?.items)
+        ? itemsPayload.items
+        : [];
+
+      // 2) mapowanie produktów do wymaganego formatu
+      const products = items.map((it) => ({
+        name: it?.name ?? null,
+        gtin: it?.gtin ?? null,
+        quantity: it?.quantity ?? 0,
+        netPrice: it?.netPrice ?? null,
+        wholesalerKey: it?.wholesalerKey ?? null,
+        confirmed: Boolean(it?.confirmed),
+      }));
+
+      // 3) pola nagłówkowe
+      const username =
+        (typeof usernameOverride === "string" && usernameOverride.trim()) ||
+        details?.createdBy ||
+        null;
+
+      const createDate = details?.createDate
+        ? new Date(details.createDate).toISOString()
+        : itemsPayload?.offerDate
+        ? new Date(itemsPayload.offerDate).toISOString()
+        : new Date().toISOString();
+
+      const name = details?.name ?? "Zamówienie";
+
+      const total = Number.isFinite(details?.total)
+        ? details.total
+        : products.length;
+      const confirmed = Number.isFinite(details?.confirmed)
+        ? details.confirmed
+        : products.reduce((acc, p) => acc + (p.confirmed ? 1 : 0), 0);
+
+      const payload = {
+        username,
+        createDate,
+        name,
+        total,
+        confirmed,
+        products,
+      };
+
+      // 4) generowanie i pobranie pliku
+      const pretty = JSON.stringify(payload, null, 2);
+      const blob = new Blob([pretty], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const ts = new Date(createDate)
+        .toISOString()
+        .replace(/[-:T]/g, "")
+        .slice(0, 15); // YYYYMMDDHHMMSS
+      const baseName = (filenamePrefix || name || "zamowienie")
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^\w\-]+/g, "");
+      const filename = `${baseName}-${ts}.json`;
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("fetchAndDownloadOrderJson error:", err);
+      alert(`Nie udało się wygenerować pliku JSON:\n${err?.message || err}`);
     }
   }
 
