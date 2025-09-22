@@ -1373,21 +1373,18 @@ whenReadyAndDataTables(function () {
           : "") || "";
       if (orgName !== "Goral") return;
 
-      // Znajdź „belkę” z ikonami w tfoot (ten <div class="dt-center"...> z ikonami)
-      const $bar = $("#table_splited_wh tfoot .filedownloadicon")
+      const $bar = $("#spl_table tfoot .filedownloadicon")
         .first()
         .closest("div.dt-center");
       if (!$bar.length) return;
 
-      // Nie duplikuj, jeśli już dodane
       if ($bar.find("#download-order-json-footer").length) return;
 
-      // Stwórz przycisk z ikoną JSON (inline SVG, rozmiar jak pozostałe: 28x28)
       const $btn = $(`
         <button id="download-order-json-footer"
-                class="filedownloadicon"
-                style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; height:28px; width:28px;"
-                data-tippy-content="JSON (SprytnyKupiec)">
+                class="json-download-btn"
+                title="JSON (SprytnyKupiec)"
+                style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; height:28px; width:28px;">
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
             <path d="M7 3h6l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
             <path d="M13 3v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -1396,16 +1393,16 @@ whenReadyAndDataTables(function () {
         </button>
       `);
 
-      // Doklejamy NA KOŃCU listy ikon
       $bar.append($btn);
 
-      // Klik = pobierz JSON (użyje details.createdBy jako username)
-      $btn.on("click", function () {
-        // Jeśli chcesz narzucić nazwę użytkownika, podaj string: fetchAndDownloadOrderJson("Mark Twain")
-        fetchAndDownloadOrderJson();
+      // Klik tylko nasz – blokujemy globalne handlery
+      $btn.on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        fetchAndDownloadOrderJson(); // możesz podać { usernameOverride: "Mark Twain" }
       });
 
-      // Opcjonalnie odśwież tippy, jeśli używasz
       if (typeof initializeSimpleTooltips === "function") {
         initializeSimpleTooltips();
       }
@@ -1433,19 +1430,17 @@ whenReadyAndDataTables(function () {
     const base = `${InvokeURL}shops/${shopKey}/orders/${orderId}`;
     const headers = {
       Accept: "application/json",
-      "Content-Type": "application/json",
       Authorization: orgToken,
       "Requested-By": "webflow-3-4",
+      // UWAGA: brak Content-Type dla GET!
     };
 
-    // prosta funkcja z retry dla fetch
     const getJson = async (url, { retries = 1 } = {}) => {
       let lastErr;
       for (let i = 0; i <= retries; i++) {
         try {
-          const res = await fetch(url, { headers });
+          const res = await fetch(url, { headers, mode: "cors" });
           if (!res.ok) {
-            // bardziej konkretne komunikaty dla popularnych statusów
             if (res.status === 401)
               throw new Error("401 Unauthorized – sprawdź token (orgToken).");
             if (res.status === 403)
@@ -1457,7 +1452,7 @@ whenReadyAndDataTables(function () {
           return await res.json();
         } catch (e) {
           lastErr = e;
-          // retry tylko na błędy sieciowe lub 5xx
+          // retry tylko dla sieci/5xx
           if (!(e.message.startsWith("5") || e.name === "TypeError")) break;
         }
       }
@@ -1465,7 +1460,6 @@ whenReadyAndDataTables(function () {
     };
 
     try {
-      // 1) równoległe pobranie danych
       const [details, itemsPayload] = await Promise.all([
         getJson(base, { retries: 1 }), // /orders/{id}
         getJson(`${base}/wholesalers?perPage=10000`, { retries: 1 }), // /orders/{id}/wholesalers
@@ -1474,8 +1468,6 @@ whenReadyAndDataTables(function () {
       const items = Array.isArray(itemsPayload?.items)
         ? itemsPayload.items
         : [];
-
-      // 2) mapowanie produktów do wymaganego formatu
       const products = items.map((it) => ({
         name: it?.name ?? null,
         gtin: it?.gtin ?? null,
@@ -1485,7 +1477,6 @@ whenReadyAndDataTables(function () {
         confirmed: Boolean(it?.confirmed),
       }));
 
-      // 3) pola nagłówkowe
       const username =
         (typeof usernameOverride === "string" && usernameOverride.trim()) ||
         details?.createdBy ||
@@ -1498,7 +1489,6 @@ whenReadyAndDataTables(function () {
         : new Date().toISOString();
 
       const name = details?.name ?? "Zamówienie";
-
       const total = Number.isFinite(details?.total)
         ? details.total
         : products.length;
@@ -1515,7 +1505,6 @@ whenReadyAndDataTables(function () {
         products,
       };
 
-      // 4) generowanie i pobranie pliku
       const pretty = JSON.stringify(payload, null, 2);
       const blob = new Blob([pretty], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -1523,7 +1512,7 @@ whenReadyAndDataTables(function () {
       const ts = new Date(createDate)
         .toISOString()
         .replace(/[-:T]/g, "")
-        .slice(0, 15); // YYYYMMDDHHMMSS
+        .slice(0, 15);
       const baseName = (filenamePrefix || name || "zamowienie")
         .toLowerCase()
         .replace(/\s+/g, "_")
