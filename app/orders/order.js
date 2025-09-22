@@ -1373,7 +1373,7 @@ whenReadyAndDataTables(function () {
           : "") || "";
       if (orgName !== "Goral") return;
 
-      const $bar = $("#spl_table tfoot .filedownloadicon")
+      const $bar = $("#table_splited_wh tfoot .filedownloadicon")
         .first()
         .closest("div.dt-center");
       if (!$bar.length) return;
