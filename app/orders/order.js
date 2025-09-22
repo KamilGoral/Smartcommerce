@@ -1414,18 +1414,18 @@ whenReadyAndDataTables(function () {
   async function fetchAndDownloadOrderJson(opts = {}) {
     const { usernameOverride, filenamePrefix } = opts;
 
-    if (
-      !window.InvokeURL ||
-      !window.shopKey ||
-      !window.orderId ||
-      !window.orgToken
-    ) {
-      console.error({ InvokeURL, shopKey, orderId, orgToken });
-      alert(
-        "Brak wymaganych zmiennych: InvokeURL, shopKey, orderId, orgToken."
-      );
-      return;
-    }
+    // if (
+    //   !window.InvokeURL ||
+    //   !window.shopKey ||
+    //   !window.orderId ||
+    //   !window.orgToken
+    // ) {
+    //   console.error({ InvokeURL, shopKey, orderId, orgToken });
+    //   alert(
+    //     "Brak wymaganych zmiennych: InvokeURL, shopKey, orderId, orgToken."
+    //   );
+    //   return;
+    // }
 
     const base = `${InvokeURL}shops/${shopKey}/orders/${orderId}`;
     const headers = {
