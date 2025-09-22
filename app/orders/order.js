@@ -1381,17 +1381,15 @@ whenReadyAndDataTables(function () {
       if ($bar.find("#download-order-json-footer").length) return;
 
       const $btn = $(`
-        <button id="download-order-json-footer"
-                class="json-download-btn"
-                title="JSON (SprytnyKupiec)"
-                style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; height:28px; width:28px;">
-          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-            <path d="M7 3h6l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M13 3v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M8 17h8M12 9v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </button>
-      `);
+  <button id="download-order-json-footer"
+          class="json-download-btn"
+          title="JSON (SprytnyKupiec)"
+          style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; height:28px; width:28px;">
+    <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/68d0e8e381fd6b44c8c126f7_document-JSON.svg"
+         alt="JSON"
+         style="height:28px; width:28px;">
+  </button>
+`);
 
       $bar.append($btn);
 
@@ -1412,20 +1410,8 @@ whenReadyAndDataTables(function () {
   }
 
   async function fetchAndDownloadOrderJson(opts = {}) {
+    $("#waitingdots").show();
     const { usernameOverride, filenamePrefix } = opts;
-
-    // if (
-    //   !window.InvokeURL ||
-    //   !window.shopKey ||
-    //   !window.orderId ||
-    //   !window.orgToken
-    // ) {
-    //   console.error({ InvokeURL, shopKey, orderId, orgToken });
-    //   alert(
-    //     "Brak wymaganych zmiennych: InvokeURL, shopKey, orderId, orgToken."
-    //   );
-    //   return;
-    // }
 
     const base = `${InvokeURL}shops/${shopKey}/orders/${orderId}`;
     const headers = {
@@ -1526,7 +1512,9 @@ whenReadyAndDataTables(function () {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+      $("#waitingdots").hide();
     } catch (err) {
+      $("#waitingdots").hide();
       console.error("fetchAndDownloadOrderJson error:", err);
       alert(`Nie udało się wygenerować pliku JSON:\n${err?.message || err}`);
     }
