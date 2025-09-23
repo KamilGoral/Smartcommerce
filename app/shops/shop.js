@@ -1893,7 +1893,7 @@ whenReadyAndDataTables(function () {
    * 1) sensowny LCP (po normalizacji) → bierzemy,
    * 2) inaczej: wieloplikowe "A + B + … + N plików…"
    */
-  function deriveNameFromFiles(fileList, maxLen = 100) {
+  function deriveNameFromFiles(fileList, maxLen = 64) {
     if (!fileList || !fileList.length) return "";
     const rawBases = Array.from(fileList).map((f) => filenameBase(f.name));
     const lcpRaw = longestCommonPrefix(rawBases);
