@@ -1824,7 +1824,7 @@ whenReadyAndDataTables(function () {
   function normalizeOrderName(raw) {
     if (!raw) return "";
     let s = raw.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
-    if (s.length > 100) s = s.slice(0, 100).trim();
+    if (s.length > 64) s = s.slice(0, 64).trim();
     return s;
   }
 
