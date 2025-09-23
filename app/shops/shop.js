@@ -1824,7 +1824,7 @@ whenReadyAndDataTables(function () {
   function normalizeOrderName(raw) {
     if (!raw) return "";
     let s = raw.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
-    if (s.length > 64) s = s.slice(0, 64).trim();
+    if (s.length > 63) s = s.slice(0, 63).trim();
     return s;
   }
 
@@ -1893,7 +1893,7 @@ whenReadyAndDataTables(function () {
    * 1) sensowny LCP (po normalizacji) → bierzemy,
    * 2) inaczej: wieloplikowe "A + B + … + N plików…"
    */
-  function deriveNameFromFiles(fileList, maxLen = 64) {
+  function deriveNameFromFiles(fileList, maxLen = 63) {
     if (!fileList || !fileList.length) return "";
     const rawBases = Array.from(fileList).map((f) => filenameBase(f.name));
     const lcpRaw = longestCommonPrefix(rawBases);
