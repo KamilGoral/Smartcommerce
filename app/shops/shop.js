@@ -1860,7 +1860,7 @@ whenReadyAndDataTables(function () {
 
       // ile zostanie znaków na ewentualny sufiks " + N plików…"
       const remaining = unique.length - (i + 1);
-      const suffix = remaining > 0 ? ` + ${remaining} plików…` : "";
+      const suffix = remaining > 0 ? ` + ${remaining} plikow…` : "";
 
       if (cand.length + suffix.length <= maxLen) {
         result = cand;
