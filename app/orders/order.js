@@ -1103,7 +1103,7 @@ whenReadyAndDataTables(function () {
       initComplete: function () {
         bindStatusEvents();
 
-        // dodanie formatu pobierania JSON dla organizacji Goral
+        // dodanie formatu pobierania JSON dla organizacji Goral i DH-PSS-Bytom
         addJsonFooterIconIfGoral();
 
         const api = this.api();
@@ -1371,7 +1371,7 @@ whenReadyAndDataTables(function () {
         (typeof getCookie === "function"
           ? getCookie("OrganizationName")
           : "") || "";
-      if (orgName !== "Goral") return;
+      if (orgName !== "Goral" && orgName !== "DH-PSS-Bytom") return;
 
       const $bar = $("#table_splited_wh tfoot .filedownloadicon")
         .first()
