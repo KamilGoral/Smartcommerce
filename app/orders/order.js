@@ -1496,12 +1496,15 @@ whenReadyAndDataTables(function () {
 
       const ts = new Date(createDate)
         .toISOString()
-        .replace(/[-:T]/g, "")
-        .slice(0, 15);
+        .replace(/\D/g, "")
+        .slice(0, 14);
+      // => "20250924113345"
       const baseName = (filenamePrefix || name || "zamowienie")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .replace(/\s+/g, "_")
-        .replace(/[^\w\-]+/g, "");
+        .replace(/[^a-z0-9_-]+/g, "");
       const filename = `${baseName}-${ts}.json`;
 
       const a = document.createElement("a");
