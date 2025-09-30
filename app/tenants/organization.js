@@ -4209,16 +4209,39 @@ whenReadyAndDataTables(function () {
   }
 
   getUserRole()
-    .then(() => {
+    .then((role) => {
+      // najpierw odpalamy wszystko poza getIntegrations
       return Promise.all([
         getUsers(),
         getInvoices(),
         navigateToInvoiceStateInvoices(),
-        getIntegrations(),
         controlTabVisibility(),
-      ]);
+      ]).then(() => role);
     })
-    .then(() => {
+    .then((role) => {
+      if (role === "admin") {
+        const integrationsTab = document.querySelector(
+          "#w-tabs-0-data-w-tab-3"
+        );
+        if (integrationsTab) {
+          integrationsTab.addEventListener(
+            "click",
+            async () => {
+              try {
+                $("#waitingdots").show();
+                await getIntegrations();
+              } catch (err) {
+                console.error("Błąd przy pobieraniu integracji:", err);
+              } finally {
+                $("#waitingdots").hide();
+              }
+            },
+            { once: true }
+          ); // tylko raz
+        }
+      }
+
+      // tooltips po starcie
       setTimeout(function () {
         initializeSimpleTooltips();
       }, 1000);
@@ -4228,7 +4251,6 @@ whenReadyAndDataTables(function () {
         "Error while fetching user role or subsequent data:",
         error
       );
-      // Handle error if necessary
     });
 
   async function controlTabVisibility() {
