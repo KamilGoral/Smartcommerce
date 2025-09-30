@@ -969,47 +969,116 @@ whenReadyAndDataTables(function () {
   }
 
   async function getInvoices() {
+    // --- Helpery ---
+    const $byId = (id) => document.getElementById(id);
+    const safeArr = (v) => (Array.isArray(v) ? v : []);
+    const safeStr = (v, fallback = "") => (v == null ? fallback : String(v));
+    const safeNum = (v, fallback = 0) =>
+      Number.isFinite(Number(v)) ? Number(v) : fallback;
+    const safeDate = (v, locale = "pl-PL", fallback = "—") => {
+      if (!v) return fallback;
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? fallback : d.toLocaleDateString(locale);
+    };
+    const safeMoney = (
+      v,
+      currency = "PLN",
+      locale = "pl-PL",
+      fallback = "—"
+    ) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return fallback;
+      try {
+        return new Intl.NumberFormat(locale, {
+          style: "currency",
+          currency,
+        }).format(n);
+      } catch {
+        return n.toFixed(2);
+      }
+    };
+
+    // --- Poczekaj max 5s na sprytnyUserRole ---
     let attempts = 0;
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((r) => setTimeout(r, 1000));
       attempts++;
     }
 
-    if (getCookie("sprytnyUserRole") !== "admin") {
+    // --- Sprawdź rolę admin ---
+    const role = getCookie("sprytnyUserRole");
+    if (role !== "admin") {
       console.log("Action not permitted for non-admin users.");
       return;
     }
 
-    let url = new URL(InvokeURL + "billing/invoices?perPage=25");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
+    // --- Sprawdź wymagane elementy DOM, ale nie wywalaj całej funkcji ---
+    const emptyEl = $byId("emptystateinvoices");
+    const listEl = $byId("invoicesstateinvoices");
+    const tableEl = $("#table_invoices_list"); // DataTables używa selektora jQuery
+
+    if (!emptyEl || !listEl) {
+      console.warn(
+        "Brak elementów #emptystateinvoices / #invoicesstateinvoices – przerwano render."
+      );
+      return;
+    }
+
+    // --- Zbuduj URL i nagłówki ---
+    const url = new URL(InvokeURL + "billing/invoices?perPage=25");
+    // Upewnij się, że orgToken istnieje
+    if (!window.orgToken) {
+      console.warn("Brak orgToken – pokazuję pusty stan.");
+      emptyEl.style.display = "flex";
+      listEl.style.display = "none";
+      return;
+    }
+
+    // --- Pobierz dane (XMLHttpRequest zachowany jak w Twojej wersji) ---
+    const request = new XMLHttpRequest();
+    request.open("GET", url.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
 
     request.onload = function () {
       let dataItems = [];
-      if (request.status >= 200 && request.status < 400) {
+      let okRange = request.status >= 200 && request.status < 400;
+
+      if (okRange) {
         try {
           const response = JSON.parse(this.response);
-          dataItems = response.items || [];
+          dataItems = safeArr(response?.items);
         } catch (error) {
           console.error("Error parsing response:", error);
+          dataItems = [];
         }
       }
 
-      if (
-        request.status == 403 ||
-        (request.status >= 200 && request.status < 400)
-      ) {
-        if (dataItems.length === 0 || dataItems === "") {
-          document.getElementById("emptystateinvoices").style.display = "flex";
-          document.getElementById("invoicesstateinvoices").style.display =
-            "none";
-        } else {
-          document.getElementById("emptystateinvoices").style.display = "none";
-          document.getElementById("invoicesstateinvoices").style.display =
-            "flex";
+      // Backend może zwracać 403, ale też puste items – traktuj oba przypadki jako „renderuj stan UI”
+      if (request.status === 403 || okRange) {
+        const hasRows = Array.isArray(dataItems) && dataItems.length > 0;
 
-          var tableInvoices = $("#table_invoices_list").DataTable({
+        if (!hasRows) {
+          emptyEl.style.display = "flex";
+          listEl.style.display = "none";
+          return;
+        }
+
+        emptyEl.style.display = "none";
+        listEl.style.display = "flex";
+
+        // Bezpieczny dostęp do organizationName (jeśli global nie istnieje – wstaw pusty)
+        const tenantNameSafe =
+          typeof organizationName !== "undefined" ? organizationName : "";
+
+        // Inicjalizacja DataTables z defensywnym renderem kolumn
+        try {
+          // Jeśli DataTables nie jest załadowane
+          if (typeof $.fn.DataTable !== "function") {
+            console.warn("DataTables not available – pomijam render tabeli.");
+            return;
+          }
+
+          $("#table_invoices_list").DataTable({
             pagingType: "full_numbers",
             pageLength: 10,
             scrollY: "60vh",
@@ -1028,21 +1097,14 @@ whenReadyAndDataTables(function () {
               processing: "<div class='spinner'></div>",
               search: "Szukaj:",
               zeroRecords: "Brak pasujących rezultatów",
-              paginate: {
-                first: "<<",
-                last: ">>",
-                next: " >",
-                previous: "< ",
-              },
+              paginate: { first: "<<", last: ">>", next: " >", previous: "< " },
               aria: {
                 sortAscending: ": Sortowanie rosnące",
                 sortDescending: ": Sortowanie malejące",
               },
             },
             data: dataItems,
-            search: {
-              return: true,
-            },
+            search: { return: true },
             columns: [
               {
                 orderable: false,
@@ -1054,202 +1116,174 @@ whenReadyAndDataTables(function () {
               {
                 orderable: true,
                 data: "number",
-                render: function (data, type, row) {
-                  let mainContent = `<div>${row.number}</div>`;
-                  let correctiveContent = "";
-                  if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
-                  ) {
-                    correctiveContent = row.correctiveInvoices
-                      .map((corrective) => {
-                        return `<div style="margin-top: 5px; font-style: italic;"> - ${corrective.number}</div>`;
-                      })
-                      .join("");
-                  }
-                  return `${mainContent}${correctiveContent}`;
+                render: function (_data, _type, row) {
+                  const mainNumber = safeStr(row?.number, "—");
+                  const mainContent = `<div>${mainNumber}</div>`;
+                  const corrective = safeArr(row?.correctiveInvoices)
+                    .map(
+                      (c) =>
+                        `<div style="margin-top: 5px; font-style: italic;"> - ${safeStr(
+                          c?.number,
+                          "—"
+                        )}</div>`
+                    )
+                    .join("");
+                  return `${mainContent}${corrective}`;
                 },
               },
               {
                 orderable: true,
                 data: "status",
                 width: "128px",
-                render: function (data, type, row) {
-                  let mainContent = "";
-                  switch (row.status) {
-                    case "draft":
-                      mainContent = '<span class="noneexisting">Szkic</span>';
-                      break;
-                    case "sent":
-                      mainContent =
-                        '<span class="noneexisting">Nie Zapłacono</span>';
-                      break;
-                    case "paid":
-                      mainContent = '<span class="positive">Zapłacono</span>';
-                      break;
-                    case "overdue":
-                      mainContent = '<span class="positive">Po terminie</span>';
-                      break;
-                    default:
-                      mainContent =
-                        '<span class="noneexisting">Nieznany</span>';
-                  }
-                  let correctiveContent = "";
-                  if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
-                  ) {
-                    correctiveContent = row.correctiveInvoices
-                      .map((corrective) => {
-                        let status = "";
-                        switch (corrective.status) {
-                          case "draft":
-                            status = '<span class="neutral">Szkic</span>';
-                            break;
-                          case "sent":
-                            status =
-                              '<span class="noneexisting">Nie Zapłacono</span>';
-                            break;
-                          case "paid":
-                            status = '<span class="positive">Zapłacono</span>';
-                            break;
-                          case "overdue":
-                            status =
-                              '<span class="positive">Po terminie</span>';
-                            break;
-                          default:
-                            status =
-                              '<span class="noneexisting">Nieznany</span>';
-                        }
-                        return `<div style="margin-top: 5px;">${status}</div>`;
-                      })
-                      .join("");
-                  }
-                  return `${mainContent}${correctiveContent}`;
+                render: function (_data, _type, row) {
+                  const mapBadge = (status) => {
+                    switch (status) {
+                      case "draft":
+                        return '<span class="noneexisting">Szkic</span>';
+                      case "sent":
+                        return '<span class="noneexisting">Nie Zapłacono</span>';
+                      case "paid":
+                        return '<span class="positive">Zapłacono</span>';
+                      case "overdue":
+                        return '<span class="positive">Po terminie</span>';
+                      default:
+                        return '<span class="noneexisting">Nieznany</span>';
+                    }
+                  };
+
+                  const main = mapBadge(safeStr(row?.status));
+                  const corrective = safeArr(row?.correctiveInvoices)
+                    .map(
+                      (c) =>
+                        `<div style="margin-top: 5px;">${mapBadge(
+                          safeStr(c?.status)
+                        )}</div>`
+                    )
+                    .join("");
+                  return `${main}${corrective}`;
                 },
               },
               {
                 orderable: true,
                 data: "paymentDueDate",
                 type: "date",
-                render: function (data, type, row) {
-                  let mainContent = new Date(
-                    row.paymentDueDate
-                  ).toLocaleDateString("pl-PL");
-                  let correctiveContent = "";
-                  if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
-                  ) {
-                    correctiveContent = row.correctiveInvoices
-                      .map((corrective) => {
-                        return `<div style="margin-top: 5px; font-style: italic;">${new Date(
-                          corrective.paymentDueDate
-                        ).toLocaleDateString("pl-PL")}</div>`;
-                      })
-                      .join("");
-                  }
-                  return `${mainContent}${correctiveContent}`;
+                render: function (_data, _type, row) {
+                  const main = safeDate(row?.paymentDueDate);
+                  const corrective = safeArr(row?.correctiveInvoices)
+                    .map(
+                      (c) =>
+                        `<div style="margin-top: 5px; font-style: italic;">${safeDate(
+                          c?.paymentDueDate
+                        )}</div>`
+                    )
+                    .join("");
+                  return `${main}${corrective}`;
                 },
               },
               {
                 orderable: true,
                 data: "netTotal",
-                render: function (data, type, row) {
-                  let mainContent = new Intl.NumberFormat("pl-PL", {
-                    style: "currency",
-                    currency: "PLN",
-                  }).format(row.netTotal);
-                  let correctiveContent = "";
-                  if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
-                  ) {
-                    correctiveContent = row.correctiveInvoices
-                      .map((corrective) => {
-                        return `<div style="margin-top: 5px; font-style: italic;">${new Intl.NumberFormat(
-                          "pl-PL",
-                          {
-                            style: "currency",
-                            currency: "PLN",
-                          }
-                        ).format(corrective.netTotal)}</div>`;
-                      })
-                      .join("");
-                  }
-                  return `${mainContent}${correctiveContent}`;
+                render: function (_data, _type, row) {
+                  const main = safeMoney(row?.netTotal);
+                  const corrective = safeArr(row?.correctiveInvoices)
+                    .map(
+                      (c) =>
+                        `<div style="margin-top: 5px; font-style: italic;">${safeMoney(
+                          c?.netTotal
+                        )}</div>`
+                    )
+                    .join("");
+                  return `${main}${corrective}`;
                 },
               },
               {
                 orderable: false,
                 width: "156px",
                 data: null,
-                render: function (data, type, row) {
-                  const paymentLink =
-                    row.status !== "paid" && row.paymentLink
-                      ? `
-                        <a href="${row.paymentLink}" target="_blank" style="margin-left: 0.25rem;">
-                          <span class="positive">Zapłać</span>
-                        </a>
-                      `
-                      : " ";
+                render: function (_data, _type, row) {
+                  // Link płatności tylko gdy nie zapłacono i link istnieje
+                  const showPay =
+                    safeStr(row?.status) !== "paid" &&
+                    !!safeStr(row?.paymentLink, "").trim();
+                  const paymentLink = showPay
+                    ? `<a href="${safeStr(
+                        row?.paymentLink
+                      )}" target="_blank" style="margin-left: 0.25rem;">
+                       <span class="positive">Zapłać</span>
+                     </a>`
+                    : " ";
+
+                  const uuid = safeStr(row?.uuid);
+                  const number = safeStr(row?.number, "—");
 
                   const downloadLink = `
-                    <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="regular">
-                      <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
-                    </a>
-                    <a href="#" class="download-invoice" data-uuid="${row.uuid}" data-tenant="${organizationName}" data-number="${row.number}" data-document-type="duplicate">
-                      <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
-                    </a>
-                  `;
+                  <a href="#" class="download-invoice" data-uuid="${uuid}" data-tenant="${tenantNameSafe}" data-number="${number}" data-document-type="regular">
+                    <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
+                  </a>
+                  <a href="#" class="download-invoice" data-uuid="${uuid}" data-tenant="${tenantNameSafe}" data-number="${number}" data-document-type="duplicate">
+                    <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
+                  </a>
+                `;
 
-                  let correctiveLinks = "";
-                  if (
-                    row.correctiveInvoices &&
-                    row.correctiveInvoices.length > 0
-                  ) {
-                    correctiveLinks = row.correctiveInvoices
-                      .map((corrective) => {
-                        const correctivePaymentLink =
-                          corrective.status !== "paid" && corrective.paymentLink
-                            ? `
-                              <a href="${corrective.paymentLink}" target="_blank" style="margin-left: 0.25rem;">
-                                <span class="positive">Zapłać</span>
-                              </a>
-                            `
-                            : " ";
-
-                        return `
-                          <div style="margin-top: 0.25rem;">
-                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="regular">
-                              <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
-                            </a>
-                            <a href="#" class="download-invoice" data-uuid="${corrective.uuid}" data-tenant="${organizationName}" data-number="${corrective.number}" data-document-type="duplicate">
-                              <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
-                            </a>
-                            ${correctivePaymentLink}
-                          </div>`;
-                      })
-                      .join(" ");
-                  }
+                  const correctiveLinks = safeArr(row?.correctiveInvoices)
+                    .map((c) => {
+                      const cPay =
+                        safeStr(c?.status) !== "paid" &&
+                        !!safeStr(c?.paymentLink, "").trim()
+                          ? `<a href="${safeStr(
+                              c?.paymentLink
+                            )}" target="_blank" style="margin-left: 0.25rem;">
+                           <span class="positive">Zapłać</span>
+                         </a>`
+                          : " ";
+                      return `
+                      <div style="margin-top: 0.25rem;">
+                        <a href="#" class="download-invoice" data-uuid="${safeStr(
+                          c?.uuid
+                        )}" data-tenant="${tenantNameSafe}" data-number="${safeStr(
+                        c?.number,
+                        "—"
+                      )}" data-document-type="regular">
+                          <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
+                        </a>
+                        <a href="#" class="download-invoice" data-uuid="${safeStr(
+                          c?.uuid
+                        )}" data-tenant="${tenantNameSafe}" data-number="${safeStr(
+                        c?.number,
+                        "—"
+                      )}" data-document-type="duplicate">
+                          <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
+                        </a>
+                        ${cPay}
+                      </div>`;
+                    })
+                    .join(" ");
 
                   return `<div class="action-container">${downloadLink} ${paymentLink}</div> ${correctiveLinks}`;
                 },
               },
             ],
           });
+        } catch (dtErr) {
+          console.error("Błąd renderowania tabeli faktur:", dtErr);
+          emptyEl.style.display = "flex";
+          listEl.style.display = "none";
         }
       }
 
-      if (request.status == 401) {
+      if (request.status === 401) {
         console.log("Unauthorized");
+        emptyEl.style.display = "flex";
+        listEl.style.display = "none";
       }
     };
 
     request.onerror = function () {
       console.error("Request failed");
-      document.getElementById("emptystateinvoices").style.display = "flex";
-      document.getElementById("invoicesstateinvoices").style.display = "none";
+      if ($byId("emptystateinvoices"))
+        $byId("emptystateinvoices").style.display = "flex";
+      if ($byId("invoicesstateinvoices"))
+        $byId("invoicesstateinvoices").style.display = "none";
     };
 
     request.send();
@@ -1379,19 +1413,45 @@ whenReadyAndDataTables(function () {
   });
 
   async function GetTenantBilling() {
-    let attempts = 0;
+    // ---------- Helpery ----------
+    const $id = (x) => document.getElementById(x);
+    const $ = window.$; // jQuery (jeśli jest)
+    const safeArr = (v) => (Array.isArray(v) ? v : []);
+    const safeStr = (v, fb = "") => (v == null ? fb : String(v));
+    const safeNum = (v, fb = 0) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : fb;
+    };
+    const safeDateTxt = (v, fb = "—", locale = "pl-PL") => {
+      if (!v || v === "0001-01-01T00:00:00Z") return fb;
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? fb : d.toLocaleDateString(locale);
+    };
+    const money = (v, currency = "PLN", locale = "pl-PL", fb = "—") => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return fb;
+      try {
+        return new Intl.NumberFormat(locale, {
+          style: "currency",
+          currency,
+        }).format(n);
+      } catch {
+        return n.toFixed(2);
+      }
+    };
 
-    // Poczekaj aż pojawi się rola w cookie (max 5s)
+    // ---------- Czekanie na rolę (max 5s) ----------
+    let attempts = 0;
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((r) => setTimeout(r, 1000));
       attempts++;
     }
-
     if (getCookie("sprytnyUserRole") !== "admin") {
       console.log("Action not permitted for non-admin users.");
       return;
     }
 
+    // ---------- Kropki na aktywnej karcie ----------
     function showDotForActiveTab() {
       setTimeout(function () {
         const isTab4Active = document.querySelector(
@@ -1413,9 +1473,15 @@ whenReadyAndDataTables(function () {
       }, 150);
     }
 
+    // ---------- Request ----------
     const url = new URL(InvokeURL + "billing");
+    if (!window.orgToken) {
+      console.warn("Brak orgToken – przerywam GetTenantBilling.");
+      return;
+    }
+
     const request = new XMLHttpRequest();
-    request.open("GET", url, true);
+    request.open("GET", url.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
     request.setRequestHeader("Requested-By", "webflow-3-4");
 
@@ -1425,30 +1491,38 @@ whenReadyAndDataTables(function () {
         return;
       }
 
-      /** ------------------ PARSING + BEZPIECZNE DOSTĘPY ------------------ **/
-      const data = JSON.parse(this.response) || {};
-      const address = data.address || {};
-      const pricing = data.pricing || {};
-      const mcb = data.monthCostBreakdown || {}; // może być null
-      const toDate = mcb.toDate || { total: 0, standard: 0, premium: 0 };
-      const forecast = mcb.forecast || { total: 0 };
+      // ---------- Parsowanie bez wywrotki ----------
+      let data = {};
+      try {
+        data = JSON.parse(this.response) || {};
+      } catch (e) {
+        console.error("JSON parse error:", e);
+        data = {};
+      }
 
-      // Czy wypełnione wymagane pola do „All is good”
+      // Pola mogą być null → zabezpiecz
+      const address = data.address ?? {};
+      const pricing = data.pricing ?? null; // może być null
+      const mcb = data.monthCostBreakdown ?? null; // może być null
+      const toDate = mcb?.toDate ?? { total: 0, standard: 0, premium: 0 };
+      const forecast = mcb?.forecast ?? { total: 0 };
+
+      // ---------- „All is good” + cookie ----------
       const hasRequiredKeys =
         data.taxId != null &&
         data.companyName != null &&
-        data.address &&
-        data.address.country != null &&
-        data.address.line1 != null &&
-        data.address.town != null &&
-        data.address.postcode != null;
+        address &&
+        address.country != null &&
+        address.line1 != null &&
+        address.town != null &&
+        address.postcode != null;
 
       if (hasRequiredKeys) {
-        function setCookieAndSession(cName, cValue, expirationSec) {
+        const setCookieAndSession = (cName, cValue, expirationSec) => {
           const date = new Date();
           date.setTime(date.getTime() + expirationSec * 1000);
           document.cookie = `${cName}=${cValue}; expires=${date.toUTCString()}; path=/`;
-        }
+        };
         setCookieAndSession("sprytnyOrganizationTaxId", data.taxId, 72000);
       } else {
         showDotForActiveTab();
@@ -1457,104 +1531,107 @@ whenReadyAndDataTables(function () {
         });
       }
 
-      /** ------------------ WYPEŁNIANIE FORMULARZA ------------------ **/
-      $("#tenantNameEdit").val(data.companyName || "");
-      $("#tenantTaxIdEdit").val(data.taxId || "");
-      $("#firstName").val(data.firstName || "");
-      $("#lastName").val(data.lastName || "");
-      $("#tenantTownEdit").val(address.town || "");
-      $("#tenantPostcodeEdit").val(address.postcode || "");
-      $("#tenantAdressEdit").val(address.line1 || "");
-      $("#tenantAdressEdit2").val(address.line2 || "");
-      $("#tenantPhoneEdit").val((data.phones && data.phones[0]?.phone) || "");
-      $("#tenantActivityKind").val(data.activityKind || "other_business");
+      // ---------- Wypełnianie formularza (bezpiecznie) ----------
+      if ($) {
+        $("#tenantNameEdit").val(safeStr(data.companyName));
+        $("#tenantTaxIdEdit").val(safeStr(data.taxId));
+        $("#firstName").val(safeStr(data.firstName));
+        $("#lastName").val(safeStr(data.lastName));
+        $("#tenantTownEdit").val(safeStr(address.town));
+        $("#tenantPostcodeEdit").val(safeStr(address.postcode));
+        $("#tenantAdressEdit").val(safeStr(address.line1));
+        $("#tenantAdressEdit2").val(safeStr(address.line2));
+        $("#tenantPhoneEdit").val(safeStr(data.phones?.[0]?.phone));
+        $("#tenantActivityKind").val(
+          safeStr(data.activityKind || "other_business")
+        );
+      }
 
-      /** ------------------ KOSZTY (odporne na null) ------------------ **/
-      const totalCost = Number(toDate.total || 0);
-      const standardCost = Number(toDate.standard || 0);
-      const premiumCost = Number(toDate.premium || 0);
+      // ---------- Koszty (null-safe) ----------
+      const totalCost = safeNum(toDate.total, 0);
+      const standardCost = safeNum(toDate.standard, 0);
+      const premiumCost = safeNum(toDate.premium, 0);
 
-      // Uwaga: wcześniej był zamieniony opis planów (premiumCost opisywany jako Plan Podstawowy i odwrotnie)
-      const $std = $("#deleteStandardToDate");
-      if ($std.length) $std.html(`Plan Podstawowy: ${standardCost} zł`);
-      const $prem = $("#deletePremiumToDate");
-      if ($prem.length) $prem.html(`Plan Premium: ${premiumCost} zł`);
-      const $sum = $("#deleteTotalToDate");
-      if ($sum.length) $sum.html(`Suma: ${totalCost} zł`);
+      const $std = $id("deleteStandardToDate");
+      const $prem = $id("deletePremiumToDate");
+      const $sum = $id("deleteTotalToDate");
+      if ($std) $std.innerHTML = `Plan Podstawowy: ${money(standardCost)}`;
+      if ($prem) $prem.innerHTML = `Plan Premium: ${money(premiumCost)}`;
+      if ($sum) $sum.innerHTML = `Suma: ${money(totalCost)}`;
 
-      const deleteTenantDetails = `Kwota faktury do zapłacenia za bieżący okres wynosi ${totalCost} zł.`;
-      const $del = $("#deleteTenantDetails");
-      if ($del.length) $del.html(`<strong>${deleteTenantDetails}</strong>`);
+      const $del = $id("deleteTenantDetails");
+      if ($del)
+        $del.innerHTML = `<strong>Kwota faktury do zapłacenia za bieżący okres wynosi ${money(
+          totalCost
+        )}.</strong>`;
 
-      /** ------------------ POKAŻ/UKRYJ specjalny cennik ------------------ **/
-      const hasSpecial = pricing.specialService != null;
-      const specialBox = document.getElementById("specialServiceBox");
-      const pricingStandardBox = document.getElementById("pricingStandard");
-      const pricingPremiumBox = document.getElementById("pricingPremium");
+      // ---------- Specjalny cennik (pricing może być null) ----------
+      const hasSpecial = !!pricing?.specialService;
+      const specialBox = $id("specialServiceBox");
+      const pricingStandardBox = $id("pricingStandard");
+      const pricingPremiumBox = $id("pricingPremium");
       if (specialBox) specialBox.style.display = hasSpecial ? "flex" : "none";
       if (pricingStandardBox)
         pricingStandardBox.style.display = hasSpecial ? "none" : "";
       if (pricingPremiumBox)
         pricingPremiumBox.style.display = hasSpecial ? "none" : "";
 
-      /** ------------------ Trial / daty (odporne na null) ------------------ **/
+      // ---------- Trial / Daty (null-safe) ----------
       const now = new Date();
-
-      // trialEndDate: jeśli null → pokaż „Aktywny” (lub brak okresu testowego)
       let trialEndDateText = "Aktywny";
-      let daysLeft = 999; // neutralny kolor
+      let daysLeft = 999;
+
       if (data.trialEndDate) {
         const trialEndDate = new Date(data.trialEndDate);
-        const diff = trialEndDate.getTime() - now.getTime();
-        daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        if (daysLeft < 0) {
-          trialEndDateText = "Aktywny";
-        } else if (daysLeft === 0) {
-          trialEndDateText = "Twój bezpłatny okres testowy kończy się dzisiaj.";
-        } else if (daysLeft === 1) {
-          trialEndDateText = "Twój bezpłatny okres testowy kończy się jutro.";
-        } else if (daysLeft > 30) {
-          const fakeTrialEnd = new Date(
-            now.getTime() + 30 * 24 * 60 * 60 * 1000
-          );
-          trialEndDateText = `Twój bezpłatny okres testowy kończy się za 30 dni - ${fakeTrialEnd.toLocaleDateString(
-            "pl-PL"
-          )}.`;
-        } else {
-          trialEndDateText = `Twój bezpłatny okres testowy kończy się za ${daysLeft} dni - ${trialEndDate.toLocaleDateString(
-            "pl-PL"
-          )}.`;
+        if (!isNaN(trialEndDate.getTime())) {
+          const diff = trialEndDate.getTime() - now.getTime();
+          daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+          if (daysLeft < 0) {
+            trialEndDateText = "Aktywny";
+          } else if (daysLeft === 0) {
+            trialEndDateText =
+              "Twój bezpłatny okres testowy kończy się dzisiaj.";
+          } else if (daysLeft === 1) {
+            trialEndDateText = "Twój bezpłatny okres testowy kończy się jutro.";
+          } else if (daysLeft > 30) {
+            const fakeTrialEnd = new Date(
+              now.getTime() + 30 * 24 * 60 * 60 * 1000
+            );
+            trialEndDateText = `Twój bezpłatny okres testowy kończy się za 30 dni - ${fakeTrialEnd.toLocaleDateString(
+              "pl-PL"
+            )}.`;
+          } else {
+            trialEndDateText = `Twój bezpłatny okres testowy kończy się za ${daysLeft} dni - ${trialEndDate.toLocaleDateString(
+              "pl-PL"
+            )}.`;
+          }
         }
       }
 
-      // nextInvoiceDate: „0001-01-01T00:00:00Z” traktuj jako brak/nieustawione
-      let nextInvoiceDateTxt = "—";
-      if (
-        data.nextInvoiceDate &&
-        data.nextInvoiceDate !== "0001-01-01T00:00:00Z"
-      ) {
-        nextInvoiceDateTxt = new Date(data.nextInvoiceDate).toLocaleDateString(
-          "pl-PL"
-        );
-      }
+      const nextInvoiceDateTxt = safeDateTxt(data.nextInvoiceDate);
 
-      // Kolorowe kropki animacji (opcjonalnie)
+      // ---------- Kolorowe kropki animacji ----------
       (function updateAnimationColors(dl) {
-        let color = "rgba(42, 168, 255, 0.8)"; // domyślny
+        let color = "rgba(42, 168, 255, 0.8)";
         if (dl <= 3) color = "rgba(255, 0, 0, 0.8)";
         else if (dl <= 7) color = "rgba(255, 165, 0, 0.8)";
 
-        const styleSheet = document.createElement("style");
-        styleSheet.type = "text/css";
-        styleSheet.innerText = `
-        @keyframes tourDot {
-          0%   { box-shadow: 0 0 0 0px ${color}; }
-          80%  { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
-          100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+        // Stosuj unikalny id stylu, aby nie duplikować
+        const STYLE_ID = "tourDot-style";
+        if (!document.getElementById(STYLE_ID)) {
+          const styleSheet = document.createElement("style");
+          styleSheet.type = "text/css";
+          styleSheet.id = STYLE_ID;
+          styleSheet.innerText = `
+          @keyframes tourDot {
+            0%   { box-shadow: 0 0 0 0px ${color}; }
+            80%  { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+            100% { box-shadow: 0 0 0 36px ${color.replace("0.8", "0")}; }
+          }
+          .tooltip-dot { animation: tourDot 2.0s ease-out infinite; }
+        `;
+          document.head.appendChild(styleSheet);
         }
-        .tooltip-dot { animation: tourDot 2.0s ease-out infinite; }
-      `;
-        document.head.appendChild(styleSheet);
 
         document.querySelectorAll(".tooltip-dot").forEach((dot) => {
           if (dl <= 1) {
@@ -1569,17 +1646,17 @@ whenReadyAndDataTables(function () {
         });
       })(daysLeft);
 
-      /** ------------------ E-MAILE ------------------ **/
-      if (Array.isArray(data.emails)) {
+      // ---------- E-maile (max 3 pola) ----------
+      if ($ && Array.isArray(data.emails)) {
         data.emails.slice(0, 3).forEach((email, idx) => {
-          $(`#tenantEmailEdit${idx + 1}`).val(email?.email || "");
+          $(`#tenantEmailEdit${idx + 1}`).val(safeStr(email?.email));
           $(`#tenantEmailEditDescription${idx + 1}`).val(
-            email?.description || ""
+            safeStr(email?.description)
           );
         });
       }
 
-      /** ------------------ DYNAMICZNE ELEMENTY [tenantData] ------------------ **/
+      // ---------- Elementy [tenantData] ----------
       document.querySelectorAll("[tenantData]").forEach((el) => {
         const dataType = el.getAttribute("tenantData");
         switch (dataType) {
@@ -1587,7 +1664,7 @@ whenReadyAndDataTables(function () {
             el.textContent = trialEndDateText || "Aktywny";
             break;
           case "tenantName":
-            el.textContent = data.companyName || "N/A";
+            el.textContent = safeStr(data.companyName, "N/A");
             break;
           case "organizationName":
             el.textContent =
@@ -1596,38 +1673,36 @@ whenReadyAndDataTables(function () {
                 : "N/A";
             break;
           case "phone":
-            el.textContent = (data.phones && data.phones[0]?.phone) || "N/A";
+            el.textContent = safeStr(data.phones?.[0]?.phone, "N/A");
             break;
           case "nextInvoiceDate":
             el.textContent = `Data odnowienia subskrypcji: ${nextInvoiceDateTxt}`;
             break;
           case "forecastTotal":
-            el.textContent = `Szacowana kwota faktury: ${Number(
-              forecast.total || 0
-            )} zł`;
+            el.textContent = `Szacowana kwota faktury: ${money(
+              forecast.total ?? 0
+            )}`;
             break;
           case "standard":
-            el.textContent = `${Number(
-              pricing.standard || 0
-            )} zł za sklep/miesięcznie`;
+            el.textContent = `${money(pricing?.standard ?? 0)}/sklep/mies.`;
             break;
           case "premium":
-            el.textContent = `${Number(
-              pricing.premium || 0
-            )} zł za sklep/miesięcznie`;
+            el.textContent = `${money(pricing?.premium ?? 0)}/sklep/mies.`;
             break;
           case "specialService":
-            if (pricing.specialService?.fee) {
-              el.textContent = `${pricing.specialService.description} - ${pricing.specialService.fee} zł/miesięcznie`;
+            if (pricing?.specialService?.fee) {
+              el.textContent = `${safeStr(
+                pricing.specialService.description
+              )} - ${money(pricing.specialService.fee)}/mies.`;
             } else {
               el.textContent = "N/A";
             }
             break;
           case "name":
-            el.textContent = data.name || "N/A";
+            el.textContent = safeStr(data.name, "N/A");
             break;
           case "taxId":
-            el.textContent = data.taxId || "N/A";
+            el.textContent = safeStr(data.taxId, "N/A");
             break;
           case "address": {
             const parts = [
@@ -1636,34 +1711,35 @@ whenReadyAndDataTables(function () {
               address.line1,
               address.line2,
               address.country,
-            ].filter(Boolean);
+            ]
+              .filter(Boolean)
+              .map((x) => safeStr(x));
             el.textContent = parts.length ? parts.join(", ") : "N/A";
             break;
           }
           case "country":
-            el.textContent = address.country || "N/A";
+            el.textContent = safeStr(address.country, "N/A");
             break;
           case "town":
-            el.textContent = address.town || "N/A";
+            el.textContent = safeStr(address.town, "N/A");
             break;
           case "postcode":
-            el.textContent = address.postcode || "N/A";
+            el.textContent = safeStr(address.postcode, "N/A");
             break;
           case "emails": {
-            const emails = Array.isArray(data.emails)
-              ? data.emails.map((e) => e.email).join(", ")
-              : "";
+            const emails = safeArr(data.emails)
+              .map((e) => safeStr(e?.email))
+              .filter(Boolean)
+              .join(", ");
             el.textContent = emails || "N/A";
             break;
           }
         }
       });
 
-      /** ------------------ Self-employment toggle (jeśli są elementy) ------------------ **/
-      const tenantActivityKind = document.getElementById("tenantActivityKind");
-      const selfEploymentContainer = document.getElementById(
-        "selfEploymentContainer"
-      );
+      // ---------- Self-employment toggle ----------
+      const tenantActivityKind = $id("tenantActivityKind");
+      const selfEploymentContainer = $id("selfEploymentContainer");
       function toggleSelfEploymentContainer() {
         if (!tenantActivityKind || !selfEploymentContainer) return;
         selfEploymentContainer.style.display =
@@ -1679,7 +1755,10 @@ whenReadyAndDataTables(function () {
     };
 
     request.onerror = function () {
-      console.error("Error loading tenant billing info:", request.statusText);
+      console.error(
+        "Error loading tenant billing info:",
+        request.statusText || "network error"
+      );
     };
 
     request.send();
