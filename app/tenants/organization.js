@@ -1026,13 +1026,6 @@ whenReadyAndDataTables(function () {
 
     // --- Zbuduj URL i nagłówki ---
     const url = new URL(InvokeURL + "billing/invoices?perPage=25");
-    // Upewnij się, że orgToken istnieje
-    if (!window.orgToken) {
-      console.warn("Brak orgToken – pokazuję pusty stan.");
-      emptyEl.style.display = "flex";
-      listEl.style.display = "none";
-      return;
-    }
 
     // --- Pobierz dane (XMLHttpRequest zachowany jak w Twojej wersji) ---
     const request = new XMLHttpRequest();
@@ -1475,11 +1468,6 @@ whenReadyAndDataTables(function () {
 
     // ---------- Request ----------
     const url = new URL(InvokeURL + "billing");
-    if (!window.orgToken) {
-      console.warn("Brak orgToken – przerywam GetTenantBilling.");
-      return;
-    }
-
     const request = new XMLHttpRequest();
     request.open("GET", url.toString(), true);
     request.setRequestHeader("Authorization", orgToken);
