@@ -812,76 +812,97 @@ whenReadyAndDataTables(function () {
         return response.json();
       })
       .then((data) => {
-        const { items: toParse, total } = data;
+        // Bezpieczne odczyty
+        const toParse = Array.isArray(data?.items) ? data.items : [];
+        const total = Number.isFinite(data?.total)
+          ? data.total
+          : toParse.length;
+
         const orgContainer = document.getElementById("Organization-Container");
+        if (!orgContainer)
+          throw new Error("Brak kontenera #Organization-Container");
+        if (!createOrgButton)
+          throw new Error("Brak przycisku #CreateOrgButton");
+
         let hasOnboarding = false;
 
-        // Check if any organization has status 'onboarding'
-        if (total > 0) {
-          toParse.forEach((organization) => {
-            if (organization.status.toLowerCase() === "onboarding") {
-              hasOnboarding = true;
-            }
-          });
+        // NIE traktujemy null jako onboarding (żeby UI się nie blokował)
+        for (const organization of toParse) {
+          const statusRaw = (organization?.status ?? "")
+            .toString()
+            .toLowerCase();
+          if (statusRaw === "onboarding") {
+            hasOnboarding = true;
+            break;
+          }
         }
 
-        // Show or hide createOrgButton based on the onboarding status and total organizations
-        if (total === 0 || !hasOnboarding) {
-          createOrgButton.style.display = "flex";
-          createOrgButton.style.pointerEvents = "auto";
-          createOrgButton.style.opacity = "1";
-        } else {
-          createOrgButton.style.display = "flex";
-          createOrgButton.style.pointerEvents = "none";
-          createOrgButton.style.opacity = "0.5";
-        }
+        // Pokaż/ukryj przycisk tworzenia organizacji
+        const allowCreate = total === 0 || !hasOnboarding;
+        createOrgButton.style.display = "flex";
+        createOrgButton.style.pointerEvents = allowCreate ? "auto" : "none";
+        createOrgButton.style.opacity = allowCreate ? "1" : "0.5";
 
-        // Hide starting images if more than 4 organizations
         if (total >= 4) {
           $("img[id^='startingImage']").hide();
         }
 
         if (total > 0) {
           toParse.forEach((organization) => {
-            const template = document.getElementById("samplerow");
-            const row = template.cloneNode(true);
+            try {
+              const template = document.getElementById("samplerow");
+              if (!template) throw new Error("Brak szablonu #samplerow");
 
-            // Usuń atrybuty ID z klonowanych wierszy, aby uniknąć duplikatów
-            row.removeAttribute("id");
+              const row = template.cloneNode(true);
+              row.removeAttribute("id");
 
-            const statusMap = {
-              onboarding: { color: "#fff1b8", text: "W trakcie weryfikacji" },
-              problem: { color: "#ffd666", text: "Problem" },
-              client: { color: "#ffffff00", text: "" },
-              suspended: { color: "#ff7875", text: "Zawieszony" },
-            };
+              // Map statusów + neutralny "unknown" dla null/nieznanych
+              const statusMap = {
+                onboarding: { color: "#fff1b8", text: "W trakcie weryfikacji" },
+                problem: { color: "#ffd666", text: "Problem" },
+                client: { color: "#ffffff00", text: "" },
+                suspended: { color: "#ff7875", text: "Zawieszony" },
+                unknown: { color: "#f0f0f0", text: "—" }, // nowy stan neutralny
+              };
 
-            // Use the status to get both the color and text
-            const statusInfo =
-              statusMap[organization.status.toLowerCase()] ||
-              statusMap["onboarding"]; // Default to onboarding if not matched
+              const statusRaw = (organization?.status ?? "")
+                .toString()
+                .toLowerCase();
+              const statusInfo = statusMap[statusRaw] ?? statusMap.unknown;
 
-            // Update organization-specific attributes
-            row.querySelector(
-              "[organizationData='organizationName']"
-            ).textContent = organization.name || "Brak";
-            row.querySelector("#statusWraper").style.backgroundColor =
-              statusInfo.color;
-            row.querySelector("#tenantStatus").textContent = statusInfo.text;
+              // Nazwa
+              const nameEl = row.querySelector(
+                "[organizationData='organizationName']"
+              );
+              if (nameEl) nameEl.textContent = organization?.name || "Brak";
 
-            // Setting organization attributes for row
-            row.setAttribute("OrganizationName", organization.name);
-            row.setAttribute("OrganizationclientId", organization.clientId);
-            row.setAttribute("OrganizationStatus", organization.status);
-            row.style.display = "flex";
+              // Status UI
+              const sw = row.querySelector("#statusWraper");
+              if (sw) sw.style.backgroundColor = statusInfo.color;
+              const ts = row.querySelector("#tenantStatus");
+              if (ts) ts.textContent = statusInfo.text;
 
-            // Append row to the container
-            orgContainer.appendChild(row);
+              // Atrybuty
+              row.setAttribute("OrganizationName", organization?.name ?? "");
+              row.setAttribute(
+                "OrganizationclientId",
+                organization?.clientId ?? ""
+              );
+              row.setAttribute(
+                "OrganizationStatus",
+                organization?.status ?? "unknown"
+              );
+              row.style.display = "flex";
 
-            // Handle click events based on organization status
-            row.addEventListener("click", LoginIntoOrganization, false);
+              // Append + click handler
+              orgContainer.appendChild(row);
+              row.addEventListener("click", LoginIntoOrganization, false);
+            } catch (rowErr) {
+              console.warn("Nie udało się wyrenderować organizacji:", rowErr);
+            }
           });
-          setupOrganizationSearch();
+
+          setupOrganizationSearch?.();
         }
       })
       .catch((error) => {
