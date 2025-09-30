@@ -2290,9 +2290,62 @@ whenReadyAndDataTables(function () {
     }
   });
 
-  async function getIntegrations() {
-    let attempts = 0;
+  // --- start: podpięcie zakładki Integracje (tylko admin) ---
+  getUserRole()
+    .then((role) => {
+      // odpal wszystko poza getIntegrations
+      return Promise.all([
+        getUsers(),
+        getInvoices(),
+        navigateToInvoiceStateInvoices(),
+        controlTabVisibility(),
+      ]).then(() => role);
+    })
+    .then((role) => {
+      if (role === "admin") {
+        const integrationsTab = document.querySelector(
+          "#w-tabs-0-data-w-tab-3"
+        );
+        if (integrationsTab) {
+          integrationsTab.addEventListener(
+            "click",
+            async () => {
+              try {
+                $("#waitingdots").show(); // pokaż kulki na czas pełnego cyklu
+                await getIntegrations(); // poczekaj aż wrócą też TESTY integracji
+              } catch (err) {
+                console.error("Błąd przy pobieraniu integracji:", err);
+              } finally {
+                $("#waitingdots").hide(); // schowaj kulki dopiero po testach
+              }
+            },
+            { once: true } // tylko przy pierwszym wejściu
+          );
+        }
+      }
 
+      // tooltips po starcie
+      setTimeout(function () {
+        initializeSimpleTooltips();
+      }, 1000);
+    })
+    .catch((error) => {
+      console.error(
+        "Error while fetching user role or subsequent data:",
+        error
+      );
+    });
+  // --- end: podpięcie zakładki ---
+
+  // --- start: getIntegrations z oczekiwaniem na testy ---
+  async function getIntegrations() {
+    // zapobiegaj wielokrotnemu ładowaniu (opcjonalnie)
+    if (window._integrationsLoaded) {
+      return;
+    }
+
+    // zaczekaj max 5s na cookie z rolą
+    let attempts = 0;
     while (!getCookie("sprytnyUserRole") && attempts < 5) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -2304,12 +2357,14 @@ whenReadyAndDataTables(function () {
     }
 
     try {
+      // jeżeli GetTenantBilling jest async, możesz dać await
+      // await GetTenantBilling();
       GetTenantBilling();
+
       const url = new URL(InvokeURL + "integrations");
       const response = await fetch(url, {
         method: "GET",
-        headers: { Authorization: orgToken },
-        "Requested-By": "webflow-3-4",
+        headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
       });
 
       if (!response.ok) {
@@ -2317,15 +2372,38 @@ whenReadyAndDataTables(function () {
       }
 
       const data = await response.json();
-      const toParse = data.items;
+      const toParse = data.items || [];
 
-      toParse.forEach(processIntegration);
+      // wyczyść kontener (opcjonalnie)
+      $("#Integrations-Container").empty();
+
+      // zbierz obietnice testów, żeby czekać na wszystkie
+      const testPromises = [];
+
+      toParse.forEach((integration) => {
+        const p = processIntegrationAndMaybeTest(integration);
+        if (p) testPromises.push(p);
+      });
+
+      // czekamy aż WSZYSTKIE testy skończą (sukces/błąd bez przerwania)
+      await Promise.allSettled(testPromises);
+
+      // ewentualny re-init tooltipów po uzupełnieniu statusów
+      setTimeout(() => {
+        if (typeof initializeSimpleTooltips === "function") {
+          initializeSimpleTooltips();
+        }
+      }, 0);
+
+      window._integrationsLoaded = true;
     } catch (error) {
       console.error("Error fetching integrations:", error);
+      throw error; // pozwala górze schować kulki w finally
     }
   }
 
-  function processIntegration(integration) {
+  // łączy render i testowanie; zwraca Promise testu albo null gdy brak testu
+  function processIntegrationAndMaybeTest(integration) {
     const $row = $("#Sample-Integration").clone().css("display", "flex");
 
     $row.find("h6").eq(0).text(integration.name);
@@ -2340,7 +2418,13 @@ whenReadyAndDataTables(function () {
       updateIntegrationStatus($integrationStatus, "Succeeded", "green");
 
       if (integration.integrationKey !== "kc-firma") {
-        checkIntegrationStatus(integration, $integrationStatus);
+        // zwracamy Promise testu
+        const testPromise = checkIntegrationStatusPromise(
+          integration,
+          $integrationStatus
+        );
+        // od razu podpinamy do UI aktualizację po testach (opcjonalne, bo i tak robimy to w testPromise)
+        return testPromise;
       }
     } else {
       updateIntegrationStatus($integrationStatus, "Oczekuję", null);
@@ -2350,6 +2434,50 @@ whenReadyAndDataTables(function () {
     $row.attr("href", href);
 
     $("#Integrations-Container").append($row);
+
+    // brak testu => null
+    return null;
+  }
+
+  // wersja Promise: test statusu integracji
+  function checkIntegrationStatusPromise(integration, $integrationStatus) {
+    return new Promise((resolve) => {
+      $.ajax({
+        url: new URL(
+          InvokeURL + "integrations/" + integration.integrationKey + "/test"
+        ),
+        type: "GET",
+        headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+        success: (response) => {
+          updateIntegrationStatus($integrationStatus, `${response.status}`);
+          resolve({ ok: true, key: integration.integrationKey });
+        },
+        error: () => {
+          updateIntegrationStatus($integrationStatus, "Error fetching status");
+          resolve({ ok: false, key: integration.integrationKey });
+        },
+        complete: () => {
+          // dopiero teraz wstawiamy wiersz jeśli jeszcze nie został dodany
+          // (gdybyś chciał opóźniać render do końca testu; jeśli nie – usuń ten blok)
+        },
+      });
+
+      // upewnij się, że wiersz jest w DOM zanim wróci test
+      const href = getIntegrationHref(integration.integrationKey);
+      const $row = $("#Sample-Integration").clone().css("display", "flex");
+      $row.find("h6").eq(0).text(integration.name);
+      $row
+        .find("img")
+        .eq(0)
+        .attr("src", `data:image/png;base64,${integration.image}`);
+      const $status = $row.find("h6").eq(2);
+      // wstępny status już ustawiony wcześniej, ale zabezpieczamy referencję:
+      $status
+        .text($integrationStatus.text())
+        .css("color", $integrationStatus.css("color"));
+      $row.attr("href", href);
+      $("#Integrations-Container").append($row);
+    });
   }
 
   function updateIntegrationStatus($element, statusText, color) {
@@ -2372,20 +2500,6 @@ whenReadyAndDataTables(function () {
     );
   }
 
-  function checkIntegrationStatus(integration, $integrationStatus) {
-    $.ajax({
-      url: new URL(
-        InvokeURL + "integrations/" + integration.integrationKey + "/test"
-      ),
-      type: "GET",
-      headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
-      success: (response) =>
-        updateIntegrationStatus($integrationStatus, `${response.status}`),
-      error: () =>
-        updateIntegrationStatus($integrationStatus, "Error fetching status"),
-    });
-  }
-
   function getIntegrationHref(integrationKey) {
     switch (integrationKey) {
       case "retroactive":
@@ -2397,9 +2511,10 @@ whenReadyAndDataTables(function () {
       case "kc-firma":
         return `https://${DomainName}/app/integrations/kc-firma`;
       default:
-        return "#"; // Default href if needed
+        return "#";
     }
   }
+  // --- end: getIntegrations ---
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
