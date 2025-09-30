@@ -2391,8 +2391,8 @@ whenReadyAndDataTables(function () {
         // bez testu
         updateIntegrationStatus($status, "Succeeded");
       } else {
-        // test będzie w tle → „Oczekuję”
-        updateIntegrationStatus($status, "Oczekuję");
+        // test będzie w tle → „Testuję”
+        updateIntegrationStatus($status, "Testuję...");
         // 2) Start testu w tle
         checkIntegrationStatus(integration, $status);
       }
@@ -2418,6 +2418,9 @@ whenReadyAndDataTables(function () {
       color = "green";
     } else if (statusText === "Oczekuję") {
       uiText = "Oczekuję";
+      color = "gray";
+    } else if (statusText === "Testuję...") {
+      uiText = "Testuję...";
       color = "gray";
     } else {
       uiText = "Błąd";
