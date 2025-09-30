@@ -2359,8 +2359,6 @@ whenReadyAndDataTables(function () {
       const data = await response.json();
       const items = data.items || [];
 
-      $("#Integrations-Container").empty();
-
       // render kafli natychmiast; testy odpalamy w tle
       items.forEach(processIntegration);
 
