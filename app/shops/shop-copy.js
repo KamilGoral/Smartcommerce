@@ -1859,6 +1859,10 @@ whenReadyAndDataTables(function () {
 
   //Offer view in shop // Start //
 
+  let offerStatusLoaded = false;
+  let lastOfferFetchTimestamp = 0;
+  const MIN_FETCH_INTERVAL_MS = 10;
+
   function getProductDetails(rowData) {
     return new Promise((resolve, reject) => {
       const url = new URL(
