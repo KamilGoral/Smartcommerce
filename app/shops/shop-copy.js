@@ -3565,65 +3565,56 @@ ${offerTimestampLine}
       });
   }
 
-  $("#table_id tbody").on("click", "img.showdata", async function () {
+  $("#table_id tbody").on("click", "img.showdata", function () {
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
 
-    // NOWE: czytamy atrybuty data-* zamiast gotowej listy GTIN
     const shopKey = this.getAttribute("data-shop");
     const wholesalerKey = this.getAttribute("data-wh");
     const promotionId = this.getAttribute("data-promo");
 
-    // prosty loading w komórce
     const td = this.closest("td");
     const prevHTML = td.innerHTML;
     td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
 
-    try {
-      const values = await fetchRelatedKeys({
-        shopKey,
-        promotionId,
-        wholesalerKey,
-      }); // ["0500...", ...]
+    fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
+      .then((values) => {
+        td.innerHTML = prevHTML;
 
-      if (!values || values.length === 0) {
-        td.innerHTML = prevHTML; // przywróć ikonę
-        // pokaż info w popupie (spójnie z Twoim UX)
-        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+        if (!values || values.length === 0) {
+          popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+          popupContainer.style.display = "flex";
+          return;
+        }
+
+        // ten sam układ co u Ciebie (grupowanie po 5)
+        let output = "";
+        for (let i = 0; i < values.length; i++) {
+          if (i % 5 === 0)
+            output += "<p class='text-size-tiny text-color-grey'>";
+          const code = String(values[i]).trim();
+          output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${code}">${code}</span>`;
+          if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+        }
+
+        popupContent.innerHTML = output;
         popupContainer.style.display = "flex";
-        return;
-      }
 
-      // Zbuduj ten sam popup co wcześniej (grupowanie po 5)
-      let output = "";
-      for (let i = 0; i < values.length; i++) {
-        if (i % 5 === 0) output += "<p class='text-size-tiny text-color-grey'>";
-        const trimmedCode = String(values[i]).trim();
-        output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${trimmedCode}">${trimmedCode}</span>`;
-        if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
-      }
-
-      popupContent.innerHTML = output;
-      popupContainer.style.display = "flex";
-    } catch (err) {
-      console.error(err);
-      td.innerHTML = prevHTML;
-      popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań (spróbuj ponownie).</p>`;
-      popupContainer.style.display = "flex";
-    }
-
-    // Przywróć ikonę (bez względu na wynik) — albo zostaw loader do zamknięcia, jak wolisz
-    td.innerHTML = prevHTML;
-
-    // Klik w kod — tak jak u Ciebie: filtruje tabelę i zamyka popup
-    popupContent.querySelectorAll(".related-product-code").forEach((el) => {
-      el.addEventListener("click", function () {
-        const code = this.getAttribute("data-code");
-        const table = $("#table_id").DataTable();
-        table.search(code).draw();
-        popupContainer.style.display = "none";
+        // filtruj tabelę po kliknięciu kodu
+        popupContent.querySelectorAll(".related-product-code").forEach((el) => {
+          el.addEventListener("click", function () {
+            const code = this.getAttribute("data-code");
+            const table = $("#table_id").DataTable();
+            table.search(code).draw();
+            popupContainer.style.display = "none";
+          });
+        });
+      })
+      .catch(() => {
+        td.innerHTML = prevHTML;
+        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
+        popupContainer.style.display = "flex";
       });
-    });
   });
 
   // Close the popup when clicking outside of the popup content
