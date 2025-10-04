@@ -3127,7 +3127,7 @@ ${offerTimestampLine}
       if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
         lastOfferFetchTimestamp = now;
         $.get(
-          InvokeURL + "shops/" + shopKey + "/offers/" + offerId + QStr,
+          InvokeURL + "shops/" + shopKey + "/offers" + QStr,
           function (res) {
             // Ustawienie daty oferty
             if (res.offerDate) {
