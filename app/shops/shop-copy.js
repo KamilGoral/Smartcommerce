@@ -1951,7 +1951,7 @@ whenReadyAndDataTables(function () {
   }
 
   function getOfferStatus() {
-    fetch(`${InvokeURL}shops/${shopKey}/offers/latest/status`, {
+    fetch(`${InvokeURL}shops/${shopKey}/offer/status`, {
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
@@ -3126,45 +3126,42 @@ ${offerTimestampLine}
       const now = Date.now();
       if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
         lastOfferFetchTimestamp = now;
-        $.get(
-          InvokeURL + "shops/" + shopKey + "/offers" + QStr,
-          function (res) {
-            // Ustawienie daty oferty
-            if (res.offerDate) {
-              const formattedDate = new Date(res.offerDate).toLocaleString(
-                "pl-PL"
-              );
-              $("#offerDate").text("Data oferty: " + formattedDate);
-              $("#offerDate2").text("Data oferty: " + formattedDate);
-            } else {
-              $("#offerDate").text("Data oferty: brak danych");
-              $("#offerDate2").text("Data oferty: brak danych");
-            }
-
-            if (isToday(res.offerDate)) {
-              if (!offerStatusLoaded) {
-                offerStatusLoaded = true;
-                getOfferStatus();
-              }
-
-              $("#offerCondition").show();
-              $("#offerTag").show();
-              $("#seeRightPanel").show();
-              $("#offerDate2").show();
-            } else {
-              $("#offerCondition").hide();
-              $("#offerTag").hide();
-              $(".seeRightPanel").hide();
-              $("#offerDate2").show();
-            }
-
-            callback({
-              recordsTotal: res.total,
-              recordsFiltered: res.total,
-              data: res.items,
-            });
+        $.get(InvokeURL + "shops/" + shopKey + "/offer" + QStr, function (res) {
+          // Ustawienie daty oferty
+          if (res.offerDate) {
+            const formattedDate = new Date(res.offerDate).toLocaleString(
+              "pl-PL"
+            );
+            $("#offerDate").text("Data oferty: " + formattedDate);
+            $("#offerDate2").text("Data oferty: " + formattedDate);
+          } else {
+            $("#offerDate").text("Data oferty: brak danych");
+            $("#offerDate2").text("Data oferty: brak danych");
           }
-        );
+
+          if (isToday(res.offerDate)) {
+            if (!offerStatusLoaded) {
+              offerStatusLoaded = true;
+              getOfferStatus();
+            }
+
+            $("#offerCondition").show();
+            $("#offerTag").show();
+            $("#seeRightPanel").show();
+            $("#offerDate2").show();
+          } else {
+            $("#offerCondition").hide();
+            $("#offerTag").hide();
+            $(".seeRightPanel").hide();
+            $("#offerDate2").show();
+          }
+
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        });
       }
     },
     processing: false,
