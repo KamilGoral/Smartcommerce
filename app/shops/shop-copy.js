@@ -2757,10 +2757,12 @@ ${offerTimestampLine}
   }
 
   function format(d) {
-    const arr = d.asks;
+    const arr = d.asks || [];
+
     const sourceMap = {
       "price list": "Cennik",
       "online offer": "E-hurt",
+      ecommerce: "E-hurt",
       wms: "PC-Market",
     };
 
@@ -2790,20 +2792,16 @@ ${offerTimestampLine}
         description:
           "Przy określonej ilości, wszystkie produkty w promocji tanieją.",
       },
-      // Add more as needed
     };
 
     function calculatePackage(promotion) {
       if (!promotion || !promotion.factors) return "-";
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors;
-
       if (!quantityFactor) return "-";
-
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-
       return "-";
     }
 
@@ -2818,7 +2816,6 @@ ${offerTimestampLine}
         "self-gratis":
           "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fcb35781959d04e2e_self-gratis.svg",
       };
-
       const benefitTexts = {
         discount:
           "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
@@ -2829,15 +2826,17 @@ ${offerTimestampLine}
       };
 
       if (Array.isArray(types)) {
-        return types.map((type) => {
-          const icon = iconMap[type] || "";
-          const text = benefitTexts[type] || "Brak informacji o promocji";
-          return { icon, text };
-        });
+        return types.map((type) => ({
+          icon: iconMap[type] || "",
+          text: benefitTexts[type] || "Brak informacji o promocji",
+        }));
       } else {
-        const icon = iconMap[types] || "";
-        const text = benefitTexts[types] || "Brak informacji o promocji";
-        return [{ icon, text }];
+        return [
+          {
+            icon: iconMap[types] || "",
+            text: benefitTexts[types] || "Brak informacji o promocji",
+          },
+        ];
       }
     }
 
@@ -2858,51 +2857,80 @@ ${offerTimestampLine}
 
     const toDisplayHtml = arr
       .map((item) => {
-        const promotion = promotionMap[item.promotion?.type];
-        const promotionType = promotion ? promotion.name : "-";
-        const promotionDescription = promotion
-          ? promotion.description
+        const promoObj = item.promotion || null;
+        const mappedPromo = promoObj ? promotionMap[promoObj.type] : null;
+        const promotionType = mappedPromo ? mappedPromo.name : "-";
+        const promotionDescription = mappedPromo
+          ? mappedPromo.description
           : "Brak promocji";
 
-        const showRelated =
-          item.promotion && item.promotion.relatedGtins.length > 0
-            ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
-            : "-";
+        const hasGroupPromo = !!(promoObj && promoObj.singular === false);
 
-        const benefitHtml = getBenefitDetails(item.promotion?.benefit);
+        const showRelated = hasGroupPromo
+          ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
+               loading="lazy"
+               class="showdata"
+               data-content="promotion-group"
+               alt="Promotion group">`
+          : "-";
 
-        return `<tr>
-            <td>${item.wholesalerKey}</td>
-            <td>${item.netPrice}</td>
-             <td>${
-               getCookie("sprytnyUserRole") === "admin"
-                 ? item.netNetPrice ?? "-"
-                 : "-"
-             }</td>
-            <td>${item.set ?? "-"}</td>
-            <td>${sourceMap[item.source] || "-"}</td>
-            <td>${item.originated ?? "-"}</td>
-            <td>${item.stock ?? "-"}</td>
-            ${
-              promotion
-                ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-                : "<td>-</td>"
-            }
-            <td>${item.promotion?.threshold ?? "-"}</td>
-            <td>${item.promotion?.cap ?? "-"}</td>
-            <td>${calculatePackage(item.promotion)}</td>
-            <td>${benefitHtml}</td>
-            <td>${showRelated}</td>    
-        </tr>`;
+        const benefitHtml = getBenefitDetails(promoObj?.benefit);
+
+        // nowa logika: disabled row dla valid === false
+        const rowClass = item.valid ? "" : "disabled-row";
+        const tooltip = item.valid
+          ? ""
+          : `class="tippy" data-tippy-content="Kod błędu: ${(
+              item.messageCodes || []
+            ).join(", ")}"`;
+
+        return `
+      <tr class="${rowClass}" ${tooltip}>
+        <td>${item.wholesalerKey ?? "-"}</td>
+        <td>${item.netPrice ?? "-"}</td>
+        <td>${
+          getCookie("sprytnyUserRole") === "admin"
+            ? item.netNetPrice ?? "-"
+            : "-"
+        }</td>
+        <td>${item.set ?? "-"}</td>
+        <td>${sourceMap[item.source] || "-"}</td>
+        <td>${item.originated ?? "-"}</td>
+        <td>${item.stock ?? "-"}</td>
+        ${
+          mappedPromo
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+        }
+        <td>${promoObj?.threshold ?? "-"}</td>
+        <td>${promoObj?.cap ?? "-"}</td>
+        <td>${calculatePackage(promoObj)}</td>
+        <td>${benefitHtml}</td>
+        <td>${showRelated}</td>
+      </tr>`;
       })
       .join("");
 
     return `
-        <table>
-            <tr><th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th></tr>
-            ${toDisplayHtml}
-        </table>
-    `;
+    <table>
+      <tr>
+        <th>Dostawca</th>
+        <th>Cena net</th>
+        <th>Cena netnet</th>
+        <th>Paczka</th>
+        <th>Źródło</th>
+        <th>Pochodzenie</th>
+        <th>Dostępność</th>
+        <th>Promocja</th>
+        <th>Próg</th>
+        <th>Max</th>
+        <th>Opakowanie</th>
+        <th>Bonus</th>
+        <th>Powiązane</th>
+      </tr>
+      ${toDisplayHtml}
+    </table>
+  `;
   }
 
   // Domyślne opcje dla lengthMenu
