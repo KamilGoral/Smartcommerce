@@ -2797,7 +2797,7 @@ ${offerTimestampLine}
     function calculatePackage(promotion) {
       if (!promotion || !promotion.factors) return "-";
       const { type, factors } = promotion;
-      const { quantityFactor, consolidationSet } = factors;
+      const { quantityFactor, consolidationSet } = factors || {};
       if (!quantityFactor) return "-";
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
@@ -2825,19 +2825,11 @@ ${offerTimestampLine}
         "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
       };
 
-      if (Array.isArray(types)) {
-        return types.map((type) => ({
-          icon: iconMap[type] || "",
-          text: benefitTexts[type] || "Brak informacji o promocji",
-        }));
-      } else {
-        return [
-          {
-            icon: iconMap[types] || "",
-            text: benefitTexts[types] || "Brak informacji o promocji",
-          },
-        ];
-      }
+      const arr = Array.isArray(types) ? types : [types];
+      return arr.filter(Boolean).map((type) => ({
+        icon: iconMap[type] || "",
+        text: benefitTexts[type] || "Brak informacji o promocji",
+      }));
     }
 
     function getBenefitDetails(benefit) {
@@ -2864,28 +2856,38 @@ ${offerTimestampLine}
           ? mappedPromo.description
           : "Brak promocji";
 
-        const hasGroupPromo = !!(promoObj && promoObj.singular === false);
+        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
+        const canFetchRelated = !!(
+          promoObj &&
+          promoObj.singular === false &&
+          promoObj.id
+        );
 
-        const showRelated = hasGroupPromo
-          ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
-               loading="lazy"
-               class="showdata"
-               data-content="promotion-group"
-               alt="Promotion group">`
+        // Wstawiamy ikonę z data-* dla fetcha
+        const relatedCell = canFetchRelated
+          ? `<img
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
+          loading="lazy"
+          class="showdata"
+          data-shop="${shopKey}"
+          data-wh="${item.wholesalerKey}"
+          data-promo="${promoObj.id}"
+          alt="Powiązane"
+         />`
           : "-";
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        // nowa logika: disabled row dla valid === false
+        // disabled row + tooltip
         const rowClass = item.valid ? "" : "disabled-row";
-        const tooltip = item.valid
+        const rowTooltip = item.valid
           ? ""
-          : `class="tippy" data-tippy-content="Kod błędu: ${(
+          : `class="tippy" data-tippy-content="Kod(y): ${(
               item.messageCodes || []
             ).join(", ")}"`;
 
         return `
-      <tr class="${rowClass}" ${tooltip}>
+      <tr class="${rowClass}" ${rowTooltip}>
         <td>${item.wholesalerKey ?? "-"}</td>
         <td>${item.netPrice ?? "-"}</td>
         <td>${
@@ -2906,7 +2908,7 @@ ${offerTimestampLine}
         <td>${promoObj?.cap ?? "-"}</td>
         <td>${calculatePackage(promoObj)}</td>
         <td>${benefitHtml}</td>
-        <td>${showRelated}</td>
+        <td>${relatedCell}</td>
       </tr>`;
       })
       .join("");
@@ -3518,26 +3520,102 @@ ${offerTimestampLine}
     }
   });
 
-  $("#table_id tbody").on("click", "img.showdata", function () {
-    const popupContainer = document.getElementById("ReleatedProducts");
-    const popupContent = document.getElementById("popupContent");
-    const input = $(this).attr("data-content");
-    const values = input.split(",");
-    let output = "";
+  // Cache: shop|promo|wh → [gtin...]
+  const relatedCache = new Map();
 
-    for (let i = 0; i < values.length; i++) {
-      if (i % 5 === 0) output += "<p class='text-size-tiny text-color-grey'>";
-
-      const trimmedCode = values[i].trim();
-      output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${trimmedCode}">${trimmedCode}</span>`;
-
-      if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+  /**
+   * Pobiera powiązane GTIN dla promocji (singular === false).
+   * Zwraca Promise<Array<string>>.
+   */
+  function fetchRelatedKeys(shopKey, promotionId, wholesalerKey) {
+    const cacheKey = `${shopKey}|${promotionId}|${wholesalerKey}`;
+    if (relatedCache.has(cacheKey)) {
+      return Promise.resolve(relatedCache.get(cacheKey));
     }
 
-    popupContent.innerHTML = output;
-    popupContainer.style.display = "flex";
+    const url =
+      `${InvokeURL}shops/${encodeURIComponent(shopKey)}` +
+      `/offer/promotions/${encodeURIComponent(promotionId)}` +
+      `/related-keys?wholesalerKey=${encodeURIComponent(wholesalerKey)}`;
 
-    // Dodanie nasłuchu do każdego <span>
+    return fetch(url, {
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((res) => {
+        if (res.ok) return res.json(); // 200 → ["0500...", ...]
+        if (res.status === 400 || res.status === 404) return []; // brak danych
+        return res.text().then((t) => {
+          throw new Error(
+            `Related-keys error ${res.status}: ${t || "no body"}`
+          );
+        });
+      })
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : [];
+        relatedCache.set(cacheKey, arr);
+        return arr;
+      })
+      .catch((err) => {
+        // W produkcji można logować do sentry etc.
+        console.error("fetchRelatedKeys failed:", err);
+        throw err; // pozwól wyżej zareagować (np. pokazać popup z błędem)
+      });
+  }
+
+  $("#table_id tbody").on("click", "img.showdata", async function () {
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
+
+    // NOWE: czytamy atrybuty data-* zamiast gotowej listy GTIN
+    const shopKey = this.getAttribute("data-shop");
+    const wholesalerKey = this.getAttribute("data-wh");
+    const promotionId = this.getAttribute("data-promo");
+
+    // prosty loading w komórce
+    const td = this.closest("td");
+    const prevHTML = td.innerHTML;
+    td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
+
+    try {
+      const values = await fetchRelatedKeys({
+        shopKey,
+        promotionId,
+        wholesalerKey,
+      }); // ["0500...", ...]
+
+      if (!values || values.length === 0) {
+        td.innerHTML = prevHTML; // przywróć ikonę
+        // pokaż info w popupie (spójnie z Twoim UX)
+        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+        popupContainer.style.display = "flex";
+        return;
+      }
+
+      // Zbuduj ten sam popup co wcześniej (grupowanie po 5)
+      let output = "";
+      for (let i = 0; i < values.length; i++) {
+        if (i % 5 === 0) output += "<p class='text-size-tiny text-color-grey'>";
+        const trimmedCode = String(values[i]).trim();
+        output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${trimmedCode}">${trimmedCode}</span>`;
+        if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+      }
+
+      popupContent.innerHTML = output;
+      popupContainer.style.display = "flex";
+    } catch (err) {
+      console.error(err);
+      td.innerHTML = prevHTML;
+      popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań (spróbuj ponownie).</p>`;
+      popupContainer.style.display = "flex";
+    }
+
+    // Przywróć ikonę (bez względu na wynik) — albo zostaw loader do zamknięcia, jak wolisz
+    td.innerHTML = prevHTML;
+
+    // Klik w kod — tak jak u Ciebie: filtruje tabelę i zamyka popup
     popupContent.querySelectorAll(".related-product-code").forEach((el) => {
       el.addEventListener("click", function () {
         const code = this.getAttribute("data-code");
