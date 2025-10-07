@@ -1385,7 +1385,11 @@ whenReadyAndDataTables(function () {
       console.log("Cookie.OrganizationName =", JSON.stringify(orgName));
 
       // 2) Warunek org (bez zmiany logiki)
-      if (orgName !== "Goral" && orgName !== "DH-PSS-Bytom") {
+      if (
+        orgName !== "Goral" &&
+        orgName !== "DH-PSS-Bytom" &&
+        orgName !== "ATO"
+      ) {
         console.warn(
           "Return: org not allowed (expected 'Goral' or 'DH-PSS-Bytom')."
         );
