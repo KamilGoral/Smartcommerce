@@ -1366,12 +1366,18 @@ whenReadyAndDataTables(function () {
   }
 
   function addJsonFooterIconIfGoral() {
+    console.log("addJson Dowload icon start");
     try {
       const orgName =
         (typeof getCookie === "function"
           ? getCookie("OrganizationName")
           : "") || "";
-      if (orgName !== "Goral" && orgName !== "DH-PSS-Bytom") return;
+      if (
+        orgName !== "Goral" &&
+        orgName !== "DH-PSS-Bytom" &&
+        orgName !== "ATO"
+      )
+        return;
 
       const $bar = $("#table_splited_wh tfoot .filedownloadicon")
         .first()
