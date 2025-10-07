@@ -1366,51 +1366,113 @@ whenReadyAndDataTables(function () {
   }
 
   function addJsonFooterIconIfGoral() {
-    console.log("addJson Dowload icon start");
+    const t0 =
+      typeof performance !== "undefined" && performance.now
+        ? performance.now()
+        : Date.now();
+    console.groupCollapsed(
+      "%caddJsonFooterIconIfGoral()",
+      "color:#0a0;font-weight:700"
+    );
+    console.log("→ Start");
+
     try {
+      // 1) Org name
       const orgName =
         (typeof getCookie === "function"
           ? getCookie("OrganizationName")
           : "") || "";
-      if (
-        orgName !== "Goral" &&
-        orgName !== "DH-PSS-Bytom" &&
-        orgName !== "ATO"
-      )
+      console.log("Cookie.OrganizationName =", JSON.stringify(orgName));
+
+      // 2) Warunek org (bez zmiany logiki)
+      if (orgName !== "Goral" && orgName !== "DH-PSS-Bytom") {
+        console.warn(
+          "Return: org not allowed (expected 'Goral' or 'DH-PSS-Bytom')."
+        );
         return;
+      }
+      console.log("✓ Org allowed");
 
-      const $bar = $("#table_splited_wh tfoot .filedownloadicon")
-        .first()
-        .closest("div.dt-center");
-      if (!$bar.length) return;
+      // 3) Znajdź pasek w stopce
+      const $icons = $("#table_splited_wh tfoot .filedownloadicon");
+      console.log("Footer icons found:", $icons.length);
 
-      if ($bar.find("#download-order-json-footer").length) return;
+      const $bar = $icons.first().closest("div.dt-center");
+      if (!$bar.length) {
+        console.warn("Return: footer bar div.dt-center not found.");
+        // Pokaż fragment tfoot do diagnozy
+        const tfootHtml = $("#table_splited_wh tfoot").html() || "";
+        console.log(
+          "tfoot snapshot:",
+          tfootHtml.slice(0, 400) + (tfootHtml.length > 400 ? " …" : "")
+        );
+        return;
+      }
+      console.log("✓ Footer bar OK:", $bar.get(0));
 
+      // 4) Nie duplikuj
+      if ($bar.find("#download-order-json-footer").length) {
+        console.warn("Return: icon already exists.");
+        return;
+      }
+
+      // 5) Utwórz i podepnij ikonkę
       const $btn = $(`
-  <img
-    id="download-order-json-footer"
-    src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/68d0e8e381fd6b44c8c126f7_document-JSON.svg"
-    alt="JSON"
-    data-tippy-content="JSON (SprytnyKupiec)"
-    style="height:28px; width:28px; cursor:pointer;"
-  >
-`);
+      <img
+        id="download-order-json-footer"
+        src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/68d0e8e381fd6b44c8c126f7_document-JSON.svg"
+        alt="JSON"
+        data-tippy-content="JSON (SprytnyKupiec)"
+        style="height:28px; width:28px; cursor:pointer;"
+      >
+    `);
+      console.log("Button created:", $btn.get(0));
 
       $bar.append($btn);
+      console.log(
+        "✓ Button appended to footer bar. Count now:",
+        $bar.find("#download-order-json-footer").length
+      );
 
-      // Klik tylko nasz – blokujemy globalne handlery
+      // 6) Klik – tylko nasz
       $btn.on("click", function (e) {
+        console.log("Click on JSON icon → fetchAndDownloadOrderJson()");
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        fetchAndDownloadOrderJson(); // możesz podać { usernameOverride: "Mark Twain" }
+        try {
+          fetchAndDownloadOrderJson(); // bez zmiany przekazywanych parametrów
+          console.log("✓ fetchAndDownloadOrderJson() called");
+        } catch (err) {
+          console.warn("fetchAndDownloadOrderJson() error:", err);
+        }
       });
 
+      // 7) Tooltips (jeśli jest dostępne)
       if (typeof initializeSimpleTooltips === "function") {
         initializeSimpleTooltips();
+        console.log("✓ initializeSimpleTooltips() called");
+      } else {
+        console.warn(
+          "initializeSimpleTooltips not found – skipping tooltips init."
+        );
       }
+
+      // 8) Sanity check
+      console.assert(
+        $("#download-order-json-footer").length >= 1,
+        "Icon not present in DOM after append."
+      );
+      console.log("✓ Completed without exceptions.");
     } catch (e) {
-      console.warn("addJsonFooterIconIfGoral() error:", e);
+      console.warn("Exception in addJsonFooterIconIfGoral():", e);
+    } finally {
+      const dt =
+        (typeof performance !== "undefined" && performance.now
+          ? performance.now()
+          : Date.now()) - t0;
+      console.log(`⏱ Done in ${dt.toFixed ? dt.toFixed(1) : dt} ms`);
+      console.groupEnd();
     }
   }
 
