@@ -2953,7 +2953,7 @@ whenReadyAndDataTables(function () {
   }
 
   function getOfferStatus() {
-    fetch(`${InvokeURL}shops/${shopKey}/offer/latest/status`, {
+    fetch(`${InvokeURL}shops/${shopKey}/offers/latest/status`, {
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
@@ -4849,7 +4849,7 @@ ${offerTimestampLine}
       if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
         lastOfferFetchTimestamp = now;
         $.get(
-          InvokeURL + "shops/" + shopKey + "/offer/latest" + QStr,
+          InvokeURL + "shops/" + shopKey + "/offers/" + QStr,
           function (res) {
             if (!offerStatusLoaded) {
               offerStatusLoaded = true;
