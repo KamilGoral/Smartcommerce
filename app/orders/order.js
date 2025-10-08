@@ -4849,14 +4849,35 @@ ${offerTimestampLine}
       if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
         lastOfferFetchTimestamp = now;
         $.get(
-          InvokeURL + "shops/" + shopKey + "/offers/" + QStr,
+          InvokeURL + "shops/" + shopKey + "/offers/" + "latest" + QStr,
           function (res) {
-            if (!offerStatusLoaded) {
-              offerStatusLoaded = true;
-              getOfferStatus();
+            // Ustawienie daty oferty
+            if (res.offerDate) {
+              const formattedDate = new Date(res.offerDate).toLocaleString(
+                "pl-PL"
+              );
+              $("#offerDate").text("Data oferty: " + formattedDate);
+              $("#offerDate2").text("Data oferty: " + formattedDate);
+            } else {
+              $("#offerDate").text("Data oferty: brak danych");
+              $("#offerDate2").text("Data oferty: brak danych");
+            }
+
+            if (isToday(res.offerDate)) {
+              if (!offerStatusLoaded) {
+                offerStatusLoaded = true;
+                getOfferStatus();
+              }
+
               $("#offerCondition").show();
               $("#offerTag").show();
               $("#seeRightPanel").show();
+              $("#offerDate2").show();
+            } else {
+              $("#offerCondition").hide();
+              $("#offerTag").hide();
+              $(".seeRightPanel").hide();
+              $("#offerDate2").show();
             }
 
             callback({
