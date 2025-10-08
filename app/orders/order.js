@@ -2953,7 +2953,7 @@ whenReadyAndDataTables(function () {
   }
 
   function getOfferStatus() {
-    fetch(`${InvokeURL}shops/${shopKey}/offer/status`, {
+    fetch(`${InvokeURL}shops/${shopKey}/offer/latest/status`, {
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
@@ -4848,21 +4848,24 @@ ${offerTimestampLine}
       const now = Date.now();
       if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
         lastOfferFetchTimestamp = now;
-        $.get(InvokeURL + "shops/" + shopKey + "/offer" + QStr, function (res) {
-          if (!offerStatusLoaded) {
-            offerStatusLoaded = true;
-            getOfferStatus();
-            $("#offerCondition").show();
-            $("#offerTag").show();
-            $("#seeRightPanel").show();
-          }
+        $.get(
+          InvokeURL + "shops/" + shopKey + "/offer/latest" + QStr,
+          function (res) {
+            if (!offerStatusLoaded) {
+              offerStatusLoaded = true;
+              getOfferStatus();
+              $("#offerCondition").show();
+              $("#offerTag").show();
+              $("#seeRightPanel").show();
+            }
 
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        });
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          }
+        );
       }
     },
     processing: false,
