@@ -3530,8 +3530,6 @@ ${offerTimestampLine}
   });
 
   // === 3) Dodanie przycisku do paska .dt-buttons
-  const table = $("#table_id").DataTable(); // jeśli już masz referencję, użyj jej
-
   const $buttons = $(table.table().container()).find("div.dt-buttons");
 
   // przycisk toggle
