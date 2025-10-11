@@ -3516,6 +3516,55 @@ ${offerTimestampLine}
     },
   });
 
+  // === 1) Stan filtra
+  let hideInvalid = false; // false = pokazuj wszystko, true = ukryj wiersze z błędami
+
+  // === 2) Custom filter tylko dla #table_id
+  $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    if (settings.nTable.id !== "table_id") return true; // inne tabele bez zmian
+    if (!hideInvalid) return true;
+
+    // sprawdzamy, czy wiersz ma klasę .disabled-row
+    const rowNode = settings.aoData[dataIndex].nTr; // szybciej niż table.row(...).node()
+    return !rowNode.classList.contains("disabled-row");
+  });
+
+  // === 3) Dodanie przycisku do paska .dt-buttons
+  const table = $("#table_id").DataTable(); // jeśli już masz referencję, użyj jej
+
+  const $buttons = $(table.table().container()).find("div.dt-buttons");
+
+  // przycisk toggle
+  const $toggleInvalidBtn = $(`
+  <button class="dt-button" type="button" title="Ukryj wiersze z błędami">
+    <span>Ukryj błędne</span>
+  </button>
+`);
+
+  // logika toggle
+  $toggleInvalidBtn.on("click", function () {
+    hideInvalid = !hideInvalid;
+
+    // zmiana etykiety i title
+    $(this)
+      .toggleClass("is-active", hideInvalid)
+      .attr(
+        "title",
+        hideInvalid ? "Pokaż wiersze z błędami" : "Ukryj wiersze z błędami"
+      )
+      .find("span")
+      .text(hideInvalid ? "Pokaż błędne" : "Ukryj błędne");
+
+    // prze-rysowanie tabeli (bez resetu strony)
+    table.draw(false);
+  });
+
+  // podpięcie do paska z przyciskami (na początek)
+  $buttons.prepend($toggleInvalidBtn);
+
+  // (opcjonalnie) jeśli masz redrawy po Ajaxie, ten filtr działa globalnie,
+  // nic nie musisz robić — DataTables woła ext.search przy każdym draw().
+
   function clearProductPopupData() {
     // Set the content of specified elements to "-"
     $("#pEan").text("-");
