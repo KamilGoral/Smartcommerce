@@ -2969,7 +2969,7 @@ whenReadyAndDataTables(function () {
   }
 
   function getOfferStatus() {
-    fetch(`${InvokeURL}shops/${shopKey}/offers/latest/status`, {
+    fetch(`${InvokeURL}shops/${shopKey}/offer/status`, {
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
