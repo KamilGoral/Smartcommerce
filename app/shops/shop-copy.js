@@ -2774,8 +2774,8 @@ ${offerTimestampLine}
     const lines = codes.map((c) => {
       const code = String(c).trim();
       const meta = ASK_CODE_MAP[code] || ASK_CODE_MAP[Number(code)];
-      if (meta) return `${code} – ${meta.name}: ${meta.desc}`;
-      return `${code} – Nieznany błąd`;
+      const desc = meta?.desc || "Nieznany błąd";
+      return `${desc} [${code}]`;
     });
     return escapeAttr(lines.join(" • "));
   }
@@ -2905,7 +2905,7 @@ ${offerTimestampLine}
         // disabled row + tooltip (przetłumaczone kody)
         const rowClass = item.valid ? "" : "disabled-row";
         const tooltipContent = !item.valid
-          ? `Problemy: ${formatMessageCodesTooltip(item.messageCodes)}`
+          ? `${formatMessageCodesTooltip(item.messageCodes)}`
           : "";
         const rowTooltip = item.valid
           ? ""
