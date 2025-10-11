@@ -3719,59 +3719,168 @@ ${offerTimestampLine}
   }
 
   function initializeSimpleTooltips() {
-    // CSS styling for tooltip
-    const style = document.createElement("style");
-    style.innerHTML = `
-    .newtippy {
-      position: absolute;
-      background-color: #333;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-      z-index: 6000;
+    // ===== CSS (raz) =====
+    if (!document.getElementById("simple-tooltips-style")) {
+      const style = document.createElement("style");
+      style.id = "simple-tooltips-style";
+      style.textContent = `
+      .newtippy {
+        position: absolute;
+        background-color: rgba(33,33,33,.96);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity .12s ease, transform .12s ease;
+        pointer-events: none;
+        z-index: 6000;
+        box-shadow: 0 6px 16px rgba(0,0,0,.2);
+      }
+      .newtippy.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .newtippy__arrow {
+        position: absolute;
+        width: 0; height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(33,33,33,.96);
+        bottom: -6px; left: 50%;
+        transform: translateX(-50%);
+      }
+      .newtippy[data-placement="bottom"] .newtippy__arrow {
+        border-top: none;
+        border-bottom: 6px solid rgba(33,33,33,.96);
+        top: -6px; bottom: auto;
+      }
+    `;
+      document.head.appendChild(style);
     }
-  `;
-    document.head.appendChild(style);
 
-    const elements = document.querySelectorAll("[data-tippy-content]");
+    // ===== Jeden globalny tooltip =====
+    let tip = document.getElementById("simple-tooltip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.id = "simple-tooltip";
+      tip.className = "newtippy";
+      const arrow = document.createElement("div");
+      arrow.className = "newtippy__arrow";
+      tip.appendChild(arrow);
+      const content = document.createElement("div");
+      content.className = "newtippy__content";
+      tip.appendChild(content);
+      document.body.appendChild(tip);
+    }
 
-    elements.forEach((element) => {
-      element.addEventListener("mouseenter", (event) => {
-        const tooltipText = element.getAttribute("data-tippy-content");
-        if (!tooltipText) return;
+    const ARROW_H = 6;
+    const OFFSET = 8;
 
-        // Create tooltip element
-        const tooltip = document.createElement("div");
-        tooltip.className = "newtippy";
-        tooltip.textContent = tooltipText;
-        document.body.appendChild(tooltip);
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
 
-        // Position tooltip
-        const rect = element.getBoundingClientRect();
-        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
-        tooltip.style.top = `${
-          rect.top + window.scrollY - tooltip.offsetHeight - 5
-        }px`;
-        tooltip.style.opacity = "1";
+    function showTooltip(target) {
+      const text = target.getAttribute("data-tippy-content");
+      if (!text) return;
 
-        // Center tooltip
-        tooltip.style.left = `${
-          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
-        }px`;
+      // Ustaw treść
+      tip.querySelector(".newtippy__content").textContent = text;
 
-        // Mouseleave event to remove tooltip
-        element.addEventListener("mouseleave", () => {
-          tooltip.style.opacity = "0";
-          setTimeout(() => tooltip.remove(), 200); // Delay for fade-out effect
-        });
-      });
-    });
+      // Pozycjonowanie
+      const rect = target.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      const vh = document.documentElement.clientHeight;
+
+      // domyślnie NAD elementem
+      let placement = "top";
+      tip.style.visibility = "hidden";
+      tip.classList.remove("visible");
+      tip.removeAttribute("data-placement");
+      tip.style.left = "0px";
+      tip.style.top = "0px";
+      // najpierw do DOM, żeby poznać offsetWidth/Height (już jest)
+      // szerokość i wysokość:
+      const tw = tip.offsetWidth;
+      const th = tip.offsetHeight;
+
+      const pageXCenter = rect.left + rect.width / 2 + window.scrollX;
+      const pageYTop = rect.top + window.scrollY;
+      const pageYBottom = rect.bottom + window.scrollY;
+
+      let left = pageXCenter - tw / 2;
+      let top = pageYTop - th - ARROW_H - OFFSET;
+
+      // jeśli nie ma miejsca u góry — pokaż pod elementem
+      const hasRoomTop = rect.top >= th + ARROW_H + OFFSET;
+      const hasRoomBottom = vh - rect.bottom >= th + ARROW_H + OFFSET;
+
+      if (!hasRoomTop && hasRoomBottom) {
+        placement = "bottom";
+        top = pageYBottom + ARROW_H + OFFSET;
+      }
+
+      // Zaciśnij do szerokości okna
+      const minLeft = window.scrollX + 8;
+      const maxLeft = window.scrollX + vw - tw - 8;
+      left = clamp(left, minLeft, maxLeft);
+
+      tip.setAttribute("data-placement", placement);
+      tip.style.left = `${left}px`;
+      tip.style.top = `${top}px`;
+      tip.style.visibility = "visible";
+
+      // animacja
+      requestAnimationFrame(() => tip.classList.add("visible"));
+    }
+
+    function hideTooltip() {
+      tip.classList.remove("visible");
+      // po animacji ukryj, żeby nie łapało focusu itp.
+      setTimeout(() => {
+        tip.style.visibility = "hidden";
+      }, 120);
+    }
+
+    // ===== Delegacja: działa na dynamicznej tabeli =====
+    // Usuwamy stare listenery (jeśli ktoś wywołał funkcję ponownie)
+    document.removeEventListener("mouseover", _onMouseOver, true);
+    document.removeEventListener("mouseout", _onMouseOut, true);
+
+    function _onMouseOver(e) {
+      const target = e.target.closest("[data-tippy-content]");
+      if (!target) return;
+      // Jeśli na TR masz cursor: not-allowed, tooltip i tak zadziała,
+      // bo nie blokujemy pointer-events.
+      showTooltip(target);
+    }
+
+    function _onMouseOut(e) {
+      // Ukryj, gdy kursor opuszcza element z atrybutem
+      const from = e.target.closest("[data-tippy-content]");
+      const to =
+        e.relatedTarget &&
+        e.relatedTarget.closest &&
+        e.relatedTarget.closest("[data-tippy-content]");
+      // Gdy przechodzimy z jednego elementu z tooltipem na inny, pokaż od razu drugi
+      if (from && to) {
+        showTooltip(to);
+        return;
+      }
+      if (from && !to) hideTooltip();
+    }
+
+    document.addEventListener("mouseover", _onMouseOver, true);
+    document.addEventListener("mouseout", _onMouseOut, true);
   }
+
+  // Zainicjuj po DOMReady / po DataTables draw NIE MUSISZ wołać ponownie,
+  // bo używamy delegacji. Jeśli chcesz – możesz wywołać raz tutaj:
+  initializeSimpleTooltips();
 
   getWholesalersSh();
   initOfferStatusTable();
