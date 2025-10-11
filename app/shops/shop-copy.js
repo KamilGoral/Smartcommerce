@@ -2304,455 +2304,417 @@ ${offerTimestampLine}
     tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
   });
 
-  function getProductHistory(rowData) {
-    return new Promise((resolve, reject) => {
-      if (rowData.stock === null) {
-        rowData.stock = {
-          value: 0,
-          unit: "pieces",
-        };
-      }
+  function getProductHistory(rowData, { startAt, endAt } = {}) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 0) Domyślny stock i zakres czasu
+        if (rowData.stock === null) {
+          rowData.stock = { value: 0, unit: "pieces" };
+        }
+        const now = new Date();
+        const endISO = endAt || now.toISOString();
+        const startISO =
+          startAt ||
+          new Date(now.getTime() - 1000 * 60 * 60 * 24 * 90).toISOString(); // 90 dni
 
-      function arrayConvert(json) {
-        var dataInArrays = {
-          date: [],
-          highest: [],
-          average: [],
-          lowest: [],
-          retailPrice: [],
-          standardPrice: [],
-          stock: [],
-          volume: [],
-        };
+        // 1) Pobranie nowych endpointów równolegle
+        const base = `${InvokeURL}shops/${shopKey}/products/${rowData.gtin}`;
+        const asksUrl = new URL(`${base}/asks-history`);
+        asksUrl.searchParams.set("startAt", startISO);
+        asksUrl.searchParams.set("endAt", endISO);
 
-        function checkNested(obj /*, level1, level2, ... levelN*/) {
-          var args = Array.prototype.slice.call(arguments, 1);
-          for (var i = 0; i < args.length; i++) {
-            if (
-              !obj ||
-              typeof obj !== "object" ||
-              !obj.hasOwnProperty(args[i])
-            ) {
-              return false;
-            }
-            obj = obj[args[i]];
+        const wmsUrl = new URL(`${base}/wms-history`);
+        wmsUrl.searchParams.set("startAt", startISO);
+        wmsUrl.searchParams.set("endAt", endISO);
+
+        async function fetchJSON(url) {
+          const res = await fetch(url.toString(), {
+            headers: {
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+          });
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`HTTP ${res.status}: ${txt || url}`);
           }
-          return true;
+          return res.json();
         }
 
-        for (let i = 0, l = json.items.length; i < l; i++) {
-          const item = json.items[i];
+        const [asksSegments, wmsDaily] = await Promise.all([
+          fetchJSON(asksUrl),
+          fetchJSON(wmsUrl),
+        ]);
 
-          // Zabezpiecz dane historyczne
-          dataInArrays.date.push(item.date?.split("T")[0] || "-");
+        // 2) Transformacja: ASKS → serie „stepline”
+        //    Każdy segment zaczyna obowiązywać od swojego timestamp.
+        //    Dodajemy sztuczny punkt końcowy w endAt, żeby wykres „przeciągnął” ostatnią wartość.
+        function transformAsks(segments, startISO, endISO) {
+          const lowest = [];
+          const average = [];
 
-          dataInArrays.highest.push(
-            checkNested(item, "asks", "highest") ? item.asks.highest : 0
+          // posortuj segmenty po czasie (na wszelki wypadek)
+          const sorted = [...segments].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
           );
-          dataInArrays.average.push(
-            checkNested(item, "asks", "average") ? item.asks.average : 0
-          );
-          dataInArrays.lowest.push(
-            checkNested(item, "asks", "lowest") ? item.asks.lowest : 0
-          );
-          dataInArrays.retailPrice.push(item.retailPrice ?? 0);
 
-          const stdPrice = checkNested(item, "standardPrice", "value")
-            ? item.standardPrice.value
-            : item.standardPrice ?? 0;
-          dataInArrays.standardPrice.push(stdPrice);
-
-          const stock = checkNested(item, "stock", "value")
-            ? item.stock.value
-            : item.stock ?? 0;
-          dataInArrays.stock.push(stock);
-
-          dataInArrays.volume.push(item.volume ?? 0);
-        }
-
-        return dataInArrays;
-      }
-
-      let url = new URL(
-        InvokeURL +
-          "shops/" +
-          shopKey +
-          "/products/" +
-          rowData.gtin +
-          "/history?perPage=91&page=1"
-      );
-      let request = new XMLHttpRequest();
-      request.open("GET", url, true);
-      request.setRequestHeader("Authorization", orgToken);
-      request.setRequestHeader("Requested-By", "webflow-3-4");
-      request.onload = function () {
-        if (request.status < 200 || request.status >= 400) {
-          reject("Błąd podczas pobierania historii produktu");
-          return;
-        }
-        var jsonek = JSON.parse(this.response);
-        if (request.status >= 200 && request.status < 400) {
-          function displayData(x) {
-            if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
-              return x;
-            }
-            return "";
+          for (const seg of sorted) {
+            const t = new Date(seg.timestamp).toISOString();
+            lowest.push({ x: t, y: seg.lowest ?? null });
+            average.push({ x: t, y: seg.average ?? null });
           }
-          var dataToChart = arrayConvert(jsonek);
-          const pHistory = document.getElementById("pHistory");
-          pHistory.textContent = dataToChart.date.length;
-          const pHistorySpan = document.getElementById("pHistorySpan");
-          pHistorySpan.textContent =
-            dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
-          const pOfferDate = document.getElementById("pOfferDate");
-          pOfferDate.textContent = dataToChart.date[0];
-          const pRetailPriceChange =
-            document.getElementById("pRetailPriceChange");
-          pRetailPriceChange.textContent =
-            "(" +
-            displayData(
-              parseFloat(
-                ((dataToChart.retailPrice[0] -
-                  dataToChart.retailPrice.slice(-1)[0]) /
-                  dataToChart.retailPrice.slice(-1)[0]) *
-                  100
-              ).toFixed(2)
-            ) +
-            "%)";
-          const pStandardPriceChange = document.getElementById(
-            "pStandardPriceChange"
-          );
-          pStandardPriceChange.textContent =
-            "(" +
-            displayData(
-              parseFloat(
-                ((dataToChart.standardPrice[0] -
-                  dataToChart.standardPrice.slice(-1)[0]) /
-                  dataToChart.standardPrice.slice(-1)[0]) *
-                  100
-              ).toFixed(2)
-            ) +
-            "%)";
-          const pSales7 = document.getElementById("pSales7");
-          pSales7.textContent = displayData(
-            dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)
-          );
-          const pStockDays = document.getElementById("pStockDays");
-          pStockDays.textContent = displayData(
-            Math.round(
-              (rowData.stock.value /
-                dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-                7
-            )
-          );
-          const pSales90 = document.getElementById("pSales90");
-          pSales90.textContent = displayData(
-            dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)
-          );
-          "(" +
-            displayData(
-              parseFloat(
-                ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
-                  dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
-                  dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                  100
-              ).toFixed(2)
-            ) +
-            "%)";
 
-          var scaleMax =
-            Math.max.apply(Math, [
-              ...dataToChart.highest,
-              ...dataToChart.retailPrice,
-            ]) * 1.1;
-          var scaleMin =
-            Math.min.apply(Math, [
-              ...dataToChart.lowest,
-              ...dataToChart.standardPrice,
-            ]) * 0.9;
-
-          var options = {
-            series: [
-              {
-                name: "Najwyzsza",
-                type: "line",
-                data: dataToChart.highest.reverse(),
-              },
-              {
-                name: "Srednia",
-                type: "line",
-                data: dataToChart.average.reverse(),
-              },
-              {
-                name: "Najnizsza",
-                type: "line",
-                data: dataToChart.lowest.reverse(),
-              },
-              {
-                name: "Cena det.",
-                type: "line",
-                data: dataToChart.retailPrice.reverse(),
-              },
-              {
-                name: "Cena ew.",
-                type: "line",
-                data: dataToChart.standardPrice.reverse(),
-              },
-              {
-                name: "Sprzedaz",
-                type: "bar",
-                data: dataToChart.volume.reverse(),
-              },
-              {
-                name: "Stan",
-                type: "bar",
-                data: dataToChart.stock.reverse(),
-              },
-            ],
-            chart: {
-              id: "productHistoryChart",
-              defaultLocale: "pl",
-              toolbar: {
-                show: true,
-                offsetX: 0,
-                offsetY: 0,
-                tools: {
-                  download: true,
-                  selection: true,
-                  zoom: true,
-                  zoomin: true,
-                  zoomout: true,
-                  pan: true,
-                  reset:
-                    true | '<img src="/static/icons/reset.png" width="20">',
-                  customIcons: [],
-                },
-                export: {
-                  csv: {
-                    filename: "PlikCSV",
-                    columnDelimiter: ";",
-                    headerCategory: "category",
-                    headerValue: "value",
-                  },
-                  svg: {
-                    filename: "Wykres",
-                  },
-                  png: {
-                    filename: "Wykres",
-                  },
-                },
-                autoSelected: "zoom",
-              },
-              locales: [
-                {
-                  name: "pl",
-                  options: {
-                    months: [
-                      "Styczen",
-                      "Luty",
-                      "Marzec",
-                      "Kwiecien",
-                      "Maj",
-                      "Czerwiec",
-                      "Lipiec",
-                      "Sierpien",
-                      "Wrzesien",
-                      "Pazdziernik",
-                      "Listopad",
-                      "Grudzien",
-                    ],
-                    shortMonths: [
-                      "Sty",
-                      "Lut",
-                      "Mar",
-                      "Kwi",
-                      "Maj",
-                      "Cze",
-                      "Lip",
-                      "Sie",
-                      "Wrz",
-                      "Paz",
-                      "Lis",
-                      "Gru",
-                    ],
-                    days: [
-                      "Niedziela",
-                      "Poniedzialek",
-                      "Wtorek",
-                      "Sroda",
-                      "Czwartek",
-                      "Piatek",
-                      "Sobota",
-                    ],
-                    shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
-                    toolbar: {
-                      download: "Pobierz SVG",
-                      selection: "Zaznacz",
-                      selectionZoom: "Powieksz strefe",
-                      zoomIn: "Przybliz",
-                      zoomOut: "Oddal",
-                      pan: "Przesun",
-                      reset: "Reset",
-                    },
-                  },
-                },
-              ],
-              height: 350,
-              type: "line",
-              stacked: false,
-            },
-            colors: [
-              "#FD6A6A",
-              "#F9C80E",
-              "#4CAF50",
-              "#3F51B5",
-              "#03A9F4",
-              "#92A9BD",
-              "#D3DEDC",
-            ],
-            title: {
-              text: "Historia towaru",
-              align: "left",
-              margin: 10,
-              offsetX: 0,
-              offsetY: 0,
-              floating: false,
-              style: {
-                fontSize: "14px",
-                fontWeight: "bold",
-                fontFamily: "Arial",
-                color: "#263238",
-              },
-            },
-            stroke: {
-              width: [2, 2, 2, 2, 2],
-              curve: "smooth",
-            },
-            plotOptions: {
-              bar: {
-                columnWidth: "50%",
-                colors: {
-                  backgroundBarOpacity: 0.5,
-                },
-              },
-            },
-            markers: {
-              size: 0,
-            },
-            xaxis: {
-              type: "category",
-              categories: dataToChart.date.reverse(),
-              labels: {
-                show: true,
-                rotate: -45,
-                rotateAlways: false,
-                hideOverlappingLabels: true,
-              },
-            },
-            yaxis: [
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                title: {
-                  text: "Cena",
-                },
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                opposite: true,
-                seriesName: "Stan",
-                max: Math.max.apply(Math, dataToChart.stock) * 1.1,
-                min: Math.min.apply(Math, dataToChart.volume) * 0.9,
-                forceNiceScale: true,
-                title: {
-                  text: "Ilosc",
-                },
-              },
-              {
-                opposite: true,
-                seriesName: "Stan",
-                max: Math.max.apply(Math, dataToChart.stock) * 1.1,
-                min: Math.min.apply(Math, dataToChart.volume) * 0.9,
-                forceNiceScale: true,
-                show: false,
-              },
-            ],
-            tooltip: {
-              shared: true,
-              intersect: false,
-              y: {
-                formatter: function (y) {
-                  if (typeof y !== "null") {
-                    return y;
-                  }
-                  return "0";
-                },
-              },
-            },
-            legend: {
-              position: "right",
-              horizontalAlign: "center",
-              floating: false,
-              offsetX: 0,
-              offsetY: 20,
-              markers: {
-                width: 12,
-                height: 12,
-                radius: 12,
-              },
-              labels: {
-                useSeriesColors: false,
-              },
-            },
-          };
-          if (counter == 0) {
-            var chart = new ApexCharts(
-              document.getElementById("chart"),
-              options
-            );
-            chart.render();
-            counter = counter + 1;
-            resolve();
+          // Jeśli mamy przynajmniej jeden segment, „przeciągnij” ostatnią znaną wartość do endISO
+          if (sorted.length > 0) {
+            const last = sorted[sorted.length - 1];
+            lowest.push({ x: endISO, y: last.lowest ?? null });
+            average.push({ x: endISO, y: last.average ?? null });
           } else {
-            ApexCharts.exec("productHistoryChart", "updateOptions", options);
-            resolve();
+            // Brak danych — oznaczamy lukę na cały zakres (null)
+            lowest.push({ x: startISO, y: null }, { x: endISO, y: null });
+            average.push({ x: startISO, y: null }, { x: endISO, y: null });
           }
-          if (request.status == 401) {
-            console.log("Unauthorized");
-            reject();
-          }
+
+          return { lowest, average };
         }
-      };
-      request.send();
+
+        // 3) Transformacja: WMS → serie dzienne {x:timestamp, y:value}
+        function transformWms(daily) {
+          // posortuj po czasie rosnąco
+          const sorted = [...daily].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          const retailPrice = [];
+          const standardPrice = [];
+          const stock = [];
+          const volume = [];
+          const units = new Set();
+
+          for (const d of sorted) {
+            const x = new Date(d.timestamp).toISOString();
+            units.add(d.unit || "");
+            retailPrice.push({ x, y: d.retailPrice ?? null });
+            standardPrice.push({ x, y: d.standardPrice ?? null });
+            stock.push({ x, y: d.stock ?? null });
+            volume.push({ x, y: d.volume ?? null });
+          }
+          return { retailPrice, standardPrice, stock, volume, units };
+        }
+
+        const asks = transformAsks(asksSegments, startISO, endISO);
+        const wms = transformWms(wmsDaily);
+
+        // 4) Metryki do kart (7, 90 dni) na bazie WMS.volume
+        function sumLastDays(series, days) {
+          if (!series.length) return 0;
+          // bierzemy dane z końca zakresu w dół do 'days' pozycji (one są już posortowane rosnąco)
+          const tail = series.slice(-days);
+          return tail.reduce(
+            (acc, p) => acc + (typeof p.y === "number" ? p.y : 0),
+            0
+          );
+          // Uwaga: jeśli są null-e w środku, liczymy tylko liczby (null = 0)
+        }
+
+        const sales7 = sumLastDays(wms.volume, 7);
+        const sales90 = sumLastDays(wms.volume, 90);
+
+        const stockNow =
+          (typeof rowData?.stock?.value === "number"
+            ? rowData.stock.value
+            : 0) ||
+          (wms.stock.length ? wms.stock[wms.stock.length - 1].y || 0 : 0);
+
+        const stockDays =
+          sales7 > 0 ? Math.round((stockNow / (sales7 / 7)) * 1) : "";
+
+        // Zmiany cen (procent) między pierwszym a ostatnim punktem w zakresie
+        function pct(first, last) {
+          if (
+            typeof first !== "number" ||
+            typeof last !== "number" ||
+            last === 0
+          )
+            return "";
+          return Number((((first - last) / last) * 100).toFixed(2));
+        }
+        const rpFirst = wms.retailPrice[0]?.y ?? null;
+        const rpLast = wms.retailPrice[wms.retailPrice.length - 1]?.y ?? null;
+        const spFirst = wms.standardPrice[0]?.y ?? null;
+        const spLast =
+          wms.standardPrice[wms.standardPrice.length - 1]?.y ?? null;
+
+        const retailPriceDeltaPct = pct(rpFirst, rpLast);
+        const standardPriceDeltaPct = pct(spFirst, spLast);
+
+        // 5) Aktualizacja UI (dostosuj id jeśli masz inne)
+        const formatDate = (iso) => (iso ? iso.split("T")[0] : "-");
+        const pHistory = document.getElementById("pHistory");
+        const pHistorySpan = document.getElementById("pHistorySpan");
+        const pOfferDate = document.getElementById("pOfferDate");
+        const pRetailPriceChange =
+          document.getElementById("pRetailPriceChange");
+        const pStandardPriceChange = document.getElementById(
+          "pStandardPriceChange"
+        );
+        const pSales7 = document.getElementById("pSales7");
+        const pSales90 = document.getElementById("pSales90");
+        const pStockDays = document.getElementById("pStockDays");
+
+        // liczba punktów czasowych (łączna z asks + wms)
+        const uniqueDates = new Set([
+          ...asks.lowest.map((p) => formatDate(p.x)),
+          ...wms.retailPrice.map((p) => formatDate(p.x)),
+        ]);
+        if (pHistory) pHistory.textContent = uniqueDates.size;
+        if (pHistorySpan)
+          pHistorySpan.textContent = `${formatDate(endISO)} - ${formatDate(
+            startISO
+          )}`;
+        if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
+        if (pRetailPriceChange)
+          pRetailPriceChange.textContent =
+            retailPriceDeltaPct === "" ? "" : `(${retailPriceDeltaPct}%)`;
+        if (pStandardPriceChange)
+          pStandardPriceChange.textContent =
+            standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
+        if (pSales7)
+          pSales7.textContent = Number.isFinite(sales7) ? sales7 : "";
+        if (pSales90)
+          pSales90.textContent = Number.isFinite(sales90) ? sales90 : "";
+        if (pStockDays)
+          pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
+
+        // 6) Budowa serii do ApexCharts (xaxis: datetime)
+        //    Utrzymujemy Twoje nazwy serii PL, ale zmieniamy dane na {x,y}
+        const series = [
+          { name: "Najnizsza (asks)", type: "line", data: asks.lowest },
+          { name: "Srednia (asks)", type: "line", data: asks.average },
+          { name: "Cena det. (WMS)", type: "line", data: wms.retailPrice },
+          { name: "Cena ew. (WMS)", type: "line", data: wms.standardPrice },
+          { name: "Sprzedaz (WMS)", type: "bar", data: wms.volume },
+          { name: "Stan (WMS)", type: "bar", data: wms.stock },
+        ];
+
+        // 7) Skale: ceny oraz ilości
+        const priceValues = []
+          .concat(asks.lowest.map((p) => p.y))
+          .concat(asks.average.map((p) => p.y))
+          .concat(wms.retailPrice.map((p) => p.y))
+          .concat(wms.standardPrice.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+
+        const qtyValues = []
+          .concat(wms.volume.map((p) => p.y))
+          .concat(wms.stock.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+
+        const scaleMax = priceValues.length
+          ? Math.max(...priceValues) * 1.1
+          : undefined;
+        const scaleMin = priceValues.length
+          ? Math.min(...priceValues) * 0.9
+          : undefined;
+        const qtyMax = qtyValues.length
+          ? Math.max(...qtyValues) * 1.1
+          : undefined;
+        const qtyMin = qtyValues.length
+          ? Math.min(...qtyValues) * 0.9
+          : undefined;
+
+        const options = {
+          series,
+          chart: {
+            id: "productHistoryChart",
+            defaultLocale: "pl",
+            toolbar: {
+              show: true,
+              tools: {
+                download: true,
+                selection: true,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true,
+              },
+              export: {
+                csv: {
+                  filename: "PlikCSV",
+                  columnDelimiter: ";",
+                  headerCategory: "category",
+                  headerValue: "value",
+                },
+                svg: { filename: "Wykres" },
+                png: { filename: "Wykres" },
+              },
+              autoSelected: "zoom",
+            },
+            locales: [
+              {
+                name: "pl",
+                options: {
+                  months: [
+                    "Styczen",
+                    "Luty",
+                    "Marzec",
+                    "Kwiecien",
+                    "Maj",
+                    "Czerwiec",
+                    "Lipiec",
+                    "Sierpien",
+                    "Wrzesien",
+                    "Pazdziernik",
+                    "Listopad",
+                    "Grudzien",
+                  ],
+                  shortMonths: [
+                    "Sty",
+                    "Lut",
+                    "Mar",
+                    "Kwi",
+                    "Maj",
+                    "Cze",
+                    "Lip",
+                    "Sie",
+                    "Wrz",
+                    "Paz",
+                    "Lis",
+                    "Gru",
+                  ],
+                  days: [
+                    "Niedziela",
+                    "Poniedzialek",
+                    "Wtorek",
+                    "Sroda",
+                    "Czwartek",
+                    "Piatek",
+                    "Sobota",
+                  ],
+                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                  toolbar: {
+                    download: "Pobierz SVG",
+                    selection: "Zaznacz",
+                    selectionZoom: "Powieksz strefe",
+                    zoomIn: "Przybliz",
+                    zoomOut: "Oddal",
+                    pan: "Przesun",
+                    reset: "Reset",
+                  },
+                },
+              },
+            ],
+            height: 350,
+            type: "line",
+            stacked: false,
+          },
+          // Kolory możesz zostawić swoje lub nadpisać
+          colors: [
+            "#FD6A6A",
+            "#F9C80E",
+            "#3F51B5",
+            "#03A9F4",
+            "#92A9BD",
+            "#D3DEDC",
+          ],
+          title: {
+            text: "Historia towaru",
+            align: "left",
+            style: {
+              fontSize: "14px",
+              fontWeight: "bold",
+              fontFamily: "Arial",
+            },
+          },
+          stroke: {
+            width: [2, 2, 2, 2, 1, 1],
+            // asks jako "stepline", reszta smooth
+            curve: [
+              "stepline",
+              "stepline",
+              "smooth",
+              "smooth",
+              "smooth",
+              "smooth",
+            ],
+          },
+          plotOptions: {
+            bar: { columnWidth: "50%", colors: { backgroundBarOpacity: 0.5 } },
+          },
+          markers: { size: 0 },
+          xaxis: {
+            type: "datetime",
+            labels: { show: true, rotate: -45, hideOverlappingLabels: true },
+            min: new Date(startISO).getTime(),
+            max: new Date(endISO).getTime(),
+          },
+          yaxis: [
+            {
+              seriesName: "Cena",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              title: { text: "Cena" },
+            },
+            { show: false },
+            { show: false },
+            { show: false },
+            {
+              opposite: true,
+              seriesName: "Ilosc",
+              max: qtyMax,
+              min: qtyMin,
+              forceNiceScale: true,
+              title: { text: "Ilosc" },
+            },
+            { show: false },
+          ],
+          tooltip: {
+            shared: true,
+            intersect: false,
+            x: { format: "yyyy-MM-dd HH:mm" },
+            y: {
+              formatter: function (y) {
+                if (y === null || typeof y === "undefined") return "-";
+                return y;
+              },
+            },
+          },
+          legend: {
+            position: "right",
+            horizontalAlign: "center",
+            offsetX: 0,
+            offsetY: 20,
+            markers: { width: 12, height: 12, radius: 12 },
+          },
+        };
+
+        // 8) Render / Update
+        if (window.__productHistoryRendered) {
+          ApexCharts.exec(
+            "productHistoryChart",
+            "updateOptions",
+            options,
+            false,
+            true
+          );
+        } else {
+          const chart = new ApexCharts(
+            document.getElementById("chart"),
+            options
+          );
+          await chart.render();
+          window.__productHistoryRendered = true;
+        }
+
+        resolve();
+      } catch (err) {
+        console.error(err);
+        reject(
+          "Błąd podczas pobierania/rysowania historii produktu (nowe endpointy)."
+        );
+      }
     });
   }
 
