@@ -2718,6 +2718,68 @@ ${offerTimestampLine}
     });
   }
 
+  const ASK_CODE_MAP = {
+    // 1xxx – błędy danych źródłowych
+    1001: {
+      name: "Podwójny produkt",
+      desc: "Ten sam towar pojawił się kilka razy.",
+    },
+    1002: { name: "Błędne dane", desc: "Ceny lub ilości nie da się odczytać." },
+    1003: {
+      name: "Problem z promocją",
+      desc: "Nie udało się odczytać danych promocji.",
+    },
+    1004: { name: "Zła promocja", desc: "Promocja ma niepoprawne dane." },
+    1005: {
+      name: "Błąd oferty",
+      desc: "Promocja działa, ale główna oferta jest błędna.",
+    },
+    1006: {
+      name: "Powtórzona promocja",
+      desc: "Ta sama promocja już istnieje.",
+    },
+    1007: {
+      name: "Błędna promocja gratis",
+      desc: "Dane o gratisach są niepoprawne.",
+    },
+    1008: {
+      name: "Błędna promocja pakietowa",
+      desc: "W promocji pakietowej coś się nie zgadza.",
+    },
+    1009: {
+      name: "Niepoprawny kod produktu",
+      desc: "Kod produktu jest błędny.",
+    },
+
+    // 2xxx – błędy w obróbce
+    2001: {
+      name: "Zbyt dziwna cena",
+      desc: "Oferta odrzucona – cena zbyt odbiega od innych.",
+    },
+
+    // 3xxx – błędy wyświetlania / stanów
+    3001: { name: "Brak towaru", desc: "Nie ma tego towaru na stanie." },
+  };
+
+  function escapeAttr(str = "") {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function formatMessageCodesTooltip(codes = []) {
+    if (!Array.isArray(codes) || codes.length === 0) return "Brak kodów błędów";
+    const lines = codes.map((c) => {
+      const code = String(c).trim();
+      const meta = ASK_CODE_MAP[code] || ASK_CODE_MAP[Number(code)];
+      if (meta) return `${code} – ${meta.name}: ${meta.desc}`;
+      return `${code} – Nieznany błąd`;
+    });
+    return escapeAttr(lines.join(" • "));
+  }
+
   function format(d) {
     const arr = d.asks || [];
 
@@ -2840,13 +2902,14 @@ ${offerTimestampLine}
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        // disabled row + tooltip
+        // disabled row + tooltip (przetłumaczone kody)
         const rowClass = item.valid ? "" : "disabled-row";
+        const tooltipContent = !item.valid
+          ? `Problemy: ${formatMessageCodesTooltip(item.messageCodes)}`
+          : "";
         const rowTooltip = item.valid
           ? ""
-          : `class="tippy" data-tippy-content="Kod(y): ${(
-              item.messageCodes || []
-            ).join(", ")}"`;
+          : `class="tippy" data-tippy-content="${tooltipContent}"`;
 
         return `
       <tr class="${rowClass}" ${rowTooltip}>
