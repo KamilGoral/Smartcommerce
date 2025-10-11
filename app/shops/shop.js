@@ -1857,6 +1857,2145 @@ whenReadyAndDataTables(function () {
     }
   });
 
+  //Offer view in shop // Start //
+
+  let offerStatusLoaded = false;
+  let lastOfferFetchTimestamp = 0;
+  const MIN_FETCH_INTERVAL_MS = 10;
+
+  function getProductDetails(rowData) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(
+        InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
+      );
+
+      const request = new XMLHttpRequest();
+      request.open("GET", url, true);
+      request.setRequestHeader("Authorization", orgToken);
+      request.setRequestHeader("Requested-By", "webflow-3-4");
+
+      request.onload = function () {
+        if (request.status === 401) {
+          console.log("Unauthorized");
+          reject("Unauthorized or error");
+          return;
+        }
+
+        if (request.status < 200 || request.status >= 400) {
+          console.log("Request failed with status", request.status);
+          reject("Request failed with status");
+          return;
+        }
+
+        let data;
+        try {
+          data = JSON.parse(this.response);
+        } catch (e) {
+          console.log("Error parsing response JSON:", e);
+          reject("Parse error");
+          return;
+        }
+
+        // Elementy DOM
+        const pName = document.getElementById("pName");
+        const pEan = document.getElementById("pEan");
+        const pInStock = document.getElementById("pInStock");
+        const pUnit = document.getElementById("pUnit");
+        const pStandardPrice = document.getElementById("pStandardPrice");
+        const pRetailPrice = document.getElementById("pRetailPrice");
+        const pIndicator = document.getElementById("pIndicator");
+        const pBestPrice = document.getElementById("pBestPrice");
+
+        // Wypełnianie danych
+        pName.textContent = data?.name || "-";
+        pEan.textContent = data?.gtin || "-";
+
+        const stock = data?.stock ?? { value: 0, unit: "pieces" };
+        pInStock.textContent = stock.value;
+        pUnit.textContent = stock.unit === "pieces" ? "szt" : stock.unit;
+
+        const standardPrice = data?.standardPrice?.value ?? 0;
+        pStandardPrice.textContent = standardPrice;
+
+        const retailPrice = data?.retailPrice ?? 0;
+        pRetailPrice.textContent = retailPrice;
+
+        pIndicator.textContent = rowData?.rotationIndicator ?? "-";
+
+        if (Array.isArray(rowData?.asks) && rowData.asks.length > 0) {
+          pBestPrice.textContent = rowData.asks[0].netPrice;
+        } else {
+          pBestPrice.textContent = "-";
+        }
+        resolve();
+      };
+
+      request.onerror = function () {
+        console.log("Network error while fetching product details.");
+        reject("Network error");
+      };
+
+      request.send();
+    });
+  }
+
+  function isToday(isoDateStr) {
+    if (!isoDateStr) return false;
+    const date = new Date(isoDateStr);
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  }
+
+  function getOfferStatus() {
+    fetch(`${InvokeURL}shops/${shopKey}/offer/status`, {
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const statusMap = {
+          success: "Sukces",
+          error: "Problem",
+          "in progress": "W trakcie",
+          incomplete: "Niekompletna",
+          batching: "W kolejce",
+          forced: "W kolejce",
+          queued: "W kolejce",
+          unknown: "Nieznany",
+        };
+
+        const entries = [];
+
+        // ========== 1. ECOMMERCE ==========
+        (res.ecommerce || []).forEach((entry) => {
+          const events = entry.events || [];
+
+          if (events.length === 0) {
+            entries.push({
+              wholesalerKey: entry.wholesalerKey,
+              source: "E-hurt",
+              status: "unknown",
+              statusLabel: statusMap["unknown"],
+              updatedAt: "Brak danych",
+              messages: [],
+              allEvents: [],
+              expandable: false,
+            });
+            return;
+          }
+
+          const latestEvent = events
+            .slice()
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+
+          const enrichedEvents = events.map((e) => {
+            const isLatestSuccess =
+              e.updatedAt === latestEvent.updatedAt &&
+              latestEvent.extracting?.status === "success";
+            return {
+              updatedAt: e.updatedAt,
+              status: e.extracting?.status || "unknown",
+              messages: e.extracting?.messages || [],
+              offerTimestamp: isLatestSuccess
+                ? entry.lastMutation?.offerTimestamp || null
+                : null,
+            };
+          });
+
+          entries.push({
+            wholesalerKey: entry.wholesalerKey,
+            source: "E-hurt",
+            status: latestEvent.extracting?.status || "unknown",
+            statusLabel:
+              statusMap[latestEvent.extracting?.status] || statusMap["unknown"],
+            updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
+            messages: latestEvent.extracting?.messages || [],
+            allEvents: enrichedEvents,
+            expandable:
+              enrichedEvents.length > 1 || enrichedEvents[0].status === "error",
+          });
+        });
+
+        // ========== 2. INTEGRATIONS.WMS ==========
+        if (res.integrations?.wms) {
+          const wms = res.integrations.wms;
+          const wmsEvents = wms.events || [];
+          if (wmsEvents.length > 0) {
+            const latestWmsEvent = wmsEvents
+              .slice()
+              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+            entries.push({
+              wholesalerKey: wms.key || "Program magazynowy",
+              source: "Program magazynowy",
+              status: latestWmsEvent.extracting?.status || "unknown",
+              statusLabel:
+                statusMap[latestWmsEvent.extracting?.status] || "Nieznany",
+              updatedAt: new Date(latestWmsEvent.updatedAt).toLocaleString(
+                "pl-PL"
+              ),
+              messages: latestWmsEvent.extracting?.messages || [],
+            });
+          }
+        }
+
+        // ========== 3. INTEGRATIONS.RETROACTIVE ==========
+        if (res.integrations?.retroactive?.updatedAt) {
+          entries.push({
+            wholesalerKey: "-",
+            source: "Kontrakty z dostawcami",
+            status: "success",
+            statusLabel: "Sukces",
+            updatedAt: new Date(
+              res.integrations.retroactive.updatedAt
+            ).toLocaleString("pl-PL"),
+            messages: [],
+          });
+        }
+
+        // ========== 4. PRICATS ==========
+        (res.pricats || []).forEach((pricat) => {
+          const isPending = !pricat.updatedAt;
+          entries.push({
+            wholesalerKey: pricat.wholesalerKey || "-",
+            source: "Cennik",
+            status: isPending ? "in progress" : "success",
+            statusLabel: isPending ? "W trakcie" : "Sukces",
+            updatedAt: isPending
+              ? "Brak danych"
+              : new Date(pricat.updatedAt).toLocaleString("pl-PL"),
+            messages: [],
+          });
+        });
+
+        // ====================== STATYSTYKI ======================
+        const setText = (id, text) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = text;
+        };
+
+        const setClass = (id, className) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.classList.remove("positive", "medium", "negative");
+            el.classList.add(className);
+          }
+        };
+
+        // Statystyki
+        let successCount = 0;
+        let errorCount = 0;
+        let inProgressCount = 0;
+        let allCount = entries.length;
+
+        entries.forEach((entry) => {
+          if (entry.status === "success") successCount++;
+          else if (entry.status === "error") errorCount++;
+          else if (entry.status === "in progress") inProgressCount++;
+        });
+
+        // Ustawienie liczników
+        setText("offerSuccessCounter", successCount);
+        setText("offerErrorCounter", errorCount);
+        setText("offerInProgreessCounter", inProgressCount);
+
+        // Nagłówki zbiorcze
+        setText("offerAllStatus", `Wszystkie (${allCount})`);
+        setText("offerActionStatus", `Problematyczne (${errorCount})`);
+        setText("offerSuccessStatus", `Sukces (${successCount})`);
+
+        // Kompletność oferty w %
+
+        let completenessLabel = "-";
+        let completenessClass = "";
+
+        if (allCount > 0) {
+          const percentage = Math.round((successCount / allCount) * 100);
+          completenessLabel = `${percentage}%`;
+
+          // Przypisanie klasy w zależności od procentu
+          if (percentage >= 90) {
+            completenessClass = "positive";
+          } else if (percentage >= 80) {
+            completenessClass = "medium";
+          } else {
+            completenessClass = "negative";
+          }
+        }
+
+        // Ustaw tekst i klasę
+        setText("offerCondition", completenessLabel);
+        setClass("offerCondition", completenessClass);
+        setText("offerHealthCounter", completenessLabel);
+
+        // ========== Wstaw dane do tabeli ==========
+        tableStatus.clear().rows.add(entries).draw();
+      })
+      .catch((err) => {
+        console.log("Błąd ładowania statusów ofert:", err);
+      });
+  }
+
+  function formatStatusDetails(rowData) {
+    if (!rowData.allEvents || rowData.allEvents.length === 0) return "";
+
+    const sortedEvents = rowData.allEvents
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    const statusMap = {
+      success: { label: "Sukces", class: "positive" },
+      error: { label: "Problem", class: "negative" },
+      "in progress": { label: "W trakcie", class: "inprogress" },
+      incomplete: { label: "Niekompletna", class: "noneexisting" },
+      batching: { label: "W kolejce", class: "noneexisting" },
+      forced: { label: "W kolejce", class: "noneexisting" },
+      unknown: { label: "Nieznany", class: "noneexisting" },
+    };
+
+    let content = `<div style="padding: 10px 20px;">`;
+
+    sortedEvents.forEach((event) => {
+      const date = new Date(event.updatedAt).toLocaleString("pl-PL");
+      const statusKey = event.status || "unknown";
+      const status = statusMap[statusKey] || statusMap["unknown"];
+      const offerTimestampLine = `<strong>Data źródłowa oferty:</strong> ${
+        event.offerTimestamp
+          ? new Date(event.offerTimestamp).toLocaleString("pl-PL")
+          : "-"
+      }<br>`;
+
+      const messages = event.messages.length
+        ? event.messages.join("<br>")
+        : "-";
+
+      content += `
+      <div style="margin-bottom:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
+        <strong>Czas zdarzenia:</strong> ${date}<br>
+        <strong>Status:</strong> <span class="${status.class}">${status.label}</span><br>
+${offerTimestampLine}
+<strong>Komunikat:</strong> ${messages}
+      </div>
+    `;
+    });
+
+    content += `</div>`;
+    return content;
+  }
+
+  let tableStatus;
+
+  function initOfferStatusTable() {
+    tableStatus = $("#table_status").DataTable({
+      pagingType: "full_numbers",
+      dom: '<"top"f>rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 25,
+      order: [
+        [3, "asc"],
+        [4, "desc"],
+      ], // najpierw Status (asc), potem Ost. Zmiana (desc)
+      language: {
+        emptyTable: "Brak danych do wyswietlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatow)",
+        lengthMenu: "Pokaz _MENU_ rezulatow",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujacych rezultatow",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+      },
+      columns: [
+        {
+          data: null,
+          orderable: false,
+          width: "20px",
+          render: function (data, type, row) {
+            return ""; // bez strzałki
+          },
+          createdCell: function (td, cellData, rowData, row, col) {
+            if (rowData.expandable) {
+              $(td).addClass("details-control");
+            } else {
+              $(td).removeClass("details-control");
+            }
+          },
+        },
+
+        { data: "wholesalerKey", title: "Dostawca" },
+        { data: "source", title: "Źródło" },
+        {
+          data: "statusLabel",
+          title: "Status",
+          render: function (data, type, row) {
+            let baseClass = "";
+            switch (row.status) {
+              case "success":
+                baseClass += "positive";
+                break;
+              case "error":
+                baseClass += "negative";
+                break;
+              default:
+                baseClass += "noneexisting";
+            }
+            return `<span class="${baseClass}">${data}</span>`;
+          },
+        },
+
+        { data: "updatedAt", title: "Ost. Zmiana" },
+      ],
+      initComplete: function () {
+        this.api()
+          .rows()
+          .every(function () {
+            const rowData = this.data();
+            const tr = $(this.node());
+
+            if (rowData.status === "error" && rowData.expandable) {
+              this.child(formatStatusDetails(rowData)).show();
+              tr.addClass("shown");
+            }
+          });
+
+        // toggle pojedynczy wiersz
+        $("#table_status tbody").on("click", "td.details-control", function () {
+          const tr = $(this).closest("tr");
+          const row = tableStatus.row(tr);
+          const rowData = row.data();
+
+          if (!rowData.expandable) return;
+
+          if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass("shown");
+          } else {
+            row.child(formatStatusDetails(rowData)).show();
+            tr.addClass("shown");
+          }
+        });
+      },
+    });
+  }
+
+  // Wszystkie
+  $('[data-w-tab="Tab 1"]').on("click", function () {
+    tableStatus.column(3).search("").draw(); // Pokaż wszystkie
+  });
+
+  // Problematyczne (error)
+  $('[data-w-tab="Tab 2"]').on("click", function () {
+    tableStatus.column(3).search("Problem", true, false).draw(); // Tylko error
+  });
+
+  // Sukces (success)
+  $('[data-w-tab="Tab 3"]').on("click", function () {
+    tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
+  });
+
+  function getProductHistory(rowData, { startAt, endAt } = {}) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 0) Domyślny stock i zakres czasu
+        if (rowData.stock === null) {
+          rowData.stock = { value: 0, unit: "pieces" };
+        }
+        const now = new Date();
+        const endISO = endAt || now.toISOString();
+        const startISO =
+          startAt ||
+          new Date(now.getTime() - 1000 * 60 * 60 * 24 * 90).toISOString(); // 90 dni
+
+        // 1) Pobranie nowych endpointów równolegle
+        const base = `${InvokeURL}shops/${shopKey}/products/${rowData.gtin}`;
+        const asksUrl = new URL(`${base}/asks-history`);
+        asksUrl.searchParams.set("startAt", startISO);
+        asksUrl.searchParams.set("endAt", endISO);
+
+        const wmsUrl = new URL(`${base}/wms-history`);
+        wmsUrl.searchParams.set("startAt", startISO);
+        wmsUrl.searchParams.set("endAt", endISO);
+
+        async function fetchJSON(url) {
+          const res = await fetch(url.toString(), {
+            headers: {
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+          });
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`HTTP ${res.status}: ${txt || url}`);
+          }
+          return res.json();
+        }
+
+        const [asksSegments, wmsDaily] = await Promise.all([
+          fetchJSON(asksUrl),
+          fetchJSON(wmsUrl),
+        ]);
+
+        // 2) Transformacja: ASKS → serie „stepline”
+        //    Każdy segment zaczyna obowiązywać od swojego timestamp.
+        //    Dodajemy sztuczny punkt końcowy w endAt, żeby wykres „przeciągnął” ostatnią wartość.
+        function transformAsks(segments, startISO, endISO) {
+          const lowest = [];
+          const average = [];
+
+          // posortuj segmenty po czasie (na wszelki wypadek)
+          const sorted = [...segments].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          for (const seg of sorted) {
+            const t = new Date(seg.timestamp).toISOString();
+            lowest.push({ x: t, y: seg.lowest ?? null });
+            average.push({ x: t, y: seg.average ?? null });
+          }
+
+          // Jeśli mamy przynajmniej jeden segment, „przeciągnij” ostatnią znaną wartość do endISO
+          if (sorted.length > 0) {
+            const last = sorted[sorted.length - 1];
+            lowest.push({ x: endISO, y: last.lowest ?? null });
+            average.push({ x: endISO, y: last.average ?? null });
+          } else {
+            // Brak danych — oznaczamy lukę na cały zakres (null)
+            lowest.push({ x: startISO, y: null }, { x: endISO, y: null });
+            average.push({ x: startISO, y: null }, { x: endISO, y: null });
+          }
+
+          return { lowest, average };
+        }
+
+        // 3) Transformacja: WMS → serie dzienne {x:timestamp, y:value}
+        function transformWms(daily) {
+          // posortuj po czasie rosnąco
+          const sorted = [...daily].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          const retailPrice = [];
+          const standardPrice = [];
+          const stock = [];
+          const volume = [];
+          const units = new Set();
+
+          for (const d of sorted) {
+            const x = new Date(d.timestamp).toISOString();
+            units.add(d.unit || "");
+            retailPrice.push({ x, y: d.retailPrice ?? null });
+            standardPrice.push({ x, y: d.standardPrice ?? null });
+            stock.push({ x, y: d.stock ?? null });
+            volume.push({ x, y: d.volume ?? null });
+          }
+          return { retailPrice, standardPrice, stock, volume, units };
+        }
+
+        const asks = transformAsks(asksSegments, startISO, endISO);
+        const wms = transformWms(wmsDaily);
+
+        // 4) Metryki do kart (7, 90 dni) na bazie WMS.volume
+        function sumLastDays(series, days) {
+          if (!series.length) return 0;
+          // bierzemy dane z końca zakresu w dół do 'days' pozycji (one są już posortowane rosnąco)
+          const tail = series.slice(-days);
+          return tail.reduce(
+            (acc, p) => acc + (typeof p.y === "number" ? p.y : 0),
+            0
+          );
+          // Uwaga: jeśli są null-e w środku, liczymy tylko liczby (null = 0)
+        }
+
+        const sales7 = sumLastDays(wms.volume, 7);
+        const sales90 = sumLastDays(wms.volume, 90);
+
+        const stockNow =
+          (typeof rowData?.stock?.value === "number"
+            ? rowData.stock.value
+            : 0) ||
+          (wms.stock.length ? wms.stock[wms.stock.length - 1].y || 0 : 0);
+
+        const stockDays =
+          sales7 > 0 ? Math.round((stockNow / (sales7 / 7)) * 1) : "";
+
+        // Zmiany cen (procent) między pierwszym a ostatnim punktem w zakresie
+        function pct(first, last) {
+          if (
+            typeof first !== "number" ||
+            typeof last !== "number" ||
+            last === 0
+          )
+            return "";
+          return Number((((first - last) / last) * 100).toFixed(2));
+        }
+        const rpFirst = wms.retailPrice[0]?.y ?? null;
+        const rpLast = wms.retailPrice[wms.retailPrice.length - 1]?.y ?? null;
+        const spFirst = wms.standardPrice[0]?.y ?? null;
+        const spLast =
+          wms.standardPrice[wms.standardPrice.length - 1]?.y ?? null;
+
+        const retailPriceDeltaPct = pct(rpFirst, rpLast);
+        const standardPriceDeltaPct = pct(spFirst, spLast);
+
+        // 5) Aktualizacja UI (dostosuj id jeśli masz inne)
+        const formatDate = (iso) => (iso ? iso.split("T")[0] : "-");
+        const pHistory = document.getElementById("pHistory");
+        const pHistorySpan = document.getElementById("pHistorySpan");
+        const pOfferDate = document.getElementById("pOfferDate");
+        const pRetailPriceChange =
+          document.getElementById("pRetailPriceChange");
+        const pStandardPriceChange = document.getElementById(
+          "pStandardPriceChange"
+        );
+        const pSales7 = document.getElementById("pSales7");
+        const pSales90 = document.getElementById("pSales90");
+        const pStockDays = document.getElementById("pStockDays");
+
+        // liczba punktów czasowych (łączna z asks + wms)
+        const uniqueDates = new Set([
+          ...asks.lowest.map((p) => formatDate(p.x)),
+          ...wms.retailPrice.map((p) => formatDate(p.x)),
+        ]);
+        if (pHistory) pHistory.textContent = uniqueDates.size;
+        if (pHistorySpan)
+          pHistorySpan.textContent = `${formatDate(endISO)} - ${formatDate(
+            startISO
+          )}`;
+        if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
+        if (pRetailPriceChange)
+          pRetailPriceChange.textContent =
+            retailPriceDeltaPct === "" ? "" : `(${retailPriceDeltaPct}%)`;
+        if (pStandardPriceChange)
+          pStandardPriceChange.textContent =
+            standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
+        if (pSales7)
+          pSales7.textContent = Number.isFinite(sales7) ? sales7 : "";
+        if (pSales90)
+          pSales90.textContent = Number.isFinite(sales90) ? sales90 : "";
+        if (pStockDays)
+          pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
+
+        // 6) Budowa serii do ApexCharts (xaxis: datetime)
+        //    Utrzymujemy Twoje nazwy serii PL, ale zmieniamy dane na {x,y}
+        const series = [
+          { name: "Najnizsza (asks)", type: "line", data: asks.lowest },
+          { name: "Srednia (asks)", type: "line", data: asks.average },
+          { name: "Cena det. (WMS)", type: "line", data: wms.retailPrice },
+          { name: "Cena ew. (WMS)", type: "line", data: wms.standardPrice },
+          { name: "Sprzedaz (WMS)", type: "bar", data: wms.volume },
+          { name: "Stan (WMS)", type: "bar", data: wms.stock },
+        ];
+
+        // 7) Skale: ceny oraz ilości
+        const priceValues = []
+          .concat(asks.lowest.map((p) => p.y))
+          .concat(asks.average.map((p) => p.y))
+          .concat(wms.retailPrice.map((p) => p.y))
+          .concat(wms.standardPrice.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+
+        const qtyValues = []
+          .concat(wms.volume.map((p) => p.y))
+          .concat(wms.stock.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+
+        const scaleMax = priceValues.length
+          ? Math.max(...priceValues) * 1.1
+          : undefined;
+        const scaleMin = priceValues.length
+          ? Math.min(...priceValues) * 0.9
+          : undefined;
+        const qtyMax = qtyValues.length
+          ? Math.max(...qtyValues) * 1.1
+          : undefined;
+        const qtyMin = qtyValues.length
+          ? Math.min(...qtyValues) * 0.9
+          : undefined;
+
+        const options = {
+          series,
+          chart: {
+            id: "productHistoryChart",
+            defaultLocale: "pl",
+            toolbar: {
+              show: true,
+              tools: {
+                download: true,
+                selection: true,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true,
+              },
+              export: {
+                csv: {
+                  filename: "PlikCSV",
+                  columnDelimiter: ";",
+                  headerCategory: "category",
+                  headerValue: "value",
+                },
+                svg: { filename: "Wykres" },
+                png: { filename: "Wykres" },
+              },
+              autoSelected: "zoom",
+            },
+            locales: [
+              {
+                name: "pl",
+                options: {
+                  months: [
+                    "Styczen",
+                    "Luty",
+                    "Marzec",
+                    "Kwiecien",
+                    "Maj",
+                    "Czerwiec",
+                    "Lipiec",
+                    "Sierpien",
+                    "Wrzesien",
+                    "Pazdziernik",
+                    "Listopad",
+                    "Grudzien",
+                  ],
+                  shortMonths: [
+                    "Sty",
+                    "Lut",
+                    "Mar",
+                    "Kwi",
+                    "Maj",
+                    "Cze",
+                    "Lip",
+                    "Sie",
+                    "Wrz",
+                    "Paz",
+                    "Lis",
+                    "Gru",
+                  ],
+                  days: [
+                    "Niedziela",
+                    "Poniedzialek",
+                    "Wtorek",
+                    "Sroda",
+                    "Czwartek",
+                    "Piatek",
+                    "Sobota",
+                  ],
+                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                  toolbar: {
+                    download: "Pobierz SVG",
+                    selection: "Zaznacz",
+                    selectionZoom: "Powieksz strefe",
+                    zoomIn: "Przybliz",
+                    zoomOut: "Oddal",
+                    pan: "Przesun",
+                    reset: "Reset",
+                  },
+                },
+              },
+            ],
+            height: 350,
+            type: "line",
+            stacked: false,
+          },
+          // Kolory możesz zostawić swoje lub nadpisać
+          colors: [
+            "#FD6A6A",
+            "#F9C80E",
+            "#3F51B5",
+            "#03A9F4",
+            "#92A9BD",
+            "#D3DEDC",
+          ],
+          title: {
+            text: "Historia towaru",
+            align: "left",
+            style: {
+              fontSize: "14px",
+              fontWeight: "bold",
+              fontFamily: "Arial",
+            },
+          },
+          stroke: {
+            width: [2, 2, 2, 2, 1, 1],
+            // asks jako "stepline", reszta smooth
+            curve: [
+              "stepline",
+              "stepline",
+              "smooth",
+              "smooth",
+              "smooth",
+              "smooth",
+            ],
+          },
+          plotOptions: {
+            bar: { columnWidth: "50%", colors: { backgroundBarOpacity: 0.5 } },
+          },
+          markers: { size: 0 },
+          xaxis: {
+            type: "datetime",
+            labels: { show: true, rotate: -45, hideOverlappingLabels: true },
+            min: new Date(startISO).getTime(),
+            max: new Date(endISO).getTime(),
+          },
+          yaxis: [
+            {
+              seriesName: "Cena",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              title: { text: "Cena" },
+            },
+            { show: false },
+            { show: false },
+            { show: false },
+            {
+              opposite: true,
+              seriesName: "Ilosc",
+              max: qtyMax,
+              min: qtyMin,
+              forceNiceScale: true,
+              title: { text: "Ilosc" },
+            },
+            { show: false },
+          ],
+          tooltip: {
+            shared: true,
+            intersect: false,
+            x: { format: "yyyy-MM-dd HH:mm" },
+            y: {
+              formatter: function (y) {
+                if (y === null || typeof y === "undefined") return "-";
+                return y;
+              },
+            },
+          },
+          legend: {
+            position: "right",
+            horizontalAlign: "center",
+            offsetX: 0,
+            offsetY: 20,
+            markers: { width: 12, height: 12, radius: 12 },
+          },
+        };
+
+        // 8) Render / Update
+        if (window.__productHistoryRendered) {
+          ApexCharts.exec(
+            "productHistoryChart",
+            "updateOptions",
+            options,
+            false,
+            true
+          );
+        } else {
+          const chart = new ApexCharts(
+            document.getElementById("chart"),
+            options
+          );
+          await chart.render();
+          window.__productHistoryRendered = true;
+        }
+
+        resolve();
+      } catch (err) {
+        console.error(err);
+        reject(
+          "Błąd podczas pobierania/rysowania historii produktu (nowe endpointy)."
+        );
+      }
+    });
+  }
+
+  const ASK_CODE_MAP = {
+    // 1xxx – błędy danych źródłowych
+    1001: {
+      name: "Podwójny produkt",
+      desc: "Ten sam towar pojawił się kilka razy.",
+    },
+    1002: { name: "Błędne dane", desc: "Ceny lub ilości nie da się odczytać." },
+    1003: {
+      name: "Problem z promocją",
+      desc: "Nie udało się odczytać danych promocji.",
+    },
+    1004: { name: "Zła promocja", desc: "Promocja ma niepoprawne dane." },
+    1005: {
+      name: "Błąd oferty",
+      desc: "Promocja działa, ale główna oferta jest błędna.",
+    },
+    1006: {
+      name: "Powtórzona promocja",
+      desc: "Ta sama promocja już istnieje.",
+    },
+    1007: {
+      name: "Błędna promocja gratis",
+      desc: "Dane o gratisach są niepoprawne.",
+    },
+    1008: {
+      name: "Błędna promocja pakietowa",
+      desc: "W promocji pakietowej coś się nie zgadza.",
+    },
+    1009: {
+      name: "Niepoprawny kod produktu",
+      desc: "Kod produktu jest błędny.",
+    },
+
+    // 2xxx – błędy w obróbce
+    2001: {
+      name: "Zbyt dziwna cena",
+      desc: "Oferta odrzucona – cena zbyt odbiega od innych.",
+    },
+
+    // 3xxx – błędy wyświetlania / stanów
+    3001: { name: "Brak towaru", desc: "Nie ma tego towaru na stanie." },
+  };
+
+  function escapeAttr(str = "") {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function formatMessageCodesTooltip(codes = []) {
+    if (!Array.isArray(codes) || codes.length === 0) return "Brak kodów błędów";
+    const lines = codes.map((c) => {
+      const code = String(c).trim();
+      const meta = ASK_CODE_MAP[code] || ASK_CODE_MAP[Number(code)];
+      const desc = meta?.desc || "Nieznany błąd";
+      return `${desc} [${code}]`;
+    });
+    return escapeAttr(lines.join(" • "));
+  }
+
+  function format(d) {
+    const arr = d.asks || [];
+
+    const sourceMap = {
+      "price list": "Cennik",
+      "online offer": "E-hurt",
+      ecommerce: "E-hurt",
+      wms: "PC-Market",
+    };
+
+    const promotionMap = {
+      "rigid bundle": {
+        name: "Sztywny pakiet",
+        description: "Pakiet ze stałymi progami promocyjnymi",
+      },
+      worth: {
+        name: "Łączna wartość",
+        description: "Promocja od sumy wartości produktów",
+      },
+      quantity: {
+        name: "Łączna ilość",
+        description: "Promocja od sumy ilości produktów",
+      },
+      "package mix": {
+        name: "Mix opakowań",
+        description: "Promocja od sumy ilości różnych opakowań",
+      },
+      "quantity bundle": {
+        name: "Pakietowa",
+        description: "Promocja przy zakupie pakietu określonych ilości",
+      },
+      "not cumulative quantity": {
+        name: "Mix ilość",
+        description:
+          "Przy określonej ilości, wszystkie produkty w promocji tanieją.",
+      },
+    };
+
+    function calculatePackage(promotion) {
+      if (!promotion || !promotion.factors) return "-";
+      const { type, factors } = promotion;
+      const { quantityFactor, consolidationSet } = factors || {};
+      if (!quantityFactor) return "-";
+      if (type === "package mix") {
+        return Math.round((1 / quantityFactor) * (consolidationSet || 1));
+      }
+      return "-";
+    }
+
+    function getBenefitTextAndIcons(types) {
+      const iconMap = {
+        discount:
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f42f794589e8672c6_discount.svg",
+        gratis:
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fdb314702dd02c146_gratis.svg",
+        "self-discount":
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79f4b8335a91b6fc74a_self-discount.svg",
+        "self-gratis":
+          "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fcb35781959d04e2e_self-gratis.svg",
+      };
+      const benefitTexts = {
+        discount:
+          "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
+        gratis: "W ramach tej promocji otrzymasz inne produkty gratis.",
+        "self-discount":
+          "W ramach tej promocji otrzymasz ten produkt w obniżonej cenie.",
+        "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
+      };
+
+      const arr = Array.isArray(types) ? types : [types];
+      return arr.filter(Boolean).map((type) => ({
+        icon: iconMap[type] || "",
+        text: benefitTexts[type] || "Brak informacji o promocji",
+      }));
+    }
+
+    function getBenefitDetails(benefit) {
+      if (!benefit) return "-";
+      const benefits = getBenefitTextAndIcons(benefit.type);
+      let details = benefits
+        .map(
+          ({ icon, text }) =>
+            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`
+        )
+        .join(" ");
+      if (benefit.gratis) {
+        details += `: ${benefit.gratis.quantity}x za ${benefit.gratis.price} zł`;
+      }
+      return details;
+    }
+
+    const toDisplayHtml = arr
+      .map((item) => {
+        const promoObj = item.promotion || null;
+        const mappedPromo = promoObj ? promotionMap[promoObj.type] : null;
+        const promotionType = mappedPromo ? mappedPromo.name : "-";
+        const promotionDescription = mappedPromo
+          ? mappedPromo.description
+          : "Brak promocji";
+
+        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
+        const canFetchRelated = !!(
+          promoObj &&
+          promoObj.singular === false &&
+          promoObj.id
+        );
+
+        // Wstawiamy ikonę z data-* dla fetcha
+        const relatedCell = canFetchRelated
+          ? `<img
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
+          loading="lazy"
+          class="showdata"
+          data-shop="${shopKey}"
+          data-wh="${item.wholesalerKey}"
+          data-promo="${promoObj.id}"
+          alt="Powiązane"
+         />`
+          : "-";
+
+        const benefitHtml = getBenefitDetails(promoObj?.benefit);
+
+        // disabled row + tooltip (przetłumaczone kody)
+        const rowClass = item.valid ? "" : "disabled-row";
+        const tooltipContent = !item.valid
+          ? `${formatMessageCodesTooltip(item.messageCodes)}`
+          : "";
+        const rowTooltip = item.valid
+          ? ""
+          : `class="tippy" data-tippy-content="${tooltipContent}"`;
+
+        return `
+      <tr class="${rowClass}" ${rowTooltip}>
+        <td>${item.wholesalerKey ?? "-"}</td>
+        <td>${item.netPrice ?? "-"}</td>
+        <td>${
+          getCookie("sprytnyUserRole") === "admin"
+            ? item.netNetPrice ?? "-"
+            : "-"
+        }</td>
+        <td>${item.set ?? "-"}</td>
+        <td>${sourceMap[item.source] || "-"}</td>
+        <td>${item.originated ?? "-"}</td>
+        <td>${item.stock ?? "-"}</td>
+        ${
+          mappedPromo
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+        }
+        <td>${promoObj?.threshold ?? "-"}</td>
+        <td>${promoObj?.cap ?? "-"}</td>
+        <td>${calculatePackage(promoObj)}</td>
+        <td>${benefitHtml}</td>
+        <td>${relatedCell}</td>
+      </tr>`;
+      })
+      .join("");
+
+    return `
+    <table>
+      <tr>
+        <th>Dostawca</th>
+        <th>Cena net</th>
+        <th>Cena netnet</th>
+        <th>Paczka</th>
+        <th>Źródło</th>
+        <th>Pochodzenie</th>
+        <th>Dostępność</th>
+        <th>Promocja</th>
+        <th>Próg</th>
+        <th>Max</th>
+        <th>Opakowanie</th>
+        <th>Bonus</th>
+        <th>Powiązane</th>
+      </tr>
+      ${toDisplayHtml}
+    </table>
+  `;
+  }
+
+  // Domyślne opcje dla lengthMenu
+  var lengthMenuOptions = [
+    [25, 50, 100], // Backendowe wartości
+    [25, 50, 100], // Wyświetlane etykiety
+  ];
+
+  // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
+  if (OrganizationName === "PSS-Podwawelska") {
+    lengthMenuOptions[0].push(5000); // Dodaj wartość backendową
+    lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
+  }
+
+  var table = $("#table_id").DataTable({
+    pagingType: "full_numbers",
+    lengthMenu: lengthMenuOptions,
+    order: [],
+    dom: '<"top"fB>rt<"bottom"lip>',
+    buttons: [
+      {
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
+        titleAttr: "Rozwiń wszystkie",
+        action: function (e, dt, node, config) {
+          dt.rows().every(function () {
+            var row = this;
+            if (!row.child.isShown()) {
+              row.child(format(row.data())).show();
+              $(row.node()).addClass("shown");
+            }
+          });
+        },
+      },
+      {
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
+        titleAttr: "Zwiń wszystkie",
+        action: function (e, dt, node, config) {
+          dt.rows().every(function () {
+            var row = this;
+            if (row.child.isShown()) {
+              row.child.hide();
+              $(row.node()).removeClass("shown");
+            }
+          });
+        },
+      },
+      {
+        extend: "copyHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+        titleAttr: "Copy",
+      },
+      {
+        extend: "excelHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+        titleAttr: "Excel",
+      },
+      // ,
+      // {
+      //   extend: "pdfHtml5",
+      //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+      //   titleAttr: "PDF",
+      // },
+    ],
+    scrollY: "60vh",
+    scrollCollapse: true,
+    pageLength: 25,
+    language: {
+      emptyTable: "Brak danych do wyswietlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
+      infoEmpty: "Brak danych",
+      infoFiltered: "(z _MAX_ rezultatow)",
+      lengthMenu: "Pokaz _MENU_ rezulatow",
+      search: "Szukaj:",
+      zeroRecords: "Brak pasujacych rezultatow",
+      paginate: {
+        first: "<<",
+        last: ">>",
+        next: " >",
+        previous: "< ",
+      },
+    },
+    ajax: function (data, callback, settings) {
+      var QStr =
+        "?perPage=" +
+        data.length +
+        "&page=" +
+        (data.start + data.length) / data.length;
+      let searchBox = data.search.value.trim(); // This will remove whitespace from both ends
+      if (/^\d+$/.test(searchBox)) {
+        QStr = QStr + "&gtin=" + encodeURIComponent(searchBox);
+      } else if (searchBox) {
+        QStr = QStr + "&name=like:" + encodeURIComponent(searchBox);
+      } else {
+      }
+      var rotIndi = $("#rotationIndicator")
+        .map(function () {
+          return this.value;
+        })
+        .get();
+      var rotIndiStr = rotIndi.toString();
+      if (rotIndiStr) {
+        QStr = QStr + "&rotationIndicator=" + rotIndiStr;
+      }
+
+      var whKeyIndi = $("#wholesalerKeyIndicator")
+        .map(function () {
+          return this.value;
+        })
+        .get();
+      var whKeyIndiStr = whKeyIndi.toString();
+
+      var cdKeyIndi = $("#countryDistributorName")
+        .map(function () {
+          return this.value;
+        })
+        .get();
+      var cdKeyIndiStr = cdKeyIndi.toString();
+      if (cdKeyIndiStr) {
+        QStr = QStr + "&countryDistributorTaxId=" + cdKeyIndiStr;
+      }
+
+      $(document).on("click", 'input[type="checkbox"]', function () {
+        $('input[type="checkbox"]').not(this).prop("checked", false);
+      });
+
+      if (whKeyIndiStr) {
+        QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
+        if ($("#best").is(":checked")) {
+          QStr = QStr + ":best";
+        }
+        if ($("#exclusive").is(":checked")) {
+          QStr = QStr + ":exclusive";
+        }
+      }
+      var PRmin = parseInt($("#PRmin").val(), 10);
+      var PRmax = parseInt($("#PRmax").val(), 10);
+      var PEmin = parseInt($("#PEmin").val(), 10);
+      var PEmax = parseInt($("#PEmax").val(), 10);
+      var iSmin = parseInt($("#iSmin").val(), 10);
+      var iSmax = parseInt($("#iSmax").val(), 10);
+
+      function cVal(x) {
+        if (typeof x == "number" && !isNaN(x)) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      if (cVal(PRmin)) {
+        QStr = QStr + "&marketPremium=gt:" + PRmin;
+      }
+      if (cVal(PRmax)) {
+        QStr = QStr + "&marketPremium=lt:" + PRmax;
+      }
+      if (cVal(PEmin)) {
+        QStr = QStr + "&standardPremium=gt:" + PEmin;
+      }
+      if (cVal(PEmax)) {
+        QStr = QStr + "&standardPremium=lt:" + PEmax;
+      }
+      if (cVal(iSmin)) {
+        QStr = QStr + "&stock=gt:" + iSmin;
+      }
+      if (cVal(iSmax)) {
+        QStr = QStr + "&stock=lt:" + iSmax;
+      }
+
+      var whichColumns = "";
+      var direction = "desc";
+
+      if (data.order.length == 0) {
+        whichColumns = 0;
+      } else {
+        whichColumns = data.order[0]["column"];
+        direction = data.order[0]["dir"];
+      }
+
+      switch (whichColumns) {
+        case 2:
+          whichColumns = "name:";
+          break;
+        case 5:
+          whichColumns = "stock:";
+          break;
+        case 6:
+          whichColumns = "marketPremium:";
+          break;
+        case 7:
+          whichColumns = "standardPremium:";
+          break;
+        case 8:
+          whichColumns = "standardPrice:";
+          break;
+        case 10:
+          whichColumns = "bestNetPrice:";
+          break;
+        case 12:
+          whichColumns = "rotationIndicator:";
+          break;
+        default:
+          whichColumns = "null";
+      }
+
+      var sort = "&sort=" + whichColumns + direction;
+      if (whichColumns != "null") {
+        QStr = QStr + sort;
+      }
+
+      $.ajaxSetup({
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+      });
+      const now = Date.now();
+      if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
+        lastOfferFetchTimestamp = now;
+        $.get(InvokeURL + "shops/" + shopKey + "/offer" + QStr, function (res) {
+          // Ustawienie daty oferty
+          if (!offerStatusLoaded) {
+            offerStatusLoaded = true;
+            getOfferStatus();
+            $("#offerCondition").show();
+            $("#offerTag").show();
+            $("#seeRightPanel").show();
+          }
+
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        });
+      }
+    },
+    processing: false,
+    serverSide: true,
+    search: {
+      return: true,
+    },
+    columns: [
+      {
+        data: null,
+        orderable: false,
+        defaultContent: "",
+        width: "20px",
+        createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
+          if (rowData.asks && rowData.asks.length > 0) {
+            $(cell).addClass("details-control");
+          }
+        },
+        orderable: false,
+      },
+      {
+        orderable: false,
+        class: "details-control2",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
+      },
+      {
+        orderable: true,
+        data: "name",
+      },
+      {
+        orderable: false,
+        data: "countryDistributorName",
+        defaultContent: "-",
+      },
+      {
+        orderable: false,
+        data: "gtin",
+      },
+      {
+        orderable: true,
+        data: "stock",
+        render: function (data) {
+          if (data !== null) {
+            return "" + data.value;
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "marketPremium",
+        render: function (data) {
+          if (data !== null) {
+            return "" + data;
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "standardPrice",
+        render: function (data) {
+          if (
+            data !== null &&
+            data.hasOwnProperty("premium") &&
+            data.premium !== null
+          ) {
+            if (data.premium >= 0) {
+              return '<p class="positive">' + data.premium + "</p>";
+            } else {
+              return '<p class="negative">' + data.premium + "</p>";
+            }
+          } else {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "standardPrice",
+        render: function (data) {
+          if (data !== null) {
+            return "" + data.value.toFixed(2);
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        //Tutaj beda promocje jako obrazki renderowane
+        orderable: false,
+        data: "asks",
+        render: function (data) {
+          if (data !== null && data.length > 0 && data.netPrice !== null) {
+            var mysorteddata = data.sort(
+              (a, b) => (a.netPrice > b.netPrice && 1) || -1
+            );
+            var size = Object.keys(mysorteddata).length;
+            if (size > 0) {
+              var bestOffer = data[0];
+              if (bestOffer.promotion != null) {
+                return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg"></td>';
+              }
+              return "-";
+            }
+            return "-";
+          }
+          return "-";
+        },
+      },
+      {
+        orderable: true,
+        data: "asks",
+        render: function (data) {
+          if (data !== null) {
+            var mysorteddata = data.sort(
+              (a, b) => (a.netPrice > b.netPrice && 1) || -1
+            );
+            var size = Object.keys(mysorteddata).length;
+            if (size > 0) {
+              var bestOffer = data[0];
+              return "" + bestOffer.netPrice;
+            }
+            return "-";
+          }
+          return "-";
+        },
+      },
+      {
+        orderable: false,
+        data: "asks",
+        defaultContent: "brak",
+        render: function (data) {
+          if (data !== null && data.length > 0 && data.netPrice !== null) {
+            var mysorteddata = data.sort(
+              (a, b) => (a.netPrice > b.netPrice && 1) || -1
+            );
+            var size = Object.keys(mysorteddata).length;
+            var bestPrice = data[0].netPrice;
+            var bestWh = [];
+            bestWh.push(data[0].wholesalerKey);
+            if (size > 1) {
+              for (let i in data) {
+                if (data[parseInt(i)].netPrice == bestPrice) {
+                  bestWh.push(data[parseInt(i)].wholesalerKey);
+                }
+              }
+            }
+            let uniqueWh = [...new Set(bestWh)];
+            return "" + uniqueWh.toString();
+          }
+          return "-";
+        },
+      },
+      {
+        orderable: true,
+        data: "rotationIndicator",
+        defaultContent: "brak",
+        render: function (data) {
+          var tippyContent;
+          var baseClass = "tippy";
+
+          switch (data) {
+            case "AX":
+              tippyContent =
+                ' class="super ' +
+                baseClass +
+                '" data-tippy-content="Grupa A (80% marży) i X (stała sprzedaż)" alt=""';
+              break;
+            case "AY":
+              tippyContent =
+                ' class="positive ' +
+                baseClass +
+                '" data-tippy-content="Grupa A (80% marży) i Y (zmienna sprzedaż)" alt=""';
+              break;
+            case "BX":
+              tippyContent =
+                ' class="positive ' +
+                baseClass +
+                '" data-tippy-content="Grupa B (15% marży) i X (stała sprzedaż)" alt=""';
+              break;
+            case "AZ":
+              tippyContent =
+                ' class="medium ' +
+                baseClass +
+                '" data-tippy-content="Grupa A (80% marży) i Z (nieregularna sprzedaż)" alt=""';
+              break;
+            case "CX":
+              tippyContent =
+                ' class="medium ' +
+                baseClass +
+                '" data-tippy-content="Grupa C (5% marży) i X (stała sprzedaż)" alt=""';
+              break;
+            case "BY":
+              tippyContent =
+                ' class="medium ' +
+                baseClass +
+                '" data-tippy-content="Grupa B (15% marży) i Y (zmienna sprzedaż)" alt=""';
+              break;
+            case "BZ":
+              tippyContent =
+                ' class="negative ' +
+                baseClass +
+                '" data-tippy-content="Grupa B (15% marży) i Z (nieregularna sprzedaż)" alt=""';
+              break;
+            case "CY":
+              tippyContent =
+                ' class="negative ' +
+                baseClass +
+                '" data-tippy-content="Grupa C (5% marży) i Y (zmienna sprzedaż)" alt=""';
+              break;
+            case "CZ":
+              tippyContent =
+                ' class="bad ' +
+                baseClass +
+                '" data-tippy-content="Grupa C (5% marży) i Z (nieregularna sprzedaż)" alt=""';
+              break;
+            default:
+              tippyContent =
+                ' class="noneexisting ' +
+                baseClass +
+                '" data-tippy-content="Niewystarczająca historia" alt=""';
+          }
+
+          return "<p" + tippyContent + ">" + (data || "-") + "</p>";
+        },
+      },
+      {
+        orderable: false,
+        class: "details-control3",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
+      },
+    ],
+    initComplete: function (settings, json) {
+      var api = this.api();
+      var textBox = $("#table_id_filter label input");
+
+      $(".filterinput").on("change", function () {
+        table.draw();
+        checkFilters();
+      });
+
+      textBox.unbind();
+      textBox.bind("keyup input", function (e) {
+        if (e.keyCode == 13) {
+          api.search(this.value).draw();
+          checkFilters();
+        }
+      });
+
+      $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+
+      $("table.dataTable").on("show", function () {
+        $(this).DataTable().columns.adjust();
+      });
+
+      // Check filters initially
+      checkFilters();
+
+      // Clear all filters
+      $("#ClearAllButton").on("click", function () {
+        // Reset search field
+        $("#table_id_filter input[type='search']").val("");
+
+        // Reset all input fields
+        $(".filterinput").each(function () {
+          if (this.type === "text" || this.type === "number") {
+            $(this).val("");
+          } else if (this.type === "checkbox") {
+            $(this).prop("checked", false);
+          } else if (this.tagName.toLowerCase() === "select") {
+            $(this).prop("selectedIndex", 0);
+          }
+        });
+
+        // Clear the internal DataTable search state
+        table.state.clear();
+
+        // Disable the draw callback temporarily to prevent multiple requests
+        table.off("preXhr.dt");
+
+        // Combine search clearing and data reload into a single operation
+        table.search("").ajax.reload(function () {
+          // Re-enable the draw callback after reload
+          table.on("preXhr.dt", function (e, settings, data) {
+            // Add custom logic to modify data object here if necessary
+          });
+          checkFilters(); // Re-check filters after clearing
+        }, false);
+      });
+
+      function checkFilters() {
+        var searchValue = api.search();
+        var anyFilterActive =
+          searchValue !== "" ||
+          $(".filterinput").filter(function () {
+            return this.value !== "";
+          }).length > 2; // Two checkboxes are allways active
+
+        if (anyFilterActive) {
+          $("#ClearAllButton").show();
+        } else {
+          $("#ClearAllButton").hide();
+        }
+      }
+    },
+  });
+
+  function clearProductPopupData() {
+    // Set the content of specified elements to "-"
+    $("#pEan").text("-");
+    $("#pHistory").text("-");
+    $("#pHistorySpan").text("-");
+    $("#pOfferDate").text("-");
+    $("#pRetailPrice").text("-");
+    $("#pStandardPrice").text("-");
+    $("#pBestPrice").text("-");
+    $("#pInStock").text("-");
+    $("#pStockDays").text("-");
+    $("#pSales7").text("-");
+    $("#pSales90").text("-");
+    $("#pIndicator").text("-");
+  }
+
+  $("#table_id tbody").on("click", "td.details-control", function () {
+    var tr = $(this).closest("tr");
+    var row = table.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
+      initializeSimpleTooltips();
+    }
+  });
+
+  const relatedCache = new Map();
+
+  function fetchRelatedKeys(shopKey, promotionId, wholesalerKey) {
+    const cacheKey = `${shopKey}|${promotionId}|${wholesalerKey}`;
+    if (relatedCache.has(cacheKey)) {
+      return Promise.resolve(relatedCache.get(cacheKey));
+    }
+
+    const url =
+      `${InvokeURL}shops/${encodeURIComponent(shopKey)}` +
+      `/promotions/${encodeURIComponent(promotionId)}` +
+      `/related-keys?wholesalerKey=${encodeURIComponent(wholesalerKey)}`;
+
+    return fetch(url, {
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((res) => {
+        if (res.ok) return res.json(); // 200 → ["0500...", ...]
+        if (res.status === 400 || res.status === 404) return []; // brak danych
+        return res.text().then((t) => {
+          throw new Error(
+            `Related-keys error ${res.status}: ${t || "no body"}`
+          );
+        });
+      })
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : [];
+        relatedCache.set(cacheKey, arr);
+        return arr;
+      })
+      .catch((err) => {
+        // W produkcji można logować do sentry etc.
+        console.error("fetchRelatedKeys failed:", err);
+        throw err; // pozwól wyżej zareagować (np. pokazać popup z błędem)
+      });
+  }
+
+  $("#table_id tbody").on("click", "img.showdata", function () {
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
+
+    const shopKey = this.getAttribute("data-shop");
+    const wholesalerKey = this.getAttribute("data-wh");
+    const promotionId = this.getAttribute("data-promo");
+
+    const td = this.closest("td");
+    const prevHTML = td.innerHTML;
+    td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
+
+    fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
+      .then((values) => {
+        td.innerHTML = prevHTML;
+
+        if (!values || values.length === 0) {
+          popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+          popupContainer.style.display = "flex";
+          return;
+        }
+
+        // ten sam układ co u Ciebie (grupowanie po 5)
+        let output = "";
+        for (let i = 0; i < values.length; i++) {
+          if (i % 5 === 0)
+            output += "<p class='text-size-tiny text-color-grey'>";
+          const code = String(values[i]).trim();
+          output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${code}">${code}</span>`;
+          if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+        }
+
+        popupContent.innerHTML = output;
+        popupContainer.style.display = "flex";
+
+        // filtruj tabelę po kliknięciu kodu
+        popupContent.querySelectorAll(".related-product-code").forEach((el) => {
+          el.addEventListener("click", function () {
+            const code = this.getAttribute("data-code");
+            const table = $("#table_id").DataTable();
+            table.search(code).draw();
+            popupContainer.style.display = "none";
+          });
+        });
+      })
+      .catch(() => {
+        td.innerHTML = prevHTML;
+        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
+        popupContainer.style.display = "flex";
+      });
+  });
+
+  // Close the popup when clicking outside of the popup content
+  $(window).on("click", function (event) {
+    var popupContainer = document.getElementById("ReleatedProducts");
+    if (event.target == popupContainer) {
+      popupContainer.style.display = "none";
+    }
+  });
+
+  $("#table_id tbody").on("click", "td.details-control2", function () {
+    var table = $("#table_id").DataTable();
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+
+    // Pokaż loader
+    $("#ProductCard").hide();
+    $("#waitingdots").show(); // Zakładamy, że masz element z id="loader"
+
+    Promise.all([getProductDetails(rowData), getProductHistory(rowData)])
+      .then(() => {
+        $("#waitingdots").hide();
+        $("#ProductCard").css("display", "flex");
+      })
+      .catch((err) => {
+        console.log("Błąd ładowania danych:", err);
+        $("#waitingdots").hide();
+        alert("Nie udało się załadować danych.");
+      });
+  });
+
+  $("#table_id tbody").on("click", "td.details-control3", function () {
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    console.log(rowData);
+    var GTINEdit = document.getElementById("gtin");
+    GTINEdit.value = rowData.gtin;
+    GTINEdit.disabled = true;
+    var NameInput = document.getElementById("new-name");
+    NameInput.value = rowData.name;
+    NameInput.textContent = rowData.name;
+    $("#ProposeChangeInGtinModal").css("display", "flex");
+  });
+
+  function getWholesalersSh() {
+    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
+    let request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Authorization", orgToken);
+    request.setRequestHeader("Requested-By", "webflow-3-4");
+    request.onload = function () {
+      if (request.status === 401) {
+        console.log("Unauthorized");
+        return;
+      }
+      if (request.status >= 200 && request.status < 400) {
+        const data = JSON.parse(this.response);
+        const select = document.getElementById("wholesalerKeyIndicator");
+
+        const sorted = data.items
+          .filter((w) => w.enabled)
+          .sort((a, b) =>
+            (a.name || "").localeCompare(b.name || "", "pl", {
+              sensitivity: "base",
+            })
+          );
+
+        sorted.forEach((w) => {
+          const opt = document.createElement("option");
+          opt.value = w.wholesalerKey; // wartość formularza
+          opt.textContent = w.wholesalerKey; // etykieta widoczna dla użytkownika
+          select.appendChild(opt);
+        });
+      }
+    };
+    request.send();
+  }
+
+  function initializeSimpleTooltips() {
+    // ===== CSS (raz) =====
+    if (!document.getElementById("simple-tooltips-style")) {
+      const style = document.createElement("style");
+      style.id = "simple-tooltips-style";
+      style.textContent = `
+      .newtippy {
+        position: absolute;
+        background-color: rgba(33,33,33,.96);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity .12s ease, transform .12s ease;
+        pointer-events: none;
+        z-index: 6000;
+        box-shadow: 0 6px 16px rgba(0,0,0,.2);
+      }
+      .newtippy.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .newtippy__arrow {
+        position: absolute;
+        width: 0; height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(33,33,33,.96);
+        bottom: -6px; left: 50%;
+        transform: translateX(-50%);
+      }
+      .newtippy[data-placement="bottom"] .newtippy__arrow {
+        border-top: none;
+        border-bottom: 6px solid rgba(33,33,33,.96);
+        top: -6px; bottom: auto;
+      }
+    `;
+      document.head.appendChild(style);
+    }
+
+    // ===== Jeden globalny tooltip =====
+    let tip = document.getElementById("simple-tooltip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.id = "simple-tooltip";
+      tip.className = "newtippy";
+      const arrow = document.createElement("div");
+      arrow.className = "newtippy__arrow";
+      tip.appendChild(arrow);
+      const content = document.createElement("div");
+      content.className = "newtippy__content";
+      tip.appendChild(content);
+      document.body.appendChild(tip);
+    }
+
+    const ARROW_H = 6;
+    const OFFSET = 8;
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function showTooltip(target) {
+      const text = target.getAttribute("data-tippy-content");
+      if (!text) return;
+
+      // Ustaw treść
+      tip.querySelector(".newtippy__content").textContent = text;
+
+      // Pozycjonowanie
+      const rect = target.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      const vh = document.documentElement.clientHeight;
+
+      // domyślnie NAD elementem
+      let placement = "top";
+      tip.style.visibility = "hidden";
+      tip.classList.remove("visible");
+      tip.removeAttribute("data-placement");
+      tip.style.left = "0px";
+      tip.style.top = "0px";
+      // najpierw do DOM, żeby poznać offsetWidth/Height (już jest)
+      // szerokość i wysokość:
+      const tw = tip.offsetWidth;
+      const th = tip.offsetHeight;
+
+      const pageXCenter = rect.left + rect.width / 2 + window.scrollX;
+      const pageYTop = rect.top + window.scrollY;
+      const pageYBottom = rect.bottom + window.scrollY;
+
+      let left = pageXCenter - tw / 2;
+      let top = pageYTop - th - ARROW_H - OFFSET;
+
+      // jeśli nie ma miejsca u góry — pokaż pod elementem
+      const hasRoomTop = rect.top >= th + ARROW_H + OFFSET;
+      const hasRoomBottom = vh - rect.bottom >= th + ARROW_H + OFFSET;
+
+      if (!hasRoomTop && hasRoomBottom) {
+        placement = "bottom";
+        top = pageYBottom + ARROW_H + OFFSET;
+      }
+
+      // Zaciśnij do szerokości okna
+      const minLeft = window.scrollX + 8;
+      const maxLeft = window.scrollX + vw - tw - 8;
+      left = clamp(left, minLeft, maxLeft);
+
+      tip.setAttribute("data-placement", placement);
+      tip.style.left = `${left}px`;
+      tip.style.top = `${top}px`;
+      tip.style.visibility = "visible";
+
+      // animacja
+      requestAnimationFrame(() => tip.classList.add("visible"));
+    }
+
+    function hideTooltip() {
+      tip.classList.remove("visible");
+      // po animacji ukryj, żeby nie łapało focusu itp.
+      setTimeout(() => {
+        tip.style.visibility = "hidden";
+      }, 120);
+    }
+
+    // ===== Delegacja: działa na dynamicznej tabeli =====
+    // Usuwamy stare listenery (jeśli ktoś wywołał funkcję ponownie)
+    document.removeEventListener("mouseover", _onMouseOver, true);
+    document.removeEventListener("mouseout", _onMouseOut, true);
+
+    function _onMouseOver(e) {
+      const target = e.target.closest("[data-tippy-content]");
+      if (!target) return;
+      // Jeśli na TR masz cursor: not-allowed, tooltip i tak zadziała,
+      // bo nie blokujemy pointer-events.
+      showTooltip(target);
+    }
+
+    function _onMouseOut(e) {
+      // Ukryj, gdy kursor opuszcza element z atrybutem
+      const from = e.target.closest("[data-tippy-content]");
+      const to =
+        e.relatedTarget &&
+        e.relatedTarget.closest &&
+        e.relatedTarget.closest("[data-tippy-content]");
+      // Gdy przechodzimy z jednego elementu z tooltipem na inny, pokaż od razu drugi
+      if (from && to) {
+        showTooltip(to);
+        return;
+      }
+      if (from && !to) hideTooltip();
+    }
+
+    document.addEventListener("mouseover", _onMouseOver, true);
+    document.addEventListener("mouseout", _onMouseOut, true);
+  }
+
+  initializeSimpleTooltips();
+
+  getWholesalersSh();
+  initOfferStatusTable();
+
+  makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
+    forms.each(function () {
+      var form = $(this);
+      form.on("submit", function (event) {
+        var organization = sessionStorage.getItem("OrganizationName");
+        var organizationId = sessionStorage.getItem("OrganizationclientId");
+        var oldname = document.getElementById("new-name");
+
+        var data = {
+          organization: organization,
+          organizationId: organizationId,
+          data: {
+            gtin: $("#gtin").val(),
+            "old-name": oldname.textContent,
+            "new-name": $("#new-name").val(),
+            countryDistributorName: $("#countryDistributorName").val(),
+            brand: $("#brand").val(),
+            measurement: $("#measurement").val(),
+            quantity: $("#quantity").val(),
+          },
+        };
+
+        $.ajax({
+          type: "POST",
+          url: "https://hook.eu1.make.com/ndsdd602ot8kbt2dpydw37coj015fy75",
+          cors: true,
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          data: JSON.stringify(data),
+          success: function (resultData) {
+            if (typeof successCallback === "function") {
+              result = successCallback(resultData);
+              if (!result) {
+                form.show();
+                displayMessage(
+                  "Error",
+                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                );
+                form.trigger("reset");
+                return;
+              }
+            }
+            form.show();
+            displayMessage(
+              "Success",
+              "Twoje zgłoszenie została przyjęte. Dziękujemy."
+            );
+            form.trigger("reset");
+          },
+          error: function (e) {
+            if (typeof errorCallback === "function") {
+              errorCallback(e);
+            }
+            form.show();
+            displayMessage(
+              "Error",
+              "Oops. Coś poszło nie tak, spróbuj ponownie."
+            );
+            console.log(e);
+            form.trigger("reset");
+          },
+        });
+        event.preventDefault();
+        form.trigger("reset");
+        return false;
+      });
+    });
+  };
+
+  makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
+
+  $("table.dataTable").on("init.dt xhr.dt", function () {
+    $(this).DataTable().columns.adjust();
+    initializeSimpleTooltips();
+  });
+
+  $("table.dataTable").on("page.dt", function () {
+    $(this).DataTable().draw(false);
+  });
+
+  $('div[role="tab"]').click(function () {
+    if ($.fn.dataTable) {
+      const delays = [1, 49, 151, 901];
+
+      delays.forEach((delay) => {
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, delay);
+      });
+    }
+  });
+
+  $("#seeRightPanel").on("click", function () {
+    if ($.fn.dataTable) {
+      const delays = [50, 200, 500]; // możesz zmodyfikować w razie potrzeby
+
+      delays.forEach((delay) => {
+        setTimeout(() => {
+          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, delay);
+      });
+    }
+  });
+
+  //Offer view in shop // End //
+
   makeWebflowFormAjaxDeleteOrder($("#wf-form-DeleteOrder"));
   makeWebflowFormAjaxDelete($("#wf-form-DeleteShop"));
   makeWebflowFormAjaxPatchShopEdit($("#wf-form-EditShop"));

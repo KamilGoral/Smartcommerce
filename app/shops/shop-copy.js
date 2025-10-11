@@ -3560,7 +3560,7 @@ ${offerTimestampLine}
 
     const url =
       `${InvokeURL}shops/${encodeURIComponent(shopKey)}` +
-      `/offer/promotions/${encodeURIComponent(promotionId)}` +
+      `/promotions/${encodeURIComponent(promotionId)}` +
       `/related-keys?wholesalerKey=${encodeURIComponent(wholesalerKey)}`;
 
     return fetch(url, {

@@ -1747,25 +1747,12 @@ whenReadyAndDataTables(function () {
   });
 
   function format(d) {
-    if (!d || !Array.isArray(d.asks) || d.asks.length === 0) {
-      return "";
-    }
-
-    // Pobiera potwierdzonych dostawców z tabeli #table_splited_wh
-    function getConfirmedWholesalersFromTable() {
-      const table = $("#table_splited_wh").DataTable();
-      const data = table.rows().data().toArray();
-      return data
-        .filter((row) => row.confirmedAt)
-        .map((row) => row.wholesalerKey);
-    }
-
-    const confirmedKeys = getConfirmedWholesalersFromTable();
-    const arr = d.asks;
+    const arr = d.asks || [];
 
     const sourceMap = {
       "price list": "Cennik",
       "online offer": "E-hurt",
+      ecommerce: "E-hurt",
       wms: "PC-Market",
     };
 
@@ -1800,7 +1787,7 @@ whenReadyAndDataTables(function () {
     function calculatePackage(promotion) {
       if (!promotion || !promotion.factors) return "-";
       const { type, factors } = promotion;
-      const { quantityFactor, consolidationSet } = factors;
+      const { quantityFactor, consolidationSet } = factors || {};
       if (!quantityFactor) return "-";
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
@@ -1819,27 +1806,20 @@ whenReadyAndDataTables(function () {
         "self-gratis":
           "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66adf79fcb35781959d04e2e_self-gratis.svg",
       };
-
       const benefitTexts = {
         discount:
-          "W ramach promocji otrzymasz inne produkty w obniżonej cenie.",
-        gratis: "W ramach promocji otrzymasz inne produkty gratis.",
+          "W ramach tej promocji otrzymasz inne produkty w obniżonej cenie.",
+        gratis: "W ramach tej promocji otrzymasz inne produkty gratis.",
         "self-discount":
-          "W ramach promocji otrzymasz ten produkt w obniżonej cenie.",
-        "self-gratis": "W ramach promocji otrzymasz ten produkt gratis.",
+          "W ramach tej promocji otrzymasz ten produkt w obniżonej cenie.",
+        "self-gratis": "W ramach tej promocji otrzymasz ten produkt gratis.",
       };
 
-      if (Array.isArray(types)) {
-        return types.map((type) => {
-          const icon = iconMap[type] || "";
-          const text = benefitTexts[type] || "Brak informacji o promocji";
-          return { icon, text };
-        });
-      } else {
-        const icon = iconMap[types] || "";
-        const text = benefitTexts[types] || "Brak informacji o promocji";
-        return [{ icon, text }];
-      }
+      const arr = Array.isArray(types) ? types : [types];
+      return arr.filter(Boolean).map((type) => ({
+        icon: iconMap[type] || "",
+        text: benefitTexts[type] || "Brak informacji o promocji",
+      }));
     }
 
     function getBenefitDetails(benefit) {
@@ -1859,36 +1839,48 @@ whenReadyAndDataTables(function () {
 
     const toDisplayHtml = arr
       .map((item) => {
-        const promotion = promotionMap[item.promotion?.type];
-        const promotionType = promotion ? promotion.name : "-";
-        const promotionDescription = promotion
-          ? promotion.description
+        const promoObj = item.promotion || null;
+        const mappedPromo = promoObj ? promotionMap[promoObj.type] : null;
+        const promotionType = mappedPromo ? mappedPromo.name : "-";
+        const promotionDescription = mappedPromo
+          ? mappedPromo.description
           : "Brak promocji";
 
-        const showRelated =
-          item.promotion && item.promotion.relatedGtins.length > 0
-            ? `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg" loading="lazy" class="showdata" data-content="${item.promotion.relatedGtins}" alt="">`
-            : "-";
+        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
+        const canFetchRelated = !!(
+          promoObj &&
+          promoObj.singular === false &&
+          promoObj.id
+        );
 
-        const benefitHtml = getBenefitDetails(item.promotion?.benefit);
+        // Wstawiamy ikonę z data-* dla fetcha
+        const relatedCell = canFetchRelated
+          ? `<img
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
+          loading="lazy"
+          class="showdata"
+          data-shop="${shopKey}"
+          data-wh="${item.wholesalerKey}"
+          data-promo="${promoObj.id}"
+          alt="Powiązane"
+         />`
+          : "-";
 
-        const isConfirmed = confirmedKeys.includes(item.wholesalerKey);
+        const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        // <=== tu nowy warunek wyróżniający "twoją" cenę ===>
-        const isUserAssigned =
-          item.wholesalerKey === d.wholesalerKey &&
-          item.netPrice === d.netPrice;
-
-        const rowAttrs = isConfirmed
-          ? `data-tippy-content="Dostawca potwierdzony, w tym zamówieniu cena jest niemożliwa"
-           style="background-color: transparent; font-style: italic; font-weight: 300; cursor: not-allowed;"`
-          : isUserAssigned
-          ? `style="font-weight: 700; background-color: #f0f5ff;" data-tippy-content='Twoja cena'`
+        // disabled row + tooltip (przetłumaczone kody)
+        const rowClass = item.valid ? "" : "disabled-row";
+        const tooltipContent = !item.valid
+          ? `${formatMessageCodesTooltip(item.messageCodes)}`
           : "";
+        const rowTooltip = item.valid
+          ? ""
+          : `class="tippy" data-tippy-content="${tooltipContent}"`;
 
-        return `<tr ${rowAttrs}>
-        <td>${item.wholesalerKey}</td>
-        <td>${item.netPrice}</td>
+        return `
+      <tr class="${rowClass}" ${rowTooltip}>
+        <td>${item.wholesalerKey ?? "-"}</td>
+        <td>${item.netPrice ?? "-"}</td>
         <td>${
           getCookie("sprytnyUserRole") === "admin"
             ? item.netNetPrice ?? "-"
@@ -1899,15 +1891,15 @@ whenReadyAndDataTables(function () {
         <td>${item.originated ?? "-"}</td>
         <td>${item.stock ?? "-"}</td>
         ${
-          promotion
+          mappedPromo
             ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
             : "<td>-</td>"
         }
-        <td>${item.promotion?.threshold ?? "-"}</td>
-        <td>${item.promotion?.cap ?? "-"}</td>
-        <td>${calculatePackage(item.promotion)}</td>
+        <td>${promoObj?.threshold ?? "-"}</td>
+        <td>${promoObj?.cap ?? "-"}</td>
+        <td>${calculatePackage(promoObj)}</td>
         <td>${benefitHtml}</td>
-        <td>${showRelated}</td>
+        <td>${relatedCell}</td>
       </tr>`;
       })
       .join("");
@@ -1915,11 +1907,35 @@ whenReadyAndDataTables(function () {
     return `
     <table>
       <tr>
-        <th>Dostawca</th><th>Cena net</th><th>Cena netnet</th><th>Paczka</th><th>Źródło</th><th>Pochodzenie</th><th>Dostępność</th><th>Promocja</th><th>Próg</th><th>Max</th><th>Opakowanie</th><th>Bonus</th><th>Powiązane</th>
+        <th>Dostawca</th>
+        <th>Cena net</th>
+        <th>Cena netnet</th>
+        <th>Paczka</th>
+        <th>Źródło</th>
+        <th>Pochodzenie</th>
+        <th>Dostępność</th>
+        <th>Promocja</th>
+        <th>Próg</th>
+        <th>Max</th>
+        <th>Opakowanie</th>
+        <th>Bonus</th>
+        <th>Powiązane</th>
       </tr>
       ${toDisplayHtml}
     </table>
   `;
+  }
+
+  // Domyślne opcje dla lengthMenu
+  var lengthMenuOptions = [
+    [25, 50, 100], // Backendowe wartości
+    [25, 50, 100], // Wyświetlane etykiety
+  ];
+
+  // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
+  if (OrganizationName === "PSS-Podwawelska") {
+    lengthMenuOptions[0].push(5000); // Dodaj wartość backendową
+    lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
   }
 
   function formatEvents(data) {
@@ -3306,456 +3322,480 @@ ${offerTimestampLine}
     tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
   });
 
-  function getProductHistory(rowData) {
-    return new Promise((resolve, reject) => {
-      if (rowData.stock === null) {
-        rowData.stock = {
-          value: 0,
-          unit: "pieces",
-        };
-      }
+  function getProductHistory(rowData, { startAt, endAt } = {}) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 0) Domyślny stock i zakres czasu
+        if (rowData.stock === null) {
+          rowData.stock = { value: 0, unit: "pieces" };
+        }
+        const now = new Date();
+        const endISO = endAt || now.toISOString();
+        const startISO =
+          startAt ||
+          new Date(now.getTime() - 1000 * 60 * 60 * 24 * 90).toISOString(); // 90 dni
 
-      function arrayConvert(json) {
-        var dataInArrays = {
-          date: [],
-          highest: [],
-          average: [],
-          lowest: [],
-          retailPrice: [],
-          standardPrice: [],
-          stock: [],
-          volume: [],
-        };
+        // 1) Pobranie nowych endpointów równolegle
+        const base = `${InvokeURL}shops/${shopKey}/products/${rowData.gtin}`;
+        const asksUrl = new URL(`${base}/asks-history`);
+        asksUrl.searchParams.set("startAt", startISO);
+        asksUrl.searchParams.set("endAt", endISO);
 
-        function checkNested(obj /*, level1, level2, ... levelN*/) {
-          var args = Array.prototype.slice.call(arguments, 1);
-          for (var i = 0; i < args.length; i++) {
-            if (
-              !obj ||
-              typeof obj !== "object" ||
-              !obj.hasOwnProperty(args[i])
-            ) {
-              return false;
-            }
-            obj = obj[args[i]];
+        const wmsUrl = new URL(`${base}/wms-history`);
+        wmsUrl.searchParams.set("startAt", startISO);
+        wmsUrl.searchParams.set("endAt", endISO);
+
+        async function fetchJSON(url) {
+          const res = await fetch(url.toString(), {
+            headers: {
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
+          });
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`HTTP ${res.status}: ${txt || url}`);
           }
-          return true;
+          return res.json();
         }
 
-        for (let i = 0, l = json.items.length; i < l; i++) {
-          const item = json.items[i];
+        const [asksSegments, wmsDaily] = await Promise.all([
+          fetchJSON(asksUrl),
+          fetchJSON(wmsUrl),
+        ]);
 
-          // Zabezpiecz dane historyczne
-          dataInArrays.date.push(item.date?.split("T")[0] || "-");
+        // 2) Transformacja: ASKS → serie „stepline”
+        //    Każdy segment zaczyna obowiązywać od swojego timestamp.
+        //    Dodajemy sztuczny punkt końcowy w endAt, żeby wykres „przeciągnął” ostatnią wartość.
+        function transformAsks(segments, startISO, endISO) {
+          const lowest = [];
+          const average = [];
 
-          dataInArrays.highest.push(
-            checkNested(item, "asks", "highest") ? item.asks.highest : 0
+          // posortuj segmenty po czasie (na wszelki wypadek)
+          const sorted = [...segments].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
           );
-          dataInArrays.average.push(
-            checkNested(item, "asks", "average") ? item.asks.average : 0
-          );
-          dataInArrays.lowest.push(
-            checkNested(item, "asks", "lowest") ? item.asks.lowest : 0
-          );
-          dataInArrays.retailPrice.push(item.retailPrice ?? 0);
 
-          const stdPrice = checkNested(item, "standardPrice", "value")
-            ? item.standardPrice.value
-            : item.standardPrice ?? 0;
-          dataInArrays.standardPrice.push(stdPrice);
-
-          const stock = checkNested(item, "stock", "value")
-            ? item.stock.value
-            : item.stock ?? 0;
-          dataInArrays.stock.push(stock);
-
-          dataInArrays.volume.push(item.volume ?? 0);
-        }
-
-        return dataInArrays;
-      }
-
-      let url = new URL(
-        InvokeURL +
-          "shops/" +
-          shopKey +
-          "/products/" +
-          rowData.gtin +
-          "/history?perPage=91&page=1"
-      );
-      let request = new XMLHttpRequest();
-      request.open("GET", url, true);
-      request.setRequestHeader("Authorization", orgToken);
-      request.setRequestHeader("Requested-By", "webflow-3-4");
-      request.onload = function () {
-        if (request.status < 200 || request.status >= 400) {
-          reject("Błąd podczas pobierania historii produktu");
-          return;
-        }
-        var jsonek = JSON.parse(this.response);
-        if (request.status >= 200 && request.status < 400) {
-          function displayData(x) {
-            if (isFinite(x) && Number.isInteger(x) && !isNaN(x)) {
-              return x;
-            }
-            return "";
+          for (const seg of sorted) {
+            const t = new Date(seg.timestamp).toISOString();
+            lowest.push({ x: t, y: seg.lowest ?? null });
+            average.push({ x: t, y: seg.average ?? null });
           }
-          var dataToChart = arrayConvert(jsonek);
-          const pHistory = document.getElementById("pHistory");
-          pHistory.textContent = dataToChart.date.length;
-          const pHistorySpan = document.getElementById("pHistorySpan");
-          pHistorySpan.textContent =
-            dataToChart.date.slice(-1)[0] + " - " + dataToChart.date[0];
-          const pOfferDate = document.getElementById("pOfferDate");
-          pOfferDate.textContent = dataToChart.date[0];
-          const pRetailPriceChange =
-            document.getElementById("pRetailPriceChange");
-          pRetailPriceChange.textContent =
-            "(" +
-            displayData(
-              parseFloat(
-                ((dataToChart.retailPrice[0] -
-                  dataToChart.retailPrice.slice(-1)[0]) /
-                  dataToChart.retailPrice.slice(-1)[0]) *
-                  100
-              ).toFixed(2)
-            ) +
-            "%)";
-          const pStandardPriceChange = document.getElementById(
-            "pStandardPriceChange"
-          );
-          pStandardPriceChange.textContent =
-            "(" +
-            displayData(
-              parseFloat(
-                ((dataToChart.standardPrice[0] -
-                  dataToChart.standardPrice.slice(-1)[0]) /
-                  dataToChart.standardPrice.slice(-1)[0]) *
-                  100
-              ).toFixed(2)
-            ) +
-            "%)";
-          const pSales7 = document.getElementById("pSales7");
-          pSales7.textContent = displayData(
-            dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)
-          );
-          const pStockDays = document.getElementById("pStockDays");
-          pStockDays.textContent = displayData(
-            Math.round(
-              (rowData.stock.value /
-                dataToChart.volume.slice(0, 7).reduce((a, b) => a + b, 0)) *
-                7
-            )
-          );
-          const pSales90 = document.getElementById("pSales90");
-          pSales90.textContent = displayData(
-            dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)
-          );
-          "(" +
-            displayData(
-              parseFloat(
-                ((dataToChart.volume.slice(-90).reduce((a, b) => a + b, 0) -
-                  dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) /
-                  dataToChart.volume.slice(0, 90).reduce((a, b) => a + b, 0)) *
-                  100
-              ).toFixed(2)
-            ) +
-            "%)";
 
-          var scaleMax =
-            Math.max.apply(Math, [
-              ...dataToChart.highest,
-              ...dataToChart.retailPrice,
-            ]) * 1.1;
-          var scaleMin =
-            Math.min.apply(Math, [
-              ...dataToChart.lowest,
-              ...dataToChart.standardPrice,
-            ]) * 0.9;
-
-          var options = {
-            series: [
-              {
-                name: "Najwyzsza",
-                type: "line",
-                data: dataToChart.highest.reverse(),
-              },
-              {
-                name: "Srednia",
-                type: "line",
-                data: dataToChart.average.reverse(),
-              },
-              {
-                name: "Najnizsza",
-                type: "line",
-                data: dataToChart.lowest.reverse(),
-              },
-              {
-                name: "Cena det.",
-                type: "line",
-                data: dataToChart.retailPrice.reverse(),
-              },
-              {
-                name: "Cena ew.",
-                type: "line",
-                data: dataToChart.standardPrice.reverse(),
-              },
-              {
-                name: "Sprzedaz",
-                type: "bar",
-                data: dataToChart.volume.reverse(),
-              },
-              {
-                name: "Stan",
-                type: "bar",
-                data: dataToChart.stock.reverse(),
-              },
-            ],
-            chart: {
-              id: "productHistoryChart",
-              defaultLocale: "pl",
-              toolbar: {
-                show: true,
-                offsetX: 0,
-                offsetY: 0,
-                tools: {
-                  download: true,
-                  selection: true,
-                  zoom: true,
-                  zoomin: true,
-                  zoomout: true,
-                  pan: true,
-                  reset:
-                    true | '<img src="/static/icons/reset.png" width="20">',
-                  customIcons: [],
-                },
-                export: {
-                  csv: {
-                    filename: "PlikCSV",
-                    columnDelimiter: ";",
-                    headerCategory: "category",
-                    headerValue: "value",
-                  },
-                  svg: {
-                    filename: "Wykres",
-                  },
-                  png: {
-                    filename: "Wykres",
-                  },
-                },
-                autoSelected: "zoom",
-              },
-              locales: [
-                {
-                  name: "pl",
-                  options: {
-                    months: [
-                      "Styczen",
-                      "Luty",
-                      "Marzec",
-                      "Kwiecien",
-                      "Maj",
-                      "Czerwiec",
-                      "Lipiec",
-                      "Sierpien",
-                      "Wrzesien",
-                      "Pazdziernik",
-                      "Listopad",
-                      "Grudzien",
-                    ],
-                    shortMonths: [
-                      "Sty",
-                      "Lut",
-                      "Mar",
-                      "Kwi",
-                      "Maj",
-                      "Cze",
-                      "Lip",
-                      "Sie",
-                      "Wrz",
-                      "Paz",
-                      "Lis",
-                      "Gru",
-                    ],
-                    days: [
-                      "Niedziela",
-                      "Poniedzialek",
-                      "Wtorek",
-                      "Sroda",
-                      "Czwartek",
-                      "Piatek",
-                      "Sobota",
-                    ],
-                    shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
-                    toolbar: {
-                      download: "Pobierz SVG",
-                      selection: "Zaznacz",
-                      selectionZoom: "Powieksz strefe",
-                      zoomIn: "Przybliz",
-                      zoomOut: "Oddal",
-                      pan: "Przesun",
-                      reset: "Reset",
-                    },
-                  },
-                },
-              ],
-              height: 350,
-              type: "line",
-              stacked: false,
-            },
-            colors: [
-              "#FD6A6A",
-              "#F9C80E",
-              "#4CAF50",
-              "#3F51B5",
-              "#03A9F4",
-              "#92A9BD",
-              "#D3DEDC",
-            ],
-            title: {
-              text: "Historia towaru",
-              align: "left",
-              margin: 10,
-              offsetX: 0,
-              offsetY: 0,
-              floating: false,
-              style: {
-                fontSize: "14px",
-                fontWeight: "bold",
-                fontFamily: "Arial",
-                color: "#263238",
-              },
-            },
-            stroke: {
-              width: [2, 2, 2, 2, 2],
-              curve: "smooth",
-            },
-            plotOptions: {
-              bar: {
-                columnWidth: "50%",
-                colors: {
-                  backgroundBarOpacity: 0.5,
-                },
-              },
-            },
-            markers: {
-              size: 0,
-            },
-            xaxis: {
-              type: "category",
-              categories: dataToChart.date.reverse(),
-              labels: {
-                show: true,
-                rotate: -45,
-                rotateAlways: false,
-                hideOverlappingLabels: true,
-              },
-            },
-            yaxis: [
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                title: {
-                  text: "Cena",
-                },
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                seriesName: "Najwyzsza",
-                max: scaleMax,
-                min: scaleMin,
-                forceNiceScale: false,
-                show: false,
-              },
-              {
-                opposite: true,
-                seriesName: "Stan",
-                max: Math.max.apply(Math, dataToChart.stock) * 1.1,
-                min: Math.min.apply(Math, dataToChart.volume) * 0.9,
-                forceNiceScale: true,
-                title: {
-                  text: "Ilosc",
-                },
-              },
-              {
-                opposite: true,
-                seriesName: "Stan",
-                max: Math.max.apply(Math, dataToChart.stock) * 1.1,
-                min: Math.min.apply(Math, dataToChart.volume) * 0.9,
-                forceNiceScale: true,
-                show: false,
-              },
-            ],
-            tooltip: {
-              shared: true,
-              intersect: false,
-              y: {
-                formatter: function (y) {
-                  if (typeof y !== "null") {
-                    return y;
-                  }
-                  return "0";
-                },
-              },
-            },
-            legend: {
-              position: "right",
-              horizontalAlign: "center",
-              floating: false,
-              offsetX: 0,
-              offsetY: 20,
-              markers: {
-                width: 12,
-                height: 12,
-                radius: 12,
-              },
-              labels: {
-                useSeriesColors: false,
-              },
-            },
-          };
-          if (counter == 0) {
-            var chart = new ApexCharts(
-              document.getElementById("chart"),
-              options
-            );
-            chart.render();
-            counter = counter + 1;
-            resolve();
+          // Jeśli mamy przynajmniej jeden segment, „przeciągnij” ostatnią znaną wartość do endISO
+          if (sorted.length > 0) {
+            const last = sorted[sorted.length - 1];
+            lowest.push({ x: endISO, y: last.lowest ?? null });
+            average.push({ x: endISO, y: last.average ?? null });
           } else {
-            ApexCharts.exec("productHistoryChart", "updateOptions", options);
-            resolve();
+            // Brak danych — oznaczamy lukę na cały zakres (null)
+            lowest.push({ x: startISO, y: null }, { x: endISO, y: null });
+            average.push({ x: startISO, y: null }, { x: endISO, y: null });
           }
-          if (request.status == 401) {
-            console.log("Unauthorized");
-            reject();
-          }
+
+          return { lowest, average };
         }
-      };
-      request.send();
+
+        // 3) Transformacja: WMS → serie dzienne {x:timestamp, y:value}
+        function transformWms(daily) {
+          // posortuj po czasie rosnąco
+          const sorted = [...daily].sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          const retailPrice = [];
+          const standardPrice = [];
+          const stock = [];
+          const volume = [];
+          const units = new Set();
+
+          for (const d of sorted) {
+            const x = new Date(d.timestamp).toISOString();
+            units.add(d.unit || "");
+            retailPrice.push({ x, y: d.retailPrice ?? null });
+            standardPrice.push({ x, y: d.standardPrice ?? null });
+            stock.push({ x, y: d.stock ?? null });
+            volume.push({ x, y: d.volume ?? null });
+          }
+          return { retailPrice, standardPrice, stock, volume, units };
+        }
+
+        const asks = transformAsks(asksSegments, startISO, endISO);
+        const wms = transformWms(wmsDaily);
+
+        // 4) Metryki do kart (7, 90 dni) na bazie WMS.volume
+        function sumLastDays(series, days) {
+          if (!series.length) return 0;
+          // bierzemy dane z końca zakresu w dół do 'days' pozycji (one są już posortowane rosnąco)
+          const tail = series.slice(-days);
+          return tail.reduce(
+            (acc, p) => acc + (typeof p.y === "number" ? p.y : 0),
+            0
+          );
+          // Uwaga: jeśli są null-e w środku, liczymy tylko liczby (null = 0)
+        }
+
+        const sales7 = sumLastDays(wms.volume, 7);
+        const sales90 = sumLastDays(wms.volume, 90);
+
+        const stockNow =
+          (typeof rowData?.stock?.value === "number"
+            ? rowData.stock.value
+            : 0) ||
+          (wms.stock.length ? wms.stock[wms.stock.length - 1].y || 0 : 0);
+
+        const stockDays =
+          sales7 > 0 ? Math.round((stockNow / (sales7 / 7)) * 1) : "";
+
+        // Zmiany cen (procent) między pierwszym a ostatnim punktem w zakresie
+        function pct(first, last) {
+          if (
+            typeof first !== "number" ||
+            typeof last !== "number" ||
+            last === 0
+          )
+            return "";
+          return Number((((first - last) / last) * 100).toFixed(2));
+        }
+        const rpFirst = wms.retailPrice[0]?.y ?? null;
+        const rpLast = wms.retailPrice[wms.retailPrice.length - 1]?.y ?? null;
+        const spFirst = wms.standardPrice[0]?.y ?? null;
+        const spLast =
+          wms.standardPrice[wms.standardPrice.length - 1]?.y ?? null;
+
+        const retailPriceDeltaPct = pct(rpFirst, rpLast);
+        const standardPriceDeltaPct = pct(spFirst, spLast);
+
+        // 5) Aktualizacja UI (dostosuj id jeśli masz inne)
+        const formatDate = (iso) => (iso ? iso.split("T")[0] : "-");
+        const pHistory = document.getElementById("pHistory");
+        const pHistorySpan = document.getElementById("pHistorySpan");
+        const pOfferDate = document.getElementById("pOfferDate");
+        const pRetailPriceChange =
+          document.getElementById("pRetailPriceChange");
+        const pStandardPriceChange = document.getElementById(
+          "pStandardPriceChange"
+        );
+        const pSales7 = document.getElementById("pSales7");
+        const pSales90 = document.getElementById("pSales90");
+        const pStockDays = document.getElementById("pStockDays");
+
+        // liczba punktów czasowych (łączna z asks + wms)
+        const uniqueDates = new Set([
+          ...asks.lowest.map((p) => formatDate(p.x)),
+          ...wms.retailPrice.map((p) => formatDate(p.x)),
+        ]);
+        if (pHistory) pHistory.textContent = uniqueDates.size;
+        if (pHistorySpan)
+          pHistorySpan.textContent = `${formatDate(endISO)} - ${formatDate(
+            startISO
+          )}`;
+        if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
+        if (pRetailPriceChange)
+          pRetailPriceChange.textContent =
+            retailPriceDeltaPct === "" ? "" : `(${retailPriceDeltaPct}%)`;
+        if (pStandardPriceChange)
+          pStandardPriceChange.textContent =
+            standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
+        if (pSales7)
+          pSales7.textContent = Number.isFinite(sales7) ? sales7 : "";
+        if (pSales90)
+          pSales90.textContent = Number.isFinite(sales90) ? sales90 : "";
+        if (pStockDays)
+          pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
+
+        // 6) Budowa serii do ApexCharts (xaxis: datetime)
+        //    Utrzymujemy Twoje nazwy serii PL, ale zmieniamy dane na {x,y}
+        const series = [
+          { name: "Najnizsza (asks)", type: "line", data: asks.lowest },
+          { name: "Srednia (asks)", type: "line", data: asks.average },
+          { name: "Cena det. (WMS)", type: "line", data: wms.retailPrice },
+          { name: "Cena ew. (WMS)", type: "line", data: wms.standardPrice },
+          { name: "Sprzedaz (WMS)", type: "bar", data: wms.volume },
+          { name: "Stan (WMS)", type: "bar", data: wms.stock },
+        ];
+
+        // 7) Skale: ceny oraz ilości
+        const priceValues = []
+          .concat(asks.lowest.map((p) => p.y))
+          .concat(asks.average.map((p) => p.y))
+          .concat(wms.retailPrice.map((p) => p.y))
+          .concat(wms.standardPrice.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+
+        const qtyValues = []
+          .concat(wms.volume.map((p) => p.y))
+          .concat(wms.stock.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+
+        const scaleMax = priceValues.length
+          ? Math.max(...priceValues) * 1.1
+          : undefined;
+        const scaleMin = priceValues.length
+          ? Math.min(...priceValues) * 0.9
+          : undefined;
+        const qtyMax = qtyValues.length
+          ? Math.max(...qtyValues) * 1.1
+          : undefined;
+        const qtyMin = qtyValues.length
+          ? Math.min(...qtyValues) * 0.9
+          : undefined;
+
+        const options = {
+          series,
+          chart: {
+            id: "productHistoryChart",
+            defaultLocale: "pl",
+            toolbar: {
+              show: true,
+              tools: {
+                download: true,
+                selection: true,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true,
+              },
+              export: {
+                csv: {
+                  filename: "PlikCSV",
+                  columnDelimiter: ";",
+                  headerCategory: "category",
+                  headerValue: "value",
+                },
+                svg: { filename: "Wykres" },
+                png: { filename: "Wykres" },
+              },
+              autoSelected: "zoom",
+            },
+            locales: [
+              {
+                name: "pl",
+                options: {
+                  months: [
+                    "Styczen",
+                    "Luty",
+                    "Marzec",
+                    "Kwiecien",
+                    "Maj",
+                    "Czerwiec",
+                    "Lipiec",
+                    "Sierpien",
+                    "Wrzesien",
+                    "Pazdziernik",
+                    "Listopad",
+                    "Grudzien",
+                  ],
+                  shortMonths: [
+                    "Sty",
+                    "Lut",
+                    "Mar",
+                    "Kwi",
+                    "Maj",
+                    "Cze",
+                    "Lip",
+                    "Sie",
+                    "Wrz",
+                    "Paz",
+                    "Lis",
+                    "Gru",
+                  ],
+                  days: [
+                    "Niedziela",
+                    "Poniedzialek",
+                    "Wtorek",
+                    "Sroda",
+                    "Czwartek",
+                    "Piatek",
+                    "Sobota",
+                  ],
+                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                  toolbar: {
+                    download: "Pobierz SVG",
+                    selection: "Zaznacz",
+                    selectionZoom: "Powieksz strefe",
+                    zoomIn: "Przybliz",
+                    zoomOut: "Oddal",
+                    pan: "Przesun",
+                    reset: "Reset",
+                  },
+                },
+              },
+            ],
+            height: 350,
+            type: "line",
+            stacked: false,
+          },
+          // Kolory możesz zostawić swoje lub nadpisać
+          colors: [
+            "#FD6A6A",
+            "#F9C80E",
+            "#3F51B5",
+            "#03A9F4",
+            "#92A9BD",
+            "#D3DEDC",
+          ],
+          title: {
+            text: "Historia towaru",
+            align: "left",
+            style: {
+              fontSize: "14px",
+              fontWeight: "bold",
+              fontFamily: "Arial",
+            },
+          },
+          stroke: {
+            width: [2, 2, 2, 2, 1, 1],
+            // asks jako "stepline", reszta smooth
+            curve: [
+              "stepline",
+              "stepline",
+              "smooth",
+              "smooth",
+              "smooth",
+              "smooth",
+            ],
+          },
+          plotOptions: {
+            bar: { columnWidth: "50%", colors: { backgroundBarOpacity: 0.5 } },
+          },
+          markers: { size: 0 },
+          xaxis: {
+            type: "datetime",
+            labels: { show: true, rotate: -45, hideOverlappingLabels: true },
+            min: new Date(startISO).getTime(),
+            max: new Date(endISO).getTime(),
+          },
+          yaxis: [
+            {
+              seriesName: "Cena",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              title: { text: "Cena" },
+            },
+            { show: false },
+            { show: false },
+            { show: false },
+            {
+              opposite: true,
+              seriesName: "Ilosc",
+              max: qtyMax,
+              min: qtyMin,
+              forceNiceScale: true,
+              title: { text: "Ilosc" },
+            },
+            { show: false },
+          ],
+          tooltip: {
+            shared: true,
+            intersect: false,
+            x: { format: "yyyy-MM-dd HH:mm" },
+            y: {
+              formatter: function (y) {
+                if (y === null || typeof y === "undefined") return "-";
+                return y;
+              },
+            },
+          },
+          legend: {
+            position: "right",
+            horizontalAlign: "center",
+            offsetX: 0,
+            offsetY: 20,
+            markers: { width: 12, height: 12, radius: 12 },
+          },
+        };
+
+        // 8) Render / Update
+        if (window.__productHistoryRendered) {
+          ApexCharts.exec(
+            "productHistoryChart",
+            "updateOptions",
+            options,
+            false,
+            true
+          );
+        } else {
+          const chart = new ApexCharts(
+            document.getElementById("chart"),
+            options
+          );
+          await chart.render();
+          window.__productHistoryRendered = true;
+        }
+
+        resolve();
+      } catch (err) {
+        console.error(err);
+        reject(
+          "Błąd podczas pobierania/rysowania historii produktu (nowe endpointy)."
+        );
+      }
     });
+  }
+
+  const ASK_CODE_MAP = {
+    // 1xxx – błędy danych źródłowych
+    1001: {
+      name: "Podwójny produkt",
+      desc: "Ten sam towar pojawił się kilka razy.",
+    },
+    1002: { name: "Błędne dane", desc: "Ceny lub ilości nie da się odczytać." },
+    1003: {
+      name: "Problem z promocją",
+      desc: "Nie udało się odczytać danych promocji.",
+    },
+    1004: { name: "Zła promocja", desc: "Promocja ma niepoprawne dane." },
+    1005: {
+      name: "Błąd oferty",
+      desc: "Promocja działa, ale główna oferta jest błędna.",
+    },
+    1006: {
+      name: "Powtórzona promocja",
+      desc: "Ta sama promocja już istnieje.",
+    },
+    1007: {
+      name: "Błędna promocja gratis",
+      desc: "Dane o gratisach są niepoprawne.",
+    },
+    1008: {
+      name: "Błędna promocja pakietowa",
+      desc: "W promocji pakietowej coś się nie zgadza.",
+    },
+    1009: {
+      name: "Niepoprawny kod produktu",
+      desc: "Kod produktu jest błędny.",
+    },
+
+    // 2xxx – błędy w obróbce
+    2001: {
+      name: "Zbyt dziwna cena",
+      desc: "Oferta odrzucona – cena zbyt odbiega od innych.",
+    },
+
+    // 3xxx – błędy wyświetlania / stanów
+    3001: { name: "Brak towaru", desc: "Nie ma tego towaru na stanie." },
+  };
+
+  function escapeAttr(str = "") {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function formatMessageCodesTooltip(codes = []) {
+    if (!Array.isArray(codes) || codes.length === 0) return "Brak kodów błędów";
+    const lines = codes.map((c) => {
+      const code = String(c).trim();
+      const meta = ASK_CODE_MAP[code] || ASK_CODE_MAP[Number(code)];
+      const desc = meta?.desc || "Nieznany błąd";
+      return `${desc} [${code}]`;
+    });
+    return escapeAttr(lines.join(" • "));
   }
 
   function getWholesalersSh() {
@@ -4665,18 +4705,17 @@ ${offerTimestampLine}
 
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
+    lengthMenu: lengthMenuOptions,
     order: [],
     dom: '<"top"fB>rt<"bottom"lip>',
     buttons: [
       {
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83b4c6d4d7190c5f268b9_expand-all.svg" alt="expand-all">',
         titleAttr: "Rozwiń wszystkie",
-        action: function (e, dt) {
+        action: function (e, dt, node, config) {
           dt.rows().every(function () {
             var row = this;
             if (!row.child.isShown()) {
-              // jeśli masz kolumnę-uchwyt, możesz też sprawdzić klasę na wierszu:
-              // if ($(row.node()).find('.details-control').length) { ... }
               row.child(format(row.data())).show();
               $(row.node()).addClass("shown");
             }
@@ -4686,7 +4725,7 @@ ${offerTimestampLine}
       {
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/65e83bae9eb38d00e79cb7d9_collapse-all.svg" alt="collapse-all">',
         titleAttr: "Zwiń wszystkie",
-        action: function (e, dt) {
+        action: function (e, dt, node, config) {
           dt.rows().every(function () {
             var row = this;
             if (row.child.isShown()) {
@@ -4696,10 +4735,25 @@ ${offerTimestampLine}
           });
         },
       },
+      {
+        extend: "copyHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
+        titleAttr: "Copy",
+      },
+      {
+        extend: "excelHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+        titleAttr: "Excel",
+      },
+      // ,
+      // {
+      //   extend: "pdfHtml5",
+      //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
+      //   titleAttr: "PDF",
+      // },
     ],
     scrollY: "60vh",
     scrollCollapse: true,
-    orderMulti: true,
     pageLength: 25,
     language: {
       emptyTable: "Brak danych do wyswietlenia",
@@ -4723,7 +4777,6 @@ ${offerTimestampLine}
         "&page=" +
         (data.start + data.length) / data.length;
       let searchBox = data.search.value.trim(); // This will remove whitespace from both ends
-
       if (/^\d+$/.test(searchBox)) {
         QStr = QStr + "&gtin=" + encodeURIComponent(searchBox);
       } else if (searchBox) {
@@ -4739,6 +4792,7 @@ ${offerTimestampLine}
       if (rotIndiStr) {
         QStr = QStr + "&rotationIndicator=" + rotIndiStr;
       }
+
       var whKeyIndi = $("#wholesalerKeyIndicator")
         .map(function () {
           return this.value;
@@ -4746,8 +4800,18 @@ ${offerTimestampLine}
         .get();
       var whKeyIndiStr = whKeyIndi.toString();
 
-      $("#best, #exclusive").on("click", function () {
-        $("#best, #exclusive").not(this).prop("checked", false);
+      var cdKeyIndi = $("#countryDistributorName")
+        .map(function () {
+          return this.value;
+        })
+        .get();
+      var cdKeyIndiStr = cdKeyIndi.toString();
+      if (cdKeyIndiStr) {
+        QStr = QStr + "&countryDistributorTaxId=" + cdKeyIndiStr;
+      }
+
+      $(document).on("click", 'input[type="checkbox"]', function () {
+        $('input[type="checkbox"]').not(this).prop("checked", false);
       });
 
       if (whKeyIndiStr) {
@@ -4806,22 +4870,22 @@ ${offerTimestampLine}
         case 2:
           whichColumns = "name:";
           break;
-        case 6:
+        case 5:
           whichColumns = "stock:";
           break;
-        case 7:
+        case 6:
           whichColumns = "marketPremium:";
           break;
-        case 8:
+        case 7:
           whichColumns = "standardPremium:";
           break;
-        case 9:
+        case 8:
           whichColumns = "standardPrice:";
           break;
-        case 11:
+        case 10:
           whichColumns = "bestNetPrice:";
           break;
-        case 13:
+        case 12:
           whichColumns = "rotationIndicator:";
           break;
         default:
@@ -4848,45 +4912,22 @@ ${offerTimestampLine}
       const now = Date.now();
       if (now - lastOfferFetchTimestamp >= MIN_FETCH_INTERVAL_MS) {
         lastOfferFetchTimestamp = now;
-        $.get(
-          InvokeURL + "shops/" + shopKey + "/offers/" + "latest" + QStr,
-          function (res) {
-            // Ustawienie daty oferty
-            if (res.offerDate) {
-              const formattedDate = new Date(res.offerDate).toLocaleString(
-                "pl-PL"
-              );
-              $("#offerDate").text("Data oferty: " + formattedDate);
-              $("#offerDate2").text("Data oferty: " + formattedDate);
-            } else {
-              $("#offerDate").text("Data oferty: brak danych");
-              $("#offerDate2").text("Data oferty: brak danych");
-            }
-
-            if (isToday(res.offerDate)) {
-              if (!offerStatusLoaded) {
-                offerStatusLoaded = true;
-                getOfferStatus();
-              }
-
-              $("#offerCondition").show();
-              $("#offerTag").show();
-              $("#seeRightPanel").show();
-              $("#offerDate2").show();
-            } else {
-              $("#offerCondition").hide();
-              $("#offerTag").hide();
-              $(".seeRightPanel").hide();
-              $("#offerDate2").show();
-            }
-
-            callback({
-              recordsTotal: res.total,
-              recordsFiltered: res.total,
-              data: res.items,
-            });
+        $.get(InvokeURL + "shops/" + shopKey + "/offer" + QStr, function (res) {
+          // Ustawienie daty oferty
+          if (!offerStatusLoaded) {
+            offerStatusLoaded = true;
+            getOfferStatus();
+            $("#offerCondition").show();
+            $("#offerTag").show();
+            $("#seeRightPanel").show();
           }
-        );
+
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        });
       }
     },
     processing: false,
@@ -4908,6 +4949,14 @@ ${offerTimestampLine}
         orderable: false,
       },
       {
+        orderable: false,
+        class: "details-control2",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
+      },
+      {
         orderable: true,
         data: "name",
       },
@@ -4919,17 +4968,6 @@ ${offerTimestampLine}
       {
         orderable: false,
         data: "gtin",
-      },
-      {
-        orderable: false,
-        data: null,
-        render: function (data) {
-          return (
-            '<input type="number" style="max-width: 80px" onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" min="0" max="999999" value="' +
-            data.quantity +
-            '" onpaste="handlePaste(event)">'
-          );
-        },
       },
       {
         orderable: true,
@@ -5009,7 +5047,7 @@ ${offerTimestampLine}
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: "asks",
         render: function (data) {
           if (data !== null) {
@@ -5127,42 +5165,14 @@ ${offerTimestampLine}
       },
       {
         orderable: false,
-        width: "80px",
-        data: "confirmed",
-        type: "boolean",
-        render: function (data, type, row) {
-          if (type === "display") {
-            const detailsIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" alt="details" class="details-control2" style="cursor: pointer;" />`;
-            const editIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" alt="edit" style="cursor: pointer;" />`;
-            const trashIcon = `<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="delete" style="cursor: pointer;" />`;
-            const confirmedIcon = `<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/635e6734bc9d9ced67e819e7_done.svg" loading="lazy" alt="confirmed" data-tippy-content="Potwierdzono" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" />`;
-
-            if (data === true) {
-              return `
-                <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                  ${detailsIcon}
-                  ${editIcon}
-                  ${confirmedIcon}
-                </div>
-              `;
-            } else {
-              return `
-                <div style="text-align: left; display: flex; align-items: center; gap: 5px;">
-                  ${detailsIcon}
-                  ${editIcon}
-                </div>
-              `;
-            }
-          }
-          return data;
-        },
+        class: "details-control3",
+        width: "20px",
+        data: null,
+        defaultContent:
+          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
       },
     ],
-    drawCallback: function (settings) {
-      updateTableInputsFromSessionStorage(orderId);
-    },
     initComplete: function (settings, json) {
-      initializeSimpleTooltips();
       var api = this.api();
       var textBox = $("#table_id_filter label input");
 
@@ -5192,7 +5202,7 @@ ${offerTimestampLine}
       $("#ClearAllButton").on("click", function () {
         // Reset search field
         $("#table_id_filter input[type='search']").val("");
-        api.search("").draw(); // Ensure the DataTable search is also reset
+
         // Reset all input fields
         $(".filterinput").each(function () {
           if (this.type === "text" || this.type === "number") {
@@ -5209,14 +5219,15 @@ ${offerTimestampLine}
 
         // Disable the draw callback temporarily to prevent multiple requests
         table.off("preXhr.dt");
-        table.ajax.reload(function () {
+
+        // Combine search clearing and data reload into a single operation
+        table.search("").ajax.reload(function () {
           // Re-enable the draw callback after reload
           table.on("preXhr.dt", function (e, settings, data) {
             // Add custom logic to modify data object here if necessary
           });
+          checkFilters(); // Re-check filters after clearing
         }, false);
-
-        checkFilters(); // Re-check filters after clearing
       });
 
       function checkFilters() {
@@ -5226,6 +5237,7 @@ ${offerTimestampLine}
           $(".filterinput").filter(function () {
             return this.value !== "";
           }).length > 2; // Two checkboxes are allways active
+
         if (anyFilterActive) {
           $("#ClearAllButton").show();
         } else {
@@ -5234,6 +5246,22 @@ ${offerTimestampLine}
       }
     },
   });
+
+  function clearProductPopupData() {
+    // Set the content of specified elements to "-"
+    $("#pEan").text("-");
+    $("#pHistory").text("-");
+    $("#pHistorySpan").text("-");
+    $("#pOfferDate").text("-");
+    $("#pRetailPrice").text("-");
+    $("#pStandardPrice").text("-");
+    $("#pBestPrice").text("-");
+    $("#pInStock").text("-");
+    $("#pStockDays").text("-");
+    $("#pSales7").text("-");
+    $("#pSales90").text("-");
+    $("#pIndicator").text("-");
+  }
 
   $("#table_splited_wh").on("click", ".sendemail", async function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
@@ -5808,34 +5836,130 @@ ${offerTimestampLine}
     }
   });
 
+  $("#table_id tbody").on("click", "td.details-control2", function () {
+    var table = $("#table_id").DataTable();
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+
+    // Pokaż loader
+    $("#ProductCard").hide();
+    $("#waitingdots").show(); // Zakładamy, że masz element z id="loader"
+
+    Promise.all([getProductDetails(rowData), getProductHistory(rowData)])
+      .then(() => {
+        $("#waitingdots").hide();
+        $("#ProductCard").css("display", "flex");
+      })
+      .catch((err) => {
+        console.log("Błąd ładowania danych:", err);
+        $("#waitingdots").hide();
+        alert("Nie udało się załadować danych.");
+      });
+  });
+
+  $("#table_id tbody").on("click", "td.details-control3", function () {
+    var tr = $(this).closest("tr");
+    var rowData = table.row(tr).data();
+    console.log(rowData);
+    var GTINEdit = document.getElementById("gtin");
+    GTINEdit.value = rowData.gtin;
+    GTINEdit.disabled = true;
+    var NameInput = document.getElementById("new-name");
+    NameInput.value = rowData.name;
+    NameInput.textContent = rowData.name;
+    $("#ProposeChangeInGtinModal").css("display", "flex");
+  });
+
+  const relatedCache = new Map();
+
+  function fetchRelatedKeys(shopKey, promotionId, wholesalerKey) {
+    const cacheKey = `${shopKey}|${promotionId}|${wholesalerKey}`;
+    if (relatedCache.has(cacheKey)) {
+      return Promise.resolve(relatedCache.get(cacheKey));
+    }
+
+    const url =
+      `${InvokeURL}shops/${encodeURIComponent(shopKey)}` +
+      `/promotions/${encodeURIComponent(promotionId)}` +
+      `/related-keys?wholesalerKey=${encodeURIComponent(wholesalerKey)}`;
+
+    return fetch(url, {
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((res) => {
+        if (res.ok) return res.json(); // 200 → ["0500...", ...]
+        if (res.status === 400 || res.status === 404) return []; // brak danych
+        return res.text().then((t) => {
+          throw new Error(
+            `Related-keys error ${res.status}: ${t || "no body"}`
+          );
+        });
+      })
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : [];
+        relatedCache.set(cacheKey, arr);
+        return arr;
+      })
+      .catch((err) => {
+        // W produkcji można logować do sentry etc.
+        console.error("fetchRelatedKeys failed:", err);
+        throw err; // pozwól wyżej zareagować (np. pokazać popup z błędem)
+      });
+  }
+
   $("#table_id tbody").on("click", "img.showdata", function () {
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
-    const input = $(this).attr("data-content");
-    const values = input.split(",");
-    let output = "";
 
-    for (let i = 0; i < values.length; i++) {
-      if (i % 5 === 0) output += "<p class='text-size-tiny text-color-grey'>";
+    const shopKey = this.getAttribute("data-shop");
+    const wholesalerKey = this.getAttribute("data-wh");
+    const promotionId = this.getAttribute("data-promo");
 
-      const trimmedCode = values[i].trim();
-      output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${trimmedCode}">${trimmedCode}</span>`;
+    const td = this.closest("td");
+    const prevHTML = td.innerHTML;
+    td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
 
-      if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
-    }
+    fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
+      .then((values) => {
+        td.innerHTML = prevHTML;
 
-    popupContent.innerHTML = output;
-    popupContainer.style.display = "flex";
+        if (!values || values.length === 0) {
+          popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+          popupContainer.style.display = "flex";
+          return;
+        }
 
-    // Dodanie nasłuchu do każdego <span>
-    popupContent.querySelectorAll(".related-product-code").forEach((el) => {
-      el.addEventListener("click", function () {
-        const code = this.getAttribute("data-code");
-        const table = $("#table_id").DataTable();
-        table.search(code).draw();
-        popupContainer.style.display = "none";
+        // ten sam układ co u Ciebie (grupowanie po 5)
+        let output = "";
+        for (let i = 0; i < values.length; i++) {
+          if (i % 5 === 0)
+            output += "<p class='text-size-tiny text-color-grey'>";
+          const code = String(values[i]).trim();
+          output += `<span class="related-product-code" style="text-decoration: underline; cursor: pointer; margin-right: 6px;" data-code="${code}">${code}</span>`;
+          if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+        }
+
+        popupContent.innerHTML = output;
+        popupContainer.style.display = "flex";
+
+        // filtruj tabelę po kliknięciu kodu
+        popupContent.querySelectorAll(".related-product-code").forEach((el) => {
+          el.addEventListener("click", function () {
+            const code = this.getAttribute("data-code");
+            const table = $("#table_id").DataTable();
+            table.search(code).draw();
+            popupContainer.style.display = "none";
+          });
+        });
+      })
+      .catch(() => {
+        td.innerHTML = prevHTML;
+        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
+        popupContainer.style.display = "flex";
       });
-    });
   });
 
   // Close the popup when clicking outside of the popup content
@@ -6174,58 +6298,163 @@ ${offerTimestampLine}
   fetchDataFromEndpoint();
 
   function initializeSimpleTooltips() {
-    // CSS styling for tooltip
-    const style = document.createElement("style");
-    style.innerHTML = `
-    .newtippy {
-      position: absolute;
-      background-color: #333;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-      z-index: 6000;
+    // ===== CSS (raz) =====
+    if (!document.getElementById("simple-tooltips-style")) {
+      const style = document.createElement("style");
+      style.id = "simple-tooltips-style";
+      style.textContent = `
+      .newtippy {
+        position: absolute;
+        background-color: rgba(33,33,33,.96);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity .12s ease, transform .12s ease;
+        pointer-events: none;
+        z-index: 6000;
+        box-shadow: 0 6px 16px rgba(0,0,0,.2);
+      }
+      .newtippy.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .newtippy__arrow {
+        position: absolute;
+        width: 0; height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(33,33,33,.96);
+        bottom: -6px; left: 50%;
+        transform: translateX(-50%);
+      }
+      .newtippy[data-placement="bottom"] .newtippy__arrow {
+        border-top: none;
+        border-bottom: 6px solid rgba(33,33,33,.96);
+        top: -6px; bottom: auto;
+      }
+    `;
+      document.head.appendChild(style);
     }
-  `;
-    document.head.appendChild(style);
 
-    const elements = document.querySelectorAll("[data-tippy-content]");
+    // ===== Jeden globalny tooltip =====
+    let tip = document.getElementById("simple-tooltip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.id = "simple-tooltip";
+      tip.className = "newtippy";
+      const arrow = document.createElement("div");
+      arrow.className = "newtippy__arrow";
+      tip.appendChild(arrow);
+      const content = document.createElement("div");
+      content.className = "newtippy__content";
+      tip.appendChild(content);
+      document.body.appendChild(tip);
+    }
 
-    elements.forEach((element) => {
-      element.addEventListener("mouseenter", (event) => {
-        const tooltipText = element.getAttribute("data-tippy-content");
-        if (!tooltipText) return;
+    const ARROW_H = 6;
+    const OFFSET = 8;
 
-        // Create tooltip element
-        const tooltip = document.createElement("div");
-        tooltip.className = "newtippy";
-        tooltip.textContent = tooltipText;
-        document.body.appendChild(tooltip);
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
 
-        // Position tooltip
-        const rect = element.getBoundingClientRect();
-        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
-        tooltip.style.top = `${
-          rect.top + window.scrollY - tooltip.offsetHeight - 5
-        }px`;
-        tooltip.style.opacity = "1";
+    function showTooltip(target) {
+      const text = target.getAttribute("data-tippy-content");
+      if (!text) return;
 
-        // Center tooltip
-        tooltip.style.left = `${
-          parseFloat(tooltip.style.left) - tooltip.offsetWidth / 2
-        }px`;
+      // Ustaw treść
+      tip.querySelector(".newtippy__content").textContent = text;
 
-        // Mouseleave event to remove tooltip
-        element.addEventListener("mouseleave", () => {
-          tooltip.style.opacity = "0";
-          setTimeout(() => tooltip.remove(), 200); // Delay for fade-out effect
-        });
-      });
-    });
+      // Pozycjonowanie
+      const rect = target.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      const vh = document.documentElement.clientHeight;
+
+      // domyślnie NAD elementem
+      let placement = "top";
+      tip.style.visibility = "hidden";
+      tip.classList.remove("visible");
+      tip.removeAttribute("data-placement");
+      tip.style.left = "0px";
+      tip.style.top = "0px";
+      // najpierw do DOM, żeby poznać offsetWidth/Height (już jest)
+      // szerokość i wysokość:
+      const tw = tip.offsetWidth;
+      const th = tip.offsetHeight;
+
+      const pageXCenter = rect.left + rect.width / 2 + window.scrollX;
+      const pageYTop = rect.top + window.scrollY;
+      const pageYBottom = rect.bottom + window.scrollY;
+
+      let left = pageXCenter - tw / 2;
+      let top = pageYTop - th - ARROW_H - OFFSET;
+
+      // jeśli nie ma miejsca u góry — pokaż pod elementem
+      const hasRoomTop = rect.top >= th + ARROW_H + OFFSET;
+      const hasRoomBottom = vh - rect.bottom >= th + ARROW_H + OFFSET;
+
+      if (!hasRoomTop && hasRoomBottom) {
+        placement = "bottom";
+        top = pageYBottom + ARROW_H + OFFSET;
+      }
+
+      // Zaciśnij do szerokości okna
+      const minLeft = window.scrollX + 8;
+      const maxLeft = window.scrollX + vw - tw - 8;
+      left = clamp(left, minLeft, maxLeft);
+
+      tip.setAttribute("data-placement", placement);
+      tip.style.left = `${left}px`;
+      tip.style.top = `${top}px`;
+      tip.style.visibility = "visible";
+
+      // animacja
+      requestAnimationFrame(() => tip.classList.add("visible"));
+    }
+
+    function hideTooltip() {
+      tip.classList.remove("visible");
+      // po animacji ukryj, żeby nie łapało focusu itp.
+      setTimeout(() => {
+        tip.style.visibility = "hidden";
+      }, 120);
+    }
+
+    // ===== Delegacja: działa na dynamicznej tabeli =====
+    // Usuwamy stare listenery (jeśli ktoś wywołał funkcję ponownie)
+    document.removeEventListener("mouseover", _onMouseOver, true);
+    document.removeEventListener("mouseout", _onMouseOut, true);
+
+    function _onMouseOver(e) {
+      const target = e.target.closest("[data-tippy-content]");
+      if (!target) return;
+      // Jeśli na TR masz cursor: not-allowed, tooltip i tak zadziała,
+      // bo nie blokujemy pointer-events.
+      showTooltip(target);
+    }
+
+    function _onMouseOut(e) {
+      // Ukryj, gdy kursor opuszcza element z atrybutem
+      const from = e.target.closest("[data-tippy-content]");
+      const to =
+        e.relatedTarget &&
+        e.relatedTarget.closest &&
+        e.relatedTarget.closest("[data-tippy-content]");
+      // Gdy przechodzimy z jednego elementu z tooltipem na inny, pokaż od razu drugi
+      if (from && to) {
+        showTooltip(to);
+        return;
+      }
+      if (from && !to) hideTooltip();
+    }
+
+    document.addEventListener("mouseover", _onMouseOver, true);
+    document.addEventListener("mouseout", _onMouseOut, true);
   }
 
   makeWebflowFormAjaxCreate($("#wf-form-ProposeChangeInGtin"));
