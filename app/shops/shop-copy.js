@@ -3516,52 +3516,80 @@ ${offerTimestampLine}
     },
   });
 
-  // === 1) Stan filtra
-  let hideInvalid = false; // false = pokazuj wszystko, true = ukryj wiersze z błędami
+  // Stan ukrywania
+  let hideBad = false;
 
-  // === 2) Custom filter tylko dla #table_id
-  $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-    if (settings.nTable.id !== "table_id") return true; // inne tabele bez zmian
-    if (!hideInvalid) return true;
+  // Funkcja nakładająca/ściągająca .displaynone na wiersze z .disabled-row
+  function applyHideBadRows() {
+    const nodes = table.rows().nodes(); // wszystkie wiersze (nie tylko aktualna strona)
+    $(nodes).each(function () {
+      const tr = this;
+      const isBad = tr.classList.contains("disabled-row");
+      if (hideBad && isBad) {
+        tr.classList.add("displaynone");
+        // (opcjonalnie) schowaj child-row jeśli istnieje od razu po wierszu
+        const next = tr.nextElementSibling;
+        if (next && next.classList.contains("child"))
+          next.classList.add("displaynone");
+      } else {
+        tr.classList.remove("displaynone");
+        const next = tr.nextElementSibling;
+        if (next && next.classList.contains("child"))
+          next.classList.remove("displaynone");
+      }
+    });
+  }
 
-    // sprawdzamy, czy wiersz ma klasę .disabled-row
-    const rowNode = settings.aoData[dataIndex].nTr; // szybciej niż table.row(...).node()
-    return !rowNode.classList.contains("disabled-row");
-  });
+  // Reaplikuj po każdym rysowaniu tabeli (sort, filtr, paginacja)
+  table.on("draw.dt", applyHideBadRows);
 
-  // === 3) Dodanie przycisku do paska .dt-buttons
+  // Dodaj przycisk do paska .dt-buttons (na początku)
   const $buttons = $(table.table().container()).find("div.dt-buttons");
 
-  // przycisk toggle
-  const $toggleInvalidBtn = $(`
-  <button class="dt-button" type="button" title="Ukryj wiersze z błędami">
-    <span>Ukryj błędne</span>
+  const eyeOpenSVG = `
+<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
+  <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/>
+</svg>`;
+
+  const eyeOffSVG = `
+<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M3 3l18 18" stroke="currentColor" stroke-width="2"/>
+  <path d="M2 12s3.5-6 10-6c2.3 0 4.2.7 5.8 1.7M22 12s-3.5 6-10 6c-2.3 0-4.2-.7-5.8-1.7" stroke="currentColor" stroke-width="2"/>
+  <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/>
+</svg>`;
+
+  const errorSVG = `
+<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M12 3l9 16H3l9-16Z" stroke="currentColor" stroke-width="2" />
+  <path d="M12 9v4" stroke="currentColor" stroke-width="2" />
+  <circle cx="12" cy="16" r="1" fill="currentColor"/>
+</svg>`;
+
+  const $toggleBtn = $(`
+  <button id="btn-toggle-bad" class="dt-button" type="button" title="Ukryj wiersze błędne">
+    <span class="iconwrap">${eyeOpenSVG}${errorSVG}</span><span class="label">Ukryj błędne</span>
   </button>
 `);
 
-  // logika toggle
-  $toggleInvalidBtn.on("click", function () {
-    hideInvalid = !hideInvalid;
-
-    // zmiana etykiety i title
+  $toggleBtn.on("click", function () {
+    hideBad = !hideBad;
     $(this)
-      .toggleClass("is-active", hideInvalid)
-      .attr(
-        "title",
-        hideInvalid ? "Pokaż wiersze z błędami" : "Ukryj wiersze z błędami"
-      )
-      .find("span")
-      .text(hideInvalid ? "Pokaż błędne" : "Ukryj błędne");
+      .toggleClass("is-active", hideBad)
+      .attr("title", hideBad ? "Pokaż wiersze błędne" : "Ukryj wiersze błędne")
+      .find(".label")
+      .text(hideBad ? "Pokaż błędne" : "Ukryj błędne")
+      .end()
+      .find(".iconwrap")
+      .html((hideBad ? eyeOffSVG : eyeOpenSVG) + errorSVG);
 
-    // prze-rysowanie tabeli (bez resetu strony)
-    table.draw(false);
+    applyHideBadRows(); // natychmiastowa zmiana
   });
 
-  // podpięcie do paska z przyciskami (na początek)
-  $buttons.prepend($toggleInvalidBtn);
+  $buttons.prepend($toggleBtn);
 
-  // (opcjonalnie) jeśli masz redrawy po Ajaxie, ten filtr działa globalnie,
-  // nic nie musisz robić — DataTables woła ext.search przy każdym draw().
+  // Pierwsze przejście (na wypadek, gdyby hideBad startował jako true)
+  applyHideBadRows();
 
   function clearProductPopupData() {
     // Set the content of specified elements to "-"
