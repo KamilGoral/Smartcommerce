@@ -2342,7 +2342,6 @@ ${offerTimestampLine}
         // ---- KONWERSJA DO TABLIC ----
         const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // 'YYYY-MM-DD'
 
-        // WMS (dzień po dniu)
         const wmsSorted = (Array.isArray(wmsDaily) ? wmsDaily : [])
           .filter((d) => d?.date || d?.timestamp)
           .map((d) => ({
@@ -2356,7 +2355,6 @@ ${offerTimestampLine}
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 
-        // ASKS (zmiany cen z rynku)
         const asksSorted = (Array.isArray(asksSegments) ? asksSegments : [])
           .filter((s) => s?.timestamp)
           .map((s) => ({
@@ -2376,7 +2374,6 @@ ${offerTimestampLine}
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 
-        // Unikalne daty
         const allDates = Array.from(
           new Set([
             ...wmsSorted.map((d) => d.date),
@@ -2384,7 +2381,6 @@ ${offerTimestampLine}
           ])
         ).sort((a, b) => a.localeCompare(b));
 
-        // Mapowanie danych po datach
         const date = [];
         const average = [];
         const lowest = [];
@@ -2395,7 +2391,6 @@ ${offerTimestampLine}
 
         for (const day of allDates) {
           date.push(day);
-
           const w = wmsSorted.find((x) => x.date === day);
           const a = asksSorted.find((x) => x.date === day);
 
@@ -2407,7 +2402,7 @@ ${offerTimestampLine}
           volume.push(w?.volume ?? null);
         }
 
-        // Zakres skali cen
+        // Zakresy osi
         const priceVals = [
           ...average,
           ...lowest,
@@ -2427,7 +2422,6 @@ ${offerTimestampLine}
           scaleMax = 2;
         }
 
-        // Zakres ilości
         const qtyVals = [...stock, ...volume].filter(
           (v) => typeof v === "number" && isFinite(v)
         );
@@ -2494,20 +2488,42 @@ ${offerTimestampLine}
           defaultLocale: "pl",
 
           series: [
-            { name: "Srednia", type: "line", data: average.slice().reverse() },
-            { name: "Najnizsza", type: "line", data: lowest.slice().reverse() },
+            {
+              name: "Srednia",
+              type: "line",
+              yAxisIndex: 0,
+              data: average.slice().reverse(),
+            },
+            {
+              name: "Najnizsza",
+              type: "line",
+              yAxisIndex: 0,
+              data: lowest.slice().reverse(),
+            },
             {
               name: "Cena det.",
               type: "line",
+              yAxisIndex: 0,
               data: retailPrice.slice().reverse(),
             },
             {
               name: "Cena ew.",
               type: "line",
+              yAxisIndex: 0,
               data: standardPrice.slice().reverse(),
             },
-            { name: "Sprzedaz", type: "bar", data: volume.slice().reverse() },
-            { name: "Stan", type: "bar", data: stock.slice().reverse() },
+            {
+              name: "Sprzedaz",
+              type: "bar",
+              yAxisIndex: 1,
+              data: volume.slice().reverse(),
+            },
+            {
+              name: "Stan",
+              type: "bar",
+              yAxisIndex: 1,
+              data: stock.slice().reverse(),
+            },
           ],
 
           chart: {
@@ -2559,9 +2575,9 @@ ${offerTimestampLine}
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
           },
 
+          // 2 osie: 0 = ceny (lewa), 1 = ilości (prawa)
           yaxis: [
             {
-              // ceny (lewa)
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
@@ -2604,7 +2620,6 @@ ${offerTimestampLine}
           },
         };
 
-        // render od zera
         if (window.__phChart) {
           await window.__phChart.destroy();
           window.__phChart = null;
