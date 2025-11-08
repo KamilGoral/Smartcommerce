@@ -2307,7 +2307,7 @@ ${offerTimestampLine}
   function getProductHistory(rowData, { startAt, endAt } = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        // 0) Domyślny stock i zakres czasu (90 dni)
+        // 0) Domyślny stock i zakres 90 dni
         if (rowData.stock == null) rowData.stock = { value: 0, unit: "pieces" };
         const now = new Date();
         const endISO = endAt || now.toISOString();
@@ -2315,7 +2315,7 @@ ${offerTimestampLine}
           startAt ||
           new Date(now.getTime() - 90 * 24 * 3600 * 1000).toISOString();
 
-        // 1) Pobranie endpointów równolegle
+        // 1) Pobranie danych
         const base = `${InvokeURL}shops/${shopKey}/products/${rowData.gtin}`;
         const asksUrl = new URL(`${base}/asks-history`);
         asksUrl.searchParams.set("startAt", startISO);
@@ -2345,7 +2345,7 @@ ${offerTimestampLine}
           typeof v === "number" ? Math.round(v * 100) / 100 : v;
         const r0 = (v) => (typeof v === "number" ? Math.round(v) : v);
 
-        // 2) ASKS → serie stepline
+        // 2) ASKS
         function transformAsks(segments, startISO, endISO) {
           const lowest = [],
             average = [];
@@ -2375,7 +2375,7 @@ ${offerTimestampLine}
           return { lowest, average };
         }
 
-        // 3) WMS → serie dzienne {x,y}
+        // 3) WMS
         function transformWms(daily) {
           const input = Array.isArray(daily) ? daily : [];
           const parsed = [];
@@ -2392,62 +2392,49 @@ ${offerTimestampLine}
             standardPrice = [],
             stock = [],
             volume = [];
-          const units = new Set();
           for (const d of parsed) {
             const x = d.__x;
-            units.add(d.unit || "");
             retailPrice.push({ x, y: r2(d.retailPrice ?? null) });
             standardPrice.push({ x, y: r2(d.standardPrice ?? null) });
-            stock.push({ x, y: r0(d.stock ?? null) }); // pełne sztuki
-            volume.push({ x, y: r0(d.volume ?? null) }); // pełne sztuki
+            stock.push({ x, y: r0(d.stock ?? null) });
+            volume.push({ x, y: r0(d.volume ?? null) });
           }
-          return { retailPrice, standardPrice, stock, volume, units };
+          return { retailPrice, standardPrice, stock, volume };
         }
 
         const asks = transformAsks(asksSegments, startISO, endISO);
         const wms = transformWms(wmsDaily);
 
-        // 4) Metryki (7/90 dni) z WMS.volume
-        function sumLastDays(series, days) {
-          if (!series?.length) return 0;
-          const tail = series.slice(-days);
-          return tail.reduce(
-            (acc, p) => acc + (typeof p?.y === "number" ? p.y : 0),
-            0
-          );
+        // 4) Skalowanie osi
+        // Ceny → min/max z 4 serii, ±20% spreadu
+        const priceVals = []
+          .concat(asks.lowest.map((p) => p.y))
+          .concat(asks.average.map((p) => p.y))
+          .concat(wms.retailPrice.map((p) => p.y))
+          .concat(wms.standardPrice.map((p) => p.y))
+          .filter((v) => typeof v === "number");
+        let priceMin = 0,
+          priceMax = 1;
+        if (priceVals.length) {
+          const minV = Math.min(...priceVals);
+          const maxV = Math.max(...priceVals);
+          let spread = maxV - minV;
+          if (spread <= 0) spread = Math.max(0.01, Math.abs(maxV) * 0.05);
+          priceMin = minV - 0.2 * spread;
+          priceMax = maxV + 0.2 * spread;
         }
-        const sales7 = sumLastDays(wms.volume, 7);
-        const sales90 = sumLastDays(wms.volume, 90);
 
-        const stockNow =
-          (typeof rowData?.stock?.value === "number"
-            ? rowData.stock.value
-            : 0) ||
-          (wms.stock.length ? wms.stock[wms.stock.length - 1].y || 0 : 0);
+        // Ilości → 0 na dole, szczyt przy 90% wysokości
+        const qtyVals = []
+          .concat(wms.volume.map((p) => p.y))
+          .concat(wms.stock.map((p) => p.y))
+          .filter((v) => typeof v === "number" && isFinite(v));
+        const qtyMin = 0;
+        const qtyMax = qtyVals.length
+          ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
+          : 1;
 
-        const stockDays = sales7 > 0 ? Math.round(stockNow / (sales7 / 7)) : "";
-
-        // 5) UI karty
-        const formatDate = (iso) => (iso ? iso.split("T")[0] : "-");
-        const pHistory = document.getElementById("pHistory");
-        const pHistorySpan = document.getElementById("pHistorySpan");
-        const pOfferDate = document.getElementById("pOfferDate");
-        const pSales7 = document.getElementById("pSales7");
-        const pSales90 = document.getElementById("pSales90");
-        const pStockDays = document.getElementById("pStockDays");
-
-        const uniqueDates = new Set([
-          ...asks.lowest.map((p) => formatDate(p.x)),
-          ...wms.retailPrice.map((p) => formatDate(p.x)),
-        ]);
-        if (pHistory) pHistory.textContent = uniqueDates.size;
-        if (pHistorySpan)
-          pHistorySpan.textContent = `${formatDate(startISO)} - ${formatDate(
-            endISO
-          )}`;
-        if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
-
-        // 6) Serie do ApexCharts — ceny na osi głównej, ilości na pomocniczej
+        // 5) Serie z jawnie ustawioną osią
         const series = [
           {
             name: "Najnizsza Cena",
@@ -2462,99 +2449,22 @@ ${offerTimestampLine}
             data: asks.average,
           },
           {
-            name: "Cena detaliczna",
-            type: "line",
-            yAxisIndex: 0,
-            data: wms.retailPrice,
-          },
-          {
             name: "Cena ewidencyjna",
             type: "line",
             yAxisIndex: 0,
             data: wms.standardPrice,
           },
+          {
+            name: "Cena detaliczna",
+            type: "line",
+            yAxisIndex: 0,
+            data: wms.retailPrice,
+          },
           { name: "Sprzedaz", type: "bar", yAxisIndex: 1, data: wms.volume },
           { name: "Stan", type: "bar", yAxisIndex: 1, data: wms.stock },
         ];
 
-        // 7) SKALOWANIE zgodnie z Twoją specyfikacją
-
-        // 7a) CENY: min/max z 4 serii, rozszerzone o ±20% rozpiętości
-        const priceVals = []
-          .concat(asks.lowest.map((p) => p.y))
-          .concat(asks.average.map((p) => p.y))
-          .concat(wms.retailPrice.map((p) => p.y))
-          .concat(wms.standardPrice.map((p) => p.y))
-          .filter((v) => typeof v === "number");
-
-        let priceMin = 0,
-          priceMax = 1;
-        if (priceVals.length) {
-          const minV = Math.min(...priceVals);
-          const maxV = Math.max(...priceVals);
-          let spread = maxV - minV;
-          if (spread <= 0) spread = Math.max(0.01, Math.abs(maxV) * 0.05); // awaryjnie gdy płasko
-          priceMin = minV - 0.2 * spread;
-          priceMax = maxV + 0.2 * spread;
-        }
-
-        // 7b) ILOŚCI: 0 na dole, szczyt na 90% wysokości skali
-        const qtyVals = []
-          .concat(wms.volume.map((p) => p.y))
-          .concat(wms.stock.map((p) => p.y))
-          .filter((v) => typeof v === "number" && isFinite(v));
-
-        let qtyMin = 0,
-          qtyMax = undefined;
-        if (qtyVals.length) {
-          const vMax = Math.max(...qtyVals, 0);
-          qtyMax = vMax > 0 ? Math.ceil(vMax / 0.9) : 1; // żeby max wartość była ~90% wysokości
-        }
-
-        // 8) Różnice cen (opcjonalnie — jeśli używasz w UI)
-        function pct(first, last) {
-          if (
-            typeof first !== "number" ||
-            typeof last !== "number" ||
-            last === 0
-          )
-            return "";
-          return Number((((first - last) / last) * 100).toFixed(2));
-        }
-        const rpFirst = wms.retailPrice[0]?.y ?? null;
-        const rpLast = wms.retailPrice[wms.retailPrice.length - 1]?.y ?? null;
-        const spFirst = wms.standardPrice[0]?.y ?? null;
-        const spLast =
-          wms.standardPrice[wms.standardPrice.length - 1]?.y ?? null;
-
-        const retailPriceDeltaPct = pct(rpFirst, rpLast);
-        const standardPriceDeltaPct = pct(spFirst, spLast);
-
-        const pRetailPriceChange =
-          document.getElementById("pRetailPriceChange");
-        const pStandardPriceChange = document.getElementById(
-          "pStandardPriceChange"
-        );
-        const pSales7El = document.getElementById("pSales7");
-        const pSales90El = document.getElementById("pSales90");
-        const pStockDaysEl = document.getElementById("pStockDays");
-
-        if (pRetailPriceChange)
-          pRetailPriceChange.textContent =
-            retailPriceDeltaPct === "" ? "" : `(${retailPriceDeltaPct}%)`;
-        if (pStandardPriceChange)
-          pStandardPriceChange.textContent =
-            standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
-        if (pSales7El)
-          pSales7El.textContent = Number.isFinite(sales7) ? r0(sales7) : "";
-        if (pSales90El)
-          pSales90El.textContent = Number.isFinite(sales90) ? r0(sales90) : "";
-        if (pStockDaysEl)
-          pStockDaysEl.textContent = Number.isFinite(stockDays)
-            ? stockDays
-            : "";
-
-        // 9) Opcje wykresu
+        // 6) Opcje
         const options = {
           series,
           chart: {
@@ -2586,79 +2496,15 @@ ${offerTimestampLine}
               },
               autoSelected: "zoom",
             },
-            locales: [
-              {
-                name: "pl",
-                options: {
-                  months: [
-                    "Styczen",
-                    "Luty",
-                    "Marzec",
-                    "Kwiecien",
-                    "Maj",
-                    "Czerwiec",
-                    "Lipiec",
-                    "Sierpien",
-                    "Wrzesien",
-                    "Pazdziernik",
-                    "Listopad",
-                    "Grudzien",
-                  ],
-                  shortMonths: [
-                    "Sty",
-                    "Lut",
-                    "Mar",
-                    "Kwi",
-                    "Maj",
-                    "Cze",
-                    "Lip",
-                    "Sie",
-                    "Wrz",
-                    "Paz",
-                    "Lis",
-                    "Gru",
-                  ],
-                  days: [
-                    "Niedziela",
-                    "Poniedzialek",
-                    "Wtorek",
-                    "Sroda",
-                    "Czwartek",
-                    "Piatek",
-                    "Sobota",
-                  ],
-                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
-                  toolbar: {
-                    download: "Pobierz SVG",
-                    selection: "Zaznacz",
-                    selectionZoom: "Powieksz strefe",
-                    zoomIn: "Przybliz",
-                    zoomOut: "Oddal",
-                    pan: "Przesun",
-                    reset: "Reset",
-                  },
-                },
-              },
-            ],
           },
-          // Kolory: najniższa = #00875A
           colors: [
             "#00875A",
             "#F9C80E",
-            "#3F51B5",
             "#03A9F4",
+            "#3F51B5",
             "#92A9BD",
             "#D3DEDC",
           ],
-          title: {
-            text: "Historia towaru",
-            align: "left",
-            style: {
-              fontSize: "14px",
-              fontWeight: "bold",
-              fontFamily: "Arial",
-            },
-          },
           stroke: {
             width: [2, 2, 2, 2, 0, 0],
             curve: [
@@ -2678,19 +2524,19 @@ ${offerTimestampLine}
             min: new Date(startISO).getTime(),
             max: new Date(endISO).getTime(),
           },
-          // Dwie osie Y: 0 — ceny (skalowane ±20% spreadu), 1 — ilości (0..max/0.9)
           yaxis: [
             {
+              // ceny (lewa)
               title: { text: "Cena" },
               min: priceMin,
               max: priceMax,
               forceNiceScale: false,
-              decimalsInFloat: 2,
               labels: {
                 formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
               },
             },
             {
+              // ilości (prawa)
               opposite: true,
               title: { text: "Ilość" },
               min: qtyMin,
@@ -2709,7 +2555,7 @@ ${offerTimestampLine}
             x: { format: "yyyy-MM-dd HH:mm" },
             y: {
               formatter: function (val, { seriesIndex }) {
-                if (val == null || typeof val === "undefined") return "-";
+                if (val == null) return "-";
                 return seriesIndex >= 4
                   ? String(Math.round(val))
                   : Number(val).toFixed(2);
@@ -2719,29 +2565,20 @@ ${offerTimestampLine}
           legend: {
             position: "right",
             horizontalAlign: "center",
-            offsetX: 0,
-            offsetY: 20,
             markers: { width: 12, height: 12, radius: 12 },
           },
         };
 
-        // 10) Render / Update
-        if (window.__productHistoryRendered) {
-          ApexCharts.exec(
-            "productHistoryChart",
-            "updateOptions",
-            options,
-            false,
-            true
-          );
-        } else {
-          const chart = new ApexCharts(
-            document.getElementById("chart"),
-            options
-          );
-          await chart.render();
-          window.__productHistoryRendered = true;
+        // 7) ZAWSZE render od zera (żeby nie mieszać osi)
+        if (window.__phChart) {
+          await window.__phChart.destroy();
+          window.__phChart = null;
         }
+        window.__phChart = new ApexCharts(
+          document.getElementById("chart"),
+          options
+        );
+        await window.__phChart.render();
 
         resolve();
       } catch (err) {
