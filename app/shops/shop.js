@@ -2340,7 +2340,7 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // helpers
+        // helper: zaokrąglanie do 2 miejsc
         const r2 = (v) =>
           typeof v === "number" ? Math.round(v * 100) / 100 : v;
 
@@ -2482,14 +2482,34 @@ ${offerTimestampLine}
         if (pStockDays)
           pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
 
-        // 6) Serie do ApexCharts
+        // 6) Serie do ApexCharts — jawne mapowanie osi (0: ceny, 1: ilości)
         const series = [
-          { name: "Najnizsza Cena", type: "line", data: asks.lowest },
-          { name: "Srednia Cena", type: "line", data: asks.average },
-          { name: "Cena detaliczna", type: "line", data: wms.retailPrice },
-          { name: "Cena ewidencyjna", type: "line", data: wms.standardPrice },
-          { name: "Sprzedaz", type: "bar", data: wms.volume },
-          { name: "Stan", type: "bar", data: wms.stock },
+          {
+            name: "Najnizsza Cena",
+            type: "line",
+            yAxisIndex: 0,
+            data: asks.lowest,
+          },
+          {
+            name: "Srednia Cena",
+            type: "line",
+            yAxisIndex: 0,
+            data: asks.average,
+          },
+          {
+            name: "Cena detaliczna",
+            type: "line",
+            yAxisIndex: 0,
+            data: wms.retailPrice,
+          },
+          {
+            name: "Cena ewidencyjna",
+            type: "line",
+            yAxisIndex: 0,
+            data: wms.standardPrice,
+          },
+          { name: "Sprzedaz", type: "bar", yAxisIndex: 1, data: wms.volume },
+          { name: "Stan", type: "bar", yAxisIndex: 1, data: wms.stock },
         ];
 
         // 7) Skale
@@ -2621,7 +2641,7 @@ ${offerTimestampLine}
             },
           },
           stroke: {
-            width: [2, 2, 2, 2, 1, 1],
+            width: [2, 2, 2, 2, 0, 0],
             curve: [
               "stepline",
               "stepline",
@@ -2631,9 +2651,7 @@ ${offerTimestampLine}
               "smooth",
             ],
           },
-          plotOptions: {
-            bar: { columnWidth: "50%", colors: { backgroundBarOpacity: 0.5 } },
-          },
+          plotOptions: { bar: { columnWidth: "60%", borderRadius: 2 } },
           markers: { size: 0 },
           xaxis: {
             type: "datetime",
@@ -2641,34 +2659,29 @@ ${offerTimestampLine}
             min: new Date(startISO).getTime(),
             max: new Date(endISO).getTime(),
           },
+          // Dwie osie Y: 0 — ceny, 1 — ilości (sprzedaż/stan)
           yaxis: [
             {
-              seriesName: "Cena",
+              title: { text: "Cena" },
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
-              title: { text: "Cena" },
               labels: {
                 formatter: (val) =>
                   typeof val === "number" ? val.toFixed(2) : val,
               },
             },
-            { show: false },
-            { show: false },
-            { show: false },
             {
               opposite: true,
-              seriesName: "Ilosc",
+              title: { text: "Ilość" },
               max: qtyMax,
               min: qtyMin,
               forceNiceScale: true,
-              title: { text: "Ilosc" },
               labels: {
                 formatter: (val) =>
                   typeof val === "number" ? val.toFixed(2) : val,
               },
             },
-            { show: false },
           ],
           tooltip: {
             shared: true,
