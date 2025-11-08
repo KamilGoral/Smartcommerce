@@ -1650,6 +1650,16 @@ whenReadyAndDataTables(function () {
    * - pilnuje limitu znaków
    * - nie duplikuje nazw
    */
+  function getPlikForm(n) {
+    const abs = Math.abs(n);
+    const last = abs % 10;
+    const lastTwo = abs % 100;
+    if (last === 1 && lastTwo !== 11) return "plik";
+    if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14))
+      return "pliki";
+    return "plików";
+  }
+
   function buildMultiFileName(bases, maxLen) {
     const unique = Array.from(new Set(bases.map(normalizeOrderName))).filter(
       Boolean
@@ -1663,17 +1673,17 @@ whenReadyAndDataTables(function () {
       const sep = result ? " + " : "";
       const cand = result + sep + unique[i];
 
-      // ile zostanie znaków na ewentualny sufiks " + N plików…"
       const remaining = unique.length - (i + 1);
-      const suffix = remaining > 0 ? ` + ${remaining} plikow…` : "";
+      const suffix =
+        remaining > 0 ? ` + ${remaining} ${getPlikForm(remaining)}…` : "";
 
       if (cand.length + suffix.length <= maxLen) {
         result = cand;
         used = i + 1;
       } else {
-        // spróbuj zmieścić chociaż bieżący element skrócony
         const roomForThis =
           maxLen - (result ? result.length + sep.length : 0) - suffix.length;
+
         if (roomForThis > 0 && remaining >= 0) {
           const shortened = unique[i].slice(0, roomForThis).trim();
           if (shortened) {
@@ -1682,13 +1692,11 @@ whenReadyAndDataTables(function () {
             break;
           }
         }
-        // nie zmieści się — domknij obecny wynik z sufiksem
         if (remaining > 0) result = result + suffix;
         break;
       }
     }
 
-    // jeśli i tak nic nie weszło (np. pierwszy był ekstremalnie długi), tniemy pierwszy do maxLen
     if (!result) result = unique[0].slice(0, maxLen).trim();
     return result;
   }
