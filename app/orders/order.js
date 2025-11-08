@@ -3322,18 +3322,17 @@ ${offerTimestampLine}
     tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
   });
 
-  function getProductHistory(rowData, { startAt, endAt } = {}) {
+  async function getProductHistory(rowData, { startAt, endAt } = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        // 0) Domyślny stock i zakres 90 dni
         if (rowData.stock == null) rowData.stock = { value: 0, unit: "pieces" };
+
         const now = new Date();
         const endISO = endAt || now.toISOString();
         const startISO =
           startAt ||
           new Date(now.getTime() - 90 * 24 * 3600 * 1000).toISOString();
 
-        // 1) Pobranie danych
         const base = `${InvokeURL}shops/${shopKey}/products/${rowData.gtin}`;
         const asksUrl = new URL(`${base}/asks-history`);
         asksUrl.searchParams.set("startAt", startISO);
@@ -3358,197 +3357,191 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // helpers
-        const r2 = (v) =>
-          typeof v === "number" ? Math.round(v * 100) / 100 : v;
-        const r0 = (v) => (typeof v === "number" ? Math.round(v) : v);
+        // ---- KONWERSJA DO TABLIC JAK W STARYM KODZIE ----
+        const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // 'YYYY-MM-DD'
 
-        // 2) ASKS
-        function transformAsks(segments, startISO, endISO) {
-          const lowest = [],
-            average = [];
-          const sorted = [...(segments || [])]
-            .filter((s) => s && s.timestamp)
-            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        // WMS (dzień po dniu)
+        const wmsSorted = (Array.isArray(wmsDaily) ? wmsDaily : [])
+          .filter((d) => d?.date || d?.timestamp)
+          .map((d) => ({
+            date: toISODate(d.date ?? d.timestamp),
+            retailPrice:
+              typeof d.retailPrice === "number" ? d.retailPrice : null,
+            standardPrice:
+              typeof d.standardPrice === "number" ? d.standardPrice : null,
+            stock: Number.isFinite(d.stock) ? d.stock : null,
+            volume: Number.isFinite(d.volume) ? d.volume : null,
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date));
 
-          for (const seg of sorted) {
-            const t = new Date(seg.timestamp).toISOString();
-            lowest.push({ x: t, y: r2(seg.minPrice ?? seg.lowest ?? null) });
-            average.push({ x: t, y: r2(seg.avgPrice ?? seg.average ?? null) });
-          }
-          if (sorted.length > 0) {
-            const last = sorted[sorted.length - 1];
-            lowest.push({
-              x: endISO,
-              y: r2(last.minPrice ?? last.lowest ?? null),
-            });
-            average.push({
-              x: endISO,
-              y: r2(last.avgPrice ?? last.average ?? null),
-            });
-          } else {
-            lowest.push({ x: startISO, y: null }, { x: endISO, y: null });
-            average.push({ x: startISO, y: null }, { x: endISO, y: null });
-          }
-          return { lowest, average };
+        // ASKS (zmiany cen z rynku)
+        const asksSorted = (Array.isArray(asksSegments) ? asksSegments : [])
+          .filter((s) => s?.timestamp)
+          .map((s) => ({
+            date: toISODate(s.timestamp),
+            lowest:
+              typeof s.minPrice === "number"
+                ? s.minPrice
+                : typeof s.lowest === "number"
+                ? s.lowest
+                : null,
+            average:
+              typeof s.avgPrice === "number"
+                ? s.avgPrice
+                : typeof s.average === "number"
+                ? s.average
+                : null,
+            // „highest” nie ma w nowych endpointach – zostawimy null
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        // Zbuduj oś czasu jako unikatowe daty
+        const allDates = Array.from(
+          new Set([
+            ...wmsSorted.map((d) => d.date),
+            ...asksSorted.map((a) => a.date),
+          ])
+        ).sort((a, b) => a.localeCompare(b));
+
+        // Mapuj po datach (jak w starym)
+        const date = [];
+        const highest = []; // zostaje null (brak w API)
+        const average = [];
+        const lowest = [];
+        const retailPrice = [];
+        const standardPrice = [];
+        const stock = [];
+        const volume = [];
+
+        for (const day of allDates) {
+          date.push(day);
+
+          const w = wmsSorted.find((x) => x.date === day);
+          const a = asksSorted.find((x) => x.date === day);
+
+          highest.push(null);
+          average.push(a?.average ?? null);
+          lowest.push(a?.lowest ?? null);
+          retailPrice.push(w?.retailPrice ?? null);
+          standardPrice.push(w?.standardPrice ?? null);
+          stock.push(w?.stock ?? null);
+          volume.push(w?.volume ?? null);
         }
 
-        // 3) WMS
-        function transformWms(daily) {
-          const input = Array.isArray(daily) ? daily : [];
-          const parsed = [];
-          for (const d of input) {
-            const raw = d?.date ?? d?.timestamp;
-            if (!raw) continue;
-            const dt = new Date(raw);
-            if (isNaN(dt)) continue;
-            parsed.push({ ...d, __x: dt.toISOString() });
-          }
-          parsed.sort((a, b) => new Date(a.__x) - new Date(b.__x));
-
-          const retailPrice = [],
-            standardPrice = [],
-            stock = [],
-            volume = [];
-          for (const d of parsed) {
-            const x = d.__x;
-            retailPrice.push({ x, y: r2(d.retailPrice ?? null) });
-            standardPrice.push({ x, y: r2(d.standardPrice ?? null) });
-            stock.push({ x, y: r0(d.stock ?? null) });
-            volume.push({ x, y: r0(d.volume ?? null) });
-          }
-          return { retailPrice, standardPrice, stock, volume };
-        }
-
-        const asks = transformAsks(asksSegments, startISO, endISO);
-        const wms = transformWms(wmsDaily);
-
-        // 4) Skalowanie osi
-        // Ceny → min/max z 4 serii, ±20% spreadu
-        const priceVals = []
-          .concat(asks.lowest.map((p) => p.y))
-          .concat(asks.average.map((p) => p.y))
-          .concat(wms.retailPrice.map((p) => p.y))
-          .concat(wms.standardPrice.map((p) => p.y))
-          .filter((v) => typeof v === "number");
-        let priceMin = 0,
-          priceMax = 1;
+        // Zakres skali cen – tylko liczby
+        const priceVals = [
+          ...highest,
+          ...average,
+          ...lowest,
+          ...retailPrice,
+          ...standardPrice,
+        ].filter((v) => typeof v === "number" && isFinite(v));
+        let scaleMin = 0,
+          scaleMax = 1;
         if (priceVals.length) {
           const minV = Math.min(...priceVals);
           const maxV = Math.max(...priceVals);
-          let spread = maxV - minV;
-          if (spread <= 0) spread = Math.max(0.01, Math.abs(maxV) * 0.05);
-          priceMin = minV - 0.2 * spread;
-          priceMax = maxV + 0.2 * spread;
+          const spread = Math.max(maxV - minV, Math.abs(maxV) * 0.05, 0.01);
+          scaleMin = minV - spread * 0.2;
+          scaleMax = maxV + spread * 0.2;
+        } else {
+          scaleMin = 0;
+          scaleMax = 2;
         }
 
-        // Ilości → 0 na dole, szczyt przy 90% wysokości
-        const qtyVals = []
-          .concat(wms.volume.map((p) => p.y))
-          .concat(wms.stock.map((p) => p.y))
-          .filter((v) => typeof v === "number" && isFinite(v));
-        const qtyMin = 0;
+        const qtyVals = [...stock, ...volume].filter(
+          (v) => typeof v === "number" && isFinite(v)
+        );
         const qtyMax = qtyVals.length
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
-        // 5) Serie z jawnie ustawioną osią
-        const series = [
-          {
-            name: "Najnizsza Cena",
-            type: "line",
-            yAxisIndex: 0,
-            data: asks.lowest,
-          },
-          {
-            name: "Srednia Cena",
-            type: "line",
-            yAxisIndex: 0,
-            data: asks.average,
-          },
-          {
-            name: "Cena ewidencyjna",
-            type: "line",
-            yAxisIndex: 0,
-            data: wms.standardPrice,
-          },
-          {
-            name: "Cena detaliczna",
-            type: "line",
-            yAxisIndex: 0,
-            data: wms.retailPrice,
-          },
-          { name: "Sprzedaz", type: "bar", yAxisIndex: 1, data: wms.volume },
-          { name: "Stan", type: "bar", yAxisIndex: 1, data: wms.stock },
-        ];
-
-        // 6) Opcje
+        // ---- OPCJE W STYLU „STAREGO” WYKRESU ----
         const options = {
-          series,
+          // locale musi być na poziomie głównym (nie w chart)
+          locales: [
+            {
+              name: "pl",
+              options: {
+                months: [
+                  "Styczen",
+                  "Luty",
+                  "Marzec",
+                  "Kwiecien",
+                  "Maj",
+                  "Czerwiec",
+                  "Lipiec",
+                  "Sierpien",
+                  "Wrzesien",
+                  "Pazdziernik",
+                  "Listopad",
+                  "Grudzien",
+                ],
+                shortMonths: [
+                  "Sty",
+                  "Lut",
+                  "Mar",
+                  "Kwi",
+                  "Maj",
+                  "Cze",
+                  "Lip",
+                  "Sie",
+                  "Wrz",
+                  "Paz",
+                  "Lis",
+                  "Gru",
+                ],
+                days: [
+                  "Niedziela",
+                  "Poniedzialek",
+                  "Wtorek",
+                  "Sroda",
+                  "Czwartek",
+                  "Piatek",
+                  "Sobota",
+                ],
+                shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                toolbar: {
+                  download: "Pobierz SVG",
+                  selection: "Zaznacz",
+                  selectionZoom: "Powieksz strefe",
+                  zoomIn: "Przybliz",
+                  zoomOut: "Oddal",
+                  pan: "Przesun",
+                  reset: "Reset",
+                },
+              },
+            },
+          ],
+          defaultLocale: "pl",
+
+          series: [
+            {
+              name: "Najwyzsza",
+              type: "line",
+              data: highest.slice().reverse(),
+            },
+            { name: "Srednia", type: "line", data: average.slice().reverse() },
+            { name: "Najnizsza", type: "line", data: lowest.slice().reverse() },
+            {
+              name: "Cena det.",
+              type: "line",
+              data: retailPrice.slice().reverse(),
+            },
+            {
+              name: "Cena ew.",
+              type: "line",
+              data: standardPrice.slice().reverse(),
+            },
+            { name: "Sprzedaz", type: "bar", data: volume.slice().reverse() },
+            { name: "Stan", type: "bar", data: stock.slice().reverse() },
+          ],
+
           chart: {
             id: "productHistoryChart",
             height: 350,
             type: "line",
             stacked: false,
-
-            // ⬇⬇ KLUCZOWE: zdefiniuj locale "pl" i ustaw defaultLocale
-            locales: [
-              {
-                name: "pl",
-                options: {
-                  months: [
-                    "Styczen",
-                    "Luty",
-                    "Marzec",
-                    "Kwiecien",
-                    "Maj",
-                    "Czerwiec",
-                    "Lipiec",
-                    "Sierpien",
-                    "Wrzesien",
-                    "Pazdziernik",
-                    "Listopad",
-                    "Grudzien",
-                  ],
-                  shortMonths: [
-                    "Sty",
-                    "Lut",
-                    "Mar",
-                    "Kwi",
-                    "Maj",
-                    "Cze",
-                    "Lip",
-                    "Sie",
-                    "Wrz",
-                    "Paz",
-                    "Lis",
-                    "Gru",
-                  ],
-                  days: [
-                    "Niedziela",
-                    "Poniedzialek",
-                    "Wtorek",
-                    "Sroda",
-                    "Czwartek",
-                    "Piatek",
-                    "Sobota",
-                  ],
-                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
-                  toolbar: {
-                    download: "Pobierz SVG",
-                    selection: "Zaznacz",
-                    selectionZoom: "Powieksz strefe",
-                    zoomIn: "Przybliz",
-                    zoomOut: "Oddal",
-                    pan: "Przesun",
-                    reset: "Reset",
-                  },
-                },
-              },
-            ],
-            defaultLocale: "pl",
-            // ⬆⬆ KONIEC naprawy
-
             toolbar: {
               show: true,
               tools: {
@@ -3575,70 +3568,106 @@ ${offerTimestampLine}
           },
 
           colors: [
-            "#00875A",
+            "#FD6A6A",
             "#F9C80E",
-            "#03A9F4",
+            "#4CAF50",
             "#3F51B5",
+            "#03A9F4",
             "#92A9BD",
             "#D3DEDC",
           ],
-          stroke: {
-            width: [2, 2, 2, 2, 0, 0],
-            curve: [
-              "stepline",
-              "stepline",
-              "smooth",
-              "smooth",
-              "smooth",
-              "smooth",
-            ],
-          },
-          plotOptions: { bar: { columnWidth: "60%", borderRadius: 2 } },
+          dataLabels: { enabled: false },
+          stroke: { width: [2, 2, 2, 2, 2, 0, 0], curve: "smooth" },
+          plotOptions: { bar: { columnWidth: "50%" } },
           markers: { size: 0 },
+
+          // klucz: wracamy do osi kategorii jak wcześniej
           xaxis: {
-            type: "datetime",
+            type: "category",
+            categories: date.slice().reverse(),
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
-            min: new Date(startISO).getTime(),
-            max: new Date(endISO).getTime(),
           },
+
+          // „stary” trick: kilka lewych osi z tym samym zakresem,
+          // żeby wszystkie linie cenowe dostały identyczną skalę.
           yaxis: [
             {
-              // ceny (lewa)
-              title: { text: "Cena" },
-              min: priceMin,
-              max: priceMax,
+              // oś cen (lewa)
+              seriesName: "Najwyzsza",
+              max: scaleMax,
+              min: scaleMin,
               forceNiceScale: false,
+              title: { text: "Cena" },
               labels: {
-                formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
+                formatter: (val) =>
+                  typeof val === "number" ? val.toFixed(2) : val, // dwie cyfry po przecinku
               },
             },
             {
-              // ilości (prawa)
+              seriesName: "Srednia",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+            },
+            {
+              seriesName: "Najnizsza",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+            },
+            {
+              seriesName: "Cena det.",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+            },
+            {
+              seriesName: "Cena ew.",
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+            },
+
+            {
+              // oś ilości (prawa)
               opposite: true,
-              title: { text: "Ilość" },
-              min: qtyMin,
+              seriesName: "Stan",
               max: qtyMax,
-              tickAmount: 6,
+              min: 0,
               forceNiceScale: true,
+              title: { text: "Ilość" },
               labels: {
-                formatter: (v) =>
-                  typeof v === "number" ? String(Math.round(v)) : v,
+                formatter: (val) =>
+                  typeof val === "number" ? Math.round(val).toString() : val, // zaokrąglone do int
               },
+            },
+            {
+              opposite: true,
+              seriesName: "Sprzedaz",
+              max: qtyMax,
+              min: 0,
+              forceNiceScale: true,
+              show: false,
             },
           ],
           tooltip: {
             shared: true,
             intersect: false,
-            x: { format: "yyyy-MM-dd HH:mm" },
             y: {
-              formatter: function (val, { seriesIndex }) {
-                if (val == null) return "-";
-                return seriesIndex >= 4
-                  ? String(Math.round(val))
-                  : Number(val).toFixed(2);
+              formatter: (y, { seriesIndex }) => {
+                if (y == null || Number.isNaN(y)) return "-";
+                // serie 0–4 to ceny, 5–6 to ilości
+                return seriesIndex <= 4
+                  ? Number(y).toFixed(2)
+                  : String(Math.round(y));
               },
             },
           },
+
           legend: {
             position: "right",
             horizontalAlign: "center",
@@ -3646,7 +3675,7 @@ ${offerTimestampLine}
           },
         };
 
-        // 7) ZAWSZE render od zera (żeby nie mieszać osi)
+        // render od zera
         if (window.__phChart) {
           await window.__phChart.destroy();
           window.__phChart = null;

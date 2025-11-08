@@ -2574,11 +2574,16 @@ ${offerTimestampLine}
           // żeby wszystkie linie cenowe dostały identyczną skalę.
           yaxis: [
             {
+              // oś cen (lewa)
               seriesName: "Najwyzsza",
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
               title: { text: "Cena" },
+              labels: {
+                formatter: (val) =>
+                  typeof val === "number" ? val.toFixed(2) : val, // dwie cyfry po przecinku
+              },
             },
             {
               seriesName: "Srednia",
@@ -2610,13 +2615,17 @@ ${offerTimestampLine}
             },
 
             {
-              // prawa oś dla ilości
+              // oś ilości (prawa)
               opposite: true,
               seriesName: "Stan",
               max: qtyMax,
               min: 0,
               forceNiceScale: true,
-              title: { text: "Ilosc" },
+              title: { text: "Ilość" },
+              labels: {
+                formatter: (val) =>
+                  typeof val === "number" ? Math.round(val).toString() : val, // zaokrąglone do int
+              },
             },
             {
               opposite: true,
@@ -2627,16 +2636,16 @@ ${offerTimestampLine}
               show: false,
             },
           ],
-
           tooltip: {
             shared: true,
             intersect: false,
             y: {
               formatter: (y, { seriesIndex }) => {
                 if (y == null || Number.isNaN(y)) return "-";
-                return seriesIndex >= 5
-                  ? String(Math.round(y))
-                  : Number(y).toFixed(2);
+                // serie 0–4 to ceny, 5–6 to ilości
+                return seriesIndex <= 4
+                  ? Number(y).toFixed(2)
+                  : String(Math.round(y));
               },
             },
           },
