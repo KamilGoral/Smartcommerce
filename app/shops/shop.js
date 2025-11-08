@@ -2339,9 +2339,9 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // ---- KONWERSJA DO TABLIC ----
-        const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // 'YYYY-MM-DD'
+        const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // YYYY-MM-DD
 
+        // WMS dzienne
         const wmsSorted = (Array.isArray(wmsDaily) ? wmsDaily : [])
           .filter((d) => d?.date || d?.timestamp)
           .map((d) => ({
@@ -2355,6 +2355,7 @@ ${offerTimestampLine}
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 
+        // ASKS (rynek)
         const asksSorted = (Array.isArray(asksSegments) ? asksSegments : [])
           .filter((s) => s?.timestamp)
           .map((s) => ({
@@ -2374,6 +2375,7 @@ ${offerTimestampLine}
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 
+        // Unikalna oś czasu
         const allDates = Array.from(
           new Set([
             ...wmsSorted.map((d) => d.date),
@@ -2381,13 +2383,14 @@ ${offerTimestampLine}
           ])
         ).sort((a, b) => a.localeCompare(b));
 
+        // Tablice pod wykres (kolejność = kolejność serii!)
         const date = [];
         const average = [];
         const lowest = [];
         const retailPrice = [];
         const standardPrice = [];
-        const stock = [];
         const volume = [];
+        const stock = [];
 
         for (const day of allDates) {
           date.push(day);
@@ -2398,11 +2401,11 @@ ${offerTimestampLine}
           lowest.push(a?.lowest ?? null);
           retailPrice.push(w?.retailPrice ?? null);
           standardPrice.push(w?.standardPrice ?? null);
-          stock.push(w?.stock ?? null);
           volume.push(w?.volume ?? null);
+          stock.push(w?.stock ?? null);
         }
 
-        // Zakresy osi
+        // Zakres cen
         const priceVals = [
           ...average,
           ...lowest,
@@ -2422,6 +2425,7 @@ ${offerTimestampLine}
           scaleMax = 2;
         }
 
+        // Zakres ilości
         const qtyVals = [...stock, ...volume].filter(
           (v) => typeof v === "number" && isFinite(v)
         );
@@ -2429,7 +2433,6 @@ ${offerTimestampLine}
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
-        // ---- OPCJE APEXCHARTS ----
         const options = {
           locales: [
             {
@@ -2487,43 +2490,22 @@ ${offerTimestampLine}
           ],
           defaultLocale: "pl",
 
+          // KOLEJNOŚĆ SERII MUSI ODPOWIADAĆ KOLEJNOŚCI OSI
           series: [
-            {
-              name: "Srednia",
-              type: "line",
-              yAxisIndex: 0,
-              data: average.slice().reverse(),
-            },
-            {
-              name: "Najnizsza",
-              type: "line",
-              yAxisIndex: 0,
-              data: lowest.slice().reverse(),
-            },
+            { name: "Srednia", type: "line", data: average.slice().reverse() },
+            { name: "Najnizsza", type: "line", data: lowest.slice().reverse() },
             {
               name: "Cena det.",
               type: "line",
-              yAxisIndex: 0,
               data: retailPrice.slice().reverse(),
             },
             {
               name: "Cena ew.",
               type: "line",
-              yAxisIndex: 0,
               data: standardPrice.slice().reverse(),
             },
-            {
-              name: "Sprzedaz",
-              type: "bar",
-              yAxisIndex: 1,
-              data: volume.slice().reverse(),
-            },
-            {
-              name: "Stan",
-              type: "bar",
-              yAxisIndex: 1,
-              data: stock.slice().reverse(),
-            },
+            { name: "Sprzedaz", type: "bar", data: volume.slice().reverse() },
+            { name: "Stan", type: "bar", data: stock.slice().reverse() },
           ],
 
           chart: {
@@ -2575,27 +2557,72 @@ ${offerTimestampLine}
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
           },
 
-          // 2 osie: 0 = ceny (lewa), 1 = ilości (prawa)
+          // STARY TRICK: 4 lewe osie (ceny), 2 prawe osie (ilości).
+          // ApexCharts przypisze serie do osi po KOLEI.
           yaxis: [
             {
+              // 0 - Srednia
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
               title: { text: "Cena" },
               labels: {
-                formatter: (val) =>
-                  typeof val === "number" ? val.toFixed(2) : val,
+                formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
               },
             },
             {
+              // 1 - Najnizsza
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+              labels: {
+                formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
+              },
+            },
+            {
+              // 2 - Cena det.
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+              labels: {
+                formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
+              },
+            },
+            {
+              // 3 - Cena ew.
+              max: scaleMax,
+              min: scaleMin,
+              forceNiceScale: false,
+              show: false,
+              labels: {
+                formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
+              },
+            },
+
+            {
+              // 4 - Sprzedaz (prawa)
               opposite: true,
               max: qtyMax,
               min: 0,
               forceNiceScale: true,
               title: { text: "Ilość" },
               labels: {
-                formatter: (val) =>
-                  typeof val === "number" ? Math.round(val).toString() : val,
+                formatter: (v) =>
+                  typeof v === "number" ? String(Math.round(v)) : v,
+              },
+            },
+            {
+              // 5 - Stan (prawa, ukryta oś bliźniacza)
+              opposite: true,
+              max: qtyMax,
+              min: 0,
+              forceNiceScale: true,
+              show: false,
+              labels: {
+                formatter: (v) =>
+                  typeof v === "number" ? String(Math.round(v)) : v,
               },
             },
           ],
@@ -2606,6 +2633,7 @@ ${offerTimestampLine}
             y: {
               formatter: (y, { seriesIndex }) => {
                 if (y == null || Number.isNaN(y)) return "-";
+                // serie 0–3 = ceny, 4–5 = ilości
                 return seriesIndex <= 3
                   ? Number(y).toFixed(2)
                   : String(Math.round(y));
