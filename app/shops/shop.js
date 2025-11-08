@@ -2794,24 +2794,27 @@ ${offerTimestampLine}
       .replaceAll('"', "&quot;");
   }
 
-  function escapeHTML(str = "") {
+  function escapeTextKeepNewlines(str = "") {
     return String(str)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+      .replace(/'/g, "&#39;"); // nie ruszamy \n
   }
 
-  function formatMessageCodesTooltip(codes = [], useHTML = true) {
+  function formatMessageCodesTooltip(codes = []) {
     if (!Array.isArray(codes) || codes.length === 0) return "Brak kodów błędów";
+
     const lines = codes.map((c) => {
       const code = String(c).trim();
       const meta = ASK_CODE_MAP[code] || ASK_CODE_MAP[Number(code)];
       const desc = meta?.desc || "Nieznany błąd";
       return `${desc} [${code}]`;
     });
-    return useHTML ? escapeHTML(lines.join("<br>")) : lines.join("\n");
+
+    // Dla atrybutu title – nowa linia przez \n
+    return escapeTextKeepNewlines(lines.join("\n"));
   }
 
   function format(d) {
