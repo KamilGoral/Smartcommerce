@@ -2968,7 +2968,7 @@ whenReadyAndDataTables(function () {
     );
   }
 
-  // ====== MAPA KOMUNIKATÓW (PL/EN) ======
+  // ====== MAPA KOMUNIKATÓW (PL/EN) — bez zmian ======
   const MESSAGE_MAP = {
     "invalid credentials": {
       PL: "Niepoprawne dane logowania.",
@@ -2982,10 +2982,7 @@ whenReadyAndDataTables(function () {
       PL: "Brak przypisanego profilu użytkownika.",
       EN: "Missing user profile.",
     },
-    email_notice1: {
-      PL: "Nie znaleziono.",
-      EN: "Not found.",
-    },
+    email_notice1: { PL: "Nie znaleziono.", EN: "Not found." },
     "scraper timeout": {
       PL: "Operacja pobierania oferty nie została ukończona w zaplanowanym czasie.",
       EN: "The online offer download operation failed to complete within the desired time.",
@@ -3010,32 +3007,47 @@ whenReadyAndDataTables(function () {
       PL: "Konto użytkownika zablokowane.",
       EN: "User account disabled.",
     },
-    "expired credentials": {
-      PL: "Hasło wygasło.",
-      EN: "Expired credentials.",
-    },
+    "expired credentials": { PL: "Hasło wygasło.", EN: "Expired credentials." },
     "site cant be accessed": {
       PL: "Platforma e-hurtowni jest niedostępna.",
       EN: "Wholesaler's site can't be accessed.",
     },
   };
 
-  // ====== POMOCNICZE: tłumaczenie tablicy/pojedynczej wiadomości ======
+  // ====== KANONIZACJA I TŁUMACZENIE ======
+  function canonicalize(str) {
+    return String(str)
+      .toLowerCase()
+      .replace(/[’'"]/g, "") // usuń apostrofy/cudzysłowy (can't -> cant)
+      .replace(/[.,!?;:]+$/g, "") // usuń końcową interpunkcję
+      .replace(/\s+/g, " ") // zredukuj spacje
+      .trim();
+  }
+
+  // Zbuduj indeks kanoniczny mapy (1x przy starcie)
+  const MESSAGE_MAP_CANON = (() => {
+    const idx = {};
+    Object.keys(MESSAGE_MAP).forEach((k) => {
+      idx[canonicalize(k)] = MESSAGE_MAP[k];
+    });
+    return idx;
+  })();
+
   function translateSingleMessage(msg, lang = "PL") {
-    // Przyjmij kody w różnych kształtach: string lub obiekt {code|key|message|text}
-    let code = "";
+    // obsłuż: string lub obiekt {code|key|message|text}
+    let raw = "";
     if (typeof msg === "string") {
-      code = msg.trim().toLowerCase();
+      raw = msg;
     } else if (msg && typeof msg === "object") {
-      const candidate = msg.code || msg.key || msg.message || msg.text;
-      if (candidate) code = String(candidate).trim().toLowerCase();
+      raw = msg.code || msg.key || msg.message || msg.text || "";
     }
 
-    if (code && MESSAGE_MAP[code] && MESSAGE_MAP[code][lang]) {
-      return MESSAGE_MAP[code][lang];
-    }
+    const canon = canonicalize(raw);
+    const found = MESSAGE_MAP_CANON[canon];
 
-    // fallback — zwróć surowy tekst w możliwie czytelnej formie
+    if (found && found[lang]) return found[lang];
+
+    // fallback — pokaż surowy tekst (lub JSON)
     if (typeof msg === "string") return msg;
     try {
       return msg?.text || msg?.message || JSON.stringify(msg);
