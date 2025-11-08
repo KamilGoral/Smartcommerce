@@ -2339,7 +2339,7 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // ---- KONWERSJA DO TABLIC JAK W STARYM KODZIE ----
+        // ---- KONWERSJA DO TABLIC ----
         const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // 'YYYY-MM-DD'
 
         // WMS (dzień po dniu)
@@ -2373,11 +2373,10 @@ ${offerTimestampLine}
                 : typeof s.average === "number"
                 ? s.average
                 : null,
-            // „highest” nie ma w nowych endpointach – zostawimy null
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 
-        // Zbuduj oś czasu jako unikatowe daty
+        // Unikalne daty
         const allDates = Array.from(
           new Set([
             ...wmsSorted.map((d) => d.date),
@@ -2385,9 +2384,8 @@ ${offerTimestampLine}
           ])
         ).sort((a, b) => a.localeCompare(b));
 
-        // Mapuj po datach (jak w starym)
+        // Mapowanie danych po datach
         const date = [];
-        const highest = []; // zostaje null (brak w API)
         const average = [];
         const lowest = [];
         const retailPrice = [];
@@ -2401,7 +2399,6 @@ ${offerTimestampLine}
           const w = wmsSorted.find((x) => x.date === day);
           const a = asksSorted.find((x) => x.date === day);
 
-          highest.push(null);
           average.push(a?.average ?? null);
           lowest.push(a?.lowest ?? null);
           retailPrice.push(w?.retailPrice ?? null);
@@ -2410,9 +2407,8 @@ ${offerTimestampLine}
           volume.push(w?.volume ?? null);
         }
 
-        // Zakres skali cen – tylko liczby
+        // Zakres skali cen
         const priceVals = [
-          ...highest,
           ...average,
           ...lowest,
           ...retailPrice,
@@ -2431,6 +2427,7 @@ ${offerTimestampLine}
           scaleMax = 2;
         }
 
+        // Zakres ilości
         const qtyVals = [...stock, ...volume].filter(
           (v) => typeof v === "number" && isFinite(v)
         );
@@ -2438,9 +2435,8 @@ ${offerTimestampLine}
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
-        // ---- OPCJE W STYLU „STAREGO” WYKRESU ----
+        // ---- OPCJE APEXCHARTS ----
         const options = {
-          // locale musi być na poziomie głównym (nie w chart)
           locales: [
             {
               name: "pl",
@@ -2498,11 +2494,6 @@ ${offerTimestampLine}
           defaultLocale: "pl",
 
           series: [
-            {
-              name: "Najwyzsza",
-              type: "line",
-              data: highest.slice().reverse(),
-            },
             { name: "Srednia", type: "line", data: average.slice().reverse() },
             { name: "Najnizsza", type: "line", data: lowest.slice().reverse() },
             {
@@ -2550,7 +2541,6 @@ ${offerTimestampLine}
           },
 
           colors: [
-            "#FD6A6A",
             "#F9C80E",
             "#4CAF50",
             "#3F51B5",
@@ -2559,91 +2549,48 @@ ${offerTimestampLine}
             "#D3DEDC",
           ],
           dataLabels: { enabled: false },
-          stroke: { width: [2, 2, 2, 2, 2, 0, 0], curve: "smooth" },
+          stroke: { width: [2, 2, 2, 2, 0, 0], curve: "smooth" },
           plotOptions: { bar: { columnWidth: "50%" } },
           markers: { size: 0 },
 
-          // klucz: wracamy do osi kategorii jak wcześniej
           xaxis: {
             type: "category",
             categories: date.slice().reverse(),
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
           },
 
-          // „stary” trick: kilka lewych osi z tym samym zakresem,
-          // żeby wszystkie linie cenowe dostały identyczną skalę.
           yaxis: [
             {
-              // oś cen (lewa)
-              seriesName: "Najwyzsza",
+              // ceny (lewa)
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
               title: { text: "Cena" },
               labels: {
                 formatter: (val) =>
-                  typeof val === "number" ? val.toFixed(2) : val, // dwie cyfry po przecinku
+                  typeof val === "number" ? val.toFixed(2) : val,
               },
             },
             {
-              seriesName: "Srednia",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              seriesName: "Najnizsza",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              seriesName: "Cena det.",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-            {
-              seriesName: "Cena ew.",
-              max: scaleMax,
-              min: scaleMin,
-              forceNiceScale: false,
-              show: false,
-            },
-
-            {
-              // oś ilości (prawa)
               opposite: true,
-              seriesName: "Stan",
               max: qtyMax,
               min: 0,
               forceNiceScale: true,
               title: { text: "Ilość" },
               labels: {
                 formatter: (val) =>
-                  typeof val === "number" ? Math.round(val).toString() : val, // zaokrąglone do int
+                  typeof val === "number" ? Math.round(val).toString() : val,
               },
             },
-            {
-              opposite: true,
-              seriesName: "Sprzedaz",
-              max: qtyMax,
-              min: 0,
-              forceNiceScale: true,
-              show: false,
-            },
           ],
+
           tooltip: {
             shared: true,
             intersect: false,
             y: {
               formatter: (y, { seriesIndex }) => {
                 if (y == null || Number.isNaN(y)) return "-";
-                // serie 0–4 to ceny, 5–6 to ilości
-                return seriesIndex <= 4
+                return seriesIndex <= 3
                   ? Number(y).toFixed(2)
                   : String(Math.round(y));
               },
