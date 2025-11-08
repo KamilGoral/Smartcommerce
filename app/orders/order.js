@@ -3325,32 +3325,26 @@ ${offerTimestampLine}
   function getProductHistory(rowData, { startAt, endAt } = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        // 0) Domyślny stock i zakres czasu
-        if (rowData.stock === null) {
-          rowData.stock = { value: 0, unit: "pieces" };
-        }
+        // 0) Domyślny stock i zakres czasu (90 dni)
+        if (rowData.stock == null) rowData.stock = { value: 0, unit: "pieces" };
         const now = new Date();
         const endISO = endAt || now.toISOString();
         const startISO =
           startAt ||
-          new Date(now.getTime() - 1000 * 60 * 60 * 24 * 90).toISOString(); // 90 dni
+          new Date(now.getTime() - 90 * 24 * 3600 * 1000).toISOString();
 
-        // 1) Pobranie nowych endpointów równolegle
+        // 1) Pobranie endpointów równolegle
         const base = `${InvokeURL}shops/${shopKey}/products/${rowData.gtin}`;
         const asksUrl = new URL(`${base}/asks-history`);
         asksUrl.searchParams.set("startAt", startISO);
         asksUrl.searchParams.set("endAt", endISO);
-
         const wmsUrl = new URL(`${base}/wms-history`);
         wmsUrl.searchParams.set("startAt", startISO);
         wmsUrl.searchParams.set("endAt", endISO);
 
         async function fetchJSON(url) {
           const res = await fetch(url.toString(), {
-            headers: {
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
+            headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
           });
           if (!res.ok) {
             const txt = await res.text().catch(() => "");
@@ -3364,71 +3358,65 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // 2) Transformacja: ASKS → serie „stepline”
-        //    Każdy segment zaczyna obowiązywać od swojego timestamp.
-        //    Dodajemy sztuczny punkt końcowy w endAt, żeby wykres „przeciągnął” ostatnią wartość.
-        function transformAsks(segments, startISO, endISO) {
-          const lowest = [];
-          const average = [];
+        // helpers
+        const r2 = (v) =>
+          typeof v === "number" ? Math.round(v * 100) / 100 : v;
 
+        // 2) ASKS → serie stepline
+        function transformAsks(segments, startISO, endISO) {
+          const lowest = [],
+            average = [];
           const sorted = [...(segments || [])]
             .filter((s) => s && s.timestamp)
             .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
           for (const seg of sorted) {
             const t = new Date(seg.timestamp).toISOString();
-            lowest.push({ x: t, y: seg.minPrice ?? seg.lowest ?? null });
-            average.push({ x: t, y: seg.avgPrice ?? seg.average ?? null });
+            lowest.push({ x: t, y: r2(seg.minPrice ?? seg.lowest ?? null) });
+            average.push({ x: t, y: r2(seg.avgPrice ?? seg.average ?? null) });
           }
-
           if (sorted.length > 0) {
             const last = sorted[sorted.length - 1];
-            lowest.push({ x: endISO, y: last.minPrice ?? last.lowest ?? null });
+            lowest.push({
+              x: endISO,
+              y: r2(last.minPrice ?? last.lowest ?? null),
+            });
             average.push({
               x: endISO,
-              y: last.avgPrice ?? last.average ?? null,
+              y: r2(last.avgPrice ?? last.average ?? null),
             });
           } else {
-            // brak danych — narysuj lukę na cały zakres
             lowest.push({ x: startISO, y: null }, { x: endISO, y: null });
             average.push({ x: startISO, y: null }, { x: endISO, y: null });
           }
-
           return { lowest, average };
         }
 
-        // 3) Transformacja: WMS → serie dzienne {x:timestamp, y:value}
+        // 3) WMS → serie dzienne {x,y}
         function transformWms(daily) {
-          // zabezpieczenie
           const input = Array.isArray(daily) ? daily : [];
-
-          // 1) sparsuj i odfiltruj rekordy bez poprawnej daty
           const parsed = [];
           for (const d of input) {
-            const raw = d?.date ?? d?.timestamp; // <— kluczowa zmiana
+            const raw = d?.date ?? d?.timestamp;
             if (!raw) continue;
             const dt = new Date(raw);
             if (isNaN(dt)) continue;
             parsed.push({ ...d, __x: dt.toISOString() });
           }
-
-          // 2) sortuj rosnąco
           parsed.sort((a, b) => new Date(a.__x) - new Date(b.__x));
 
-          // 3) budowa serii
-          const retailPrice = [];
-          const standardPrice = [];
-          const stock = [];
-          const volume = [];
+          const retailPrice = [],
+            standardPrice = [],
+            stock = [],
+            volume = [];
           const units = new Set();
-
           for (const d of parsed) {
             const x = d.__x;
             units.add(d.unit || "");
-            retailPrice.push({ x, y: d.retailPrice ?? null });
-            standardPrice.push({ x, y: d.standardPrice ?? null });
-            stock.push({ x, y: d.stock ?? null });
-            volume.push({ x, y: d.volume ?? null });
+            retailPrice.push({ x, y: r2(d.retailPrice ?? null) });
+            standardPrice.push({ x, y: r2(d.standardPrice ?? null) });
+            stock.push({ x, y: r2(d.stock ?? null) });
+            volume.push({ x, y: r2(d.volume ?? null) });
           }
           return { retailPrice, standardPrice, stock, volume, units };
         }
@@ -3436,18 +3424,15 @@ ${offerTimestampLine}
         const asks = transformAsks(asksSegments, startISO, endISO);
         const wms = transformWms(wmsDaily);
 
-        // 4) Metryki do kart (7, 90 dni) na bazie WMS.volume
+        // 4) Metryki (7/90 dni) z WMS.volume
         function sumLastDays(series, days) {
-          if (!series.length) return 0;
-          // bierzemy dane z końca zakresu w dół do 'days' pozycji (one są już posortowane rosnąco)
+          if (!series?.length) return 0;
           const tail = series.slice(-days);
           return tail.reduce(
-            (acc, p) => acc + (typeof p.y === "number" ? p.y : 0),
+            (acc, p) => acc + (typeof p?.y === "number" ? p.y : 0),
             0
           );
-          // Uwaga: jeśli są null-e w środku, liczymy tylko liczby (null = 0)
         }
-
         const sales7 = sumLastDays(wms.volume, 7);
         const sales90 = sumLastDays(wms.volume, 90);
 
@@ -3457,10 +3442,9 @@ ${offerTimestampLine}
             : 0) ||
           (wms.stock.length ? wms.stock[wms.stock.length - 1].y || 0 : 0);
 
-        const stockDays =
-          sales7 > 0 ? Math.round((stockNow / (sales7 / 7)) * 1) : "";
+        const stockDays = sales7 > 0 ? Math.round(stockNow / (sales7 / 7)) : "";
 
-        // Zmiany cen (procent) między pierwszym a ostatnim punktem w zakresie
+        // % zmiany cen (pierwszy ↔ ostatni punkt)
         function pct(first, last) {
           if (
             typeof first !== "number" ||
@@ -3479,7 +3463,7 @@ ${offerTimestampLine}
         const retailPriceDeltaPct = pct(rpFirst, rpLast);
         const standardPriceDeltaPct = pct(spFirst, spLast);
 
-        // 5) Aktualizacja UI (dostosuj id jeśli masz inne)
+        // 5) UI karty
         const formatDate = (iso) => (iso ? iso.split("T")[0] : "-");
         const pHistory = document.getElementById("pHistory");
         const pHistorySpan = document.getElementById("pHistorySpan");
@@ -3493,7 +3477,6 @@ ${offerTimestampLine}
         const pSales90 = document.getElementById("pSales90");
         const pStockDays = document.getElementById("pStockDays");
 
-        // liczba punktów czasowych (łączna z asks + wms)
         const uniqueDates = new Set([
           ...asks.lowest.map((p) => formatDate(p.x)),
           ...wms.retailPrice.map((p) => formatDate(p.x)),
@@ -3503,7 +3486,6 @@ ${offerTimestampLine}
           pHistorySpan.textContent = `${formatDate(startISO)} - ${formatDate(
             endISO
           )}`;
-
         if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
         if (pRetailPriceChange)
           pRetailPriceChange.textContent =
@@ -3512,31 +3494,29 @@ ${offerTimestampLine}
           pStandardPriceChange.textContent =
             standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
         if (pSales7)
-          pSales7.textContent = Number.isFinite(sales7) ? sales7 : "";
+          pSales7.textContent = Number.isFinite(sales7) ? r2(sales7) : "";
         if (pSales90)
-          pSales90.textContent = Number.isFinite(sales90) ? sales90 : "";
+          pSales90.textContent = Number.isFinite(sales90) ? r2(sales90) : "";
         if (pStockDays)
           pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
 
-        // 6) Budowa serii do ApexCharts (xaxis: datetime)
-        //    Utrzymujemy Twoje nazwy serii PL, ale zmieniamy dane na {x,y}
+        // 6) Serie do ApexCharts
         const series = [
-          { name: "Najnizsza (asks)", type: "line", data: asks.lowest },
-          { name: "Srednia (asks)", type: "line", data: asks.average },
-          { name: "Cena det. (WMS)", type: "line", data: wms.retailPrice },
-          { name: "Cena ew. (WMS)", type: "line", data: wms.standardPrice },
-          { name: "Sprzedaz (WMS)", type: "bar", data: wms.volume },
-          { name: "Stan (WMS)", type: "bar", data: wms.stock },
+          { name: "Najnizsza Cena", type: "line", data: asks.lowest },
+          { name: "Srednia Cena", type: "line", data: asks.average },
+          { name: "Cena detaliczna", type: "line", data: wms.retailPrice },
+          { name: "Cena ewidencyjna", type: "line", data: wms.standardPrice },
+          { name: "Sprzedaz", type: "bar", data: wms.volume },
+          { name: "Stan", type: "bar", data: wms.stock },
         ];
 
-        // 7) Skale: ceny oraz ilości
+        // 7) Skale
         const priceValues = []
           .concat(asks.lowest.map((p) => p.y))
           .concat(asks.average.map((p) => p.y))
           .concat(wms.retailPrice.map((p) => p.y))
           .concat(wms.standardPrice.map((p) => p.y))
           .filter((v) => typeof v === "number");
-
         const qtyValues = []
           .concat(wms.volume.map((p) => p.y))
           .concat(wms.stock.map((p) => p.y))
@@ -3560,6 +3540,9 @@ ${offerTimestampLine}
           chart: {
             id: "productHistoryChart",
             defaultLocale: "pl",
+            height: 350,
+            type: "line",
+            stacked: false,
             toolbar: {
               show: true,
               tools: {
@@ -3637,11 +3620,7 @@ ${offerTimestampLine}
                 },
               },
             ],
-            height: 350,
-            type: "line",
-            stacked: false,
           },
-          // Kolory możesz zostawić swoje lub nadpisać
           colors: [
             "#FD6A6A",
             "#F9C80E",
@@ -3661,7 +3640,6 @@ ${offerTimestampLine}
           },
           stroke: {
             width: [2, 2, 2, 2, 1, 1],
-            // asks jako "stepline", reszta smooth
             curve: [
               "stepline",
               "stepline",
@@ -3688,6 +3666,10 @@ ${offerTimestampLine}
               min: scaleMin,
               forceNiceScale: false,
               title: { text: "Cena" },
+              labels: {
+                formatter: (val) =>
+                  typeof val === "number" ? val.toFixed(2) : val,
+              },
             },
             { show: false },
             { show: false },
@@ -3699,6 +3681,10 @@ ${offerTimestampLine}
               min: qtyMin,
               forceNiceScale: true,
               title: { text: "Ilosc" },
+              labels: {
+                formatter: (val) =>
+                  typeof val === "number" ? val.toFixed(2) : val,
+              },
             },
             { show: false },
           ],
@@ -3708,8 +3694,8 @@ ${offerTimestampLine}
             x: { format: "yyyy-MM-dd HH:mm" },
             y: {
               formatter: function (y) {
-                if (y === null || typeof y === "undefined") return "-";
-                return y;
+                if (y == null || typeof y === "undefined") return "-";
+                return Number(y).toFixed(2);
               },
             },
           },
