@@ -2340,10 +2340,10 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // helpers: zaokrąglanie
+        // helpers
         const r2 = (v) =>
-          typeof v === "number" ? Math.round(v * 100) / 100 : v; // 2 miejsca
-        const r0 = (v) => (typeof v === "number" ? Math.round(v) : v); // pełne szt.
+          typeof v === "number" ? Math.round(v * 100) / 100 : v;
+        const r0 = (v) => (typeof v === "number" ? Math.round(v) : v);
 
         // 2) ASKS → serie stepline
         function transformAsks(segments, startISO, endISO) {
@@ -2427,35 +2427,11 @@ ${offerTimestampLine}
 
         const stockDays = sales7 > 0 ? Math.round(stockNow / (sales7 / 7)) : "";
 
-        // % zmiany cen (pierwszy ↔ ostatni punkt)
-        function pct(first, last) {
-          if (
-            typeof first !== "number" ||
-            typeof last !== "number" ||
-            last === 0
-          )
-            return "";
-          return Number((((first - last) / last) * 100).toFixed(2));
-        }
-        const rpFirst = wms.retailPrice[0]?.y ?? null;
-        const rpLast = wms.retailPrice[wms.retailPrice.length - 1]?.y ?? null;
-        const spFirst = wms.standardPrice[0]?.y ?? null;
-        const spLast =
-          wms.standardPrice[wms.standardPrice.length - 1]?.y ?? null;
-
-        const retailPriceDeltaPct = pct(rpFirst, rpLast);
-        const standardPriceDeltaPct = pct(spFirst, spLast);
-
         // 5) UI karty
         const formatDate = (iso) => (iso ? iso.split("T")[0] : "-");
         const pHistory = document.getElementById("pHistory");
         const pHistorySpan = document.getElementById("pHistorySpan");
         const pOfferDate = document.getElementById("pOfferDate");
-        const pRetailPriceChange =
-          document.getElementById("pRetailPriceChange");
-        const pStandardPriceChange = document.getElementById(
-          "pStandardPriceChange"
-        );
         const pSales7 = document.getElementById("pSales7");
         const pSales90 = document.getElementById("pSales90");
         const pStockDays = document.getElementById("pStockDays");
@@ -2470,20 +2446,8 @@ ${offerTimestampLine}
             endISO
           )}`;
         if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
-        if (pRetailPriceChange)
-          pRetailPriceChange.textContent =
-            retailPriceDeltaPct === "" ? "" : `(${retailPriceDeltaPct}%)`;
-        if (pStandardPriceChange)
-          pStandardPriceChange.textContent =
-            standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
-        if (pSales7)
-          pSales7.textContent = Number.isFinite(sales7) ? r0(sales7) : "";
-        if (pSales90)
-          pSales90.textContent = Number.isFinite(sales90) ? r0(sales90) : "";
-        if (pStockDays)
-          pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
 
-        // 6) Serie do ApexCharts — jawne mapowanie osi (0: ceny, 1: ilości)
+        // 6) Serie do ApexCharts — ceny na osi głównej, ilości na pomocniczej
         const series = [
           {
             name: "Najnizsza Cena",
@@ -2513,39 +2477,84 @@ ${offerTimestampLine}
           { name: "Stan", type: "bar", yAxisIndex: 1, data: wms.stock },
         ];
 
-        // 7) Skale — CENA wycentrowana na średniej, ILOŚĆ w pełnych sztukach
-        const priceValues = []
+        // 7) SKALOWANIE zgodnie z Twoją specyfikacją
+
+        // 7a) CENY: min/max z 4 serii, rozszerzone o ±20% rozpiętości
+        const priceVals = []
           .concat(asks.lowest.map((p) => p.y))
           .concat(asks.average.map((p) => p.y))
           .concat(wms.retailPrice.map((p) => p.y))
           .concat(wms.standardPrice.map((p) => p.y))
           .filter((v) => typeof v === "number");
 
-        const avgCandidates = asks.average
-          .map((p) => p.y)
-          .filter((v) => typeof v === "number");
-        const mid = avgCandidates.length
-          ? avgCandidates.reduce((a, b) => a + b, 0) / avgCandidates.length
-          : priceValues.length
-          ? priceValues.reduce((a, b) => a + b, 0) / priceValues.length
-          : 0;
+        let priceMin = 0,
+          priceMax = 1;
+        if (priceVals.length) {
+          const minV = Math.min(...priceVals);
+          const maxV = Math.max(...priceVals);
+          let spread = maxV - minV;
+          if (spread <= 0) spread = Math.max(0.01, Math.abs(maxV) * 0.05); // awaryjnie gdy płasko
+          priceMin = minV - 0.2 * spread;
+          priceMax = maxV + 0.2 * spread;
+        }
 
-        const pMin = priceValues.length ? Math.min(...priceValues) : 0;
-        const pMax = priceValues.length ? Math.max(...priceValues) : 1;
-        const dev = Math.max(mid - pMin, pMax - mid);
-        const padding = dev * 0.1; // trochę oddechu
-        const priceMin = mid - dev - padding;
-        const priceMax = mid + dev + padding;
-
-        const qtyValues = []
+        // 7b) ILOŚCI: 0 na dole, szczyt na 90% wysokości skali
+        const qtyVals = []
           .concat(wms.volume.map((p) => p.y))
           .concat(wms.stock.map((p) => p.y))
-          .filter((v) => typeof v === "number");
-        const qtyMax = qtyValues.length
-          ? Math.max(...qtyValues) * 1.1
-          : undefined;
-        const qtyMin = 0; // ilości od zera
+          .filter((v) => typeof v === "number" && isFinite(v));
 
+        let qtyMin = 0,
+          qtyMax = undefined;
+        if (qtyVals.length) {
+          const vMax = Math.max(...qtyVals, 0);
+          qtyMax = vMax > 0 ? Math.ceil(vMax / 0.9) : 1; // żeby max wartość była ~90% wysokości
+        }
+
+        // 8) Różnice cen (opcjonalnie — jeśli używasz w UI)
+        function pct(first, last) {
+          if (
+            typeof first !== "number" ||
+            typeof last !== "number" ||
+            last === 0
+          )
+            return "";
+          return Number((((first - last) / last) * 100).toFixed(2));
+        }
+        const rpFirst = wms.retailPrice[0]?.y ?? null;
+        const rpLast = wms.retailPrice[wms.retailPrice.length - 1]?.y ?? null;
+        const spFirst = wms.standardPrice[0]?.y ?? null;
+        const spLast =
+          wms.standardPrice[wms.standardPrice.length - 1]?.y ?? null;
+
+        const retailPriceDeltaPct = pct(rpFirst, rpLast);
+        const standardPriceDeltaPct = pct(spFirst, spLast);
+
+        const pRetailPriceChange =
+          document.getElementById("pRetailPriceChange");
+        const pStandardPriceChange = document.getElementById(
+          "pStandardPriceChange"
+        );
+        const pSales7El = document.getElementById("pSales7");
+        const pSales90El = document.getElementById("pSales90");
+        const pStockDaysEl = document.getElementById("pStockDays");
+
+        if (pRetailPriceChange)
+          pRetailPriceChange.textContent =
+            retailPriceDeltaPct === "" ? "" : `(${retailPriceDeltaPct}%)`;
+        if (pStandardPriceChange)
+          pStandardPriceChange.textContent =
+            standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
+        if (pSales7El)
+          pSales7El.textContent = Number.isFinite(sales7) ? r0(sales7) : "";
+        if (pSales90El)
+          pSales90El.textContent = Number.isFinite(sales90) ? r0(sales90) : "";
+        if (pStockDaysEl)
+          pStockDaysEl.textContent = Number.isFinite(stockDays)
+            ? stockDays
+            : "";
+
+        // 9) Opcje wykresu
         const options = {
           series,
           chart: {
@@ -2632,7 +2641,7 @@ ${offerTimestampLine}
               },
             ],
           },
-          // Kolory: najniższa cena = #00875A
+          // Kolory: najniższa = #00875A
           colors: [
             "#00875A",
             "#F9C80E",
@@ -2669,13 +2678,14 @@ ${offerTimestampLine}
             min: new Date(startISO).getTime(),
             max: new Date(endISO).getTime(),
           },
-          // Dwie osie Y: 0 — ceny (wycentrowane wokół średniej), 1 — ilości (pełne szt.)
+          // Dwie osie Y: 0 — ceny (skalowane ±20% spreadu), 1 — ilości (0..max/0.9)
           yaxis: [
             {
               title: { text: "Cena" },
               min: priceMin,
               max: priceMax,
               forceNiceScale: false,
+              decimalsInFloat: 2,
               labels: {
                 formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
               },
@@ -2685,11 +2695,11 @@ ${offerTimestampLine}
               title: { text: "Ilość" },
               min: qtyMin,
               max: qtyMax,
-              tickAmount: 5,
+              tickAmount: 6,
               forceNiceScale: true,
               labels: {
                 formatter: (v) =>
-                  typeof v === "number" ? Math.round(v).toString() : v,
+                  typeof v === "number" ? String(Math.round(v)) : v,
               },
             },
           ],
@@ -2700,7 +2710,6 @@ ${offerTimestampLine}
             y: {
               formatter: function (val, { seriesIndex }) {
                 if (val == null || typeof val === "undefined") return "-";
-                // serie 4 i 5 to ilości → pełne sztuki
                 return seriesIndex >= 4
                   ? String(Math.round(val))
                   : Number(val).toFixed(2);
@@ -2716,7 +2725,7 @@ ${offerTimestampLine}
           },
         };
 
-        // 8) Render / Update
+        // 10) Render / Update
         if (window.__productHistoryRendered) {
           ApexCharts.exec(
             "productHistoryChart",
