@@ -2802,7 +2802,7 @@ ${offerTimestampLine}
       const desc = meta?.desc || "Nieznany błąd";
       return `${desc} [${code}]`;
     });
-    return escapeAttr(lines.join(" • "));
+    return escapeAttr(lines.join("\n"));
   }
 
   function format(d) {

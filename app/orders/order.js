@@ -3737,46 +3737,71 @@ ${offerTimestampLine}
   }
 
   const ASK_CODE_MAP = {
-    // 1xxx – błędy danych źródłowych
+    // 1xxx – błędy ekstrakcji (źródłowe)
     1001: {
       name: "Podwójny produkt",
-      desc: "Ten sam towar pojawił się kilka razy.",
+      desc: "Powielona oferta dla tego samego towaru.",
+      scope: ["r", "p"],
     },
-    1002: { name: "Błędne dane", desc: "Ceny lub ilości nie da się odczytać." },
+    1002: {
+      name: "Błędne dane",
+      desc: "Nie udało się odczytać warunków oferty.",
+      scope: ["r"],
+    },
     1003: {
       name: "Problem z promocją",
-      desc: "Nie udało się odczytać danych promocji.",
+      desc: "Nie udało się odczytać promocji.",
+      scope: ["r"], // w specyfikacji występuje „R”; traktujemy jak regular ask
     },
-    1004: { name: "Zła promocja", desc: "Promocja ma niepoprawne dane." },
+    1004: {
+      name: "Zła promocja",
+      desc: "Promocja ma niepoprawne dane.",
+      scope: ["p"],
+    },
     1005: {
       name: "Błąd oferty",
-      desc: "Promocja działa, ale główna oferta jest błędna.",
+      desc: "Promocja została wykluczona z powodu nieprawidłowej ceny regularnej.",
+      scope: ["p"],
     },
     1006: {
       name: "Powtórzona promocja",
-      desc: "Ta sama promocja już istnieje.",
+      desc: "Powielona promocja o tych samych warunkach.",
+      scope: ["p"],
     },
     1007: {
       name: "Błędna promocja gratis",
       desc: "Dane o gratisach są niepoprawne.",
+      scope: ["p"],
     },
     1008: {
       name: "Błędna promocja pakietowa",
-      desc: "W promocji pakietowej coś się nie zgadza.",
+      desc: "Jeden z produktów należących do promocji pakietowej jest nieprawidłowy.",
+      scope: ["p"],
     },
     1009: {
       name: "Niepoprawny kod produktu",
       desc: "Kod produktu jest błędny.",
+      scope: ["n"], // nie jest zapisywany w DB (wiersz nie może powstać bez klucza produktu)
+    },
+    1010: {
+      name: "Promocja przy zduplikowanej ofercie",
+      desc: "Promocja została wykluczona z powodu powielonej oferty regularnej.",
+      scope: ["p"],
     },
 
-    // 2xxx – błędy w obróbce
+    // 2xxx – błędy transformacji (obróbki)
     2001: {
       name: "Zbyt dziwna cena",
-      desc: "Oferta odrzucona – cena zbyt odbiega od innych.",
+      desc: "Oferta odrzucona – cena zbyt odbiega od średniej ceny rynkowej.",
+      scope: ["r"],
     },
 
     // 3xxx – błędy wyświetlania / stanów
-    3001: { name: "Brak towaru", desc: "Nie ma tego towaru na stanie." },
+    3001: {
+      name: "Brak towaru",
+      desc: "Nie ma tego towaru na stanie.",
+      scope: ["r", "p"],
+    },
   };
 
   function escapeAttr(str = "") {
@@ -3795,7 +3820,7 @@ ${offerTimestampLine}
       const desc = meta?.desc || "Nieznany błąd";
       return `${desc} [${code}]`;
     });
-    return escapeAttr(lines.join(" • "));
+    return escapeAttr(lines.join("\n"));
   }
 
   function getWholesalersSh() {
@@ -4703,6 +4728,14 @@ ${offerTimestampLine}
     });
   };
 
+  // === helper: tylko ważne (valid) ask-i z ceną liczbową
+  function getValidAsks(asks) {
+    if (!Array.isArray(asks)) return [];
+    return asks.filter(
+      (a) => a && a.valid === true && typeof a.netPrice === "number"
+    );
+  }
+
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
     lengthMenu: lengthMenuOptions,
@@ -5025,71 +5058,48 @@ ${offerTimestampLine}
         },
       },
       {
-        //Tutaj beda promocje jako obrazki renderowane
+        // (Twoja kolumna "promocje")
         orderable: false,
         data: "asks",
         render: function (data) {
-          if (data !== null && data.length > 0 && data.netPrice !== null) {
-            var mysorteddata = data.sort(
-              (a, b) => (a.netPrice > b.netPrice && 1) || -1
-            );
-            var size = Object.keys(mysorteddata).length;
-            if (size > 0) {
-              var bestOffer = data[0];
-              if (bestOffer.promotion != null) {
-                return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg"></td>';
-              }
-              return "-";
-            }
-            return "-";
-          }
-          return "-";
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const hasPromo = validAsks.some((a) => a.promotion != null);
+          return hasPromo
+            ? '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" alt="promo">'
+            : "-";
         },
       },
+
       {
         orderable: true,
         data: "asks",
         render: function (data) {
-          if (data !== null) {
-            var mysorteddata = data.sort(
-              (a, b) => (a.netPrice > b.netPrice && 1) || -1
-            );
-            var size = Object.keys(mysorteddata).length;
-            if (size > 0) {
-              var bestOffer = data[0];
-              return "" + bestOffer.netPrice;
-            }
-            return "-";
-          }
-          return "-";
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          return bestPrice.toFixed(2);
         },
       },
+
       {
         orderable: false,
         data: "asks",
-        defaultContent: "brak",
         render: function (data) {
-          if (data !== null && data.length > 0 && data.netPrice !== null) {
-            var mysorteddata = data.sort(
-              (a, b) => (a.netPrice > b.netPrice && 1) || -1
-            );
-            var size = Object.keys(mysorteddata).length;
-            var bestPrice = data[0].netPrice;
-            var bestWh = [];
-            bestWh.push(data[0].wholesalerKey);
-            if (size > 1) {
-              for (let i in data) {
-                if (data[parseInt(i)].netPrice == bestPrice) {
-                  bestWh.push(data[parseInt(i)].wholesalerKey);
-                }
-              }
-            }
-            let uniqueWh = [...new Set(bestWh)];
-            return "" + uniqueWh.toString();
-          }
-          return "-";
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          const bestWh = [
+            ...new Set(
+              validAsks
+                .filter((a) => a.netPrice === bestPrice)
+                .map((a) => a.wholesalerKey)
+            ),
+          ];
+          return bestWh.length ? bestWh.join(", ") : "-";
         },
       },
+
       {
         orderable: true,
         data: "rotationIndicator",
