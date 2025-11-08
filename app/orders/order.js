@@ -3812,6 +3812,15 @@ ${offerTimestampLine}
       .replaceAll('"', "&quot;");
   }
 
+  function escapeHTML(str = "") {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function formatMessageCodesTooltip(codes = [], useHTML = true) {
     if (!Array.isArray(codes) || codes.length === 0) return "Brak kodów błędów";
     const lines = codes.map((c) => {
