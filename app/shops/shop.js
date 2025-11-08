@@ -2972,6 +2972,14 @@ ${offerTimestampLine}
     lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
   }
 
+  // === helper: tylko ważne (valid) ask-i z ceną liczbową
+  function getValidAsks(asks) {
+    if (!Array.isArray(asks)) return [];
+    return asks.filter(
+      (a) => a && a.valid === true && typeof a.netPrice === "number"
+    );
+  }
+
   var table = $("#table_id").DataTable({
     pagingType: "full_numbers",
     lengthMenu: lengthMenuOptions,
@@ -3294,71 +3302,48 @@ ${offerTimestampLine}
         },
       },
       {
-        //Tutaj beda promocje jako obrazki renderowane
+        // (Twoja kolumna "promocje")
         orderable: false,
         data: "asks",
         render: function (data) {
-          if (data !== null && data.length > 0 && data.netPrice !== null) {
-            var mysorteddata = data.sort(
-              (a, b) => (a.netPrice > b.netPrice && 1) || -1
-            );
-            var size = Object.keys(mysorteddata).length;
-            if (size > 0) {
-              var bestOffer = data[0];
-              if (bestOffer.promotion != null) {
-                return '<td><img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg"></td>';
-              }
-              return "-";
-            }
-            return "-";
-          }
-          return "-";
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const hasPromo = validAsks.some((a) => a.promotion != null);
+          return hasPromo
+            ? '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" alt="promo">'
+            : "-";
         },
       },
+
       {
         orderable: true,
         data: "asks",
         render: function (data) {
-          if (data !== null) {
-            var mysorteddata = data.sort(
-              (a, b) => (a.netPrice > b.netPrice && 1) || -1
-            );
-            var size = Object.keys(mysorteddata).length;
-            if (size > 0) {
-              var bestOffer = data[0];
-              return "" + bestOffer.netPrice;
-            }
-            return "-";
-          }
-          return "-";
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          return bestPrice.toFixed(2);
         },
       },
+
       {
         orderable: false,
         data: "asks",
-        defaultContent: "brak",
         render: function (data) {
-          if (data !== null && data.length > 0 && data.netPrice !== null) {
-            var mysorteddata = data.sort(
-              (a, b) => (a.netPrice > b.netPrice && 1) || -1
-            );
-            var size = Object.keys(mysorteddata).length;
-            var bestPrice = data[0].netPrice;
-            var bestWh = [];
-            bestWh.push(data[0].wholesalerKey);
-            if (size > 1) {
-              for (let i in data) {
-                if (data[parseInt(i)].netPrice == bestPrice) {
-                  bestWh.push(data[parseInt(i)].wholesalerKey);
-                }
-              }
-            }
-            let uniqueWh = [...new Set(bestWh)];
-            return "" + uniqueWh.toString();
-          }
-          return "-";
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          const bestWh = [
+            ...new Set(
+              validAsks
+                .filter((a) => a.netPrice === bestPrice)
+                .map((a) => a.wholesalerKey)
+            ),
+          ];
+          return bestWh.length ? bestWh.join(", ") : "-";
         },
       },
+
       {
         orderable: true,
         data: "rotationIndicator",
