@@ -3371,24 +3371,25 @@ ${offerTimestampLine}
           const lowest = [];
           const average = [];
 
-          // posortuj segmenty po czasie (na wszelki wypadek)
-          const sorted = [...segments].sort(
-            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-          );
+          const sorted = [...(segments || [])]
+            .filter((s) => s && s.timestamp)
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
           for (const seg of sorted) {
             const t = new Date(seg.timestamp).toISOString();
-            lowest.push({ x: t, y: seg.lowest ?? null });
-            average.push({ x: t, y: seg.average ?? null });
+            lowest.push({ x: t, y: seg.minPrice ?? seg.lowest ?? null });
+            average.push({ x: t, y: seg.avgPrice ?? seg.average ?? null });
           }
 
-          // Jeśli mamy przynajmniej jeden segment, „przeciągnij” ostatnią znaną wartość do endISO
           if (sorted.length > 0) {
             const last = sorted[sorted.length - 1];
-            lowest.push({ x: endISO, y: last.lowest ?? null });
-            average.push({ x: endISO, y: last.average ?? null });
+            lowest.push({ x: endISO, y: last.minPrice ?? last.lowest ?? null });
+            average.push({
+              x: endISO,
+              y: last.avgPrice ?? last.average ?? null,
+            });
           } else {
-            // Brak danych — oznaczamy lukę na cały zakres (null)
+            // brak danych — narysuj lukę na cały zakres
             lowest.push({ x: startISO, y: null }, { x: endISO, y: null });
             average.push({ x: startISO, y: null }, { x: endISO, y: null });
           }
@@ -3398,19 +3399,31 @@ ${offerTimestampLine}
 
         // 3) Transformacja: WMS → serie dzienne {x:timestamp, y:value}
         function transformWms(daily) {
-          // posortuj po czasie rosnąco
-          const sorted = [...daily].sort(
-            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-          );
+          // zabezpieczenie
+          const input = Array.isArray(daily) ? daily : [];
 
+          // 1) sparsuj i odfiltruj rekordy bez poprawnej daty
+          const parsed = [];
+          for (const d of input) {
+            const raw = d?.date ?? d?.timestamp; // <— kluczowa zmiana
+            if (!raw) continue;
+            const dt = new Date(raw);
+            if (isNaN(dt)) continue;
+            parsed.push({ ...d, __x: dt.toISOString() });
+          }
+
+          // 2) sortuj rosnąco
+          parsed.sort((a, b) => new Date(a.__x) - new Date(b.__x));
+
+          // 3) budowa serii
           const retailPrice = [];
           const standardPrice = [];
           const stock = [];
           const volume = [];
           const units = new Set();
 
-          for (const d of sorted) {
-            const x = new Date(d.timestamp).toISOString();
+          for (const d of parsed) {
+            const x = d.__x;
             units.add(d.unit || "");
             retailPrice.push({ x, y: d.retailPrice ?? null });
             standardPrice.push({ x, y: d.standardPrice ?? null });
@@ -3487,9 +3500,10 @@ ${offerTimestampLine}
         ]);
         if (pHistory) pHistory.textContent = uniqueDates.size;
         if (pHistorySpan)
-          pHistorySpan.textContent = `${formatDate(endISO)} - ${formatDate(
-            startISO
+          pHistorySpan.textContent = `${formatDate(startISO)} - ${formatDate(
+            endISO
           )}`;
+
         if (pOfferDate) pOfferDate.textContent = formatDate(startISO);
         if (pRetailPriceChange)
           pRetailPriceChange.textContent =
