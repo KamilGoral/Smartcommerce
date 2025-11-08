@@ -2968,6 +2968,88 @@ whenReadyAndDataTables(function () {
     );
   }
 
+  // ====== MAPA KOMUNIKATÓW (PL/EN) ======
+  const MESSAGE_MAP = {
+    "invalid credentials": {
+      PL: "Niepoprawne dane logowania.",
+      EN: "Invalid credentials.",
+    },
+    "internal server error": {
+      PL: "Wewnętrzny błąd aplikacji.",
+      EN: "Internal server error.",
+    },
+    "missing profile": {
+      PL: "Brak przypisanego profilu użytkownika.",
+      EN: "Missing user profile.",
+    },
+    email_notice1: {
+      PL: "Nie znaleziono.",
+      EN: "Not found.",
+    },
+    "scraper timeout": {
+      PL: "Operacja pobierania oferty nie została ukończona w zaplanowanym czasie.",
+      EN: "The online offer download operation failed to complete within the desired time.",
+    },
+    "branch access denied": {
+      PL: "Brak dostępu do oddziału.",
+      EN: "Branch access denied.",
+    },
+    email_notice2: {
+      PL: "Integracja sklepu z platformą hurtowni została odłączona ze względu na nieprawidłowe dane logowania.",
+      EN: "The store's integration with the wholesale platform has been disconnected due to incorrect login credentials.",
+    },
+    "file not ready": {
+      PL: "Plik cennika nie jest dostępny.",
+      EN: "Pricelist file not available.",
+    },
+    "offer not available": {
+      PL: "Oferta online nie jest dostępna dla użytkownika.",
+      EN: "Online offer is not available for user.",
+    },
+    "account disabled": {
+      PL: "Konto użytkownika zablokowane.",
+      EN: "User account disabled.",
+    },
+    "expired credentials": {
+      PL: "Hasło wygasło.",
+      EN: "Expired credentials.",
+    },
+    "site cant be accessed": {
+      PL: "Platforma e-hurtowni jest niedostępna.",
+      EN: "Wholesaler's site can't be accessed.",
+    },
+  };
+
+  // ====== POMOCNICZE: tłumaczenie tablicy/pojedynczej wiadomości ======
+  function translateSingleMessage(msg, lang = "PL") {
+    // Przyjmij kody w różnych kształtach: string lub obiekt {code|key|message|text}
+    let code = "";
+    if (typeof msg === "string") {
+      code = msg.trim().toLowerCase();
+    } else if (msg && typeof msg === "object") {
+      const candidate = msg.code || msg.key || msg.message || msg.text;
+      if (candidate) code = String(candidate).trim().toLowerCase();
+    }
+
+    if (code && MESSAGE_MAP[code] && MESSAGE_MAP[code][lang]) {
+      return MESSAGE_MAP[code][lang];
+    }
+
+    // fallback — zwróć surowy tekst w możliwie czytelnej formie
+    if (typeof msg === "string") return msg;
+    try {
+      return msg?.text || msg?.message || JSON.stringify(msg);
+    } catch {
+      return String(msg);
+    }
+  }
+
+  function translateMessages(messages, lang = "PL") {
+    if (!Array.isArray(messages)) return [];
+    return messages.map((m) => translateSingleMessage(m, lang));
+  }
+
+  // ====== TWOJA FUNKCJA Z DODANYM TŁUMACZENIEM KOMUNIKATÓW ======
   function getOfferStatus() {
     fetch(`${InvokeURL}shops/${shopKey}/offer/status`, {
       headers: {
@@ -3016,10 +3098,11 @@ whenReadyAndDataTables(function () {
             const isLatestSuccess =
               e.updatedAt === latestEvent.updatedAt &&
               latestEvent.extracting?.status === "success";
+            const rawMsgs = e.extracting?.messages || [];
             return {
               updatedAt: e.updatedAt,
               status: e.extracting?.status || "unknown",
-              messages: e.extracting?.messages || [],
+              messages: translateMessages(rawMsgs, "PL"),
               offerTimestamp: isLatestSuccess
                 ? entry.lastMutation?.offerTimestamp || null
                 : null,
@@ -3033,7 +3116,10 @@ whenReadyAndDataTables(function () {
             statusLabel:
               statusMap[latestEvent.extracting?.status] || statusMap["unknown"],
             updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
-            messages: latestEvent.extracting?.messages || [],
+            messages: translateMessages(
+              latestEvent.extracting?.messages || [],
+              "PL"
+            ),
             allEvents: enrichedEvents,
             expandable:
               enrichedEvents.length > 1 || enrichedEvents[0].status === "error",
@@ -3049,7 +3135,7 @@ whenReadyAndDataTables(function () {
               .slice()
               .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
             entries.push({
-              wholesalerKey: wms.key || "pc-market",
+              wholesalerKey: wms.key || "Program magazynowy",
               source: "Program magazynowy",
               status: latestWmsEvent.extracting?.status || "unknown",
               statusLabel:
@@ -3057,7 +3143,10 @@ whenReadyAndDataTables(function () {
               updatedAt: new Date(latestWmsEvent.updatedAt).toLocaleString(
                 "pl-PL"
               ),
-              messages: latestWmsEvent.extracting?.messages || [],
+              messages: translateMessages(
+                latestWmsEvent.extracting?.messages || [],
+                "PL"
+              ),
             });
           }
         }
@@ -3105,7 +3194,6 @@ whenReadyAndDataTables(function () {
           }
         };
 
-        // Statystyki
         let successCount = 0;
         let errorCount = 0;
         let inProgressCount = 0;
@@ -3117,17 +3205,13 @@ whenReadyAndDataTables(function () {
           else if (entry.status === "in progress") inProgressCount++;
         });
 
-        // Ustawienie liczników
         setText("offerSuccessCounter", successCount);
         setText("offerErrorCounter", errorCount);
         setText("offerInProgreessCounter", inProgressCount);
 
-        // Nagłówki zbiorcze
         setText("offerAllStatus", `Wszystkie (${allCount})`);
         setText("offerActionStatus", `Problematyczne (${errorCount})`);
         setText("offerSuccessStatus", `Sukces (${successCount})`);
-
-        // Kompletność oferty w %
 
         let completenessLabel = "-";
         let completenessClass = "";
@@ -3136,7 +3220,6 @@ whenReadyAndDataTables(function () {
           const percentage = Math.round((successCount / allCount) * 100);
           completenessLabel = `${percentage}%`;
 
-          // Przypisanie klasy w zależności od procentu
           if (percentage >= 90) {
             completenessClass = "positive";
           } else if (percentage >= 80) {
@@ -3146,7 +3229,6 @@ whenReadyAndDataTables(function () {
           }
         }
 
-        // Ustaw tekst i klasę
         setText("offerCondition", completenessLabel);
         setClass("offerCondition", completenessClass);
         setText("offerHealthCounter", completenessLabel);
