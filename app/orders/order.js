@@ -3358,9 +3358,10 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        // helper: zaokrąglanie do 2 miejsc
+        // helpers: zaokrąglanie
         const r2 = (v) =>
-          typeof v === "number" ? Math.round(v * 100) / 100 : v;
+          typeof v === "number" ? Math.round(v * 100) / 100 : v; // 2 miejsca
+        const r0 = (v) => (typeof v === "number" ? Math.round(v) : v); // pełne szt.
 
         // 2) ASKS → serie stepline
         function transformAsks(segments, startISO, endISO) {
@@ -3415,8 +3416,8 @@ ${offerTimestampLine}
             units.add(d.unit || "");
             retailPrice.push({ x, y: r2(d.retailPrice ?? null) });
             standardPrice.push({ x, y: r2(d.standardPrice ?? null) });
-            stock.push({ x, y: r2(d.stock ?? null) });
-            volume.push({ x, y: r2(d.volume ?? null) });
+            stock.push({ x, y: r0(d.stock ?? null) }); // pełne sztuki
+            volume.push({ x, y: r0(d.volume ?? null) }); // pełne sztuki
           }
           return { retailPrice, standardPrice, stock, volume, units };
         }
@@ -3494,9 +3495,9 @@ ${offerTimestampLine}
           pStandardPriceChange.textContent =
             standardPriceDeltaPct === "" ? "" : `(${standardPriceDeltaPct}%)`;
         if (pSales7)
-          pSales7.textContent = Number.isFinite(sales7) ? r2(sales7) : "";
+          pSales7.textContent = Number.isFinite(sales7) ? r0(sales7) : "";
         if (pSales90)
-          pSales90.textContent = Number.isFinite(sales90) ? r2(sales90) : "";
+          pSales90.textContent = Number.isFinite(sales90) ? r0(sales90) : "";
         if (pStockDays)
           pStockDays.textContent = Number.isFinite(stockDays) ? stockDays : "";
 
@@ -3530,30 +3531,38 @@ ${offerTimestampLine}
           { name: "Stan", type: "bar", yAxisIndex: 1, data: wms.stock },
         ];
 
-        // 7) Skale
+        // 7) Skale — CENA wycentrowana na średniej, ILOŚĆ w pełnych sztukach
         const priceValues = []
           .concat(asks.lowest.map((p) => p.y))
           .concat(asks.average.map((p) => p.y))
           .concat(wms.retailPrice.map((p) => p.y))
           .concat(wms.standardPrice.map((p) => p.y))
           .filter((v) => typeof v === "number");
+
+        const avgCandidates = asks.average
+          .map((p) => p.y)
+          .filter((v) => typeof v === "number");
+        const mid = avgCandidates.length
+          ? avgCandidates.reduce((a, b) => a + b, 0) / avgCandidates.length
+          : priceValues.length
+          ? priceValues.reduce((a, b) => a + b, 0) / priceValues.length
+          : 0;
+
+        const pMin = priceValues.length ? Math.min(...priceValues) : 0;
+        const pMax = priceValues.length ? Math.max(...priceValues) : 1;
+        const dev = Math.max(mid - pMin, pMax - mid);
+        const padding = dev * 0.1; // trochę oddechu
+        const priceMin = mid - dev - padding;
+        const priceMax = mid + dev + padding;
+
         const qtyValues = []
           .concat(wms.volume.map((p) => p.y))
           .concat(wms.stock.map((p) => p.y))
           .filter((v) => typeof v === "number");
-
-        const scaleMax = priceValues.length
-          ? Math.max(...priceValues) * 1.1
-          : undefined;
-        const scaleMin = priceValues.length
-          ? Math.min(...priceValues) * 0.9
-          : undefined;
         const qtyMax = qtyValues.length
           ? Math.max(...qtyValues) * 1.1
           : undefined;
-        const qtyMin = qtyValues.length
-          ? Math.min(...qtyValues) * 0.9
-          : undefined;
+        const qtyMin = 0; // ilości od zera
 
         const options = {
           series,
@@ -3641,8 +3650,9 @@ ${offerTimestampLine}
               },
             ],
           },
+          // Kolory: najniższa cena = #00875A
           colors: [
-            "#FD6A6A",
+            "#00875A",
             "#F9C80E",
             "#3F51B5",
             "#03A9F4",
@@ -3677,27 +3687,27 @@ ${offerTimestampLine}
             min: new Date(startISO).getTime(),
             max: new Date(endISO).getTime(),
           },
-          // Dwie osie Y: 0 — ceny, 1 — ilości (sprzedaż/stan)
+          // Dwie osie Y: 0 — ceny (wycentrowane wokół średniej), 1 — ilości (pełne szt.)
           yaxis: [
             {
               title: { text: "Cena" },
-              max: scaleMax,
-              min: scaleMin,
+              min: priceMin,
+              max: priceMax,
               forceNiceScale: false,
               labels: {
-                formatter: (val) =>
-                  typeof val === "number" ? val.toFixed(2) : val,
+                formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
               },
             },
             {
               opposite: true,
               title: { text: "Ilość" },
-              max: qtyMax,
               min: qtyMin,
+              max: qtyMax,
+              tickAmount: 5,
               forceNiceScale: true,
               labels: {
-                formatter: (val) =>
-                  typeof val === "number" ? val.toFixed(2) : val,
+                formatter: (v) =>
+                  typeof v === "number" ? Math.round(v).toString() : v,
               },
             },
           ],
@@ -3706,9 +3716,12 @@ ${offerTimestampLine}
             intersect: false,
             x: { format: "yyyy-MM-dd HH:mm" },
             y: {
-              formatter: function (y) {
-                if (y == null || typeof y === "undefined") return "-";
-                return Number(y).toFixed(2);
+              formatter: function (val, { seriesIndex }) {
+                if (val == null || typeof val === "undefined") return "-";
+                // serie 4 i 5 to ilości → pełne sztuki
+                return seriesIndex >= 4
+                  ? String(Math.round(val))
+                  : Number(val).toFixed(2);
               },
             },
           },
