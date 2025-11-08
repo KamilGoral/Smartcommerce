@@ -2304,7 +2304,7 @@ ${offerTimestampLine}
     tableStatus.column(3).search("Sukces", true, false).draw(); // Tylko success
   });
 
-  function getProductHistory(rowData, { startAt, endAt } = {}) {
+  async function getProductHistory(rowData, { startAt, endAt } = {}) {
     return new Promise(async (resolve, reject) => {
       try {
         // 0) Domyślny stock i zakres 90 dni
@@ -2405,14 +2405,13 @@ ${offerTimestampLine}
         const asks = transformAsks(asksSegments, startISO, endISO);
         const wms = transformWms(wmsDaily);
 
-        // 4) Skalowanie osi
-        // Ceny → min/max z 4 serii, ±20% spreadu
+        // 4) Skalowanie osi – ceny
         const priceVals = []
           .concat(asks.lowest.map((p) => p.y))
           .concat(asks.average.map((p) => p.y))
           .concat(wms.retailPrice.map((p) => p.y))
           .concat(wms.standardPrice.map((p) => p.y))
-          .filter((v) => typeof v === "number");
+          .filter((v) => typeof v === "number" && isFinite(v));
         let priceMin = 0,
           priceMax = 1;
         if (priceVals.length) {
@@ -2422,9 +2421,13 @@ ${offerTimestampLine}
           if (spread <= 0) spread = Math.max(0.01, Math.abs(maxV) * 0.05);
           priceMin = minV - 0.2 * spread;
           priceMax = maxV + 0.2 * spread;
+        } else {
+          // brak danych cenowych – zablokuj oś żeby nie znikała
+          priceMin = 0;
+          priceMax = 2;
         }
 
-        // Ilości → 0 na dole, szczyt przy 90% wysokości
+        // 5) Skalowanie osi – ilości
         const qtyVals = []
           .concat(wms.volume.map((p) => p.y))
           .concat(wms.stock.map((p) => p.y))
@@ -2434,7 +2437,7 @@ ${offerTimestampLine}
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
-        // 5) Serie z jawnie ustawioną osią
+        // 6) Serie
         const series = [
           {
             name: "Najnizsza Cena",
@@ -2464,73 +2467,72 @@ ${offerTimestampLine}
           { name: "Stan", type: "bar", yAxisIndex: 1, data: wms.stock },
         ];
 
-        // 6) Opcje
+        // 7) OPCJE APEXCHARTS
         const options = {
+          // ⬇⬇ LOCALE MUSI BYĆ NA POZIOMIE GŁÓWNYM
+          locales: [
+            {
+              name: "pl",
+              options: {
+                months: [
+                  "Styczen",
+                  "Luty",
+                  "Marzec",
+                  "Kwiecien",
+                  "Maj",
+                  "Czerwiec",
+                  "Lipiec",
+                  "Sierpien",
+                  "Wrzesien",
+                  "Pazdziernik",
+                  "Listopad",
+                  "Grudzien",
+                ],
+                shortMonths: [
+                  "Sty",
+                  "Lut",
+                  "Mar",
+                  "Kwi",
+                  "Maj",
+                  "Cze",
+                  "Lip",
+                  "Sie",
+                  "Wrz",
+                  "Paz",
+                  "Lis",
+                  "Gru",
+                ],
+                days: [
+                  "Niedziela",
+                  "Poniedzialek",
+                  "Wtorek",
+                  "Sroda",
+                  "Czwartek",
+                  "Piatek",
+                  "Sobota",
+                ],
+                shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                toolbar: {
+                  download: "Pobierz SVG",
+                  selection: "Zaznacz",
+                  selectionZoom: "Powieksz strefe",
+                  zoomIn: "Przybliz",
+                  zoomOut: "Oddal",
+                  pan: "Przesun",
+                  reset: "Reset",
+                },
+              },
+            },
+          ],
+          defaultLocale: "pl",
+          // ⬆⬆ KONIEC LOCALE
+
           series,
           chart: {
             id: "productHistoryChart",
             height: 350,
             type: "line",
             stacked: false,
-
-            // ⬇⬇ KLUCZOWE: zdefiniuj locale "pl" i ustaw defaultLocale
-            locales: [
-              {
-                name: "pl",
-                options: {
-                  months: [
-                    "Styczen",
-                    "Luty",
-                    "Marzec",
-                    "Kwiecien",
-                    "Maj",
-                    "Czerwiec",
-                    "Lipiec",
-                    "Sierpien",
-                    "Wrzesien",
-                    "Pazdziernik",
-                    "Listopad",
-                    "Grudzien",
-                  ],
-                  shortMonths: [
-                    "Sty",
-                    "Lut",
-                    "Mar",
-                    "Kwi",
-                    "Maj",
-                    "Cze",
-                    "Lip",
-                    "Sie",
-                    "Wrz",
-                    "Paz",
-                    "Lis",
-                    "Gru",
-                  ],
-                  days: [
-                    "Niedziela",
-                    "Poniedzialek",
-                    "Wtorek",
-                    "Sroda",
-                    "Czwartek",
-                    "Piatek",
-                    "Sobota",
-                  ],
-                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
-                  toolbar: {
-                    download: "Pobierz SVG",
-                    selection: "Zaznacz",
-                    selectionZoom: "Powieksz strefe",
-                    zoomIn: "Przybliz",
-                    zoomOut: "Oddal",
-                    pan: "Przesun",
-                    reset: "Reset",
-                  },
-                },
-              },
-            ],
-            defaultLocale: "pl",
-            // ⬆⬆ KONIEC naprawy
-
             toolbar: {
               show: true,
               tools: {
@@ -2564,6 +2566,7 @@ ${offerTimestampLine}
             "#92A9BD",
             "#D3DEDC",
           ],
+          dataLabels: { enabled: false },
           stroke: {
             width: [2, 2, 2, 2, 0, 0],
             curve: [
@@ -2577,25 +2580,28 @@ ${offerTimestampLine}
           },
           plotOptions: { bar: { columnWidth: "60%", borderRadius: 2 } },
           markers: { size: 0 },
+
           xaxis: {
             type: "datetime",
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
             min: new Date(startISO).getTime(),
             max: new Date(endISO).getTime(),
           },
+
           yaxis: [
             {
-              // ceny (lewa)
+              // CENY – LEWA
               title: { text: "Cena" },
               min: priceMin,
               max: priceMax,
               forceNiceScale: false,
+              decimalsInFloat: 2,
               labels: {
                 formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
               },
             },
             {
-              // ilości (prawa)
+              // ILOŚCI – PRAWA
               opposite: true,
               title: { text: "Ilość" },
               min: qtyMin,
@@ -2608,19 +2614,21 @@ ${offerTimestampLine}
               },
             },
           ],
+
           tooltip: {
             shared: true,
             intersect: false,
             x: { format: "yyyy-MM-dd HH:mm" },
             y: {
               formatter: function (val, { seriesIndex }) {
-                if (val == null) return "-";
+                if (val == null || Number.isNaN(val)) return "-";
                 return seriesIndex >= 4
                   ? String(Math.round(val))
                   : Number(val).toFixed(2);
               },
             },
           },
+
           legend: {
             position: "right",
             horizontalAlign: "center",
@@ -2628,7 +2636,7 @@ ${offerTimestampLine}
           },
         };
 
-        // 7) ZAWSZE render od zera (żeby nie mieszać osi)
+        // 8) Zawsze render od zera
         if (window.__phChart) {
           await window.__phChart.destroy();
           window.__phChart = null;
