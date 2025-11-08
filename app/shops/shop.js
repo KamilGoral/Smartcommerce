@@ -2469,10 +2469,68 @@ ${offerTimestampLine}
           series,
           chart: {
             id: "productHistoryChart",
-            defaultLocale: "pl",
             height: 350,
             type: "line",
             stacked: false,
+
+            // ⬇⬇ KLUCZOWE: zdefiniuj locale "pl" i ustaw defaultLocale
+            locales: [
+              {
+                name: "pl",
+                options: {
+                  months: [
+                    "Styczen",
+                    "Luty",
+                    "Marzec",
+                    "Kwiecien",
+                    "Maj",
+                    "Czerwiec",
+                    "Lipiec",
+                    "Sierpien",
+                    "Wrzesien",
+                    "Pazdziernik",
+                    "Listopad",
+                    "Grudzien",
+                  ],
+                  shortMonths: [
+                    "Sty",
+                    "Lut",
+                    "Mar",
+                    "Kwi",
+                    "Maj",
+                    "Cze",
+                    "Lip",
+                    "Sie",
+                    "Wrz",
+                    "Paz",
+                    "Lis",
+                    "Gru",
+                  ],
+                  days: [
+                    "Niedziela",
+                    "Poniedzialek",
+                    "Wtorek",
+                    "Sroda",
+                    "Czwartek",
+                    "Piatek",
+                    "Sobota",
+                  ],
+                  shortDays: ["Nd", "Pon", "Wt", "Sr", "Czw", "Pt", "Sob"],
+                  toolbar: {
+                    download: "Pobierz SVG",
+                    selection: "Zaznacz",
+                    selectionZoom: "Powieksz strefe",
+                    zoomIn: "Przybliz",
+                    zoomOut: "Oddal",
+                    pan: "Przesun",
+                    reset: "Reset",
+                  },
+                },
+              },
+            ],
+            defaultLocale: "pl",
+            // ⬆⬆ KONIEC naprawy
+
             toolbar: {
               show: true,
               tools: {
@@ -2497,6 +2555,7 @@ ${offerTimestampLine}
               autoSelected: "zoom",
             },
           },
+
           colors: [
             "#00875A",
             "#F9C80E",
