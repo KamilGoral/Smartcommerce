@@ -2794,7 +2794,7 @@ ${offerTimestampLine}
       .replaceAll('"', "&quot;");
   }
 
-  function formatMessageCodesTooltip(codes = []) {
+  function formatMessageCodesTooltip(codes = [], useHTML = true) {
     if (!Array.isArray(codes) || codes.length === 0) return "Brak kodów błędów";
     const lines = codes.map((c) => {
       const code = String(c).trim();
@@ -2802,7 +2802,7 @@ ${offerTimestampLine}
       const desc = meta?.desc || "Nieznany błąd";
       return `${desc} [${code}]`;
     });
-    return escapeAttr(lines.join("\n"));
+    return useHTML ? escapeHTML(lines.join("<br>")) : lines.join("\n");
   }
 
   function format(d) {
