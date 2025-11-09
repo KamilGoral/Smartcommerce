@@ -6085,18 +6085,24 @@ ${offerTimestampLine}
   });
 
   $("#table_id").on("click", "img[alt='edit']", function () {
+    var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    var GTINEdit = document.getElementById("gtin");
-    GTINEdit.value = rowData.gtin;
-    GTINEdit.disabled = true;
-    var NameInput = document.getElementById("new-name");
-    NameInput.value = rowData.name;
-    NameInput.textContent = rowData.name;
-    var DistributorInput = document.getElementById("countryDistributorName-2");
-    DistributorInput.value = rowData.countryDistributorName;
-    DistributorInput.textContent = rowData.countryDistributorName;
-    $("#ProposeChangeInGtinModal").css("display", "flex");
+
+    if (isValidBarcode(rowData.gtin)) {
+      var GTINEdit = document.getElementById("gtin");
+      GTINEdit.value = rowData.gtin;
+      GTINEdit.disabled = true;
+      var NameInput = document.getElementById("new-name");
+      NameInput.value = rowData.name;
+      NameInput.textContent = rowData.name;
+      var DistributorInput = document.getElementById(
+        "countryDistributorName-2"
+      );
+      DistributorInput.value = rowData.countryDistributorName;
+      DistributorInput.textContent = rowData.countryDistributorName;
+      $("#ProposeChangeInGtinModal").css("display", "flex");
+    }
   });
 
   $("#table_id").on("focusin", "input", function () {
