@@ -1983,105 +1983,103 @@ whenReadyAndDataTables(function () {
     assignmentSource,
     tableSelector // np. "#table_splited_wh"
   ) {
-    const wholesalersData = JSON.parse(
-      sessionStorage.getItem("wholesalersData")
-    );
+    const wholesalersDataRaw = sessionStorage.getItem("wholesalersData");
+    const wholesalersData = wholesalersDataRaw
+      ? JSON.parse(wholesalersDataRaw)
+      : [];
     const confirmedWholesalers = new Set();
 
-    // Pobieramy dane z DataTable
-    const table = $(tableSelector).DataTable();
-    const tableData = table.rows().data().toArray();
+    // Pobranie danych z tabeli (bezpiecznie, jeśli tabela jeszcze nie istnieje)
+    let tableData = [];
+    const $tbl = $(tableSelector);
+    if ($tbl.length && $.fn.DataTable.isDataTable($tbl)) {
+      tableData = $tbl.DataTable().rows().data().toArray();
+    }
 
     tableData.forEach((row) => {
-      if (row.confirmedAt) {
-        confirmedWholesalers.add(row.wholesalerKey);
-      }
+      if (row && row.confirmedAt) confirmedWholesalers.add(row.wholesalerKey);
     });
 
-    if (wholesalersData && wholesalersData.length > 0) {
-      let selectHTML = "";
+    if (!Array.isArray(wholesalersData) || wholesalersData.length === 0) {
+      return "Brak dostawców do wyboru.";
+    }
 
-      // Obsługa trybu disabled
-      if (isDisabled == 1) {
-        selectHTML =
-          '<select style="width: 120px;" class="wholesalerSelect" disabled>';
-      } else {
-        selectHTML = '<select style="width: 120px;" class="wholesalerSelect">';
-        selectHTML += `<option value="unassigned"${
-          selectedWholesalerKey === "unassigned"
-            ? ' selected style="font-weight: bold"'
-            : ""
-        }>Nieprzydzielony / Pomiń</option>`;
-        if (assignmentSource === "order") {
-          selectHTML += `<option value="remove" style="font-weight: bold">Anuluj mój wybór</option>`;
-        }
+    // --- warunek blokady ---
+    const shouldDisable = isDisabled == 1 || assignmentSource === "exclusive";
+
+    // --- nagłówek <select> ---
+    let selectHTML = `<select style="width:120px;" class="wholesalerSelect wh-picker"`;
+
+    if (shouldDisable) {
+      selectHTML +=
+        ' disabled data-tippy-content="Produkt jest zablokowany do tego dostawcy. Zmiana niedostępna."';
+    }
+    selectHTML += ">";
+
+    // Opcje specjalne tylko gdy NIE jest zablokowane
+    if (!shouldDisable) {
+      selectHTML += `<option value="unassigned"${
+        selectedWholesalerKey === "unassigned"
+          ? ' selected style="font-weight:bold"'
+          : ""
+      }>Nieprzydzielony / Pomiń</option>`;
+
+      if (assignmentSource === "order") {
+        selectHTML += `<option value="remove" style="font-weight:bold">Anuluj mój wybór</option>`;
       }
+    }
 
-      // Sortujemy jsonData po netPrice
-      if (jsonData !== null && jsonData.length > 0) {
-        jsonData.sort((a, b) => a.netPrice - b.netPrice);
-
-        // Usuwamy duplikaty
-        jsonData = jsonData.filter(
-          (item, index, self) =>
-            index ===
+    // --- sort + deduplikacja jsonData ---
+    if (Array.isArray(jsonData) && jsonData.length > 0) {
+      jsonData = [...jsonData]
+        .sort((a, b) => (a.netPrice ?? Infinity) - (b.netPrice ?? Infinity))
+        .filter(
+          (item, idx, self) =>
+            idx ===
             self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
         );
 
-        // Dodajemy dostawców z jsonData, pomijając potwierdzonych (z wyjątkiem wybranego)
-        jsonData.forEach((item) => {
-          if (
-            confirmedWholesalers.has(item.wholesalerKey) &&
-            item.wholesalerKey !== selectedWholesalerKey
-          ) {
-            return;
-          }
-
-          const wholesaler = wholesalersData.find(
-            (w) => w.wholesalerKey === item.wholesalerKey
-          );
-          const wholesalerName = wholesaler
-            ? wholesaler.name
-            : item.wholesalerKey;
-
-          selectHTML += `<option value="${item.wholesalerKey}" ${
-            item.wholesalerKey === selectedWholesalerKey
-              ? 'selected style="font-weight: bold"'
-              : ""
-          }>
-            ${wholesalerName}
-          </option>`;
-        });
-      }
-
-      // Dodajemy pozostałych dostawców z wholesalersData, pomijając potwierdzonych (z wyjątkiem wybranego)
-      wholesalersData.forEach((wholesaler) => {
-        const alreadyAdded =
-          jsonData &&
-          jsonData.some(
-            (item) => item.wholesalerKey === wholesaler.wholesalerKey
-          );
-        const isConfirmed = confirmedWholesalers.has(wholesaler.wholesalerKey);
-
+      // Dostawcy z jsonData (pomijamy potwierdzonych, poza aktualnie wybranym)
+      jsonData.forEach((item) => {
         if (
-          !alreadyAdded &&
-          (!isConfirmed || wholesaler.wholesalerKey === selectedWholesalerKey)
-        ) {
-          selectHTML += `<option value="${wholesaler.wholesalerKey}" ${
-            wholesaler.wholesalerKey === selectedWholesalerKey
-              ? 'selected style="font-weight: bold"'
-              : ""
-          }
-          style="background-color: #EBECF0;">
-            ${wholesaler.name}
-          </option>`;
-        }
-      });
+          confirmedWholesalers.has(item.wholesalerKey) &&
+          item.wholesalerKey !== selectedWholesalerKey
+        )
+          return;
 
-      return selectHTML + "</select>";
-    } else {
-      return "Brak dostawców do wyboru.";
+        const w = wholesalersData.find(
+          (x) => x.wholesalerKey === item.wholesalerKey
+        );
+        const name = w ? w.name : item.wholesalerKey;
+
+        selectHTML += `<option value="${item.wholesalerKey}" ${
+          item.wholesalerKey === selectedWholesalerKey
+            ? 'selected style="font-weight:bold"'
+            : ""
+        }>${name}</option>`;
+      });
     }
+
+    // Pozostali dostawcy z listy (pomijamy potwierdzonych, poza aktualnie wybranym)
+    wholesalersData.forEach((w) => {
+      const alreadyAdded =
+        Array.isArray(jsonData) &&
+        jsonData.some((i) => i.wholesalerKey === w.wholesalerKey);
+      const isConfirmed = confirmedWholesalers.has(w.wholesalerKey);
+
+      if (
+        !alreadyAdded &&
+        (!isConfirmed || w.wholesalerKey === selectedWholesalerKey)
+      ) {
+        selectHTML += `<option value="${w.wholesalerKey}" ${
+          w.wholesalerKey === selectedWholesalerKey
+            ? 'selected style="font-weight:bold"'
+            : ""
+        } style="background-color:#EBECF0;">${w.name}</option>`;
+      }
+    });
+
+    return selectHTML + "</select>";
   }
 
   function populateWholesalerDropdownFromItems(items) {
@@ -2396,8 +2394,10 @@ whenReadyAndDataTables(function () {
               orderData: [8, 1],
               data: null,
               render: function (data) {
+                const disabled =
+                  data.assignmentSource === "exclusive" ? "disabled" : "";
                 return (
-                  '<p style="font-size: 0;display: none">' +
+                  '<p style="font-size:0;display:none">' +
                   (data.wholesalerKey || "") +
                   "</p>" +
                   generateWholesalerSelect(
@@ -2405,7 +2405,8 @@ whenReadyAndDataTables(function () {
                     data.asks,
                     0,
                     data.assignmentSource,
-                    "#table_splited_wh"
+                    "#table_splited_wh",
+                    disabled // przekaż parametr
                   )
                 );
               },
