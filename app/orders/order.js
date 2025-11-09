@@ -6084,7 +6084,7 @@ ${offerTimestampLine}
       });
   });
 
-  $("#table_id").on("click", "img[alt='Edytuj']", function () {
+  $("#table_id").on("click", "img[alt='Edycja']", function () {
     var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
