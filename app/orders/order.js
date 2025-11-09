@@ -6063,7 +6063,7 @@ ${offerTimestampLine}
     }
   });
 
-  $("#table_id").on("click", "img[alt='details']", function () {
+  $("#table_id").on("click", "img[alt='Szczegóły']", function () {
     var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
@@ -6084,7 +6084,7 @@ ${offerTimestampLine}
       });
   });
 
-  $("#table_id").on("click", "img[alt='edit']", function () {
+  $("#table_id").on("click", "img[alt='Edytuj']", function () {
     var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
