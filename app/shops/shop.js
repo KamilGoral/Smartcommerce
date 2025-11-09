@@ -503,7 +503,7 @@ whenReadyAndDataTables(function () {
         sessionStorage.setItem("shopName", data.name);
         var ShopKeyBreadName = sessionStorage.getItem("shopName");
         const ShopNameBread = document.getElementById("ShopNameBread");
-        ShopNameBread.textContent = data.name;
+        ShopNameBread.textContent = data.shopKey;
         ShopNameBread.setAttribute(
           "href",
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
