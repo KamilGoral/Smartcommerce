@@ -944,7 +944,7 @@ whenReadyAndDataTables(function () {
             }
             if (ex > 0) {
               items.push({
-                label: "Blokada (exclusive)",
+                label: "Blokada",
                 count: ex,
                 icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg",
               });
@@ -2659,17 +2659,7 @@ whenReadyAndDataTables(function () {
               });
             }
 
-            // --- BLOKADA selektora dla produktów zablokowanych u dostawcy EXCLUSIVE ---
-            const isBlocked =
-              (data &&
-                (data.blocked === true ||
-                  data.isBlocked === true ||
-                  data.locked === true ||
-                  data.exclusiveLock === true ||
-                  data.wholesalerLocked === true)) ||
-              false;
-
-            if (data && data.assignmentSource === "exclusive" && isBlocked) {
+            if (data.assignmentSource === "exclusive") {
               const $select = $(row).find("select.wh-picker");
               $select
                 .prop("disabled", true)
@@ -2682,25 +2672,6 @@ whenReadyAndDataTables(function () {
                   opacity: "0.6",
                   cursor: "not-allowed",
                 });
-            }
-
-            // --- (istniejący) stan potwierdzenia ---
-            if (data.confirmed === true) {
-              $(row).css({
-                "background-color": "transparent",
-                "font-style": "italic",
-                "font-weight": "300",
-                cursor: "not-allowed",
-              });
-              $(row).attr(
-                "data-tippy-content",
-                "Produkt zamówiony, edycja jest niemożliwa"
-              );
-              $(row).find("input, select, button").attr("disabled", true).css({
-                "pointer-events": "none",
-                opacity: "0.6",
-                cursor: "not-allowed",
-              });
             }
           },
 
