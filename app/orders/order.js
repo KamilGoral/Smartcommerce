@@ -6085,6 +6085,7 @@ ${offerTimestampLine}
   });
 
   $("#table_id").on("click", "img[alt='Edycja']", function () {
+    console.log("kliklam");
     var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
