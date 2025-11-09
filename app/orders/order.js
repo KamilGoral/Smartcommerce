@@ -2658,6 +2658,50 @@ whenReadyAndDataTables(function () {
                 cursor: "not-allowed",
               });
             }
+
+            // --- BLOKADA selektora dla produktów zablokowanych u dostawcy EXCLUSIVE ---
+            const isBlocked =
+              (data &&
+                (data.blocked === true ||
+                  data.isBlocked === true ||
+                  data.locked === true ||
+                  data.exclusiveLock === true ||
+                  data.wholesalerLocked === true)) ||
+              false;
+
+            if (data && data.assignmentSource === "exclusive" && isBlocked) {
+              const $select = $(row).find("select.wh-picker");
+              $select
+                .prop("disabled", true)
+                .attr(
+                  "data-tippy-content",
+                  "Produkt jest zablokowany do tego dostawcy. Zmiana niedostępna."
+                )
+                .css({
+                  "pointer-events": "none",
+                  opacity: "0.6",
+                  cursor: "not-allowed",
+                });
+            }
+
+            // --- (istniejący) stan potwierdzenia ---
+            if (data.confirmed === true) {
+              $(row).css({
+                "background-color": "transparent",
+                "font-style": "italic",
+                "font-weight": "300",
+                cursor: "not-allowed",
+              });
+              $(row).attr(
+                "data-tippy-content",
+                "Produkt zamówiony, edycja jest niemożliwa"
+              );
+              $(row).find("input, select, button").attr("disabled", true).css({
+                "pointer-events": "none",
+                opacity: "0.6",
+                cursor: "not-allowed",
+              });
+            }
           },
 
           initComplete: function () {
