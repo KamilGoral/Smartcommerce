@@ -3595,7 +3595,6 @@ ${offerTimestampLine}
     $("#pEan").text("-");
     $("#pHistory").text("-");
     $("#pHistorySpan").text("-");
-    $("#pOfferDate").text("-");
     $("#pRetailPrice").text("-");
     $("#pStandardPrice").text("-");
     $("#pBestPrice").text("-");
