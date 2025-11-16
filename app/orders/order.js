@@ -1750,7 +1750,7 @@ whenReadyAndDataTables(function () {
     const arr = d.asks || [];
 
     const sourceMap = {
-      "price list": "Cennik",
+      pricat: "Cennik",
       "online offer": "E-hurt",
       ecommerce: "E-hurt",
       wms: "PC-Market",
