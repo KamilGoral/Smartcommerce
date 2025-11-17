@@ -1319,6 +1319,22 @@ whenReadyAndDataTables(function () {
         urlParams.push("exclude=" + excludedNow);
       }
 
+      // --- quantityIncreaseMultiplier ---
+      let multiplierRaw = $("#quantityIncreaseMultiplier").val();
+      let multiplier = parseInt(multiplierRaw, 10);
+
+      // fallback: jeśli coś dziwnego wpisano, wracamy do domyślnego 500
+      if (!Number.isFinite(multiplier) || multiplier <= 0) {
+        multiplier = 500;
+      }
+
+      // tylko jeśli różne od domyślnego 500 – dokładamy do query string
+      if (multiplier !== 500) {
+        urlParams.push(
+          "quantityIncreaseMultiplier=" + encodeURIComponent(multiplier)
+        );
+      }
+
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
