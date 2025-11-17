@@ -2574,6 +2574,14 @@ ${offerTimestampLine}
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
+        const datesForChart = date.slice().reverse();
+        const avgForChart = average.slice().reverse();
+        const lowForChart = lowest.slice().reverse();
+        const retailForChart = retailPrice.slice().reverse();
+        const standardForChart = standardPrice.slice().reverse();
+        const volumeForChart = volume.slice().reverse();
+        const stockForChart = stock.slice().reverse();
+
         const options = {
           locales: [
             {
@@ -2631,22 +2639,13 @@ ${offerTimestampLine}
           ],
           defaultLocale: "pl",
 
-          // kolejnosc serii odpowiada kolejnosci osi
           series: [
-            { name: "Srednia", type: "line", data: average.slice().reverse() },
-            { name: "Najnizsza", type: "line", data: lowest.slice().reverse() },
-            {
-              name: "Cena det.",
-              type: "line",
-              data: retailPrice.slice().reverse(),
-            },
-            {
-              name: "Cena ew.",
-              type: "line",
-              data: standardPrice.slice().reverse(),
-            },
-            { name: "Sprzedaz", type: "bar", data: volume.slice().reverse() },
-            { name: "Stan", type: "bar", data: stock.slice().reverse() },
+            { name: "Srednia", type: "line", data: avgForChart },
+            { name: "Najnizsza", type: "line", data: lowForChart },
+            { name: "Cena det.", type: "line", data: retailForChart },
+            { name: "Cena ew.", type: "line", data: standardForChart },
+            { name: "Sprzedaz", type: "bar", data: volumeForChart },
+            { name: "Stan", type: "bar", data: stockForChart },
           ],
 
           chart: {
@@ -2694,7 +2693,7 @@ ${offerTimestampLine}
 
           xaxis: {
             type: "category",
-            categories: date.slice().reverse(),
+            categories: datesForChart,
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
           },
 
