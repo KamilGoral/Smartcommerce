@@ -5120,9 +5120,14 @@ ${offerTimestampLine}
         QStr = QStr + "&countryDistributorTaxId=" + cdKeyIndiStr;
       }
 
-      $(document).on("click", 'input[type="checkbox"]', function () {
-        $('input[type="checkbox"]').not(this).prop("checked", false);
-      });
+      $(document).on(
+        "click",
+        'input[type="checkbox"].single-checkbox',
+        function () {
+          const $group = $('input[type="checkbox"].single-checkbox');
+          $group.not(this).prop("checked", false);
+        }
+      );
 
       if (whKeyIndiStr) {
         QStr = QStr + "&wholesalerKey=" + whKeyIndiStr;
