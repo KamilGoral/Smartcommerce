@@ -2663,7 +2663,7 @@ whenReadyAndDataTables(function () {
                 if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
                 splFilterRedrawTimer = setTimeout(() => {
                   api.draw(false); // bez resetu paginacji
-                }, 50);
+                }, 0);
               });
 
             // Upewnij się, że selekt w kolumnie ma klasę (na wypadek gdyby helper jej nie dodał)
