@@ -1320,12 +1320,10 @@ whenReadyAndDataTables(function () {
       }
 
       // --- quantityIncreaseMultiplier ---
-      let multiplierRaw = $("#quantityIncreaseMultiplier").val();
-      let multiplier = parseInt(multiplierRaw, 10);
+      const multiplier = getMultiplier();
 
-      // fallback: jeśli coś dziwnego wpisano, wracamy do domyślnego 500
-      if (!Number.isFinite(multiplier) || multiplier <= 0) {
-        multiplier = 500;
+      if (multiplier !== 500) {
+        urlParams.push("quantityIncreaseMultiplier=" + multiplier);
       }
 
       // tylko jeśli różne od domyślnego 500 – dokładamy do query string
@@ -2922,6 +2920,34 @@ whenReadyAndDataTables(function () {
     if (i > -1) changesPayload[i] = newObj;
     else changesPayload.push(newObj);
     return changesPayload;
+  }
+
+  function getMultiplier() {
+    let raw = $("#quantityIncreaseMultiplier").val().trim();
+
+    if (!raw) return 500;
+
+    // usuń znak %
+    raw = raw.replace("%", "");
+
+    // zamień przecinki na kropki
+    raw = raw.replace(",", ".");
+
+    // konwersja na float
+    let floatVal = parseFloat(raw);
+
+    // walidacja liczby
+    if (!Number.isFinite(floatVal) || floatVal <= 0) {
+      return 500;
+    }
+
+    // backend wymaga integer → zaokrąglenie w dół
+    let multiplier = Math.floor(floatVal);
+
+    // zakres
+    if (multiplier > 9999) multiplier = 9999;
+
+    return multiplier;
   }
 
   function getProductDetails(rowData) {
