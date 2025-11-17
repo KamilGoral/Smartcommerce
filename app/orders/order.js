@@ -2655,15 +2655,42 @@ whenReadyAndDataTables(function () {
           initComplete: function () {
             initializeSimpleTooltips();
             const api = this.api();
-            let splFilterRedrawTimer = null;
 
-            $("#CartwholesalerKeyIndicator, #CartRotationIndicator")
-              .off("change._spl")
-              .on("change._spl", function () {
+            // --- nowa logika: redraw dopiero po zamknięciu selecta (blur) ---
+            let splFilterRedrawTimer = null;
+            let lastWhValue = $("#CartwholesalerKeyIndicator").val() || "";
+            let lastRotValue = $("#CartRotationIndicator").val() || "";
+
+            // Globalny dostawca
+            $("#CartwholesalerKeyIndicator")
+              .off("focus._spl blur._spl change._spl") // czyścimy stare handlery
+              .on("focus._spl", function () {
+                lastWhValue = this.value || "";
+              })
+              .on("blur._spl", function () {
+                const newVal = this.value || "";
+                if (newVal === lastWhValue) return; // nic się nie zmieniło → nic nie rób
+
                 if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
                 splFilterRedrawTimer = setTimeout(() => {
-                  api.draw(false); // bez resetu paginacji
-                }, 0);
+                  api.draw(false);
+                }, 50);
+              });
+
+            // Rotacja – analogicznie
+            $("#CartRotationIndicator")
+              .off("focus._spl blur._spl change._spl")
+              .on("focus._spl", function () {
+                lastRotValue = this.value || "";
+              })
+              .on("blur._spl", function () {
+                const newVal = this.value || "";
+                if (newVal === lastRotValue) return;
+
+                if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
+                splFilterRedrawTimer = setTimeout(() => {
+                  api.draw(false);
+                }, 50);
               });
 
             // Upewnij się, że selekt w kolumnie ma klasę (na wypadek gdyby helper jej nie dodał)
