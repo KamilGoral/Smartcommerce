@@ -2428,6 +2428,7 @@ whenReadyAndDataTables(function () {
               width: "80px",
               render: function (data) {
                 let currentPrice = null;
+
                 if (data && data.hasOwnProperty("asks") && data.asks !== null) {
                   if (data.netNetPrice !== null && data.netPrice !== null) {
                     currentPrice = Math.min(data.netNetPrice, data.netPrice);
@@ -2442,16 +2443,23 @@ whenReadyAndDataTables(function () {
                   let lowestNetPrice = Infinity;
                   let lowestNetNetPrice = Infinity;
 
-                  data.asks.forEach((ask) => {
-                    if (ask.confirmed === true) return;
-                    if (ask.netPrice !== null)
-                      lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
-                    if (ask.netNetPrice !== null)
-                      lowestNetNetPrice = Math.min(
-                        lowestNetNetPrice,
-                        ask.netNetPrice
-                      );
-                  });
+                  // ✅ bierzemy tylko aski z valid === true i niepotwierdzone
+                  data.asks
+                    .filter(
+                      (ask) =>
+                        ask && ask.valid === true && ask.confirmed !== true
+                    )
+                    .forEach((ask) => {
+                      if (ask.netPrice !== null) {
+                        lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                      }
+                      if (ask.netNetPrice !== null) {
+                        lowestNetNetPrice = Math.min(
+                          lowestNetNetPrice,
+                          ask.netNetPrice
+                        );
+                      }
+                    });
 
                   if (lowestNetNetPrice === Infinity) lowestNetNetPrice = null;
 
@@ -2480,6 +2488,7 @@ whenReadyAndDataTables(function () {
                 }
               },
             },
+
             {
               orderable: true,
               data: "standardPrice",
