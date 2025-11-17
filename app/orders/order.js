@@ -2488,7 +2488,6 @@ whenReadyAndDataTables(function () {
                 }
               },
             },
-
             {
               orderable: true,
               data: "standardPrice",
@@ -2608,25 +2607,35 @@ whenReadyAndDataTables(function () {
           rowCallback: function (row, data) {
             if (data && data.hasOwnProperty("asks") && data.asks !== null) {
               let currentPrice;
+
               if (data.netNetPrice !== null && data.netPrice !== null) {
                 currentPrice = Math.min(data.netNetPrice, data.netPrice);
               } else {
                 currentPrice =
                   data.netNetPrice !== null ? data.netNetPrice : data.netPrice;
               }
+
               if (currentPrice !== null) {
                 let lowestNetPrice = Infinity;
                 let lowestNetNetPrice = Infinity;
-                data.asks.forEach((ask) => {
-                  if (ask.confirmed === true) return;
-                  if (ask.netPrice !== null)
-                    lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
-                  if (ask.netNetPrice !== null)
-                    lowestNetNetPrice = Math.min(
-                      lowestNetNetPrice,
-                      ask.netNetPrice
-                    );
-                });
+
+                // ✅ tylko ważne, niepotwierdzone aski
+                data.asks
+                  .filter(
+                    (ask) => ask && ask.valid === true && ask.confirmed !== true
+                  )
+                  .forEach((ask) => {
+                    if (ask.netPrice !== null) {
+                      lowestNetPrice = Math.min(lowestNetPrice, ask.netPrice);
+                    }
+                    if (ask.netNetPrice !== null) {
+                      lowestNetNetPrice = Math.min(
+                        lowestNetNetPrice,
+                        ask.netNetPrice
+                      );
+                    }
+                  });
+
                 if (lowestNetNetPrice === Infinity) lowestNetNetPrice = null;
 
                 let lowestPrice;
@@ -2665,41 +2674,39 @@ whenReadyAndDataTables(function () {
             initializeSimpleTooltips();
             const api = this.api();
 
-            // --- nowa logika: redraw dopiero po zamknięciu selecta (blur) ---
             let splFilterRedrawTimer = null;
             let lastWhValue = $("#CartwholesalerKeyIndicator").val() || "";
             let lastRotValue = $("#CartRotationIndicator").val() || "";
 
-            // Globalny dostawca
+            // --- globalny dropdown dostawcy ---
             $("#CartwholesalerKeyIndicator")
-              .off("focus._spl blur._spl change._spl") // czyścimy stare handlery
-              .on("focus._spl", function () {
-                lastWhValue = this.value || "";
-              })
-              .on("blur._spl", function () {
+              .off("change._spl")
+              .on("change._spl", function () {
                 const newVal = this.value || "";
-                if (newVal === lastWhValue) return; // nic się nie zmieniło → nic nie rób
+
+                // jeśli wartość się nie zmieniła – nic nie rób
+                if (newVal === lastWhValue) return;
+                lastWhValue = newVal;
 
                 if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
                 splFilterRedrawTimer = setTimeout(() => {
-                  api.draw(false);
-                }, 50);
+                  api.draw(false); // zawężenie tabeli po nowym dostawcy
+                }, 0); // może być 0–30ms, chodzi tylko o oddanie sterowania UI
               });
 
-            // Rotacja – analogicznie
+            // --- filtr rotacji ---
             $("#CartRotationIndicator")
-              .off("focus._spl blur._spl change._spl")
-              .on("focus._spl", function () {
-                lastRotValue = this.value || "";
-              })
-              .on("blur._spl", function () {
+              .off("change._spl")
+              .on("change._spl", function () {
                 const newVal = this.value || "";
+
                 if (newVal === lastRotValue) return;
+                lastRotValue = newVal;
 
                 if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
                 splFilterRedrawTimer = setTimeout(() => {
                   api.draw(false);
-                }, 50);
+                }, 0);
               });
 
             // Upewnij się, że selekt w kolumnie ma klasę (na wypadek gdyby helper jej nie dodał)
