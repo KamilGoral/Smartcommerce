@@ -5668,9 +5668,14 @@ ${offerTimestampLine}
     timer = setTimeout(triggerCreateOrder, DELAY);
   }
 
-  $("#table-content").on("click", ".theClass, .mylabel", function (e) {
-    resetOrderTimer();
-  });
+  // ✅ Reaguj na kliknięcie w checkbox/label w tabeli podziału
+  $("#table_splited_wh, #DeletedContainer").on(
+    "click",
+    ".theClass, .mylabel",
+    function (e) {
+      resetOrderTimer();
+    }
+  );
 
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
     const table = $("#table_splited_wh").DataTable();
