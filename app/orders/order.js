@@ -1976,39 +1976,29 @@ whenReadyAndDataTables(function () {
     return `<div style="padding: 0 0 8px 44px;">${rowsHtml}</div>`;
   }
 
+  let splConfirmedWholesalers = new Set();
+
   function generateWholesalerSelect(
     selectedWholesalerKey,
     jsonData,
     isDisabled,
     assignmentSource,
-    tableSelector // np. "#table_splited_wh"
+    tableSelector // zostawiamy dla zgodności, ale nie używamy
   ) {
     const wholesalersDataRaw = sessionStorage.getItem("wholesalersData");
     const wholesalersData = wholesalersDataRaw
       ? JSON.parse(wholesalersDataRaw)
       : [];
-    const confirmedWholesalers = new Set();
 
-    // Pobranie danych z tabeli (bezpiecznie, jeśli tabela jeszcze nie istnieje)
-    let tableData = [];
-    const $tbl = $(tableSelector);
-    if ($tbl.length && $.fn.DataTable.isDataTable($tbl)) {
-      tableData = $tbl.DataTable().rows().data().toArray();
-    }
+    // zamiast liczyć per wiersz – bierzemy z globalnego cache
+    const confirmedWholesalers = splConfirmedWholesalers || new Set();
 
-    tableData.forEach((row) => {
-      if (row && row.confirmedAt) confirmedWholesalers.add(row.wholesalerKey);
-    });
-
-    if (!Array.isArray(wholesalersData) || wholesalersData.length === 0) {
-      return "Brak dostawców do wyboru.";
-    }
-
-    // --- warunek blokady ---
+    // --- czy dropdown ma być zablokowany ---
     const shouldDisable = isDisabled == 1 || assignmentSource === "exclusive";
 
     // --- nagłówek <select> ---
-    let selectHTML = `<select style="width:120px;" class="wholesalerSelect wh-picker"`;
+    let selectHTML =
+      '<select style="width:120px;" class="wholesalerSelect wh-picker"';
 
     if (shouldDisable) {
       selectHTML +=
@@ -2030,8 +2020,9 @@ whenReadyAndDataTables(function () {
     }
 
     // --- sort + deduplikacja jsonData ---
-    if (Array.isArray(jsonData) && jsonData.length > 0) {
-      jsonData = [...jsonData]
+    let localList = Array.isArray(jsonData) ? jsonData.slice() : [];
+    if (localList.length > 0) {
+      localList = localList
         .sort((a, b) => (a.netPrice ?? Infinity) - (b.netPrice ?? Infinity))
         .filter(
           (item, idx, self) =>
@@ -2040,12 +2031,13 @@ whenReadyAndDataTables(function () {
         );
 
       // Dostawcy z jsonData (pomijamy potwierdzonych, poza aktualnie wybranym)
-      jsonData.forEach((item) => {
+      localList.forEach((item) => {
         if (
           confirmedWholesalers.has(item.wholesalerKey) &&
           item.wholesalerKey !== selectedWholesalerKey
-        )
+        ) {
           return;
+        }
 
         const w = wholesalersData.find(
           (x) => x.wholesalerKey === item.wholesalerKey
@@ -2060,11 +2052,11 @@ whenReadyAndDataTables(function () {
       });
     }
 
-    // Pozostali dostawcy z listy (pomijamy potwierdzonych, poza aktualnie wybranym)
+    // --- dodaj dostawców z wholesalersData, których jeszcze nie ma ---
     wholesalersData.forEach((w) => {
-      const alreadyAdded =
-        Array.isArray(jsonData) &&
-        jsonData.some((i) => i.wholesalerKey === w.wholesalerKey);
+      const alreadyAdded = localList.some(
+        (i) => i.wholesalerKey === w.wholesalerKey
+      );
       const isConfirmed = confirmedWholesalers.has(w.wholesalerKey);
 
       if (
@@ -2079,7 +2071,8 @@ whenReadyAndDataTables(function () {
       }
     });
 
-    return selectHTML + "</select>";
+    selectHTML += "</select>";
+    return selectHTML;
   }
 
   function populateWholesalerDropdownFromItems(items) {
@@ -2226,8 +2219,10 @@ whenReadyAndDataTables(function () {
         window._splFilter = function (settings, data, dataIndex) {
           if (settings.nTable.id !== "spl_table") return true;
 
-          // Bez tworzenia nowego Api – bierzemy surowe dane wiersza:
-          const rowData = settings.aoData[dataIndex]?._aData || {};
+          // surowe dane wiersza, bez tworzenia nowego Api
+          const rowData =
+            (settings.aoData[dataIndex] && settings.aoData[dataIndex]._aData) ||
+            {};
 
           const selectedWh = (
             $("#CartwholesalerKeyIndicator").val() || ""
@@ -2723,6 +2718,17 @@ whenReadyAndDataTables(function () {
               }
             });
           },
+        });
+        // cache potwierdzonych dostawców przed każdym rysowaniem
+        table.on("preDraw", function () {
+          splConfirmedWholesalers = new Set();
+          const data = table.rows().data();
+          for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            if (row && row.confirmedAt) {
+              splConfirmedWholesalers.add(row.wholesalerKey);
+            }
+          }
         });
       },
     });
