@@ -2683,7 +2683,7 @@ ${offerTimestampLine}
 
         const unitEl = document.getElementById("pUnit");
         if (unitEl) {
-          unitEl.textContent = rowData.stock.unit || "pcs";
+          unitEl.textContent = rowData.stock.unit || "szt";
         }
 
         // sprzedaż ostatnich siedmiu dni i dziewięćdziesięciu dni

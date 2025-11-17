@@ -2226,8 +2226,8 @@ whenReadyAndDataTables(function () {
         window._splFilter = function (settings, data, dataIndex) {
           if (settings.nTable.id !== "spl_table") return true;
 
-          const api = new $.fn.dataTable.Api(settings);
-          const rowData = api.row(dataIndex).data() || {};
+          // Bez tworzenia nowego Api – bierzemy surowe dane wiersza:
+          const rowData = settings.aoData[dataIndex]?._aData || {};
 
           const selectedWh = (
             $("#CartwholesalerKeyIndicator").val() || ""
@@ -2242,6 +2242,7 @@ whenReadyAndDataTables(function () {
 
           return matchWh && matchRot;
         };
+
         $.fn.dataTable.ext.search.push(window._splFilter);
 
         // === Inicjalizacja tabeli ===
@@ -2663,12 +2664,15 @@ whenReadyAndDataTables(function () {
           initComplete: function () {
             initializeSimpleTooltips();
             const api = this.api();
+            let splFilterRedrawTimer = null;
 
-            // Zdarzenia filtrów
             $("#CartwholesalerKeyIndicator, #CartRotationIndicator")
               .off("change._spl")
               .on("change._spl", function () {
-                api.draw();
+                if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
+                splFilterRedrawTimer = setTimeout(() => {
+                  api.draw(false); // bez resetu paginacji
+                }, 0); // możesz dać 30–50ms jeśli nadal będzie ciężko
               });
 
             // Upewnij się, że selekt w kolumnie ma klasę (na wypadek gdyby helper jej nie dodał)
@@ -3693,7 +3697,7 @@ ${offerTimestampLine}
 
         const unitEl = document.getElementById("pUnit");
         if (unitEl) {
-          unitEl.textContent = rowData.stock.unit || "pcs";
+          unitEl.textContent = rowData.stock.unit || "szt";
         }
 
         // sprzedaż ostatnich siedmiu dni i dziewięćdziesięciu dni
