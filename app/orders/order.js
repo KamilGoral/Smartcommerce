@@ -2667,7 +2667,7 @@ whenReadyAndDataTables(function () {
                 if (splFilterRedrawTimer) clearTimeout(splFilterRedrawTimer);
                 splFilterRedrawTimer = setTimeout(() => {
                   api.draw(false); // bez resetu paginacji
-                }, 0); // możesz dać 30–50ms jeśli nadal będzie ciężko
+                }, 50);
               });
 
             // Upewnij się, że selekt w kolumnie ma klasę (na wypadek gdyby helper jej nie dodał)
@@ -2678,28 +2678,6 @@ whenReadyAndDataTables(function () {
                 const $row = $(this).closest("tr");
                 const d = api.row($row).data() || {};
                 $(this).data("initialValue", d.wholesalerKey || "");
-              });
-
-            // Delegowany handler zmiany selekta — synchronizacja row.data().wholesalerKey
-            $("#spl_table")
-              .off("change._wh", "select.wh-picker")
-              .on("change._wh", "select.wh-picker", function (e) {
-                const $sel = $(this);
-                const row = api.row($sel.closest("tr"));
-                const d = row.data() || {};
-                const val = String($sel.val() || "");
-
-                // Aktualizujemy tylko pole wholesalerKey (logikę addChange masz u siebie gdzie indziej)
-                if (val === "remove") {
-                  d.wholesalerKey = "";
-                } else if (val === "unassigned" || val === "enabled") {
-                  // nie zmieniamy wholesalerKey
-                } else {
-                  d.wholesalerKey = val;
-                }
-
-                row.data(d).invalidate().draw(false); // odśwież, żeby filtr zadziałał natychmiast
-                $sel.data("initialValue", val);
               });
 
             // Dodatki UI
@@ -5806,112 +5784,112 @@ ${offerTimestampLine}
   });
 
   // Zalecane: reaguj na faktyczną zmianę wyboru
-  $("#spl_table").on("change", "select", function () {
-    console.log("Change event triggered on select element");
+  $("#spl_table")
+    .off("change.whMain", "select.wh-picker")
+    .on("change.whMain", "select.wh-picker", function () {
+      console.log("Change event triggered on select element");
 
-    const table = $("#spl_table").DataTable();
-    const $select = $(this);
-    const row = table.row($select.closest("tr"));
-    const data = row.data();
+      const table = $("#spl_table").DataTable();
+      const $select = $(this);
+      const row = table.row($select.closest("tr"));
+      const data = row.data();
 
-    const newValue = String($select.val());
-    const initialValue = String($select.data("initialValue") ?? "");
+      const newValue = String($select.val());
+      const initialValue = String($select.data("initialValue") ?? "");
 
-    console.log("New value selected:", newValue);
-    console.log("Initial value:", initialValue);
+      console.log("New value selected:", newValue);
+      console.log("Initial value:", initialValue);
 
-    // Bez zmian → wyjście
-    if (newValue === initialValue) {
-      console.log("No change in value, no action taken.");
-      return;
-    }
+      // Bez zmian → wyjście
+      if (newValue === initialValue) {
+        console.log("No change in value, no action taken.");
+        return;
+      }
 
-    if (!data || !data.gtin) {
-      console.log("GTIN is null, cannot proceed.");
-      return;
-    }
+      if (!data || !data.gtin) {
+        console.log("GTIN is null, cannot proceed.");
+        return;
+      }
 
-    // helpery
-    const addChange = (op, path, value) => {
-      const change = { op, path };
-      if (value !== undefined) change.value = value;
-      addObject(changesPayload, change);
-      console.log("Payload added:", change);
-    };
+      // helpery
+      const addChange = (op, path, value) => {
+        const change = { op, path };
+        if (value !== undefined) change.value = value;
+        addObject(changesPayload, change);
+        console.log("Payload added:", change);
+      };
 
-    const emulateChangeForUser = () => {
-      $("#waitingdots").show(1).delay(150).hide(1);
-    };
+      const emulateChangeForUser = () => {
+        $("#waitingdots").show(1).delay(150).hide(1);
+      };
 
-    function updateAssignmentIconToUser(row) {
-      const d = row.data();
-      d.assignmentSource = "user"; // zmieniamy TYLKO źródło
-      row.data(d).invalidate().draw(false); // odśwież ikonkę bez resetu paginacji
-    }
+      function updateAssignmentIconToUser(row) {
+        const d = row.data();
+        d.assignmentSource = "user"; // zmieniamy TYLKO źródło
+        row.data(d).invalidate().draw(false); // odśwież ikonkę bez resetu paginacji
+      }
 
-    // Logika zmian
-    switch (newValue) {
-      case "remove":
-        if (data.active === false) {
-          console.log(
-            "Option 'remove' for inactive product → enabling product."
-          );
+      // Logika zmian
+      switch (newValue) {
+        case "remove":
+          if (data.active === false) {
+            console.log(
+              "Option 'remove' for inactive product → enabling product."
+            );
+            addChange("replace", `/${data.gtin}/active`, true);
+          } else {
+            console.log("Option 'remove' → removing wholesalerKey.");
+            addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
+            // UWAGA: nie dotykamy ikonki, bo to nie jest przypisanie do konkretnego dostawcy
+          }
+          emulateChangeForUser();
+          break;
+
+        case "unassigned":
+          console.log("Option 'unassigned' → disabling product.");
+          addChange("replace", `/${data.gtin}/active`, false);
+          emulateChangeForUser();
+          break;
+
+        case "enabled":
+          console.log("Option 'enabled' → enabling product.");
           addChange("replace", `/${data.gtin}/active`, true);
-        } else {
-          console.log("Option 'remove' → removing wholesalerKey.");
-          addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
-          // UWAGA: nie dotykamy ikonki, bo to nie jest przypisanie do konkretnego dostawcy
-        }
-        emulateChangeForUser();
-        break;
+          emulateChangeForUser();
+          break;
 
-      case "unassigned":
-        console.log("Option 'unassigned' → disabling product.");
-        addChange("replace", `/${data.gtin}/active`, false);
-        emulateChangeForUser();
-        break;
+        default:
+          // Realna zmiana dostawcy → ustaw ikonę na „użytkownik”
+          console.log("Assigning new wholesalerKey:", newValue);
+          addChange(
+            "replace",
+            `/${data.gtin}/rigidAssignment/wholesalerKey`,
+            newValue
+          );
+          updateAssignmentIconToUser(row); // TYLKO tutaj
+          emulateChangeForUser();
+          // 1) (opcjonalnie) upewnij się, że opcja istnieje i ma ładną etykietę
+          const wholesalers =
+            JSON.parse(sessionStorage.getItem("wholesalersData")) || [];
+          const wh = wholesalers.find((w) => w.wholesalerKey === newValue);
+          const label = wh ? wh.name : newValue;
+          if ($select.find(`option[value="${newValue}"]`).length === 0) {
+            $select.append(`<option value="${newValue}">${label}</option>`);
+          }
 
-      case "enabled":
-        console.log("Option 'enabled' → enabling product.");
-        addChange("replace", `/${data.gtin}/active`, true);
-        emulateChangeForUser();
-        break;
+          // 2) ustaw zaznaczenie użytkownikowi natychmiast
+          $select.val(newValue);
 
-      default:
-        // Realna zmiana dostawcy → ustaw ikonę na „użytkownik”
-        console.log("Assigning new wholesalerKey:", newValue);
-        addChange(
-          "replace",
-          `/${data.gtin}/rigidAssignment/wholesalerKey`,
-          newValue
-        );
-        updateAssignmentIconToUser(row); // TYLKO tutaj
-        emulateChangeForUser();
-        // 1) (opcjonalnie) upewnij się, że opcja istnieje i ma ładną etykietę
-        const wholesalers =
-          JSON.parse(sessionStorage.getItem("wholesalersData")) || [];
-        const wh = wholesalers.find((w) => w.wholesalerKey === newValue);
-        const label = wh ? wh.name : newValue;
-        if ($select.find(`option[value="${newValue}"]`).length === 0) {
-          $select.append(`<option value="${newValue}">${label}</option>`);
-        }
+          // 3) zaktualizuj dane w DataTables (kluczowe – inaczej render przy odświeżeniu przywróci starą wartość)
+          data.wholesalerKey = newValue;
+          // 4) zapamiętaj nową wartość jako initial, żeby nie łapać „braku zmiany”
+          $select.data("initialValue", newValue);
 
-        // 2) ustaw zaznaczenie użytkownikowi natychmiast
-        $select.val(newValue);
+          break;
+      }
 
-        // 3) zaktualizuj dane w DataTables (kluczowe – inaczej render przy odświeżeniu przywróci starą wartość)
-        data.wholesalerKey = newValue;
-        row.data(data).invalidate().draw(false);
-
-        // 4) zapamiętaj nową wartość jako initial, żeby nie łapać „braku zmiany”
-        $select.data("initialValue", newValue);
-
-        break;
-    }
-
-    // Zaktualizuj „initialValue” po obsłużeniu zmiany
-    $select.data("initialValue", newValue);
-  });
+      // Zaktualizuj „initialValue” po obsłużeniu zmiany
+      $select.data("initialValue", newValue);
+    });
 
   window.handlePaste = function (event) {
     // Zatrzymanie domyślnej akcji wklejania
