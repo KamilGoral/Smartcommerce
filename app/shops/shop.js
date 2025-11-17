@@ -2409,7 +2409,9 @@ ${offerTimestampLine}
   async function getProductHistory(rowData, { startAt, endAt } = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        if (rowData.stock == null) rowData.stock = { value: 0, unit: "pieces" };
+        if (rowData.stock == null) {
+          rowData.stock = { value: 0, unit: "pieces" };
+        }
 
         const now = new Date();
         const endISO = endAt || now.toISOString();
@@ -2421,6 +2423,7 @@ ${offerTimestampLine}
         const asksUrl = new URL(`${base}/asks-history`);
         asksUrl.searchParams.set("startAt", startISO);
         asksUrl.searchParams.set("endAt", endISO);
+
         const wmsUrl = new URL(`${base}/wms-history`);
         wmsUrl.searchParams.set("startAt", startISO);
         wmsUrl.searchParams.set("endAt", endISO);
@@ -2441,7 +2444,7 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // YYYY-MM-DD
+        const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // YYYY MM DD
 
         // WMS dzienne
         const wmsSorted = (Array.isArray(wmsDaily) ? wmsDaily : [])
@@ -2457,35 +2460,56 @@ ${offerTimestampLine}
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 
-        // ASKS (rynek)
-        const asksSorted = (Array.isArray(asksSegments) ? asksSegments : [])
+        // ASKS jako segmenty czasowe
+        // timestamp to początek okresu, wartości ważne do kolejnego segmentu
+        const asksSegmentsSorted = (
+          Array.isArray(asksSegments) ? asksSegments : []
+        )
           .filter((s) => s?.timestamp)
-          .map((s) => ({
-            date: toISODate(s.timestamp),
-            lowest:
-              typeof s.minPrice === "number"
-                ? s.minPrice
-                : typeof s.lowest === "number"
-                ? s.lowest
-                : null,
-            average:
+          .map((s) => {
+            const avg =
               typeof s.avgPrice === "number"
                 ? s.avgPrice
                 : typeof s.average === "number"
                 ? s.average
-                : null,
-          }))
-          .sort((a, b) => a.date.localeCompare(b.date));
+                : null;
 
-        // Unikalna oś czasu
-        const allDates = Array.from(
-          new Set([
-            ...wmsSorted.map((d) => d.date),
-            ...asksSorted.map((a) => a.date),
-          ])
-        ).sort((a, b) => a.localeCompare(b));
+            const low =
+              typeof s.minPrice === "number"
+                ? s.minPrice
+                : typeof s.lowest === "number"
+                ? s.lowest
+                : null;
 
-        // Tablice pod wykres (kolejność = kolejność serii!)
+            return {
+              ts: new Date(s.timestamp),
+              avg,
+              low,
+            };
+          })
+          .sort((a, b) => a.ts - b.ts);
+
+        // mapa WMS po dacie
+        const wmsByDate = new Map();
+        for (const w of wmsSorted) {
+          wmsByDate.set(w.date, w);
+        }
+
+        // pełny zakres dni od startAt do endAt
+        const startDay = toISODate(startISO);
+        const endDay = toISODate(endISO);
+
+        const allDates = [];
+        {
+          let cur = new Date(startDay + "T00:00:00.000Z");
+          const end = new Date(endDay + "T00:00:00.000Z");
+          while (cur <= end) {
+            allDates.push(cur.toISOString().slice(0, 10));
+            cur.setUTCDate(cur.getUTCDate() + 1);
+          }
+        }
+
+        // tablice do wykresu
         const date = [];
         const average = [];
         const lowest = [];
@@ -2494,28 +2518,43 @@ ${offerTimestampLine}
         const volume = [];
         const stock = [];
 
+        // forward fill po segmentach asks
+        let segIndex = -1;
         for (const day of allDates) {
-          date.push(day);
-          const w = wmsSorted.find((x) => x.date === day);
-          const a = asksSorted.find((x) => x.date === day);
+          const dayEnd = new Date(day + "T23:59:59.999Z");
 
-          average.push(a?.average ?? null);
-          lowest.push(a?.lowest ?? null);
+          while (
+            segIndex + 1 < asksSegmentsSorted.length &&
+            asksSegmentsSorted[segIndex + 1].ts <= dayEnd
+          ) {
+            segIndex += 1;
+          }
+
+          const seg = segIndex >= 0 ? asksSegmentsSorted[segIndex] : null;
+          const w = wmsByDate.get(day) || null;
+
+          date.push(day);
+
+          average.push(seg ? seg.avg : null);
+          lowest.push(seg ? seg.low : null);
+
           retailPrice.push(w?.retailPrice ?? null);
           standardPrice.push(w?.standardPrice ?? null);
           volume.push(w?.volume ?? null);
           stock.push(w?.stock ?? null);
         }
 
-        // Zakres cen
+        // zakres cen
         const priceVals = [
           ...average,
           ...lowest,
           ...retailPrice,
           ...standardPrice,
         ].filter((v) => typeof v === "number" && isFinite(v));
-        let scaleMin = 0,
-          scaleMax = 1;
+
+        let scaleMin = 0;
+        let scaleMax = 1;
+
         if (priceVals.length) {
           const minV = Math.min(...priceVals);
           const maxV = Math.max(...priceVals);
@@ -2527,7 +2566,7 @@ ${offerTimestampLine}
           scaleMax = 2;
         }
 
-        // Zakres ilości
+        // zakres ilości
         const qtyVals = [...stock, ...volume].filter(
           (v) => typeof v === "number" && isFinite(v)
         );
@@ -2592,7 +2631,7 @@ ${offerTimestampLine}
           ],
           defaultLocale: "pl",
 
-          // KOLEJNOŚĆ SERII MUSI ODPOWIADAĆ KOLEJNOŚCI OSI
+          // kolejnosc serii odpowiada kolejnosci osi
           series: [
             { name: "Srednia", type: "line", data: average.slice().reverse() },
             { name: "Najnizsza", type: "line", data: lowest.slice().reverse() },
@@ -2659,11 +2698,9 @@ ${offerTimestampLine}
             labels: { show: true, rotate: -45, hideOverlappingLabels: true },
           },
 
-          // STARY TRICK: 4 lewe osie (ceny), 2 prawe osie (ilości).
-          // ApexCharts przypisze serie do osi po KOLEI.
+          // cztery osie cenowe po lewej, dwie osi ilosci po prawej
           yaxis: [
             {
-              // 0 - Srednia
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
@@ -2673,7 +2710,6 @@ ${offerTimestampLine}
               },
             },
             {
-              // 1 - Najnizsza
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
@@ -2683,7 +2719,6 @@ ${offerTimestampLine}
               },
             },
             {
-              // 2 - Cena det.
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
@@ -2693,7 +2728,6 @@ ${offerTimestampLine}
               },
             },
             {
-              // 3 - Cena ew.
               max: scaleMax,
               min: scaleMin,
               forceNiceScale: false,
@@ -2702,9 +2736,7 @@ ${offerTimestampLine}
                 formatter: (v) => (typeof v === "number" ? v.toFixed(2) : v),
               },
             },
-
             {
-              // 4 - Sprzedaz (prawa)
               opposite: true,
               max: qtyMax,
               min: 0,
@@ -2716,7 +2748,6 @@ ${offerTimestampLine}
               },
             },
             {
-              // 5 - Stan (prawa, ukryta oś bliźniacza)
               opposite: true,
               max: qtyMax,
               min: 0,
@@ -2734,8 +2765,7 @@ ${offerTimestampLine}
             intersect: false,
             y: {
               formatter: (y, { seriesIndex }) => {
-                if (y == null || Number.isNaN(y)) return "-";
-                // serie 0–3 = ceny, 4–5 = ilości
+                if (y == null || Number.isNaN(y)) return "";
                 return seriesIndex <= 3
                   ? Number(y).toFixed(2)
                   : String(Math.round(y));
@@ -2754,6 +2784,7 @@ ${offerTimestampLine}
           await window.__phChart.destroy();
           window.__phChart = null;
         }
+
         window.__phChart = new ApexCharts(
           document.getElementById("chart"),
           options
@@ -2763,9 +2794,7 @@ ${offerTimestampLine}
         resolve();
       } catch (err) {
         console.error(err);
-        reject(
-          "Błąd podczas pobierania/rysowania historii produktu (nowe endpointy)."
-        );
+        reject("Błąd podczas pobierania lub rysowania historii produktu.");
       }
     });
   }
