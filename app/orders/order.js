@@ -1164,38 +1164,69 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  function rebuildCartWholesalerFilter(table) {
-    const data = table.rows({ search: "applied" }).data().toArray();
+  // Buduje globalny dropdown CartwholesalerKeyIndicator z response GetSplittedProducts
+  function rebuildCartWholesalerFilterFromItems(items = []) {
+    // Map: wholesalerKey -> nazwa
+    const map = new Map();
 
-    const map = new Map(); // key -> name
+    // Spróbuj wziąć pełne nazwy dostawców z cache (getWholesalersSh -> wholesalersData)
+    let wholesalersData = [];
+    try {
+      wholesalersData = JSON.parse(
+        sessionStorage.getItem("wholesalersData") || "[]"
+      );
+    } catch (e) {
+      wholesalersData = [];
+    }
 
-    data.forEach((row) => {
-      const key = row.wholesalerKey;
-      if (!key || key === "unassigned") return;
+    const getWhName = (key) => {
+      if (!key) return "";
+      const w = wholesalersData.find((x) => x.wholesalerKey === key);
+      return (w && w.name) || key;
+    };
 
-      const name = row.wholesalerName || key;
-      if (!map.has(key)) {
-        map.set(key, name);
+    items.forEach((item) => {
+      // 1) aktualnie wybrany dostawca dla produktu
+      if (item.wholesalerKey && item.wholesalerKey !== "unassigned") {
+        const key = item.wholesalerKey;
+        const name = item.wholesalerName || getWhName(key);
+        if (!map.has(key)) map.set(key, name);
+      }
+
+      // 2) potencjalni dostawcy z asks (wszystkie możliwe z tego response)
+      if (Array.isArray(item.asks)) {
+        item.asks.forEach((ask) => {
+          const k = ask.wholesalerKey;
+          if (!k || k === "unassigned") return;
+
+          const name = getWhName(k);
+          if (!map.has(k)) map.set(k, name);
+        });
       }
     });
 
     const $sel = $("#CartwholesalerKeyIndicator");
     const current = $sel.val();
 
+    // 🔥 niszczymy starą listę i budujemy od zera
     $sel.empty();
+
+    // Wszyscy
     $sel.append('<option value="" style="font-weight:bold;">Wszyscy</option>');
 
+    // Dostawcy posortowani po nazwie
     Array.from(map.entries())
       .sort((a, b) => a[1].localeCompare(b[1], "pl"))
       .forEach(([key, name]) => {
         $sel.append(`<option value="${key}">${name}</option>`);
       });
 
+    // Opcja "Nieprzydzielony / Pomiń" zawsze na końcu
     $sel.append(
-      '<option value="unassigned" style="font-weight:bold;">Nieprzydzielone</option>'
+      '<option value="unassigned" style="font-weight:bold;">Nieprzydzielony / Pomiń</option>'
     );
 
-    // zachowaj istniejący wybór jeśli dalej ma sens
+    // Zachowaj poprzedni wybór jeśli ma sens
     if (current && map.has(current)) {
       $sel.val(current);
     } else if (current === "unassigned") {
@@ -2144,6 +2175,7 @@ whenReadyAndDataTables(function () {
       success: function (response) {
         resultProducts = response || { items: [] };
         if (!Array.isArray(resultProducts.items)) resultProducts.items = [];
+        rebuildCartWholesalerFilterFromItems(resultProducts.items);
 
         // callback jeśli podany
         if (typeof successCallback === "function") {
@@ -2623,7 +2655,6 @@ whenReadyAndDataTables(function () {
           initComplete: function () {
             initializeSimpleTooltips();
             const api = this.api();
-            rebuildCartWholesalerFilter(api);
             let splFilterRedrawTimer = null;
 
             $("#CartwholesalerKeyIndicator, #CartRotationIndicator")
@@ -5854,8 +5885,6 @@ ${offerTimestampLine}
 
       // Zaktualizuj „initialValue” po obsłużeniu zmiany
       $select.data("initialValue", newValue);
-      // ← po każdej zmianie podbij listę możliwych dostawców w filtrze
-      rebuildCartWholesalerFilter(table);
     });
 
   window.handlePaste = function (event) {
