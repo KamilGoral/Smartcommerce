@@ -6072,32 +6072,39 @@ ${offerTimestampLine}
   });
 
   $("#spl_table").on("focusout", "input", function () {
-    // Pobierz tabelę
-    var table = $("#spl_table").DataTable();
+    const table = $("#spl_table").DataTable();
+    const $input = $(this);
+    const row = table.row($input.closest("tr"));
 
-    // Pobierz nową wartość i początkową wartość
-    let newValue = $(this).val();
-    var initialValue = parseInt($(this).data("initialValue"));
+    let newValue = $input.val();
+    let initialValue = $input.data("initialValue"); // nie parsujemy od razu
 
-    console.log("New value:", newValue, "Initial value:", initialValue);
+    console.log("New value:", newValue, "Initial value (raw):", initialValue);
 
-    // Sprawdź, czy wartość się zmieniła i czy jest poprawna
-    if (newValue !== initialValue.toString() && parseInt(newValue) >= 0) {
-      // Zaktualizuj wartość w polu input
-      $(this).attr("value", newValue);
+    // liczby do porównania
+    const newNum = newValue === "" ? NaN : parseInt(newValue, 10);
+    const initialNum =
+      initialValue === "" || initialValue == null
+        ? NaN
+        : parseInt(initialValue, 10);
 
-      // Pobierz dane wiersza
-      var data = table.row($(this).parents("tr")).data();
+    if (newNum !== initialNum && !isNaN(newNum) && newNum >= 0) {
+      console.log("Value changed and new value is valid");
 
-      if (data.gtin !== null) {
-        let quantity = parseInt(newValue);
+      // zaktualizuj atrybut value w input
+      $input.attr("value", newValue);
+
+      let data = row.data();
+
+      if (data && data.gtin !== null) {
+        let quantity = newNum;
         if (isNaN(quantity)) {
-          quantity = null; // Jeśli wartość nie jest liczbą, ustaw na null
+          quantity = null;
         }
 
-        var product;
-        if (isNaN(initialValue) && newValue !== initialValue.toString()) {
-          // Jeśli initialValue jest nieprawidłowe, dodaj nowy produkt
+        let product;
+        if (isNaN(initialNum) && !isNaN(newNum)) {
+          // ADD – nie było ilości, a teraz jest
           product = {
             op: "add",
             path: "/" + data.gtin,
@@ -6106,14 +6113,14 @@ ${offerTimestampLine}
             },
           };
         } else if (quantity !== null) {
-          // Jeśli quantity jest prawidłowe, zaktualizuj ilość
+          // REPLACE – była ilość, podmieniamy
           product = {
             op: "replace",
             path: "/" + data.gtin + "/quantity",
             value: quantity,
           };
         } else {
-          // Jeśli quantity jest null, usuń produkt
+          // REMOVE – teraz jest „pusto”
           product = {
             op: "remove",
             path: "/" + data.gtin,
@@ -6123,7 +6130,13 @@ ${offerTimestampLine}
         console.log("Adding product to changesPayload:", product);
         addObject(changesPayload, product);
 
-        // Emuluj zmiany dla użytkownika
+        // 🔥 KLUCZ: aktualizacja danych w DataTables
+        data.quantity = quantity;
+        row.data(data).invalidate().draw(false);
+
+        // ustaw nową wartość jako initialValue, żeby drugi focusout na tej samej wartości nic nie robił
+        $input.data("initialValue", newValue);
+
         $("#waitingdots").show(1).delay(150).hide(1);
       } else {
         console.log("GTIN is null, cannot proceed.");
@@ -6344,30 +6357,40 @@ ${offerTimestampLine}
   $("#table_id").on("focusout", "input", function () {
     console.log("focusout triggered");
 
-    var table = $("#table_id").DataTable();
-    let newValue = $(this).val();
-    var initialValue = parseInt($(this).data("initialValue"));
+    const table = $("#table_id").DataTable();
+    const $input = $(this);
+    const row = table.row($input.closest("tr"));
+
+    let newValue = $input.val();
+    let initialValue = $input.data("initialValue"); // trzymaj jako string/liczbę, bez parseInt na siłę
 
     console.log("New value:", newValue);
-    console.log("Initial value (parsed):", initialValue);
+    console.log("Initial value:", initialValue);
 
-    if (newValue !== initialValue && parseInt(newValue) >= 0) {
+    // jeśli oba są liczbami/stringami liczbowymi można porównać po sparsowaniu:
+    const newNum = newValue === "" ? NaN : parseInt(newValue, 10);
+    const initialNum =
+      initialValue === "" || initialValue == null
+        ? NaN
+        : parseInt(initialValue, 10);
+
+    if (newNum !== initialNum && !isNaN(newNum) && newNum >= 0) {
       console.log("Value changed and new value is valid");
 
-      $(this).attr("value", newValue);
-      var data = table.row($(this).parents("tr")).data();
+      $input.attr("value", newValue);
 
-      console.log("Row data:", data);
+      let data = row.data();
+      console.log("Row data before:", data);
 
-      if (data.gtin !== null) {
-        let quantity = parseInt(newValue);
+      if (data && data.gtin !== null) {
+        let quantity = newNum;
         if (isNaN(quantity)) {
           quantity = null;
           console.log("Parsed quantity is NaN, setting to null");
         }
 
-        var product;
-        if (isNaN(initialValue) && newValue !== initialValue) {
+        let product;
+        if (isNaN(initialNum) && !isNaN(newNum)) {
           console.log("Operation: ADD");
           product = {
             op: "add",
@@ -6393,6 +6416,14 @@ ${offerTimestampLine}
 
         addObject(changesPayload, product);
         console.log("Updated changesPayload:", changesPayload);
+
+        // 🔥 KLUCZ: zaktualizuj dane w DataTables, żeby
+        // późniejsze zmiany dostawcy nie przywracały starej ilości
+        data.quantity = quantity;
+        row.data(data).invalidate().draw(false);
+
+        // zapamiętaj nową wartość jako initialValue
+        $input.data("initialValue", newValue);
 
         $("#waitingdots").show(1).delay(150).hide(1);
       } else {
