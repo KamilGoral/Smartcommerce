@@ -2430,7 +2430,10 @@ ${offerTimestampLine}
 
         async function fetchJSON(url) {
           const res = await fetch(url.toString(), {
-            headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+            headers: {
+              Authorization: orgToken,
+              "Requested-By": "webflow-3-4",
+            },
           });
           if (!res.ok) {
             const txt = await res.text().catch(() => "");
@@ -2461,7 +2464,6 @@ ${offerTimestampLine}
           .sort((a, b) => a.date.localeCompare(b.date));
 
         // ASKS jako segmenty czasowe
-        // timestamp to początek okresu, wartości ważne do kolejnego segmentu
         const asksSegmentsSorted = (
           Array.isArray(asksSegments) ? asksSegments : []
         )
@@ -2534,10 +2536,8 @@ ${offerTimestampLine}
           const w = wmsByDate.get(day) || null;
 
           date.push(day);
-
           average.push(seg ? seg.avg : null);
           lowest.push(seg ? seg.low : null);
-
           retailPrice.push(w?.retailPrice ?? null);
           standardPrice.push(w?.standardPrice ?? null);
           volume.push(w?.volume ?? null);
@@ -2574,13 +2574,19 @@ ${offerTimestampLine}
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
-        const datesForChart = date.slice().reverse();
-        const avgForChart = average.slice().reverse();
-        const lowForChart = lowest.slice().reverse();
-        const retailForChart = retailPrice.slice().reverse();
-        const standardForChart = standardPrice.slice().reverse();
-        const volumeForChart = volume.slice().reverse();
-        const stockForChart = stock.slice().reverse();
+        // tu sterujesz kierunkiem czasu na wykresie
+        const NEWEST_ON_LEFT = false;
+
+        const maybeReverse = (arr) =>
+          NEWEST_ON_LEFT ? arr.slice().reverse() : arr;
+
+        const datesForChart = maybeReverse(date);
+        const avgForChart = maybeReverse(average);
+        const lowForChart = maybeReverse(lowest);
+        const retailForChart = maybeReverse(retailPrice);
+        const standardForChart = maybeReverse(standardPrice);
+        const volumeForChart = maybeReverse(volume);
+        const stockForChart = maybeReverse(stock);
 
         const options = {
           locales: [
@@ -2694,10 +2700,13 @@ ${offerTimestampLine}
           xaxis: {
             type: "category",
             categories: datesForChart,
-            labels: { show: true, rotate: -45, hideOverlappingLabels: true },
+            labels: {
+              show: true,
+              rotate: -45,
+              hideOverlappingLabels: true,
+            },
           },
 
-          // cztery osie cenowe po lewej, dwie osi ilosci po prawej
           yaxis: [
             {
               max: scaleMax,
