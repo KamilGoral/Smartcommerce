@@ -3420,7 +3420,7 @@ ${offerTimestampLine}
     return new Promise(async (resolve, reject) => {
       try {
         if (rowData.stock == null) {
-          rowData.stock = { value: 0, unit: "pieces" };
+          rowData.stock = { value: 0, unit: "pcs" };
         }
 
         const now = new Date();
@@ -3457,7 +3457,7 @@ ${offerTimestampLine}
           fetchJSON(wmsUrl),
         ]);
 
-        const toISODate = (d) => new Date(d).toISOString().slice(0, 10); // YYYY MM DD
+        const toISODate = (d) => new Date(d).toISOString().slice(0, 10);
 
         // WMS dzienne
         const wmsSorted = (Array.isArray(wmsDaily) ? wmsDaily : [])
@@ -3507,7 +3507,7 @@ ${offerTimestampLine}
           wmsByDate.set(w.date, w);
         }
 
-        // pełny zakres dni od startAt do endAt
+        // pełny zakres dni
         const startDay = toISODate(startISO);
         const endDay = toISODate(endISO);
 
@@ -3521,7 +3521,6 @@ ${offerTimestampLine}
           }
         }
 
-        // tablice do wykresu
         const date = [];
         const average = [];
         const lowest = [];
@@ -3530,7 +3529,6 @@ ${offerTimestampLine}
         const volume = [];
         const stock = [];
 
-        // forward fill po segmentach asks
         let segIndex = -1;
         for (const day of allDates) {
           const dayEnd = new Date(day + "T23:59:59.999Z");
@@ -3554,7 +3552,63 @@ ${offerTimestampLine}
           stock.push(w?.stock ?? null);
         }
 
-        // zakres cen
+        // pomocnicze funkcje
+        const lastDefined = (arr) => {
+          for (let i = arr.length - 1; i >= 0; i--) {
+            const v = arr[i];
+            if (typeof v === "number" && isFinite(v)) return v;
+          }
+          return null;
+        };
+
+        const firstDefined = (arr) => {
+          for (let i = 0; i < arr.length; i++) {
+            const v = arr[i];
+            if (typeof v === "number" && isFinite(v)) return v;
+          }
+          return null;
+        };
+
+        const setText = (id, value) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.textContent = value;
+        };
+
+        const setChange = (id, current, base) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+
+          if (
+            typeof current === "number" &&
+            typeof base === "number" &&
+            base !== 0
+          ) {
+            const diff = ((current - base) / base) * 100;
+            const rounded = diff.toFixed(0);
+            const sign = diff > 0 ? "+" : diff < 0 ? "" : "+";
+            el.textContent = `(${sign}${rounded}%)`;
+
+            el.classList.remove(
+              "neutral-value",
+              "positive-value",
+              "negative-value",
+              "hide"
+            );
+            if (diff > 0.1) {
+              el.classList.add("positive-value");
+            } else if (diff < -0.1) {
+              el.classList.add("negative-value");
+            } else {
+              el.classList.add("neutral-value");
+            }
+          } else {
+            el.textContent = "(+0%)";
+            el.classList.add("neutral-value", "hide");
+          }
+        };
+
+        // zakres cen do osi
         const priceVals = [
           ...average,
           ...lowest,
@@ -3584,9 +3638,112 @@ ${offerTimestampLine}
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
           : 1;
 
-        // tu sterujesz kierunkiem czasu na wykresie
-        const NEWEST_ON_LEFT = false;
+        // uzupełnienie kafelków nagłówka
 
+        // nazwa produktu i EAN
+        if (rowData.name) setText("pName", rowData.name);
+        if (rowData.gtin) {
+          const eanEl = document.getElementById("pEan");
+          if (eanEl) {
+            eanEl.textContent = rowData.gtin;
+            eanEl.href = "#";
+          }
+        }
+
+        // analizowany okres
+        const historyDays = allDates.length > 1 ? allDates.length - 1 : 0;
+        setText("pHistory", String(historyDays));
+
+        const spanEl = document.getElementById("pHistorySpan");
+        if (spanEl) {
+          if (allDates.length) {
+            spanEl.textContent = `${allDates[0]} – ${
+              allDates[allDates.length - 1]
+            }`;
+          } else {
+            spanEl.textContent = "";
+          }
+        }
+
+        // aktualne ceny detaliczne i ewidencyjne
+        const lastRetail = lastDefined(retailPrice);
+        const firstRetail = firstDefined(retailPrice);
+        const lastStandard = lastDefined(standardPrice);
+        const firstStandard = firstDefined(standardPrice);
+
+        if (lastRetail != null) setText("pRetailPrice", lastRetail.toFixed(2));
+        if (lastStandard != null)
+          setText("pStandardPrice", lastStandard.toFixed(2));
+
+        setChange("pRetailPriceChange", lastRetail, firstRetail);
+        setChange("pStandardPriceChange", lastStandard, firstStandard);
+
+        // najlepsza cena zakupu z rowData, jeśli jest
+        if (typeof rowData.bestPurchasePrice === "number") {
+          setText("pBestPrice", rowData.bestPurchasePrice.toFixed(2));
+        }
+
+        // stan magazynowy i jednostka
+        const lastStock = lastDefined(stock);
+        if (lastStock != null) {
+          setText("pInStock", String(Math.round(lastStock)));
+        } else if (typeof rowData.stock.value === "number") {
+          setText("pInStock", String(Math.round(rowData.stock.value)));
+        }
+
+        const unitEl = document.getElementById("pUnit");
+        if (unitEl) {
+          unitEl.textContent = rowData.stock.unit || "pcs";
+        }
+
+        // sprzedaż ostatnich siedmiu dni i dziewięćdziesięciu dni
+        const vols = volume.map((v) =>
+          typeof v === "number" && isFinite(v) ? v : 0
+        );
+
+        const sumLast = (n) => {
+          if (!vols.length) return 0;
+          let sum = 0;
+          const len = vols.length;
+          const limit = Math.max(0, len - n);
+          for (let i = len - 1; i >= limit; i--) {
+            sum += vols[i];
+          }
+          return sum;
+        };
+
+        const sales7 = sumLast(7);
+        const sales90 = sumLast(90);
+
+        setText("pSales7", String(Math.round(sales7)));
+        setText("pSales90", String(Math.round(sales90)));
+
+        // stan w dniach na podstawie sprzedaży z dziewięćdziesięciu dni
+        let stockDays = 0;
+        if (sales90 > 0) {
+          const daysUsed = Math.min(90, vols.length);
+          const avgDaily = sales90 / daysUsed;
+          if (
+            avgDaily > 0 &&
+            (lastStock != null || rowData.stock.value != null)
+          ) {
+            const curStock =
+              lastStock != null ? lastStock : Number(rowData.stock.value) || 0;
+            stockDays = Math.round(curStock / avgDaily);
+          }
+        }
+        setText("pStockDays", String(stockDays));
+
+        // wskaźnik rotacji
+        const indicator =
+          rowData.rotationClass || rowData.indicator || rowData.axbx || "";
+        if (indicator) {
+          setText("pIndicator", indicator);
+        }
+
+        // rysowanie wykresu
+
+        const NEWEST_ON_LEFT = false;
         const maybeReverse = (arr) =>
           NEWEST_ON_LEFT ? arr.slice().reverse() : arr;
 
