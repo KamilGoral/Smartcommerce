@@ -2116,80 +2116,6 @@ whenReadyAndDataTables(function () {
     return selectHTML;
   }
 
-  function populateWholesalerDropdownFromItems(items) {
-    const dropdown = document.getElementById("CartwholesalerKeyIndicator");
-
-    // Zapisz aktualnie wybraną wartość
-    const previouslySelected = dropdown.value;
-
-    // Wyczyść dropdown
-    dropdown.innerHTML = "";
-
-    const wholesalersData =
-      JSON.parse(sessionStorage.getItem("wholesalersData")) || [];
-
-    // Mapa nazw: { wholesalerKey => wholesalerName }
-    const wholesalerNameMap = {};
-    wholesalersData.forEach((w) => {
-      wholesalerNameMap[w.wholesalerKey] = w.name;
-    });
-
-    // Grupowanie po wholesalerKey
-    const grouped = {};
-    items.forEach((item) => {
-      const key = item.wholesalerKey || "unassigned";
-      if (!grouped[key]) {
-        grouped[key] = {
-          wholesalerKey: key,
-          quantity: 0,
-        };
-      }
-      grouped[key].quantity += item.quantity || 0;
-    });
-
-    // Oddzielenie unassigned
-    const unassigned = grouped["unassigned"];
-    delete grouped["unassigned"];
-
-    const sorted = Object.values(grouped).sort(
-      (a, b) => b.quantity - a.quantity
-    );
-
-    // Dodaj "Wszyscy"
-    const allOption = document.createElement("option");
-    allOption.value = "";
-    allOption.textContent = "Wszyscy";
-    allOption.style.fontWeight = "bold";
-    dropdown.appendChild(allOption);
-
-    // Dodaj pozostali dostawcy
-    sorted.forEach((entry) => {
-      const name =
-        wholesalerNameMap[entry.wholesalerKey] || entry.wholesalerKey;
-      const option = document.createElement("option");
-      option.value = entry.wholesalerKey;
-      option.textContent = name;
-      dropdown.appendChild(option);
-    });
-
-    // Dodaj "Nieprzydzielone"
-    if (unassigned && unassigned.quantity > 0) {
-      const unassignedOption = document.createElement("option");
-      unassignedOption.value = "unassigned";
-      unassignedOption.textContent = "Nieprzydzielone";
-      unassignedOption.style.fontWeight = "bold";
-      dropdown.appendChild(unassignedOption);
-    }
-
-    // Spróbuj ustawić z powrotem poprzednio wybraną wartość (jeśli nadal istnieje)
-    const stillExists = Array.from(dropdown.options).some(
-      (opt) => opt.value === previouslySelected
-    );
-    if (stillExists) {
-      dropdown.value = previouslySelected;
-    }
-  }
-
   function GetSplittedProducts(successCallback) {
     let resultProducts = { items: [] }; // domyślne dane
     if (!$("#CartwholesalerKeyIndicator").val()) {
@@ -2218,9 +2144,6 @@ whenReadyAndDataTables(function () {
       success: function (response) {
         resultProducts = response || { items: [] };
         if (!Array.isArray(resultProducts.items)) resultProducts.items = [];
-
-        // dropdown z listy dostawców
-        populateWholesalerDropdownFromItems(resultProducts.items);
 
         // callback jeśli podany
         if (typeof successCallback === "function") {
