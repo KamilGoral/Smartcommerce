@@ -1319,20 +1319,6 @@ whenReadyAndDataTables(function () {
         urlParams.push("exclude=" + excludedNow);
       }
 
-      // // --- quantityIncreaseMultiplier ---
-      // const multiplier = getMultiplier();
-
-      // if (multiplier !== 500) {
-      //   urlParams.push("quantityIncreaseMultiplier=" + multiplier);
-      // }
-
-      // // tylko jeśli różne od domyślnego 500 – dokładamy do query string
-      // if (multiplier !== 500) {
-      //   urlParams.push(
-      //     "quantityIncreaseMultiplier=" + encodeURIComponent(multiplier)
-      //   );
-      // }
-
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
 
@@ -2921,55 +2907,6 @@ whenReadyAndDataTables(function () {
     else changesPayload.push(newObj);
     return changesPayload;
   }
-
-  function getMultiplier() {
-    let raw = $("#quantityIncreaseMultiplier").val().trim();
-
-    if (!raw) return 500;
-
-    // usuń znak %
-    raw = raw.replace("%", "");
-
-    // zamień przecinki na kropki
-    raw = raw.replace(",", ".");
-
-    // konwersja na float
-    let floatVal = parseFloat(raw);
-
-    // walidacja liczby
-    if (!Number.isFinite(floatVal) || floatVal <= 0) {
-      return 500;
-    }
-
-    // backend wymaga integer → zaokrąglenie w dół
-    let multiplier = Math.floor(floatVal);
-
-    // zakres
-    if (multiplier > 9999) multiplier = 9999;
-
-    return multiplier;
-  }
-
-  // --- AUTO-SPLIT MULTIPLIER CHANGE HANDLER ---
-
-  let lastMultiplierUsed = getMultiplier();
-
-  // nasłuch zmian w polu
-  $("#quantityIncreaseMultiplier").on("input", function () {
-    // nic nie robimy jeszcze – reakcja dopiero przy zmianie tabów
-  });
-
-  // nasłuch przełączania zakładek
-  $(document).on("click", ".w-tab-link", function () {
-    const current = getMultiplier();
-
-    // jeśli user zmienił wartość → odpal split
-    if (current !== lastMultiplierUsed) {
-      lastMultiplierUsed = current;
-      console.log("Auto-split ON → multiplier changed:", current);
-      CreateOrder();
-    }
-  });
 
   function getProductDetails(rowData) {
     return new Promise((resolve, reject) => {
