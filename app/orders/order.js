@@ -2950,6 +2950,27 @@ whenReadyAndDataTables(function () {
     return multiplier;
   }
 
+  // --- AUTO-SPLIT MULTIPLIER CHANGE HANDLER ---
+
+  let lastMultiplierUsed = getMultiplier();
+
+  // nasłuch zmian w polu
+  $("#quantityIncreaseMultiplier").on("input", function () {
+    // nic nie robimy jeszcze – reakcja dopiero przy zmianie tabów
+  });
+
+  // nasłuch przełączania zakładek
+  $(document).on("click", ".w-tab-link", function () {
+    const current = getMultiplier();
+
+    // jeśli user zmienił wartość → odpal split
+    if (current !== lastMultiplierUsed) {
+      lastMultiplierUsed = current;
+      console.log("Auto-split ON → multiplier changed:", current);
+      CreateOrder();
+    }
+  });
+
   function getProductDetails(rowData) {
     return new Promise((resolve, reject) => {
       const url = new URL(
