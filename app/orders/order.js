@@ -1319,19 +1319,19 @@ whenReadyAndDataTables(function () {
         urlParams.push("exclude=" + excludedNow);
       }
 
-      // --- quantityIncreaseMultiplier ---
-      const multiplier = getMultiplier();
+      // // --- quantityIncreaseMultiplier ---
+      // const multiplier = getMultiplier();
 
-      if (multiplier !== 500) {
-        urlParams.push("quantityIncreaseMultiplier=" + multiplier);
-      }
+      // if (multiplier !== 500) {
+      //   urlParams.push("quantityIncreaseMultiplier=" + multiplier);
+      // }
 
-      // tylko jeśli różne od domyślnego 500 – dokładamy do query string
-      if (multiplier !== 500) {
-        urlParams.push(
-          "quantityIncreaseMultiplier=" + encodeURIComponent(multiplier)
-        );
-      }
+      // // tylko jeśli różne od domyślnego 500 – dokładamy do query string
+      // if (multiplier !== 500) {
+      //   urlParams.push(
+      //     "quantityIncreaseMultiplier=" + encodeURIComponent(multiplier)
+      //   );
+      // }
 
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
