@@ -5822,7 +5822,6 @@ ${offerTimestampLine}
     $(this).data("initialValue", $(this).val());
   });
 
-  // Zalecane: reaguj na faktyczną zmianę wyboru
   $("#spl_table")
     .off("change.whMain", "select.wh-picker")
     .on("change.whMain", "select.wh-picker", function () {
@@ -5839,7 +5838,6 @@ ${offerTimestampLine}
       console.log("New value selected:", newValue);
       console.log("Initial value:", initialValue);
 
-      // Bez zmian → wyjście
       if (newValue === initialValue) {
         console.log("No change in value, no action taken.");
         return;
@@ -5850,7 +5848,6 @@ ${offerTimestampLine}
         return;
       }
 
-      // helpery
       const addChange = (op, path, value) => {
         const change = { op, path };
         if (value !== undefined) change.value = value;
@@ -5862,13 +5859,6 @@ ${offerTimestampLine}
         $("#waitingdots").show(1).delay(150).hide(1);
       };
 
-      function updateAssignmentIconToUser(row) {
-        const d = row.data();
-        d.assignmentSource = "user"; // zmieniamy TYLKO źródło
-        row.data(d).invalidate().draw(false); // odśwież ikonkę bez resetu paginacji
-      }
-
-      // Logika zmian
       switch (newValue) {
         case "remove":
           if (data.active === false) {
@@ -5879,7 +5869,6 @@ ${offerTimestampLine}
           } else {
             console.log("Option 'remove' → removing wholesalerKey.");
             addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
-            // UWAGA: nie dotykamy ikonki, bo to nie jest przypisanie do konkretnego dostawcy
           }
           emulateChangeForUser();
           break;
@@ -5897,36 +5886,44 @@ ${offerTimestampLine}
           break;
 
         default:
-          // Realna zmiana dostawcy → ustaw ikonę na „użytkownik”
           console.log("Assigning new wholesalerKey:", newValue);
           addChange(
             "replace",
             `/${data.gtin}/rigidAssignment/wholesalerKey`,
             newValue
           );
-          updateAssignmentIconToUser(row); // TYLKO tutaj
           emulateChangeForUser();
-          // 1) (opcjonalnie) upewnij się, że opcja istnieje i ma ładną etykietę
+
+          // 1) zaktualizuj dane w DataTables (i źródło do ikonki)
+          const updatedData = {
+            ...data,
+            wholesalerKey: newValue,
+            assignmentSource: "user",
+          };
+          row.data(updatedData).invalidate().draw(false);
+
+          // 2) po przerysowaniu znajdź NOWY select w tym wierszu
+          const $rowNode = $(row.node());
+          const $newSelect = $rowNode.find("select.wh-picker");
+
+          // upewnij się, że opcja istnieje
           const wholesalers =
             JSON.parse(sessionStorage.getItem("wholesalersData")) || [];
           const wh = wholesalers.find((w) => w.wholesalerKey === newValue);
           const label = wh ? wh.name : newValue;
-          if ($select.find(`option[value="${newValue}"]`).length === 0) {
-            $select.append(`<option value="${newValue}">${label}</option>`);
+
+          if ($newSelect.find(`option[value="${newValue}"]`).length === 0) {
+            $newSelect.append(`<option value="${newValue}">${label}</option>`);
           }
 
-          // 2) ustaw zaznaczenie użytkownikowi natychmiast
-          $select.val(newValue);
+          // 3) ustaw wartość i initialValue na nowym select
+          $newSelect.val(newValue);
+          $newSelect.data("initialValue", newValue);
 
-          // 3) zaktualizuj dane w DataTables (kluczowe – inaczej render przy odświeżeniu przywróci starą wartość)
-          data.wholesalerKey = newValue;
-          // 4) zapamiętaj nową wartość jako initial, żeby nie łapać „braku zmiany”
-          $select.data("initialValue", newValue);
-
-          break;
+          return; // już wszystko zrobione
       }
 
-      // Zaktualizuj „initialValue” po obsłużeniu zmiany
+      // dla pozostałych case’ów (remove/unassigned/enabled)
       $select.data("initialValue", newValue);
     });
 
