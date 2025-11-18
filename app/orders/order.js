@@ -4060,6 +4060,11 @@ ${offerTimestampLine}
       desc: "Oferta odrzucona – cena zbyt odbiega od średniej ceny rynkowej.",
       scope: ["r"],
     },
+    2002: {
+      name: "Niewłaściwy kod produktu",
+      desc: "Oferta odrzucona – cena opakowania zbyt odbiega od średniej ceny rynkowej.",
+      scope: ["r"],
+    },
 
     // 3xxx – błędy wyświetlania / stanów
     3001: {
