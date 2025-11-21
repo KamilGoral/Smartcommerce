@@ -3071,8 +3071,6 @@ ${offerTimestampLine}
   function format(d) {
     const arr = d.asks || [];
 
-    const mutedDash = '<span style="color:#9ca3af;font-weight:300;">-</span>';
-
     const sourceMap = {
       pricat: "Cennik",
       "online offer": "E-hurt",
@@ -3109,15 +3107,14 @@ ${offerTimestampLine}
     };
 
     function calculatePackage(promotion) {
-      if (!promotion || !promotion.factors) return mutedDash;
+      if (!promotion || !promotion.factors) return "-";
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors || {};
-      if (!quantityFactor) return mutedDash;
-
+      if (!quantityFactor) return "-";
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-      return mutedDash;
+      return "-";
     }
 
     function getBenefitTextAndIcons(types) {
@@ -3148,7 +3145,7 @@ ${offerTimestampLine}
     }
 
     function getBenefitDetails(benefit) {
-      if (!benefit) return mutedDash;
+      if (!benefit) return "-";
       const benefits = getBenefitTextAndIcons(benefit.type);
       let details = benefits
         .map(
@@ -3171,26 +3168,29 @@ ${offerTimestampLine}
           ? mappedPromo.description
           : "Brak promocji";
 
+        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
         const canFetchRelated = !!(
           promoObj &&
           promoObj.singular === false &&
           promoObj.id
         );
 
+        // Wstawiamy ikonę z data-* dla fetcha
         const relatedCell = canFetchRelated
           ? `<img
-            src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
-            loading="lazy"
-            class="showdata"
-            data-shop="${shopKey}"
-            data-wh="${item.wholesalerKey}"
-            data-promo="${promoObj.id}"
-            alt="Powiązane"
-          />`
-          : mutedDash;
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
+          loading="lazy"
+          class="showdata"
+          data-shop="${shopKey}"
+          data-wh="${item.wholesalerKey}"
+          data-promo="${promoObj.id}"
+          alt="Powiązane"
+         />`
+          : "-";
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
+        // disabled row + tooltip (przetłumaczone kody)
         const rowClass = item.valid ? "" : "disabled-row";
         const tooltipContent = !item.valid
           ? `${formatMessageCodesTooltip(item.messageCodes)}`
@@ -3199,64 +3199,51 @@ ${offerTimestampLine}
           ? ""
           : `class="tippy" data-tippy-content="${tooltipContent}"`;
 
-        const netPrice = item.netPrice != null ? item.netPrice : mutedDash;
-        const netNetPrice =
-          getCookie("sprytnyUserRole") === "admin"
-            ? item.netNetPrice ?? mutedDash
-            : mutedDash;
-        const wholesaler = item.wholesalerKey ?? mutedDash;
-        const pack = item.set ?? mutedDash;
-        const threshold = promoObj?.threshold ?? mutedDash;
-        const cap = promoObj?.cap ?? mutedDash;
-        const stock = item.stock ?? mutedDash;
-        const originated = item.originated ?? mutedDash;
-        const source = sourceMap[item.source] || mutedDash;
-
-        const promoCell = mappedPromo
-          ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
-          : `<td>${mutedDash}</td>`;
-
         return `
-        <tr class="${rowClass}" ${rowTooltip}>
-          <td>${netPrice}</td>
-          <td>${netNetPrice}</td>
-          <td>${wholesaler}</td>
-          <td>${pack}</td>
-          ${promoCell}
-          <td>${threshold}</td>
-          <td>${cap}</td>
-          <td>${calculatePackage(promoObj)}</td>
-          <td>${benefitHtml}</td>
-          <td>${relatedCell}</td>
-          <td>${stock}</td>
-          <td>${originated}</td>
-          <td>${source}</td>
-        </tr>`;
+      <tr class="${rowClass}" ${rowTooltip}>
+        <td>${item.wholesalerKey ?? "-"}</td>
+        <td>${item.netPrice ?? "-"}</td>
+        <td>${
+          getCookie("sprytnyUserRole") === "admin"
+            ? item.netNetPrice ?? "-"
+            : "-"
+        }</td>
+        <td>${item.set ?? "-"}</td>
+        <td>${sourceMap[item.source] || "-"}</td>
+        <td>${item.originated ?? "-"}</td>
+        <td>${item.stock ?? "-"}</td>
+        ${
+          mappedPromo
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+        }
+        <td>${promoObj?.threshold ?? "-"}</td>
+        <td>${promoObj?.cap ?? "-"}</td>
+        <td>${calculatePackage(promoObj)}</td>
+        <td>${benefitHtml}</td>
+        <td>${relatedCell}</td>
+      </tr>`;
       })
       .join("");
 
     return `
     <table>
-      <thead>
-        <tr>
-          <th>Cena net</th>
-          <th>Cena netnet</th>
-          <th>Dostawca</th>
-          <th>Paczka</th>
-          <th>Promocja</th>
-          <th>Próg</th>
-          <th>Max</th>
-          <th>Opakowanie</th>
-          <th>Bonus</th>
-          <th>Powiązane</th>
-          <th>Dostępność</th>
-          <th>Pochodzenie</th>
-          <th>Źródło</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${toDisplayHtml}
-      </tbody>
+      <tr>
+        <th>Dostawca</th>
+        <th>Cena net</th>
+        <th>Cena netnet</th>
+        <th>Paczka</th>
+        <th>Źródło</th>
+        <th>Pochodzenie</th>
+        <th>Dostępność</th>
+        <th>Promocja</th>
+        <th>Próg</th>
+        <th>Max</th>
+        <th>Opakowanie</th>
+        <th>Bonus</th>
+        <th>Powiązane</th>
+      </tr>
+      ${toDisplayHtml}
     </table>
   `;
   }

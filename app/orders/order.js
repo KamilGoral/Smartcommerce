@@ -5461,13 +5461,87 @@ ${offerTimestampLine}
       },
       {
         orderable: true,
+        data: "standardPrice",
+        render: function (data) {
+          if (data !== null) {
+            return "" + data.value.toFixed(2);
+          }
+          if (data === null) {
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "asks",
+        type: "num",
+        render: function (data, type, row) {
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) {
+            // dla sortowania zwróć 0, dla wyświetlania "-"
+            return type === "display" || type === "filter" ? "-" : 0;
+          }
+
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          const bestAsk = validAsks.find((a) => a.netPrice === bestPrice);
+          const hasPromoOnBest = bestAsk && bestAsk.promotion != null;
+
+          // 🔢 sortowanie / typ – ma być czysta liczba
+          if (type === "sort" || type === "type") {
+            return bestPrice;
+          }
+
+          // 🔍 filtrowanie – chcemy po prostu tekst z ceną
+          if (type === "filter") {
+            return bestPrice.toFixed(2);
+          }
+
+          // 💄 wyświetlanie – cena + ewentualnie gwiazdka
+          const priceText = bestPrice.toFixed(2);
+
+          if (!hasPromoOnBest) {
+            return priceText;
+          }
+
+          return `
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span>${priceText}</span>
+        <img 
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" 
+          alt="promo"
+          style="width:16px;height:16px;"
+        />
+      </div>
+    `;
+        },
+      },
+      {
+        orderable: false,
+        data: "asks",
+        render: function (data) {
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0)
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          const bestWh = [
+            ...new Set(
+              validAsks
+                .filter((a) => a.netPrice === bestPrice)
+                .map((a) => a.wholesalerKey)
+            ),
+          ];
+          return bestWh.length ? bestWh.join(", ") : "-";
+        },
+      },
+      {
+        orderable: true,
         data: "marketPremium",
         render: function (data) {
           if (data !== null) {
             return "" + data;
           }
           if (data === null) {
-            return "-";
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           }
         },
       },
@@ -5486,64 +5560,10 @@ ${offerTimestampLine}
               return '<p class="negative">' + data.premium + "</p>";
             }
           } else {
-            return "-";
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           }
         },
       },
-      {
-        orderable: true,
-        data: "standardPrice",
-        render: function (data) {
-          if (data !== null) {
-            return "" + data.value.toFixed(2);
-          }
-          if (data === null) {
-            return "-";
-          }
-        },
-      },
-      {
-        orderable: false,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const hasPromo = validAsks.some((a) => a.promotion != null);
-          return hasPromo
-            ? '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" alt="promo">'
-            : "-";
-        },
-      },
-
-      {
-        orderable: true,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
-          return bestPrice.toFixed(2);
-        },
-      },
-
-      {
-        orderable: false,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
-          const bestWh = [
-            ...new Set(
-              validAsks
-                .filter((a) => a.netPrice === bestPrice)
-                .map((a) => a.wholesalerKey)
-            ),
-          ];
-          return bestWh.length ? bestWh.join(", ") : "-";
-        },
-      },
-
       {
         orderable: true,
         data: "rotationIndicator",
