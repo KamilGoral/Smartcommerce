@@ -3522,10 +3522,6 @@ ${offerTimestampLine}
           "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
       },
       {
-        orderable: true,
-        data: "name",
-      },
-      {
         data: null,
         orderable: true,
         width: "400px",
