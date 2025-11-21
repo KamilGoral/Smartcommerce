@@ -5270,22 +5270,22 @@ ${offerTimestampLine}
         case 2:
           whichColumns = "name:";
           break;
-        case 4:
+        case 3:
           whichColumns = "stock:";
           break;
-        case 5:
+        case 7:
           whichColumns = "marketPremium:";
           break;
-        case 6:
+        case 8:
           whichColumns = "standardPremium:";
           break;
-        case 7:
+        case 4:
           whichColumns = "standardPrice:";
           break;
-        case 9:
+        case 5:
           whichColumns = "bestNetPrice:";
           break;
-        case 11:
+        case 9:
           whichColumns = "rotationIndicator:";
           break;
         default:
