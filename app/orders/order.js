@@ -5267,7 +5267,7 @@ ${offerTimestampLine}
       }
 
       switch (whichColumns) {
-        case 2:
+        case 1:
           whichColumns = "name:";
           break;
         case 3:

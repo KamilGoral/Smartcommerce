@@ -3432,25 +3432,25 @@ ${offerTimestampLine}
       }
 
       switch (whichColumns) {
-        case 2:
+        case 1:
           whichColumns = "name:";
           break;
-        case 3:
+        case 2:
           whichColumns = "stock:";
           break;
-        case 4:
+        case 6:
           whichColumns = "marketPremium:";
           break;
-        case 5:
+        case 7:
           whichColumns = "standardPremium:";
           break;
-        case 6:
+        case 3:
           whichColumns = "standardPrice:";
           break;
-        case 8:
+        case 4:
           whichColumns = "bestNetPrice:";
           break;
-        case 10:
+        case 8:
           whichColumns = "rotationIndicator:";
           break;
         default:
