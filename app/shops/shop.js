@@ -3613,6 +3613,62 @@ ${offerTimestampLine}
       },
       {
         orderable: true,
+        data: "standardPrice",
+        render: function (data) {
+          if (data !== null) {
+            return "" + data.value.toFixed(2);
+          }
+          if (data === null) {
+            return "-";
+          }
+        },
+      },
+      {
+        orderable: true,
+        data: "asks",
+        render: function (data) {
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          return bestPrice.toFixed(2);
+        },
+      },
+
+      {
+        orderable: false,
+        data: "asks",
+        render: function (data) {
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          const bestWh = [
+            ...new Set(
+              validAsks
+                .filter((a) => a.netPrice === bestPrice)
+                .map((a) => a.wholesalerKey)
+            ),
+          ];
+          return bestWh.length ? bestWh.join(", ") : "-";
+        },
+      },
+      {
+        orderable: false,
+        data: "asks",
+        render: function (data) {
+          const validAsks = getValidAsks(data);
+          if (validAsks.length === 0) return "-";
+          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
+          const bestAsk = validAsks.find((a) => a.netPrice === bestPrice);
+          const hasPromoOnBest = bestAsk && bestAsk.promotion != null;
+
+          return hasPromoOnBest
+            ? '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" alt="promo">'
+            : "-";
+        },
+      },
+
+      {
+        orderable: true,
         data: "marketPremium",
         render: function (data) {
           if (data !== null) {
@@ -3642,61 +3698,6 @@ ${offerTimestampLine}
           }
         },
       },
-      {
-        orderable: true,
-        data: "standardPrice",
-        render: function (data) {
-          if (data !== null) {
-            return "" + data.value.toFixed(2);
-          }
-          if (data === null) {
-            return "-";
-          }
-        },
-      },
-      {
-        // (Twoja kolumna "promocje")
-        orderable: false,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const hasPromo = validAsks.some((a) => a.promotion != null);
-          return hasPromo
-            ? '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" alt="promo">'
-            : "-";
-        },
-      },
-
-      {
-        orderable: true,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
-          return bestPrice.toFixed(2);
-        },
-      },
-
-      {
-        orderable: false,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
-          const bestWh = [
-            ...new Set(
-              validAsks
-                .filter((a) => a.netPrice === bestPrice)
-                .map((a) => a.wholesalerKey)
-            ),
-          ];
-          return bestWh.length ? bestWh.join(", ") : "-";
-        },
-      },
-
       {
         orderable: true,
         data: "rotationIndicator",
