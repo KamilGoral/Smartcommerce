@@ -4407,6 +4407,7 @@ ${offerTimestampLine}
               "Success",
               "Twoje zgłoszenie została przyjęte. Dziękujemy."
             );
+            $("#ProposeChangeInGtinModal").css("display", "none");
             form.trigger("reset");
           },
           error: function (e) {
