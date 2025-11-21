@@ -3435,22 +3435,22 @@ ${offerTimestampLine}
         case 2:
           whichColumns = "name:";
           break;
-        case 5:
+        case 3:
           whichColumns = "stock:";
           break;
-        case 6:
+        case 4:
           whichColumns = "marketPremium:";
           break;
-        case 7:
+        case 5:
           whichColumns = "standardPremium:";
           break;
-        case 8:
+        case 6:
           whichColumns = "standardPrice:";
           break;
-        case 10:
+        case 8:
           whichColumns = "bestNetPrice:";
           break;
-        case 12:
+        case 10:
           whichColumns = "rotationIndicator:";
           break;
         default:
@@ -3526,13 +3526,85 @@ ${offerTimestampLine}
         data: "name",
       },
       {
-        orderable: false,
-        data: "countryDistributorName",
-        defaultContent: "-",
-      },
-      {
-        orderable: false,
-        data: "gtin",
+        data: null,
+        orderable: true,
+        width: "400px", // hint dla DataTables
+        render: function (data, type, row) {
+          const name = row.name || "";
+          const brand = row.countryDistributorName || "";
+          const gtin = row.gtin || "";
+
+          // sortowanie tylko po nazwie
+          if (type === "sort" || type === "type") {
+            return name;
+          }
+
+          // filtrowanie po wszystkich
+          if (type === "filter") {
+            return [name, brand, gtin].filter(Boolean).join(" ");
+          }
+
+          // escapowanie do atrybutu
+          const escapedName = name.replace(/"/g, "&quot;");
+
+          // wyświetlanie
+          return `
+      <div style="
+        display:flex;
+        flex-direction:column;
+        line-height:1.3;
+        max-width:400px;
+      ">
+        <!-- NAZWA: jedna linia + tooltip z pełną nazwą -->
+        <div
+          data-tippy-content="${escapedName}"
+          style="
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          "
+        >
+          ${escapedName}
+        </div>
+
+        <!-- 2. linia: GTIN + brand -->
+        <div style="
+          display:flex;
+          gap:6px;
+          margin-top:2px;
+          font-size:11px;
+          color:#6b7280;
+          align-items:center;
+          flex-wrap:wrap;
+        ">
+          ${
+            gtin
+              ? `<span style="
+                    background:#eef2ff;
+                    border-radius:4px;
+                    padding:2px 6px;
+                    font-family:monospace;
+                  ">
+                    ${gtin}
+                 </span>`
+              : ""
+          }
+          ${
+            brand
+              ? `<span style="
+                    background:#f3f4f6;
+                    border-radius:4px;
+                    padding:2px 6px;
+                    font-weight:500;
+                  ">
+                    ${brand}
+                 </span>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+        },
       },
       {
         orderable: true,
