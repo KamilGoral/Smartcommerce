@@ -2334,22 +2334,16 @@ whenReadyAndDataTables(function () {
                 return `
       <div style="display:flex;flex-direction:column;line-height:1.3;">
         
-        <!-- 1. NAZWA – zawsze jedna linia, ucięta ... -->
         <div
-          title="${name.replace(/"/g, "&quot;")}"
           style="
-            font-weight:500;
             white-space:nowrap;
             overflow:hidden;
             text-overflow:ellipsis;
-            display:block;
-            max-width:100%;
           "
         >
           ${name}
         </div>
 
-        <!-- 2. LINIA: GTIN + brand -->
         <div style="
           display:flex;
           gap:6px;
