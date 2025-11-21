@@ -2320,38 +2320,45 @@ whenReadyAndDataTables(function () {
                 const brand = row.countryDistributorName || "";
                 const gtin = row.gtin || "";
 
-                // SORTOWANIE tylko po nazwie produktu
+                // sortowanie tylko po nazwie
                 if (type === "sort" || type === "type") {
                   return name;
                 }
 
-                // FILTROWANIE po wszystkich danych
+                // filtrowanie po wszystkich
                 if (type === "filter") {
                   return [name, brand, gtin].filter(Boolean).join(" ");
                 }
 
-                // WYŚWIETLANIE (inline CSS)
+                // wyświetlanie
                 return `
-      <div style="display:flex; flex-direction:column; line-height:1.3;">
-        <div style="font-weight:500;">
+      <div style="display:flex;flex-direction:column;line-height:1.3;">
+        
+        <!-- 1. NAZWA – zawsze jedna linia, ucięta ... -->
+        <div
+          title="${name.replace(/"/g, "&quot;")}"
+          style="
+            font-weight:500;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            display:block;
+            max-width:100%;
+          "
+        >
           ${name}
         </div>
 
-        <div style="display:flex; gap:8px;
-                    font-size:11px;
-                    color:#6b7280;">
-          
-          ${
-            brand
-              ? `<span style="
-                    background:#f3f4f6;
-                    border-radius:4px;
-                    padding:2px 6px;
-                    font-weight:500;
-                  ">${brand}</span>`
-              : ""
-          }
-
+        <!-- 2. LINIA: GTIN + brand -->
+        <div style="
+          display:flex;
+          gap:6px;
+          margin-top:2px;
+          font-size:11px;
+          color:#6b7280;
+          align-items:center;
+          flex-wrap:wrap;
+        ">
           ${
             gtin
               ? `<span style="
@@ -2359,7 +2366,21 @@ whenReadyAndDataTables(function () {
                     border-radius:4px;
                     padding:2px 6px;
                     font-family:monospace;
-                  ">${gtin}</span>`
+                  ">
+                    ${gtin}
+                 </span>`
+              : ""
+          }
+          ${
+            brand
+              ? `<span style="
+                    background:#f3f4f6;
+                    border-radius:4px;
+                    padding:2px 6px;
+                    font-weight:500;
+                  ">
+                    ${brand}
+                 </span>`
               : ""
           }
         </div>
