@@ -2311,13 +2311,63 @@ whenReadyAndDataTables(function () {
               },
               orderable: false,
             },
-            { orderable: true, data: "name" },
+            // 🆕 kolumna "Product" (name + brand + gtin)
             {
+              data: null,
               orderable: true,
-              data: "countryDistributorName",
-              defaultContent: "-",
+              render: function (data, type, row) {
+                const name = row.name || "";
+                const brand = row.countryDistributorName || "";
+                const gtin = row.gtin || "";
+
+                // SORTOWANIE tylko po nazwie produktu
+                if (type === "sort" || type === "type") {
+                  return name;
+                }
+
+                // FILTROWANIE po wszystkich danych
+                if (type === "filter") {
+                  return [name, brand, gtin].filter(Boolean).join(" ");
+                }
+
+                // WYŚWIETLANIE (inline CSS)
+                return `
+      <div style="display:flex; flex-direction:column; line-height:1.3;">
+        <div style="font-weight:500;">
+          ${name}
+        </div>
+
+        <div style="display:flex; gap:8px;
+                    font-size:11px;
+                    color:#6b7280;">
+          
+          ${
+            brand
+              ? `<span style="
+                    background:#f3f4f6;
+                    border-radius:4px;
+                    padding:2px 6px;
+                    font-weight:500;
+                  ">${brand}</span>`
+              : ""
+          }
+
+          ${
+            gtin
+              ? `<span style="
+                    background:#eef2ff;
+                    border-radius:4px;
+                    padding:2px 6px;
+                    font-family:monospace;
+                  ">${gtin}</span>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+              },
             },
-            { orderable: true, data: "gtin" },
+
             {
               orderable: true,
               data: "stock",
