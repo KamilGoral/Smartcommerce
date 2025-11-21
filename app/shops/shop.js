@@ -3528,7 +3528,7 @@ ${offerTimestampLine}
       {
         data: null,
         orderable: true,
-        width: "400px", // hint dla DataTables
+        width: "400px",
         render: function (data, type, row) {
           const name = row.name || "";
           const brand = row.countryDistributorName || "";
@@ -3544,8 +3544,14 @@ ${offerTimestampLine}
             return [name, brand, gtin].filter(Boolean).join(" ");
           }
 
-          // escapowanie do atrybutu
+          // --- logika tooltipa po długości nazwy ---
+          const MAX_LEN_NO_TOOLTIP = 60; // ← tu zmieniasz próg jak chcesz
+          const showTooltip = name.length > MAX_LEN_NO_TOOLTIP;
           const escapedName = name.replace(/"/g, "&quot;");
+
+          const nameDivAttrs = showTooltip
+            ? `data-tippy-content="${escapedName}"`
+            : "";
 
           // wyświetlanie
           return `
@@ -3555,9 +3561,9 @@ ${offerTimestampLine}
         line-height:1.3;
         max-width:400px;
       ">
-        <!-- NAZWA: jedna linia + tooltip z pełną nazwą -->
+
         <div
-          data-tippy-content="${escapedName}"
+          ${nameDivAttrs}
           style="
             white-space:nowrap;
             overflow:hidden;
@@ -3567,7 +3573,6 @@ ${offerTimestampLine}
           ${escapedName}
         </div>
 
-        <!-- 2. linia: GTIN + brand -->
         <div style="
           display:flex;
           gap:6px;
