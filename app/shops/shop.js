@@ -3025,7 +3025,7 @@ ${offerTimestampLine}
     },
     2002: {
       name: "Niewłaściwy kod produktu",
-      desc: "Oferta odrzucona – cena opakowania zbyt odbiega od średniej ceny rynkowej.",
+      desc: "Oferta odrzucona - Duplikat pochodzący z produktu oznaczonego kodem opakowania zbiorowego.",
       scope: ["r"],
     },
 
