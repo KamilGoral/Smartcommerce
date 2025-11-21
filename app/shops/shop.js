@@ -3626,14 +3626,47 @@ ${offerTimestampLine}
       {
         orderable: true,
         data: "asks",
-        render: function (data) {
+        type: "num",
+        render: function (data, type, row) {
           const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
+          if (validAsks.length === 0) {
+            // dla sortowania zwróć 0, dla wyświetlania "-"
+            return type === "display" || type === "filter" ? "-" : 0;
+          }
+
           const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
-          return bestPrice.toFixed(2);
+          const bestAsk = validAsks.find((a) => a.netPrice === bestPrice);
+          const hasPromoOnBest = bestAsk && bestAsk.promotion != null;
+
+          // 🔢 sortowanie / typ – ma być czysta liczba
+          if (type === "sort" || type === "type") {
+            return bestPrice;
+          }
+
+          // 🔍 filtrowanie – chcemy po prostu tekst z ceną
+          if (type === "filter") {
+            return bestPrice.toFixed(2);
+          }
+
+          // 💄 wyświetlanie – cena + ewentualnie gwiazdka
+          const priceText = bestPrice.toFixed(2);
+
+          if (!hasPromoOnBest) {
+            return priceText;
+          }
+
+          return `
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span>${priceText}</span>
+        <img 
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" 
+          alt="promo"
+          style="width:14px;height:14px;"
+        />
+      </div>
+    `;
         },
       },
-
       {
         orderable: false,
         data: "asks",
@@ -3651,22 +3684,6 @@ ${offerTimestampLine}
           return bestWh.length ? bestWh.join(", ") : "-";
         },
       },
-      {
-        orderable: false,
-        data: "asks",
-        render: function (data) {
-          const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
-          const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
-          const bestAsk = validAsks.find((a) => a.netPrice === bestPrice);
-          const hasPromoOnBest = bestAsk && bestAsk.promotion != null;
-
-          return hasPromoOnBest
-            ? '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6186eb480941cdf5b47f9d4e_star.svg" alt="promo">'
-            : "-";
-        },
-      },
-
       {
         orderable: true,
         data: "marketPremium",
