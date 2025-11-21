@@ -4091,7 +4091,7 @@ ${offerTimestampLine}
     }
   });
 
-  $("#table_id tbody").on("click", "td.details-control2", function () {
+  $("#table_id").on("click", "img[alt='Szczegóły']", function () {
     var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
@@ -4112,17 +4112,26 @@ ${offerTimestampLine}
       });
   });
 
-  $("#table_id tbody").on("click", "td.details-control3", function () {
+  $("#table_id").on("click", "img[alt='Edycja']", function () {
+    console.log("kliklam");
+    var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
-    console.log(rowData);
-    var GTINEdit = document.getElementById("gtin");
-    GTINEdit.value = rowData.gtin;
-    GTINEdit.disabled = true;
-    var NameInput = document.getElementById("new-name");
-    NameInput.value = rowData.name;
-    NameInput.textContent = rowData.name;
-    $("#ProposeChangeInGtinModal").css("display", "flex");
+
+    if (isValidBarcode(rowData.gtin)) {
+      var GTINEdit = document.getElementById("gtin");
+      GTINEdit.value = rowData.gtin;
+      GTINEdit.disabled = true;
+      var NameInput = document.getElementById("new-name");
+      NameInput.value = rowData.name;
+      NameInput.textContent = rowData.name;
+      var DistributorInput = document.getElementById(
+        "countryDistributorName-2"
+      );
+      DistributorInput.value = rowData.countryDistributorName;
+      DistributorInput.textContent = rowData.countryDistributorName;
+      $("#ProposeChangeInGtinModal").css("display", "flex");
+    }
   });
 
   function getWholesalersSh() {
