@@ -4133,6 +4133,7 @@ ${offerTimestampLine}
     var table = $("#table_id").DataTable();
     var tr = $(this).closest("tr");
     var rowData = table.row(tr).data();
+    console.log(rowData);
 
     if (isValidBarcode(rowData.gtin)) {
       var GTINEdit = document.getElementById("gtin");
