@@ -1024,7 +1024,9 @@ whenReadyAndDataTables(function () {
             data: "logisticMinimum",
             width: "108px",
             render: function (data) {
-              return data || "-";
+              return (
+                data || '<span style="color:#9ca3af;font-weight:300;">-</span>'
+              );
             },
           },
           {
@@ -1915,8 +1917,10 @@ whenReadyAndDataTables(function () {
         const pBestPrice = document.getElementById("pBestPrice");
 
         // Wypełnianie danych
-        pName.textContent = data?.name || "-";
-        pEan.textContent = data?.gtin || "-";
+        pName.textContent =
+          data?.name || '<span style="color:#9ca3af;font-weight:300;">-</span>';
+        pEan.textContent =
+          data?.gtin || '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
         const stock = data?.stock ?? { value: 0, unit: "pieces" };
         pInStock.textContent = stock.value;
@@ -1928,12 +1932,15 @@ whenReadyAndDataTables(function () {
         const retailPrice = data?.retailPrice ?? 0;
         pRetailPrice.textContent = retailPrice;
 
-        pIndicator.textContent = rowData?.rotationIndicator ?? "-";
+        pIndicator.textContent =
+          rowData?.rotationIndicator ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
         if (Array.isArray(rowData?.asks) && rowData.asks.length > 0) {
           pBestPrice.textContent = rowData.asks[0].netPrice;
         } else {
-          pBestPrice.textContent = "-";
+          pBestPrice.textContent =
+            '<span style="color:#9ca3af;font-weight:300;">-</span>';
         }
         resolve();
       };
@@ -2156,7 +2163,8 @@ whenReadyAndDataTables(function () {
         // ========== 3. INTEGRATIONS.RETROACTIVE ==========
         if (res.integrations?.retroactive?.updatedAt) {
           entries.push({
-            wholesalerKey: "-",
+            wholesalerKey:
+              '<span style="color:#9ca3af;font-weight:300;">-</span>',
             source: "Kontrakty z dostawcami",
             status: "success",
             statusLabel: "Sukces",
@@ -2171,7 +2179,9 @@ whenReadyAndDataTables(function () {
         (res.pricats || []).forEach((pricat) => {
           const isPending = !pricat.updatedAt;
           entries.push({
-            wholesalerKey: pricat.wholesalerKey || "-",
+            wholesalerKey:
+              pricat.wholesalerKey ||
+              '<span style="color:#9ca3af;font-weight:300;">-</span>',
             source: "Cennik",
             status: isPending ? "in progress" : "success",
             statusLabel: isPending ? "W trakcie" : "Sukces",
@@ -2215,7 +2225,8 @@ whenReadyAndDataTables(function () {
         setText("offerActionStatus", `Problematyczne (${errorCount})`);
         setText("offerSuccessStatus", `Sukces (${successCount})`);
 
-        let completenessLabel = "-";
+        let completenessLabel =
+          '<span style="color:#9ca3af;font-weight:300;">-</span>';
         let completenessClass = "";
 
         if (allCount > 0) {
@@ -2269,12 +2280,12 @@ whenReadyAndDataTables(function () {
       const offerTimestampLine = `<strong>Data źródłowa oferty:</strong> ${
         event.offerTimestamp
           ? new Date(event.offerTimestamp).toLocaleString("pl-PL")
-          : "-"
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>'
       }<br>`;
 
       const messages = event.messages.length
         ? event.messages.join("<br>")
-        : "-";
+        : '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
       content += `
       <div style="margin-bottom:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
@@ -3107,14 +3118,16 @@ ${offerTimestampLine}
     };
 
     function calculatePackage(promotion) {
-      if (!promotion || !promotion.factors) return "-";
+      if (!promotion || !promotion.factors)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors || {};
-      if (!quantityFactor) return "-";
+      if (!quantityFactor)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-      return "-";
+      return '<span style="color:#9ca3af;font-weight:300;">-</span>';
     }
 
     function getBenefitTextAndIcons(types) {
@@ -3145,7 +3158,8 @@ ${offerTimestampLine}
     }
 
     function getBenefitDetails(benefit) {
-      if (!benefit) return "-";
+      if (!benefit)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const benefits = getBenefitTextAndIcons(benefit.type);
       let details = benefits
         .map(
@@ -3163,7 +3177,9 @@ ${offerTimestampLine}
       .map((item) => {
         const promoObj = item.promotion || null;
         const mappedPromo = promoObj ? promotionMap[promoObj.type] : null;
-        const promotionType = mappedPromo ? mappedPromo.name : "-";
+        const promotionType = mappedPromo
+          ? mappedPromo.name
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>';
         const promotionDescription = mappedPromo
           ? mappedPromo.description
           : "Brak promocji";
@@ -3186,7 +3202,7 @@ ${offerTimestampLine}
           data-promo="${promoObj.id}"
           alt="Powiązane"
          />`
-          : "-";
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
@@ -3201,24 +3217,47 @@ ${offerTimestampLine}
 
         return `
       <tr class="${rowClass}" ${rowTooltip}>
-        <td>${item.wholesalerKey ?? "-"}</td>
-        <td>${item.netPrice ?? "-"}</td>
+        <td>${
+          item.wholesalerKey ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.netPrice ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         <td>${
           getCookie("sprytnyUserRole") === "admin"
-            ? item.netNetPrice ?? "-"
-            : "-"
+            ? item.netNetPrice ??
+              '<span style="color:#9ca3af;font-weight:300;">-</span>'
+            : '<span style="color:#9ca3af;font-weight:300;">-</span>'
         }</td>
-        <td>${item.set ?? "-"}</td>
-        <td>${sourceMap[item.source] || "-"}</td>
-        <td>${item.originated ?? "-"}</td>
-        <td>${item.stock ?? "-"}</td>
+        <td>${
+          item.set ?? '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          sourceMap[item.source] ||
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.originated ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.stock ?? '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         ${
           mappedPromo
             ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
             : "<td>-</td>"
         }
-        <td>${promoObj?.threshold ?? "-"}</td>
-        <td>${promoObj?.cap ?? "-"}</td>
+        <td>${
+          promoObj?.threshold ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          promoObj?.cap ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         <td>${calculatePackage(promoObj)}</td>
         <td>${benefitHtml}</td>
         <td>${relatedCell}</td>
@@ -3631,7 +3670,9 @@ ${offerTimestampLine}
           const validAsks = getValidAsks(data);
           if (validAsks.length === 0) {
             // dla sortowania zwróć 0, dla wyświetlania "-"
-            return type === "display" || type === "filter" ? "-" : 0;
+            return type === "display" || type === "filter"
+              ? '<span style="color:#9ca3af;font-weight:300;">-</span>'
+              : 0;
           }
 
           const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
@@ -3682,7 +3723,9 @@ ${offerTimestampLine}
                 .map((a) => a.wholesalerKey)
             ),
           ];
-          return bestWh.length ? bestWh.join(", ") : "-";
+          return bestWh.length
+            ? bestWh.join(", ")
+            : '<span style="color:#9ca3af;font-weight:300;">-</span>';
         },
       },
       {
@@ -3786,7 +3829,13 @@ ${offerTimestampLine}
                 '" data-tippy-content="Niewystarczająca historia" alt=""';
           }
 
-          return "<p" + tippyContent + ">" + (data || "-") + "</p>";
+          return (
+            "<p" +
+            tippyContent +
+            ">" +
+            (data || '<span style="color:#9ca3af;font-weight:300;">-</span>') +
+            "</p>"
+          );
         },
       },
       {
@@ -3898,17 +3947,35 @@ ${offerTimestampLine}
 
   function clearProductPopupData() {
     // Set the content of specified elements to "-"
-    $("#pEan").text("-");
-    $("#pHistory").text("-");
-    $("#pHistorySpan").text("-");
-    $("#pRetailPrice").text("-");
-    $("#pStandardPrice").text("-");
-    $("#pBestPrice").text("-");
-    $("#pInStock").text("-");
-    $("#pStockDays").text("-");
-    $("#pSales7").text("-");
-    $("#pSales90").text("-");
-    $("#pIndicator").text("-");
+    $("#pEan").text('<span style="color:#9ca3af;font-weight:300;">-</span>');
+    $("#pHistory").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pHistorySpan").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pRetailPrice").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pStandardPrice").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pBestPrice").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pInStock").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pStockDays").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pSales7").text('<span style="color:#9ca3af;font-weight:300;">-</span>');
+    $("#pSales90").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
+    $("#pIndicator").text(
+      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+    );
   }
 
   $("#table_id tbody").on("click", "td.details-control", function () {
