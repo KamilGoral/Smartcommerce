@@ -3514,14 +3514,6 @@ ${offerTimestampLine}
         orderable: false,
       },
       {
-        orderable: false,
-        class: "details-control2",
-        width: "20px",
-        data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg' alt='details'></img>",
-      },
-      {
         data: null,
         orderable: true,
         width: "400px",
@@ -3780,11 +3772,34 @@ ${offerTimestampLine}
       },
       {
         orderable: false,
-        class: "details-control3",
-        width: "20px",
+        width: "70px",
         data: null,
-        defaultContent:
-          "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg' alt='details'></img>",
+        render: function (data, type) {
+          if (type === "display") {
+            const detailsIcon = `
+        <img 
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" 
+          alt="Szczegóły" 
+          title="Pokaż szczegóły" 
+          class="icon-details" 
+          style="cursor: pointer;"
+        />`;
+            const editIcon = `
+        <img 
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/64a0fe50a9833a36d21f1669_edit.svg" 
+          alt="Edycja" 
+          title="Edytuj produkt" 
+          class="icon-edit" 
+          style="cursor: pointer;"
+        />`;
+
+            return `
+        <div style="text-align:left; display:flex; align-items:center; gap:6px;">
+          ${detailsIcon}${editIcon}
+        </div>`;
+          }
+          return data;
+        },
       },
     ],
     initComplete: function (settings, json) {
