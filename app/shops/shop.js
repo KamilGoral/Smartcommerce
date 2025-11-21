@@ -4142,9 +4142,7 @@ ${offerTimestampLine}
       var NameInput = document.getElementById("new-name");
       NameInput.value = rowData.name;
       NameInput.textContent = rowData.name;
-      var DistributorInput = document.getElementById(
-        "countryDistributorName-2"
-      );
+      var DistributorInput = document.getElementById("countryDistributorName");
       DistributorInput.value = rowData.countryDistributorName;
       DistributorInput.textContent = rowData.countryDistributorName;
       $("#ProposeChangeInGtinModal").css("display", "flex");
