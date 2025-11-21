@@ -771,7 +771,7 @@ whenReadyAndDataTables(function () {
             var cutoffDate = new Date("2025-04-24");
 
             if (createDate < cutoffDate) {
-              return "-";
+              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
             }
 
             var total = row.total || 0;
@@ -3107,14 +3107,16 @@ ${offerTimestampLine}
     };
 
     function calculatePackage(promotion) {
-      if (!promotion || !promotion.factors) return "-";
+      if (!promotion || !promotion.factors)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors || {};
-      if (!quantityFactor) return "-";
+      if (!quantityFactor)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-      return "-";
+      return '<span style="color:#9ca3af;font-weight:300;">-</span>';
     }
 
     function getBenefitTextAndIcons(types) {
@@ -3145,7 +3147,8 @@ ${offerTimestampLine}
     }
 
     function getBenefitDetails(benefit) {
-      if (!benefit) return "-";
+      if (!benefit)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const benefits = getBenefitTextAndIcons(benefit.type);
       let details = benefits
         .map(
@@ -3607,7 +3610,7 @@ ${offerTimestampLine}
             return "" + data.value;
           }
           if (data === null) {
-            return "-";
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           }
         },
       },
@@ -3619,7 +3622,7 @@ ${offerTimestampLine}
             return "" + data.value.toFixed(2);
           }
           if (data === null) {
-            return "-";
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           }
         },
       },
@@ -3672,7 +3675,8 @@ ${offerTimestampLine}
         data: "asks",
         render: function (data) {
           const validAsks = getValidAsks(data);
-          if (validAsks.length === 0) return "-";
+          if (validAsks.length === 0)
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           const bestPrice = Math.min(...validAsks.map((a) => a.netPrice));
           const bestWh = [
             ...new Set(
@@ -3692,7 +3696,7 @@ ${offerTimestampLine}
             return "" + data;
           }
           if (data === null) {
-            return "-";
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           }
         },
       },
@@ -3711,7 +3715,7 @@ ${offerTimestampLine}
               return '<p class="negative">' + data.premium + "</p>";
             }
           } else {
-            return "-";
+            return '<span style="color:#9ca3af;font-weight:300;">-</span>';
           }
         },
       },
