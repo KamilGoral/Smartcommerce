@@ -6162,28 +6162,6 @@ ${offerTimestampLine}
     $(this).data("initialValue", $(this).val());
   });
 
-  $("#spl_table").on("click", "img.showdata", function () {
-    const dataToDisplay = $(this);
-    const popupContainer = document.getElementById("ReleatedProducts");
-    const popupContent = document.getElementById("popupContent");
-    const input = dataToDisplay.data("content");
-
-    if (!input) {
-      console.log("Brak danych do wyświetlenia.");
-      return;
-    }
-
-    var output = "";
-    if (Array.isArray(input)) {
-      output = "<td>" + input.join("<br>") + "</td>";
-    } else {
-      output = "<td>" + input + "</td>";
-    }
-
-    popupContent.innerHTML = output;
-    popupContainer.style.display = "flex";
-  });
-
   $("#spl_table").on("click", "img[alt='edit']", function () {
     var table = $("#spl_table").DataTable();
     var tr = $(this).closest("tr");
@@ -6236,6 +6214,59 @@ ${offerTimestampLine}
     if (e.key === "Enter") {
       $(this).blur(); // Simulate focusout when Enter key is pressed
     }
+  });
+
+  $("#spl_table").on("click", "img[alt='Powiązane']", function () {
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
+
+    const shopKey = this.getAttribute("data-shop");
+    const wholesalerKey = this.getAttribute("data-wh");
+    const promotionId = this.getAttribute("data-promo");
+
+    const td = this.closest("td");
+    const prevHTML = td.innerHTML;
+    td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
+
+    fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
+      .then((values) => {
+        td.innerHTML = prevHTML;
+
+        if (!values || values.length === 0) {
+          popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+          popupContainer.style.display = "flex";
+          return;
+        }
+
+        let output = "";
+        for (let i = 0; i < values.length; i++) {
+          if (i % 5 === 0)
+            output += "<p class='text-size-tiny text-color-grey'>";
+          const code = String(values[i]).trim();
+          output += `<span class="related-product-code"
+                       style="text-decoration: underline; cursor: pointer; margin-right: 6px;"
+                       data-code="${code}">${code}</span>`;
+          if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+        }
+
+        popupContent.innerHTML = output;
+        popupContainer.style.display = "flex";
+
+        popupContent.querySelectorAll(".related-product-code").forEach((el) => {
+          el.addEventListener("click", function () {
+            const code = this.getAttribute("data-code");
+            // 🔥 bierzemy DataTable z tej tabeli, w której kliknięto
+            const table = $(td).closest("table").DataTable();
+            table.search(code).draw();
+            popupContainer.style.display = "none";
+          });
+        });
+      })
+      .catch(() => {
+        td.innerHTML = prevHTML;
+        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
+        popupContainer.style.display = "flex";
+      });
   });
 
   $("#spl_table").on("click", "img[alt='details']", function () {
@@ -6421,64 +6452,58 @@ ${offerTimestampLine}
       });
   }
 
-  $("#table_id tbody, #spl_table tbody").on(
-    "click",
-    "img.showdata",
-    function () {
-      const popupContainer = document.getElementById("ReleatedProducts");
-      const popupContent = document.getElementById("popupContent");
+  $("#table_id tbody").on("click", "img.showdata", function () {
+    const popupContainer = document.getElementById("ReleatedProducts");
+    const popupContent = document.getElementById("popupContent");
 
-      const shopKey = this.getAttribute("data-shop");
-      const wholesalerKey = this.getAttribute("data-wh");
-      const promotionId = this.getAttribute("data-promo");
+    const shopKey = this.getAttribute("data-shop");
+    const wholesalerKey = this.getAttribute("data-wh");
+    const promotionId = this.getAttribute("data-promo");
 
-      const td = this.closest("td");
-      const prevHTML = td.innerHTML;
-      td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
+    const td = this.closest("td");
+    const prevHTML = td.innerHTML;
+    td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
 
-      fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
-        .then((values) => {
-          td.innerHTML = prevHTML;
+    fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
+      .then((values) => {
+        td.innerHTML = prevHTML;
 
-          if (!values || values.length === 0) {
-            popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
-            popupContainer.style.display = "flex";
-            return;
-          }
+        if (!values || values.length === 0) {
+          popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Brak powiązanych produktów.</p>`;
+          popupContainer.style.display = "flex";
+          return;
+        }
 
-          let output = "";
-          for (let i = 0; i < values.length; i++) {
-            if (i % 5 === 0)
-              output += "<p class='text-size-tiny text-color-grey'>";
-            const code = String(values[i]).trim();
-            output += `<span class="related-product-code"
+        let output = "";
+        for (let i = 0; i < values.length; i++) {
+          if (i % 5 === 0)
+            output += "<p class='text-size-tiny text-color-grey'>";
+          const code = String(values[i]).trim();
+          output += `<span class="related-product-code"
                        style="text-decoration: underline; cursor: pointer; margin-right: 6px;"
                        data-code="${code}">${code}</span>`;
-            if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
-          }
+          if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
+        }
 
-          popupContent.innerHTML = output;
-          popupContainer.style.display = "flex";
+        popupContent.innerHTML = output;
+        popupContainer.style.display = "flex";
 
-          popupContent
-            .querySelectorAll(".related-product-code")
-            .forEach((el) => {
-              el.addEventListener("click", function () {
-                const code = this.getAttribute("data-code");
-                // 🔥 bierzemy DataTable z tej tabeli, w której kliknięto
-                const table = $(td).closest("table").DataTable();
-                table.search(code).draw();
-                popupContainer.style.display = "none";
-              });
-            });
-        })
-        .catch(() => {
-          td.innerHTML = prevHTML;
-          popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
-          popupContainer.style.display = "flex";
+        popupContent.querySelectorAll(".related-product-code").forEach((el) => {
+          el.addEventListener("click", function () {
+            const code = this.getAttribute("data-code");
+            // 🔥 bierzemy DataTable z tej tabeli, w której kliknięto
+            const table = $(td).closest("table").DataTable();
+            table.search(code).draw();
+            popupContainer.style.display = "none";
+          });
         });
-    }
-  );
+      })
+      .catch(() => {
+        td.innerHTML = prevHTML;
+        popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
+        popupContainer.style.display = "flex";
+      });
+  });
 
   // Close the popup when clicking outside of the popup content
   $(window).on("click", function (event) {
