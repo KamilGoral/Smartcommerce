@@ -2238,7 +2238,7 @@ whenReadyAndDataTables(function () {
 
         // === Inicjalizacja tabeli ===
         const table = $("#spl_table").DataTable({
-          order: [[10, "desc"]], // kolumna "Obniż cenę"
+          order: [[8, "desc"]], // kolumna "Obniż cenę"
           pagingType: "full_numbers",
           destroy: true,
           dom: '<"top"fB>rt<"bottom"lip>',
