@@ -1818,8 +1818,20 @@ whenReadyAndDataTables(function () {
     });
   });
 
+  // 🔹 helper – zbiera pominiętych dostawców z kontenera
+  function getSkippedWholesalers() {
+    const set = new Set();
+    $("#DeletedContainer input.theClass").each(function () {
+      const id = this.value || this.id;
+      if (id) set.add(id.trim());
+    });
+    return set;
+  }
+
   function format(d) {
     const arr = d.asks || [];
+
+    const skippedWholesalers = getSkippedWholesalers(); // 👈 tutaj
 
     const sourceMap = {
       pricat: "Cennik",
@@ -1918,14 +1930,12 @@ whenReadyAndDataTables(function () {
           ? mappedPromo.description
           : "Brak promocji";
 
-        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
         const canFetchRelated = !!(
           promoObj &&
           promoObj.singular === false &&
           promoObj.id
         );
 
-        // Wstawiamy ikonę z data-* dla fetcha
         const relatedCell = canFetchRelated
           ? `<img
           src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
@@ -1940,18 +1950,38 @@ whenReadyAndDataTables(function () {
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        // disabled row + tooltip (przetłumaczone kody)
-        const rowClass = item.valid ? "" : "disabled-row";
-        const tooltipContent = !item.valid
-          ? `${formatMessageCodesTooltip(item.messageCodes)}`
-          : "";
-        const rowTooltip = item.valid
-          ? ""
-          : `class="tippy" data-tippy-content="${tooltipContent}"`;
+        // 👇 NOWE: czy ten dostawca jest pominięty?
+        const isSkipped = skippedWholesalers.has(
+          String(item.wholesalerKey || "").trim()
+        );
+
+        const rowClasses = [];
+        if (!item.valid) rowClasses.push("disabled-row");
+        if (isSkipped) rowClasses.push("skipped-wholesaler");
+        const rowClassAttr = rowClasses.join(" ");
+
+        const tooltipParts = [];
+        if (!item.valid) {
+          tooltipParts.push(formatMessageCodesTooltip(item.messageCodes));
+        }
+        if (isSkipped) {
+          tooltipParts.push(
+            "Dostawca został pominięty przy podziale. Oferta nie bierze udziału w zamówieniu."
+          );
+        }
+        const tooltipContent = tooltipParts.join(" | ");
+
+        const rowTooltip =
+          tooltipContent.length > 0
+            ? `class="tippy" data-tippy-content="${tooltipContent}"`
+            : "";
 
         return `
-      <tr class="${rowClass}" ${rowTooltip}>
-        <td>${item.wholesalerKey ?? "-"}</td>
+      <tr class="${rowClassAttr}" ${rowTooltip}>
+        <td>
+          ${item.wholesalerKey ?? "-"}
+          ${isSkipped ? '<span class="skipped-tag"> (pominięty)</span>' : ""}
+        </td>
         <td>${item.netPrice ?? "-"}</td>
         <td>${
           getCookie("sprytnyUserRole") === "admin"
