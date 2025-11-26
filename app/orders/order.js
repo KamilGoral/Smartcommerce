@@ -1298,7 +1298,7 @@ whenReadyAndDataTables(function () {
             <label 
               class="mylabel customicon" 
               for="${wholesaler}" 
-              data-tippy-content="Pomiń"
+              data-tippy-content="Przywróć"
             >
               <span class="icon initial"></span>
               <span class="icon loading"></span>
