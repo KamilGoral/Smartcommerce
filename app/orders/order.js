@@ -6226,6 +6226,10 @@ ${offerTimestampLine}
 
     const td = this.closest("td");
     const prevHTML = td.innerHTML;
+
+    // 🔵 POKAŻ WAITING SCREEN
+    $("#waitingdots").show();
+
     td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
 
     fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
@@ -6242,10 +6246,12 @@ ${offerTimestampLine}
         for (let i = 0; i < values.length; i++) {
           if (i % 5 === 0)
             output += "<p class='text-size-tiny text-color-grey'>";
+
           const code = String(values[i]).trim();
           output += `<span class="related-product-code"
-                       style="text-decoration: underline; cursor: pointer; margin-right: 6px;"
-                       data-code="${code}">${code}</span>`;
+                     style="text-decoration: underline; cursor: pointer; margin-right: 6px;"
+                     data-code="${code}">${code}</span>`;
+
           if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
         }
 
@@ -6255,7 +6261,6 @@ ${offerTimestampLine}
         popupContent.querySelectorAll(".related-product-code").forEach((el) => {
           el.addEventListener("click", function () {
             const code = this.getAttribute("data-code");
-            // 🔥 bierzemy DataTable z tej tabeli, w której kliknięto
             const table = $(td).closest("table").DataTable();
             table.search(code).draw();
             popupContainer.style.display = "none";
@@ -6266,6 +6271,10 @@ ${offerTimestampLine}
         td.innerHTML = prevHTML;
         popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
         popupContainer.style.display = "flex";
+      })
+      .finally(() => {
+        // ✅ ZAWSZE CHOWAMY WAITING SCREEN
+        $("#waitingdots").hide();
       });
   });
 
@@ -6452,7 +6461,7 @@ ${offerTimestampLine}
       });
   }
 
-  $("#table_id tbody").on("click", "img.showdata", function () {
+  $("#table_id tbody").on("click", "img[alt='Powiązane']", function () {
     const popupContainer = document.getElementById("ReleatedProducts");
     const popupContent = document.getElementById("popupContent");
 
@@ -6462,6 +6471,10 @@ ${offerTimestampLine}
 
     const td = this.closest("td");
     const prevHTML = td.innerHTML;
+
+    // 🔵 POKAŻ WAITING SCREEN
+    $("#waitingdots").show();
+
     td.innerHTML = `<span class="loading-related">Ładuję…</span>`;
 
     fetchRelatedKeys(shopKey, promotionId, wholesalerKey)
@@ -6478,10 +6491,12 @@ ${offerTimestampLine}
         for (let i = 0; i < values.length; i++) {
           if (i % 5 === 0)
             output += "<p class='text-size-tiny text-color-grey'>";
+
           const code = String(values[i]).trim();
           output += `<span class="related-product-code"
-                       style="text-decoration: underline; cursor: pointer; margin-right: 6px;"
-                       data-code="${code}">${code}</span>`;
+                     style="text-decoration: underline; cursor: pointer; margin-right: 6px;"
+                     data-code="${code}">${code}</span>`;
+
           if ((i + 1) % 5 === 0 || i === values.length - 1) output += "</p>";
         }
 
@@ -6491,7 +6506,6 @@ ${offerTimestampLine}
         popupContent.querySelectorAll(".related-product-code").forEach((el) => {
           el.addEventListener("click", function () {
             const code = this.getAttribute("data-code");
-            // 🔥 bierzemy DataTable z tej tabeli, w której kliknięto
             const table = $(td).closest("table").DataTable();
             table.search(code).draw();
             popupContainer.style.display = "none";
@@ -6502,6 +6516,10 @@ ${offerTimestampLine}
         td.innerHTML = prevHTML;
         popupContent.innerHTML = `<p class='text-size-tiny text-color-grey'>Nie udało się pobrać powiązań.</p>`;
         popupContainer.style.display = "flex";
+      })
+      .finally(() => {
+        // ✅ ZAWSZE CHOWAMY WAITING SCREEN
+        $("#waitingdots").hide();
       });
   });
 
