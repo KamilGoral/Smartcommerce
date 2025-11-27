@@ -2500,7 +2500,6 @@ whenReadyAndDataTables(function () {
             },
             {
               orderable: true,
-              orderData: [8, 1],
               data: null,
               render: function (data) {
                 const disabled =
