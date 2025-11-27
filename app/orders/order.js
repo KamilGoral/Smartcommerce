@@ -643,47 +643,28 @@ whenReadyAndDataTables(function () {
 
   function updateTableInputsFromSessionStorage(orderId) {
     const productsData = getProductsDataFromSessionStorage(orderId);
-    if (!productsData || !Array.isArray(productsData.items)) {
+    if (!productsData || !productsData.items) {
+      // Handle the case where productsData or items is null
       console.log("No products data or items found.");
       return;
     }
+    const productsDataItems = productsData.items;
 
-    const items = productsData.items;
     const table = $("#table_id").DataTable();
 
     table.rows().every(function () {
       const rowData = this.data();
-      if (!rowData || !rowData.gtin) return;
+      const gtin = rowData.gtin;
+      const productData = productsDataItems.find((item) => item.gtin === gtin);
 
-      // bezpieczne porównanie – na wszelki wypadek po stringu
-      const productData = items.find(
-        (item) => String(item.gtin) === String(rowData.gtin)
-      );
-
-      const $input = $(this.node()).find('input[type="number"]');
-
-      if (productData && typeof productData.quantity === "number") {
-        const qty = productData.quantity;
-
-        // 1) input
-        $input.val(qty);
-        $input.attr("value", qty); // żeby zgadzał się atrybut value
-        $input.data("initialValue", qty); // spójne z logiką focusout
-
-        // 2) dane w DataTables
-        rowData.quantity = qty;
-        this.data(rowData); // zapisz z powrotem do DT
+      if (productData) {
+        const inputField = $(this.node()).find('input[type="number"]');
+        inputField.val(productData.quantity);
       } else {
-        $input.val("");
-        $input.attr("value", "");
-        $input.data("initialValue", "");
-        rowData.quantity = null;
-        this.data(rowData);
+        const inputField = $(this.node()).find('input[type="number"]');
+        inputField.val(null); // Jeśli nie znaleziono produktu w sessionStorage, ustaw wartość na null
       }
     });
-
-    // 3) odśwież wiersze bez zmiany paginacji
-    table.rows().invalidate().draw(false);
   }
 
   function formatDateToPolishTime(dateString) {
@@ -5484,18 +5465,30 @@ ${offerTimestampLine}
         },
       },
       {
-        orderable: false,
+        orderable: true,
         data: null,
-        render: function (data) {
+        render: function (data, type, row) {
+          if (type !== "display") {
+            return row.quantity ?? 0;
+          }
+
+          const stored = getProductsDataFromSessionStorage(orderId);
+          const items = stored?.items ?? [];
+          const product = items.find(
+            (it) => String(it.gtin) === String(row.gtin)
+          );
+          const qty = product?.quantity ?? row.quantity ?? "";
+
           return (
             '<input type="number" style="max-width: 80px" ' +
             'onkeypress="return event.charCode >= 48 && (this.value.length < 6 || this.value < 999999)" ' +
             'min="0" max="999999" value="' +
-            (data.quantity ?? "") +
+            qty +
             '" onpaste="handlePaste(event)">'
           );
         },
       },
+
       {
         orderable: true,
         data: "stock",
