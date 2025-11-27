@@ -939,7 +939,7 @@ whenReadyAndDataTables(function () {
               items.push({
                 label: "Najlepszy wybór",
                 count: bm,
-                icon: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg",
+                icon: "https://cdn.prod.website-files.com/6041108bece36760b4e14016/67fa47c268540998e38fd41f_Fav32px.png",
               });
             }
             if (ex > 0) {
@@ -2526,7 +2526,7 @@ whenReadyAndDataTables(function () {
               render: function (data) {
                 if (data !== null) {
                   if (data === "best match") {
-                    return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d6bd8990da458a9f9cd78_smart-basket.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>';
+                    return '<div style="display: flex;"><img loading="lazy" src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67fa47c268540998e38fd41f_Fav32px.png" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">1</p></div>';
                   } else if (data === "exclusive") {
                     return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>';
                   } else if (data === "preferential match") {
