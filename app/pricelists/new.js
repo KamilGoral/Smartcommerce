@@ -553,80 +553,93 @@ whenReadyAndDataTables(function () {
     forms.each(function () {
       var form3 = $(this);
 
-      // Find all elements with the 'file_uploader' attribute
-      const uploadButtons = document.querySelectorAll("[file_uploader]");
+      // Przyciski uploadu wewnątrz formularza
+      const uploadButtons = form3[0].querySelectorAll("[file_uploader]");
+      const deleteFileButton = document.getElementById("deleteFileButton");
 
+      if (deleteFileButton) {
+        deleteFileButton.style.display = "none";
+      }
+
+      let lastFileInput = null;
+      let lastUploadButton = null;
+
+      // ---- KONFIGURACJA PRZYCISKÓW UPLOAD ----
       uploadButtons.forEach((button) => {
-        // Create a hidden file input element
+        // zapamiętaj HTML przycisku, żeby można było do niego wrócić
+        if (!button.dataset.defaultHtml) {
+          button.dataset.defaultHtml = button.innerHTML;
+        }
+
         const fileInput = document.createElement("input");
         fileInput.type = "file";
-        fileInput.style.display = "none"; // Hide the file input
-        fileInput.name = button.getAttribute("file_uploader"); // Set name to the value of the attribute
-
-        // Append the file input to the body (or wherever appropriate)
+        fileInput.style.display = "none";
+        fileInput.name = button.getAttribute("file_uploader");
         document.body.appendChild(fileInput);
 
-        // Create and hide the delete file button initially
-        const deleteFileButton = document.getElementById("deleteFileButton");
-        deleteFileButton.style.display = "none";
-
-        // When the button is clicked, trigger the file input if the file is not selected
+        // klik w przycisk upload
         button.addEventListener("click", function (e) {
           if (!button.classList.contains("file-selected")) {
-            e.preventDefault(); // Prevent any default button actions if file not selected yet
+            // jeszcze nie ma pliku – otwieramy dialog wyboru
+            e.preventDefault();
             fileInput.click();
           } else {
-            // If file is selected, submit the form
+            // plik wybrany – submit formularza
             form3.submit();
           }
         });
 
-        // When a file is selected, update the button text with the file name
+        // zmiana pliku
         fileInput.addEventListener("change", function () {
           if (fileInput.files.length > 0) {
-            const fileName = fileInput.files[0].name; // Get the file name
+            const fileName = fileInput.files[0].name;
 
-            // Update the button's inner HTML with the file name and the icon
-            button.innerHTML = `
-              Wyslij cennik: ${fileName}
-              <div class="icon-embed-xsmall w-embed">
-                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                      <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                  </svg>
-              </div>
-            `;
+            lastFileInput = fileInput;
+            lastUploadButton = button;
 
-            // Show the delete button
-            deleteFileButton.style.display = "block";
-
-            // Change the button role to submit and add a class to indicate a file is selected
             button.classList.add("file-selected");
-          }
-        });
-
-        // Add event listener to delete button
-        deleteFileButton.addEventListener("click", function (e) {
-          e.preventDefault(); // Prevent default behavior
-
-          // Clear the selected file
-          fileInput.value = "";
-          button.classList.remove("file-selected");
-
-          // Reset button text
-          button.innerHTML = `
-            <div>Dodaj plik cennika</div>
+            button.innerHTML = `
+            Wyslij cennik: ${fileName}
             <div class="icon-embed-xsmall w-embed">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
                     <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
                 </svg>
             </div>
           `;
 
-          // Hide the delete button
-          deleteFileButton.style.display = "none";
+            if (deleteFileButton) {
+              deleteFileButton.style.display = "block";
+            }
+          }
         });
       });
 
+      // ---- USUWANIE PLIKU ----
+      if (deleteFileButton) {
+        deleteFileButton.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          if (lastFileInput) {
+            lastFileInput.value = "";
+          }
+          if (lastUploadButton) {
+            lastUploadButton.classList.remove("file-selected");
+            lastUploadButton.innerHTML =
+              lastUploadButton.dataset.defaultHtml ||
+              `
+            <div>Dodaj plik cennika</div>
+            <div class="icon-embed-xsmall w-embed">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                </svg>
+            </div>
+          `;
+          }
+          deleteFileButton.style.display = "none";
+        });
+      }
+
+      // ---- SUBMIT FORMULARZA ----
       form3.on("submit", function (event) {
         event.preventDefault();
 
@@ -640,28 +653,22 @@ whenReadyAndDataTables(function () {
         }
 
         let uploadedFile = null;
-        uploadButtons.forEach((button) => {
-          const fileInput = document.querySelector(
-            `input[name='${button.getAttribute("file_uploader")}']`
-          );
-          if (fileInput && fileInput.files.length > 0) {
-            uploadedFile = fileInput.files[0];
-          }
-        });
+
+        if (lastFileInput && lastFileInput.files.length > 0) {
+          uploadedFile = lastFileInput.files[0];
+        }
 
         if (!uploadedFile) {
           displayMessage(
             "Error",
             "Nie wybrano pliku z cennikiem. Proszę wybrać plik w formacie .csv, .ods lub .xlsx."
           );
-          resetButton(deleteFileButton);
           return false;
         }
 
-        // Determine the MIME type based on file extension, default to text/plain
-        let fileType = "text/plain"; // Default MIME type
+        // MIME type
+        let fileType = "text/plain";
         const fileExtension = uploadedFile.name.split(".").pop().toLowerCase();
-        console.log(fileExtension);
 
         switch (fileExtension) {
           case "csv":
@@ -679,8 +686,6 @@ whenReadyAndDataTables(function () {
             fileType = "text/plain";
             break;
         }
-
-        console.log(fileExtension);
 
         const jsonData = {
           wholesalerKey: wholesalerKey,
@@ -701,17 +706,16 @@ whenReadyAndDataTables(function () {
           uploadedFile.name
         );
 
-        console.log(formData);
-
         var uploadEndpoint = InvokeURL + "van/transactions";
         $("#waitingdots").show();
 
-        // Funkcja, która mapuje komunikaty błędów z API na bardziej przyjazne dla użytkownika
+        // mapowanie błędów z API
         function getFriendlyErrorMessage(error) {
           if (error.response) {
             switch (error.response.status) {
               case 400:
                 if (
+                  error.response.data.message &&
                   error.response.data.message.includes("StartDate and EndDate")
                 ) {
                   return "Błąd: Nie można używać StartDate i EndDate w obu częściach formularza. Usuń jedną z dat i spróbuj ponownie.";
@@ -725,7 +729,7 @@ whenReadyAndDataTables(function () {
                 return "Błąd serwera: Wystąpił problem z serwerem. Spróbuj ponownie później.";
               default:
                 return (
-                  error.response.data.message ||
+                  (error.response.data && error.response.data.message) ||
                   "Wystąpił nieznany błąd. Spróbuj ponownie później."
                 );
             }
@@ -736,10 +740,35 @@ whenReadyAndDataTables(function () {
           }
         }
 
-        // Zmodyfikowana funkcja `sendRequest` z użyciem `getFriendlyErrorMessage`
-        function sendRequest(formData) {
+        function resetUploadState() {
+          // reset całego formularza + uploadu
+          if (form3[0]) form3[0].reset();
+
+          if (lastFileInput) lastFileInput.value = "";
+
+          if (lastUploadButton) {
+            lastUploadButton.classList.remove("file-selected");
+            lastUploadButton.innerHTML =
+              lastUploadButton.dataset.defaultHtml ||
+              `
+            <div>Dodaj plik cennika</div>
+            <div class="icon-embed-xsmall w-embed">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+                </svg>
+            </div>
+          `;
+          }
+
+          if (deleteFileButton) {
+            deleteFileButton.style.display = "none";
+          }
+        }
+
+        // wysyłka
+        function sendRequest(fd) {
           axios
-            .post(uploadEndpoint, formData, {
+            .post(uploadEndpoint, fd, {
               headers: {
                 "Content-Type": "multipart/form-data",
                 Authorization: orgToken,
@@ -749,28 +778,35 @@ whenReadyAndDataTables(function () {
             .then(function (response) {
               $("#waitingdots").hide();
 
-              // Obsługa statusu 201
+              // 201 – przyjęte do przetwarzania
               if (response.status === 201) {
-                // Jeśli zawiera błąd w danych
                 if (response.data?.errorType || response.data?.errorMessage) {
                   const message =
                     response.data.errorMessage ||
                     "Błąd podczas przetwarzania pliku.";
                   displayMessage("Error", `Błąd serwera: ${message}`);
-                  resetButton(deleteFileButton);
+
+                  // przy błędzie – zostaw plik + przycisk kasowania
+                  if (deleteFileButton) {
+                    deleteFileButton.style.display = "block";
+                  }
                   return;
                 }
 
                 displayMessage(
                   "Success",
-                  "Cennik został pomyślnie przyjęty! Twoja oferta zbiorcza zwykle aktualizuje się w ciągu chwili. Możesz dodać kolejny cennik."
+                  "Cennik został przyjęty do przetwarzania. Zwykle oferta aktualizuje się w ciągu kilku chwil. Możesz dodać kolejny cennik."
                 );
-                resetButton(deleteFileButton);
+
+                // po 5 sekundach reset całego formularza + uploadu
+                setTimeout(function () {
+                  resetUploadState();
+                }, 5000);
 
                 return;
               }
 
-              // Status 200 i normalna odpowiedź
+              // 200 – logika z callbackiem i uuid (jeśli masz taki scenariusz)
               if (typeof successCallback === "function") {
                 var result = successCallback(response.data);
                 if (!result) {
@@ -779,7 +815,9 @@ whenReadyAndDataTables(function () {
                     "Error",
                     "Oops. Coś poszło nie tak, spróbuj ponownie."
                   );
-                  resetButton(deleteFileButton);
+                  if (deleteFileButton) {
+                    deleteFileButton.style.display = "block";
+                  }
                   return;
                 }
               }
@@ -805,9 +843,10 @@ whenReadyAndDataTables(function () {
               if (
                 error.response &&
                 error.response.status === 400 &&
+                error.response.data.message &&
                 error.response.data.message.includes("StartDate and EndDate")
               ) {
-                // Retry without startDate and endDate
+                // retry bez dat
                 delete jsonData.startDate;
                 delete jsonData.endDate;
 
@@ -828,7 +867,12 @@ whenReadyAndDataTables(function () {
               } else {
                 const friendlyMessage = getFriendlyErrorMessage(error);
                 displayMessage("Error", friendlyMessage);
-                resetButton(deleteFileButton);
+
+                // przy błędzie – plik zostaje, przycisk usuwania ma być dostępny
+                if (deleteFileButton) {
+                  deleteFileButton.style.display = "block";
+                }
+
                 if (typeof errorCallback === "function") {
                   errorCallback(error);
                 }
@@ -836,25 +880,9 @@ whenReadyAndDataTables(function () {
             });
         }
 
-        sendRequest(formData); // Initial request
+        sendRequest(formData);
         return false;
       });
-
-      function resetButton(button) {
-        // Reset button text
-        button.innerHTML = `
-            <div>Dodaj plik cennika</div>
-            <div class="icon-embed-xsmall w-embed">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                </svg>
-            </div>
-        `;
-        // Hide the delete button
-        const deleteFileButton = document.getElementById("deleteFileButton");
-        if (deleteFileButton) deleteFileButton.style.display = "none";
-        deleteFileButton.style.display = "none";
-      }
     });
   };
 
