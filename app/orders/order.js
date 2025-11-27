@@ -1950,14 +1950,18 @@ whenReadyAndDataTables(function () {
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        // 👇 NOWE: czy ten dostawca jest pominięty?
         const isSkipped = skippedWholesalers.has(
           String(item.wholesalerKey || "").trim()
         );
 
+        const isChosenOffer =
+          String(item.wholesalerKey || "").trim() ===
+          String(d.wholesalerKey || "").trim();
+
         const rowClasses = [];
         if (!item.valid) rowClasses.push("disabled-row");
         if (isSkipped) rowClasses.push("skipped-wholesaler");
+        if (isChosenOffer) rowClasses.push("chosen-offer-row");
         const rowClassAttr = rowClasses.join(" ");
 
         const tooltipParts = [];
