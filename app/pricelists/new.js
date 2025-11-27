@@ -763,8 +763,10 @@ whenReadyAndDataTables(function () {
 
                 displayMessage(
                   "Success",
-                  "Cennik został przyjęty do przetwarzania."
+                  "Cennik został pomyślnie przyjęty! Twoja oferta zbiorcza zwykle aktualizuje się w ciągu chwili. Możesz dodać kolejny cennik."
                 );
+                resetButton(deleteFileButton);
+
                 return;
               }
 
