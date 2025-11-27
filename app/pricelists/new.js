@@ -553,7 +553,6 @@ whenReadyAndDataTables(function () {
     forms.each(function () {
       var form3 = $(this);
 
-      // Przyciski uploadu wewnątrz formularza
       const uploadButtons = form3[0].querySelectorAll("[file_uploader]");
       const deleteFileButton = document.getElementById("deleteFileButton");
 
@@ -564,9 +563,9 @@ whenReadyAndDataTables(function () {
       let lastFileInput = null;
       let lastUploadButton = null;
 
-      // ---- KONFIGURACJA PRZYCISKÓW UPLOAD ----
+      // -------- PRZYCISKI UPLOAD --------
       uploadButtons.forEach((button) => {
-        // zapamiętaj HTML przycisku, żeby można było do niego wrócić
+        // zapamiętujemy oryginalny HTML przycisku
         if (!button.dataset.defaultHtml) {
           button.dataset.defaultHtml = button.innerHTML;
         }
@@ -577,19 +576,17 @@ whenReadyAndDataTables(function () {
         fileInput.name = button.getAttribute("file_uploader");
         document.body.appendChild(fileInput);
 
-        // klik w przycisk upload
         button.addEventListener("click", function (e) {
           if (!button.classList.contains("file-selected")) {
-            // jeszcze nie ma pliku – otwieramy dialog wyboru
+            // brak pliku – otwórz dialog
             e.preventDefault();
             fileInput.click();
           } else {
-            // plik wybrany – submit formularza
+            // plik jest – submit
             form3.submit();
           }
         });
 
-        // zmiana pliku
         fileInput.addEventListener("change", function () {
           if (fileInput.files.length > 0) {
             const fileName = fileInput.files[0].name;
@@ -599,11 +596,11 @@ whenReadyAndDataTables(function () {
 
             button.classList.add("file-selected");
             button.innerHTML = `
-            Wyslij cennik: ${fileName}
+            Wyślij cennik: ${fileName}
             <div class="icon-embed-xsmall w-embed">
-                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                  <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+              </svg>
             </div>
           `;
 
@@ -614,7 +611,7 @@ whenReadyAndDataTables(function () {
         });
       });
 
-      // ---- USUWANIE PLIKU ----
+      // -------- USUWANIE PLIKU --------
       if (deleteFileButton) {
         deleteFileButton.addEventListener("click", function (e) {
           e.preventDefault();
@@ -623,15 +620,16 @@ whenReadyAndDataTables(function () {
             lastFileInput.value = "";
           }
           if (lastUploadButton) {
-            lastUploadButton.classList.remove("file-selected");
+            lastUploadButton.classList.remove("file-selected", "btn-sent");
+            lastUploadButton.disabled = false;
             lastUploadButton.innerHTML =
               lastUploadButton.dataset.defaultHtml ||
               `
             <div>Dodaj plik cennika</div>
             <div class="icon-embed-xsmall w-embed">
-                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                  <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+              </svg>
             </div>
           `;
           }
@@ -639,7 +637,7 @@ whenReadyAndDataTables(function () {
         });
       }
 
-      // ---- SUBMIT FORMULARZA ----
+      // -------- SUBMIT FORMULARZA --------
       form3.on("submit", function (event) {
         event.preventDefault();
 
@@ -709,7 +707,6 @@ whenReadyAndDataTables(function () {
         var uploadEndpoint = InvokeURL + "van/transactions";
         $("#waitingdots").show();
 
-        // mapowanie błędów z API
         function getFriendlyErrorMessage(error) {
           if (error.response) {
             switch (error.response.status) {
@@ -741,21 +738,21 @@ whenReadyAndDataTables(function () {
         }
 
         function resetUploadState() {
-          // reset całego formularza + uploadu
           if (form3[0]) form3[0].reset();
 
           if (lastFileInput) lastFileInput.value = "";
 
           if (lastUploadButton) {
-            lastUploadButton.classList.remove("file-selected");
+            lastUploadButton.classList.remove("file-selected", "btn-sent");
+            lastUploadButton.disabled = false;
             lastUploadButton.innerHTML =
               lastUploadButton.dataset.defaultHtml ||
               `
             <div>Dodaj plik cennika</div>
             <div class="icon-embed-xsmall w-embed">
-                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
-                    <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
-                </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+                  <path fill="currentColor" d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0ZM88 88h32v64a8 8 0 0 0 16 0V88h32a8 8 0 0 0 5.66-13.66l-40-40a8 8 0 0 0-11.32 0l-40 40A8 8 0 0 0 88 88Z"></path>
+              </svg>
             </div>
           `;
           }
@@ -765,7 +762,24 @@ whenReadyAndDataTables(function () {
           }
         }
 
-        // wysyłka
+        function markButtonAsSent() {
+          if (!lastUploadButton) return;
+
+          lastUploadButton.disabled = true;
+          lastUploadButton.classList.add("btn-sent"); // możesz wystylować w CSS
+          lastUploadButton.innerHTML = `
+          Cennik wysłany
+          <div class="icon-embed-xsmall w-embed">
+            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="iconify iconify--ph" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+              <path fill="currentColor" d="M104 184a8 8 0 0 1-5.66-2.34l-40-40a8 8 0 0 1 11.32-11.32L104 164.69l82.34-82.35a8 8 0 0 1 11.32 11.32l-88 88A8 8 0 0 1 104 184Z"></path>
+            </svg>
+          </div>
+        `;
+          if (deleteFileButton) {
+            deleteFileButton.style.display = "none";
+          }
+        }
+
         function sendRequest(fd) {
           axios
             .post(uploadEndpoint, fd, {
@@ -786,19 +800,21 @@ whenReadyAndDataTables(function () {
                     "Błąd podczas przetwarzania pliku.";
                   displayMessage("Error", `Błąd serwera: ${message}`);
 
-                  // przy błędzie – zostaw plik + przycisk kasowania
                   if (deleteFileButton) {
                     deleteFileButton.style.display = "block";
                   }
                   return;
                 }
 
+                // zmiana przycisku na „wysłany”
+                markButtonAsSent();
+
                 displayMessage(
                   "Success",
                   "Cennik został przyjęty do przetwarzania. Zwykle oferta aktualizuje się w ciągu kilku chwil. Możesz dodać kolejny cennik."
                 );
 
-                // po 5 sekundach reset całego formularza + uploadu
+                // po 5 sekundach wszystko wraca do stanu początkowego
                 setTimeout(function () {
                   resetUploadState();
                 }, 5000);
@@ -806,7 +822,7 @@ whenReadyAndDataTables(function () {
                 return;
               }
 
-              // 200 – logika z callbackiem i uuid (jeśli masz taki scenariusz)
+              // 200 – scenariusz z callbackiem i uuid
               if (typeof successCallback === "function") {
                 var result = successCallback(response.data);
                 if (!result) {
@@ -846,7 +862,6 @@ whenReadyAndDataTables(function () {
                 error.response.data.message &&
                 error.response.data.message.includes("StartDate and EndDate")
               ) {
-                // retry bez dat
                 delete jsonData.startDate;
                 delete jsonData.endDate;
 
@@ -868,7 +883,6 @@ whenReadyAndDataTables(function () {
                 const friendlyMessage = getFriendlyErrorMessage(error);
                 displayMessage("Error", friendlyMessage);
 
-                // przy błędzie – plik zostaje, przycisk usuwania ma być dostępny
                 if (deleteFileButton) {
                   deleteFileButton.style.display = "block";
                 }
