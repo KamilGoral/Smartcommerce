@@ -1961,7 +1961,10 @@ whenReadyAndDataTables(function () {
         const rowClasses = [];
         if (!item.valid) rowClasses.push("disabled-row");
         if (isSkipped) rowClasses.push("skipped-wholesaler");
-        if (isChosenOffer) rowClasses.push("chosen-offer-row");
+        // 👉 tylko wybrana + VALID oferta ma zostać pokolorowana
+        if (isChosenOffer && item.valid === true) {
+          rowClasses.push("chosen-offer-row");
+        }
         const rowClassAttr = rowClasses.join(" ");
 
         const tooltipParts = [];
