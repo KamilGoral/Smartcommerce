@@ -2499,7 +2499,7 @@ whenReadyAndDataTables(function () {
               },
             },
             {
-              orderable: false,
+              orderable: true,
               orderData: [8, 1],
               data: null,
               render: function (data) {
