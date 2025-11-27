@@ -5722,6 +5722,9 @@ ${offerTimestampLine}
         $(this).DataTable().columns.adjust();
       });
 
+      // Check inputs initially
+      updateTableInputsFromSessionStorage(orderId);
+
       // Check filters initially
       checkFilters();
 
