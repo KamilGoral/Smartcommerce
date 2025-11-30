@@ -3057,7 +3057,6 @@ whenReadyAndDataTables(function () {
           return;
         }
 
-        // Elementy DOM
         const pName = document.getElementById("pName");
         const pEan = document.getElementById("pEan");
         const pInStock = document.getElementById("pInStock");
@@ -3067,27 +3066,64 @@ whenReadyAndDataTables(function () {
         const pIndicator = document.getElementById("pIndicator");
         const pBestPrice = document.getElementById("pBestPrice");
 
-        // Wypełnianie danych
-        pName.textContent = data?.name || "-";
-        pEan.textContent = data?.gtin || "-";
+        const PLACEHOLDER = "-";
 
+        const setTextOrPlaceholder = (el, value) => {
+          if (!el) return;
+          const isEmpty =
+            value === null ||
+            value === undefined ||
+            value === "" ||
+            Number.isNaN(value);
+
+          if (isEmpty) {
+            el.textContent = PLACEHOLDER;
+            el.classList.add("placeholder");
+          } else {
+            el.textContent = value;
+            el.classList.remove("placeholder");
+          }
+        };
+
+        // NAZWA / EAN
+        setTextOrPlaceholder(pName, data?.name);
+        setTextOrPlaceholder(pEan, data?.gtin);
+
+        // STAN
         const stock = data?.stock ?? { value: 0, unit: "pieces" };
-        pInStock.textContent = stock.value;
-        pUnit.textContent = stock.unit === "pieces" ? "szt" : stock.unit;
+        setTextOrPlaceholder(pInStock, stock.value);
+        setTextOrPlaceholder(
+          pUnit,
+          stock.unit === "pieces" ? "szt" : stock.unit
+        );
 
-        const standardPrice = data?.standardPrice?.value ?? 0;
-        pStandardPrice.textContent = standardPrice;
+        // CENA DETALICZNA / EWIDENCYJNA
+        const standardPrice = data?.standardPrice?.value;
+        const retailPrice = data?.retailPrice;
 
-        const retailPrice = data?.retailPrice ?? 0;
-        pRetailPrice.textContent = retailPrice;
+        setTextOrPlaceholder(
+          pStandardPrice,
+          standardPrice != null ? standardPrice.toFixed(2) : null
+        );
+        setTextOrPlaceholder(
+          pRetailPrice,
+          retailPrice != null ? retailPrice.toFixed(2) : null
+        );
 
-        pIndicator.textContent = rowData?.rotationIndicator ?? "-";
+        // WSKAŹNIK ROTACJI – z rowData, jak w tabeli
+        setTextOrPlaceholder(pIndicator, rowData?.rotationIndicator);
 
+        // NAJLEPSZA CENA ZAKUPU
         if (Array.isArray(rowData?.asks) && rowData.asks.length > 0) {
-          pBestPrice.textContent = rowData.asks[0].netPrice;
+          const best = rowData.asks[0].netNetPrice ?? rowData.asks[0].netPrice;
+          setTextOrPlaceholder(
+            pBestPrice,
+            best != null ? best.toFixed(2) : null
+          );
         } else {
-          pBestPrice.textContent = "-";
+          setTextOrPlaceholder(pBestPrice, null);
         }
+
         resolve();
       };
 
