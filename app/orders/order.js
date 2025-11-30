@@ -1831,8 +1831,6 @@ whenReadyAndDataTables(function () {
   function format(d) {
     const arr = d.asks || [];
 
-    const skippedWholesalers = getSkippedWholesalers(); // 👈 tutaj
-
     const sourceMap = {
       pricat: "Cennik",
       "online offer": "E-hurt",
@@ -1868,15 +1866,31 @@ whenReadyAndDataTables(function () {
       },
     };
 
+    // ✅ WYBÓR KONKRETNEGO WIERSZA:
+    // "Wybrana oferta" = ta z d.wholesalerKey + d.netPrice
+    function isChosenAsk(d, ask) {
+      if (!ask || !ask.valid) return false;
+      if (d.wholesalerKey == null || d.netPrice == null) return false;
+
+      const askNet = Number(ask.netPrice);
+      const chosenNet = Number(d.netPrice);
+
+      if (Number.isNaN(askNet) || Number.isNaN(chosenNet)) return false;
+
+      return ask.wholesalerKey === d.wholesalerKey && askNet === chosenNet;
+    }
+
     function calculatePackage(promotion) {
-      if (!promotion || !promotion.factors) return "-";
+      if (!promotion || !promotion.factors)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors || {};
-      if (!quantityFactor) return "-";
+      if (!quantityFactor)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-      return "-";
+      return '<span style="color:#9ca3af;font-weight:300;">-</span>';
     }
 
     function getBenefitTextAndIcons(types) {
@@ -1907,7 +1921,8 @@ whenReadyAndDataTables(function () {
     }
 
     function getBenefitDetails(benefit) {
-      if (!benefit) return "-";
+      if (!benefit)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const benefits = getBenefitTextAndIcons(benefit.type);
       let details = benefits
         .map(
@@ -1925,17 +1940,21 @@ whenReadyAndDataTables(function () {
       .map((item) => {
         const promoObj = item.promotion || null;
         const mappedPromo = promoObj ? promotionMap[promoObj.type] : null;
-        const promotionType = mappedPromo ? mappedPromo.name : "-";
+        const promotionType = mappedPromo
+          ? mappedPromo.name
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>';
         const promotionDescription = mappedPromo
           ? mappedPromo.description
           : "Brak promocji";
 
+        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
         const canFetchRelated = !!(
           promoObj &&
           promoObj.singular === false &&
           promoObj.id
         );
 
+        // Wstawiamy ikonę z data-* dla fetcha
         const relatedCell = canFetchRelated
           ? `<img
           src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
@@ -1946,66 +1965,70 @@ whenReadyAndDataTables(function () {
           data-promo="${promoObj.id}"
           alt="Powiązane"
          />`
-          : "-";
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        const isSkipped = skippedWholesalers.has(
-          String(item.wholesalerKey || "").trim()
-        );
+        // ✅ klasy wiersza: invalid + chosen (tylko gdy valid)
+        const isChosen = isChosenAsk(d, item);
+        const rowClassParts = [];
+        if (!item.valid) rowClassParts.push("disabled-row");
+        if (isChosen) rowClassParts.push("chosen-offer-row");
+        const rowClass = rowClassParts.join(" ");
 
-        const isChosenOffer =
-          String(item.wholesalerKey || "").trim() ===
-          String(d.wholesalerKey || "").trim();
-
-        const rowClasses = [];
-        if (!item.valid) rowClasses.push("disabled-row");
-        if (isSkipped) rowClasses.push("skipped-wholesaler");
-        // 👉 tylko wybrana + VALID oferta ma zostać pokolorowana
-        if (isChosenOffer && item.valid === true) {
-          rowClasses.push("chosen-offer-row");
-        }
-        const rowClassAttr = rowClasses.join(" ");
-
-        const tooltipParts = [];
-        if (!item.valid) {
-          tooltipParts.push(formatMessageCodesTooltip(item.messageCodes));
-        }
-        if (isSkipped) {
-          tooltipParts.push(
-            "Dostawca został pominięty przy podziale. Oferta nie bierze udziału w zamówieniu."
-          );
-        }
-        const tooltipContent = tooltipParts.join(" | ");
-
-        const rowTooltip =
-          tooltipContent.length > 0
-            ? `class="tippy" data-tippy-content="${tooltipContent}"`
-            : "";
+        const tooltipContent = !item.valid
+          ? `${formatMessageCodesTooltip(item.messageCodes)}`
+          : "";
+        const hasTooltip = !item.valid && tooltipContent;
+        const tippyClass = hasTooltip ? "tippy" : "";
+        const classAttr = [rowClass, tippyClass].filter(Boolean).join(" ");
+        const rowTooltipAttrs = hasTooltip
+          ? `data-tippy-content="${tooltipContent}"`
+          : "";
 
         return `
-      <tr class="${rowClassAttr}" ${rowTooltip}>
-        <td>
-          ${item.wholesalerKey ?? "-"}
-          ${isSkipped ? '<span class="skipped-tag"> (pominięty)</span>' : ""}
-        </td>
-        <td>${item.netPrice ?? "-"}</td>
+      <tr class="${classAttr}" ${rowTooltipAttrs}>
+        <td>${
+          item.wholesalerKey ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.netPrice ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         <td>${
           getCookie("sprytnyUserRole") === "admin"
-            ? item.netNetPrice ?? "-"
-            : "-"
+            ? item.netNetPrice ??
+              '<span style="color:#9ca3af;font-weight:300;">-</span>'
+            : '<span style="color:#9ca3af;font-weight:300;">-</span>'
         }</td>
-        <td>${item.set ?? "-"}</td>
-        <td>${sourceMap[item.source] || "-"}</td>
-        <td>${item.originated ?? "-"}</td>
-        <td>${item.stock ?? "-"}</td>
+        <td>${
+          item.set ?? '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          sourceMap[item.source] ||
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.originated ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.stock ?? '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         ${
           mappedPromo
             ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
             : "<td>-</td>"
         }
-        <td>${promoObj?.threshold ?? "-"}</td>
-        <td>${promoObj?.cap ?? "-"}</td>
+        <td>${
+          promoObj?.threshold ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          promoObj?.cap ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         <td>${calculatePackage(promoObj)}</td>
         <td>${benefitHtml}</td>
         <td>${relatedCell}</td>
