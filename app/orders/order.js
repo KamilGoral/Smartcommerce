@@ -1838,20 +1838,6 @@ whenReadyAndDataTables(function () {
       wms: "PC-Market",
     };
 
-    // 🔧 Podmień URL-e ikon na swoje, jeśli chcesz
-    const sourceIconMap = {
-      pricat:
-        "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66b000001111_source_pricat.svg",
-      "online offer":
-        "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66b000001112_source_ehurt.svg",
-      ecommerce:
-        "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66b000001112_source_ehurt.svg",
-      wms: "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66b000001113_source_wms.svg",
-    };
-
-    const packageIconUrl =
-      "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/66b000001114_icon_package.svg";
-
     const promotionMap = {
       "rigid bundle": {
         name: "Sztywny pakiet",
@@ -1880,7 +1866,8 @@ whenReadyAndDataTables(function () {
       },
     };
 
-    // Wybrany ask = hurtownia + cena z górnego poziomu
+    // ✅ WYBÓR KONKRETNEGO WIERSZA:
+    // "Wybrana oferta" = ta z d.wholesalerKey + d.netPrice
     function isChosenAsk(d, ask) {
       if (!ask || !ask.valid) return false;
       if (d.wholesalerKey == null || d.netPrice == null) return false;
@@ -1893,15 +1880,17 @@ whenReadyAndDataTables(function () {
       return ask.wholesalerKey === d.wholesalerKey && askNet === chosenNet;
     }
 
-    function getPackageValue(promotion) {
-      if (!promotion || !promotion.factors) return null;
+    function calculatePackage(promotion) {
+      if (!promotion || !promotion.factors)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const { type, factors } = promotion;
       const { quantityFactor, consolidationSet } = factors || {};
-      if (!quantityFactor) return null;
+      if (!quantityFactor)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       if (type === "package mix") {
         return Math.round((1 / quantityFactor) * (consolidationSet || 1));
       }
-      return null;
+      return '<span style="color:#9ca3af;font-weight:300;">-</span>';
     }
 
     function getBenefitTextAndIcons(types) {
@@ -1932,16 +1921,17 @@ whenReadyAndDataTables(function () {
     }
 
     function getBenefitDetails(benefit) {
-      if (!benefit) return "";
+      if (!benefit)
+        return '<span style="color:#9ca3af;font-weight:300;">-</span>';
       const benefits = getBenefitTextAndIcons(benefit.type);
       let details = benefits
         .map(
           ({ icon, text }) =>
-            `<img src="${icon}" alt="${text}" class="tippy promo-icon" data-tippy-content="${text}"/>`
+            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`
         )
         .join(" ");
       if (benefit.gratis) {
-        details += ` <span class="promo-extra">(${benefit.gratis.quantity}x za ${benefit.gratis.price} zł)</span>`;
+        details += `: ${benefit.gratis.quantity}x za ${benefit.gratis.price} zł`;
       }
       return details;
     }
@@ -1950,123 +1940,36 @@ whenReadyAndDataTables(function () {
       .map((item) => {
         const promoObj = item.promotion || null;
         const mappedPromo = promoObj ? promotionMap[promoObj.type] : null;
-        const promotionType = mappedPromo ? mappedPromo.name : null;
+        const promotionType = mappedPromo
+          ? mappedPromo.name
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>';
         const promotionDescription = mappedPromo
           ? mappedPromo.description
           : "Brak promocji";
 
+        // singular === false + mamy identyfikator promocji → można kliknąć i pobrać related
         const canFetchRelated = !!(
           promoObj &&
           promoObj.singular === false &&
           promoObj.id
         );
 
-        const relatedIcon = canFetchRelated
+        // Wstawiamy ikonę z data-* dla fetcha
+        const relatedCell = canFetchRelated
           ? `<img
-            src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
-            loading="lazy"
-            class="showdata promo-related"
-            data-shop="${shopKey}"
-            data-wh="${item.wholesalerKey}"
-            data-promo="${promoObj.id}"
-            alt="Powiązane"
-            data-tippy-content="Zobacz produkty powiązane z tą promocją"
-          />`
-          : "";
+          src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/624017e4560dba7a9f97ae97_shortcut.svg"
+          loading="lazy"
+          class="showdata"
+          data-shop="${shopKey}"
+          data-wh="${item.wholesalerKey}"
+          data-promo="${promoObj.id}"
+          alt="Powiązane"
+         />`
+          : '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
-        const packageValue = getPackageValue(promoObj);
 
-        // 🔹 opisowa kolumna promo
-        let promoSummary = "";
-
-        if (!promoObj && !benefitHtml && !relatedIcon) {
-          promoSummary = "-";
-        } else {
-          promoSummary += '<div class="promo-summary">';
-
-          if (promotionType) {
-            promoSummary += `
-            <div class="promo-title tippy" data-tippy-content="${promotionDescription}">
-              <strong>${promotionType}</strong>
-            </div>`;
-          }
-
-          const detailsParts = [];
-
-          if (promoObj?.threshold != null) {
-            detailsParts.push(`próg: ${promoObj.threshold}`);
-          }
-
-          if (promoObj?.cap != null) {
-            detailsParts.push(`max: ${promoObj.cap}`);
-          }
-
-          if (packageValue != null) {
-            detailsParts.push(`opakowanie: ${packageValue} szt.`);
-          }
-
-          if (detailsParts.length) {
-            promoSummary += `
-            <div class="promo-details">
-              ${detailsParts.join(" • ")}
-            </div>`;
-          }
-
-          if (benefitHtml) {
-            promoSummary += `<div class="promo-benefit">${benefitHtml}</div>`;
-          }
-
-          if (relatedIcon) {
-            promoSummary += `<div class="promo-related-wrap">${relatedIcon}</div>`;
-          }
-
-          promoSummary += "</div>";
-        }
-
-        // 🔹 kolumna Źródło / pochodzenie
-        const sourceLabel =
-          sourceMap[item.source] ||
-          '<span style="color:#9ca3af;font-weight:300;">-</span>';
-        const sourceIcon = sourceIconMap[item.source] || null;
-        const originText = item.originated || null;
-
-        const sourceCell = `
-        <div class="source-cell">
-          ${
-            sourceIcon
-              ? `<img 
-                  src="${sourceIcon}" 
-                  alt="${sourceLabel}" 
-                  class="source-icon tippy"
-                  data-tippy-content="${sourceLabel}"
-                />`
-              : ""
-          }
-          <span class="source-label">${sourceLabel}</span>
-          ${originText ? `<div class="origin-label">${originText}</div>` : ""}
-        </div>`;
-
-        // 🔹 kolumna Paczka + ikonka z tooltipem o kodzie pochodzenia
-        const originCodeTooltip = item.originated
-          ? `Kod pochodzenia: ${item.originated}`
-          : "Brak informacji o kodzie pochodzenia";
-
-        const packageCell =
-          item.set != null
-            ? `
-        <div class="package-cell">
-          <span>${item.set}</span>
-          <img
-            src="${packageIconUrl}"
-            alt="Paczka"
-            class="tippy package-icon"
-            data-tippy-content="${originCodeTooltip}"
-          />
-        </div>`
-            : '<span style="color:#9ca3af;font-weight:300;">-</span>';
-
-        // ✅ klasy wiersza: invalid + chosen
+        // ✅ klasy wiersza: invalid + chosen (tylko gdy valid)
         const isChosen = isChosenAsk(d, item);
         const rowClassParts = [];
         if (!item.valid) rowClassParts.push("disabled-row");
@@ -2099,12 +2002,36 @@ whenReadyAndDataTables(function () {
               '<span style="color:#9ca3af;font-weight:300;">-</span>'
             : '<span style="color:#9ca3af;font-weight:300;">-</span>'
         }</td>
-        <td>${packageCell}</td>
-        <td>${sourceCell}</td>
+        <td>${
+          item.set ?? '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          sourceMap[item.source] ||
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          item.originated ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
         <td>${
           item.stock ?? '<span style="color:#9ca3af;font-weight:300;">-</span>'
         }</td>
-        <td>${promoSummary}</td>
+        ${
+          mappedPromo
+            ? `<td class="tippy" data-tippy-content="${promotionDescription}">${promotionType}</td>`
+            : "<td>-</td>"
+        }
+        <td>${
+          promoObj?.threshold ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${
+          promoObj?.cap ??
+          '<span style="color:#9ca3af;font-weight:300;">-</span>'
+        }</td>
+        <td>${calculatePackage(promoObj)}</td>
+        <td>${benefitHtml}</td>
+        <td>${relatedCell}</td>
       </tr>`;
       })
       .join("");
@@ -2116,9 +2043,15 @@ whenReadyAndDataTables(function () {
         <th>Cena net</th>
         <th>Cena netnet</th>
         <th>Paczka</th>
-        <th>Źródło / pochodzenie</th>
+        <th>Źródło</th>
+        <th>Pochodzenie</th>
         <th>Dostępność</th>
-        <th>Promocja i bonus</th>
+        <th>Promocja</th>
+        <th>Próg</th>
+        <th>Max</th>
+        <th>Opakowanie</th>
+        <th>Bonus</th>
+        <th>Powiązane</th>
       </tr>
       ${toDisplayHtml}
     </table>
