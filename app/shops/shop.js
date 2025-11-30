@@ -3148,6 +3148,20 @@ ${offerTimestampLine}
       },
     };
 
+    // ✅ WYBÓR KONKRETNEGO WIERSZA:
+    // "Wybrana oferta" = ta z d.wholesalerKey + d.netPrice
+    function isChosenAsk(d, ask) {
+      if (!ask || !ask.valid) return false;
+      if (d.wholesalerKey == null || d.netPrice == null) return false;
+
+      const askNet = Number(ask.netPrice);
+      const chosenNet = Number(d.netPrice);
+
+      if (Number.isNaN(askNet) || Number.isNaN(chosenNet)) return false;
+
+      return ask.wholesalerKey === d.wholesalerKey && askNet === chosenNet;
+    }
+
     function calculatePackage(promotion) {
       if (!promotion || !promotion.factors)
         return '<span style="color:#9ca3af;font-weight:300;">-</span>';
@@ -3237,17 +3251,25 @@ ${offerTimestampLine}
 
         const benefitHtml = getBenefitDetails(promoObj?.benefit);
 
-        // disabled row + tooltip (przetłumaczone kody)
-        const rowClass = item.valid ? "" : "disabled-row";
+        // ✅ klasy wiersza: invalid + chosen (tylko gdy valid)
+        const isChosen = isChosenAsk(d, item);
+        const rowClassParts = [];
+        if (!item.valid) rowClassParts.push("disabled-row");
+        if (isChosen) rowClassParts.push("chosen-offer-row");
+        const rowClass = rowClassParts.join(" ");
+
         const tooltipContent = !item.valid
           ? `${formatMessageCodesTooltip(item.messageCodes)}`
           : "";
-        const rowTooltip = item.valid
-          ? ""
-          : `class="tippy" data-tippy-content="${tooltipContent}"`;
+        const hasTooltip = !item.valid && tooltipContent;
+        const tippyClass = hasTooltip ? "tippy" : "";
+        const classAttr = [rowClass, tippyClass].filter(Boolean).join(" ");
+        const rowTooltipAttrs = hasTooltip
+          ? `data-tippy-content="${tooltipContent}"`
+          : "";
 
         return `
-      <tr class="${rowClass}" ${rowTooltip}>
+      <tr class="${classAttr}" ${rowTooltipAttrs}>
         <td>${
           item.wholesalerKey ??
           '<span style="color:#9ca3af;font-weight:300;">-</span>'
