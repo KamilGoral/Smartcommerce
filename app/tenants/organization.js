@@ -2306,6 +2306,7 @@ whenReadyAndDataTables(function () {
           "#w-tabs-0-data-w-tab-3"
         );
         if (integrationsTab) {
+          console.log("Integration Tab");
           integrationsTab.addEventListener(
             "click",
             () => {
