@@ -678,6 +678,10 @@ whenReadyAndDataTables(function () {
     $('a[data-w-tab="Settings"]').show();
   }
 
+  $('.w-tab-link[data-w-tab="Tenant-Informations"]').on("click", function () {
+    GetTenantBilling();
+  });
+
   function navigateToInvoiceRow() {
     setTimeout(() => {
       document.querySelector('a[data-w-tab="Settings"]').click();
@@ -2347,8 +2351,6 @@ whenReadyAndDataTables(function () {
     }
 
     try {
-      GetTenantBilling(); // jeśli async → możesz dać await
-
       const url = new URL(InvokeURL + "integrations");
       const response = await fetch(url, {
         method: "GET",
