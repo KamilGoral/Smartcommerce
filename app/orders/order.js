@@ -1236,6 +1236,12 @@ whenReadyAndDataTables(function () {
     }
   }
 
+  // 1. Obsługa kliknięcia przycisku "Zapisz i podziel zamówienie"
+  $("#saveandsplit").on("click", function (e) {
+    e.preventDefault(); // Zapobiega domyślnej akcji linku (przeładowaniu lub skoku)
+    CreateOrder(); // Wywołuje funkcję
+  });
+
   async function CreateOrder() {
     const tableId = "#spl_table";
     const dotsCheckerInterval = 1000; // co ile ms sprawdzamy spinner
@@ -1318,6 +1324,29 @@ whenReadyAndDataTables(function () {
       if (excludedNow.length > 0) {
         urlParams.push("exclude=" + excludedNow);
       }
+
+      // ====== quantityIncreaseMultiplier======
+      let quantityIncreaseMultiplier = $("#quantityIncreaseMultiplier").val();
+
+      // Konwersja do string + trim
+      if (
+        quantityIncreaseMultiplier !== undefined &&
+        quantityIncreaseMultiplier !== null
+      ) {
+        quantityIncreaseMultiplier = String(quantityIncreaseMultiplier).trim();
+
+        // Pomijamy, jeśli jest pusta lub DOMYŚLNA wartość = "500"
+        if (
+          quantityIncreaseMultiplier !== "" &&
+          quantityIncreaseMultiplier !== "500"
+        ) {
+          urlParams.push(
+            "quantityIncreaseMultiplier=" +
+              encodeURIComponent(quantityIncreaseMultiplier)
+          );
+        }
+      }
+      // ===================================
 
       const queryString = urlParams.length > 0 ? "?" + urlParams.join("&") : "";
       const action = `${InvokeURL}shops/${shopKey}/orders/${orderId}/split${queryString}`;
