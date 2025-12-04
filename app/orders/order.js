@@ -1818,6 +1818,13 @@ whenReadyAndDataTables(function () {
     });
   });
 
+  // 🔹 helper – wytwarzanie zaokraglenie
+  var elementToShow = document.querySelector('[data-w-tab="Settings"]');
+  if (OrganizationName === "Goral" && elementToShow) {
+    elementToShow.style.display = "block";
+    elementToShow.classList.remove("hidemefornow");
+  }
+
   // 🔹 helper – zbiera pominiętych dostawców z kontenera
   function getSkippedWholesalers() {
     const set = new Set();
