@@ -1238,8 +1238,18 @@ whenReadyAndDataTables(function () {
 
   // 1. Obsługa kliknięcia przycisku "Zapisz i podziel zamówienie"
   $("#saveandsplit").on("click", function (e) {
-    e.preventDefault(); // Zapobiega domyślnej akcji linku (przeładowaniu lub skoku)
-    CreateOrder(); // Wywołuje funkcję
+    e.preventDefault();
+
+    // Najpierw przełącz zakładkę "Wynik analizy"
+    const detailsTab = $("#details");
+    if (detailsTab.length) {
+      detailsTab.click();
+    }
+
+    // Minimalne opóźnienie, aby Webflow zdążył aktywować panel
+    setTimeout(() => {
+      CreateOrder();
+    }, 50);
   });
 
   async function CreateOrder() {
