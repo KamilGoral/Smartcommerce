@@ -1866,7 +1866,9 @@ whenReadyAndDataTables(function () {
 
   // 🔹 helper – wytwarzanie zaokraglenie
   var elementToShow = document.querySelector('[data-w-tab="Settings"]');
-  if (OrganizationName === "Goral" && elementToShow) {
+  const allowedOrgs = ["Goral", "HandelKK", "ZADAMUS"];
+
+  if (allowedOrgs.includes(OrganizationName) && elementToShow) {
     elementToShow.style.display = "block";
     elementToShow.classList.remove("hidemefornow");
   }
