@@ -1249,7 +1249,7 @@ whenReadyAndDataTables(function () {
     // Minimalne opóźnienie, aby Webflow zdążył aktywować panel
     setTimeout(() => {
       CreateOrder();
-    }, 50);
+    }, 1);
   });
 
   async function CreateOrder() {
