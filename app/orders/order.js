@@ -1325,26 +1325,33 @@ whenReadyAndDataTables(function () {
         urlParams.push("exclude=" + excludedNow);
       }
 
-      // ====== quantityIncreaseMultiplier======
-      let quantityIncreaseMultiplier = $("#quantityIncreaseMultiplier").val();
+      // ====== quantityIncreaseMultiplier – z widocznej wartości ======
+      const $sliderInput = $("#quantityIncreaseMultiplier");
 
-      // Konwersja do string + trim
+      // Szukamy odpowiadającej mu .ms-range-slider-value w tym samym kontenerze
+      let quantityIncreaseMultiplier = $sliderInput
+        .closest(".ms-range-slider")
+        .find(".ms-range-slider-value")
+        .text()
+        .trim();
+
+      // Parsujemy na liczbę
+      const quantityIncreaseMultiplierNum = parseInt(
+        quantityIncreaseMultiplier,
+        10
+      );
+
+      // Dodajemy do query TYLKO jeśli:
+      // - udało się sparsować liczbę
+      // - nie jest to wartość domyślna, np. 500
       if (
-        quantityIncreaseMultiplier !== undefined &&
-        quantityIncreaseMultiplier !== null
+        !Number.isNaN(quantityIncreaseMultiplierNum) &&
+        quantityIncreaseMultiplierNum !== 500
       ) {
-        quantityIncreaseMultiplier = String(quantityIncreaseMultiplier).trim();
-
-        // Pomijamy, jeśli jest pusta lub DOMYŚLNA wartość = "500"
-        if (
-          quantityIncreaseMultiplier !== "" &&
-          quantityIncreaseMultiplier !== "500"
-        ) {
-          urlParams.push(
-            "quantityIncreaseMultiplier=" +
-              encodeURIComponent(quantityIncreaseMultiplier)
-          );
-        }
+        urlParams.push(
+          "quantityIncreaseMultiplier=" +
+            encodeURIComponent(quantityIncreaseMultiplierNum)
+        );
       }
       // ===================================
 
