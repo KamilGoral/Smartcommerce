@@ -510,7 +510,7 @@ whenReadyAndDataTables(function () {
   }
 
   function getShopsIntegration() {
-    let url = new URL(InvokeURL + "integrations/pc-market/shops");
+    let url = new URL(InvokeURL + "integrations/pc-market/shops?perPage=50");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
@@ -539,7 +539,7 @@ whenReadyAndDataTables(function () {
   }
 
   function getShops() {
-    let url = new URL(InvokeURL + "shops");
+    let url = new URL(InvokeURL + "shops?perPage=50");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
