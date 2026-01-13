@@ -3402,12 +3402,31 @@ ${offerTimestampLine}
         text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
         titleAttr: "Excel",
       },
-      // ,
-      // {
-      //   extend: "pdfHtml5",
-      //   text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg" alt="pdf">',
-      //   titleAttr: "PDF",
-      // },
+      {
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="edi-export">',
+        titleAttr: "Export to EDI",
+        action: function (e, dt, node, config) {
+          const data = dt.rows().data().toArray();
+          const csvData = data.map((item) => ({
+            gtin: item.gtin,
+            name: item.name,
+            rotationIndicator: item.rotationIndicator,
+          }));
+          const csvContent =
+            "data:text/csv;charset=utf-8," +
+            "GTIN,Name,RotationIndicator\n" +
+            csvData
+              .map((e) => `${e.gtin},${e.name},${e.rotationIndicator}`)
+              .join("\n");
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", "export_edi.csv");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        },
+      },
     ],
     scrollY: "60vh",
     scrollCollapse: true,
