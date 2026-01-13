@@ -3414,9 +3414,11 @@ ${offerTimestampLine}
           }));
           const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
           const csvContent =
-            "data:text/csv;charset=utf-8," +
+            "\uFEFFdata:text/csv;charset=utf-8," +
             "Kod;Nazwa;Klasa\n" +
-            csvData.map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`).join("\n");
+            csvData
+              .map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`)
+              .join("\n");
           const encodedUri = encodeURI(csvContent);
           const link = document.createElement("a");
           link.setAttribute("href", encodedUri);
