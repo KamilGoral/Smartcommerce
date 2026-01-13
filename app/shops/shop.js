@@ -3352,6 +3352,12 @@ ${offerTimestampLine}
     lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
   }
 
+  // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
+  if (OrganizationName === "NOW01") {
+    lengthMenuOptions[0].push(5000); // Dodaj wartość backendową
+    lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
+  }
+
   // === helper: tylko ważne (valid) ask-i z ceną liczbową
   function getValidAsks(asks) {
     if (!Array.isArray(asks)) return [];
@@ -3416,9 +3422,7 @@ ${offerTimestampLine}
           const csvContent =
             "\uFEFFdata:text/csv;charset=utf-8," +
             "Kod;Nazwa;Klasa\n" +
-            csvData
-              .map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`)
-              .join("\n");
+            csvData.map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`).join("\n");
           const encodedUri = encodeURI(csvContent);
           const link = document.createElement("a");
           link.setAttribute("href", encodedUri);
