@@ -3409,32 +3409,62 @@ ${offerTimestampLine}
         titleAttr: "Excel",
       },
       {
-        text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="xls-export">',
-        titleAttr: "Eksport XLS",
+        text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="csv-export">',
+        titleAttr: "Eksport CSV",
         action: function (e, dt, node, config) {
-          const data = dt.rows().data().toArray();
-          const csvData = data.map((item) => ({
-            Kod: item.gtin || "",
-            Nazwa: item.name || "",
-            Klasa: item.rotationIndicator || "",
+          // --- CSV SAFE ESCAPE ---
+          function csvEscape(value) {
+            if (value === null || value === undefined) return "";
+            const str = String(value);
+            if (/[;"\n\r]/.test(str)) {
+              return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+          }
+
+          // --- POLSKI CZAS ---
+          function getPolishTimestamp() {
+            const d = new Date();
+            const pad = (n) => String(n).padStart(2, "0");
+            return (
+              d.getFullYear() +
+              "-" +
+              pad(d.getMonth() + 1) +
+              "-" +
+              pad(d.getDate()) +
+              "_" +
+              pad(d.getHours()) +
+              "-" +
+              pad(d.getMinutes())
+            );
+          }
+
+          // ⚠️ serverSide = true → tylko aktualnie załadowane rekordy
+          const data = dt.rows({ search: "applied" }).data().toArray();
+
+          const csvRows = data.map((item) => ({
+            Kod: csvEscape(item.gtin || ""),
+            Nazwa: csvEscape(item.name || ""),
+            Klasa: csvEscape(item.rotationIndicator || ""),
           }));
-          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
           const csvContent =
-            "Kod;Nazwa;Klasa\n" +
-            csvData.map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`).join("\n");
+            "Kod;Nazwa;Klasa\r\n" +
+            csvRows.map((r) => `${r.Kod};${r.Nazwa};${r.Klasa}`).join("\r\n");
+
           const blob = new Blob(["\uFEFF" + csvContent], {
             type: "text/csv;charset=utf-8;",
           });
+
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
-          link.setAttribute("href", url);
-          link.setAttribute(
-            "download",
-            `Oferta SprytnyKupiec ${timestamp}.csv`
-          );
+
+          link.href = url;
+          link.download = `Oferta SprytnyKupiec ${getPolishTimestamp()}.csv`;
+
           document.body.appendChild(link);
           link.click();
-          document.body.removeChild(link);
+          link.remove();
           URL.revokeObjectURL(url);
         },
       },
