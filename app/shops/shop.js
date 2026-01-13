@@ -3399,17 +3399,7 @@ ${offerTimestampLine}
         },
       },
       {
-        extend: "copyHtml5",
-        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df44ecd49d3c56c47ea6_copy.svg" alt="copy">',
-        titleAttr: "Copy",
-      },
-      {
-        extend: "excelHtml5",
-        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
-        titleAttr: "Excel",
-      },
-      {
-        text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="csv-export">',
+        text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="csv-export">',
         titleAttr: "Eksport CSV",
         action: function (e, dt, node, config) {
           // --- CSV SAFE ESCAPE ---
@@ -3467,6 +3457,11 @@ ${offerTimestampLine}
           link.remove();
           URL.revokeObjectURL(url);
         },
+      },
+      {
+        extend: "excelHtml5",
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
+        titleAttr: "Excel",
       },
     ],
     scrollY: "60vh",
