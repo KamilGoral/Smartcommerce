@@ -3420,12 +3420,14 @@ ${offerTimestampLine}
           }));
           const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
           const csvContent =
-            "\uFEFFdata:text/csv;charset=utf-8," +
             "Kod;Nazwa;Klasa\n" +
             csvData.map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`).join("\n");
-          const encodedUri = encodeURI(csvContent);
+          const blob = new Blob(["\uFEFF" + csvContent], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
-          link.setAttribute("href", encodedUri);
+          link.setAttribute("href", url);
           link.setAttribute(
             "download",
             `Oferta SprytnyKupiec ${timestamp}.csv`
@@ -3433,6 +3435,7 @@ ${offerTimestampLine}
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          URL.revokeObjectURL(url);
         },
       },
     ],
