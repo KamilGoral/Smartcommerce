@@ -3403,25 +3403,27 @@ ${offerTimestampLine}
         titleAttr: "Excel",
       },
       {
-        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="edi-export">',
-        titleAttr: "Export to EDI",
+        text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/6801f7b76ef39cc6fbfd8190_611b8e60e917c80aab69c05e856e9fb0_document-XLS.svg" alt="xls-export">',
+        titleAttr: "Eksport XLS",
         action: function (e, dt, node, config) {
           const data = dt.rows().data().toArray();
           const csvData = data.map((item) => ({
-            gtin: item.gtin,
-            name: item.name,
-            rotationIndicator: item.rotationIndicator,
+            Kod: item.gtin || "",
+            Nazwa: item.name || "",
+            Klasa: item.rotationIndicator || "",
           }));
+          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
           const csvContent =
             "data:text/csv;charset=utf-8," +
-            "GTIN,Name,RotationIndicator\n" +
-            csvData
-              .map((e) => `${e.gtin},${e.name},${e.rotationIndicator}`)
-              .join("\n");
+            "Kod;Nazwa;Klasa\n" +
+            csvData.map((e) => `${e.Kod};${e.Nazwa};${e.Klasa}`).join("\n");
           const encodedUri = encodeURI(csvContent);
           const link = document.createElement("a");
           link.setAttribute("href", encodedUri);
-          link.setAttribute("download", "export_edi.csv");
+          link.setAttribute(
+            "download",
+            `Oferta SprytnyKupiec ${timestamp}.csv`
+          );
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
