@@ -3354,8 +3354,14 @@ ${offerTimestampLine}
 
   // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
   if (OrganizationName === "NOW01") {
-    lengthMenuOptions[0].push(5000); // Dodaj wartość backendową
-    lengthMenuOptions[1].push("5000"); // Dodaj wyświetlaną etykietę
+    lengthMenuOptions[0].push(500); // Dodaj wartość backendową
+    lengthMenuOptions[1].push("500"); // Dodaj wyświetlaną etykietę
+  }
+
+  // Jeśli organizacja to PSS-Podwawelska, dodaj opcję 5000
+  if (OrganizationName === "Novum") {
+    lengthMenuOptions[0].push(500); // Dodaj wartość backendową
+    lengthMenuOptions[1].push("500"); // Dodaj wyświetlaną etykietę
   }
 
   // === helper: tylko ważne (valid) ask-i z ceną liczbową
