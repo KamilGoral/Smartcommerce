@@ -4190,7 +4190,7 @@ ${offerTimestampLine}
         popupContent.querySelectorAll(".related-product-code").forEach((el) => {
           el.addEventListener("click", function () {
             const code = this.getAttribute("data-code");
-            const table = $(td).closest("table").DataTable();
+            const table = $("#table_id").DataTable();
             table.search(code).draw();
             popupContainer.style.display = "none";
           });
