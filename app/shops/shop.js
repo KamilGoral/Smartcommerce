@@ -3405,7 +3405,7 @@ ${offerTimestampLine}
         },
       },
       {
-        text: '<img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg" alt="csv-export">',
+        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="csv-export">',
         titleAttr: "Eksport CSV",
         action: function (e, dt, node, config) {
           // --- CSV SAFE ESCAPE ---
@@ -3517,26 +3517,34 @@ ${offerTimestampLine}
             };
           });
 
-          // Create CSV header
-          const headers = Object.keys(
-            csvRows[0] || {
-              Kod: "Kod",
-              Nazwa: "Nazwa",
-              Marka: "Marka",
-              Stan: "Stan",
-              "Cena detaliczna": "Cena detaliczna",
-              "Najlepsza cena netto": "Najlepsza cena netto",
-              "Najlepszy dostawca": "Najlepszy dostawca",
-              "Premia rynkowa": "Premia rynkowa",
-              "Premia standardowa": "Premia standardowa",
-              "Klasa rotacji": "Klasa rotacji",
-            }
-          );
+          // Create CSV header with new column names
+          const newHeaders = [
+            "Produkt",
+            "Stan sklepu",
+            "Cena sklepu",
+            "Naj. Cena",
+            "Naj. Dostawca",
+            "PR%",
+            "PE%",
+            "Klasa",
+          ];
+
+          // Create new CSV rows with mapped data
+          const newCsvRows = csvRows.map((row) => [
+            row["Nazwa"], // Produkt
+            row["Stan"], // Stan sklepu
+            row["Cena detaliczna"], // Cena sklepu
+            row["Najlepsza cena netto"], // Naj. Cena
+            row["Najlepszy dostawca"], // Naj. Dostawca
+            row["Premia rynkowa"], // PR%
+            row["Premia standardowa"], // PE%
+            row["Klasa rotacji"], // Klasa
+          ]);
 
           const csvContent =
-            headers.join(";") +
+            newHeaders.join(";") +
             "\r\n" +
-            csvRows.map((r) => headers.map((h) => r[h]).join(";")).join("\r\n");
+            newCsvRows.map((r) => r.join(";")).join("\r\n");
 
           const blob = new Blob(["\uFEFF" + csvContent], {
             type: "text/csv;charset=utf-8;",
@@ -3553,11 +3561,6 @@ ${offerTimestampLine}
           link.remove();
           URL.revokeObjectURL(url);
         },
-      },
-      {
-        extend: "excelHtml5",
-        text: '<img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6234df3f287c53243b955790_spreadsheet.svg" alt="spreadsheet">',
-        titleAttr: "Excel",
       },
     ],
     scrollY: "60vh",
