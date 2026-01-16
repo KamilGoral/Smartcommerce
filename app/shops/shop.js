@@ -3435,18 +3435,108 @@ ${offerTimestampLine}
             );
           }
 
+          // --- HELPER: Get valid asks ---
+          function getValidAsks(asks) {
+            if (!Array.isArray(asks)) return [];
+            return asks.filter(
+              (a) => a && a.valid === true && typeof a.netPrice === "number"
+            );
+          }
+
           // ⚠️ serverSide = true → tylko aktualnie załadowane rekordy
           const data = dt.rows({ search: "applied" }).data().toArray();
 
-          const csvRows = data.map((item) => ({
-            Kod: csvEscape(item.gtin || ""),
-            Nazwa: csvEscape(item.name || ""),
-            Klasa: csvEscape(item.rotationIndicator || ""),
-          }));
+          // Map columns to their data extraction functions
+          const csvRows = data.map((item) => {
+            // Extract data for each column
+            const gtin = item.gtin || "";
+            const name = item.name || "";
+            const brand = item.countryDistributorName || "";
+
+            // Stock
+            const stock =
+              item.stock && item.stock.value !== null ? item.stock.value : "";
+
+            // Standard price
+            const standardPrice =
+              item.standardPrice && item.standardPrice.value !== null
+                ? item.standardPrice.value.toFixed(2)
+                : "";
+
+            // Best net price (from asks)
+            const validAsks = getValidAsks(item.asks);
+            const bestNetPrice =
+              validAsks.length > 0
+                ? Math.min(...validAsks.map((a) => a.netPrice)).toFixed(2)
+                : "";
+
+            // Best wholesaler
+            const bestWh =
+              validAsks.length > 0
+                ? [
+                    ...new Set(
+                      validAsks
+                        .filter(
+                          (a) =>
+                            a.netPrice ===
+                            Math.min(...validAsks.map((a) => a.netPrice))
+                        )
+                        .map((a) => a.wholesalerKey)
+                    ),
+                  ].join(", ")
+                : "";
+
+            // Market premium
+            const marketPremium =
+              item.marketPremium !== null && item.marketPremium !== undefined
+                ? item.marketPremium
+                : "";
+
+            // Standard premium
+            const standardPremium =
+              item.standardPrice &&
+              item.standardPrice.premium !== null &&
+              item.standardPrice.premium !== undefined
+                ? item.standardPrice.premium
+                : "";
+
+            // Rotation indicator
+            const rotationIndicator = item.rotationIndicator || "";
+
+            return {
+              Kod: csvEscape(gtin),
+              Nazwa: csvEscape(name),
+              Marka: csvEscape(brand),
+              Stan: csvEscape(stock),
+              "Cena detaliczna": csvEscape(standardPrice),
+              "Najlepsza cena netto": csvEscape(bestNetPrice),
+              "Najlepszy dostawca": csvEscape(bestWh),
+              "Premia rynkowa": csvEscape(marketPremium),
+              "Premia standardowa": csvEscape(standardPremium),
+              "Klasa rotacji": csvEscape(rotationIndicator),
+            };
+          });
+
+          // Create CSV header
+          const headers = Object.keys(
+            csvRows[0] || {
+              Kod: "Kod",
+              Nazwa: "Nazwa",
+              Marka: "Marka",
+              Stan: "Stan",
+              "Cena detaliczna": "Cena detaliczna",
+              "Najlepsza cena netto": "Najlepsza cena netto",
+              "Najlepszy dostawca": "Najlepszy dostawca",
+              "Premia rynkowa": "Premia rynkowa",
+              "Premia standardowa": "Premia standardowa",
+              "Klasa rotacji": "Klasa rotacji",
+            }
+          );
 
           const csvContent =
-            "Kod;Nazwa;Klasa\r\n" +
-            csvRows.map((r) => `${r.Kod};${r.Nazwa};${r.Klasa}`).join("\r\n");
+            headers.join(";") +
+            "\r\n" +
+            csvRows.map((r) => headers.map((h) => r[h]).join(";")).join("\r\n");
 
           const blob = new Blob(["\uFEFF" + csvContent], {
             type: "text/csv;charset=utf-8;",
@@ -3556,22 +3646,22 @@ ${offerTimestampLine}
         }
       }
       if (cVal(PRmin)) {
-        QStr = QStr + "&marketPremium=gt:" + PRmin;
+        QStr = QStr + "&marketPremium=gte:" + PRmin;
       }
       if (cVal(PRmax)) {
-        QStr = QStr + "&marketPremium=lt:" + PRmax;
+        QStr = QStr + "&marketPremium=lte:" + PRmax;
       }
       if (cVal(PEmin)) {
-        QStr = QStr + "&standardPremium=gt:" + PEmin;
+        QStr = QStr + "&standardPremium=gte:" + PEmin;
       }
       if (cVal(PEmax)) {
-        QStr = QStr + "&standardPremium=lt:" + PEmax;
+        QStr = QStr + "&standardPremium=lte:" + PEmax;
       }
       if (cVal(iSmin)) {
-        QStr = QStr + "&stock=gt:" + iSmin;
+        QStr = QStr + "&stock=gte:" + iSmin;
       }
       if (cVal(iSmax)) {
-        QStr = QStr + "&stock=lt:" + iSmax;
+        QStr = QStr + "&stock=lte:" + iSmax;
       }
 
       var whichColumns = "";

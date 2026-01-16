@@ -5388,22 +5388,22 @@ ${offerTimestampLine}
         }
       }
       if (cVal(PRmin)) {
-        QStr = QStr + "&marketPremium=gt:" + PRmin;
+        QStr = QStr + "&marketPremium=gte:" + PRmin;
       }
       if (cVal(PRmax)) {
-        QStr = QStr + "&marketPremium=lt:" + PRmax;
+        QStr = QStr + "&marketPremium=lte:" + PRmax;
       }
       if (cVal(PEmin)) {
-        QStr = QStr + "&standardPremium=gt:" + PEmin;
+        QStr = QStr + "&standardPremium=gte:" + PEmin;
       }
       if (cVal(PEmax)) {
-        QStr = QStr + "&standardPremium=lt:" + PEmax;
+        QStr = QStr + "&standardPremium=lte:" + PEmax;
       }
       if (cVal(iSmin)) {
-        QStr = QStr + "&stock=gt:" + iSmin;
+        QStr = QStr + "&stock=gte:" + iSmin;
       }
       if (cVal(iSmax)) {
-        QStr = QStr + "&stock=lt:" + iSmax;
+        QStr = QStr + "&stock=lte:" + iSmax;
       }
 
       var whichColumns = "";

@@ -853,7 +853,7 @@ whenReadyAndDataTables(function () {
       return;
     }
 
-    let url = new URL(InvokeURL + "users?perPage=30");
+    let url = new URL(InvokeURL + "users?perPage=100");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.setRequestHeader("Authorization", orgToken);
