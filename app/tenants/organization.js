@@ -743,30 +743,74 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  // Mapa: email użytkownika → lista shopKey do których ma dostęp do czasu ogarniecia tematu przez backend
-  function getAllowedShopKeys(userEmail) {
-    const domain = "@spolem.czest.pl";
 
-    if (!userEmail.endsWith(domain)) {
-      return null; // Użytkownik spoza organizacji - pełny dostęp
-    }
+function _n(email) {
+  return (email || "").trim().toLowerCase();
+}
 
-    const prefix = userEmail.split("@")[0];
+const _NOVUM_B64 =
+  "YmllbGN6YUBza2xlcHlub3Z1bS5wbD1CSUVMQ1pBCmJyemVza29Ac2tsZXB5bm92dW0ucGw9QlJaRVNLTwp3b2xhLmRlYmluc2thQHNrbGVweW5vdnVtLnBsPURFQk5PCmtvYnlsZUBza2xlcHlub3Z1bS5wbD1LT0JZTEUKbGFza293YUBza2xlcHlub3Z1bS5wbD1MQVNLT1dBCmxla2lAc2tsZXB5bm92dW0ucGw9TEVLSQptdWNob3drYUBza2xlcHlub3Z1bS5wbD1NVUNIT1dLQQpva29jaW1Ac2tsZXB5bm92dW0ucGw9T0tPQ0lNCnBvcmFia2EuaXdrb3dza2FAc2tsZXB5bm92dW0ucGw9UE9SQUJLQUkKcHJ6eWJvcm93QHNrbGVweW5vdnVtLnBsPVBSWllCT1JPCnVzemV3QHNrbGVweW5vdnVtLnBsPVVTWkVXCnpha2xpY3p5bkBza2xlcHlub3Z1bS5wbD1aQUtMSUNaWQp6ZWdvY2luYUBza2xlcHlub3Z1bS5wbD1aRUdPQ0lOQQpwbGVzbmFAc2tsZXB5bm92dW0ucGw9UExFU05BCmdub2puaWtAc2tsZXB5bm92dW0ucGw9R05PSk5JSwp6bG90YUBza2xlcHlub3Z1bS5wbD1aTE9UQQpncm9zemVrLmtyb2xvd2thQG9wLnBsPVRPVEEKZ3Jvc3play53aXNuaWN6QG9wLnBsPVRPVEEK";
 
-    // Specjalne przypadki na sztywno
-    if (prefix === "megasam") return ["701"];
-    if (prefix === "sezam") return ["600"];
+let _novumMapCache = null;
 
-    // Obsługa sklepów
-    if (prefix.startsWith("sklep")) {
-      let num = prefix.slice(5);
-      num = num.padStart(3, "0");
-      return [num];
-    }
+function _decodeNovumMap() {
+  if (_novumMapCache) return _novumMapCache;
 
-    // Jeśli nie pasuje do niczego powyżej, traktujemy jako użytkownika personalnego — dostęp do wszystkich sklepów
+  const raw = atob(_NOVUM_B64);
+  const m = Object.create(null);
+
+  raw.split("\n").forEach((line) => {
+    const s = line.trim();
+    if (!s) return;
+
+    const idx = s.indexOf("=");
+    if (idx === -1) return;
+
+    const email = _n(s.slice(0, idx));
+    const shopKey = s.slice(idx + 1).trim();
+
+    if (email && shopKey) m[email] = shopKey;
+  });
+
+  _novumMapCache = m;
+  return m;
+}
+
+function _czestochowaShopKeys(userEmail) {
+  const domain = "@spolem.czest.pl";
+
+  if (!userEmail.endsWith(domain)) {
     return null;
   }
+
+  const prefix = userEmail.split("@")[0];
+
+  if (prefix === "megasam") return ["701"];
+  if (prefix === "sezam") return ["600"];
+
+  if (prefix.startsWith("sklep")) {
+    let num = prefix.slice(5);
+    num = num.padStart(3, "0");
+    return [num];
+  }
+
+  return null;
+}
+
+function getAllowedShopKeys(userEmail) {
+  const email = _n(userEmail);
+  if (!email) return null;
+
+  const novum = _decodeNovumMap();
+  const novumKey = novum[email];
+  if (novumKey) return [novumKey];
+
+  const cz = _czestochowaShopKeys(email);
+  if (cz) return cz;
+
+  return null;
+}
+
 
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=50");
