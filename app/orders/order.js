@@ -168,7 +168,7 @@ whenReadyAndDataTables(function () {
         if (existingUserAttributes) {
           const attributes = existingUserAttributes.split("|");
           const phoneNumberAttribute = attributes.find((attr) =>
-            attr.startsWith("phonenumber:")
+            attr.startsWith("phonenumber:"),
           );
           if (phoneNumberAttribute) {
             existingPhoneNumber = phoneNumberAttribute.split(":")[1];
@@ -233,7 +233,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -250,7 +250,7 @@ whenReadyAndDataTables(function () {
                 emailadressUser +
                 "|phonenumber:" +
                 phoneNumber,
-              720000
+              720000,
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
             const welcomeMessage = document.getElementById("welcomeMessage");
@@ -268,7 +268,7 @@ whenReadyAndDataTables(function () {
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
           },
@@ -314,7 +314,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -404,7 +404,7 @@ whenReadyAndDataTables(function () {
     ];
 
     const missing = cookiesToCheck.some(
-      (name) => !document.cookie.includes(`${name}=`)
+      (name) => !document.cookie.includes(`${name}=`),
     );
 
     if (missing) {
@@ -482,14 +482,14 @@ whenReadyAndDataTables(function () {
       "/app/tenants/organization?name=" +
       OrganizationName +
       "&clientId=" +
-      ClientID
+      ClientID,
   );
 
   const ShopBread = document.getElementById("ShopKeyBread");
   ShopBread.textContent = shopKey;
   ShopBread.setAttribute(
     "href",
-    "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey
+    "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey,
   );
 
   var OrderIdBread = new URL(location.href).searchParams.get("orderId");
@@ -501,7 +501,7 @@ whenReadyAndDataTables(function () {
       "/app/orders/order?orderId=" +
       OrderIdBread +
       "&shopKey=" +
-      shopKey
+      shopKey,
   );
 
   const orderNameFromCookie = getCookie("orderName");
@@ -575,13 +575,13 @@ whenReadyAndDataTables(function () {
 
           $("#shopTownEdit").val((data.address && data.address.town) || "");
           $("#shopPostcodeEdit").val(
-            (data.address && data.address.postcode) || ""
+            (data.address && data.address.postcode) || "",
           );
           $("#shopAdressEdit").val((data.address && data.address.line1) || "");
           $("#shopPhoneEdit").val(
             Array.isArray(data.phones) && data.phones.length > 0
               ? data.phones[0].phone
-              : ""
+              : "",
           );
 
           if (data.emails && data.emails.length > 0) {
@@ -589,7 +589,7 @@ whenReadyAndDataTables(function () {
               if (index < 3) {
                 $(`#shopEmailEdit${index + 1}`).val(email.email || "");
                 $(`#shopEmailEditDescription${index + 1}`).val(
-                  email.description || ""
+                  email.description || "",
                 );
               }
             });
@@ -605,7 +605,7 @@ whenReadyAndDataTables(function () {
           const phones = data.phones?.map((p) => p.phone).join(", ") || "";
 
           $("#orderDelivery").val(
-            `${shopDescription} \n${addressDescription} \n${emails} \n${phones}`
+            `${shopDescription} \n${addressDescription} \n${emails} \n${phones}`,
           );
 
           resolve(data);
@@ -704,7 +704,7 @@ whenReadyAndDataTables(function () {
         if (previousValue === "potwierdzono" && selectedValue === "w edycji") {
           // Ustawienie tekstu modala
           $("#undotText").text(
-            `Czy na pewno chcesz cofnąć zamówienie do dostawcy ${wholesalerName}?`
+            `Czy na pewno chcesz cofnąć zamówienie do dostawcy ${wholesalerName}?`,
           );
 
           // Pokaż modal i przekaż dane
@@ -765,7 +765,7 @@ whenReadyAndDataTables(function () {
             // Usunięcie zdarzeń typu "downloaded"
             if (Array.isArray(rowData.events)) {
               rowData.events = rowData.events.filter(
-                (event) => event.type !== "downloaded"
+                (event) => event.type !== "downloaded",
               );
             }
 
@@ -965,7 +965,7 @@ whenReadyAndDataTables(function () {
           <img loading="lazy" src="${it.icon}" alt="" 
                style="width:24px;height:24px;display:block;" />
           <span style="font-size:.875em;line-height:1;">${it.count}</span>
-        </span>`
+        </span>`,
               )
               .join("");
 
@@ -990,8 +990,8 @@ whenReadyAndDataTables(function () {
             const currentStatus = wasEmailed
               ? "wysłano"
               : row.confirmedAt
-              ? "potwierdzono"
-              : "w edycji";
+                ? "potwierdzono"
+                : "w edycji";
 
             const isEditable = !wasEmailed;
 
@@ -1057,7 +1057,7 @@ whenReadyAndDataTables(function () {
             const fileIcons = config.default; // uproszczone dla skrótu
 
             return `<div style="display: flex; align-items: center; gap: 10px;">${fileIcons.join(
-              ""
+              "",
             )}</div>`;
           },
         },
@@ -1109,7 +1109,7 @@ whenReadyAndDataTables(function () {
         const api = this.api();
         const allData = api.rows().data().toArray();
         const confirmedCount = allData.filter(
-          (r) => r.confirmedAt != null
+          (r) => r.confirmedAt != null,
         ).length;
 
         $('a[data-w-tab="AddProducts"]').toggle(confirmedCount === 0);
@@ -1158,7 +1158,7 @@ whenReadyAndDataTables(function () {
               row.child(formatEvents(row.data())).show();
               tr.addClass("shown");
             }
-          }
+          },
         );
       },
     });
@@ -1173,7 +1173,7 @@ whenReadyAndDataTables(function () {
     let wholesalersData = [];
     try {
       wholesalersData = JSON.parse(
-        sessionStorage.getItem("wholesalersData") || "[]"
+        sessionStorage.getItem("wholesalersData") || "[]",
       );
     } catch (e) {
       wholesalersData = [];
@@ -1223,7 +1223,7 @@ whenReadyAndDataTables(function () {
 
     // Opcja "Nieprzydzielony / Pomiń" zawsze na końcu
     $sel.append(
-      '<option value="unassigned" style="font-weight:bold;">Nieprzydzielony / Pomiń</option>'
+      '<option value="unassigned" style="font-weight:bold;">Nieprzydzielony / Pomiń</option>',
     );
 
     // Zachowaj poprzedni wybór jeśli ma sens
@@ -1286,7 +1286,7 @@ whenReadyAndDataTables(function () {
         .toArray();
 
       const deletetedIdstoDelete = $(
-        "#DeletedContainer input:checkbox:not(:checked)"
+        "#DeletedContainer input:checkbox:not(:checked)",
       )
         .map(function () {
           return $(this).val();
@@ -1348,7 +1348,7 @@ whenReadyAndDataTables(function () {
       // Parsujemy na liczbę
       const quantityIncreaseMultiplierNum = parseInt(
         quantityIncreaseMultiplier,
-        10
+        10,
       );
 
       // Dodajemy do query TYLKO jeśli:
@@ -1360,7 +1360,7 @@ whenReadyAndDataTables(function () {
       ) {
         urlParams.push(
           "quantityIncreaseMultiplier=" +
-            encodeURIComponent(quantityIncreaseMultiplierNum)
+            encodeURIComponent(quantityIncreaseMultiplierNum),
         );
       }
       // ===================================
@@ -1416,7 +1416,7 @@ whenReadyAndDataTables(function () {
       const isAddProductsTabActive = $("#addProducts").hasClass("w--current");
       if (isAddProductsTabActive) {
         console.log(
-          "Tab 'Dodaj produkty' jest aktywny — pomijam obsługę błędu."
+          "Tab 'Dodaj produkty' jest aktywny — pomijam obsługę błędu.",
         );
         throw error;
       }
@@ -1437,7 +1437,7 @@ whenReadyAndDataTables(function () {
             "Nie można podzielić żądanego zamówienia: brak produktów do podziału.";
         } else if (
           parsed.message.includes(
-            "Quantities of products exceed limit for GTINs"
+            "Quantities of products exceed limit for GTINs",
           )
         ) {
           const gtins = parsed.message.match(/\[([^\]]+)\]/)?.[1];
@@ -1460,7 +1460,7 @@ whenReadyAndDataTables(function () {
       } else if (error.status === 404) {
         displayMessage(
           "Error",
-          "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie."
+          "Niestety, nie znaleziono oferty lub wybrano usunięte zamówienie.",
         );
         setTimeout(() => {
           window.location.href = `https://${DomainName}/app/shops/shop?shopKey=${shopKey}`;
@@ -1490,7 +1490,7 @@ whenReadyAndDataTables(function () {
         : Date.now();
     console.groupCollapsed(
       "%caddJsonFooterIconIfGoral()",
-      "color:#0a0;font-weight:700"
+      "color:#0a0;font-weight:700",
     );
     console.log("→ Start");
 
@@ -1509,7 +1509,7 @@ whenReadyAndDataTables(function () {
         orgName !== "ATO"
       ) {
         console.warn(
-          "Return: org not allowed (expected 'Goral' or 'DH-PSS-Bytom')."
+          "Return: org not allowed (expected 'Goral' or 'DH-PSS-Bytom').",
         );
         return;
       }
@@ -1526,7 +1526,7 @@ whenReadyAndDataTables(function () {
         const tfootHtml = $("#table_splited_wh tfoot").html() || "";
         console.log(
           "tfoot snapshot:",
-          tfootHtml.slice(0, 400) + (tfootHtml.length > 400 ? " …" : "")
+          tfootHtml.slice(0, 400) + (tfootHtml.length > 400 ? " …" : ""),
         );
         return;
       }
@@ -1553,7 +1553,7 @@ whenReadyAndDataTables(function () {
       $bar.append($btn);
       console.log(
         "✓ Button appended to footer bar. Count now:",
-        $bar.find("#download-order-json-footer").length
+        $bar.find("#download-order-json-footer").length,
       );
 
       // 6) Klik – tylko nasz
@@ -1576,14 +1576,14 @@ whenReadyAndDataTables(function () {
         console.log("✓ initializeSimpleTooltips() called");
       } else {
         console.warn(
-          "initializeSimpleTooltips not found – skipping tooltips init."
+          "initializeSimpleTooltips not found – skipping tooltips init.",
         );
       }
 
       // 8) Sanity check
       console.assert(
         $("#download-order-json-footer").length >= 1,
-        "Icon not present in DOM after append."
+        "Icon not present in DOM after append.",
       );
       console.log("✓ Completed without exceptions.");
     } catch (e) {
@@ -1660,8 +1660,8 @@ whenReadyAndDataTables(function () {
       const createDate = details?.createDate
         ? new Date(details.createDate).toISOString()
         : itemsPayload?.offerDate
-        ? new Date(itemsPayload.offerDate).toISOString()
-        : new Date().toISOString();
+          ? new Date(itemsPayload.offerDate).toISOString()
+          : new Date().toISOString();
 
       const name = details?.name ?? "Zamówienie";
       const total = Number.isFinite(details?.total)
@@ -1771,7 +1771,7 @@ whenReadyAndDataTables(function () {
 
     // Wyliczenie oszczędności
     const { savingsValue, savingsPercentage } = calculateAndSetSavings(
-      data.netValues
+      data.netValues,
     );
     const {
       savingsValue: savingsNetValue,
@@ -1811,7 +1811,7 @@ whenReadyAndDataTables(function () {
     const table = $("#table_splited_wh").DataTable();
     const allData = table.rows().data().toArray();
     const confirmedCount = allData.filter(
-      (row) => row.confirmedAt != null
+      (row) => row.confirmedAt != null,
     ).length;
     const totalCount = allData.length;
 
@@ -1982,7 +1982,7 @@ whenReadyAndDataTables(function () {
       let details = benefits
         .map(
           ({ icon, text }) =>
-            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`
+            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`,
         )
         .join(" ");
       if (benefit.gratis) {
@@ -2053,8 +2053,8 @@ whenReadyAndDataTables(function () {
         }</td>
         <td>${
           getCookie("sprytnyUserRole") === "admin"
-            ? item.netNetPrice ??
-              '<span style="color:#9ca3af;font-weight:300;">-</span>'
+            ? (item.netNetPrice ??
+              '<span style="color:#9ca3af;font-weight:300;">-</span>')
             : '<span style="color:#9ca3af;font-weight:300;">-</span>'
         }</td>
         <td>${
@@ -2170,7 +2170,7 @@ whenReadyAndDataTables(function () {
     jsonData,
     isDisabled,
     assignmentSource,
-    tableSelector // zostawiamy dla zgodności, ale nie używamy
+    tableSelector, // zostawiamy dla zgodności, ale nie używamy
   ) {
     const wholesalersDataRaw = sessionStorage.getItem("wholesalersData");
     const wholesalersData = wholesalersDataRaw
@@ -2214,7 +2214,7 @@ whenReadyAndDataTables(function () {
         .filter(
           (item, idx, self) =>
             idx ===
-            self.findIndex((t) => t.wholesalerKey === item.wholesalerKey)
+            self.findIndex((t) => t.wholesalerKey === item.wholesalerKey),
         );
 
       // Dostawcy z jsonData (pomijamy potwierdzonych, poza aktualnie wybranym)
@@ -2227,7 +2227,7 @@ whenReadyAndDataTables(function () {
         }
 
         const w = wholesalersData.find(
-          (x) => x.wholesalerKey === item.wholesalerKey
+          (x) => x.wholesalerKey === item.wholesalerKey,
         );
         const name = w ? w.name : item.wholesalerKey;
 
@@ -2242,7 +2242,7 @@ whenReadyAndDataTables(function () {
     // --- dodaj dostawców z wholesalersData, których jeszcze nie ma ---
     wholesalersData.forEach((w) => {
       const alreadyAdded = localList.some(
-        (i) => i.wholesalerKey === w.wholesalerKey
+        (i) => i.wholesalerKey === w.wholesalerKey,
       );
       const isConfirmed = confirmedWholesalers.has(w.wholesalerKey);
 
@@ -2558,8 +2558,8 @@ whenReadyAndDataTables(function () {
                     totalValue += segment.netPrice * segment.quantity;
                     breakdown.push(
                       `${segment.quantity} szt. × ${segment.netPrice.toFixed(
-                        2
-                      )} zł`
+                        2,
+                      )} zł`,
                     );
                   });
                   const weightedPrice = (totalValue / totalQuantity).toFixed(2);
@@ -2592,7 +2592,7 @@ whenReadyAndDataTables(function () {
                     0,
                     data.assignmentSource,
                     "#table_splited_wh",
-                    disabled // przekaż parametr
+                    disabled, // przekaż parametr
                   )
                 );
               },
@@ -2641,7 +2641,7 @@ whenReadyAndDataTables(function () {
                   data.asks
                     .filter(
                       (ask) =>
-                        ask && ask.valid === true && ask.confirmed !== true
+                        ask && ask.valid === true && ask.confirmed !== true,
                     )
                     .forEach((ask) => {
                       if (ask.netPrice !== null) {
@@ -2650,7 +2650,7 @@ whenReadyAndDataTables(function () {
                       if (ask.netNetPrice !== null) {
                         lowestNetNetPrice = Math.min(
                           lowestNetNetPrice,
-                          ask.netNetPrice
+                          ask.netNetPrice,
                         );
                       }
                     });
@@ -2816,7 +2816,8 @@ whenReadyAndDataTables(function () {
                 // ✅ tylko ważne, niepotwierdzone aski
                 data.asks
                   .filter(
-                    (ask) => ask && ask.valid === true && ask.confirmed !== true
+                    (ask) =>
+                      ask && ask.valid === true && ask.confirmed !== true,
                   )
                   .forEach((ask) => {
                     if (ask.netPrice !== null) {
@@ -2825,7 +2826,7 @@ whenReadyAndDataTables(function () {
                     if (ask.netNetPrice !== null) {
                       lowestNetNetPrice = Math.min(
                         lowestNetNetPrice,
-                        ask.netNetPrice
+                        ask.netNetPrice,
                       );
                     }
                   });
@@ -2855,7 +2856,7 @@ whenReadyAndDataTables(function () {
               });
               $(row).attr(
                 "data-tippy-content",
-                "Produkt zamówiony, edycja jest niemożliwa"
+                "Produkt zamówiony, edycja jest niemożliwa",
               );
               $(row).find("input, select, button").attr("disabled", true).css({
                 "pointer-events": "none",
@@ -2916,7 +2917,7 @@ whenReadyAndDataTables(function () {
             // Dodatki UI
             $("#lowerprice").removeClass("details-invisible");
             $("#spl_table").wrap(
-              "<div style='overflow:auto; width:100%;position:relative;'></div>"
+              "<div style='overflow:auto; width:100%;position:relative;'></div>",
             );
 
             api.columns.adjust().draw();
@@ -2978,7 +2979,7 @@ whenReadyAndDataTables(function () {
                 if (parsedError.code === 409) {
                   displayMessage(
                     "Błąd",
-                    "Nie można edytować produktów, które zostały już potwierdzone."
+                    "Nie można edytować produktów, które zostały już potwierdzone.",
                   );
                   reject(parsedError); // odrzucamy, mimo 200
                   return;
@@ -2991,7 +2992,7 @@ whenReadyAndDataTables(function () {
             } catch (e) {
               displayMessage(
                 "Error",
-                "Oops. Coś poszło nie tak, spróbuj ponownie."
+                "Oops. Coś poszło nie tak, spróbuj ponownie.",
               );
               reject(e);
             }
@@ -2999,7 +3000,7 @@ whenReadyAndDataTables(function () {
           error: function (jqXHR, exception) {
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             reject({ jqXHR, exception });
           },
@@ -3105,7 +3106,7 @@ whenReadyAndDataTables(function () {
   function getProductDetails(rowData) {
     return new Promise((resolve, reject) => {
       const url = new URL(
-        InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
+        InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin,
       );
 
       const request = new XMLHttpRequest();
@@ -3172,7 +3173,7 @@ whenReadyAndDataTables(function () {
         setTextOrPlaceholder(pInStock, stock.value);
         setTextOrPlaceholder(
           pUnit,
-          stock.unit === "pieces" ? "szt" : stock.unit
+          stock.unit === "pieces" ? "szt" : stock.unit,
         );
 
         // CENA DETALICZNA / EWIDENCYJNA
@@ -3181,11 +3182,11 @@ whenReadyAndDataTables(function () {
 
         setTextOrPlaceholder(
           pStandardPrice,
-          standardPrice != null ? standardPrice.toFixed(2) : null
+          standardPrice != null ? standardPrice.toFixed(2) : null,
         );
         setTextOrPlaceholder(
           pRetailPrice,
-          retailPrice != null ? retailPrice.toFixed(2) : null
+          retailPrice != null ? retailPrice.toFixed(2) : null,
         );
 
         // WSKAŹNIK ROTACJI – z rowData, jak w tabeli
@@ -3196,7 +3197,7 @@ whenReadyAndDataTables(function () {
           const best = rowData.asks[0].netNetPrice ?? rowData.asks[0].netPrice;
           setTextOrPlaceholder(
             pBestPrice,
-            best != null ? best.toFixed(2) : null
+            best != null ? best.toFixed(2) : null,
           );
         } else {
           setTextOrPlaceholder(pBestPrice, null);
@@ -3387,7 +3388,7 @@ whenReadyAndDataTables(function () {
             updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
             messages: translateMessages(
               latestEvent.extracting?.messages || [],
-              "PL"
+              "PL",
             ),
             allEvents: enrichedEvents,
             expandable:
@@ -3410,11 +3411,11 @@ whenReadyAndDataTables(function () {
               statusLabel:
                 statusMap[latestWmsEvent.extracting?.status] || "Nieznany",
               updatedAt: new Date(latestWmsEvent.updatedAt).toLocaleString(
-                "pl-PL"
+                "pl-PL",
               ),
               messages: translateMessages(
                 latestWmsEvent.extracting?.messages || [],
-                "PL"
+                "PL",
               ),
             });
           }
@@ -3428,7 +3429,7 @@ whenReadyAndDataTables(function () {
             status: "success",
             statusLabel: "Sukces",
             updatedAt: new Date(
-              res.integrations.retroactive.updatedAt
+              res.integrations.retroactive.updatedAt,
             ).toLocaleString("pl-PL"),
             messages: [],
           });
@@ -3740,15 +3741,15 @@ ${offerTimestampLine}
               typeof s.avgPrice === "number"
                 ? s.avgPrice
                 : typeof s.average === "number"
-                ? s.average
-                : null;
+                  ? s.average
+                  : null;
 
             const low =
               typeof s.minPrice === "number"
                 ? s.minPrice
                 : typeof s.lowest === "number"
-                ? s.lowest
-                : null;
+                  ? s.lowest
+                  : null;
 
             return {
               ts: new Date(s.timestamp),
@@ -3850,7 +3851,7 @@ ${offerTimestampLine}
               "neutral-value",
               "positive-value",
               "negative-value",
-              "hide"
+              "hide",
             );
             if (diff > 0.1) {
               el.classList.add("positive-value");
@@ -3889,7 +3890,7 @@ ${offerTimestampLine}
 
         // zakres ilości
         const qtyVals = [...stock, ...volume].filter(
-          (v) => typeof v === "number" && isFinite(v)
+          (v) => typeof v === "number" && isFinite(v),
         );
         const qtyMax = qtyVals.length
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
@@ -3955,7 +3956,7 @@ ${offerTimestampLine}
 
         // sprzedaż ostatnich siedmiu dni i dziewięćdziesięciu dni
         const vols = volume.map((v) =>
-          typeof v === "number" && isFinite(v) ? v : 0
+          typeof v === "number" && isFinite(v) ? v : 0,
         );
 
         const sumLast = (n) => {
@@ -4219,7 +4220,7 @@ ${offerTimestampLine}
 
         window.__phChart = new ApexCharts(
           document.getElementById("chart"),
-          options
+          options,
         );
         await window.__phChart.render();
 
@@ -4354,7 +4355,7 @@ ${offerTimestampLine}
           .sort((a, b) =>
             (a.name || "").localeCompare(b.name || "", "pl", {
               sensitivity: "base",
-            })
+            }),
           );
         sessionStorage.setItem("wholesalersData", JSON.stringify(sorted));
 
@@ -4377,7 +4378,7 @@ ${offerTimestampLine}
           shopKey +
           "/wholesalers/" +
           wholesalerKey +
-          "/smartvan"
+          "/smartvan",
       );
       let request2 = new XMLHttpRequest();
       request2.open("GET", url2, true);
@@ -4412,7 +4413,7 @@ ${offerTimestampLine}
             // Zaznacz dostępne formaty
             formats.forEach(function (format) {
               let option = formatsSelect.querySelector(
-                `option[value="${format}"]`
+                `option[value="${format}"]`,
               );
               if (option) {
                 option.selected = true;
@@ -4497,7 +4498,7 @@ ${offerTimestampLine}
         shopKey +
         "/orders/" +
         orderId +
-        "/products?perPage=10000"
+        "/products?perPage=10000",
     );
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -4573,7 +4574,7 @@ ${offerTimestampLine}
                   form.show();
                   displayMessage(
                     "Error",
-                    "Wystąpił problem z cofnięciem zamówienia."
+                    "Wystąpił problem z cofnięciem zamówienia.",
                   );
                   return;
                 }
@@ -4581,7 +4582,7 @@ ${offerTimestampLine}
 
               displayMessage(
                 "Success",
-                "Zamówienie do dostawcy zostało cofnięte. Za moment zamówienie zostanie ponownie podzielone."
+                "Zamówienie do dostawcy zostało cofnięte. Za moment zamówienie zostanie ponownie podzielone.",
               );
               $("#undoOrderModal").hide();
               setTimeout(function () {
@@ -4591,7 +4592,7 @@ ${offerTimestampLine}
               form.show();
               displayMessage(
                 "Error",
-                "Oops. Coś poszło nie tak, spróbuj ponownie."
+                "Oops. Coś poszło nie tak, spróbuj ponownie.",
               );
             }
           },
@@ -4604,12 +4605,12 @@ ${offerTimestampLine}
             if (e.status === 409) {
               displayMessage(
                 "Error",
-                "Nie można cofnąć – zamówienie zostało już zrealizowane lub wysłano e-mail."
+                "Nie można cofnąć – zamówienie zostało już zrealizowane lub wysłano e-mail.",
               );
             } else {
               displayMessage(
                 "Error",
-                "Oops. Coś poszło nie tak, spróbuj ponownie."
+                "Oops. Coś poszło nie tak, spróbuj ponownie.",
               );
             }
 
@@ -4656,7 +4657,7 @@ ${offerTimestampLine}
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -4676,7 +4677,7 @@ ${offerTimestampLine}
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
           },
@@ -4708,7 +4709,7 @@ ${offerTimestampLine}
         if (!formats || formats.length < 1) {
           displayMessage(
             "Error",
-            "Proszę wybrać przynajmniej jeden format danych do wysyłki."
+            "Proszę wybrać przynajmniej jeden format danych do wysyłki.",
           );
           $("#formats").addClass("error-highlight");
           return false;
@@ -4756,7 +4757,7 @@ ${offerTimestampLine}
                 op: "add",
                 path: "/smtp/formats/-",
                 value: format,
-              })
+              }),
             );
 
             $.ajax({
@@ -4806,11 +4807,11 @@ ${offerTimestampLine}
                       exception === "parsererror"
                         ? "Nie udało się odczytać danych"
                         : exception === "timeout"
-                        ? "Przekroczony czas oczekiwania"
-                        : exception === "abort"
-                        ? "Twoje żądanie zostało zaniechane"
-                        : jqXHR.responseJSON?.message ||
-                          "Wystąpił nieznany błąd";
+                          ? "Przekroczony czas oczekiwania"
+                          : exception === "abort"
+                            ? "Twoje żądanie zostało zaniechane"
+                            : jqXHR.responseJSON?.message ||
+                              "Wystąpił nieznany błąd";
                     break;
                 }
                 displayMessage("Error", msg);
@@ -4854,12 +4855,12 @@ ${offerTimestampLine}
 
                   if (!result) {
                     console.log(
-                      "Callback returned false, showing error message"
+                      "Callback returned false, showing error message",
                     ); // Log error case
                     form.show();
                     displayMessage(
                       "Error",
-                      "Oops. Coś poszło nie tak, spróbuj ponownie."
+                      "Oops. Coś poszło nie tak, spróbuj ponownie.",
                     );
                     reject(new Error("Callback returned false"));
                     return;
@@ -4874,7 +4875,7 @@ ${offerTimestampLine}
                 if (table) {
                   console.log(
                     "DataTable found, searching for wholesaler:",
-                    wholesalerKeyToSend
+                    wholesalerKeyToSend,
                   );
 
                   let found = false;
@@ -4908,7 +4909,7 @@ ${offerTimestampLine}
 
                       // ✅ Aktualizacja selecta i previous-value
                       const selectElement = $(this.node()).find(
-                        ".status-dropdown"
+                        ".status-dropdown",
                       );
                       selectElement.find("option").each(function () {
                         if ($(this).text().trim() === "Wysłano") {
@@ -4937,7 +4938,7 @@ ${offerTimestampLine}
                       {
                         wholesalerKeyToSend,
                         tableData: table.rows().data().toArray(),
-                      }
+                      },
                     );
                   }
 
@@ -5015,7 +5016,7 @@ ${offerTimestampLine}
   makeWebflowFormAjaxPatchShopEdit = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
@@ -5079,7 +5080,7 @@ ${offerTimestampLine}
                 // Show form-done-fail-edit on error
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
               },
             });
@@ -5091,7 +5092,7 @@ ${offerTimestampLine}
             // Show form-done-fail-edit on error
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
           },
         });
@@ -5135,7 +5136,7 @@ ${offerTimestampLine}
     // Check if the current data has an address to compare against
     var currentAddress = currentData.address || {};
     var addressChanged = Object.keys(newAddress).some(
-      (key) => newAddress[key] !== (currentAddress[key] || "")
+      (key) => newAddress[key] !== (currentAddress[key] || ""),
     );
 
     if (addressChanged) {
@@ -5207,7 +5208,7 @@ ${offerTimestampLine}
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 form.trigger("reset");
                 return;
@@ -5216,7 +5217,7 @@ ${offerTimestampLine}
             form.show();
             displayMessage(
               "Success",
-              "Twoje zgłoszenie została przyjęte. Dziękujemy."
+              "Twoje zgłoszenie została przyjęte. Dziękujemy.",
             );
             form.trigger("reset");
           },
@@ -5227,7 +5228,7 @@ ${offerTimestampLine}
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
             form.trigger("reset");
@@ -5244,7 +5245,7 @@ ${offerTimestampLine}
   function getValidAsks(asks) {
     if (!Array.isArray(asks)) return [];
     return asks.filter(
-      (a) => a && a.valid === true && typeof a.netPrice === "number"
+      (a) => a && a.valid === true && typeof a.netPrice === "number",
     );
   }
 
@@ -5361,7 +5362,7 @@ ${offerTimestampLine}
         function () {
           const $group = $('input[type="checkbox"].single-checkbox');
           $group.not(this).prop("checked", false);
-        }
+        },
       );
 
       if (whKeyIndiStr) {
@@ -5595,7 +5596,7 @@ ${offerTimestampLine}
           const stored = getProductsDataFromSessionStorage(orderId);
           const items = stored?.items ?? [];
           const product = items.find(
-            (it) => String(it.gtin) === String(row.gtin)
+            (it) => String(it.gtin) === String(row.gtin),
           );
           const qty = product?.quantity ?? row.quantity ?? "";
 
@@ -5689,7 +5690,7 @@ ${offerTimestampLine}
             ...new Set(
               validAsks
                 .filter((a) => a.netPrice === bestPrice)
-                .map((a) => a.wholesalerKey)
+                .map((a) => a.wholesalerKey),
             ),
           ];
           return bestWh.length ? bestWh.join(", ") : "-";
@@ -5923,29 +5924,37 @@ ${offerTimestampLine}
 
   $("#table_splited_wh").on("click", ".sendemail", async function () {
     console.log("Kliknięto ikonę wysyłki w tabeli!");
-
     var table = $("#table_splited_wh").DataTable();
     var row = $(this).closest("tr");
     var data = table.row(row).data();
+
     const wholesalersData = JSON.parse(
-      sessionStorage.getItem("wholesalersData")
+      sessionStorage.getItem("wholesalersData"),
     );
+
     if (wholesalersData) {
       const clickedWholesaler = wholesalersData.find(
-        (item) => item.wholesalerKey === data.wholesalerKey
+        (item) => item.wholesalerKey === data.wholesalerKey,
       );
 
       if (clickedWholesaler) {
-        const { company = "", taxId = "", address = {} } = clickedWholesaler;
-        const { line1 = "", town = "", postcode = "" } = address;
+        const { company = "", taxId = "", address = null } = clickedWholesaler;
+
+        // Zabezpieczenie przed null/undefined address
+        const line1 = address?.line1 || "";
+        const town = address?.town || "";
+        const postcode = address?.postcode || "";
 
         const partyText = `${company}\n${line1}, ${town}, ${postcode}\nNIP: ${taxId}`;
         $("#orderParty").val(partyText).prop("disabled", true);
       } else {
         console.warn("❌ Hurtownik o takim kluczu nie został znaleziony.");
+        // Opcjonalnie: wyczyść pole lub ustaw wartość domyślną
+        $("#orderParty").val("").prop("disabled", false);
       }
     } else {
       console.warn("❌ Brak danych hurtowników w sessionStorage.");
+      $("#orderParty").val("").prop("disabled", false);
     }
 
     try {
@@ -5957,27 +5966,29 @@ ${offerTimestampLine}
 
       // orderItems
       const productsSum =
-        data.products.bestMatch + data.products.exclusive + data.products.order;
+        (data.products?.bestMatch || 0) +
+        (data.products?.exclusive || 0) +
+        (data.products?.order || 0);
       $("#orderItems").text(productsSum);
 
       // orderValue
-      $("#orderValue").text(data.netValue + " zł");
+      $("#orderValue").text((data.netValue || 0) + " zł");
 
       // orderWholesalerKey
-      $("#orderWholesalerKey").val(data.wholesalerName);
-      $("#orderWholesalerKey").attr("data-key", data.wholesalerKey);
+      $("#orderWholesalerKey").val(data.wholesalerName || "");
+      $("#orderWholesalerKey").attr("data-key", data.wholesalerKey || "");
       $("#orderWholesalerKey").prop("disabled", true);
 
       // orderSender
       $("#orderUserName").val(
-        (attributes["username"] || "") + " " + (attributes["familyname"] || "")
+        (attributes["username"] || "") + " " + (attributes["familyname"] || ""),
       );
       $("#orderUserName").prop("disabled", true);
 
       // Pokaż okno dopiero po załadowaniu danych
       $("#SendOrderSMTP").css("display", "flex");
     } catch (error) {
-      console.log("Błąd podczas pobierania danych:", error);
+      console.error("Błąd podczas pobierania danych:", error);
     } finally {
       // Zawsze schowaj animację niezależnie od powodzenia
       $("#waitingdots").hide();
@@ -6019,7 +6030,7 @@ ${offerTimestampLine}
     ".theClass, .mylabel",
     function (e) {
       resetOrderTimer();
-    }
+    },
   );
 
   $("#table_splited_wh").on("click", ".filedownloadicon", function () {
@@ -6067,7 +6078,7 @@ ${offerTimestampLine}
           $("#waitingdots").hide();
 
           const filenameHeader = headersResponse.find((h) =>
-            h.includes("filename=")
+            h.includes("filename="),
           );
           if (!filenameHeader) {
             console.log("Filename not found in the response headers.");
@@ -6130,7 +6141,7 @@ ${offerTimestampLine}
       disableAllCheckboxes();
 
       const downloadUrl = new URL(
-        `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers?filesFormat=${fileformat}`
+        `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers?filesFormat=${fileformat}`,
       );
 
       downloadFile(downloadUrl, fileformat, () => {
@@ -6143,7 +6154,7 @@ ${offerTimestampLine}
       disableCheckboxInRow(row);
 
       const downloadUrl = new URL(
-        `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers/${wholesalerKey}`
+        `${InvokeURL}shops/${shopKey}/orders/${orderId}/wholesalers/${wholesalerKey}`,
       );
 
       downloadFile(downloadUrl, fileformat, () => {
@@ -6213,7 +6224,7 @@ ${offerTimestampLine}
         case "remove":
           if (data.active === false) {
             console.log(
-              "Option 'remove' for inactive product → enabling product."
+              "Option 'remove' for inactive product → enabling product.",
             );
             addChange("replace", `/${data.gtin}/active`, true);
           } else {
@@ -6240,7 +6251,7 @@ ${offerTimestampLine}
           addChange(
             "replace",
             `/${data.gtin}/rigidAssignment/wholesalerKey`,
-            newValue
+            newValue,
           );
           emulateChangeForUser();
 
@@ -6294,7 +6305,7 @@ ${offerTimestampLine}
       const inputElement = event.target;
       const focusoutHandler = function () {
         console.log(
-          "Focusout event triggered, but ignored due to invalid paste."
+          "Focusout event triggered, but ignored due to invalid paste.",
         );
       };
 
@@ -6303,7 +6314,7 @@ ${offerTimestampLine}
 
       displayMessage(
         "Error",
-        `Oops. Ilość ${pastedValue} jest nieprawidłowa. Maksymalna dozwolona ilość to 999999. Wartość w polu nie została zmieniona.`
+        `Oops. Ilość ${pastedValue} jest nieprawidłowa. Maksymalna dozwolona ilość to 999999. Wartość w polu nie została zmieniona.`,
       );
 
       // Przywróć nasłuchiwanie focusout po zamknięciu alertu
@@ -6337,7 +6348,7 @@ ${offerTimestampLine}
       NameInput.value = rowData.name;
       NameInput.textContent = rowData.name;
       var DistributorInput = document.getElementById(
-        "countryDistributorName-2"
+        "countryDistributorName-2",
       );
       DistributorInput.value = rowData.countryDistributorName;
       DistributorInput.textContent = rowData.countryDistributorName;
@@ -6607,7 +6618,7 @@ ${offerTimestampLine}
         if (res.status === 400 || res.status === 404) return []; // brak danych
         return res.text().then((t) => {
           throw new Error(
-            `Related-keys error ${res.status}: ${t || "no body"}`
+            `Related-keys error ${res.status}: ${t || "no body"}`,
           );
         });
       })
@@ -6728,7 +6739,7 @@ ${offerTimestampLine}
       NameInput.value = rowData.name;
       NameInput.textContent = rowData.name;
       var DistributorInput = document.getElementById(
-        "countryDistributorName-2"
+        "countryDistributorName-2",
       );
       DistributorInput.value = rowData.countryDistributorName;
       DistributorInput.textContent = rowData.countryDistributorName;
@@ -6873,7 +6884,7 @@ ${offerTimestampLine}
             .columns.adjust();
         }, delay);
       });
-    }
+    },
   );
 
   $("table.dataTable").on("page.dt", function () {
@@ -6894,7 +6905,7 @@ ${offerTimestampLine}
             .columns.adjust();
         }, delay);
       });
-    }
+    },
   );
 
   let previousTab = "Details";
@@ -6914,7 +6925,7 @@ ${offerTimestampLine}
       "changesPayload.length:",
       changesPayload.length,
       "result:",
-      result
+      result,
     );
     return result;
   }
@@ -6943,7 +6954,7 @@ ${offerTimestampLine}
         }
       } else {
         console.log(
-          "Skipping CreateOrder. Just calling GetSplittedProducts() (Cart)."
+          "Skipping CreateOrder. Just calling GetSplittedProducts() (Cart).",
         );
         GetSplittedProducts();
       }
@@ -6960,14 +6971,14 @@ ${offerTimestampLine}
         }
       } else {
         console.log(
-          "No changes or not coming from Details. Skipping CreateOrder (AddProducts)."
+          "No changes or not coming from Details. Skipping CreateOrder (AddProducts).",
         );
       }
     } else if (tab === "Details") {
       console.log("Switching to Details tab...");
       if (changesPayload.length > 0) {
         console.log(
-          "Changes detected. Calling CreateOrder before switching to Details."
+          "Changes detected. Calling CreateOrder before switching to Details.",
         );
         try {
           await CreateOrder();
@@ -7028,7 +7039,7 @@ ${offerTimestampLine}
 
   if (tabToClick === "add") {
     console.log(
-      "Parametr 'data-w-tab' to 'add' – pokazuję i klikam zakładkę 'AddProducts'"
+      "Parametr 'data-w-tab' to 'add' – pokazuję i klikam zakładkę 'AddProducts'",
     );
     $('a[data-w-tab="AddProducts"]').show();
 
