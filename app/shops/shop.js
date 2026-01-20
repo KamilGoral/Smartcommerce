@@ -1078,7 +1078,7 @@ whenReadyAndDataTables(function () {
             e.preventDefault();
             const url = $(this).data("url");
             const deliveryName = decodeURIComponent($(this).data("name"));
-            handleGoToDelivery(url, deliveryName);
+            handleGoToOrder(url, deliveryName);
           });
       },
     });
