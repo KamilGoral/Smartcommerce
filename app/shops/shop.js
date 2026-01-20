@@ -1035,7 +1035,7 @@ whenReadyAndDataTables(function () {
               let url = `https://${DomainName}/app/deliveries/delivery?deliveryId=${row.uuid}&shopKey=${shopKey}`;
               let deliveryName = row.name ? encodeURIComponent(row.name) : "";
               return `<div class="action-container">
-                      <a href="#" class="buttonoutline editme w-button go-to-delivery" 
+                      <a href="#" class="buttonoutline editme w-button go-to-order" 
                         data-url="${url}" 
                         data-name="${deliveryName}">
                         Przejdź
