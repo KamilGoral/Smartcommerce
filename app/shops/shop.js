@@ -1021,6 +1021,13 @@ whenReadyAndDataTables(function () {
         },
         {
           orderable: false,
+          data: "status",
+          render: function (data) {
+            return data ? data : "";
+          },
+        },
+        {
+          orderable: false,
           data: null,
           width: "72px",
           render: function (data, type, row) {
@@ -1078,15 +1085,15 @@ whenReadyAndDataTables(function () {
 
     function toggleEmptyState() {
       // Check if the table has any entries
-      var hasEntries = tableOrders.data().any();
+      var hasEntries = tableDeliveries.data().any();
       // If the table is empty, show the custom empty state div
       // Otherwise, hide it
       if (!hasEntries) {
-        $("#emptystateorders").show();
-        $("#orderscontainer").hide();
+        $("#emptystatedeliveries").show();
+        $("#deliveriescontainer").hide();
       } else {
-        $("#emptystateorders").hide();
-        $("#orderscontainer").show();
+        $("#emptystatedeliveries").hide();
+        $("#deliveriescontainer").show();
       }
     }
   }
