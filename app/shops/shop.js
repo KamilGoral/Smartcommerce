@@ -617,11 +617,6 @@ whenReadyAndDataTables(function () {
     window.location.href = url;
   }
 
-  function handleGoToDelivery(url, deliveryName) {
-    setCookie("deliveryName", deliveryName, 3600); // np. 1 godzina ważności
-    window.location.href = url;
-  }
-
   function getOrders() {
     var tableOrders = $("#table_orders").DataTable({
       pagingType: "full_numbers",
@@ -1077,8 +1072,8 @@ whenReadyAndDataTables(function () {
           .on("click", function (e) {
             e.preventDefault();
             const url = $(this).data("url");
-            const deliveryName = decodeURIComponent($(this).data("name"));
-            handleGoToOrder(url, deliveryName);
+            const orderName = decodeURIComponent($(this).data("name"));
+            handleGoToOrder(url, orderName);
           });
       },
     });
