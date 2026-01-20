@@ -929,7 +929,7 @@ whenReadyAndDataTables(function () {
         var sort = "" + whichColumns + direction;
 
         $.get(
-          InvokeURL + "/van/transactions",
+          InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
           {
             sort: sort,
             perPage: data.length,
