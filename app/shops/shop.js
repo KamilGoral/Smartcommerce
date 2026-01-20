@@ -934,7 +934,7 @@ whenReadyAndDataTables(function () {
         var sort = "" + whichColumns + direction;
 
         $.get(
-          InvokeURL + "/van/transactions?type=RECADV",
+          InvokeURL + "/van/transactions",
           {
             sort: sort,
             perPage: data.length,
