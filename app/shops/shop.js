@@ -4790,31 +4790,9 @@ ${offerTimestampLine}
   getWholesalersSh();
   initOfferStatusTable();
 
-  $("#deliveryfile").on("change", function () {
-    if (this.files && this.files.length > 0) {
-      $("#UploadDeliveryButton").text("Prześlij dokument dostawy");
-      $("#UploadDeliveryButton").removeClass("disabled");
-    } else {
-      $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
-    }
-  });
-
-  // Obsługa kliknięcia przycisku
-  $("#UploadDeliveryButton").on("click", function (e) {
-    e.preventDefault(); // Zapobiega domyślnej akcji linku
-
-    var fileInput = document.getElementById("deliveryfile");
-    if (!fileInput.files || fileInput.files.length === 0) {
-      displayMessage("Error", "Proszę wybrać plik dostawy.");
-      return;
-    }
-
-    DeliveryFileUpload();
-  });
-
   function DeliveryFileUpload(skipTypeCheck) {
-    var xhr = new XMLHttpRequest();
-    var deliveryFile = document.getElementById("deliveryfile").files[0];
+    var fileInput = document.getElementById("deliveryfile");
+    var deliveryFile = fileInput.files[0];
 
     if (!deliveryFile) {
       displayMessage("Error", "Proszę wybrać plik.");
@@ -4823,13 +4801,20 @@ ${offerTimestampLine}
 
     var fileSize = deliveryFile.size;
 
+    // Sprawdź czy plik nie jest pusty
+    if (fileSize === 0) {
+      displayMessage("Error", "Wybrany plik jest pusty.");
+      fileInput.value = "";
+      return;
+    }
+
     // Check for file size exceeding 10 MB
     if (fileSize > 10 * 1024 * 1024) {
       displayMessage(
         "Error",
         "Plik jest zbyt duży. Maksymalny rozmiar to 10 MB.",
       );
-      document.getElementById("deliveryfile").value = "";
+      fileInput.value = "";
       return;
     }
 
@@ -4837,34 +4822,45 @@ ${offerTimestampLine}
     var fileName = deliveryFile.name.toLowerCase();
     if (!fileName.endsWith(".rtf")) {
       displayMessage("Error", "Obsługiwany format: tylko pliki .RTF");
-      document.getElementById("deliveryfile").value = "";
+      fileInput.value = "";
       return;
     }
 
     $("#waitingdots").show();
     $("#UploadDeliveryButton").prop("disabled", true).text("Wysyłanie...");
 
-    // Build JSON metadata
+    // Build JSON metadata - zgodnie z przykładem
     var metadata = {
       type: "RECADV",
       shopKeys: [shopKey],
-      // wholesalerKey NIE jest wymagany dla RECADV - zostanie zidentyfikowany z pliku
     };
 
-    // Create FormData for multipart/form-data
+    // Nazwa transakcji jest odczytywana z zawartości pliku RTF przez backend
+    // wholesalerKey jest identyfikowany po NIP z pliku RTF przez backend
+
+    // Create FormData with both file and json
     var formData = new FormData();
-    formData.append("file", deliveryFile); // Binary file
-    formData.append("json", JSON.stringify(metadata)); // JSON metadata as string
+    formData.append("file", deliveryFile, deliveryFile.name);
+    formData.append("json", JSON.stringify(metadata));
 
     var action = InvokeURL + "van/transactions";
     if (skipTypeCheck) {
       action += "?skipTypeCheck=true";
     }
 
+    var xhr = new XMLHttpRequest();
     xhr.open("POST", action, true);
-    // NIE ustawiaj Content-Type - FormData ustawi automatycznie z boundary
+
+    // NIE ustawiaj Content-Type - FormData automatycznie ustawi multipart/form-data z boundary
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
+
+    xhr.upload.addEventListener("progress", function (e) {
+      if (e.lengthComputable) {
+        var percentComplete = (e.loaded / e.total) * 100;
+        console.log("Upload progress: " + percentComplete.toFixed(2) + "%");
+      }
+    });
 
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
@@ -4876,38 +4872,54 @@ ${offerTimestampLine}
         if (xhr.status === 201) {
           var response = JSON.parse(xhr.responseText);
 
-          // Sprawdź czy zwrócono tablicę transakcji
-          var transaction =
-            response.items && response.items.length > 0
-              ? response.items[0]
-              : response;
+          console.log("Response:", response);
 
-          // Check if transaction was created in draft status
-          if (transaction.status === "draft") {
+          // API zwraca: { items: [VANTransaction, ...], total: number }
+          var transaction = null;
+          if (response.items && response.items.length > 0) {
+            transaction = response.items[0];
+            console.log("Transaction created:", transaction);
+          }
+
+          // Sprawdź czy transakcja została utworzona jako draft
+          // (gdy znaleziono wielu dostawców z tym samym NIP)
+          if (transaction && transaction.status === "draft") {
             displayMessage(
               "Warning",
-              "Znaleziono wielu dostawców o tym samym NIP. Transakcja została utworzona jako szkic. " +
+              "Znaleziono wielu aktywnych dostawców o tym samym NIP. " +
+                "Transakcja została utworzona jako szkic i przypisana do pierwszego dostawcy. " +
                 "Możesz zmodyfikować dostawcę i zmienić status na 'committed' aby kontynuować. " +
-                '<a href="https://smart-commerce.atlassian.net/browse/ITSMD-3671" target="_blank">Więcej informacji</a>',
+                '<br><a href="https://smart-commerce.atlassian.net/browse/ITSMD-3671" target="_blank" style="color: #0066cc;">Więcej informacji</a>',
+            );
+          } else if (transaction) {
+            displayMessage(
+              "Success",
+              "Dokument dostawy '" +
+                (transaction.name || fileName) +
+                "' został pomyślnie przesłany i zweryfikowany.",
             );
           } else {
             displayMessage(
               "Success",
-              "Dokument dostawy został pomyślnie przesłany i zweryfikowany.",
+              "Dokument dostawy został pomyślnie przesłany.",
             );
           }
 
           // Wyczyść formularz
-          document.getElementById("deliveryfile").value = "";
+          fileInput.value = "";
           $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
 
           // Odśwież listę transakcji
           if (typeof refreshTransactionsList === "function") {
             refreshTransactionsList();
+          } else if (typeof loadVANTransactions === "function") {
+            loadVANTransactions();
           }
         } else if (xhr.status === 422) {
+          // Nie można dopasować dostawcy na podstawie NIP z pliku
           var errorMsg =
-            "Nie można dopasować dostawcy na podstawie NIP-u podanego w pliku RTF.";
+            "Nie można dopasować dostawcy na podstawie NIP-u podanego w pliku RTF. " +
+            "Sprawdź czy NIP w pliku jest poprawny i czy dostawca istnieje w systemie.";
           try {
             var jsonResponse = JSON.parse(xhr.responseText);
             if (jsonResponse.message) {
@@ -4919,40 +4931,124 @@ ${offerTimestampLine}
         } else if (xhr.status === 415) {
           displayMessage(
             "Error",
-            "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik .RTF",
+            "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik w formacie .RTF",
           );
+        } else if (xhr.status === 400) {
+          var errorMsg = "Nieprawidłowe dane w żądaniu.";
+          try {
+            var jsonResponse = JSON.parse(xhr.responseText);
+            if (jsonResponse.message) {
+              errorMsg = jsonResponse.message;
+            }
+          } catch (e) {}
+          displayMessage("Error", errorMsg);
+        } else if (xhr.status === 404) {
+          displayMessage(
+            "Error",
+            "Nie znaleziono zasobu. Sprawdź czy sklep istnieje.",
+          );
+        } else if (xhr.status === 409) {
+          var errorMsg = "Konflikt - transakcja o takiej nazwie już istnieje.";
+          try {
+            var jsonResponse = JSON.parse(xhr.responseText);
+            if (jsonResponse.message) {
+              errorMsg = jsonResponse.message;
+            }
+          } catch (e) {}
+          displayMessage("Error", errorMsg);
         } else {
           var msg = "";
           try {
             var jsonResponse = JSON.parse(xhr.responseText);
             msg = jsonResponse.message || "Wystąpił nieznany błąd";
           } catch (e) {
-            msg = "Nie można przetworzyć odpowiedzi z serwera";
+            msg =
+              xhr.responseText || "Nie można przetworzyć odpowiedzi z serwera";
           }
 
           if (xhr.status === 0) {
             msg = "Brak połączenia. Sprawdź połączenie sieciowe.";
-          } else if (xhr.status === 400) {
-            msg = "Nieprawidłowe dane: " + msg;
           } else if (xhr.status === 403) {
             msg = "Brak uprawnień do wykonania tej operacji.";
-          } else if (xhr.status === 404) {
-            msg = "Nie znaleziono zasobu: " + msg;
-          } else if (xhr.status === 409) {
-            msg = "Konflikt: " + msg;
           } else if (xhr.status === 500) {
             msg = "Błąd serwera [500]. Spróbuj ponownie później.";
           }
 
+          console.error("XHR Error:", xhr.status, msg, xhr.responseText);
           displayMessage("Error", msg);
-          document.getElementById("deliveryfile").value = "";
+          fileInput.value = "";
         }
       }
     };
 
+    xhr.onerror = function () {
+      $("#waitingdots").hide();
+      $("#UploadDeliveryButton")
+        .prop("disabled", false)
+        .text("Prześlij dokument dostawy");
+      displayMessage("Error", "Błąd połączenia. Sprawdź połączenie sieciowe.");
+      fileInput.value = "";
+    };
+
+    console.log("Wysyłam do:", action);
+    console.log("Metadata:", metadata);
+    console.log(
+      "Plik:",
+      deliveryFile.name,
+      "Rozmiar:",
+      deliveryFile.size,
+      "bytes",
+    );
+
     // Wyślij FormData
     xhr.send(formData);
   }
+
+  // Event listeners
+  $(document).ready(function () {
+    // Obsługa zmiany pliku
+    $("#deliveryfile").on("change", function () {
+      var fileInput = this;
+      if (fileInput.files && fileInput.files.length > 0) {
+        var file = fileInput.files[0];
+        var fileName = file.name.toLowerCase();
+
+        // Sprawdź rozszerzenie
+        if (!fileName.endsWith(".rtf")) {
+          displayMessage("Error", "Obsługiwany format: tylko pliki .RTF");
+          fileInput.value = "";
+          $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
+          return;
+        }
+
+        // Sprawdź rozmiar
+        if (file.size === 0) {
+          displayMessage("Error", "Wybrany plik jest pusty");
+          fileInput.value = "";
+          $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
+          return;
+        }
+
+        $("#UploadDeliveryButton").text("Prześlij: " + file.name);
+        $("#UploadDeliveryButton").removeClass("disabled");
+      } else {
+        $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
+      }
+    });
+
+    // Obsługa kliknięcia przycisku
+    $("#UploadDeliveryButton").on("click", function (e) {
+      e.preventDefault();
+
+      var fileInput = document.getElementById("deliveryfile");
+      if (!fileInput.files || fileInput.files.length === 0) {
+        displayMessage("Error", "Proszę wybrać plik dostawy.");
+        return;
+      }
+
+      DeliveryFileUpload();
+    });
+  });
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
     forms.each(function () {
