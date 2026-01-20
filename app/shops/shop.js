@@ -914,7 +914,7 @@ whenReadyAndDataTables(function () {
           },
         });
 
-        var whichColumns = "createdAt";
+        var whichColumns = "created.at:";
         var direction = "desc";
 
         if (data.order.length > 0) {
@@ -924,10 +924,10 @@ whenReadyAndDataTables(function () {
           // Mapowanie kolumn do pól API
           switch (columnIndex) {
             case 4:
-              whichColumns = "createdAt";
+              whichColumns = "created.at:";
               break;
             default:
-              whichColumns = "createdAt";
+              whichColumns = "created.at:";
           }
         }
 
