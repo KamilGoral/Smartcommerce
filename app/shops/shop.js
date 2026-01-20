@@ -4790,30 +4790,26 @@ ${offerTimestampLine}
   getWholesalersSh();
   initOfferStatusTable();
 
-  // Inicjalizacja przy załadowaniu strony
-  $(document).ready(function () {
-    // Obsługa zmiany pliku
-    $("#deliveryfile").on("change", function () {
-      if (this.files && this.files.length > 0) {
-        $("#UploadDeliveryButton").text("Prześlij dokument dostawy");
-        $("#UploadDeliveryButton").removeClass("disabled");
-      } else {
-        $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
-      }
-    });
+  $("#deliveryfile").on("change", function () {
+    if (this.files && this.files.length > 0) {
+      $("#UploadDeliveryButton").text("Prześlij dokument dostawy");
+      $("#UploadDeliveryButton").removeClass("disabled");
+    } else {
+      $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
+    }
+  });
 
-    // Obsługa kliknięcia przycisku
-    $("#UploadDeliveryButton").on("click", function (e) {
-      e.preventDefault(); // Zapobiega domyślnej akcji linku
+  // Obsługa kliknięcia przycisku
+  $("#UploadDeliveryButton").on("click", function (e) {
+    e.preventDefault(); // Zapobiega domyślnej akcji linku
 
-      var fileInput = document.getElementById("deliveryfile");
-      if (!fileInput.files || fileInput.files.length === 0) {
-        displayMessage("Error", "Proszę wybrać plik dostawy.");
-        return;
-      }
+    var fileInput = document.getElementById("deliveryfile");
+    if (!fileInput.files || fileInput.files.length === 0) {
+      displayMessage("Error", "Proszę wybrać plik dostawy.");
+      return;
+    }
 
-      DeliveryFileUpload();
-    });
+    DeliveryFileUpload();
   });
 
   function DeliveryFileUpload(skipTypeCheck) {
@@ -4848,13 +4844,17 @@ ${offerTimestampLine}
     $("#waitingdots").show();
     $("#UploadDeliveryButton").prop("disabled", true).text("Wysyłanie...");
 
-    // Build JSON payload
-    var payload = {
-      type: "RECADV", // Typ dokumentu dostawy
-      shopKeys: [shopKey], // Użyj aktualnego sklepu
+    // Build JSON metadata
+    var metadata = {
+      type: "RECADV",
+      shopKeys: [shopKey],
+      // wholesalerKey NIE jest wymagany dla RECADV - zostanie zidentyfikowany z pliku
     };
 
-    // wholesalerKey będzie zidentyfikowany z NIP w pliku RTF
+    // Create FormData for multipart/form-data
+    var formData = new FormData();
+    formData.append("file", deliveryFile); // Binary file
+    formData.append("json", JSON.stringify(metadata)); // JSON metadata as string
 
     var action = InvokeURL + "van/transactions";
     if (skipTypeCheck) {
@@ -4862,8 +4862,8 @@ ${offerTimestampLine}
     }
 
     xhr.open("POST", action, true);
+    // NIE ustawiaj Content-Type - FormData ustawi automatycznie z boundary
     xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
 
     xhr.onreadystatechange = function () {
@@ -4876,11 +4876,18 @@ ${offerTimestampLine}
         if (xhr.status === 201) {
           var response = JSON.parse(xhr.responseText);
 
-          // Check if transaction was created in draft status due to multiple wholesalers
-          if (response.status === "draft") {
+          // Sprawdź czy zwrócono tablicę transakcji
+          var transaction =
+            response.items && response.items.length > 0
+              ? response.items[0]
+              : response;
+
+          // Check if transaction was created in draft status
+          if (transaction.status === "draft") {
             displayMessage(
               "Warning",
-              "Znaleziono wielu dostawców o tym samym NIP. Transakcja została utworzona jako szkic. Możesz zmodyfikować dostawcę i zmienić status na 'committed' aby kontynuować. " +
+              "Znaleziono wielu dostawców o tym samym NIP. Transakcja została utworzona jako szkic. " +
+                "Możesz zmodyfikować dostawcę i zmienić status na 'committed' aby kontynuować. " +
                 '<a href="https://smart-commerce.atlassian.net/browse/ITSMD-3671" target="_blank">Więcej informacji</a>',
             );
           } else {
@@ -4894,7 +4901,7 @@ ${offerTimestampLine}
           document.getElementById("deliveryfile").value = "";
           $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
 
-          // Odśwież listę transakcji (jeśli istnieje taka funkcja)
+          // Odśwież listę transakcji
           if (typeof refreshTransactionsList === "function") {
             refreshTransactionsList();
           }
@@ -4909,6 +4916,11 @@ ${offerTimestampLine}
           } catch (e) {}
 
           displayMessage("Error", errorMsg);
+        } else if (xhr.status === 415) {
+          displayMessage(
+            "Error",
+            "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik .RTF",
+          );
         } else {
           var msg = "";
           try {
@@ -4924,6 +4936,10 @@ ${offerTimestampLine}
             msg = "Nieprawidłowe dane: " + msg;
           } else if (xhr.status === 403) {
             msg = "Brak uprawnień do wykonania tej operacji.";
+          } else if (xhr.status === 404) {
+            msg = "Nie znaleziono zasobu: " + msg;
+          } else if (xhr.status === 409) {
+            msg = "Konflikt: " + msg;
           } else if (xhr.status === 500) {
             msg = "Błąd serwera [500]. Spróbuj ponownie później.";
           }
@@ -4934,25 +4950,8 @@ ${offerTimestampLine}
       }
     };
 
-    // Read file and send with JSON metadata
-    var reader = new FileReader();
-    reader.onload = function (event) {
-      var fileContent = event.target.result;
-
-      // Create request body with metadata and file
-      var requestBody = {
-        metadata: payload,
-        file: {
-          name: deliveryFile.name,
-          content: btoa(
-            String.fromCharCode.apply(null, new Uint8Array(fileContent)),
-          ),
-        },
-      };
-
-      xhr.send(JSON.stringify(requestBody));
-    };
-    reader.readAsArrayBuffer(deliveryFile);
+    // Wyślij FormData
+    xhr.send(formData);
   }
 
   makeWebflowFormAjaxCreate = function (forms, successCallback, errorCallback) {
