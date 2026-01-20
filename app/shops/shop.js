@@ -4790,10 +4790,6 @@ ${offerTimestampLine}
   getWholesalersSh();
   initOfferStatusTable();
 
-  /**
-   * Refactored DeliveryFileUpload function using axios (like makeWebflowFormAjax)
-   * Follows the same pattern: FormData, multipart handling, comprehensive error handling
-   */
   function DeliveryFileUpload(skipTypeCheck) {
     var fileInput = document.getElementById("deliveryfile");
     var deliveryFile = fileInput.files[0];
