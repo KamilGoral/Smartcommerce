@@ -977,15 +977,16 @@ whenReadyAndDataTables(function () {
         },
         {
           orderable: false,
-          visible: false,
+          visible: true,
           data: "wholesalerKey",
           render: function (data) {
-            return data ? data : "";
+            if (!data) return "";
+            return data.charAt(0).toUpperCase() + data.slice(1);
           },
         },
         {
           orderable: false,
-          visible: false,
+          visible: true,
           data: "name",
           render: function (data) {
             return data ? data : "";
