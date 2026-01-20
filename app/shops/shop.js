@@ -4790,10 +4790,15 @@ ${offerTimestampLine}
   getWholesalersSh();
   initOfferStatusTable();
 
+  /**
+   * Refactored DeliveryFileUpload function using axios (like makeWebflowFormAjax)
+   * Follows the same pattern: FormData, multipart handling, comprehensive error handling
+   */
   function DeliveryFileUpload(skipTypeCheck) {
     var fileInput = document.getElementById("deliveryfile");
     var deliveryFile = fileInput.files[0];
 
+    // -------- WALIDACJA PLIKU --------
     if (!deliveryFile) {
       displayMessage("Error", "Proszę wybrać plik.");
       return;
@@ -4826,52 +4831,105 @@ ${offerTimestampLine}
       return;
     }
 
+    // -------- UI STATE --------
     $("#waitingdots").show();
     $("#UploadDeliveryButton").prop("disabled", true).text("Wysyłanie...");
 
-    // Create FormData with ONLY file (like orders endpoint)
+    // -------- PRZYGOTOWANIE ŻĄDANIA --------
     var formData = new FormData();
     formData.append("file", deliveryFile);
 
-    // Build URL with metadata as query parameters
-    var action = InvokeURL + "van/transactions";
-    action += "?type=RECADV";
-    action += "&shopKeys=" + encodeURIComponent(shopKey);
-
+    // Build URL with metadata as query parameters (like your working endpoint)
+    var uploadEndpoint = InvokeURL + "van/transactions";
+    uploadEndpoint += "?type=RECADV";
+    uploadEndpoint += "&shopKeys=" + encodeURIComponent(shopKey);
     if (skipTypeCheck) {
-      action += "&skipTypeCheck=true";
+      uploadEndpoint += "&skipTypeCheck=true";
     }
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", action, true);
-
-    // Only Accept and Authorization headers - NO Content-Type
-    xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Authorization", orgToken);
-
-    xhr.upload.addEventListener("progress", function (e) {
-      if (e.lengthComputable) {
-        var percentComplete = (e.loaded / e.total) * 100;
-        console.log("Upload progress: " + percentComplete.toFixed(2) + "%");
+    // -------- HELPER: Friendly error messages --------
+    function getFriendlyErrorMessage(error) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            return (
+              error.response.data?.message || "Nieprawidłowe dane w żądaniu."
+            );
+          case 403:
+            return "Brak uprawnień do wykonania tej operacji.";
+          case 404:
+            return "Nie znaleziono zasobu. Sprawdź czy sklep istnieje.";
+          case 409:
+            return (
+              error.response.data?.message ||
+              "Konflikt - transakcja o takiej nazwie już istnieje."
+            );
+          case 415:
+            return "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik w formacie .RTF";
+          case 422:
+            return (
+              error.response.data?.message ||
+              "Nie można dopasować dostawcy na podstawie NIP-u podanego w pliku RTF. " +
+                "Sprawdź czy NIP w pliku jest poprawny i czy dostawca istnieje w systemie."
+            );
+          case 500:
+            return "Błąd serwera [500]. Spróbuj ponownie później.";
+          default:
+            return (
+              error.response.data?.message ||
+              "Wystąpił nieznany błąd. Spróbuj ponownie później."
+            );
+        }
+      } else if (error.request) {
+        return "Błąd sieci: Serwer nie odpowiada. Sprawdź swoje połączenie internetowe i spróbuj ponownie.";
+      } else {
+        return "Wystąpił nieoczekiwany błąd: " + error.message;
       }
-    });
+    }
 
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
+    // -------- HELPER: Reset UI to initial state --------
+    function resetUploadState() {
+      fileInput.value = "";
+      $("#UploadDeliveryButton")
+        .prop("disabled", false)
+        .text("Najpierw wybierz plik dostawy");
+    }
+
+    // -------- HELPER: Mark button as success --------
+    function markButtonAsSuccess() {
+      $("#UploadDeliveryButton")
+        .prop("disabled", false)
+        .text("Prześlij dokument dostawy");
+    }
+
+    // -------- WYSŁANIE ŻĄDANIA --------
+    console.log("Wysyłam do:", uploadEndpoint);
+    console.log(
+      "Plik:",
+      deliveryFile.name,
+      "Rozmiar:",
+      deliveryFile.size,
+      "bytes",
+    );
+
+    axios
+      .post(uploadEndpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: orgToken,
+          Accept: "application/json",
+        },
+      })
+      .then(function (response) {
         $("#waitingdots").hide();
-        $("#UploadDeliveryButton")
-          .prop("disabled", false)
-          .text("Prześlij dokument dostawy");
 
-        if (xhr.status === 201) {
-          var response = JSON.parse(xhr.responseText);
-
-          console.log("Response:", response);
+        // -------- OBSŁUGA SUKCESU (201) --------
+        if (response.status === 201) {
+          var transaction = null;
 
           // API zwraca: { items: [VANTransaction, ...], total: number }
-          var transaction = null;
-          if (response.items && response.items.length > 0) {
-            transaction = response.items[0];
+          if (response.data?.items && response.data.items.length > 0) {
+            transaction = response.data.items[0];
             console.log("Transaction created:", transaction);
           }
 
@@ -4900,8 +4958,8 @@ ${offerTimestampLine}
           }
 
           // Wyczyść formularz
-          fileInput.value = "";
-          $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
+          markButtonAsSuccess();
+          resetUploadState();
 
           // Odśwież listę transakcji
           if (typeof refreshTransactionsList === "function") {
@@ -4909,95 +4967,43 @@ ${offerTimestampLine}
           } else if (typeof loadVANTransactions === "function") {
             loadVANTransactions();
           }
-        } else if (xhr.status === 422) {
-          // Nie można dopasować dostawcy na podstawie NIP z pliku
-          var errorMsg =
-            "Nie można dopasować dostawcy na podstawie NIP-u podanego w pliku RTF. " +
-            "Sprawdź czy NIP w pliku jest poprawny i czy dostawca istnieje w systemie.";
-          try {
-            var jsonResponse = JSON.parse(xhr.responseText);
-            if (jsonResponse.message) {
-              errorMsg = jsonResponse.message;
-            }
-          } catch (e) {}
 
-          displayMessage("Error", errorMsg);
-        } else if (xhr.status === 415) {
-          displayMessage(
-            "Error",
-            "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik w formacie .RTF",
-          );
-        } else if (xhr.status === 400) {
-          var errorMsg = "Nieprawidłowe dane w żądaniu.";
-          try {
-            var jsonResponse = JSON.parse(xhr.responseText);
-            if (jsonResponse.message) {
-              errorMsg = jsonResponse.message;
-            }
-          } catch (e) {}
-          displayMessage("Error", errorMsg);
-        } else if (xhr.status === 404) {
-          displayMessage(
-            "Error",
-            "Nie znaleziono zasobu. Sprawdź czy sklep istnieje.",
-          );
-        } else if (xhr.status === 409) {
-          var errorMsg = "Konflikt - transakcja o takiej nazwie już istnieje.";
-          try {
-            var jsonResponse = JSON.parse(xhr.responseText);
-            if (jsonResponse.message) {
-              errorMsg = jsonResponse.message;
-            }
-          } catch (e) {}
-          displayMessage("Error", errorMsg);
-        } else {
-          var msg = "";
-          try {
-            var jsonResponse = JSON.parse(xhr.responseText);
-            msg = jsonResponse.message || "Wystąpił nieznany błąd";
-          } catch (e) {
-            msg =
-              xhr.responseText || "Nie można przetworzyć odpowiedzi z serwera";
-          }
-
-          if (xhr.status === 0) {
-            msg = "Brak połączenia. Sprawdź połączenie sieciowe.";
-          } else if (xhr.status === 403) {
-            msg = "Brak uprawnień do wykonania tej operacji.";
-          } else if (xhr.status === 500) {
-            msg = "Błąd serwera [500]. Spróbuj ponownie później.";
-          }
-
-          console.error("XHR Error:", xhr.status, msg, xhr.responseText);
-          displayMessage("Error", msg);
-          fileInput.value = "";
+          return;
         }
-      }
-    };
 
-    xhr.onerror = function () {
-      $("#waitingdots").hide();
-      $("#UploadDeliveryButton")
-        .prop("disabled", false)
-        .text("Prześlij dokument dostawy");
-      displayMessage("Error", "Błąd połączenia. Sprawdź połączenie sieciowe.");
-      fileInput.value = "";
-    };
+        // -------- OBSŁUGA 200 (jeśli endpoint zwraca 200 zamiast 201) --------
+        displayMessage(
+          "Success",
+          "Dokument dostawy został pomyślnie przesłany.",
+        );
+        markButtonAsSuccess();
+        resetUploadState();
 
-    console.log("Wysyłam do:", action);
-    console.log(
-      "Plik:",
-      deliveryFile.name,
-      "Rozmiar:",
-      deliveryFile.size,
-      "bytes",
-    );
+        if (typeof refreshTransactionsList === "function") {
+          refreshTransactionsList();
+        } else if (typeof loadVANTransactions === "function") {
+          loadVANTransactions();
+        }
+      })
+      .catch(function (error) {
+        $("#waitingdots").hide();
+        markButtonAsSuccess();
 
-    // Wyślij FormData (tylko plik, bez JSON)
-    xhr.send(formData);
+        const friendlyMessage = getFriendlyErrorMessage(error);
+        displayMessage("Error", friendlyMessage);
+
+        // Nie resetuj pliku - pozwól użytkownikowi spróbować ponownie
+        // fileInput.value = "";
+
+        console.error(
+          "Upload error:",
+          error.response?.status,
+          error.response?.data || error.message,
+        );
+      });
   }
 
-  // Event listeners
+  // -------- EVENT LISTENERS --------
   $(document).ready(function () {
     // Obsługa zmiany pliku
     $("#deliveryfile").on("change", function () {
@@ -5022,6 +5028,17 @@ ${offerTimestampLine}
           return;
         }
 
+        // Sprawdź maksymalny rozmiar
+        if (file.size > 10 * 1024 * 1024) {
+          displayMessage(
+            "Error",
+            "Plik jest zbyt duży. Maksymalny rozmiar to 10 MB.",
+          );
+          fileInput.value = "";
+          $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
+          return;
+        }
+
         $("#UploadDeliveryButton").text("Prześlij: " + file.name);
         $("#UploadDeliveryButton").removeClass("disabled");
       } else {
@@ -5032,13 +5049,11 @@ ${offerTimestampLine}
     // Obsługa kliknięcia przycisku
     $("#UploadDeliveryButton").on("click", function (e) {
       e.preventDefault();
-
       var fileInput = document.getElementById("deliveryfile");
       if (!fileInput.files || fileInput.files.length === 0) {
         displayMessage("Error", "Proszę wybrać plik dostawy.");
         return;
       }
-
       DeliveryFileUpload();
     });
   });
