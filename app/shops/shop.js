@@ -4853,7 +4853,7 @@ ${offerTimestampLine}
 
     // NIE ustawiaj Content-Type - FormData automatycznie ustawi multipart/form-data z boundary
     xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Content-Type", "multipart/form-data");
     xhr.setRequestHeader("Authorization", orgToken);
 
     xhr.upload.addEventListener("progress", function (e) {
