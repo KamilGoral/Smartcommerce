@@ -165,7 +165,7 @@ whenReadyAndDataTables(function () {
         if (existingUserAttributes) {
           const attributes = existingUserAttributes.split("|");
           const phoneNumberAttribute = attributes.find((attr) =>
-            attr.startsWith("phonenumber:")
+            attr.startsWith("phonenumber:"),
           );
           if (phoneNumberAttribute) {
             existingPhoneNumber = phoneNumberAttribute.split(":")[1];
@@ -230,7 +230,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -247,7 +247,7 @@ whenReadyAndDataTables(function () {
                 emailadressUser +
                 "|phonenumber:" +
                 phoneNumber,
-              720000
+              720000,
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
             const welcomeMessage = document.getElementById("welcomeMessage");
@@ -265,7 +265,7 @@ whenReadyAndDataTables(function () {
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
           },
@@ -311,7 +311,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -401,7 +401,7 @@ whenReadyAndDataTables(function () {
     ];
 
     const missing = cookiesToCheck.some(
-      (name) => !document.cookie.includes(`${name}=`)
+      (name) => !document.cookie.includes(`${name}=`),
     );
 
     if (missing) {
@@ -478,7 +478,7 @@ whenReadyAndDataTables(function () {
       "/app/tenants/organization?name=" +
       OrganizationName +
       "&clientId=" +
-      ClientID
+      ClientID,
   );
   $("#Wholesaler-profile-Selector-box").hide();
 
@@ -506,7 +506,7 @@ whenReadyAndDataTables(function () {
         ShopNameBread.textContent = data.shopKey;
         ShopNameBread.setAttribute(
           "href",
-          "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey
+          "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey,
         );
 
         if (data.merchantConsoleShopId === null) {
@@ -555,13 +555,13 @@ whenReadyAndDataTables(function () {
 
         $("#shopTownEdit").val((data.address && data.address.town) || "");
         $("#shopPostcodeEdit").val(
-          (data.address && data.address.postcode) || ""
+          (data.address && data.address.postcode) || "",
         );
         $("#shopAdressEdit").val((data.address && data.address.line1) || "");
         $("#shopPhoneEdit").val(
           Array.isArray(data.phones) && data.phones.length > 0
             ? data.phones[0].phone
-            : ""
+            : "",
         );
 
         if (data.emails && data.emails.length > 0) {
@@ -569,7 +569,7 @@ whenReadyAndDataTables(function () {
             if (index < 3) {
               $(`#shopEmailEdit${index + 1}`).val(email.email || "");
               $(`#shopEmailEditDescription${index + 1}`).val(
-                email.description || ""
+                email.description || "",
               );
             }
           });
@@ -614,6 +614,11 @@ whenReadyAndDataTables(function () {
 
   function handleGoToOrder(url, orderName) {
     setCookie("orderName", orderName, 3600); // np. 1 godzina ważności
+    window.location.href = url;
+  }
+
+  function handleGoToDelivery(url, deliveryName) {
+    setCookie("deliveryName", deliveryName, 3600); // np. 1 godzina ważności
     window.location.href = url;
   }
 
@@ -701,7 +706,7 @@ whenReadyAndDataTables(function () {
               recordsFiltered: res.total,
               data: res.items,
             });
-          }
+          },
         );
       },
       processing: true,
@@ -866,6 +871,225 @@ whenReadyAndDataTables(function () {
     }
   }
 
+  function getDeliveries() {
+    var tableDeliveries = $("#table_deliveries").DataTable({
+      pagingType: "full_numbers",
+      order: [[4, "desc"]], // Sortowanie po dacie utworzenia
+      dom: '<"top">rt<"bottom"lip>',
+      scrollY: "60vh",
+      scrollCollapse: true,
+      pageLength: 10,
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ rezultatów)",
+        lengthMenu: "Pokaż _MENU_ rekordów",
+        loadingRecords: "<div class='spinner'</div>",
+        processing: "<div class='spinner'</div>",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: {
+          first: "<<",
+          last: ">>",
+          next: " >",
+          previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
+        },
+      },
+      ajax: function (data, callback, settings) {
+        $.ajaxSetup({
+          headers: {
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+          },
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+        });
+
+        var whichColumns = "createdAt";
+        var direction = "desc";
+
+        if (data.order.length > 0) {
+          var columnIndex = data.order[0]["column"];
+          direction = data.order[0]["dir"];
+
+          // Mapowanie kolumn do pól API
+          switch (columnIndex) {
+            case 4:
+              whichColumns = "createdAt";
+              break;
+            default:
+              whichColumns = "createdAt";
+          }
+        }
+
+        var sort = "" + whichColumns + direction;
+
+        $.get(
+          InvokeURL + "/van/transactions",
+          {
+            sort: sort,
+            perPage: data.length,
+            page: (data.start + data.length) / data.length,
+          },
+          function (res) {
+            // map your server's response to the DataTables format and pass it to
+            // DataTables' callback
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          },
+        );
+      },
+      processing: true,
+      search: {
+        return: true,
+      },
+      serverSide: true,
+      search: {
+        return: true,
+      },
+      columns: [
+        {
+          orderable: false,
+          data: null,
+          width: "36px",
+          defaultContent:
+            "<div class='details-container'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+        },
+        {
+          orderable: false,
+          visible: false,
+          data: "uuid",
+          render: function (data) {
+            return data ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          visible: false,
+          data: "wholesalerKey",
+          render: function (data) {
+            return data ? data : "";
+          },
+        },
+        {
+          orderable: false,
+          visible: false,
+          data: "name",
+          render: function (data) {
+            return data ? data : "";
+          },
+        },
+        {
+          orderable: true,
+          data: "created",
+          render: function (data) {
+            if (data.at) {
+              var utcDate = new Date(Date.parse(data.at));
+              var formattedDate = utcDate.toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+              return formattedDate;
+            }
+            return "";
+          },
+        },
+        {
+          orderable: false,
+          data: "created",
+          render: function (data) {
+            return data.by ? data.by : "";
+          },
+        },
+        {
+          orderable: false,
+          data: null,
+          width: "72px",
+          render: function (data, type, row) {
+            if (type === "display" && row.orderId) {
+              let url = `https://${DomainName}/app/deliveries/delivery?deliveryId=${row.uuid}&shopKey=${shopKey}`;
+              let deliveryName = row.name ? encodeURIComponent(row.name) : "";
+              return `<div class="action-container">
+                      <a href="#" class="buttonoutline editme w-button go-to-delivery" 
+                        data-url="${url}" 
+                        data-name="${deliveryName}">
+                        Przejdź
+                      </a>
+                    </div>`;
+            }
+            return "";
+          },
+          defaultContent: "",
+        },
+        {
+          orderable: false,
+          class: "details-control4",
+          width: "36px",
+          data: null,
+          defaultContent:
+            "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
+        },
+      ],
+      initComplete: function (settings, json) {
+        var api = this.api();
+        var textBox = $("#table_deliveries_filter label input");
+        textBox.unbind();
+        textBox.bind("keyup input", function (e) {
+          if (
+            (e.keyCode == 8 && !textBox.val()) ||
+            (e.keyCode == 46 && !textBox.val())
+          ) {
+          } else if (e.keyCode == 13 || !textBox.val()) {
+            api.search(this.value).draw();
+          }
+        });
+      },
+      drawCallback: function (settings) {
+        toggleEmptyState();
+        // Dodaj eventy do przycisków "Przejdź"
+        $(".go-to-delivery")
+          .off("click")
+          .on("click", function (e) {
+            e.preventDefault();
+            const url = $(this).data("url");
+            const deliveryName = decodeURIComponent($(this).data("name"));
+            handleGoToDelivery(url, deliveryName);
+          });
+      },
+    });
+
+    function toggleEmptyState() {
+      // Check if the table has any entries
+      var hasEntries = tableOrders.data().any();
+      // If the table is empty, show the custom empty state div
+      // Otherwise, hide it
+      if (!hasEntries) {
+        $("#emptystateorders").show();
+        $("#orderscontainer").hide();
+      } else {
+        $("#emptystateorders").hide();
+        $("#orderscontainer").show();
+      }
+    }
+  }
+
   $("#table_pricelists_list").on(
     "click",
     "a.buttonoutline.editme",
@@ -877,9 +1101,9 @@ whenReadyAndDataTables(function () {
         "https://" +
           DomainName +
           "/app/pricelists/pricelist?uuid=" +
-          rowData.uuid
+          rowData.uuid,
       );
-    }
+    },
   );
 
   function getWholesalers() {
@@ -946,7 +1170,7 @@ whenReadyAndDataTables(function () {
             dot.style.borderColor = "rgb(255, 165, 0)";
           });
         }
-      }
+      },
     );
 
     function initializeDataTable(data) {
@@ -1163,7 +1387,7 @@ whenReadyAndDataTables(function () {
           "/app/wholesalers/wholesaler?shopKey=" +
           shopKey +
           "&wholesalerKey=" +
-          rowData.wholesalerKey
+          rowData.wholesalerKey,
       );
     }
   });
@@ -1171,7 +1395,7 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjaxDeleteOrder = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
@@ -1288,7 +1512,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -1313,7 +1537,7 @@ whenReadyAndDataTables(function () {
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
           },
@@ -1327,7 +1551,7 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjaxPatchShopEdit = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
@@ -1391,7 +1615,7 @@ whenReadyAndDataTables(function () {
                 // Show form-done-fail-edit on error
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
               },
             });
@@ -1403,7 +1627,7 @@ whenReadyAndDataTables(function () {
             // Show form-done-fail-edit on error
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
           },
         });
@@ -1453,7 +1677,7 @@ whenReadyAndDataTables(function () {
     // Check if the current data has an address to compare against
     var currentAddress = currentData.address || {};
     var addressChanged = Object.keys(newAddress).some(
-      (key) => newAddress[key] !== (currentAddress[key] || "")
+      (key) => newAddress[key] !== (currentAddress[key] || ""),
     );
 
     if (addressChanged) {
@@ -1588,7 +1812,7 @@ whenReadyAndDataTables(function () {
             success: function () {
               displayMessage(
                 "Success",
-                "Twoje zamówienie zostało stworzone i zaktualizowane."
+                "Twoje zamówienie zostało stworzone i zaktualizowane.",
               );
               window.setTimeout(function () {
                 window.location.replace(
@@ -1598,7 +1822,7 @@ whenReadyAndDataTables(function () {
                     response.orderId +
                     "&shopKey=" +
                     shopKey +
-                    "&data-w-tab=add"
+                    "&data-w-tab=add",
                 );
               }, 1000);
             },
@@ -1607,7 +1831,7 @@ whenReadyAndDataTables(function () {
               console.log(exception);
               displayMessage(
                 "Error",
-                "Oops! Coś poszło nie tak podczas aktualizacji zamówienia. Proszę spróbuj ponownie."
+                "Oops! Coś poszło nie tak podczas aktualizacji zamówienia. Proszę spróbuj ponownie.",
               );
             },
           });
@@ -1617,7 +1841,7 @@ whenReadyAndDataTables(function () {
           console.log(errorThrown);
           displayMessage(
             "Error",
-            "Oops! Coś poszło nie tak. Proszę spróbuj ponownie."
+            "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.",
           );
         },
       });
@@ -1664,7 +1888,7 @@ whenReadyAndDataTables(function () {
 
   function buildMultiFileName(bases, maxLen) {
     const unique = Array.from(new Set(bases.map(normalizeOrderName))).filter(
-      Boolean
+      Boolean,
     );
     if (!unique.length) return "";
 
@@ -1773,7 +1997,7 @@ whenReadyAndDataTables(function () {
                   "/app/orders/order?orderId=" +
                   orderId +
                   "&shopKey=" +
-                  shopKey
+                  shopKey,
               );
             }, 1000);
           }
@@ -1814,7 +2038,7 @@ whenReadyAndDataTables(function () {
               "/app/orders/order?orderId=" +
               orderId +
               "&shopKey=" +
-              shopKey
+              shopKey,
           );
         }, 1000);
       },
@@ -1823,7 +2047,7 @@ whenReadyAndDataTables(function () {
         console.log(textStatus);
         displayMessage(
           "Error",
-          "Oops! Coś poszło nie tak. Proszę spróbuj ponownie."
+          "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.",
         );
       },
     });
@@ -1876,7 +2100,7 @@ whenReadyAndDataTables(function () {
   function getProductDetails(rowData) {
     return new Promise((resolve, reject) => {
       const url = new URL(
-        InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin
+        InvokeURL + "shops/" + shopKey + "/products/" + rowData.gtin,
       );
 
       const request = new XMLHttpRequest();
@@ -1943,7 +2167,7 @@ whenReadyAndDataTables(function () {
         setTextOrPlaceholder(pInStock, stock.value);
         setTextOrPlaceholder(
           pUnit,
-          stock.unit === "pieces" ? "szt" : stock.unit
+          stock.unit === "pieces" ? "szt" : stock.unit,
         );
 
         // CENA DETALICZNA / EWIDENCYJNA
@@ -1952,11 +2176,11 @@ whenReadyAndDataTables(function () {
 
         setTextOrPlaceholder(
           pStandardPrice,
-          standardPrice != null ? standardPrice.toFixed(2) : null
+          standardPrice != null ? standardPrice.toFixed(2) : null,
         );
         setTextOrPlaceholder(
           pRetailPrice,
-          retailPrice != null ? retailPrice.toFixed(2) : null
+          retailPrice != null ? retailPrice.toFixed(2) : null,
         );
 
         // WSKAŹNIK ROTACJI – z rowData, jak w tabeli
@@ -1967,7 +2191,7 @@ whenReadyAndDataTables(function () {
           const best = rowData.asks[0].netNetPrice ?? rowData.asks[0].netPrice;
           setTextOrPlaceholder(
             pBestPrice,
-            best != null ? best.toFixed(2) : null
+            best != null ? best.toFixed(2) : null,
           );
         } else {
           setTextOrPlaceholder(pBestPrice, null);
@@ -2158,7 +2382,7 @@ whenReadyAndDataTables(function () {
             updatedAt: new Date(latestEvent.updatedAt).toLocaleString("pl-PL"),
             messages: translateMessages(
               latestEvent.extracting?.messages || [],
-              "PL"
+              "PL",
             ),
             allEvents: enrichedEvents,
             expandable:
@@ -2181,11 +2405,11 @@ whenReadyAndDataTables(function () {
               statusLabel:
                 statusMap[latestWmsEvent.extracting?.status] || "Nieznany",
               updatedAt: new Date(latestWmsEvent.updatedAt).toLocaleString(
-                "pl-PL"
+                "pl-PL",
               ),
               messages: translateMessages(
                 latestWmsEvent.extracting?.messages || [],
-                "PL"
+                "PL",
               ),
             });
           }
@@ -2200,7 +2424,7 @@ whenReadyAndDataTables(function () {
             status: "success",
             statusLabel: "Sukces",
             updatedAt: new Date(
-              res.integrations.retroactive.updatedAt
+              res.integrations.retroactive.updatedAt,
             ).toLocaleString("pl-PL"),
             messages: [],
           });
@@ -2515,15 +2739,15 @@ ${offerTimestampLine}
               typeof s.avgPrice === "number"
                 ? s.avgPrice
                 : typeof s.average === "number"
-                ? s.average
-                : null;
+                  ? s.average
+                  : null;
 
             const low =
               typeof s.minPrice === "number"
                 ? s.minPrice
                 : typeof s.lowest === "number"
-                ? s.lowest
-                : null;
+                  ? s.lowest
+                  : null;
 
             return {
               ts: new Date(s.timestamp),
@@ -2625,7 +2849,7 @@ ${offerTimestampLine}
               "neutral-value",
               "positive-value",
               "negative-value",
-              "hide"
+              "hide",
             );
             if (diff > 0.1) {
               el.classList.add("positive-value");
@@ -2664,7 +2888,7 @@ ${offerTimestampLine}
 
         // zakres ilości
         const qtyVals = [...stock, ...volume].filter(
-          (v) => typeof v === "number" && isFinite(v)
+          (v) => typeof v === "number" && isFinite(v),
         );
         const qtyMax = qtyVals.length
           ? Math.max(1, Math.ceil(Math.max(...qtyVals) / 0.9))
@@ -2730,7 +2954,7 @@ ${offerTimestampLine}
 
         // sprzedaż ostatnich siedmiu dni i dziewięćdziesięciu dni
         const vols = volume.map((v) =>
-          typeof v === "number" && isFinite(v) ? v : 0
+          typeof v === "number" && isFinite(v) ? v : 0,
         );
 
         const sumLast = (n) => {
@@ -2994,7 +3218,7 @@ ${offerTimestampLine}
 
         window.__phChart = new ApexCharts(
           document.getElementById("chart"),
-          options
+          options,
         );
         await window.__phChart.render();
 
@@ -3209,7 +3433,7 @@ ${offerTimestampLine}
       let details = benefits
         .map(
           ({ icon, text }) =>
-            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`
+            `<img src="${icon}" alt="${text}" class="tippy" data-tippy-content="${text}"/>`,
         )
         .join(" ");
       if (benefit.gratis) {
@@ -3280,8 +3504,8 @@ ${offerTimestampLine}
         }</td>
         <td>${
           getCookie("sprytnyUserRole") === "admin"
-            ? item.netNetPrice ??
-              '<span style="color:#9ca3af;font-weight:300;">-</span>'
+            ? (item.netNetPrice ??
+              '<span style="color:#9ca3af;font-weight:300;">-</span>')
             : '<span style="color:#9ca3af;font-weight:300;">-</span>'
         }</td>
         <td>${
@@ -3368,7 +3592,7 @@ ${offerTimestampLine}
   function getValidAsks(asks) {
     if (!Array.isArray(asks)) return [];
     return asks.filter(
-      (a) => a && a.valid === true && typeof a.netPrice === "number"
+      (a) => a && a.valid === true && typeof a.netPrice === "number",
     );
   }
 
@@ -3439,7 +3663,7 @@ ${offerTimestampLine}
           function getValidAsks(asks) {
             if (!Array.isArray(asks)) return [];
             return asks.filter(
-              (a) => a && a.valid === true && typeof a.netPrice === "number"
+              (a) => a && a.valid === true && typeof a.netPrice === "number",
             );
           }
 
@@ -3479,9 +3703,9 @@ ${offerTimestampLine}
                         .filter(
                           (a) =>
                             a.netPrice ===
-                            Math.min(...validAsks.map((a) => a.netPrice))
+                            Math.min(...validAsks.map((a) => a.netPrice)),
                         )
-                        .map((a) => a.wholesalerKey)
+                        .map((a) => a.wholesalerKey),
                     ),
                   ].join(", ")
                 : "";
@@ -3927,7 +4151,7 @@ ${offerTimestampLine}
             ...new Set(
               validAsks
                 .filter((a) => a.netPrice === bestPrice)
-                .map((a) => a.wholesalerKey)
+                .map((a) => a.wholesalerKey),
             ),
           ];
           return bestWh.length
@@ -4156,32 +4380,32 @@ ${offerTimestampLine}
     // Set the content of specified elements to "-"
     $("#pEan").text('<span style="color:#9ca3af;font-weight:300;">-</span>');
     $("#pHistory").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pHistorySpan").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pRetailPrice").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pStandardPrice").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pBestPrice").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pInStock").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pStockDays").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pSales7").text('<span style="color:#9ca3af;font-weight:300;">-</span>');
     $("#pSales90").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
     $("#pIndicator").text(
-      '<span style="color:#9ca3af;font-weight:300;">-</span>'
+      '<span style="color:#9ca3af;font-weight:300;">-</span>',
     );
   }
 
@@ -4222,7 +4446,7 @@ ${offerTimestampLine}
         if (res.status === 400 || res.status === 404) return []; // brak danych
         return res.text().then((t) => {
           throw new Error(
-            `Related-keys error ${res.status}: ${t || "no body"}`
+            `Related-keys error ${res.status}: ${t || "no body"}`,
           );
         });
       })
@@ -4386,7 +4610,7 @@ ${offerTimestampLine}
           .sort((a, b) =>
             (a.name || "").localeCompare(b.name || "", "pl", {
               sensitivity: "base",
-            })
+            }),
           );
 
         sorted.forEach((w) => {
@@ -4613,7 +4837,7 @@ ${offerTimestampLine}
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 form.trigger("reset");
                 return;
@@ -4622,7 +4846,7 @@ ${offerTimestampLine}
             form.show();
             displayMessage(
               "Success",
-              "Twoje zgłoszenie została przyjęte. Dziękujemy."
+              "Twoje zgłoszenie została przyjęte. Dziękujemy.",
             );
             $("#ProposeChangeInGtinModal").css("display", "none");
             form.trigger("reset");
@@ -4634,7 +4858,7 @@ ${offerTimestampLine}
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
             form.trigger("reset");
@@ -4693,6 +4917,7 @@ ${offerTimestampLine}
   getWholesalers();
   getShop();
   getOrders();
+  getDeliveries();
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
@@ -4708,6 +4933,6 @@ ${offerTimestampLine}
             .columns.adjust();
         }, delay);
       });
-    }
+    },
   );
 });
