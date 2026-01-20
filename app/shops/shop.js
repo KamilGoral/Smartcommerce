@@ -4829,29 +4829,23 @@ ${offerTimestampLine}
     $("#waitingdots").show();
     $("#UploadDeliveryButton").prop("disabled", true).text("Wysyłanie...");
 
-    // Build JSON metadata - zgodnie z przykładem
-    var metadata = {
-      type: "RECADV",
-      shopKeys: [shopKey],
-    };
-
-    // Nazwa transakcji jest odczytywana z zawartości pliku RTF przez backend
-    // wholesalerKey jest identyfikowany po NIP z pliku RTF przez backend
-
-    // Create FormData with both file and json
+    // Create FormData with ONLY file (like orders endpoint)
     var formData = new FormData();
-    formData.append("file", deliveryFile, deliveryFile.name);
-    formData.append("json", JSON.stringify(metadata));
+    formData.append("file", deliveryFile);
 
+    // Build URL with metadata as query parameters
     var action = InvokeURL + "van/transactions";
+    action += "?type=RECADV";
+    action += "&shopKeys=" + encodeURIComponent(shopKey);
+
     if (skipTypeCheck) {
-      action += "?skipTypeCheck=true";
+      action += "&skipTypeCheck=true";
     }
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", action, true);
 
-    // NIE ustawiaj Content-Type - FormData automatycznie ustawi multipart/form-data z boundary
+    // Only Accept and Authorization headers - NO Content-Type
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Authorization", orgToken);
 
@@ -4991,7 +4985,6 @@ ${offerTimestampLine}
     };
 
     console.log("Wysyłam do:", action);
-    console.log("Metadata:", metadata);
     console.log(
       "Plik:",
       deliveryFile.name,
@@ -5000,7 +4993,7 @@ ${offerTimestampLine}
       "bytes",
     );
 
-    // Wyślij FormData
+    // Wyślij FormData (tylko plik, bez JSON)
     xhr.send(formData);
   }
 
