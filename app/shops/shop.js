@@ -4851,7 +4851,7 @@ ${offerTimestampLine}
     // Build JSON payload
     var payload = {
       type: "RECADV", // Typ dokumentu dostawy
-      shopKeys: [currentShopKey || $("#documentShop").val()], // Użyj aktualnego sklepu
+      shopKeys: [shopKey], // Użyj aktualnego sklepu
     };
 
     // wholesalerKey będzie zidentyfikowany z NIP w pliku RTF
