@@ -1072,7 +1072,7 @@ whenReadyAndDataTables(function () {
       drawCallback: function (settings) {
         toggleEmptyState();
         // Dodaj eventy do przycisków "Przejdź"
-        $(".go-to-delivery")
+        $(".go-to-order")
           .off("click")
           .on("click", function (e) {
             e.preventDefault();
