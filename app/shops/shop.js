@@ -1031,7 +1031,7 @@ whenReadyAndDataTables(function () {
           data: null,
           width: "72px",
           render: function (data, type, row) {
-            if (type === "display" && row.orderId) {
+            if (type === "display" && row.uuid) {
               let url = `https://${DomainName}/app/deliveries/delivery?deliveryId=${row.uuid}&shopKey=${shopKey}`;
               let deliveryName = row.name ? encodeURIComponent(row.name) : "";
               return `<div class="action-container">
