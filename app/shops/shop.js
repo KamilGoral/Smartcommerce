@@ -4832,16 +4832,29 @@ ${offerTimestampLine}
     $("#UploadDeliveryButton").prop("disabled", true).text("Wysyłanie...");
 
     // -------- PRZYGOTOWANIE ŻĄDANIA --------
-    var formData = new FormData();
-    formData.append("file", deliveryFile);
-
-    // Build URL with metadata as query parameters (like your working endpoint)
+    // Endpoint BEZ query params
     var uploadEndpoint = InvokeURL + "van/transactions";
-    uploadEndpoint += "?type=RECADV";
-    uploadEndpoint += "&shopKeys=" + encodeURIComponent(shopKey);
+
+    // Metadane jako JSON blob
+    var metadata = {
+      type: "RECADV",
+      shopKeys: [shopKey], // Array zamiast stringa
+    };
+
     if (skipTypeCheck) {
-      uploadEndpoint += "&skipTypeCheck=true";
+      metadata.skipTypeCheck = true;
     }
+
+    var formData = new FormData();
+
+    // Dodaj JSON jako blob z odpowiednim Content-Type
+    var jsonBlob = new Blob([JSON.stringify(metadata)], {
+      type: "application/json",
+    });
+    formData.append("json", jsonBlob, "blob");
+
+    // Plik jako drugie pole
+    formData.append("file", deliveryFile);
 
     // -------- HELPER: Friendly error messages --------
     function getFriendlyErrorMessage(error) {
@@ -4900,6 +4913,7 @@ ${offerTimestampLine}
 
     // -------- WYSŁANIE ŻĄDANIA --------
     console.log("Wysyłam do:", uploadEndpoint);
+    console.log("Metadata:", metadata);
     console.log(
       "Plik:",
       deliveryFile.name,
@@ -4913,7 +4927,8 @@ ${offerTimestampLine}
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: orgToken,
-          Accept: "application/json",
+          Accept: "application/json, text/plain, */*",
+          "requested-by": "webflow-3-4",
         },
       })
       .then(function (response) {
