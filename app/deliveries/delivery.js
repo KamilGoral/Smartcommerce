@@ -462,6 +462,12 @@ whenReadyAndDataTables(function () {
 
   var orgToken = getCookie("sprytnyToken");
   var shopKey = new URL(location.href).searchParams.get("shopKey");
+
+  var DomainName = getCookie("sprytnyDomainName");
+  var ClientID = getCookieNameByValue(orgToken);
+  var InvokeURL = getCookie("sprytnyInvokeURL");
+  var OrganizationName = getCookie("OrganizationName");
+
   const shopBread = document.getElementById("ShopBread0");
   shopBread.textContent = shopKey;
   shopBread.setAttribute(
@@ -473,11 +479,6 @@ whenReadyAndDataTables(function () {
 
   const deliveryBread = document.getElementById("DeliveryBread0");
   deliveryBread.textContent = deliveryId;
-
-  var DomainName = getCookie("sprytnyDomainName");
-  var ClientID = getCookieNameByValue(orgToken);
-  var InvokeURL = getCookie("sprytnyInvokeURL");
-  var OrganizationName = getCookie("OrganizationName");
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
