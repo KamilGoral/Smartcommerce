@@ -4947,7 +4947,6 @@ ${offerTimestampLine}
           }
 
           // Sprawdź czy transakcja została utworzona jako draft
-          // (gdy znaleziono wielu dostawców z tym samym NIP)
           if (transaction && transaction.status === "draft") {
             displayMessage(
               "Warning",
@@ -4956,30 +4955,42 @@ ${offerTimestampLine}
                 "Możesz zmodyfikować dostawcę i zmienić status na 'committed' aby kontynuować. " +
                 '<br><a href="https://smart-commerce.atlassian.net/browse/ITSMD-3671" target="_blank" style="color: #0066cc;">Więcej informacji</a>',
             );
-          } else if (transaction) {
+            // Dłuższe opóźnienie dla ostrzeżenia (więcej tekstu do przeczytania)
+            setTimeout(function () {
+              var redirectUrl = `https://${DomainName}/app/deliveries/delivery?deliveryId=${transaction.uuid}&shopKey=${shopKey}`;
+              window.location.href = redirectUrl;
+            }, 6000); // 6 sekund
+          } else if (transaction && transaction.uuid) {
             displayMessage(
               "Success",
               "Dokument dostawy '" +
                 (transaction.name || fileName) +
-                "' został pomyślnie przesłany i zweryfikowany.",
+                "' został pomyślnie przesłany i zweryfikowany. Przekierowuję...",
             );
+            // Standardowe opóźnienie dla sukcesu
+            setTimeout(function () {
+              var redirectUrl = `https://${DomainName}/app/deliveries/delivery?deliveryId=${transaction.uuid}&shopKey=${shopKey}`;
+              window.location.href = redirectUrl;
+            }, 3000); // 3 sekundy
           } else {
             displayMessage(
               "Success",
               "Dokument dostawy został pomyślnie przesłany.",
             );
+            // Brak UUID - nie przekierowuj, tylko odśwież listę
+            markButtonAsSuccess();
+            resetUploadState();
+            if (typeof refreshTransactionsList === "function") {
+              refreshTransactionsList();
+            } else if (typeof loadVANTransactions === "function") {
+              loadVANTransactions();
+            }
+            return;
           }
 
           // Wyczyść formularz
           markButtonAsSuccess();
           resetUploadState();
-
-          // Odśwież listę transakcji
-          if (typeof refreshTransactionsList === "function") {
-            refreshTransactionsList();
-          } else if (typeof loadVANTransactions === "function") {
-            loadVANTransactions();
-          }
 
           return;
         }
