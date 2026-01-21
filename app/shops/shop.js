@@ -867,6 +867,9 @@ whenReadyAndDataTables(function () {
   }
 
   function getDeliveries() {
+    // Flaga czy dane zostały już załadowane
+    var dataLoaded = false;
+
     // Mapowanie statusów na polski z klasami (jak w drugiej tabeli)
     const statusMap = {
       committed: { label: "Zatwierdzony", class: "positive" },
@@ -881,7 +884,7 @@ whenReadyAndDataTables(function () {
     var tableDeliveries = $("#table_deliveries").DataTable({
       pagingType: "full_numbers",
       order: [[4, "desc"]], // Sortowanie po dacie utworzenia
-      dom: '<"top"<"deliveries-filters"<"filter-search"f><"filter-supplier">>>rt<"bottom"lip>',
+      dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
@@ -914,10 +917,17 @@ whenReadyAndDataTables(function () {
 
       // Pobieramy WSZYSTKIE dane jednorazowo
       ajax: function (data, callback, settings) {
+        // Ukryj empty state podczas ładowania
+        $("#emptystatedeliveries").hide();
+        $("#deliveriescontainer").show();
         $("#waitingdots").show();
 
         $.ajax({
-          url: InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
+          url:
+            InvokeURL +
+            "/van/transactions?type=RECADV&shopKey=" +
+            shopKey +
+            "&perPage=500",
           type: "GET",
           beforeSend: function (xhr) {
             xhr.setRequestHeader("Authorization", orgToken);
@@ -925,6 +935,7 @@ whenReadyAndDataTables(function () {
           },
           success: function (json) {
             $("#waitingdots").hide();
+            dataLoaded = true;
             // Przekazujemy dane do DataTables w formacie client-side
             callback({
               data: json.items || [],
@@ -933,6 +944,7 @@ whenReadyAndDataTables(function () {
           error: function (xhr, error, thrown) {
             console.error("Błąd pobierania danych:", error, thrown);
             $("#waitingdots").hide();
+            dataLoaded = true;
             callback({ data: [] });
           },
         });
@@ -971,7 +983,7 @@ whenReadyAndDataTables(function () {
             if (type === "filter" || type === "sort") {
               return formatted.toLowerCase();
             }
-            return `<span style="background:#f3f4f6;border-radius:4px;padding:2px 6px;font-weight:500;">${formatted}</span>`;
+            return formatted;
           },
         },
         // Kolumna 3: Nazwa (nazwa + plik źródłowy)
@@ -1009,17 +1021,7 @@ whenReadyAndDataTables(function () {
               <div ${nameDivAttrs} style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">
                 ${escapedName}
               </div>
-              ${
-                sourceFileName
-                  ? `
-                <div style="display:flex;gap:6px;margin-top:2px;font-size:11px;color:#6b7280;align-items:center;">
-                  <span style="background:#eef2ff;border-radius:4px;padding:2px 6px;font-family:monospace;">
-                    ${sourceFileName}
-                  </span>
-                </div>
-              `
-                  : ""
-              }
+              ${sourceFileName ? `<div style="font-size:11px;color:#6b7280;">${sourceFileName}</div>` : ""}
             </div>
           `;
           },
@@ -1056,7 +1058,16 @@ whenReadyAndDataTables(function () {
             return `
             <div style="display:flex;flex-direction:column;line-height:1.3;">
               <div style="font-weight:500;">${formattedDate}</div>
-              ${author ? `<div style="font-size:11px;color:#6b7280;">${author}</div>` : ""}
+              ${
+                author
+                  ? `
+                <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280;">
+                  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" style="width:12px;height:12px;opacity:0.7;">
+                  <span>${author}</span>
+                </div>
+              `
+                  : ""
+              }
             </div>
           `;
           },
@@ -1093,7 +1104,16 @@ whenReadyAndDataTables(function () {
             return `
             <div style="display:flex;flex-direction:column;line-height:1.3;">
               <div style="font-weight:500;">${formattedDate}</div>
-              ${author ? `<div style="font-size:11px;color:#6b7280;">${author}</div>` : ""}
+              ${
+                author
+                  ? `
+                <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280;">
+                  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" style="width:12px;height:12px;opacity:0.7;">
+                  <span>${author}</span>
+                </div>
+              `
+                  : ""
+              }
             </div>
           `;
           },
@@ -1125,37 +1145,29 @@ whenReadyAndDataTables(function () {
           orderable: false,
           searchable: false,
           data: null,
-          width: "70px",
+          width: "120px",
           render: function (data, type, row) {
             if (type === "display" && row.uuid) {
               let url = `https://${DomainName}/app/deliveries/delivery?deliveryId=${row.uuid}&shopKey=${shopKey}`;
               let deliveryName = row.name ? encodeURIComponent(row.name) : "";
 
-              const goIcon = `
-              <img 
-                src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" 
-                alt="Przejdź" 
-                title="Przejdź do szczegółów" 
-                class="icon-go go-to-order" 
-                data-url="${url}"
-                data-name="${deliveryName}"
-                style="cursor:pointer;width:20px;height:20px;"
-              />`;
-
-              const deleteIcon = `
-              <img 
-                src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" 
-                alt="Usuń" 
-                title="Usuń dostawę" 
-                class="icon-delete delete-delivery" 
-                data-uuid="${row.uuid}"
-                data-name="${deliveryName}"
-                style="cursor:pointer;width:20px;height:20px;"
-              />`;
-
               return `
-              <div style="text-align:left;display:flex;align-items:center;gap:6px;">
-                ${goIcon}${deleteIcon}
+              <div style="display:flex;align-items:center;gap:8px;">
+                <a href="#" class="buttonoutline editme w-button go-to-order" 
+                  data-url="${url}" 
+                  data-name="${deliveryName}"
+                  title="Przejdź do szczegółów">
+                  Przejdź
+                </a>
+                <img 
+                  src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" 
+                  alt="Usuń" 
+                  title="Usuń dostawę" 
+                  class="delete-delivery" 
+                  data-uuid="${row.uuid}"
+                  data-name="${deliveryName}"
+                  style="cursor:pointer;width:18px;height:18px;opacity:0.7;"
+                />
               </div>`;
             }
             return "";
@@ -1167,53 +1179,8 @@ whenReadyAndDataTables(function () {
       initComplete: function (settings, json) {
         var api = this.api();
 
-        // Dodaj filtr dostawcy
-        var supplierFilter = $(
-          '<div class="supplier-filter-wrapper">' +
-            '<label for="supplierFilter">Dostawca: </label>' +
-            '<select id="supplierFilter" class="form-control">' +
-            '<option value="">Wszyscy</option>' +
-            "</select>" +
-            "</div>",
-        );
-        $(".filter-supplier").html(supplierFilter);
-
-        // Pobierz unikalne wartości dostawców i uzupełnij dropdown
-        var uniqueSuppliers = [];
-        api
-          .column(2)
-          .data()
-          .each(function (d) {
-            if (d && uniqueSuppliers.indexOf(d) === -1) {
-              uniqueSuppliers.push(d);
-            }
-          });
-
-        uniqueSuppliers.sort().forEach(function (d) {
-          var displayName =
-            d.charAt(0).toUpperCase() + d.slice(1).replace(/-/g, " ");
-          $("#supplierFilter").append(
-            '<option value="' +
-              displayName.toLowerCase() +
-              '">' +
-              displayName +
-              "</option>",
-          );
-        });
-
-        // Filtrowanie po dostawcy (client-side)
-        $("#supplierFilter").on("change", function () {
-          var val = $(this).val();
-          // Używamy regex do dokładnego dopasowania
-          api
-            .column(2)
-            .search(val ? "^" + val + "$" : "", true, false)
-            .draw();
-        });
-
         // Wyszukiwarka - natychmiastowe wyszukiwanie (client-side)
         var textBox = $("#table_deliveries_filter label input");
-        textBox.attr("placeholder", "Szukaj we wszystkich kolumnach...");
 
         // Usuwamy domyślne bindowanie i dodajemy własne z natychmiastowym wyszukiwaniem
         textBox.unbind();
@@ -1225,18 +1192,20 @@ whenReadyAndDataTables(function () {
       drawCallback: function (settings) {
         var api = this.api();
 
-        // Toggle empty state
-        var hasEntries = api.data().any();
-        if (!hasEntries) {
-          $("#emptystatedeliveries").show();
-          $("#deliveriescontainer").hide();
-        } else {
-          $("#emptystatedeliveries").hide();
-          $("#deliveriescontainer").show();
+        // Toggle empty state - tylko jeśli dane zostały załadowane
+        if (dataLoaded) {
+          var hasEntries = api.data().any();
+          if (!hasEntries) {
+            $("#emptystatedeliveries").show();
+            $("#deliveriescontainer").hide();
+          } else {
+            $("#emptystatedeliveries").hide();
+            $("#deliveriescontainer").show();
+          }
         }
 
-        // Eventy dla ikon "Przejdź"
-        $(".icon-go.go-to-order")
+        // Eventy dla przycisków "Przejdź"
+        $(".go-to-order")
           .off("click")
           .on("click", function (e) {
             e.preventDefault();
@@ -1246,7 +1215,7 @@ whenReadyAndDataTables(function () {
           });
 
         // Eventy dla ikon "Usuń"
-        $(".icon-delete.delete-delivery")
+        $(".delete-delivery")
           .off("click")
           .on("click", function (e) {
             e.preventDefault();
@@ -1275,6 +1244,25 @@ whenReadyAndDataTables(function () {
         )
       ) {
         console.log("Usuwanie dostawy:", uuid, name);
+
+        // Przykład wywołania API do usunięcia:
+        /*
+      $.ajax({
+        url: InvokeURL + "/van/transactions/" + uuid,
+        method: "DELETE",
+        headers: { 
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4"
+        },
+        success: function() {
+          // Po udanym usunięciu - odśwież tabelę
+          api.ajax.reload();
+        },
+        error: function(xhr, status, error) {
+          alert("Błąd podczas usuwania: " + error);
+        }
+      });
+      */
       }
     }
 
