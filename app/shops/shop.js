@@ -911,25 +911,29 @@ whenReadyAndDataTables(function () {
       },
 
       // Pobieramy WSZYSTKIE dane jednorazowo
-      ajax: {
-        url: InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
-        type: "GET",
-        beforeSend: function (xhr) {
-          xhr.setRequestHeader("Authorization", orgToken);
-          xhr.setRequestHeader("Requested-By", "webflow-3-4");
-          $("#waitingdots").show();
-        },
-        complete: function () {
-          $("#waitingdots").hide();
-        },
-        dataSrc: function (json) {
-          // Zwracamy wszystkie items - DataTables obsłuży resztę client-side
-          return json.items || [];
-        },
-        error: function (xhr, error, thrown) {
-          console.error("Błąd pobierania danych:", error, thrown);
-          $("#waitingdots").hide();
-        },
+      ajax: function (data, callback, settings) {
+        $("#waitingdots").show();
+
+        $.ajax({
+          url: InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
+          type: "GET",
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", orgToken);
+            xhr.setRequestHeader("Requested-By", "webflow-3-4");
+          },
+          success: function (json) {
+            $("#waitingdots").hide();
+            // Przekazujemy dane do DataTables w formacie client-side
+            callback({
+              data: json.items || [],
+            });
+          },
+          error: function (xhr, error, thrown) {
+            console.error("Błąd pobierania danych:", error, thrown);
+            $("#waitingdots").hide();
+            callback({ data: [] });
+          },
+        });
       },
 
       columns: [
