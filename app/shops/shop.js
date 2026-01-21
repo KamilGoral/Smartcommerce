@@ -1170,7 +1170,17 @@ whenReadyAndDataTables(function () {
       },
 
       drawCallback: function (settings) {
-        toggleEmptyState();
+        var api = this.api();
+
+        // Toggle empty state
+        var hasEntries = api.data().any();
+        if (!hasEntries) {
+          $("#emptystatedeliveries").show();
+          $("#deliveriescontainer").hide();
+        } else {
+          $("#emptystatedeliveries").hide();
+          $("#deliveriescontainer").show();
+        }
 
         // Eventy dla przycisków "Przejdź"
         $(".go-to-order")
@@ -1189,24 +1199,13 @@ whenReadyAndDataTables(function () {
             e.preventDefault();
             const uuid = $(this).data("uuid");
             const name = decodeURIComponent($(this).data("name"));
-            handleDeleteDelivery(uuid, name, tableDeliveries);
+            handleDeleteDelivery(uuid, name, api);
           });
       },
     });
 
-    function toggleEmptyState() {
-      var hasEntries = tableDeliveries.data().any();
-      if (!hasEntries) {
-        $("#emptystatedeliveries").show();
-        $("#deliveriescontainer").hide();
-      } else {
-        $("#emptystatedeliveries").hide();
-        $("#deliveriescontainer").show();
-      }
-    }
-
     // Funkcja obsługi usuwania
-    function handleDeleteDelivery(uuid, name, table) {
+    function handleDeleteDelivery(uuid, name, api) {
       if (
         confirm(
           'Czy na pewno chcesz usunąć dostawę "' +
@@ -1227,7 +1226,7 @@ whenReadyAndDataTables(function () {
         },
         success: function() {
           // Po udanym usunięciu - odśwież tabelę
-          table.ajax.reload();
+          api.ajax.reload();
         },
         error: function(xhr, status, error) {
           alert("Błąd podczas usuwania: " + error);
