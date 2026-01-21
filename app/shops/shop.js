@@ -1062,7 +1062,7 @@ whenReadyAndDataTables(function () {
                 author
                   ? `
                 <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280;">
-                  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" style="width:12px;height:12px;opacity:0.7;">
+                  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" style="width:12px;height:12px;">
                   <span>${author}</span>
                 </div>
               `
@@ -1108,7 +1108,7 @@ whenReadyAndDataTables(function () {
                 author
                   ? `
                 <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280;">
-                  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" style="width:12px;height:12px;opacity:0.7;">
+                  <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d463e9ce9fb54c6dfda04_person-circle.svg" alt="" style="width:12px;height:12px;">
                   <span>${author}</span>
                 </div>
               `
@@ -1166,7 +1166,7 @@ whenReadyAndDataTables(function () {
                   class="delete-delivery" 
                   data-uuid="${row.uuid}"
                   data-name="${deliveryName}"
-                  style="cursor:pointer;width:18px;height:18px;opacity:0.7;"
+                  style="cursor:pointer;width:18px;height:18px;"
                 />
               </div>`;
             }
