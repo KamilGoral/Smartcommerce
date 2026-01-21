@@ -878,11 +878,16 @@ whenReadyAndDataTables(function () {
 
     var tableDeliveries = $("#table_deliveries").DataTable({
       pagingType: "full_numbers",
-      order: [[3, "desc"]], // Sortowanie po dacie utworzenia
+      order: [[4, "desc"]], // Sortowanie po dacie utworzenia
       dom: '<"top"<"deliveries-filters"<"filter-search"f><"filter-supplier">>>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
+
+      // WYŁĄCZAMY SERVER-SIDE - wszystko client-side
+      serverSide: false,
+      processing: true,
+
       language: {
         emptyTable: "Brak danych do wyświetlenia",
         info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
@@ -904,64 +909,31 @@ whenReadyAndDataTables(function () {
           sortDescending: ": Sortowanie malejące",
         },
       },
-      ajax: function (data, callback, settings) {
-        $.ajaxSetup({
-          headers: {
-            Authorization: orgToken,
-            "Requested-By": "webflow-3-4",
-          },
-          beforeSend: function () {
-            $("#waitingdots").show();
-          },
-          complete: function () {
-            $("#waitingdots").hide();
-          },
-        });
 
-        var whichColumns = "created.at:";
-        var direction = "desc";
-
-        if (data.order.length > 0) {
-          var columnIndex = data.order[0]["column"];
-          direction = data.order[0]["dir"];
-
-          // Mapowanie kolumn do pól API
-          switch (columnIndex) {
-            case 3: // Utworzono
-              whichColumns = "created.at:";
-              break;
-            case 4: // Zmodyfikowano
-              whichColumns = "modified.at:";
-              break;
-            default:
-              whichColumns = "created.at:";
-          }
-        }
-
-        var sort = "" + whichColumns + direction;
-
-        $.get(
-          InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
-          {
-            sort: sort,
-            perPage: data.length,
-            page: (data.start + data.length) / data.length,
-          },
-          function (res) {
-            callback({
-              recordsTotal: res.total,
-              recordsFiltered: res.total,
-              data: res.items,
-            });
-          },
-        );
+      // Pobieramy WSZYSTKIE dane jednorazowo
+      ajax: {
+        url: InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+        dataSrc: function (json) {
+          // Zwracamy wszystkie items - DataTables obsłuży resztę client-side
+          return json.items || [];
+        },
       },
-      processing: true,
-      serverSide: true,
+
       columns: [
         // Kolumna 0: Ikona dokumentu
         {
           orderable: false,
+          searchable: false,
           data: null,
           width: "36px",
           defaultContent:
@@ -971,6 +943,7 @@ whenReadyAndDataTables(function () {
         {
           orderable: false,
           visible: false,
+          searchable: false,
           data: "uuid",
           render: function (data) {
             return data ? data : "";
@@ -978,20 +951,24 @@ whenReadyAndDataTables(function () {
         },
         // Kolumna 2: Dostawca
         {
-          orderable: false,
-          visible: true,
+          orderable: true,
+          searchable: true,
           data: "wholesalerKey",
-          render: function (data) {
+          render: function (data, type) {
             if (!data) return "";
-            return (
-              data.charAt(0).toUpperCase() + data.slice(1).replace(/-/g, " ")
-            );
+            const formatted =
+              data.charAt(0).toUpperCase() + data.slice(1).replace(/-/g, " ");
+            // Dla filtrowania i sortowania zwracamy oryginalną wartość
+            if (type === "filter" || type === "sort") {
+              return formatted.toLowerCase();
+            }
+            return formatted;
           },
         },
         // Kolumna 3: Nazwa (nazwa + plik źródłowy)
         {
-          orderable: false,
-          visible: true,
+          orderable: true,
+          searchable: true,
           data: null,
           render: function (data, type, row) {
             const name = row.name ? row.name : "";
@@ -1004,13 +981,14 @@ whenReadyAndDataTables(function () {
                       <div class="cell-secondary">${sourceFileName}</div>
                     </div>`;
             }
-            // Dla wyszukiwania i sortowania zwróć połączony tekst
-            return name + " " + sourceFileName;
+            // Dla wyszukiwania i sortowania
+            return (name + " " + sourceFileName).toLowerCase();
           },
         },
         // Kolumna 4: Utworzono (data + autor)
         {
           orderable: true,
+          searchable: true,
           data: "created",
           render: function (data, type, row) {
             if (!data || !data.at) return "";
@@ -1033,13 +1011,18 @@ whenReadyAndDataTables(function () {
                       <div class="cell-secondary">${author}</div>
                     </div>`;
             }
-            // Dla wyszukiwania i sortowania
-            return formattedDate + " " + author;
+            // Dla sortowania używamy timestamp
+            if (type === "sort") {
+              return utcDate.getTime();
+            }
+            // Dla wyszukiwania
+            return (formattedDate + " " + author).toLowerCase();
           },
         },
         // Kolumna 5: Zmodyfikowano (data + autor)
         {
           orderable: true,
+          searchable: true,
           data: "modified",
           render: function (data, type, row) {
             if (!data || !data.at) return "";
@@ -1062,12 +1045,18 @@ whenReadyAndDataTables(function () {
                       <div class="cell-secondary">${author}</div>
                     </div>`;
             }
-            return formattedDate + " " + author;
+            // Dla sortowania używamy timestamp
+            if (type === "sort") {
+              return utcDate.getTime();
+            }
+            // Dla wyszukiwania
+            return (formattedDate + " " + author).toLowerCase();
           },
         },
         // Kolumna 6: Status z badge
         {
-          orderable: false,
+          orderable: true,
+          searchable: true,
           data: "status",
           render: function (data, type, row) {
             if (!data) return "";
@@ -1080,12 +1069,14 @@ whenReadyAndDataTables(function () {
             if (type === "display") {
               return `<span class="status-badge ${statusInfo.class}">${statusInfo.label}</span>`;
             }
-            return statusInfo.label;
+            // Dla wyszukiwania i sortowania używamy polskiej nazwy
+            return statusInfo.label.toLowerCase();
           },
         },
         // Kolumna 7: Akcje (Przejdź + Kosz)
         {
           orderable: false,
+          searchable: false,
           data: null,
           width: "120px",
           render: function (data, type, row) {
@@ -1112,6 +1103,7 @@ whenReadyAndDataTables(function () {
           defaultContent: "",
         },
       ],
+
       initComplete: function (settings, json) {
         var api = this.api();
 
@@ -1127,45 +1119,49 @@ whenReadyAndDataTables(function () {
         $(".filter-supplier").html(supplierFilter);
 
         // Pobierz unikalne wartości dostawców i uzupełnij dropdown
+        var uniqueSuppliers = [];
         api
           .column(2)
           .data()
-          .unique()
-          .sort()
           .each(function (d) {
-            if (d) {
-              var displayName =
-                d.charAt(0).toUpperCase() + d.slice(1).replace(/-/g, " ");
-              $("#supplierFilter").append(
-                '<option value="' + d + '">' + displayName + "</option>",
-              );
+            if (d && uniqueSuppliers.indexOf(d) === -1) {
+              uniqueSuppliers.push(d);
             }
           });
 
-        // Filtrowanie po dostawcy
+        uniqueSuppliers.sort().forEach(function (d) {
+          var displayName =
+            d.charAt(0).toUpperCase() + d.slice(1).replace(/-/g, " ");
+          $("#supplierFilter").append(
+            '<option value="' +
+              displayName.toLowerCase() +
+              '">' +
+              displayName +
+              "</option>",
+          );
+        });
+
+        // Filtrowanie po dostawcy (client-side)
         $("#supplierFilter").on("change", function () {
           var val = $(this).val();
+          // Używamy regex do dokładnego dopasowania
           api
             .column(2)
             .search(val ? "^" + val + "$" : "", true, false)
             .draw();
         });
 
-        // Konfiguracja wyszukiwarki
+        // Wyszukiwarka - natychmiastowe wyszukiwanie (client-side)
         var textBox = $("#table_deliveries_filter label input");
         textBox.attr("placeholder", "Szukaj we wszystkich kolumnach...");
+
+        // Usuwamy domyślne bindowanie i dodajemy własne z natychmiastowym wyszukiwaniem
         textBox.unbind();
         textBox.bind("keyup input", function (e) {
-          if (
-            (e.keyCode == 8 && !textBox.val()) ||
-            (e.keyCode == 46 && !textBox.val())
-          ) {
-            // Backspace lub Delete przy pustym polu
-          } else if (e.keyCode == 13 || !textBox.val()) {
-            api.search(this.value).draw();
-          }
+          api.search(this.value).draw();
         });
       },
+
       drawCallback: function (settings) {
         toggleEmptyState();
 
@@ -1186,7 +1182,7 @@ whenReadyAndDataTables(function () {
             e.preventDefault();
             const uuid = $(this).data("uuid");
             const name = decodeURIComponent($(this).data("name"));
-            handleDeleteDelivery(uuid, name);
+            handleDeleteDelivery(uuid, name, tableDeliveries);
           });
       },
     });
@@ -1202,22 +1198,40 @@ whenReadyAndDataTables(function () {
       }
     }
 
-    // Funkcja obsługi usuwania (do zaimplementowania)
-    function handleDeleteDelivery(uuid, name) {
-      if (confirm('Czy na pewno chcesz usunąć dostawę "' + name + '"?')) {
-        // Tu dodaj logikę usuwania
+    // Funkcja obsługi usuwania
+    function handleDeleteDelivery(uuid, name, table) {
+      if (
+        confirm(
+          'Czy na pewno chcesz usunąć dostawę "' +
+            decodeURIComponent(name) +
+            '"?',
+        )
+      ) {
         console.log("Usuwanie dostawy:", uuid, name);
-        // Przykład wywołania API:
-        // $.ajax({
-        //   url: InvokeURL + "/van/transactions/" + uuid,
-        //   method: "DELETE",
-        //   headers: { Authorization: orgToken },
-        //   success: function() {
-        //     tableDeliveries.ajax.reload();
-        //   }
-        // });
+
+        // Przykład wywołania API do usunięcia:
+        /*
+      $.ajax({
+        url: InvokeURL + "/van/transactions/" + uuid,
+        method: "DELETE",
+        headers: { 
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4"
+        },
+        success: function() {
+          // Po udanym usunięciu - odśwież tabelę
+          table.ajax.reload();
+        },
+        error: function(xhr, status, error) {
+          alert("Błąd podczas usuwania: " + error);
+        }
+      });
+      */
       }
     }
+
+    // Zwracamy referencję do tabeli, jeśli potrzebna
+    return tableDeliveries;
   }
 
   $("#table_pricelists_list").on(
