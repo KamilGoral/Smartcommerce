@@ -825,7 +825,7 @@ whenReadyAndDataTables(function () {
       ],
       initComplete: function (settings, json) {
         var api = this.api();
-        var textBox = $("#table_offers_filter label input");
+        var textBox = $("#table_orders_filter label input");
         textBox.unbind();
         textBox.bind("keyup input", function (e) {
           if (
@@ -867,13 +867,15 @@ whenReadyAndDataTables(function () {
   }
 
   function getDeliveries() {
-    // Mapowanie statusów na polski z klasami badge
+    // Mapowanie statusów na polski z klasami (jak w drugiej tabeli)
     const statusMap = {
-      committed: { label: "Zatwierdzony", class: "badge-success" },
-      draft: { label: "Wersja robocza", class: "badge-warning" },
-      pending: { label: "Oczekujący", class: "badge-info" },
-      cancelled: { label: "Anulowany", class: "badge-danger" },
-      processing: { label: "W trakcie", class: "badge-primary" },
+      committed: { label: "Zatwierdzony", class: "positive" },
+      draft: { label: "Wersja robocza", class: "medium" },
+      pending: { label: "Oczekujący", class: "medium" },
+      cancelled: { label: "Anulowany", class: "negative" },
+      processing: { label: "W trakcie", class: "medium" },
+      error: { label: "Błąd", class: "bad" },
+      completed: { label: "Zakończony", class: "super" },
     };
 
     var tableDeliveries = $("#table_deliveries").DataTable({
@@ -962,14 +964,14 @@ whenReadyAndDataTables(function () {
           searchable: true,
           data: "wholesalerKey",
           render: function (data, type) {
-            if (!data) return "";
+            if (!data)
+              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
             const formatted =
               data.charAt(0).toUpperCase() + data.slice(1).replace(/-/g, " ");
-            // Dla filtrowania i sortowania zwracamy oryginalną wartość
             if (type === "filter" || type === "sort") {
               return formatted.toLowerCase();
             }
-            return formatted;
+            return `<span style="background:#f3f4f6;border-radius:4px;padding:2px 6px;font-weight:500;">${formatted}</span>`;
           },
         },
         // Kolumna 3: Nazwa (nazwa + plik źródłowy)
@@ -982,14 +984,44 @@ whenReadyAndDataTables(function () {
             const sourceFileName =
               row.sourceFile && row.sourceFile.name ? row.sourceFile.name : "";
 
-            if (type === "display") {
-              return `<div class="cell-two-rows">
-                      <div class="cell-primary">${name}</div>
-                      <div class="cell-secondary">${sourceFileName}</div>
-                    </div>`;
+            if (type === "sort" || type === "type") {
+              return name;
             }
-            // Dla wyszukiwania i sortowania
-            return (name + " " + sourceFileName).toLowerCase();
+
+            if (type === "filter") {
+              return [name, sourceFileName].filter(Boolean).join(" ");
+            }
+
+            // Display
+            if (!name && !sourceFileName) {
+              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
+            }
+
+            const MAX_LEN_NO_TOOLTIP = 40;
+            const showTooltip = name.length > MAX_LEN_NO_TOOLTIP;
+            const escapedName = name.replace(/"/g, "&quot;");
+            const nameDivAttrs = showTooltip
+              ? `data-tippy-content="${escapedName}"`
+              : "";
+
+            return `
+            <div style="display:flex;flex-direction:column;line-height:1.3;max-width:300px;">
+              <div ${nameDivAttrs} style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">
+                ${escapedName}
+              </div>
+              ${
+                sourceFileName
+                  ? `
+                <div style="display:flex;gap:6px;margin-top:2px;font-size:11px;color:#6b7280;align-items:center;">
+                  <span style="background:#eef2ff;border-radius:4px;padding:2px 6px;font-family:monospace;">
+                    ${sourceFileName}
+                  </span>
+                </div>
+              `
+                  : ""
+              }
+            </div>
+          `;
           },
         },
         // Kolumna 4: Utworzono (data + autor)
@@ -998,7 +1030,8 @@ whenReadyAndDataTables(function () {
           searchable: true,
           data: "created",
           render: function (data, type, row) {
-            if (!data || !data.at) return "";
+            if (!data || !data.at)
+              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
             var utcDate = new Date(Date.parse(data.at));
             var formattedDate = utcDate.toLocaleString("pl-PL", {
@@ -1012,18 +1045,20 @@ whenReadyAndDataTables(function () {
             });
             var author = data.by ? data.by : "";
 
-            if (type === "display") {
-              return `<div class="cell-two-rows">
-                      <div class="cell-primary">${formattedDate}</div>
-                      <div class="cell-secondary">${author}</div>
-                    </div>`;
-            }
-            // Dla sortowania używamy timestamp
-            if (type === "sort") {
+            if (type === "sort" || type === "type") {
               return utcDate.getTime();
             }
-            // Dla wyszukiwania
-            return (formattedDate + " " + author).toLowerCase();
+
+            if (type === "filter") {
+              return (formattedDate + " " + author).toLowerCase();
+            }
+
+            return `
+            <div style="display:flex;flex-direction:column;line-height:1.3;">
+              <div style="font-weight:500;">${formattedDate}</div>
+              ${author ? `<div style="font-size:11px;color:#6b7280;">${author}</div>` : ""}
+            </div>
+          `;
           },
         },
         // Kolumna 5: Zmodyfikowano (data + autor)
@@ -1032,7 +1067,8 @@ whenReadyAndDataTables(function () {
           searchable: true,
           data: "modified",
           render: function (data, type, row) {
-            if (!data || !data.at) return "";
+            if (!data || !data.at)
+              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
             var utcDate = new Date(Date.parse(data.at));
             var formattedDate = utcDate.toLocaleString("pl-PL", {
@@ -1046,18 +1082,20 @@ whenReadyAndDataTables(function () {
             });
             var author = data.by ? data.by : "";
 
-            if (type === "display") {
-              return `<div class="cell-two-rows">
-                      <div class="cell-primary">${formattedDate}</div>
-                      <div class="cell-secondary">${author}</div>
-                    </div>`;
-            }
-            // Dla sortowania używamy timestamp
-            if (type === "sort") {
+            if (type === "sort" || type === "type") {
               return utcDate.getTime();
             }
-            // Dla wyszukiwania
-            return (formattedDate + " " + author).toLowerCase();
+
+            if (type === "filter") {
+              return (formattedDate + " " + author).toLowerCase();
+            }
+
+            return `
+            <div style="display:flex;flex-direction:column;line-height:1.3;">
+              <div style="font-weight:500;">${formattedDate}</div>
+              ${author ? `<div style="font-size:11px;color:#6b7280;">${author}</div>` : ""}
+            </div>
+          `;
           },
         },
         // Kolumna 6: Status z badge
@@ -1066,18 +1104,20 @@ whenReadyAndDataTables(function () {
           searchable: true,
           data: "status",
           render: function (data, type, row) {
-            if (!data) return "";
+            if (!data)
+              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
 
             const statusInfo = statusMap[data.toLowerCase()] || {
               label: data,
-              class: "badge-secondary",
+              class: "medium",
             };
 
-            if (type === "display") {
-              return `<span class="status-badge ${statusInfo.class}">${statusInfo.label}</span>`;
+            if (type === "sort" || type === "type" || type === "filter") {
+              return statusInfo.label.toLowerCase();
             }
-            // Dla wyszukiwania i sortowania używamy polskiej nazwy
-            return statusInfo.label.toLowerCase();
+
+            // Display - używamy klas jak w drugiej tabeli
+            return `<p class="${statusInfo.class} tippy" data-tippy-content="${data}">${statusInfo.label}</p>`;
           },
         },
         // Kolumna 7: Akcje (Przejdź + Kosz)
@@ -1085,25 +1125,38 @@ whenReadyAndDataTables(function () {
           orderable: false,
           searchable: false,
           data: null,
-          width: "120px",
+          width: "70px",
           render: function (data, type, row) {
             if (type === "display" && row.uuid) {
               let url = `https://${DomainName}/app/deliveries/delivery?deliveryId=${row.uuid}&shopKey=${shopKey}`;
               let deliveryName = row.name ? encodeURIComponent(row.name) : "";
-              return `<div class="action-container action-buttons">
-                      <a href="#" class="buttonoutline editme w-button go-to-order" 
-                        data-url="${url}" 
-                        data-name="${deliveryName}"
-                        title="Przejdź do szczegółów">
-                        Przejdź
-                      </a>
-                      <button class="btn-icon delete-delivery" 
-                        data-uuid="${row.uuid}" 
-                        data-name="${deliveryName}"
-                        title="Usuń dostawę">
-                        <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="usuń">
-                      </button>
-                    </div>`;
+
+              const goIcon = `
+              <img 
+                src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6240120504eebc8de2698a1f_panel.svg" 
+                alt="Przejdź" 
+                title="Przejdź do szczegółów" 
+                class="icon-go go-to-order" 
+                data-url="${url}"
+                data-name="${deliveryName}"
+                style="cursor:pointer;width:20px;height:20px;"
+              />`;
+
+              const deleteIcon = `
+              <img 
+                src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" 
+                alt="Usuń" 
+                title="Usuń dostawę" 
+                class="icon-delete delete-delivery" 
+                data-uuid="${row.uuid}"
+                data-name="${deliveryName}"
+                style="cursor:pointer;width:20px;height:20px;"
+              />`;
+
+              return `
+              <div style="text-align:left;display:flex;align-items:center;gap:6px;">
+                ${goIcon}${deleteIcon}
+              </div>`;
             }
             return "";
           },
@@ -1182,8 +1235,8 @@ whenReadyAndDataTables(function () {
           $("#deliveriescontainer").show();
         }
 
-        // Eventy dla przycisków "Przejdź"
-        $(".go-to-order")
+        // Eventy dla ikon "Przejdź"
+        $(".icon-go.go-to-order")
           .off("click")
           .on("click", function (e) {
             e.preventDefault();
@@ -1192,8 +1245,8 @@ whenReadyAndDataTables(function () {
             handleGoToOrder(url, orderName);
           });
 
-        // Eventy dla przycisków "Usuń"
-        $(".delete-delivery")
+        // Eventy dla ikon "Usuń"
+        $(".icon-delete.delete-delivery")
           .off("click")
           .on("click", function (e) {
             e.preventDefault();
@@ -1201,6 +1254,14 @@ whenReadyAndDataTables(function () {
             const name = decodeURIComponent($(this).data("name"));
             handleDeleteDelivery(uuid, name, api);
           });
+
+        // Inicjalizacja tippy dla tooltipów
+        if (typeof tippy !== "undefined") {
+          tippy("[data-tippy-content]", {
+            placement: "top",
+            arrow: true,
+          });
+        }
       },
     });
 
@@ -1214,25 +1275,6 @@ whenReadyAndDataTables(function () {
         )
       ) {
         console.log("Usuwanie dostawy:", uuid, name);
-
-        // Przykład wywołania API do usunięcia:
-        /*
-      $.ajax({
-        url: InvokeURL + "/van/transactions/" + uuid,
-        method: "DELETE",
-        headers: { 
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4"
-        },
-        success: function() {
-          // Po udanym usunięciu - odśwież tabelę
-          api.ajax.reload();
-        },
-        error: function(xhr, status, error) {
-          alert("Błąd podczas usuwania: " + error);
-        }
-      });
-      */
       }
     }
 
