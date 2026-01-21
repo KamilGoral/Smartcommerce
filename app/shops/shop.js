@@ -867,10 +867,19 @@ whenReadyAndDataTables(function () {
   }
 
   function getDeliveries() {
+    // Mapowanie statusów na polski z klasami badge
+    const statusMap = {
+      committed: { label: "Zatwierdzony", class: "badge-success" },
+      draft: { label: "Wersja robocza", class: "badge-warning" },
+      pending: { label: "Oczekujący", class: "badge-info" },
+      cancelled: { label: "Anulowany", class: "badge-danger" },
+      processing: { label: "W trakcie", class: "badge-primary" },
+    };
+
     var tableDeliveries = $("#table_deliveries").DataTable({
       pagingType: "full_numbers",
-      order: [[4, "desc"]], // Sortowanie po dacie utworzenia
-      dom: '<"top">rt<"bottom"lip>',
+      order: [[3, "desc"]], // Sortowanie po dacie utworzenia
+      dom: '<"top"<"deliveries-filters"<"filter-search"f><"filter-supplier">>>rt<"bottom"lip>',
       scrollY: "60vh",
       scrollCollapse: true,
       pageLength: 10,
@@ -880,8 +889,8 @@ whenReadyAndDataTables(function () {
         infoEmpty: "Brak danych",
         infoFiltered: "(z _MAX_ rezultatów)",
         lengthMenu: "Pokaż _MENU_ rekordów",
-        loadingRecords: "<div class='spinner'</div>",
-        processing: "<div class='spinner'</div>",
+        loadingRecords: "<div class='spinner'></div>",
+        processing: "<div class='spinner'></div>",
         search: "Szukaj:",
         zeroRecords: "Brak pasujących rezultatów",
         paginate: {
@@ -918,8 +927,11 @@ whenReadyAndDataTables(function () {
 
           // Mapowanie kolumn do pól API
           switch (columnIndex) {
-            case 4:
+            case 3: // Utworzono
               whichColumns = "created.at:";
+              break;
+            case 4: // Zmodyfikowano
+              whichColumns = "modified.at:";
               break;
             default:
               whichColumns = "created.at:";
@@ -936,8 +948,6 @@ whenReadyAndDataTables(function () {
             page: (data.start + data.length) / data.length,
           },
           function (res) {
-            // map your server's response to the DataTables format and pass it to
-            // DataTables' callback
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
@@ -947,21 +957,17 @@ whenReadyAndDataTables(function () {
         );
       },
       processing: true,
-      search: {
-        return: true,
-      },
       serverSide: true,
-      search: {
-        return: true,
-      },
       columns: [
+        // Kolumna 0: Ikona dokumentu
         {
           orderable: false,
           data: null,
           width: "36px",
           defaultContent:
-            "<div class='details-container'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='offer'></img></div>",
+            "<div class='details-container'><img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61b4c46d3af2140f11b2ea4b_document.svg' alt='dokument'></img></div>",
         },
+        // Kolumna 1: UUID (ukryta)
         {
           orderable: false,
           visible: false,
@@ -970,95 +976,191 @@ whenReadyAndDataTables(function () {
             return data ? data : "";
           },
         },
+        // Kolumna 2: Dostawca
         {
           orderable: false,
           visible: true,
           data: "wholesalerKey",
           render: function (data) {
             if (!data) return "";
-            return data.charAt(0).toUpperCase() + data.slice(1);
+            return (
+              data.charAt(0).toUpperCase() + data.slice(1).replace(/-/g, " ")
+            );
           },
         },
+        // Kolumna 3: Nazwa (nazwa + plik źródłowy)
         {
           orderable: false,
           visible: true,
-          data: "name",
-          render: function (data) {
-            return data ? data : "";
+          data: null,
+          render: function (data, type, row) {
+            const name = row.name ? row.name : "";
+            const sourceFileName =
+              row.sourceFile && row.sourceFile.name ? row.sourceFile.name : "";
+
+            if (type === "display") {
+              return `<div class="cell-two-rows">
+                      <div class="cell-primary">${name}</div>
+                      <div class="cell-secondary">${sourceFileName}</div>
+                    </div>`;
+            }
+            // Dla wyszukiwania i sortowania zwróć połączony tekst
+            return name + " " + sourceFileName;
           },
         },
+        // Kolumna 4: Utworzono (data + autor)
         {
           orderable: true,
           data: "created",
-          render: function (data) {
-            if (data.at) {
-              var utcDate = new Date(Date.parse(data.at));
-              var formattedDate = utcDate.toLocaleString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false,
-              });
-              return formattedDate;
+          render: function (data, type, row) {
+            if (!data || !data.at) return "";
+
+            var utcDate = new Date(Date.parse(data.at));
+            var formattedDate = utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+            var author = data.by ? data.by : "";
+
+            if (type === "display") {
+              return `<div class="cell-two-rows">
+                      <div class="cell-primary">${formattedDate}</div>
+                      <div class="cell-secondary">${author}</div>
+                    </div>`;
             }
-            return "";
+            // Dla wyszukiwania i sortowania
+            return formattedDate + " " + author;
           },
         },
+        // Kolumna 5: Zmodyfikowano (data + autor)
         {
-          orderable: false,
-          data: "created",
-          render: function (data) {
-            return data.by ? data.by : "";
+          orderable: true,
+          data: "modified",
+          render: function (data, type, row) {
+            if (!data || !data.at) return "";
+
+            var utcDate = new Date(Date.parse(data.at));
+            var formattedDate = utcDate.toLocaleString("pl-PL", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            });
+            var author = data.by ? data.by : "";
+
+            if (type === "display") {
+              return `<div class="cell-two-rows">
+                      <div class="cell-primary">${formattedDate}</div>
+                      <div class="cell-secondary">${author}</div>
+                    </div>`;
+            }
+            return formattedDate + " " + author;
           },
         },
+        // Kolumna 6: Status z badge
         {
           orderable: false,
           data: "status",
-          render: function (data) {
-            return data ? data : "";
+          render: function (data, type, row) {
+            if (!data) return "";
+
+            const statusInfo = statusMap[data.toLowerCase()] || {
+              label: data,
+              class: "badge-secondary",
+            };
+
+            if (type === "display") {
+              return `<span class="status-badge ${statusInfo.class}">${statusInfo.label}</span>`;
+            }
+            return statusInfo.label;
           },
         },
+        // Kolumna 7: Akcje (Przejdź + Kosz)
         {
           orderable: false,
           data: null,
-          width: "72px",
+          width: "120px",
           render: function (data, type, row) {
             if (type === "display" && row.uuid) {
               let url = `https://${DomainName}/app/deliveries/delivery?deliveryId=${row.uuid}&shopKey=${shopKey}`;
               let deliveryName = row.name ? encodeURIComponent(row.name) : "";
-              return `<div class="action-container">
+              return `<div class="action-container action-buttons">
                       <a href="#" class="buttonoutline editme w-button go-to-order" 
                         data-url="${url}" 
-                        data-name="${deliveryName}">
+                        data-name="${deliveryName}"
+                        title="Przejdź do szczegółów">
                         Przejdź
                       </a>
+                      <button class="btn-icon delete-delivery" 
+                        data-uuid="${row.uuid}" 
+                        data-name="${deliveryName}"
+                        title="Usuń dostawę">
+                        <img src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg" alt="usuń">
+                      </button>
                     </div>`;
             }
             return "";
           },
           defaultContent: "",
         },
-        {
-          orderable: false,
-          class: "details-control4",
-          width: "36px",
-          data: null,
-          defaultContent:
-            "<img src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg' alt='details'></img>",
-        },
       ],
       initComplete: function (settings, json) {
         var api = this.api();
+
+        // Dodaj filtr dostawcy
+        var supplierFilter = $(
+          '<div class="supplier-filter-wrapper">' +
+            '<label for="supplierFilter">Dostawca: </label>' +
+            '<select id="supplierFilter" class="form-control">' +
+            '<option value="">Wszyscy</option>' +
+            "</select>" +
+            "</div>",
+        );
+        $(".filter-supplier").html(supplierFilter);
+
+        // Pobierz unikalne wartości dostawców i uzupełnij dropdown
+        api
+          .column(2)
+          .data()
+          .unique()
+          .sort()
+          .each(function (d) {
+            if (d) {
+              var displayName =
+                d.charAt(0).toUpperCase() + d.slice(1).replace(/-/g, " ");
+              $("#supplierFilter").append(
+                '<option value="' + d + '">' + displayName + "</option>",
+              );
+            }
+          });
+
+        // Filtrowanie po dostawcy
+        $("#supplierFilter").on("change", function () {
+          var val = $(this).val();
+          api
+            .column(2)
+            .search(val ? "^" + val + "$" : "", true, false)
+            .draw();
+        });
+
+        // Konfiguracja wyszukiwarki
         var textBox = $("#table_deliveries_filter label input");
+        textBox.attr("placeholder", "Szukaj we wszystkich kolumnach...");
         textBox.unbind();
         textBox.bind("keyup input", function (e) {
           if (
             (e.keyCode == 8 && !textBox.val()) ||
             (e.keyCode == 46 && !textBox.val())
           ) {
+            // Backspace lub Delete przy pustym polu
           } else if (e.keyCode == 13 || !textBox.val()) {
             api.search(this.value).draw();
           }
@@ -1066,7 +1168,8 @@ whenReadyAndDataTables(function () {
       },
       drawCallback: function (settings) {
         toggleEmptyState();
-        // Dodaj eventy do przycisków "Przejdź"
+
+        // Eventy dla przycisków "Przejdź"
         $(".go-to-order")
           .off("click")
           .on("click", function (e) {
@@ -1075,20 +1178,44 @@ whenReadyAndDataTables(function () {
             const orderName = decodeURIComponent($(this).data("name"));
             handleGoToOrder(url, orderName);
           });
+
+        // Eventy dla przycisków "Usuń"
+        $(".delete-delivery")
+          .off("click")
+          .on("click", function (e) {
+            e.preventDefault();
+            const uuid = $(this).data("uuid");
+            const name = decodeURIComponent($(this).data("name"));
+            handleDeleteDelivery(uuid, name);
+          });
       },
     });
 
     function toggleEmptyState() {
-      // Check if the table has any entries
       var hasEntries = tableDeliveries.data().any();
-      // If the table is empty, show the custom empty state div
-      // Otherwise, hide it
       if (!hasEntries) {
         $("#emptystatedeliveries").show();
         $("#deliveriescontainer").hide();
       } else {
         $("#emptystatedeliveries").hide();
         $("#deliveriescontainer").show();
+      }
+    }
+
+    // Funkcja obsługi usuwania (do zaimplementowania)
+    function handleDeleteDelivery(uuid, name) {
+      if (confirm('Czy na pewno chcesz usunąć dostawę "' + name + '"?')) {
+        // Tu dodaj logikę usuwania
+        console.log("Usuwanie dostawy:", uuid, name);
+        // Przykład wywołania API:
+        // $.ajax({
+        //   url: InvokeURL + "/van/transactions/" + uuid,
+        //   method: "DELETE",
+        //   headers: { Authorization: orgToken },
+        //   success: function() {
+        //     tableDeliveries.ajax.reload();
+        //   }
+        // });
       }
     }
   }
