@@ -913,11 +913,10 @@ whenReadyAndDataTables(function () {
       // Pobieramy WSZYSTKIE dane jednorazowo
       ajax: {
         url: InvokeURL + "/van/transactions?type=RECADV&shopKey=" + shopKey,
-        headers: {
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4",
-        },
-        beforeSend: function () {
+        type: "GET",
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader("Authorization", orgToken);
+          xhr.setRequestHeader("Requested-By", "webflow-3-4");
           $("#waitingdots").show();
         },
         complete: function () {
@@ -926,6 +925,10 @@ whenReadyAndDataTables(function () {
         dataSrc: function (json) {
           // Zwracamy wszystkie items - DataTables obsłuży resztę client-side
           return json.items || [];
+        },
+        error: function (xhr, error, thrown) {
+          console.error("Błąd pobierania danych:", error, thrown);
+          $("#waitingdots").hide();
         },
       },
 
