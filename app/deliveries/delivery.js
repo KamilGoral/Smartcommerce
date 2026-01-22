@@ -873,14 +873,16 @@ whenReadyAndDataTables(function () {
         {
           data: null,
           orderable: false,
-          width: "26px",
-          className: "expander-col",
-          render: function (data, type, row) {
+          defaultContent: "",
+          width: "20px",
+          createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
             const proposals = safeArr(row?.potentialMatches);
-            if (proposals.length > 1)
-              return `<span class="expander" title="Rozwiń propozycje">▾</span>`;
+            if (proposals.length > 1) {
+              $(cell).addClass("details-control");
+            }
             return "";
           },
+          orderable: false,
         },
         {
           data: null,
