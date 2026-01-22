@@ -804,13 +804,23 @@ whenReadyAndDataTables(function () {
     const email = _n(userEmail);
     if (!email) return null;
 
-    const novum = _decodeNovumMap();
-    const novumKey = novum[email];
-    if (novumKey) return [novumKey];
+    // Pobierz aktualną organizację
+    const currentOrganization = getCookie("OrganizationName");
 
-    const cz = _czestochowaShopKeys(email);
-    if (cz) return cz;
+    // NOVUM - filtruj tylko dla organizacji "Novum"
+    if (currentOrganization === "Novum") {
+      const novum = _decodeNovumMap();
+      const novumKey = novum[email];
+      if (novumKey) return [novumKey];
+    }
 
+    // CZĘSTOCHOWA - filtruj tylko dla organizacji "Spolem" (lub jak się nazywa)
+    if (currentOrganization === "SpoPSSCzestochowalem") {
+      const cz = _czestochowaShopKeys(email);
+      if (cz) return cz;
+    }
+
+    // Dla wszystkich innych organizacji - pełny dostęp
     return null;
   }
 
