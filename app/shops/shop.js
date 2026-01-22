@@ -3923,6 +3923,7 @@ ${offerTimestampLine}
 
           // Create CSV header with new column names
           const newHeaders = [
+            "Kod",
             "Produkt",
             "Stan sklepu",
             "Cena sklepu",
@@ -3935,6 +3936,7 @@ ${offerTimestampLine}
 
           // Create new CSV rows with mapped data
           const newCsvRows = csvRows.map((row) => [
+            row["Kod"], // Kod
             row["Nazwa"], // Produkt
             row["Stan"], // Stan sklepu
             row["Cena detaliczna"], // Cena sklepu
