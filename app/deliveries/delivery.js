@@ -491,6 +491,8 @@ whenReadyAndDataTables(function () {
       ClientID,
   );
 
+  //tutaj kod
+
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
     const style = document.createElement("style");
@@ -546,5 +548,5 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  initializeSimpleTooltips;
+  initializeSimpleTooltips();
 });
