@@ -3925,12 +3925,8 @@ ${offerTimestampLine}
           const newHeaders = [
             "Kod",
             "Produkt",
-            "Stan sklepu",
-            "Cena sklepu",
             "Naj. Cena",
             "Naj. Dostawca",
-            "PR%",
-            "PE%",
             "Klasa",
           ];
 
@@ -3938,12 +3934,8 @@ ${offerTimestampLine}
           const newCsvRows = csvRows.map((row) => [
             row["Kod"], // Kod
             row["Nazwa"], // Produkt
-            row["Stan"], // Stan sklepu
-            row["Cena detaliczna"], // Cena sklepu
             row["Najlepsza cena netto"], // Naj. Cena
             row["Najlepszy dostawca"], // Naj. Dostawca
-            row["Premia rynkowa"], // PR%
-            row["Premia standardowa"], // PE%
             row["Klasa rotacji"], // Klasa
           ]);
 
