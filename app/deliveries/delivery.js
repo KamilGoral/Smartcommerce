@@ -816,15 +816,11 @@ whenReadyAndDataTables(function () {
       },
 
       processing: false,
-      serverSide: true,
+      serverSide: false,
       search: { return: true },
 
       ajax: function (data, callback) {
-        let QStr =
-          "?perPage=" +
-          data.length +
-          "&page=" +
-          (data.start + data.length) / data.length;
+        let QStr = "?perPage=1000";
 
         const searchBox = (data.search.value || "").trim();
         if (searchBox) {
@@ -832,16 +828,6 @@ whenReadyAndDataTables(function () {
             QStr += "&gtin=" + encodeURIComponent(searchBox);
           else QStr += "&name=like:" + encodeURIComponent(searchBox);
         }
-
-        // sort z DataTables → API (opcjonalnie)
-        let col = 0;
-        let dir = "asc";
-        if (data.order && data.order.length) {
-          col = data.order[0].column;
-          dir = data.order[0].dir;
-        }
-        if (col === 1) QStr += "&sort=name:" + dir;
-        if (col === 0) QStr += "&sort=gtin:" + dir;
 
         $.ajaxSetup({
           headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
@@ -926,7 +912,7 @@ whenReadyAndDataTables(function () {
         },
         {
           data: null,
-          orderable: false,
+          orderable: true,
           className: "text-right",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProduct);
@@ -939,7 +925,7 @@ whenReadyAndDataTables(function () {
         },
         {
           data: null,
-          orderable: false,
+          orderable: true,
           className: "text-right",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProduct);
@@ -952,7 +938,7 @@ whenReadyAndDataTables(function () {
         },
         {
           data: null,
-          orderable: false,
+          orderable: true,
           className: "text-right",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProduct);
@@ -971,7 +957,7 @@ whenReadyAndDataTables(function () {
         },
         {
           data: null,
-          orderable: false,
+          orderable: true,
           className: "text-right",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProduct);
@@ -995,7 +981,7 @@ whenReadyAndDataTables(function () {
         },
         {
           data: null,
-          orderable: false,
+          orderable: true,
           className: "doc-col",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProduct);
@@ -1003,6 +989,8 @@ whenReadyAndDataTables(function () {
 
             const orderId = linked?.[0]?.orderId;
             if (!orderId) return `<span class="muted">-</span>`;
+
+            if (type === "sort" || type === "type") return orderId;
 
             return `
             <div class="doc-wrap">
