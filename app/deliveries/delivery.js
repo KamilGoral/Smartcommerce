@@ -744,364 +744,356 @@ whenReadyAndDataTables(function () {
   `;
   }
 
-  // ---------- DataTables init ----------
-  var table_delivery = $("#table_delivery").DataTable({
-    pagingType: "full_numbers",
-    lengthMenu: [10, 25, 50, 100],
-    pageLength: 25,
-    order: [[9, "asc"]], // sort po Status (ukryty sortKey) – zrobimy to w renderze
-    dom: '<"top"fB>rt<"bottom"lip>',
-    scrollY: "70vh",
-    scrollCollapse: true,
-    autoWidth: false,
+  // globalnie (żeby mieć dostęp do instancji i móc ją odświeżać)
+  let deliveryTable = null;
 
-    buttons: [
-      {
-        text: '<span class="dt-btn">Rozwiń</span>',
-        titleAttr: "Rozwiń wszystkie (propozycje)",
-        action: function (e, dt) {
-          dt.rows().every(function () {
-            const row = this;
-            const data = row.data();
-            const proposals = safeArr(data?.potentialMatches);
-            if (proposals.length > 1 && !row.child.isShown()) {
-              row.child(renderChildProposals(data)).show();
-              $(row.node()).addClass("shown");
-            }
-          });
+  /**
+   * Init/Reset DataTables na #table_delivery dla konkretnego recadvId
+   * Wymaga: InvokeURL, orgToken
+   */
+  function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
+    // 1) jeśli już stoi – ubij i wyczyść
+    if ($.fn.DataTable.isDataTable("#table_delivery")) {
+      $("#table_delivery").DataTable().clear().destroy();
+      $("#table_delivery tbody").empty();
+    }
+
+    // 2) zdejmij poprzednie eventy (unikasz dubli)
+    $("#table_delivery tbody").off(".delivery");
+    $(document).off(".delivery");
+
+    // 3) inicjalizacja (tu wklejasz swoje DataTable(...) praktycznie 1:1)
+    deliveryTable = $("#table_delivery").DataTable({
+      pagingType: "full_numbers",
+      lengthMenu: [10, 25, 50, 100],
+      pageLength: 25,
+      order: [[9, "asc"]],
+      dom: '<"top"fB>rt<"bottom"lip>',
+      scrollY: "70vh",
+      scrollCollapse: true,
+      autoWidth: false,
+
+      buttons: [
+        {
+          text: '<span class="dt-btn">Rozwiń</span>',
+          titleAttr: "Rozwiń wszystkie (propozycje)",
+          action: function (e, dt) {
+            dt.rows().every(function () {
+              const row = this;
+              const data = row.data();
+              const proposals = safeArr(data?.potentialMatches);
+              if (proposals.length > 1 && !row.child.isShown()) {
+                row.child(renderChildProposals(data)).show();
+                $(row.node()).addClass("shown");
+              }
+            });
+          },
         },
+        {
+          text: '<span class="dt-btn">Zwiń</span>',
+          titleAttr: "Zwiń wszystkie",
+          action: function (e, dt) {
+            dt.rows().every(function () {
+              const row = this;
+              if (row.child.isShown()) {
+                row.child.hide();
+                $(row.node()).removeClass("shown");
+              }
+            });
+          },
+        },
+      ],
+
+      language: {
+        emptyTable: "Brak danych do wyświetlenia",
+        info: "Pokazuje _START_ - _END_ z _TOTAL_ pozycji",
+        infoEmpty: "Brak danych",
+        infoFiltered: "(z _MAX_ pozycji)",
+        lengthMenu: "Pokaż _MENU_ pozycji",
+        search: "Szukaj:",
+        zeroRecords: "Brak pasujących rezultatów",
+        paginate: { first: "<<", last: ">>", next: ">", previous: "<" },
       },
-      {
-        text: '<span class="dt-btn">Zwiń</span>',
-        titleAttr: "Zwiń wszystkie",
-        action: function (e, dt) {
-          dt.rows().every(function () {
-            const row = this;
-            if (row.child.isShown()) {
-              row.child.hide();
-              $(row.node()).removeClass("shown");
-            }
-          });
-        },
+
+      processing: false,
+      serverSide: true,
+      search: { return: true },
+
+      ajax: function (data, callback) {
+        let QStr =
+          "?perPage=" +
+          data.length +
+          "&page=" +
+          (data.start + data.length) / data.length;
+
+        const searchBox = (data.search.value || "").trim();
+        if (searchBox) {
+          if (/^\d+$/.test(searchBox))
+            QStr += "&gtin=" + encodeURIComponent(searchBox);
+          else QStr += "&name=like:" + encodeURIComponent(searchBox);
+        }
+
+        // sort z DataTables → API (opcjonalnie)
+        let col = 0;
+        let dir = "asc";
+        if (data.order && data.order.length) {
+          col = data.order[0].column;
+          dir = data.order[0].dir;
+        }
+        if (col === 1) QStr += "&sort=name:" + dir;
+        if (col === 0) QStr += "&sort=gtin:" + dir;
+
+        $.ajaxSetup({
+          headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+          beforeSend: function () {
+            $("#waitingdots").show();
+          },
+          complete: function () {
+            $("#waitingdots").hide();
+          },
+        });
+
+        $.get(
+          InvokeURL +
+            "van/recadvs/" +
+            encodeURIComponent(recadvId) +
+            "/products" +
+            QStr,
+          function (res) {
+            callback({
+              recordsTotal: res.total,
+              recordsFiltered: res.total,
+              data: res.items,
+            });
+          },
+        );
       },
-    ],
 
-    language: {
-      emptyTable: "Brak danych do wyświetlenia",
-      info: "Pokazuje _START_ - _END_ z _TOTAL_ pozycji",
-      infoEmpty: "Brak danych",
-      infoFiltered: "(z _MAX_ pozycji)",
-      lengthMenu: "Pokaż _MENU_ pozycji",
-      search: "Szukaj:",
-      zeroRecords: "Brak pasujących rezultatów",
-      paginate: { first: "<<", last: ">>", next: ">", previous: "<" },
-    },
-
-    processing: false,
-    serverSide: true,
-    search: { return: true },
-
-    ajax: function (data, callback) {
-      let QStr =
-        "?perPage=" +
-        data.length +
-        "&page=" +
-        (data.start + data.length) / data.length;
-
-      const searchBox = (data.search.value || "").trim();
-      if (searchBox) {
-        if (/^\d+$/.test(searchBox))
-          QStr += "&gtin=" + encodeURIComponent(searchBox);
-        else QStr += "&name=like:" + encodeURIComponent(searchBox);
-      }
-
-      // sort (tylko po name sensownie z API; status liczymy w UI)
-      let col = 0;
-      let dir = "asc";
-      if (data.order && data.order.length) {
-        col = data.order[0].column;
-        dir = data.order[0].dir;
-      }
-      if (col === 1) QStr += "&sort=name:" + dir;
-      if (col === 0) QStr += "&sort=gtin:" + dir;
-
-      $.ajaxSetup({
-        headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
-        beforeSend: function () {
-          $("#waitingdots").show();
+      columns: [
+        {
+          data: null,
+          orderable: false,
+          width: "26px",
+          className: "expander-col",
+          render: function (data, type, row) {
+            const proposals = safeArr(row?.potentialMatches);
+            if (proposals.length > 1)
+              return `<span class="expander" title="Rozwiń propozycje">▾</span>`;
+            return "";
+          },
         },
-        complete: function () {
-          $("#waitingdots").hide();
+        {
+          data: null,
+          orderable: true,
+          width: "420px",
+          render: function (data, type, row) {
+            const name = escapeHtml(row?.name || "-");
+            const gtin = escapeHtml(row?.gtin || "-");
+
+            if (type === "sort" || type === "type") return row?.name || "";
+            if (type === "filter")
+              return [row?.name, row?.gtin].filter(Boolean).join(" ");
+
+            return `
+            <div class="prod-cell">
+              <div class="prod-name">${name}</div>
+              <div class="prod-gtin">${gtin}</div>
+            </div>
+          `;
+          },
         },
+        {
+          data: "segments",
+          orderable: true,
+          className: "text-right",
+          render: function (segments, type) {
+            const q = sumQty(segments);
+            if (type === "sort" || type === "type") return q;
+            return q ? fmtQty(q) : `<span class="muted">-</span>`;
+          },
+        },
+        {
+          data: "segments",
+          orderable: true,
+          className: "text-right separator-right",
+          render: function (segments, type) {
+            const p = avgPriceWeighted(segments);
+            if (type === "sort" || type === "type") return p ?? -1;
+            return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
+          },
+        },
+        {
+          data: null,
+          orderable: false,
+          className: "text-right",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProduct);
+            if (!linked.length) return `<span class="muted">-</span>`;
+
+            const q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+            if (type === "sort" || type === "type") return q;
+            return q ? fmtQty(q) : `<span class="muted">-</span>`;
+          },
+        },
+        {
+          data: null,
+          orderable: false,
+          className: "text-right",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProduct);
+            if (!linked.length) return `<span class="muted">-</span>`;
+
+            const p = avgPriceWeighted(linked?.[0]?.segments);
+            if (type === "sort" || type === "type") return p ?? -1;
+            return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
+          },
+        },
+        {
+          data: null,
+          orderable: false,
+          className: "text-right",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProduct);
+            if (!linked.length) return `<span class="muted">-</span>`;
+
+            const deliveredQty = sumQty(row?.segments);
+            const orderedQty = linked.reduce(
+              (acc, p) => acc + sumQty(p?.segments),
+              0,
+            );
+            const diff = deliveredQty - orderedQty;
+
+            if (type === "sort" || type === "type") return diff;
+            return diffSpanNumber(diff);
+          },
+        },
+        {
+          data: null,
+          orderable: false,
+          className: "text-right",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProduct);
+            if (!linked.length) return `<span class="muted">-</span>`;
+
+            const deliveredValue = valueTotal(row?.segments);
+
+            const orderedQty = linked.reduce(
+              (acc, p) => acc + sumQty(p?.segments),
+              0,
+            );
+            const orderedPrice = avgPriceWeighted(linked?.[0]?.segments);
+            const orderedValue =
+              orderedPrice === null ? 0 : orderedQty * orderedPrice;
+
+            const diff = deliveredValue - orderedValue;
+
+            if (type === "sort" || type === "type") return diff;
+            return diffSpanMoney(diff);
+          },
+        },
+        {
+          data: null,
+          orderable: false,
+          className: "doc-col",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProduct);
+            if (!linked.length) return `<span class="muted">-</span>`;
+
+            const orderId = linked?.[0]?.orderId;
+            if (!orderId) return `<span class="muted">-</span>`;
+
+            return `
+            <div class="doc-wrap">
+              <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">
+                ${escapeHtml(orderId)}
+              </a>
+            </div>
+          `;
+          },
+        },
+        {
+          data: null,
+          orderable: true,
+          className: "status-col",
+          render: function (data, type, row) {
+            const st = computeRowState(row);
+            if (type === "sort" || type === "type") return st.sort;
+            return `<span class="${st.badge}">${st.label}</span>`;
+          },
+        },
+        {
+          data: null,
+          orderable: false,
+          className: "actions-col",
+          width: "120px",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProduct);
+            if (!linked.length) return ""; // Połącz jest w child
+
+            const linkedId = linked?.[0]?.id;
+            return `
+            <button
+              class="btn btn-outline btn-sm unlink-btn"
+              data-product-id="${row?.id}"
+              data-linked-id="${linkedId}"
+              title="Rozłącz powiązanie"
+            >
+              Rozłącz
+            </button>
+          `;
+          },
+        },
+      ],
+    });
+
+    // 4) eventy po init – z namespace ".delivery"
+    $("#table_delivery_filter label input")
+      .off(".delivery")
+      .on("keyup.delivery input.delivery", function (e) {
+        if (e.keyCode === 13) deliveryTable.search(this.value).draw();
       });
 
-      $.get(
-        InvokeURL +
-          "van/recadvs/" +
-          encodeURIComponent(recadvId) +
-          "/products" +
-          QStr,
-        function (res) {
-          callback({
-            recordsTotal: res.total,
-            recordsFiltered: res.total,
-            data: res.items,
-          });
-        },
-      );
-    },
+    $("#table_delivery tbody").on(
+      "click.delivery",
+      "td.expander-col .expander",
+      function (e) {
+        e.preventDefault();
+        const tr = $(this).closest("tr");
+        const row = deliveryTable.row(tr);
+        const data = row.data();
+        const proposals = safeArr(data?.potentialMatches);
+        if (proposals.length <= 1) return;
 
-    columns: [
-      // 0: expand icon (jak na screenie)
-      {
-        data: null,
-        orderable: false,
-        width: "26px",
-        className: "expander-col",
-        render: function (data, type, row) {
-          const proposals = safeArr(row?.potentialMatches);
-          if (proposals.length > 1) {
-            // caret jak w UI (zmień ikonę jak chcesz)
-            return `<span class="expander" title="Rozwiń propozycje">▾</span>`;
-          }
-          return "";
-        },
+        if (row.child.isShown()) {
+          row.child.hide();
+          tr.removeClass("shown");
+        } else {
+          row.child(renderChildProposals(data)).show();
+          tr.addClass("shown");
+        }
       },
+    );
 
-      // 1: Produkt (name + gtin)
-      {
-        data: null,
-        orderable: true,
-        width: "420px",
-        render: function (data, type, row) {
-          const name = escapeHtml(row?.name || "-");
-          const gtin = escapeHtml(row?.gtin || "-");
+    $(document).on("click.delivery", ".link-btn", function () {
+      const productId = $(this).data("product-id");
+      const matchId = $(this).data("match-id");
+      console.log("LINK", { productId, matchId });
 
-          if (type === "sort" || type === "type") return row?.name || "";
-          if (type === "filter")
-            return [row?.name, row?.gtin].filter(Boolean).join(" ");
+      // linkRecadvProduct(productId, matchId)
+      //   .then(() => deliveryTable.ajax.reload(null, false));
+    });
 
-          return `
-          <div class="prod-cell">
-            <div class="prod-name">${name}</div>
-            <div class="prod-gtin">${gtin}</div>
-          </div>
-        `;
-        },
-      },
+    $(document).on("click.delivery", ".unlink-btn", function () {
+      const productId = $(this).data("product-id");
+      const linkedId = $(this).data("linked-id");
+      console.log("UNLINK", { productId, linkedId });
 
-      // 2: Ilość (dostawa)
-      {
-        data: "segments",
-        orderable: true,
-        className: "text-right",
-        render: function (segments, type) {
-          const q = sumQty(segments);
-          if (type === "sort" || type === "type") return q;
-          return q ? fmtQty(q) : `<span class="muted">-</span>`;
-        },
-      },
+      // unlinkRecadvProduct(productId, linkedId)
+      //   .then(() => deliveryTable.ajax.reload(null, false));
+    });
 
-      // 3: Cena (dostawa avg) + separator-right
-      {
-        data: "segments",
-        orderable: true,
-        className: "text-right separator-right",
-        render: function (segments, type) {
-          const p = avgPriceWeighted(segments);
-          if (type === "sort" || type === "type") return p ?? -1;
-          return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
-        },
-      },
-
-      // 4: Ilość zam. (tylko jeśli linked; dla propozycji pokazujemy w child)
-      {
-        data: null,
-        orderable: false,
-        className: "text-right",
-        render: function (data, type, row) {
-          const st = computeRowState(row);
-          const linked = safeArr(row?.linkedOrderProduct);
-          if (!linked.length) return `<span class="muted">-</span>`;
-
-          const q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
-          if (type === "sort" || type === "type") return q;
-          return q ? fmtQty(q) : `<span class="muted">-</span>`;
-        },
-      },
-
-      // 5: Cena zam. (linked)
-      {
-        data: null,
-        orderable: false,
-        className: "text-right",
-        render: function (data, type, row) {
-          const linked = safeArr(row?.linkedOrderProduct);
-          if (!linked.length) return `<span class="muted">-</span>`;
-
-          const p = avgPriceWeighted(linked?.[0]?.segments);
-          if (type === "sort" || type === "type") return p ?? -1;
-          return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
-        },
-      },
-
-      // 6: Różnica il.
-      {
-        data: null,
-        orderable: false,
-        className: "text-right",
-        render: function (data, type, row) {
-          const linked = safeArr(row?.linkedOrderProduct);
-          if (!linked.length) return `<span class="muted">-</span>`;
-
-          const deliveredQty = sumQty(row?.segments);
-          const orderedQty = linked.reduce(
-            (acc, p) => acc + sumQty(p?.segments),
-            0,
-          );
-          const diff = deliveredQty - orderedQty;
-
-          if (type === "sort" || type === "type") return diff;
-          return diffSpanNumber(diff);
-        },
-      },
-
-      // 7: Różnica wartość
-      {
-        data: null,
-        orderable: false,
-        className: "text-right",
-        render: function (data, type, row) {
-          const linked = safeArr(row?.linkedOrderProduct);
-          if (!linked.length) return `<span class="muted">-</span>`;
-
-          const deliveredValue = valueTotal(row?.segments);
-
-          const orderedQty = linked.reduce(
-            (acc, p) => acc + sumQty(p?.segments),
-            0,
-          );
-          const orderedPrice = avgPriceWeighted(linked?.[0]?.segments);
-          const orderedValue =
-            orderedPrice === null ? 0 : orderedQty * orderedPrice;
-
-          const diff = deliveredValue - orderedValue;
-
-          if (type === "sort" || type === "type") return diff;
-          return diffSpanMoney(diff);
-        },
-      },
-
-      // 8: Dokument zam. (orderId + data jeśli masz)
-      {
-        data: null,
-        orderable: false,
-        className: "doc-col",
-        render: function (data, type, row) {
-          const linked = safeArr(row?.linkedOrderProduct);
-          if (!linked.length) return `<span class="muted">-</span>`;
-
-          const orderId = linked?.[0]?.orderId;
-          if (!orderId) return `<span class="muted">-</span>`;
-
-          // Jeśli masz datę dokumentu w payload, podepnij tu np. linked[0].orderDate
-          return `
-          <div class="doc-wrap">
-            <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">${escapeHtml(orderId)}</a>
-          </div>
-        `;
-        },
-      },
-
-      // 9: Status (render badge + w sort zwracamy sortKey)
-      {
-        data: null,
-        orderable: true,
-        className: "status-col",
-        render: function (data, type, row) {
-          const st = computeRowState(row);
-          if (type === "sort" || type === "type") return st.sort; // ważne: sortujemy po liczbie
-          return `<span class="${st.badge}">${st.label}</span>`;
-        },
-      },
-
-      // 10: Akcje (Rozłącz dla linked; Połącz tylko w child)
-      {
-        data: null,
-        orderable: false,
-        className: "actions-col",
-        width: "120px",
-        render: function (data, type, row) {
-          const linked = safeArr(row?.linkedOrderProduct);
-          if (!linked.length) return ""; // dla propozycji button jest w child row
-          const linkedId = linked?.[0]?.id;
-          return `
-          <button
-            class="btn btn-outline btn-sm unlink-btn"
-            data-product-id="${row?.id}"
-            data-linked-id="${linkedId}"
-            title="Rozłącz powiązanie"
-          >
-            Rozłącz
-          </button>
-        `;
-        },
-      },
-    ],
-
-    initComplete: function () {
-      const api = this.api();
-      const textBox = $("#table_delivery_filter label input");
-
-      // Enter-to-search
-      textBox.unbind();
-      textBox.bind("keyup input", function (e) {
-        if (e.keyCode === 13) api.search(this.value).draw();
-      });
-
-      // Expand/collapse
-      $("#table_delivery tbody").on(
-        "click",
-        "td.expander-col .expander",
-        function (e) {
-          e.preventDefault();
-          const tr = $(this).closest("tr");
-          const row = table_delivery.row(tr);
-          const data = row.data();
-          const proposals = safeArr(data?.potentialMatches);
-
-          if (proposals.length <= 1) return;
-
-          if (row.child.isShown()) {
-            row.child.hide();
-            tr.removeClass("shown");
-          } else {
-            row.child(renderChildProposals(data)).show();
-            tr.addClass("shown");
-          }
-        },
-      );
-
-      // Delegowane akcje: Połącz / Rozłącz
-      $(document).on("click", ".link-btn", function () {
-        const productId = $(this).data("product-id");
-        const matchId = $(this).data("match-id");
-
-        // TODO: podłącz swój endpoint "link"
-        // linkRecadvProduct(productId, matchId).then(()=> table_delivery.ajax.reload(null,false));
-        console.log("LINK", { productId, matchId });
-      });
-
-      $(document).on("click", ".unlink-btn", function () {
-        const productId = $(this).data("product-id");
-        const linkedId = $(this).data("linked-id");
-
-        // TODO: podłącz swój endpoint "unlink"
-        // unlinkRecadvProduct(productId, linkedId).then(()=> table_delivery.ajax.reload(null,false));
-        console.log("UNLINK", { productId, linkedId });
-      });
-    },
-  });
+    return deliveryTable;
+  }
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
@@ -1158,5 +1150,6 @@ whenReadyAndDataTables(function () {
     });
   }
 
+  initDeliveryTable({ recadvId, InvokeURL, orgToken });
   initializeSimpleTooltips();
 });
