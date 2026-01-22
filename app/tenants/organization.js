@@ -178,7 +178,7 @@ whenReadyAndDataTables(function () {
       "/app/tenants/organization?name=" +
       organizationName +
       "&clientId=" +
-      clientId
+      clientId,
   );
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
@@ -199,7 +199,7 @@ whenReadyAndDataTables(function () {
         if (existingUserAttributes) {
           const attributes = existingUserAttributes.split("|");
           const phoneNumberAttribute = attributes.find((attr) =>
-            attr.startsWith("phonenumber:")
+            attr.startsWith("phonenumber:"),
           );
           if (phoneNumberAttribute) {
             existingPhoneNumber = phoneNumberAttribute.split(":")[1];
@@ -264,7 +264,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -281,7 +281,7 @@ whenReadyAndDataTables(function () {
                 emailadressUser +
                 "|phonenumber:" +
                 phoneNumber,
-              720000
+              720000,
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
             const welcomeMessage = document.getElementById("welcomeMessage");
@@ -299,7 +299,7 @@ whenReadyAndDataTables(function () {
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
           },
@@ -345,7 +345,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -435,7 +435,7 @@ whenReadyAndDataTables(function () {
     ];
 
     const missing = cookiesToCheck.some(
-      (name) => !document.cookie.includes(`${name}=`)
+      (name) => !document.cookie.includes(`${name}=`),
     );
 
     if (missing) {
@@ -503,7 +503,7 @@ whenReadyAndDataTables(function () {
     changeOfStatus,
     wholesalerKey,
     onErrorCallback,
-    isVanMember
+    isVanMember,
   ) {
     console.log("starting Updating function");
     var form = $("#wf-form-WholesalerChangeStatusForm ");
@@ -544,7 +544,7 @@ whenReadyAndDataTables(function () {
             // show error (fail) block
             displayMessage(
               "Error",
-              "Nie udało się zmienić statusu. Spróbuj ponownie."
+              "Nie udało się zmienić statusu. Spróbuj ponownie.",
             );
             console.log(e);
             return;
@@ -657,14 +657,16 @@ whenReadyAndDataTables(function () {
     if (getCookie("sprytnyUserRole") === "admin") {
       displayMessage(
         "Error",
-        "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy."
+        "Prosimy o uregulowanie zaległych faktur przed dalszym korzystaniem z platformy.",
       );
       hideTabsExceptSettings();
       navigateToInvoiceRow();
+      hideTabsExceptSettings();
     } else {
+      hideTabsExceptSettings();
       displayMessage(
         "Error",
-        "Organizacja została zawieszona. Prosimy o kontakt z opiekunem Twojej organizacji."
+        "Organizacja została zawieszona. Prosimy o kontakt z opiekunem Twojej organizacji.",
       );
       setTimeout(() => {
         window.location = `https://${DomainName}/app/users/me`;
@@ -673,9 +675,11 @@ whenReadyAndDataTables(function () {
   }
 
   function hideTabsExceptSettings() {
-    const tabsToHide = ["Policy", "Integrations", "Documents"];
-    tabsToHide.forEach((tab) => $(`a[data-w-tab="${tab}"]`).hide());
-    $('a[data-w-tab="Settings"]').show();
+    $(document).ready(function () {
+      const tabsToHide = ["Shops", "Policy", "Integrations", "Documents"];
+      tabsToHide.forEach((tab) => $(`a[data-w-tab="${tab}"]`).hide());
+      $('a[data-w-tab="Settings"]').show();
+    });
   }
 
   $('.w-tab-link[data-w-tab="Tenant-Informations"]').on("click", function () {
@@ -743,74 +747,72 @@ whenReadyAndDataTables(function () {
     });
   }
 
+  function _n(email) {
+    return (email || "").trim().toLowerCase();
+  }
 
-function _n(email) {
-  return (email || "").trim().toLowerCase();
-}
+  const _NOVUM_B64 =
+    "YmllbGN6YUBza2xlcHlub3Z1bS5wbD1CSUVMQ1pBCmJyemVza29Ac2tsZXB5bm92dW0ucGw9QlJaRVNLTwp3b2xhLmRlYmluc2thQHNrbGVweW5vdnVtLnBsPURFQk5PCmtvYnlsZUBza2xlcHlub3Z1bS5wbD1LT0JZTEUKbGFza293YUBza2xlcHlub3Z1bS5wbD1MQVNLT1dBCmxla2lAc2tsZXB5bm92dW0ucGw9TEVLSQptdWNob3drYUBza2xlcHlub3Z1bS5wbD1NVUNIT1dLQQpva29jaW1Ac2tsZXB5bm92dW0ucGw9T0tPQ0lNCnBvcmFia2EuaXdrb3dza2FAc2tsZXB5bm92dW0ucGw9UE9SQUJLQUkKcHJ6eWJvcm93QHNrbGVweW5vdnVtLnBsPVBSWllCT1JPCnVzemV3QHNrbGVweW5vdnVtLnBsPVVTWkVXCnpha2xpY3p5bkBza2xlcHlub3Z1bS5wbD1aQUtMSUNaWQp6ZWdvY2luYUBza2xlcHlub3Z1bS5wbD1aRUdPQ0lOQQpwbGVzbmFAc2tsZXB5bm92dW0ucGw9UExFU05BCmdub2puaWtAc2tsZXB5bm92dW0ucGw9R05PSk5JSwp6bG90YUBza2xlcHlub3Z1bS5wbD1aTE9UQQpncm9zemVrLmtyb2xvd2thQG9wLnBsPVRPVEEKZ3Jvc3play53aXNuaWN6QG9wLnBsPVRPVEEK";
 
-const _NOVUM_B64 =
-  "YmllbGN6YUBza2xlcHlub3Z1bS5wbD1CSUVMQ1pBCmJyemVza29Ac2tsZXB5bm92dW0ucGw9QlJaRVNLTwp3b2xhLmRlYmluc2thQHNrbGVweW5vdnVtLnBsPURFQk5PCmtvYnlsZUBza2xlcHlub3Z1bS5wbD1LT0JZTEUKbGFza293YUBza2xlcHlub3Z1bS5wbD1MQVNLT1dBCmxla2lAc2tsZXB5bm92dW0ucGw9TEVLSQptdWNob3drYUBza2xlcHlub3Z1bS5wbD1NVUNIT1dLQQpva29jaW1Ac2tsZXB5bm92dW0ucGw9T0tPQ0lNCnBvcmFia2EuaXdrb3dza2FAc2tsZXB5bm92dW0ucGw9UE9SQUJLQUkKcHJ6eWJvcm93QHNrbGVweW5vdnVtLnBsPVBSWllCT1JPCnVzemV3QHNrbGVweW5vdnVtLnBsPVVTWkVXCnpha2xpY3p5bkBza2xlcHlub3Z1bS5wbD1aQUtMSUNaWQp6ZWdvY2luYUBza2xlcHlub3Z1bS5wbD1aRUdPQ0lOQQpwbGVzbmFAc2tsZXB5bm92dW0ucGw9UExFU05BCmdub2puaWtAc2tsZXB5bm92dW0ucGw9R05PSk5JSwp6bG90YUBza2xlcHlub3Z1bS5wbD1aTE9UQQpncm9zemVrLmtyb2xvd2thQG9wLnBsPVRPVEEKZ3Jvc3play53aXNuaWN6QG9wLnBsPVRPVEEK";
+  let _novumMapCache = null;
 
-let _novumMapCache = null;
+  function _decodeNovumMap() {
+    if (_novumMapCache) return _novumMapCache;
 
-function _decodeNovumMap() {
-  if (_novumMapCache) return _novumMapCache;
+    const raw = atob(_NOVUM_B64);
+    const m = Object.create(null);
 
-  const raw = atob(_NOVUM_B64);
-  const m = Object.create(null);
+    raw.split("\n").forEach((line) => {
+      const s = line.trim();
+      if (!s) return;
 
-  raw.split("\n").forEach((line) => {
-    const s = line.trim();
-    if (!s) return;
+      const idx = s.indexOf("=");
+      if (idx === -1) return;
 
-    const idx = s.indexOf("=");
-    if (idx === -1) return;
+      const email = _n(s.slice(0, idx));
+      const shopKey = s.slice(idx + 1).trim();
 
-    const email = _n(s.slice(0, idx));
-    const shopKey = s.slice(idx + 1).trim();
+      if (email && shopKey) m[email] = shopKey;
+    });
 
-    if (email && shopKey) m[email] = shopKey;
-  });
+    _novumMapCache = m;
+    return m;
+  }
 
-  _novumMapCache = m;
-  return m;
-}
+  function _czestochowaShopKeys(userEmail) {
+    const domain = "@spolem.czest.pl";
 
-function _czestochowaShopKeys(userEmail) {
-  const domain = "@spolem.czest.pl";
+    if (!userEmail.endsWith(domain)) {
+      return null;
+    }
 
-  if (!userEmail.endsWith(domain)) {
+    const prefix = userEmail.split("@")[0];
+
+    if (prefix === "megasam") return ["701"];
+    if (prefix === "sezam") return ["600"];
+
+    if (prefix.startsWith("sklep")) {
+      let num = prefix.slice(5);
+      num = num.padStart(3, "0");
+      return [num];
+    }
+
     return null;
   }
 
-  const prefix = userEmail.split("@")[0];
+  function getAllowedShopKeys(userEmail) {
+    const email = _n(userEmail);
+    if (!email) return null;
 
-  if (prefix === "megasam") return ["701"];
-  if (prefix === "sezam") return ["600"];
+    const novum = _decodeNovumMap();
+    const novumKey = novum[email];
+    if (novumKey) return [novumKey];
 
-  if (prefix.startsWith("sklep")) {
-    let num = prefix.slice(5);
-    num = num.padStart(3, "0");
-    return [num];
+    const cz = _czestochowaShopKeys(email);
+    if (cz) return cz;
+
+    return null;
   }
-
-  return null;
-}
-
-function getAllowedShopKeys(userEmail) {
-  const email = _n(userEmail);
-  if (!email) return null;
-
-  const novum = _decodeNovumMap();
-  const novumKey = novum[email];
-  if (novumKey) return [novumKey];
-
-  const cz = _czestochowaShopKeys(email);
-  if (cz) return cz;
-
-  return null;
-}
-
 
   function getShops() {
     let url = new URL(InvokeURL + "shops?perPage=50");
@@ -833,7 +835,7 @@ function getAllowedShopKeys(userEmail) {
 
         if (shopNumber > 0) {
           const deleteButton = document.getElementById(
-            "deleteOrganizationButton"
+            "deleteOrganizationButton",
           );
           deleteButton.disabled = true;
           deleteButton.style.opacity = "0.4";
@@ -1032,7 +1034,7 @@ function getAllowedShopKeys(userEmail) {
       v,
       currency = "PLN",
       locale = "pl-PL",
-      fallback = "—"
+      fallback = "—",
     ) => {
       const n = Number(v);
       if (!Number.isFinite(n)) return fallback;
@@ -1067,7 +1069,7 @@ function getAllowedShopKeys(userEmail) {
 
     if (!emptyEl || !listEl) {
       console.warn(
-        "Brak elementów #emptystateinvoices / #invoicesstateinvoices – przerwano render."
+        "Brak elementów #emptystateinvoices / #invoicesstateinvoices – przerwano render.",
       );
       return;
     }
@@ -1165,8 +1167,8 @@ function getAllowedShopKeys(userEmail) {
                       (c) =>
                         `<div style="margin-top: 5px; font-style: italic;"> - ${safeStr(
                           c?.number,
-                          "—"
-                        )}</div>`
+                          "—",
+                        )}</div>`,
                     )
                     .join("");
                   return `${mainContent}${corrective}`;
@@ -1197,8 +1199,8 @@ function getAllowedShopKeys(userEmail) {
                     .map(
                       (c) =>
                         `<div style="margin-top: 5px;">${mapBadge(
-                          safeStr(c?.status)
-                        )}</div>`
+                          safeStr(c?.status),
+                        )}</div>`,
                     )
                     .join("");
                   return `${main}${corrective}`;
@@ -1214,8 +1216,8 @@ function getAllowedShopKeys(userEmail) {
                     .map(
                       (c) =>
                         `<div style="margin-top: 5px; font-style: italic;">${safeDate(
-                          c?.paymentDueDate
-                        )}</div>`
+                          c?.paymentDueDate,
+                        )}</div>`,
                     )
                     .join("");
                   return `${main}${corrective}`;
@@ -1230,8 +1232,8 @@ function getAllowedShopKeys(userEmail) {
                     .map(
                       (c) =>
                         `<div style="margin-top: 5px; font-style: italic;">${safeMoney(
-                          c?.netTotal
-                        )}</div>`
+                          c?.netTotal,
+                        )}</div>`,
                     )
                     .join("");
                   return `${main}${corrective}`;
@@ -1248,7 +1250,7 @@ function getAllowedShopKeys(userEmail) {
                     !!safeStr(row?.paymentLink, "").trim();
                   const paymentLink = showPay
                     ? `<a href="${safeStr(
-                        row?.paymentLink
+                        row?.paymentLink,
                       )}" target="_blank" style="margin-left: 0.25rem;">
                        <span class="positive">Zapłać</span>
                      </a>`
@@ -1272,7 +1274,7 @@ function getAllowedShopKeys(userEmail) {
                         safeStr(c?.status) !== "paid" &&
                         !!safeStr(c?.paymentLink, "").trim()
                           ? `<a href="${safeStr(
-                              c?.paymentLink
+                              c?.paymentLink,
                             )}" target="_blank" style="margin-left: 0.25rem;">
                            <span class="positive">Zapłać</span>
                          </a>`
@@ -1280,19 +1282,19 @@ function getAllowedShopKeys(userEmail) {
                       return `
                       <div style="margin-top: 0.25rem;">
                         <a href="#" class="download-invoice" data-uuid="${safeStr(
-                          c?.uuid
+                          c?.uuid,
                         )}" data-tenant="${tenantNameSafe}" data-number="${safeStr(
-                        c?.number,
-                        "—"
-                      )}" data-document-type="regular">
+                          c?.number,
+                          "—",
+                        )}" data-document-type="regular">
                           <img style="margin-left: 0.25rem;" src='https://uploads-ssl.webflow.com/6041108bece36760b4e14016/61fd38da3517f633d69e2d58_pdf-FILE.svg' alt='Pobierz oryginał'>
                         </a>
                         <a href="#" class="download-invoice" data-uuid="${safeStr(
-                          c?.uuid
+                          c?.uuid,
                         )}" data-tenant="${tenantNameSafe}" data-number="${safeStr(
-                        c?.number,
-                        "—"
-                      )}" data-document-type="duplicate">
+                          c?.number,
+                          "—",
+                        )}" data-document-type="duplicate">
                           <span class="noneexisting" style="margin-left: 0.25rem;">Duplikat</span>
                         </a>
                         ${cPay}
@@ -1496,10 +1498,10 @@ function getAllowedShopKeys(userEmail) {
     function showDotForActiveTab() {
       setTimeout(function () {
         const isTab4Active = document.querySelector(
-          "#w-tabs-0-data-w-tab-4.w--current"
+          "#w-tabs-0-data-w-tab-4.w--current",
         );
         const isTab1Active = document.querySelector(
-          "#w-tabs-2-data-w-tab-1.w--current"
+          "#w-tabs-2-data-w-tab-1.w--current",
         );
         const nb1 = document.querySelector(".nb1");
         const nb2 = document.querySelector(".nb2");
@@ -1579,7 +1581,7 @@ function getAllowedShopKeys(userEmail) {
         $("#tenantAdressEdit2").val(safeStr(address.line2));
         $("#tenantPhoneEdit").val(safeStr(data.phones?.[0]?.phone));
         $("#tenantActivityKind").val(
-          safeStr(data.activityKind || "other_business")
+          safeStr(data.activityKind || "other_business"),
         );
       }
 
@@ -1598,7 +1600,7 @@ function getAllowedShopKeys(userEmail) {
       const $del = $id("deleteTenantDetails");
       if ($del)
         $del.innerHTML = `<strong>Kwota faktury do zapłacenia za bieżący okres wynosi ${money(
-          totalCost
+          totalCost,
         )}.</strong>`;
 
       // ---------- Specjalny cennik (pricing może być null) ----------
@@ -1631,14 +1633,14 @@ function getAllowedShopKeys(userEmail) {
             trialEndDateText = "Twój bezpłatny okres testowy kończy się jutro.";
           } else if (daysLeft > 30) {
             const fakeTrialEnd = new Date(
-              now.getTime() + 30 * 24 * 60 * 60 * 1000
+              now.getTime() + 30 * 24 * 60 * 60 * 1000,
             );
             trialEndDateText = `Twój bezpłatny okres testowy kończy się za 30 dni - ${fakeTrialEnd.toLocaleDateString(
-              "pl-PL"
+              "pl-PL",
             )}.`;
           } else {
             trialEndDateText = `Twój bezpłatny okres testowy kończy się za ${daysLeft} dni - ${trialEndDate.toLocaleDateString(
-              "pl-PL"
+              "pl-PL",
             )}.`;
           }
         }
@@ -1687,7 +1689,7 @@ function getAllowedShopKeys(userEmail) {
         data.emails.slice(0, 3).forEach((email, idx) => {
           $(`#tenantEmailEdit${idx + 1}`).val(safeStr(email?.email));
           $(`#tenantEmailEditDescription${idx + 1}`).val(
-            safeStr(email?.description)
+            safeStr(email?.description),
           );
         });
       }
@@ -1716,7 +1718,7 @@ function getAllowedShopKeys(userEmail) {
             break;
           case "forecastTotal":
             el.textContent = `Szacowana kwota faktury: ${money(
-              forecast.total ?? 0
+              forecast.total ?? 0,
             )}`;
             break;
           case "standard":
@@ -1728,7 +1730,7 @@ function getAllowedShopKeys(userEmail) {
           case "specialService":
             if (pricing?.specialService?.fee) {
               el.textContent = `${safeStr(
-                pricing.specialService.description
+                pricing.specialService.description,
               )} - ${money(pricing.specialService.fee)}/mies.`;
             } else {
               el.textContent = "N/A";
@@ -1784,7 +1786,7 @@ function getAllowedShopKeys(userEmail) {
       if (tenantActivityKind) {
         tenantActivityKind.addEventListener(
           "change",
-          toggleSelfEploymentContainer
+          toggleSelfEploymentContainer,
         );
         toggleSelfEploymentContainer();
       }
@@ -1793,7 +1795,7 @@ function getAllowedShopKeys(userEmail) {
     request.onerror = function () {
       console.error(
         "Error loading tenant billing info:",
-        request.statusText || "network error"
+        request.statusText || "network error",
       );
     };
 
@@ -1857,7 +1859,7 @@ function getAllowedShopKeys(userEmail) {
         } else if (allowedTaxIds.includes(currentTaxId)) {
           // Dla UB filtruj wszystkie rekordy UB
           toParse = toParse.filter((item) =>
-            allowedTaxIds.includes(item.taxId)
+            allowedTaxIds.includes(item.taxId),
           );
         } else if (organizationName === "Delko") {
           // Dla Delko filtruj tylko swoje rekordy
@@ -2130,7 +2132,7 @@ function getAllowedShopKeys(userEmail) {
           initComplete: function () {
             // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
             $(
-              'input[type="search"][aria-controls="table_wholesalers_list"]'
+              'input[type="search"][aria-controls="table_wholesalers_list"]',
             ).on("keyup", (e) => {
               this.api().search(e.target.value).draw();
             });
@@ -2240,7 +2242,7 @@ function getAllowedShopKeys(userEmail) {
           initComplete: function () {
             // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
             $(
-              'input[type="search"][aria-controls="table_wholesalers_list_bonus"]'
+              'input[type="search"][aria-controls="table_wholesalers_list_bonus"]',
             ).on("keyup", (e) => {
               this.api().search(e.target.value).draw();
             });
@@ -2268,7 +2270,7 @@ function getAllowedShopKeys(userEmail) {
                 true,
                 checkbox.getAttribute("wholesalerKey"),
                 onErrorCallback,
-                data.vanMember
+                data.vanMember,
               );
               // Add to the second table if enabled
               addToSecondTable(data);
@@ -2277,12 +2279,12 @@ function getAllowedShopKeys(userEmail) {
                 false,
                 checkbox.getAttribute("wholesalerKey"),
                 onErrorCallback,
-                data.vanMember
+                data.vanMember,
               );
               // Remove from the second table if disabled
               removeFromSecondTable(data.wholesalerKey);
             }
-          }
+          },
         );
 
         function addToSecondTable(data) {
@@ -2351,7 +2353,7 @@ function getAllowedShopKeys(userEmail) {
     .then((role) => {
       if (role === "admin") {
         const integrationsTab = document.querySelector(
-          "#w-tabs-0-data-w-tab-3"
+          "#w-tabs-0-data-w-tab-3",
         );
         if (integrationsTab) {
           console.log("Integration Tab");
@@ -2361,20 +2363,20 @@ function getAllowedShopKeys(userEmail) {
               // Bez kulek: kafle ładujemy od razu, testy startują w tle.
               getIntegrations();
             },
-            { once: true }
+            { once: true },
           );
         }
       }
 
       setTimeout(
         () => initializeSimpleTooltips && initializeSimpleTooltips(),
-        1000
+        1000,
       );
     })
     .catch((error) => {
       console.error(
         "Error while fetching user role or subsequent data:",
-        error
+        error,
       );
     });
 
@@ -2412,7 +2414,7 @@ function getAllowedShopKeys(userEmail) {
       // tooltipy po wyrenderowaniu kafli
       setTimeout(
         () => initializeSimpleTooltips && initializeSimpleTooltips(),
-        0
+        0,
       );
 
       window._integrationsLoaded = true;
@@ -2483,7 +2485,7 @@ function getAllowedShopKeys(userEmail) {
   function checkIntegrationStatus(integration, $integrationStatus) {
     $.ajax({
       url: new URL(
-        InvokeURL + "integrations/" + integration.integrationKey + "/test"
+        InvokeURL + "integrations/" + integration.integrationKey + "/test",
       ),
       type: "GET",
       headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
@@ -2492,7 +2494,7 @@ function getAllowedShopKeys(userEmail) {
         const s = (response && response.status) || "Failed";
         updateIntegrationStatus(
           $integrationStatus,
-          s === "Succeeded" ? "Succeeded" : "Failed"
+          s === "Succeeded" ? "Succeeded" : "Failed",
         );
       },
       error: (xhr) => {
@@ -2541,7 +2543,7 @@ function getAllowedShopKeys(userEmail) {
         {
           method: "POST",
           headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
-        }
+        },
       );
 
       if (!resp.ok) {
@@ -2685,7 +2687,7 @@ function getAllowedShopKeys(userEmail) {
             }
             displayMessage(
               "Success",
-              "Zaproszenie zostało wysłane. Możesz wysłać kolejne."
+              "Zaproszenie zostało wysłane. Możesz wysłać kolejne.",
             );
             emailInput.val("");
           },
@@ -2959,11 +2961,11 @@ function getAllowedShopKeys(userEmail) {
             const showEmptyState = isFirstRequest && res.total === 0;
             $("#emptystateexclusive").css(
               "display",
-              showEmptyState ? "flex" : "none"
+              showEmptyState ? "flex" : "none",
             );
             $("#fullstateexclusive").css(
               "display",
-              showEmptyState ? "none" : "flex"
+              showEmptyState ? "none" : "flex",
             );
 
             setTimeout(() => {
@@ -2989,7 +2991,7 @@ function getAllowedShopKeys(userEmail) {
                   /Field \[.*\] not supported for sorting/i.test(serverMsg)
                 ) {
                   const match = serverMsg.match(
-                    /Supported fields:\s*\[(.+)\]/i
+                    /Supported fields:\s*\[(.+)\]/i,
                   );
                   const supported = match
                     ? match[1].replace(/\s*http:\/\/\s*/g, "").trim()
@@ -3087,15 +3089,15 @@ function getAllowedShopKeys(userEmail) {
               Date.UTC(
                 now.getUTCFullYear(),
                 now.getUTCMonth(),
-                now.getUTCDate()
-              )
+                now.getUTCDate(),
+              ),
             );
             const endDateUTC = new Date(
               Date.UTC(
                 end.getUTCFullYear(),
                 end.getUTCMonth(),
-                end.getUTCDate()
-              )
+                end.getUTCDate(),
+              ),
             );
 
             const myendDate = endDateUTC.toLocaleDateString("pl-PL", {
@@ -3155,19 +3157,19 @@ function getAllowedShopKeys(userEmail) {
               "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/640442ed27be9b5e30c7dc31_edit.svg",
               "edit",
               false,
-              "Edytuj"
+              "Edytuj",
             );
             const plusIcon = ICON(
               "https://cdn.prod.website-files.com/6041108bece36760b4e14016/64c8d07d6149a13907618b26_icon_plus.svg",
               "create",
               false,
-              "Dodaj nową na podstawie"
+              "Dodaj nową na podstawie",
             );
             const deleteIcon = ICON(
               "https://uploads-ssl.webflow.com/6041108bece36760b4e14016/6404b6547ad4e00f24ccb7f6_trash.svg",
               "delete",
               false,
-              "Usuń"
+              "Usuń",
             );
 
             // --- ROBUST: wykrywamy BLOKADĘ także gdy wholesalerKey jest undefined
@@ -3181,7 +3183,7 @@ function getAllowedShopKeys(userEmail) {
               const d = new Date(v);
               if (isNaN(d.getTime())) return null;
               return new Date(
-                Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+                Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
               );
             };
 
@@ -3190,8 +3192,8 @@ function getAllowedShopKeys(userEmail) {
               Date.UTC(
                 now.getUTCFullYear(),
                 now.getUTCMonth(),
-                now.getUTCDate()
-              )
+                now.getUTCDate(),
+              ),
             );
             const start = row?.startDate ? new Date(row.startDate) : null;
             const endUTC = toUtcMidnight(row?.endDate);
@@ -3298,14 +3300,14 @@ function getAllowedShopKeys(userEmail) {
           label = `Ważny jeszcze ${diffDays} ${plural(
             diffDays,
             "dzień",
-            "dni"
+            "dni",
           )}`;
         } else if (diffDays > 0) {
           status = "Kończy się";
           label = `Kończy się za ${diffDays} ${plural(
             diffDays,
             "dzień",
-            "dni"
+            "dni",
           )}`;
         } else if (diffDays === 0) {
           status = "Kończy się";
@@ -3318,7 +3320,7 @@ function getAllowedShopKeys(userEmail) {
           label = `Skończył się ${Math.abs(diffDays)} ${plural(
             Math.abs(diffDays),
             "dzień",
-            "dni"
+            "dni",
           )} temu`;
         }
 
@@ -3327,10 +3329,10 @@ function getAllowedShopKeys(userEmail) {
           diffDays > 3
             ? "positive"
             : diffDays >= 0
-            ? "medium" // 0-3 dni
-            : diffDays >= -3
-            ? "negative"
-            : "negative";
+              ? "medium" // 0-3 dni
+              : diffDays >= -3
+                ? "negative"
+                : "negative";
 
         return {
           ...item,
@@ -3438,7 +3440,7 @@ function getAllowedShopKeys(userEmail) {
                   error: "Błąd",
                   waiting: "Oczekująca",
                   "in progress": "W trakcie",
-                }[s] || "Brak danych");
+                })[s] || "Brak danych";
 
               const statusClass =
                 {
@@ -3450,7 +3452,7 @@ function getAllowedShopKeys(userEmail) {
 
               if (data.length === 1) {
                 return `<span class="tippy" data-tippy-content="${translate(
-                  data[0].status
+                  data[0].status,
                 )}">${data[0].key}</span>`;
               }
 
@@ -3591,7 +3593,7 @@ function getAllowedShopKeys(userEmail) {
               recordsFiltered: res.total,
               data: res.items,
             });
-          }
+          },
         );
       },
       processing: true,
@@ -3765,7 +3767,7 @@ function getAllowedShopKeys(userEmail) {
             var data = tableDocuments.row($(this).parents("tr")).data();
             // Implement your edit functionality here
             console.log("Edit:", data);
-          }
+          },
         );
 
         $("#table_documents tbody").on(
@@ -3775,7 +3777,7 @@ function getAllowedShopKeys(userEmail) {
             var data = tableDocuments.row($(this).parents("tr")).data();
             // Implement your delete functionality here
             console.log("Delete:", data);
-          }
+          },
         );
 
         $("#table_documents tbody").on(
@@ -3787,7 +3789,7 @@ function getAllowedShopKeys(userEmail) {
             console.log("Download:", data);
             // Example: Redirect to the download URL
             window.location.href = `/download/${data.uuid}`;
-          }
+          },
         );
       },
     });
@@ -3811,7 +3813,7 @@ function getAllowedShopKeys(userEmail) {
 
       wholesalers.forEach(function (wholesaler) {
         $("#wholesalerPickerDocuments").append(
-          new Option(wholesaler, wholesaler)
+          new Option(wholesaler, wholesaler),
         );
       });
 
@@ -3846,7 +3848,7 @@ function getAllowedShopKeys(userEmail) {
     if (fileSize > 10 * 1024 * 1024) {
       $("#wrongfilemodal").css("display", "flex");
       $("#wrongfilemessage").text(
-        "Jeden z Twoich plików jest zbyt duży. Plik jest większy niż 10 MB"
+        "Jeden z Twoich plików jest zbyt duży. Plik jest większy niż 10 MB",
       );
       $("#addDocumentModal").css("display", "none");
       document.getElementById("documentfile").value = "";
@@ -3954,9 +3956,12 @@ function getAllowedShopKeys(userEmail) {
       var table = $("#table_pricelists_list").DataTable();
       var rowData = table.row($(this).closest("tr")).data();
       window.location.replace(
-        "https://" + DomainName + "/app/van/pricats/pricat?uuid=" + rowData.uuid
+        "https://" +
+          DomainName +
+          "/app/van/pricats/pricat?uuid=" +
+          rowData.uuid,
       );
-    }
+    },
   );
 
   $("#table_pricelists_list").on("click", "td.details-control4", function () {
@@ -4045,7 +4050,7 @@ function getAllowedShopKeys(userEmail) {
             form.show();
             displayMessage(
               "Success",
-              "Dostawca został zgłoszony. Możesz zgłosić kolejnego."
+              "Dostawca został zgłoszony. Możesz zgłosić kolejnego.",
             );
             $("#Wholesaler-Name").val("");
             $("#taxId").val("");
@@ -4069,7 +4074,7 @@ function getAllowedShopKeys(userEmail) {
   makeWebflowFormAjaxPatchTenantBilling = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
@@ -4122,7 +4127,7 @@ function getAllowedShopKeys(userEmail) {
                 success: function (resultData) {
                   displayMessage(
                     "Success",
-                    "Dane billingowe zostały zaktualizowane."
+                    "Dane billingowe zostały zaktualizowane.",
                   );
 
                   // Jeśli billing się udał i taxId zmieniony, wykonaj drugi PATCH na actionTwo
@@ -4148,13 +4153,13 @@ function getAllowedShopKeys(userEmail) {
                       success: function () {
                         displayMessage(
                           "Success",
-                          "Numer NIP został zaktualizowany."
+                          "Numer NIP został zaktualizowany.",
                         );
                       },
                       error: function () {
                         displayMessage(
                           "Error",
-                          "Nie udało się zaktualizować numeru NIP."
+                          "Nie udało się zaktualizować numeru NIP.",
                         );
                       },
                     });
@@ -4163,7 +4168,7 @@ function getAllowedShopKeys(userEmail) {
                 error: function () {
                   displayMessage(
                     "Error",
-                    "Nie udało się zaktualizować danych billingowych."
+                    "Nie udało się zaktualizować danych billingowych.",
                   );
                 },
               });
@@ -4174,7 +4179,7 @@ function getAllowedShopKeys(userEmail) {
           error: function () {
             displayMessage(
               "Error",
-              "Nie udało się pobrać aktualnych danych. Spróbuj ponownie."
+              "Nie udało się pobrać aktualnych danych. Spróbuj ponownie.",
             );
           },
         });
@@ -4649,7 +4654,7 @@ function getAllowedShopKeys(userEmail) {
           if (n >= 999999.99) {
             displayMessage(
               "Error",
-              "Próg ceny musi być mniejszy niż 999999.99."
+              "Próg ceny musi być mniejszy niż 999999.99.",
             );
             return false;
           }
@@ -4688,8 +4693,8 @@ function getAllowedShopKeys(userEmail) {
                   gtin: gtinNormalized,
                   name: escapedName,
                 },
-                thresholdNum !== null ? { priceThreshold: thresholdNum } : {}
-              )
+                thresholdNum !== null ? { priceThreshold: thresholdNum } : {},
+              ),
             );
           }
         }
@@ -4697,7 +4702,7 @@ function getAllowedShopKeys(userEmail) {
         if (invalids.length) {
           displayMessage(
             "Error",
-            "Nieprawidłowe GTIN-y:\n• " + invalids.join("\n• ")
+            "Nieprawidłowe GTIN-y:\n• " + invalids.join("\n• "),
           );
           return false;
         }
@@ -4746,7 +4751,7 @@ function getAllowedShopKeys(userEmail) {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Ups. Coś poszło nie tak, spróbuj ponownie."
+                  "Ups. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 return;
               }
@@ -4838,7 +4843,7 @@ function getAllowedShopKeys(userEmail) {
   makeWebflowFormAjaxSingleEdit = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     // --- helpery lokalne ---
     const dateOnlyUTC = (d) =>
@@ -4848,8 +4853,8 @@ function getAllowedShopKeys(userEmail) {
       const now = new Date();
       return dateOnlyUTC(
         new Date(
-          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-        )
+          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+        ),
       );
     };
 
@@ -5006,7 +5011,7 @@ function getAllowedShopKeys(userEmail) {
                 if (!isFinite(n) || n <= 0 || n >= 999999.99) {
                   displayMessage(
                     "Error",
-                    "Próg ceny musi być > 0 i < 999999.99."
+                    "Próg ceny musi być > 0 i < 999999.99.",
                   );
                   return false;
                 }
@@ -5040,7 +5045,7 @@ function getAllowedShopKeys(userEmail) {
               if (eOnly <= sOnly) {
                 displayMessage(
                   "Error",
-                  "Data zakończenia musi być późniejsza niż data rozpoczęcia."
+                  "Data zakończenia musi być późniejsza niż data rozpoczęcia.",
                 );
                 return;
               }
@@ -5072,7 +5077,7 @@ function getAllowedShopKeys(userEmail) {
                   if (!proceed) {
                     displayMessage(
                       "Error",
-                      "Ups. Coś poszło nie tak, spróbuj ponownie."
+                      "Ups. Coś poszło nie tak, spróbuj ponownie.",
                     );
                     return;
                   }
@@ -5100,7 +5105,7 @@ function getAllowedShopKeys(userEmail) {
                       "Data zakończenia musi być późniejsza niż rozpoczęcia.";
                   } else if (
                     /Change of startDate is not allowed for ongoing events/i.test(
-                      serverMsg
+                      serverMsg,
                     )
                   ) {
                     msg =
@@ -5146,7 +5151,7 @@ function getAllowedShopKeys(userEmail) {
   makeWebflowFormAjaxServerWh = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
@@ -5377,7 +5382,7 @@ function getAllowedShopKeys(userEmail) {
           },
         });
       }
-    }
+    },
   );
 
   function resetInputValue($input, value) {
@@ -5421,7 +5426,7 @@ function getAllowedShopKeys(userEmail) {
         const d = new Date(v);
         if (isNaN(d.getTime())) return null;
         return new Date(
-          Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+          Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
         );
       };
 
@@ -5469,7 +5474,7 @@ function getAllowedShopKeys(userEmail) {
         const applyNeverStateEdit = (checked) => {
           const $input = $("#NeverSingleEdit");
           const $visual = $(
-            "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox"
+            "#NeverSingle-Edit .w-checkbox-input, #NeverSingle-Edit .never-checkbox",
           );
           const $end = $("#endDate-Exclusive-Edit");
 
@@ -5543,7 +5548,7 @@ function getAllowedShopKeys(userEmail) {
 
         // Pola edytowalne w EDIT (poza Creator/Created)
         $(
-          "#GTINInputEdit, #WholesalerSelector-Exclusive-Edit, #priceThresholdInput-Edit"
+          "#GTINInputEdit, #WholesalerSelector-Exclusive-Edit, #priceThresholdInput-Edit",
         )
           .prop("disabled", false)
           .css("opacity", "1");
@@ -5599,7 +5604,7 @@ function getAllowedShopKeys(userEmail) {
         const applyNeverStateCreate = (checked) => {
           const $input = $("#NeverSingle");
           const $visual = $(
-            "#singleexclusivemodal .never-checkbox, #singleexclusivemodal .w-checkbox-input"
+            "#singleexclusivemodal .never-checkbox, #singleexclusivemodal .w-checkbox-input",
           );
           const $end = $("#endDate-Exclusive-2");
 
