@@ -475,10 +475,10 @@ whenReadyAndDataTables(function () {
     "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey,
   );
   var deliveryName = new URL(location.href).searchParams.get("deliveryName");
-  var deliveryId = new URL(location.href).searchParams.get("deliveryId");
+  const recadvId = new URL(location.href).searchParams.get("deliveryId");
 
   const deliveryBread = document.getElementById("DeliveryBread0");
-  deliveryBread.textContent = deliveryId;
+  deliveryBread.textContent = recadvId;
   const OrganizationBread0 = document.getElementById("OrganizationBread0");
   OrganizationBread0.textContent = OrganizationName;
   OrganizationBread0.setAttribute(
@@ -492,6 +492,616 @@ whenReadyAndDataTables(function () {
   );
 
   //tutaj kod
+
+  // ============================================
+  // DataTable: Delivery/RECADV view (jak screen)
+  // ============================================
+
+  // Wymagane globalnie:
+  /// const InvokeURL = ".../";  // np. https://...execute-api.../stage/
+  /// const orgToken = "...";
+  /// const recadvId = "...";
+
+  // ---------- helpers ----------
+  const fmtPLN = (n) => {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return "-";
+    return (
+      v.toLocaleString("pl-PL", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }) + " zł"
+    );
+  };
+  const fmtQty = (n) => {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return "-";
+    return String(v);
+  };
+  const safeArr = (x) => (Array.isArray(x) ? x : []);
+  const safeNum = (x) => (Number.isFinite(Number(x)) ? Number(x) : 0);
+
+  function sumQty(segments) {
+    return safeArr(segments).reduce((acc, s) => acc + safeNum(s?.quantity), 0);
+  }
+  function avgPriceWeighted(segments) {
+    const seg = safeArr(segments);
+    let q = 0,
+      v = 0;
+    seg.forEach((s) => {
+      const sq = safeNum(s?.quantity);
+      const sp = safeNum(s?.netPrice);
+      q += sq;
+      v += sq * sp;
+    });
+    return q > 0 ? v / q : null;
+  }
+  function valueTotal(segments) {
+    const q = sumQty(segments);
+    const p = avgPriceWeighted(segments);
+    if (p === null) return 0;
+    return q * p;
+  }
+  function uniq(arr) {
+    return [...new Set(safeArr(arr).filter(Boolean))];
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ---------- status logic ----------
+  function computeRowState(rec) {
+    // rec: produkt z RECADV
+    const deliveredQty = sumQty(rec?.segments);
+    const deliveredPrice = avgPriceWeighted(rec?.segments);
+
+    const linked = safeArr(rec?.linkedOrderProduct); // z API sample: linkedOrderProduct: []
+    const hasLinked = linked.length > 0;
+
+    const hasProposals = safeArr(rec?.potentialMatches).length > 0;
+    const isValid = rec?.valid === true;
+
+    if (!isValid) {
+      return {
+        key: "invalid",
+        label: "Błędna",
+        badge: "badge badge--danger",
+        sort: 90,
+      };
+    }
+
+    if (!hasLinked) {
+      if (hasProposals) {
+        return {
+          key: "proposal",
+          label: "Propozycja",
+          badge: "badge badge--info",
+          sort: 20,
+        };
+      }
+      return {
+        key: "unmatched",
+        label: "Niedopasowano",
+        badge: "badge badge--muted",
+        sort: 10,
+      };
+    }
+
+    // linked state + diffs
+    const orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+    const orderedPrice = avgPriceWeighted(linked?.[0]?.segments); // jak na screenie: pierwszy dokument
+    const qtyDiff = deliveredQty - orderedQty;
+
+    const deliveredValue =
+      deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
+    const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
+    const valueDiff = deliveredValue - orderedValue;
+
+    const qtyDiffNonZero = Math.abs(qtyDiff) > 0;
+    const valueDiffNonZero = Math.abs(valueDiff) > 0.000001; // tolerancja
+
+    if (!qtyDiffNonZero && !valueDiffNonZero) {
+      return {
+        key: "matched",
+        label: "Dopasowano",
+        badge: "badge badge--success",
+        sort: 40,
+      };
+    }
+    if (qtyDiffNonZero && valueDiffNonZero) {
+      return {
+        key: "diff_both",
+        label: "Rozbieżność il./wart.",
+        badge: "badge badge--danger",
+        sort: 60,
+      };
+    }
+    if (qtyDiffNonZero) {
+      return {
+        key: "diff_qty",
+        label: "Rozbieżność ilościowa",
+        badge: "badge badge--warn",
+        sort: 50,
+      };
+    }
+    return {
+      key: "diff_value",
+      label: "Rozbieżność wartościowa",
+      badge: "badge badge--warn2",
+      sort: 55,
+    };
+  }
+
+  function diffSpanNumber(n, italic = false) {
+    const v = Number(n);
+    if (!Number.isFinite(v))
+      return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
+    if (v === 0)
+      return `<span class="${italic ? "zero italic" : "zero"}">0</span>`;
+    const cls =
+      v > 0 ? (italic ? "pos italic" : "pos") : italic ? "neg italic" : "neg";
+    const sign = v > 0 ? "+" : "";
+    return `<span class="${cls}">${sign}${v}</span>`;
+  }
+
+  function diffSpanMoney(n, italic = false) {
+    const v = Number(n);
+    if (!Number.isFinite(v))
+      return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
+    if (Math.abs(v) < 0.000001)
+      return `<span class="${italic ? "zero italic" : "zero"}">${fmtPLN(0)}</span>`;
+    const cls =
+      v > 0 ? (italic ? "pos italic" : "pos") : italic ? "neg italic" : "neg";
+    const sign = v > 0 ? "+" : "";
+    return `<span class="${cls}">${sign}${fmtPLN(Math.abs(v))}</span>`;
+  }
+
+  // ---------- child row render (warianty/propozycje) ----------
+  function renderChildProposals(parent) {
+    const proposals = safeArr(parent?.potentialMatches);
+    if (proposals.length <= 1) return ""; // nic do rozwijania (jak w Twoim podejściu)
+
+    const deliveredQty = sumQty(parent?.segments);
+    const deliveredPrice = avgPriceWeighted(parent?.segments);
+
+    const parentName = escapeHtml(parent?.name || "");
+    const parentGtin = escapeHtml(parent?.gtin || "");
+
+    // Pierwszy wariant (0) traktujemy jako "default propozycja" na parent row,
+    // a w child pokazujemy wszystkie, ale możesz pominąć [0] jeśli chcesz.
+    const rows = proposals.map((m, idx) => {
+      const orderedQty = sumQty(m?.segments);
+      const orderedPrice = avgPriceWeighted(m?.segments);
+      const qtyDiff = orderedQty > 0 ? deliveredQty - orderedQty : 0;
+
+      const deliveredValue =
+        deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
+      const orderedValue =
+        orderedPrice === null ? 0 : orderedQty * orderedPrice;
+      const valueDiff = orderedQty > 0 ? deliveredValue - orderedValue : 0;
+
+      const orderId = escapeHtml(m?.orderId || "");
+      const matchId = m?.id;
+
+      return `
+      <tr class="child-row">
+        <td></td>
+        <td class="child-product">
+          <div class="variant-row">
+            <span class="variant-arrow">↳</span>
+            <span class="variant-name">Wariant ${idx + 1}</span>
+            <span class="variant-meta">${parentGtin ? parentGtin : ""}</span>
+          </div>
+        </td>
+
+        <td class="text-right muted">-</td>
+        <td class="text-right muted separator-right">-</td>
+
+        <td class="text-right italic">${fmtQty(orderedQty)}</td>
+        <td class="text-right italic">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
+
+        <td class="text-right">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span class="muted italic">-</span>`}</td>
+        <td class="text-right">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span class="muted italic">-</span>`}</td>
+
+        <td class="doc-col italic">
+          ${
+            orderId
+              ? `<a class="doc-link italic" href="/orders/${orderId}" target="_blank" rel="noopener">${orderId}</a>`
+              : `<span class="muted italic">-</span>`
+          }
+        </td>
+
+        <td class="status-col">
+          <span class="badge badge--info">Propozycja</span>
+        </td>
+
+        <td class="actions-col">
+          <button
+            class="btn btn-outline btn-sm link-btn"
+            data-product-id="${parent?.id}"
+            data-match-id="${matchId}"
+          >
+            <span class="icon-link">🔗</span> Połącz
+          </button>
+        </td>
+      </tr>
+    `;
+    });
+
+    return `
+    <div class="child-wrap">
+      <table class="child-table">
+        <tbody>
+          ${rows.join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+  }
+
+  // ---------- DataTables init ----------
+  var table_delivery = $("#table_delivery").DataTable({
+    pagingType: "full_numbers",
+    lengthMenu: [10, 25, 50, 100],
+    pageLength: 25,
+    order: [[9, "asc"]], // sort po Status (ukryty sortKey) – zrobimy to w renderze
+    dom: '<"top"fB>rt<"bottom"lip>',
+    scrollY: "70vh",
+    scrollCollapse: true,
+    autoWidth: false,
+
+    buttons: [
+      {
+        text: '<span class="dt-btn">Rozwiń</span>',
+        titleAttr: "Rozwiń wszystkie (propozycje)",
+        action: function (e, dt) {
+          dt.rows().every(function () {
+            const row = this;
+            const data = row.data();
+            const proposals = safeArr(data?.potentialMatches);
+            if (proposals.length > 1 && !row.child.isShown()) {
+              row.child(renderChildProposals(data)).show();
+              $(row.node()).addClass("shown");
+            }
+          });
+        },
+      },
+      {
+        text: '<span class="dt-btn">Zwiń</span>',
+        titleAttr: "Zwiń wszystkie",
+        action: function (e, dt) {
+          dt.rows().every(function () {
+            const row = this;
+            if (row.child.isShown()) {
+              row.child.hide();
+              $(row.node()).removeClass("shown");
+            }
+          });
+        },
+      },
+    ],
+
+    language: {
+      emptyTable: "Brak danych do wyświetlenia",
+      info: "Pokazuje _START_ - _END_ z _TOTAL_ pozycji",
+      infoEmpty: "Brak danych",
+      infoFiltered: "(z _MAX_ pozycji)",
+      lengthMenu: "Pokaż _MENU_ pozycji",
+      search: "Szukaj:",
+      zeroRecords: "Brak pasujących rezultatów",
+      paginate: { first: "<<", last: ">>", next: ">", previous: "<" },
+    },
+
+    processing: false,
+    serverSide: true,
+    search: { return: true },
+
+    ajax: function (data, callback) {
+      let QStr =
+        "?perPage=" +
+        data.length +
+        "&page=" +
+        (data.start + data.length) / data.length;
+
+      const searchBox = (data.search.value || "").trim();
+      if (searchBox) {
+        if (/^\d+$/.test(searchBox))
+          QStr += "&gtin=" + encodeURIComponent(searchBox);
+        else QStr += "&name=like:" + encodeURIComponent(searchBox);
+      }
+
+      // sort (tylko po name sensownie z API; status liczymy w UI)
+      let col = 0;
+      let dir = "asc";
+      if (data.order && data.order.length) {
+        col = data.order[0].column;
+        dir = data.order[0].dir;
+      }
+      if (col === 1) QStr += "&sort=name:" + dir;
+      if (col === 0) QStr += "&sort=gtin:" + dir;
+
+      $.ajaxSetup({
+        headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+        beforeSend: function () {
+          $("#waitingdots").show();
+        },
+        complete: function () {
+          $("#waitingdots").hide();
+        },
+      });
+
+      $.get(
+        InvokeURL +
+          "van/recadvs/" +
+          encodeURIComponent(recadvId) +
+          "/products" +
+          QStr,
+        function (res) {
+          callback({
+            recordsTotal: res.total,
+            recordsFiltered: res.total,
+            data: res.items,
+          });
+        },
+      );
+    },
+
+    columns: [
+      // 0: expand icon (jak na screenie)
+      {
+        data: null,
+        orderable: false,
+        width: "26px",
+        className: "expander-col",
+        render: function (data, type, row) {
+          const proposals = safeArr(row?.potentialMatches);
+          if (proposals.length > 1) {
+            // caret jak w UI (zmień ikonę jak chcesz)
+            return `<span class="expander" title="Rozwiń propozycje">▾</span>`;
+          }
+          return "";
+        },
+      },
+
+      // 1: Produkt (name + gtin)
+      {
+        data: null,
+        orderable: true,
+        width: "420px",
+        render: function (data, type, row) {
+          const name = escapeHtml(row?.name || "-");
+          const gtin = escapeHtml(row?.gtin || "-");
+
+          if (type === "sort" || type === "type") return row?.name || "";
+          if (type === "filter")
+            return [row?.name, row?.gtin].filter(Boolean).join(" ");
+
+          return `
+          <div class="prod-cell">
+            <div class="prod-name">${name}</div>
+            <div class="prod-gtin">${gtin}</div>
+          </div>
+        `;
+        },
+      },
+
+      // 2: Ilość (dostawa)
+      {
+        data: "segments",
+        orderable: true,
+        className: "text-right",
+        render: function (segments, type) {
+          const q = sumQty(segments);
+          if (type === "sort" || type === "type") return q;
+          return q ? fmtQty(q) : `<span class="muted">-</span>`;
+        },
+      },
+
+      // 3: Cena (dostawa avg) + separator-right
+      {
+        data: "segments",
+        orderable: true,
+        className: "text-right separator-right",
+        render: function (segments, type) {
+          const p = avgPriceWeighted(segments);
+          if (type === "sort" || type === "type") return p ?? -1;
+          return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
+        },
+      },
+
+      // 4: Ilość zam. (tylko jeśli linked; dla propozycji pokazujemy w child)
+      {
+        data: null,
+        orderable: false,
+        className: "text-right",
+        render: function (data, type, row) {
+          const st = computeRowState(row);
+          const linked = safeArr(row?.linkedOrderProduct);
+          if (!linked.length) return `<span class="muted">-</span>`;
+
+          const q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+          if (type === "sort" || type === "type") return q;
+          return q ? fmtQty(q) : `<span class="muted">-</span>`;
+        },
+      },
+
+      // 5: Cena zam. (linked)
+      {
+        data: null,
+        orderable: false,
+        className: "text-right",
+        render: function (data, type, row) {
+          const linked = safeArr(row?.linkedOrderProduct);
+          if (!linked.length) return `<span class="muted">-</span>`;
+
+          const p = avgPriceWeighted(linked?.[0]?.segments);
+          if (type === "sort" || type === "type") return p ?? -1;
+          return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
+        },
+      },
+
+      // 6: Różnica il.
+      {
+        data: null,
+        orderable: false,
+        className: "text-right",
+        render: function (data, type, row) {
+          const linked = safeArr(row?.linkedOrderProduct);
+          if (!linked.length) return `<span class="muted">-</span>`;
+
+          const deliveredQty = sumQty(row?.segments);
+          const orderedQty = linked.reduce(
+            (acc, p) => acc + sumQty(p?.segments),
+            0,
+          );
+          const diff = deliveredQty - orderedQty;
+
+          if (type === "sort" || type === "type") return diff;
+          return diffSpanNumber(diff);
+        },
+      },
+
+      // 7: Różnica wartość
+      {
+        data: null,
+        orderable: false,
+        className: "text-right",
+        render: function (data, type, row) {
+          const linked = safeArr(row?.linkedOrderProduct);
+          if (!linked.length) return `<span class="muted">-</span>`;
+
+          const deliveredValue = valueTotal(row?.segments);
+
+          const orderedQty = linked.reduce(
+            (acc, p) => acc + sumQty(p?.segments),
+            0,
+          );
+          const orderedPrice = avgPriceWeighted(linked?.[0]?.segments);
+          const orderedValue =
+            orderedPrice === null ? 0 : orderedQty * orderedPrice;
+
+          const diff = deliveredValue - orderedValue;
+
+          if (type === "sort" || type === "type") return diff;
+          return diffSpanMoney(diff);
+        },
+      },
+
+      // 8: Dokument zam. (orderId + data jeśli masz)
+      {
+        data: null,
+        orderable: false,
+        className: "doc-col",
+        render: function (data, type, row) {
+          const linked = safeArr(row?.linkedOrderProduct);
+          if (!linked.length) return `<span class="muted">-</span>`;
+
+          const orderId = linked?.[0]?.orderId;
+          if (!orderId) return `<span class="muted">-</span>`;
+
+          // Jeśli masz datę dokumentu w payload, podepnij tu np. linked[0].orderDate
+          return `
+          <div class="doc-wrap">
+            <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">${escapeHtml(orderId)}</a>
+          </div>
+        `;
+        },
+      },
+
+      // 9: Status (render badge + w sort zwracamy sortKey)
+      {
+        data: null,
+        orderable: true,
+        className: "status-col",
+        render: function (data, type, row) {
+          const st = computeRowState(row);
+          if (type === "sort" || type === "type") return st.sort; // ważne: sortujemy po liczbie
+          return `<span class="${st.badge}">${st.label}</span>`;
+        },
+      },
+
+      // 10: Akcje (Rozłącz dla linked; Połącz tylko w child)
+      {
+        data: null,
+        orderable: false,
+        className: "actions-col",
+        width: "120px",
+        render: function (data, type, row) {
+          const linked = safeArr(row?.linkedOrderProduct);
+          if (!linked.length) return ""; // dla propozycji button jest w child row
+          const linkedId = linked?.[0]?.id;
+          return `
+          <button
+            class="btn btn-outline btn-sm unlink-btn"
+            data-product-id="${row?.id}"
+            data-linked-id="${linkedId}"
+            title="Rozłącz powiązanie"
+          >
+            Rozłącz
+          </button>
+        `;
+        },
+      },
+    ],
+
+    initComplete: function () {
+      const api = this.api();
+      const textBox = $("#table_delivery_filter label input");
+
+      // Enter-to-search
+      textBox.unbind();
+      textBox.bind("keyup input", function (e) {
+        if (e.keyCode === 13) api.search(this.value).draw();
+      });
+
+      // Expand/collapse
+      $("#table_delivery tbody").on(
+        "click",
+        "td.expander-col .expander",
+        function (e) {
+          e.preventDefault();
+          const tr = $(this).closest("tr");
+          const row = table_delivery.row(tr);
+          const data = row.data();
+          const proposals = safeArr(data?.potentialMatches);
+
+          if (proposals.length <= 1) return;
+
+          if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass("shown");
+          } else {
+            row.child(renderChildProposals(data)).show();
+            tr.addClass("shown");
+          }
+        },
+      );
+
+      // Delegowane akcje: Połącz / Rozłącz
+      $(document).on("click", ".link-btn", function () {
+        const productId = $(this).data("product-id");
+        const matchId = $(this).data("match-id");
+
+        // TODO: podłącz swój endpoint "link"
+        // linkRecadvProduct(productId, matchId).then(()=> table_delivery.ajax.reload(null,false));
+        console.log("LINK", { productId, matchId });
+      });
+
+      $(document).on("click", ".unlink-btn", function () {
+        const productId = $(this).data("product-id");
+        const linkedId = $(this).data("linked-id");
+
+        // TODO: podłącz swój endpoint "unlink"
+        // unlinkRecadvProduct(productId, linkedId).then(()=> table_delivery.ajax.reload(null,false));
+        console.log("UNLINK", { productId, linkedId });
+      });
+    },
+  });
 
   function initializeSimpleTooltips() {
     // CSS styling for tooltip
