@@ -1593,6 +1593,11 @@ whenReadyAndDataTables(function () {
               }
 
               row.data(updatedProduct);
+
+              // Usuń klasę details-control z pierwszej komórki (chevron)
+              // bo produkt jest teraz połączony i nie powinien mieć ikony rozwijania
+              parentTr.find("td:first").removeClass("details-control");
+
               refreshFiltersAfterUpdate();
             }
 
@@ -1651,7 +1656,15 @@ whenReadyAndDataTables(function () {
             );
 
             if (updatedProduct) {
+              const parentTr = $(row.node());
               row.data(updatedProduct);
+
+              // Jeśli produkt ma więcej niż 1 propozycję, dodaj z powrotem klasę details-control
+              const proposals = safeArr(updatedProduct?.potentialMatches);
+              if (proposals && proposals.length > 1) {
+                parentTr.find("td:first").addClass("details-control");
+              }
+
               refreshFiltersAfterUpdate();
             }
 
