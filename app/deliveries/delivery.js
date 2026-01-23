@@ -1168,7 +1168,6 @@ whenReadyAndDataTables(function () {
                 const childRowsHtml = renderChildProposals(data);
                 tr.after(childRowsHtml);
                 tr.addClass("shown");
-                tr.find(".expander").text("▼");
               }
             });
           },
@@ -1183,7 +1182,6 @@ whenReadyAndDataTables(function () {
               if (tr.hasClass("shown")) {
                 tr.nextUntil(":not(.child-row)").remove();
                 tr.removeClass("shown");
-                tr.find(".expander").text("▶");
               }
             });
           },
@@ -1235,14 +1233,13 @@ whenReadyAndDataTables(function () {
         {
           data: null,
           orderable: false,
-          className: "expander-col",
-          width: "30px",
-          render: function (data, type, row) {
-            const proposals = safeArr(row?.potentialMatches);
-            if (proposals.length > 1) {
-              return '<span class="expander" style="cursor: pointer; font-size: 16px; user-select: none;">▶</span>';
+          defaultContent: "",
+          width: "20px",
+          createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
+            const proposals = safeArr(rowData?.potentialMatches);
+            if (proposals && proposals.length > 1) {
+              $(cell).addClass("details-control");
             }
-            return "";
           },
         },
         {
@@ -1509,11 +1506,11 @@ whenReadyAndDataTables(function () {
 
     $("#table_delivery tbody").on(
       "click.delivery",
-      "td.expander-col .expander",
+      "td.details-control",
       function (e) {
         e.preventDefault();
-        const expander = $(this);
-        const tr = expander.closest("tr");
+        const td = $(this);
+        const tr = td.closest("tr");
         const row = deliveryTable.row(tr);
         const data = row.data();
         const proposals = safeArr(data?.potentialMatches);
@@ -1523,13 +1520,11 @@ whenReadyAndDataTables(function () {
           // Usuń child rows
           tr.nextUntil(":not(.child-row)").remove();
           tr.removeClass("shown");
-          expander.text("▶");
         } else {
           // Wstaw child rows bezpośrednio po parent row
           const childRowsHtml = renderChildProposals(data);
           tr.after(childRowsHtml);
           tr.addClass("shown");
-          expander.text("▼");
         }
       },
     );
@@ -1593,7 +1588,6 @@ whenReadyAndDataTables(function () {
               if (parentTr.hasClass("shown")) {
                 parentTr.nextUntil(":not(.child-row)").remove();
                 parentTr.removeClass("shown");
-                parentTr.find(".expander").text("▶");
               }
 
               row.data(updatedProduct);
