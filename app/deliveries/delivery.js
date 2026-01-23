@@ -1060,7 +1060,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProduct);
+            const linked = safeArr(row?.linkedOrderProducts);
             if (!linked.length) return `<span class="muted">-</span>`;
 
             const q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
@@ -1073,7 +1073,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProduct);
+            const linked = safeArr(row?.linkedOrderProducts);
             if (!linked.length) return `<span class="muted">-</span>`;
 
             const p = avgPriceWeighted(linked?.[0]?.segments);
@@ -1086,7 +1086,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProduct);
+            const linked = safeArr(row?.linkedOrderProducts);
             if (!linked.length) return `<span class="muted">-</span>`;
 
             const deliveredQty = sumQty(row?.segments);
@@ -1105,7 +1105,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProduct);
+            const linked = safeArr(row?.linkedOrderProducts);
             if (!linked.length) return `<span class="muted">-</span>`;
 
             const deliveredValue = valueTotal(row?.segments);
@@ -1129,7 +1129,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "doc-col",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProduct);
+            const linked = safeArr(row?.linkedOrderProducts);
             if (!linked.length) return `<span class="muted">-</span>`;
 
             const orderId = linked?.[0]?.orderId;
@@ -1162,7 +1162,7 @@ whenReadyAndDataTables(function () {
           className: "actions-col",
           width: "120px",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProduct);
+            const linked = safeArr(row?.linkedOrderProducts);
             if (!linked.length) return ""; // Połącz jest w child
 
             const linkedId = linked?.[0]?.id;
