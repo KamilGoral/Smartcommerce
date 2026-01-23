@@ -822,8 +822,9 @@ whenReadyAndDataTables(function () {
     const parentName = escapeHtml(parent?.name || "");
     const parentGtin = escapeHtml(parent?.gtin || "");
 
-    // Renderuj wszystkie propozycje jako wiersze w tej samej tabeli
-    const rows = proposals.map((m, idx) => {
+    // Pomiń pierwszą propozycję (Wariant 1 jest już wyświetlony w głównym wierszu)
+    // Renderuj tylko pozostałe warianty, numerując od 1
+    const rows = proposals.slice(1).map((m, idx) => {
       const orderedQty = sumQty(m?.segments);
       const orderedPrice = avgPriceWeighted(m?.segments);
       const qtyDiff = orderedQty > 0 ? deliveredQty - orderedQty : 0;
