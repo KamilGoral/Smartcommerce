@@ -1055,95 +1055,158 @@ whenReadyAndDataTables(function () {
             return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
           },
         },
+        // Kolumna 4 - Ilość zam.
         {
           data: null,
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
+            // Najpierw sprawdź linked, potem potentialMatches
             const linked = safeArr(row?.linkedOrderProducts);
-            if (!linked.length) return `<span class="muted">-</span>`;
+            const proposals = safeArr(row?.potentialMatches);
 
-            const q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+            let q = 0;
+            if (linked.length) {
+              q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+            } else if (proposals.length) {
+              q = sumQty(proposals[0]?.segments); // Pierwsza propozycja
+            } else {
+              return `<span class="muted">-</span>`;
+            }
+
             if (type === "sort" || type === "type") return q;
-            return q ? fmtQty(q) : `<span class="muted">-</span>`;
-          },
-        },
-        {
-          data: null,
-          orderable: true,
-          className: "text-right",
-          render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
-            if (!linked.length) return `<span class="muted">-</span>`;
 
-            const p = avgPriceWeighted(linked?.[0]?.segments);
-            if (type === "sort" || type === "type") return p ?? -1;
-            return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
+            // Italic dla propozycji
+            const isProposal = !linked.length && proposals.length;
+            return q
+              ? `<span class="${isProposal ? "italic" : ""}">${fmtQty(q)}</span>`
+              : `<span class="muted">-</span>`;
           },
         },
+
+        // Kolumna 5 - Cena zam.
         {
           data: null,
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProducts);
-            if (!linked.length) return `<span class="muted">-</span>`;
+            const proposals = safeArr(row?.potentialMatches);
+
+            let p = null;
+            if (linked.length) {
+              p = avgPriceWeighted(linked[0]?.segments);
+            } else if (proposals.length) {
+              p = avgPriceWeighted(proposals[0]?.segments);
+            }
+
+            if (p === null) return `<span class="muted">-</span>`;
+            if (type === "sort" || type === "type") return p;
+
+            const isProposal = !linked.length && proposals.length;
+            return `<span class="${isProposal ? "italic" : ""}">${fmtPLN(p)}</span>`;
+          },
+        },
+
+        // Kolumna 6 - Różnica il.
+        {
+          data: null,
+          orderable: true,
+          className: "text-right",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProducts);
+            const proposals = safeArr(row?.potentialMatches);
+
+            if (!linked.length && !proposals.length)
+              return `<span class="muted">-</span>`;
 
             const deliveredQty = sumQty(row?.segments);
-            const orderedQty = linked.reduce(
-              (acc, p) => acc + sumQty(p?.segments),
-              0,
-            );
-            const diff = deliveredQty - orderedQty;
+            let orderedQty = 0;
 
+            if (linked.length) {
+              orderedQty = linked.reduce(
+                (acc, p) => acc + sumQty(p?.segments),
+                0,
+              );
+            } else if (proposals.length) {
+              orderedQty = sumQty(proposals[0]?.segments);
+            }
+
+            const diff = deliveredQty - orderedQty;
             if (type === "sort" || type === "type") return diff;
-            return diffSpanNumber(diff);
+
+            const isProposal = !linked.length && proposals.length;
+            return diffSpanNumber(diff, isProposal); // drugi param = italic
           },
         },
+
+        // Kolumna 7 - Różnica wartość
         {
           data: null,
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProducts);
-            if (!linked.length) return `<span class="muted">-</span>`;
+            const proposals = safeArr(row?.potentialMatches);
+
+            if (!linked.length && !proposals.length)
+              return `<span class="muted">-</span>`;
 
             const deliveredValue = valueTotal(row?.segments);
+            let orderedQty = 0;
+            let orderedPrice = null;
 
-            const orderedQty = linked.reduce(
-              (acc, p) => acc + sumQty(p?.segments),
-              0,
-            );
-            const orderedPrice = avgPriceWeighted(linked?.[0]?.segments);
+            if (linked.length) {
+              orderedQty = linked.reduce(
+                (acc, p) => acc + sumQty(p?.segments),
+                0,
+              );
+              orderedPrice = avgPriceWeighted(linked[0]?.segments);
+            } else if (proposals.length) {
+              orderedQty = sumQty(proposals[0]?.segments);
+              orderedPrice = avgPriceWeighted(proposals[0]?.segments);
+            }
+
             const orderedValue =
               orderedPrice === null ? 0 : orderedQty * orderedPrice;
-
             const diff = deliveredValue - orderedValue;
 
             if (type === "sort" || type === "type") return diff;
-            return diffSpanMoney(diff);
+
+            const isProposal = !linked.length && proposals.length;
+            return diffSpanMoney(diff, isProposal);
           },
         },
+
+        // Kolumna 8 - Dokument zam.
         {
           data: null,
           orderable: true,
           className: "doc-col",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProducts);
-            if (!linked.length) return `<span class="muted">-</span>`;
+            const proposals = safeArr(row?.potentialMatches);
 
-            const orderId = linked?.[0]?.orderId;
+            let orderId = null;
+            let isProposal = false;
+
+            if (linked.length) {
+              orderId = linked[0]?.orderId;
+            } else if (proposals.length) {
+              orderId = proposals[0]?.orderId;
+              isProposal = true;
+            }
+
             if (!orderId) return `<span class="muted">-</span>`;
-
             if (type === "sort" || type === "type") return orderId;
 
             return `
-            <div class="doc-wrap">
-              <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">
-                ${escapeHtml(orderId)}
-              </a>
-            </div>
-          `;
+      <div class="doc-wrap">
+        <a class="doc-link ${isProposal ? "italic" : ""}" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">
+          ${escapeHtml(orderId)}
+        </a>
+      </div>
+    `;
           },
         },
         {
