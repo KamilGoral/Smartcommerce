@@ -751,6 +751,161 @@ whenReadyAndDataTables(function () {
    * Init/Reset DataTables na #table_delivery dla konkretnego recadvId
    * Wymaga: InvokeURL, orgToken
    */
+
+  // ---------- Status Filter Configuration ----------
+  const STATUS_FILTERS = [
+    { key: "all", label: "Wszystkie produkty", badge: null },
+    { key: "matched", label: "Dopasowane", badge: "badge--success" },
+    { key: "proposal", label: "Propozycja", badge: "badge--info" },
+    {
+      key: "diff",
+      label: "Rozbieżności",
+      badge: "badge--warn",
+      includes: ["diff_qty", "diff_value", "diff_both"],
+    },
+    { key: "unmatched", label: "Niedopasowane", badge: "badge--muted" },
+  ];
+
+  // Możesz dodać też "invalid" jeśli chcesz:
+  // { key: 'invalid', label: 'Błędne', badge: 'badge--danger' }
+
+  // ---------- Render Filter Bar ----------
+  function renderStatusFilters(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.warn(`Container #${containerId} not found`);
+      return;
+    }
+
+    const html = STATUS_FILTERS.map(
+      (filter) => `
+    <button 
+      type="button"
+      class="status-filter-btn ${filter.key === "all" ? "active" : ""}" 
+      data-filter="${filter.key}"
+    >
+      <span class="filter-label">${filter.label}</span>
+      <span class="filter-count" data-count-for="${filter.key}">0</span>
+    </button>
+  `,
+    ).join("");
+
+    container.innerHTML = html;
+  }
+
+  // ---------- Count Products by Status ----------
+  function countByStatus(tableData) {
+    const counts = {
+      all: 0,
+      matched: 0,
+      proposal: 0,
+      diff_qty: 0,
+      diff_value: 0,
+      diff_both: 0,
+      unmatched: 0,
+      invalid: 0,
+    };
+
+    tableData.forEach((row) => {
+      counts.all++;
+      const state = computeRowState(row);
+      if (counts.hasOwnProperty(state.key)) {
+        counts[state.key]++;
+      }
+    });
+
+    return counts;
+  }
+
+  // ---------- Update Counter Badges ----------
+  function updateFilterCounters(counts) {
+    STATUS_FILTERS.forEach((filter) => {
+      const countEl = document.querySelector(
+        `[data-count-for="${filter.key}"]`,
+      );
+      if (!countEl) return;
+
+      let count;
+      if (filter.key === "all") {
+        count = counts.all;
+      } else if (filter.includes) {
+        // Sumuj wiele statusów (np. dla "Rozbieżności" = diff_qty + diff_value + diff_both)
+        count = filter.includes.reduce(
+          (sum, key) => sum + (counts[key] || 0),
+          0,
+        );
+      } else {
+        count = counts[filter.key] || 0;
+      }
+
+      countEl.textContent = count;
+    });
+  }
+
+  // ---------- Apply Filter to DataTable ----------
+  let currentFilterFn = null;
+
+  function applyStatusFilter(table, filterKey) {
+    // Usuń poprzedni custom search jeśli istnieje
+    if (currentFilterFn) {
+      const idx = $.fn.dataTable.ext.search.indexOf(currentFilterFn);
+      if (idx > -1) {
+        $.fn.dataTable.ext.search.splice(idx, 1);
+      }
+    }
+
+    if (filterKey !== "all") {
+      const filterConfig = STATUS_FILTERS.find((f) => f.key === filterKey);
+      const keysToMatch = filterConfig?.includes || [filterKey];
+
+      currentFilterFn = function (settings, data, dataIndex) {
+        // Upewnij się że to nasza tabela
+        if (settings.nTable.id !== "table_delivery") return true;
+
+        const rowData = table.row(dataIndex).data();
+        const state = computeRowState(rowData);
+        return keysToMatch.includes(state.key);
+      };
+
+      $.fn.dataTable.ext.search.push(currentFilterFn);
+    } else {
+      currentFilterFn = null;
+    }
+
+    table.draw();
+  }
+
+  // ---------- Initialize Filter Events ----------
+  function initStatusFilterEvents(table, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Click na przycisk filtra
+    container.addEventListener("click", function (e) {
+      const btn = e.target.closest(".status-filter-btn");
+      if (!btn) return;
+
+      // Update active state
+      container
+        .querySelectorAll(".status-filter-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // Apply filter
+      const filterKey = btn.dataset.filter;
+      applyStatusFilter(table, filterKey);
+    });
+
+    // Update counters po każdym renderze tabeli
+    table.on("xhr.dt", function (e, settings, json) {
+      // Po załadowaniu danych AJAX - update liczników
+      if (json && json.data) {
+        const counts = countByStatus(json.data);
+        updateFilterCounters(counts);
+      }
+    });
+  }
+
   function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
     // 1) jeśli już stoi – ubij i wyczyść
     if ($.fn.DataTable.isDataTable("#table_delivery")) {
@@ -1071,6 +1226,10 @@ whenReadyAndDataTables(function () {
       // unlinkRecadvProduct(productId, linkedId)
       //   .then(() => deliveryTable.ajax.reload(null, false));
     });
+
+    // === FILTRY STATUSÓW ===
+    renderStatusFilters("status-filters");
+    initStatusFilterEvents(deliveryTable, "status-filters");
 
     return deliveryTable;
   }
