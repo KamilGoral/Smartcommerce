@@ -678,7 +678,7 @@ whenReadyAndDataTables(function () {
   // ---------- child row render (warianty/propozycje) ----------
   function renderChildProposals(parent) {
     const proposals = safeArr(parent?.potentialMatches);
-    if (proposals.length <= 1) return ""; // nic do rozwijania (jak w Twoim podejściu)
+    if (proposals.length <= 1) return ""; // nic do rozwijania
 
     const deliveredQty = sumQty(parent?.segments);
     const deliveredPrice = avgPriceWeighted(parent?.segments);
@@ -686,8 +686,7 @@ whenReadyAndDataTables(function () {
     const parentName = escapeHtml(parent?.name || "");
     const parentGtin = escapeHtml(parent?.gtin || "");
 
-    // Pierwszy wariant (0) traktujemy jako "default propozycja" na parent row,
-    // a w child pokazujemy wszystkie, ale możesz pominąć [0] jeśli chcesz.
+    // Renderuj wszystkie propozycje jako wiersze w tej samej tabeli
     const rows = proposals.map((m, idx) => {
       const orderedQty = sumQty(m?.segments);
       const orderedPrice = avgPriceWeighted(m?.segments);
@@ -703,38 +702,37 @@ whenReadyAndDataTables(function () {
       const matchId = m?.id;
 
       return `
-      <tr class="child-row" style="background: white;">
-        <td style="padding: 8px;"></td>
-        <td class="child-product" style="padding: 8px;">
-          <div class="variant-row" style="display: flex; align-items: center; gap: 8px;">
-            <span class="variant-arrow" style="color: #9ca3af;">↳</span>
-            <span class="variant-name" style="font-weight: 500;">Wariant ${idx + 1}</span>
-            <span class="variant-meta" style="color: #6b7280; font-size: 12px;">${parentGtin ? parentGtin : ""}</span>
+      <tr class="child-row" style="background: #f9fafb;">
+        <td style="padding: 8px; text-align: center;"></td>
+        <td style="padding: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; padding-left: 20px;">
+            <span style="color: #9ca3af;">↳</span>
+            <span style="font-weight: 400;">Wariant ${idx + 1}</span>
           </div>
         </td>
 
-        <td class="text-right muted" style="padding: 8px;">-</td>
-        <td class="text-right muted separator-right" style="padding: 8px;">-</td>
+        <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
+        <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
 
-        <td class="text-right italic" style="padding: 8px;">${fmtQty(orderedQty)}</td>
-        <td class="text-right italic" style="padding: 8px;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
+        <td class="text-right" style="padding: 8px; font-style: italic;">${fmtQty(orderedQty)}</td>
+        <td class="text-right" style="padding: 8px; font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
 
-        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span class="muted italic">-</span>`}</td>
-        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span class="muted italic">-</span>`}</td>
+        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
+        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
 
-        <td class="doc-col italic" style="padding: 8px;">
+        <td style="padding: 8px; font-style: italic;">
           ${
             orderId
-              ? `<a class="doc-link italic" href="/orders/${orderId}" target="_blank" rel="noopener">${orderId}</a>`
-              : `<span class="muted italic">-</span>`
+              ? `<a class="doc-link" href="/orders/${orderId}" target="_blank" rel="noopener" style="font-style: italic;">${orderId}</a>`
+              : `<span style="color: #9ca3af; font-style: italic;">-</span>`
           }
         </td>
 
-        <td class="status-col" style="padding: 8px;">
+        <td style="padding: 8px;">
           <span class="badge badge--info">Propozycja</span>
         </td>
 
-        <td class="actions-col" style="padding: 8px;">
+        <td style="padding: 8px;">
           <button
             class="btn btn-outline btn-sm link-btn"
             data-product-id="${parent?.id}"
@@ -750,15 +748,8 @@ whenReadyAndDataTables(function () {
     `;
     });
 
-    return `
-    <div class="child-wrap" style="padding: 10px 20px; background: #f9fafb;">
-      <table class="child-table" style="width: 100%; border-collapse: collapse;">
-        <tbody>
-          ${rows.join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
+    // Zwracamy wiersze jako HTML string (bez wrapper table)
+    return rows.join("");
   }
 
   // globalnie (żeby mieć dostęp do instancji i móc ją odświeżać)
@@ -1171,10 +1162,13 @@ whenReadyAndDataTables(function () {
             dt.rows().every(function () {
               const row = this;
               const data = row.data();
+              const tr = $(row.node());
               const proposals = safeArr(data?.potentialMatches);
-              if (proposals.length > 1 && !row.child.isShown()) {
-                row.child(renderChildProposals(data)).show();
-                $(row.node()).addClass("shown");
+              if (proposals.length > 1 && !tr.hasClass("shown")) {
+                const childRowsHtml = renderChildProposals(data);
+                tr.after(childRowsHtml);
+                tr.addClass("shown");
+                tr.find(".expander").text("▼");
               }
             });
           },
@@ -1185,9 +1179,11 @@ whenReadyAndDataTables(function () {
           action: function (e, dt) {
             dt.rows().every(function () {
               const row = this;
-              if (row.child.isShown()) {
-                row.child.hide();
-                $(row.node()).removeClass("shown");
+              const tr = $(row.node());
+              if (tr.hasClass("shown")) {
+                tr.nextUntil(":not(.child-row)").remove();
+                tr.removeClass("shown");
+                tr.find(".expander").text("▶");
               }
             });
           },
@@ -1523,12 +1519,15 @@ whenReadyAndDataTables(function () {
         const proposals = safeArr(data?.potentialMatches);
         if (proposals.length <= 1) return;
 
-        if (row.child.isShown()) {
-          row.child.hide();
+        if (tr.hasClass("shown")) {
+          // Usuń child rows
+          tr.nextUntil(":not(.child-row)").remove();
           tr.removeClass("shown");
           expander.text("▶");
         } else {
-          row.child(renderChildProposals(data)).show();
+          // Wstaw child rows bezpośrednio po parent row
+          const childRowsHtml = renderChildProposals(data);
+          tr.after(childRowsHtml);
           tr.addClass("shown");
           expander.text("▼");
         }
@@ -1589,11 +1588,12 @@ whenReadyAndDataTables(function () {
             );
 
             if (updatedProduct) {
-              // Zamknij child row jeśli był otwarty
-              if (row.child.isShown()) {
-                row.child.hide();
-                $(row.node()).removeClass("shown");
-                $(row.node()).find(".expander").text("▶");
+              // Zamknij child rows jeśli były otwarte
+              const parentTr = $(row.node());
+              if (parentTr.hasClass("shown")) {
+                parentTr.nextUntil(":not(.child-row)").remove();
+                parentTr.removeClass("shown");
+                parentTr.find(".expander").text("▶");
               }
 
               row.data(updatedProduct);
