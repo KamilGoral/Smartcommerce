@@ -1456,12 +1456,33 @@ whenReadyAndDataTables(function () {
 
         const productId = btn.data("product-id");
         const linkedId = btn.data("linked-id");
+        const gtin = rowData?.gtin;
 
-        console.log("UNLINK", { recadvId, productId, linkedId });
+        console.log("UNLINK", { recadvId, productId, linkedId, gtin });
 
         btn.prop("disabled", true).css("opacity", "0.5");
 
         unlinkRecadvProduct(recadvId, productId, linkedId)
+          .then(function () {
+            // Pobierz świeże dane z potentialMatches
+            const days = $("#orderingDays").val() || 7;
+            return $.ajax({
+              type: "GET",
+              url:
+                InvokeURL +
+                "van/recadvs/" +
+                encodeURIComponent(recadvId) +
+                "/products",
+              headers: {
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+              data: {
+                gtin: gtin,
+                days: days,
+              },
+            });
+          })
           .then(function (response) {
             const updatedProduct = safeArr(response?.items).find(
               (item) => item.id === productId,
@@ -1470,8 +1491,6 @@ whenReadyAndDataTables(function () {
             if (updatedProduct) {
               row.data(updatedProduct);
               refreshFiltersAfterUpdate();
-            } else {
-              deliveryTable.ajax.reload(null, false);
             }
 
             displayMessage("Success", "Powiązanie zostało usunięte");
