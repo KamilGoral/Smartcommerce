@@ -1237,7 +1237,9 @@ whenReadyAndDataTables(function () {
           width: "20px",
           createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
             const proposals = safeArr(rowData?.potentialMatches);
-            if (proposals && proposals.length > 1) {
+            const linked = safeArr(rowData?.linkedOrderProducts);
+            // Pokaż ikonę tylko gdy są propozycje (>1) i NIE jest jeszcze połączony
+            if (proposals && proposals.length > 1 && linked.length === 0) {
               $(cell).addClass("details-control");
             }
           },
