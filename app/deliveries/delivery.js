@@ -906,6 +906,90 @@ whenReadyAndDataTables(function () {
     });
   }
 
+  // ============================================
+  // API: Link / Unlink RECADV Products
+  // ============================================
+
+  /**
+   * Połącz produkt RECADV z produktem zamówienia
+   * @param {string} recadvId - ID dokumentu RECADV
+   * @param {number} recadvProductId - ID produktu w RECADV (row.id)
+   * @param {number} orderProductId - ID produktu zamówienia (z potentialMatches[].id)
+   * @param {number} quantity - Ilość do połączenia
+   */
+  function linkRecadvProduct(
+    recadvId,
+    recadvProductId,
+    orderProductId,
+    quantity,
+  ) {
+    return $.ajax({
+      type: "PATCH",
+      url:
+        InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products",
+      headers: {
+        Authorization: orgToken,
+        "Content-Type": "application/json",
+        "Requested-By": "webflow-3-4",
+      },
+      data: JSON.stringify([
+        {
+          op: "add",
+          path: "/" + recadvProductId + "/linkedOrderProducts/-",
+          value: {
+            orderProductId: orderProductId,
+            quantity: quantity,
+          },
+        },
+      ]),
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+    });
+  }
+
+  /**
+   * Rozłącz produkt RECADV od produktu zamówienia
+   * @param {string} recadvId - ID dokumentu RECADV
+   * @param {number} recadvProductId - ID produktu w RECADV (row.id)
+   * @param {number} linkedOrderProductId - ID powiązania (z linkedOrderProducts[].id)
+   */
+  function unlinkRecadvProduct(
+    recadvId,
+    recadvProductId,
+    linkedOrderProductId,
+  ) {
+    return $.ajax({
+      type: "PATCH",
+      url:
+        InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products",
+      headers: {
+        Authorization: orgToken,
+        "Content-Type": "application/json",
+        "Requested-By": "webflow-3-4",
+      },
+      data: JSON.stringify([
+        {
+          op: "remove",
+          path:
+            "/" +
+            recadvProductId +
+            "/linkedOrderProducts/" +
+            linkedOrderProductId,
+        },
+      ]),
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+    });
+  }
+
   function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
     // 1) jeśli już stoi – ubij i wyczyść
     if ($.fn.DataTable.isDataTable("#table_delivery")) {
@@ -1297,24 +1381,94 @@ whenReadyAndDataTables(function () {
         }
       },
     );
+    // Event: Połącz produkt
+    $(document)
+      .off("click.delivery", ".link-btn")
+      .on("click.delivery", ".link-btn", function () {
+        const btn = $(this);
+        const tr = btn.closest("tr");
+        const row = deliveryTable.row(tr);
+        const rowData = row.data();
 
-    $(document).on("click.delivery", ".link-btn", function () {
-      const productId = $(this).data("product-id");
-      const matchId = $(this).data("match-id");
-      console.log("LINK", { productId, matchId });
+        const productId = btn.data("product-id");
+        const matchId = btn.data("match-id");
 
-      // linkRecadvProduct(productId, matchId)
-      //   .then(() => deliveryTable.ajax.reload(null, false));
-    });
+        const proposal = safeArr(rowData?.potentialMatches).find(
+          (p) => p.id === matchId,
+        );
+        const quantity = proposal?.matchableQty || sumQty(rowData?.segments);
 
-    $(document).on("click.delivery", ".unlink-btn", function () {
-      const productId = $(this).data("product-id");
-      const linkedId = $(this).data("linked-id");
-      console.log("UNLINK", { productId, linkedId });
+        console.log("LINK", { recadvId, productId, matchId, quantity });
 
-      // unlinkRecadvProduct(productId, linkedId)
-      //   .then(() => deliveryTable.ajax.reload(null, false));
-    });
+        btn.prop("disabled", true).css("opacity", "0.5");
+
+        linkRecadvProduct(recadvId, productId, matchId, quantity)
+          .then(function (response) {
+            // Znajdź zaktualizowany produkt w odpowiedzi
+            const updatedProduct = safeArr(response?.items).find(
+              (item) => item.id === productId,
+            );
+
+            if (updatedProduct) {
+              // Aktualizuj tylko ten wiersz
+              row.data(updatedProduct).draw(false); // false = nie resetuj paginacji
+            } else {
+              // Fallback: odśwież całą tabelę
+              deliveryTable.ajax.reload(null, false);
+            }
+
+            displayMessage("Success", "Produkt został połączony");
+          })
+          .catch(function (error) {
+            console.error("Link error:", error);
+            const msg =
+              error.responseJSON?.message || "Nie udało się połączyć produktu";
+            displayMessage("Error", msg);
+            btn.prop("disabled", false).css("opacity", "1");
+          });
+      });
+
+    // Event: Rozłącz produkt
+    $(document)
+      .off("click.delivery", ".unlink-btn")
+      .on("click.delivery", ".unlink-btn", function () {
+        const btn = $(this);
+        const tr = btn.closest("tr");
+        const row = deliveryTable.row(tr);
+        const rowData = row.data();
+
+        const productId = btn.data("product-id");
+        const linkedId = btn.data("linked-id");
+
+        console.log("UNLINK", { recadvId, productId, linkedId });
+
+        btn.prop("disabled", true).css("opacity", "0.5");
+
+        unlinkRecadvProduct(recadvId, productId, linkedId)
+          .then(function (response) {
+            // Znajdź zaktualizowany produkt w odpowiedzi
+            const updatedProduct = safeArr(response?.items).find(
+              (item) => item.id === productId,
+            );
+
+            if (updatedProduct) {
+              // Aktualizuj tylko ten wiersz
+              row.data(updatedProduct).draw(false);
+            } else {
+              // Fallback: odśwież całą tabelę
+              deliveryTable.ajax.reload(null, false);
+            }
+
+            displayMessage("Success", "Powiązanie zostało usunięte");
+          })
+          .catch(function (error) {
+            console.error("Unlink error:", error);
+            const msg =
+              error.responseJSON?.message || "Nie udało się rozłączyć produktu";
+            displayMessage("Error", msg);
+            btn.prop("disabled", false).css("opacity", "1");
+          });
+      });
 
     // === FILTRY STATUSÓW ===
     renderStatusFilters("status-filters");
