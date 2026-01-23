@@ -1219,6 +1219,7 @@ whenReadyAndDataTables(function () {
             return `<span class="${st.badge}">${st.label}</span>`;
           },
         },
+        // Kolumna 10 - Akcje
         {
           data: null,
           orderable: false,
@@ -1226,19 +1227,44 @@ whenReadyAndDataTables(function () {
           width: "120px",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProducts);
-            if (!linked.length) return ""; // Połącz jest w child
+            const proposals = safeArr(row?.potentialMatches);
 
-            const linkedId = linked?.[0]?.id;
-            return `
-            <button
-              class="btn btn-outline btn-sm unlink-btn"
-              data-product-id="${row?.id}"
-              data-linked-id="${linkedId}"
-              title="Rozłącz powiązanie"
-            >
-              Rozłącz
-            </button>
-          `;
+            // Jeśli jest połączony - pokaż "Rozłącz"
+            if (linked.length) {
+              const linkedId = linked[0]?.id;
+              return `
+        <button
+          class="btn btn-outline btn-sm unlink-btn"
+          data-product-id="${row?.id}"
+          data-linked-id="${linkedId}"
+          title="Rozłącz powiązanie"
+          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151;"
+        >
+          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea9a4156829e3e08abb_unlink.svg" alt="" style="width: 16px; height: 16px;">
+          Rozłącz
+        </button>
+      `;
+            }
+
+            // Jeśli jest propozycja - pokaż "Połącz"
+            if (proposals.length) {
+              const matchId = proposals[0]?.id;
+              return `
+        <button
+          class="btn btn-outline btn-sm link-btn"
+          data-product-id="${row?.id}"
+          data-match-id="${matchId}"
+          title="Połącz z zamówieniem"
+          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8;"
+        >
+          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea958a0de9b2d8c0dcf_link.svg" alt="" style="width: 16px; height: 16px;">
+          Połącz
+        </button>
+      `;
+            }
+
+            // Brak akcji
+            return "";
           },
         },
       ],
