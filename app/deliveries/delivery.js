@@ -1411,17 +1411,38 @@ whenReadyAndDataTables(function () {
 
         const productId = btn.data("product-id");
         const matchId = btn.data("match-id");
+        const gtin = rowData?.gtin;
 
         const proposal = safeArr(rowData?.potentialMatches).find(
           (p) => p.id === matchId,
         );
         const quantity = proposal?.matchableQty || sumQty(rowData?.segments);
 
-        console.log("LINK", { recadvId, productId, matchId, quantity });
+        console.log("LINK", { recadvId, productId, matchId, quantity, gtin });
 
         btn.prop("disabled", true).css("opacity", "0.5");
 
         linkRecadvProduct(recadvId, productId, matchId, quantity)
+          .then(function () {
+            // Pobierz świeże dane z pełnym stanem (potentialMatches, linkedOrderProducts)
+            const days = $("#orderingDays").val() || 7;
+            return $.ajax({
+              type: "GET",
+              url:
+                InvokeURL +
+                "van/recadvs/" +
+                encodeURIComponent(recadvId) +
+                "/products",
+              headers: {
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+              data: {
+                gtin: gtin,
+                days: days,
+              },
+            });
+          })
           .then(function (response) {
             const updatedProduct = safeArr(response?.items).find(
               (item) => item.id === productId,
@@ -1430,8 +1451,6 @@ whenReadyAndDataTables(function () {
             if (updatedProduct) {
               row.data(updatedProduct);
               refreshFiltersAfterUpdate();
-            } else {
-              deliveryTable.ajax.reload(null, false);
             }
 
             displayMessage("Success", "Produkt został połączony");
