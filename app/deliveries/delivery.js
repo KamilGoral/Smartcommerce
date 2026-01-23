@@ -491,6 +491,134 @@ whenReadyAndDataTables(function () {
       ClientID,
   );
 
+  // ============================================
+  // Pobierz szczegóły dokumentu RECADV i wypełnij pola
+  // ============================================
+  function loadDeliveryDetails() {
+    $.ajax({
+      type: "GET",
+      url: InvokeURL + "van/transactions/" + encodeURIComponent(recadvId),
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
+      success: function (data) {
+        // Tytuł dokumentu
+        const deliveryTitle = document.getElementById("DeliveryIdBig");
+        if (deliveryTitle && data.name) {
+          deliveryTitle.textContent = data.name;
+        }
+
+        // Dostawca
+        const wholesalerName = document.getElementById("wholesalerName");
+        if (wholesalerName && data.wholesalerKey) {
+          const formatted = data.wholesalerKey.charAt(0).toUpperCase() +
+                           data.wholesalerKey.slice(1).replace(/-/g, " ");
+          wholesalerName.textContent = formatted;
+        }
+
+        // Plik źródłowy
+        const sourceFile = document.getElementById("sourceFile");
+        if (sourceFile && data.sourceFile && data.sourceFile.name) {
+          sourceFile.innerHTML = `<strong>${escapeHtml(data.sourceFile.name)}</strong>`;
+        }
+
+        // Data utworzenia
+        const createdAtBy = document.getElementById("createdAtBy");
+        if (createdAtBy && data.created && data.created.at) {
+          const date = new Date(data.created.at).toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          const by = data.created.by ? ` przez ${data.created.by}` : "";
+          createdAtBy.innerHTML = `<strong>${date}${by}</strong>`;
+        }
+
+        // Data modyfikacji
+        const modifiedAtBy = document.getElementById("modifiedAtBy");
+        if (modifiedAtBy && data.modified && data.modified.at) {
+          const date = new Date(data.modified.at).toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          const by = data.modified.by ? ` przez ${data.modified.by}` : "";
+          modifiedAtBy.innerHTML = `<strong>${date}${by}</strong>`;
+        }
+
+        // Status badges
+        if (data.status) {
+          const editState = document.querySelector(".editstate");
+          const confirmedState = document.querySelector(".confirmedstate");
+
+          if (data.status.toLowerCase() === "draft") {
+            if (editState) editState.style.display = "flex";
+            if (confirmedState) confirmedState.style.display = "none";
+          } else if (data.status.toLowerCase() === "committed") {
+            if (editState) editState.style.display = "none";
+            if (confirmedState) confirmedState.style.display = "flex";
+          }
+        }
+      },
+      error: function (error) {
+        console.error("Błąd pobierania szczegółów dostawy:", error);
+        displayMessage("Error", "Nie udało się pobrać szczegółów dostawy");
+      },
+    });
+  }
+
+  // Wywołaj po załadowaniu strony
+  loadDeliveryDetails();
+
+  // ============================================
+  // Aktualizuj statystyki na podstawie danych z tabeli
+  // ============================================
+  function updateDeliveryStatistics(tableData) {
+    // Liczba produktów
+    const productsCount = document.getElementById("productsCountDelivery");
+    if (productsCount) {
+      productsCount.textContent = tableData.length;
+    }
+
+    // Oblicz wartość całkowitą
+    let totalValue = 0;
+    let diffCount = 0;
+
+    tableData.forEach((row) => {
+      const deliveredValue = valueTotal(row?.segments);
+      totalValue += deliveredValue;
+
+      // Policz rozbieżności
+      const state = computeRowState(row);
+      if (state.key.startsWith("diff_")) {
+        diffCount++;
+      }
+    });
+
+    // Wartość
+    const valueDelivery = document.getElementById("valueDelivery");
+    if (valueDelivery) {
+      valueDelivery.textContent = fmtPLN(totalValue);
+    }
+
+    // Niezgodności
+    const diffDeliveryOrders = document.getElementById("diffDeliveryOrders");
+    if (diffDeliveryOrders) {
+      diffDeliveryOrders.textContent = diffCount;
+    }
+  }
+
   //tutaj kod
 
   // ============================================
@@ -1059,6 +1187,9 @@ whenReadyAndDataTables(function () {
         const orderIds = getAllOrderIds(json.data);
         renderOrderDropdown(containerId, orderIds);
         initOrderFilterEvents(table, containerId);
+
+        // Update statystyk na górze strony
+        updateDeliveryStatistics(json.data);
       }
     });
   }
