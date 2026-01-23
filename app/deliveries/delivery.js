@@ -560,7 +560,7 @@ whenReadyAndDataTables(function () {
     const deliveredQty = sumQty(rec?.segments);
     const deliveredPrice = avgPriceWeighted(rec?.segments);
 
-    const linked = safeArr(rec?.linkedOrderProduct); // z API sample: linkedOrderProduct: []
+    const linked = safeArr(rec?.linkedOrderProducts); // z API sample: linkedOrderProducts: []
     const hasLinked = linked.length > 0;
 
     const hasProposals = safeArr(rec?.potentialMatches).length > 0;
@@ -935,7 +935,7 @@ whenReadyAndDataTables(function () {
       data: JSON.stringify([
         {
           op: "add",
-          path: "/" + recadvProductId + "/linkedOrderProducts/-",
+          path: "/" + recadvProductId + "/linkedOrderProductss/-",
           value: {
             orderProductId: orderProductId,
             quantity: quantity,
@@ -955,12 +955,12 @@ whenReadyAndDataTables(function () {
    * Rozłącz produkt RECADV od produktu zamówienia
    * @param {string} recadvId - ID dokumentu RECADV
    * @param {number} recadvProductId - ID produktu w RECADV (row.id)
-   * @param {number} linkedOrderProductId - ID powiązania (z linkedOrderProducts[].id)
+   * @param {number} linkedOrderProductsId - ID powiązania (z linkedOrderProductss[].id)
    */
   function unlinkRecadvProduct(
     recadvId,
     recadvProductId,
-    linkedOrderProductId,
+    linkedOrderProductsId,
   ) {
     return $.ajax({
       type: "PATCH",
@@ -977,8 +977,8 @@ whenReadyAndDataTables(function () {
           path:
             "/" +
             recadvProductId +
-            "/linkedOrderProducts/" +
-            linkedOrderProductId,
+            "/linkedOrderProductss/" +
+            linkedOrderProductsId,
         },
       ]),
       beforeSend: function () {
@@ -1164,7 +1164,7 @@ whenReadyAndDataTables(function () {
           className: "text-right",
           render: function (data, type, row) {
             // Najpierw sprawdź linked, potem potentialMatches
-            const linked = safeArr(row?.linkedOrderProducts);
+            const linked = safeArr(row?.linkedOrderProductss);
             const proposals = safeArr(row?.potentialMatches);
 
             let q = 0;
@@ -1192,7 +1192,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
+            const linked = safeArr(row?.linkedOrderProductss);
             const proposals = safeArr(row?.potentialMatches);
 
             let p = null;
@@ -1216,7 +1216,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
+            const linked = safeArr(row?.linkedOrderProductss);
             const proposals = safeArr(row?.potentialMatches);
 
             if (!linked.length && !proposals.length)
@@ -1248,7 +1248,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
+            const linked = safeArr(row?.linkedOrderProductss);
             const proposals = safeArr(row?.potentialMatches);
 
             if (!linked.length && !proposals.length)
@@ -1286,7 +1286,7 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "doc-col",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
+            const linked = safeArr(row?.linkedOrderProductss);
             const proposals = safeArr(row?.potentialMatches);
 
             let orderId = null;
@@ -1328,7 +1328,7 @@ whenReadyAndDataTables(function () {
           className: "actions-col",
           width: "120px",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
+            const linked = safeArr(row?.linkedOrderProductss);
             const proposals = safeArr(row?.potentialMatches);
 
             // Jeśli jest połączony - pokaż "Rozłącz"
