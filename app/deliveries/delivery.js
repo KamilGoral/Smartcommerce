@@ -646,7 +646,9 @@ whenReadyAndDataTables(function () {
 
     const sign = v > 0 ? "+" : "";
     if (v > 0) {
-      const style = italic ? "color: #d97706; font-style: italic;" : "color: #d97706;";
+      const style = italic
+        ? "color: #d97706; font-style: italic;"
+        : "color: #d97706;";
       return `<span style="${style}">${sign}${v}</span>`;
     } else {
       const cls = italic ? "neg italic" : "neg";
@@ -663,7 +665,9 @@ whenReadyAndDataTables(function () {
 
     const sign = v > 0 ? "+" : "";
     if (v > 0) {
-      const style = italic ? "color: #d97706; font-style: italic;" : "color: #d97706;";
+      const style = italic
+        ? "color: #d97706; font-style: italic;"
+        : "color: #d97706;";
       return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
     } else {
       const cls = italic ? "neg italic" : "neg";
@@ -761,6 +765,98 @@ whenReadyAndDataTables(function () {
    * Init/Reset DataTables na #table_delivery dla konkretnego recadvId
    * Wymaga: InvokeURL, orgToken
    */
+
+  // ---------- Order Document Filter ----------
+  let currentOrderFilterFn = null;
+
+  function getAllOrderIds(tableData) {
+    const orderIds = new Set();
+
+    tableData.forEach((row) => {
+      const linked = safeArr(row?.linkedOrderProducts);
+      const proposals = safeArr(row?.potentialMatches);
+
+      // Dodaj Order IDs z linkedOrderProducts
+      linked.forEach((link) => {
+        if (link?.orderId) orderIds.add(link.orderId);
+      });
+
+      // Dodaj Order IDs z potentialMatches
+      proposals.forEach((proposal) => {
+        if (proposal?.orderId) orderIds.add(proposal.orderId);
+      });
+    });
+
+    return Array.from(orderIds).sort();
+  }
+
+  function renderOrderDropdown(containerId, orderIds) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.warn(`Container #${containerId} not found`);
+      return;
+    }
+
+    const options = orderIds
+      .map(
+        (orderId) =>
+          `<option value="${escapeHtml(orderId)}">${escapeHtml(orderId)}</option>`,
+      )
+      .join("");
+
+    container.innerHTML = `
+      <select id="order-filter-select" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; min-width: 200px;">
+        <option value="">Wszystkie zamówienia</option>
+        ${options}
+      </select>
+    `;
+  }
+
+  function applyOrderFilter(table, orderId) {
+    // Usuń poprzedni filtr zamówienia jeśli istnieje
+    if (currentOrderFilterFn) {
+      const idx = $.fn.dataTable.ext.search.indexOf(currentOrderFilterFn);
+      if (idx > -1) {
+        $.fn.dataTable.ext.search.splice(idx, 1);
+      }
+    }
+
+    if (orderId) {
+      currentOrderFilterFn = function (settings, data, dataIndex) {
+        if (settings.nTable.id !== "table_delivery") return true;
+
+        const rowData = table.row(dataIndex).data();
+        const linked = safeArr(rowData?.linkedOrderProducts);
+        const proposals = safeArr(rowData?.potentialMatches);
+
+        // Sprawdź czy produkt ma powiązanie z wybranym zamówieniem
+        const hasLinkedOrder = linked.some((link) => link?.orderId === orderId);
+        const hasProposalOrder = proposals.some(
+          (proposal) => proposal?.orderId === orderId,
+        );
+
+        return hasLinkedOrder || hasProposalOrder;
+      };
+
+      $.fn.dataTable.ext.search.push(currentOrderFilterFn);
+    } else {
+      currentOrderFilterFn = null;
+    }
+
+    table.draw();
+  }
+
+  function initOrderFilterEvents(table, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.addEventListener("change", function (e) {
+      if (e.target.id === "order-filter-select") {
+        const orderId = e.target.value;
+        applyOrderFilter(table, orderId);
+      }
+    });
+  }
 
   // ---------- Status Filter Configuration ----------
   const STATUS_FILTERS = [
@@ -908,10 +1004,15 @@ whenReadyAndDataTables(function () {
 
     // Update counters po każdym renderze tabeli
     table.on("xhr.dt", function (e, settings, json) {
-      // Po załadowaniu danych AJAX - update liczników
+      // Po załadowaniu danych AJAX - update liczników i dropdown
       if (json && json.data) {
         const counts = countByStatus(json.data);
         updateFilterCounters(counts);
+
+        // Update order dropdown
+        const orderIds = getAllOrderIds(json.data);
+        renderOrderDropdown("order-filter-container", orderIds);
+        initOrderFilterEvents(table, "order-filter-container");
       }
     });
   }
@@ -1533,9 +1634,10 @@ whenReadyAndDataTables(function () {
           });
       });
 
-    // === FILTRY STATUSÓW ===
+    // === FILTRY STATUSÓW I ZAMÓWIEŃ ===
     renderStatusFilters("status-filters");
     initStatusFilterEvents(deliveryTable, "status-filters");
+    // Order filter będzie zainicjalizowany w xhr.dt event po załadowaniu danych
 
     return deliveryTable;
   }
