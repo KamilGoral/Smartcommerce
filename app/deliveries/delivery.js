@@ -820,8 +820,6 @@ whenReadyAndDataTables(function () {
       search: { return: true },
 
       ajax: function (data, callback) {
-        let QStr = "?perPage=1000";
-
         $.ajaxSetup({
           headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
           beforeSend: function () {
@@ -836,8 +834,7 @@ whenReadyAndDataTables(function () {
           InvokeURL +
             "van/recadvs/" +
             encodeURIComponent(recadvId) +
-            "/products" +
-            QStr,
+            "/products?perPage=1000",
           function (res) {
             callback({
               recordsTotal: res.total,
