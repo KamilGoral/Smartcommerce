@@ -822,13 +822,6 @@ whenReadyAndDataTables(function () {
       ajax: function (data, callback) {
         let QStr = "?perPage=1000";
 
-        const searchBox = (data.search.value || "").trim();
-        if (searchBox) {
-          if (/^\d+$/.test(searchBox))
-            QStr += "&gtin=" + encodeURIComponent(searchBox);
-          else QStr += "&name=like:" + encodeURIComponent(searchBox);
-        }
-
         $.ajaxSetup({
           headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
           beforeSend: function () {
