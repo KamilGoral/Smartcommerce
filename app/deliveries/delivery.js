@@ -644,7 +644,7 @@ whenReadyAndDataTables(function () {
     if (v === 0)
       return `<span class="${italic ? "zero italic" : "zero"}">0</span>`;
     const cls =
-      v > 0 ? (italic ? "pos italic" : "pos") : italic ? "neg italic" : "neg";
+      v > 0 ? (italic ? "warn italic" : "warn") : italic ? "neg italic" : "neg";
     const sign = v > 0 ? "+" : "";
     return `<span class="${cls}">${sign}${v}</span>`;
   }
@@ -656,7 +656,7 @@ whenReadyAndDataTables(function () {
     if (Math.abs(v) < 0.000001)
       return `<span class="${italic ? "zero italic" : "zero"}">${fmtPLN(0)}</span>`;
     const cls =
-      v > 0 ? (italic ? "pos italic" : "pos") : italic ? "neg italic" : "neg";
+      v > 0 ? (italic ? "warn italic" : "warn") : italic ? "neg italic" : "neg";
     const sign = v > 0 ? "+" : "";
     return `<span class="${cls}">${sign}${fmtPLN(Math.abs(v))}</span>`;
   }
