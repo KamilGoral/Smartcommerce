@@ -703,26 +703,26 @@ whenReadyAndDataTables(function () {
       const matchId = m?.id;
 
       return `
-      <tr class="child-row">
-        <td></td>
-        <td class="child-product">
-          <div class="variant-row">
-            <span class="variant-arrow">↳</span>
-            <span class="variant-name">Wariant ${idx + 1}</span>
-            <span class="variant-meta">${parentGtin ? parentGtin : ""}</span>
+      <tr class="child-row" style="background: white;">
+        <td style="padding: 8px;"></td>
+        <td class="child-product" style="padding: 8px;">
+          <div class="variant-row" style="display: flex; align-items: center; gap: 8px;">
+            <span class="variant-arrow" style="color: #9ca3af;">↳</span>
+            <span class="variant-name" style="font-weight: 500;">Wariant ${idx + 1}</span>
+            <span class="variant-meta" style="color: #6b7280; font-size: 12px;">${parentGtin ? parentGtin : ""}</span>
           </div>
         </td>
 
-        <td class="text-right muted">-</td>
-        <td class="text-right muted separator-right">-</td>
+        <td class="text-right muted" style="padding: 8px;">-</td>
+        <td class="text-right muted separator-right" style="padding: 8px;">-</td>
 
-        <td class="text-right italic">${fmtQty(orderedQty)}</td>
-        <td class="text-right italic">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
+        <td class="text-right italic" style="padding: 8px;">${fmtQty(orderedQty)}</td>
+        <td class="text-right italic" style="padding: 8px;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
 
-        <td class="text-right">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span class="muted italic">-</span>`}</td>
-        <td class="text-right">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span class="muted italic">-</span>`}</td>
+        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span class="muted italic">-</span>`}</td>
+        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span class="muted italic">-</span>`}</td>
 
-        <td class="doc-col italic">
+        <td class="doc-col italic" style="padding: 8px;">
           ${
             orderId
               ? `<a class="doc-link italic" href="/orders/${orderId}" target="_blank" rel="noopener">${orderId}</a>`
@@ -730,17 +730,20 @@ whenReadyAndDataTables(function () {
           }
         </td>
 
-        <td class="status-col">
+        <td class="status-col" style="padding: 8px;">
           <span class="badge badge--info">Propozycja</span>
         </td>
 
-        <td class="actions-col">
+        <td class="actions-col" style="padding: 8px;">
           <button
             class="btn btn-outline btn-sm link-btn"
             data-product-id="${parent?.id}"
             data-match-id="${matchId}"
+            title="Połącz z zamówieniem"
+            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8;"
           >
-            <span class="icon-link">🔗</span> Połącz
+            <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea958a0de9b2d8c0dcf_link.svg" alt="" style="width: 16px; height: 16px;">
+            Połącz
           </button>
         </td>
       </tr>
@@ -748,8 +751,8 @@ whenReadyAndDataTables(function () {
     });
 
     return `
-    <div class="child-wrap">
-      <table class="child-table">
+    <div class="child-wrap" style="padding: 10px 20px; background: #f9fafb;">
+      <table class="child-table" style="width: 100%; border-collapse: collapse;">
         <tbody>
           ${rows.join("")}
         </tbody>
@@ -798,15 +801,15 @@ whenReadyAndDataTables(function () {
     }
 
     // Sprawdź czy dropdown już istnieje
-    let dropdownWrapper = container.querySelector('.order-dropdown-wrapper');
+    let dropdownWrapper = container.querySelector(".order-dropdown-wrapper");
 
     if (!dropdownWrapper) {
       // Utwórz wrapper dla dropdownu
-      dropdownWrapper = document.createElement('div');
-      dropdownWrapper.className = 'order-dropdown-wrapper';
-      dropdownWrapper.style.marginLeft = 'auto';
-      dropdownWrapper.style.display = 'flex';
-      dropdownWrapper.style.alignItems = 'center';
+      dropdownWrapper = document.createElement("div");
+      dropdownWrapper.className = "order-dropdown-wrapper";
+      dropdownWrapper.style.marginLeft = "auto";
+      dropdownWrapper.style.display = "flex";
+      dropdownWrapper.style.alignItems = "center";
       container.appendChild(dropdownWrapper);
     }
 
@@ -897,10 +900,10 @@ whenReadyAndDataTables(function () {
     }
 
     // Ustaw flexbox layout na kontenerze
-    container.style.display = 'flex';
-    container.style.flexWrap = 'wrap';
-    container.style.alignItems = 'center';
-    container.style.gap = '8px';
+    container.style.display = "flex";
+    container.style.flexWrap = "wrap";
+    container.style.alignItems = "center";
+    container.style.gap = "8px";
 
     const html = STATUS_FILTERS.map(
       (filter) => `
@@ -1236,16 +1239,15 @@ whenReadyAndDataTables(function () {
         {
           data: null,
           orderable: false,
-          defaultContent: "",
-          width: "20px",
-          createdCell: function (row, cell) {
+          className: "expander-col",
+          width: "30px",
+          render: function (data, type, row) {
             const proposals = safeArr(row?.potentialMatches);
             if (proposals.length > 1) {
-              $(cell).addClass("details-control");
+              return '<span class="expander" style="cursor: pointer; font-size: 16px; user-select: none;">▶</span>';
             }
             return "";
           },
-          orderable: false,
         },
         {
           data: null,
@@ -1514,7 +1516,8 @@ whenReadyAndDataTables(function () {
       "td.expander-col .expander",
       function (e) {
         e.preventDefault();
-        const tr = $(this).closest("tr");
+        const expander = $(this);
+        const tr = expander.closest("tr");
         const row = deliveryTable.row(tr);
         const data = row.data();
         const proposals = safeArr(data?.potentialMatches);
@@ -1523,9 +1526,11 @@ whenReadyAndDataTables(function () {
         if (row.child.isShown()) {
           row.child.hide();
           tr.removeClass("shown");
+          expander.text("▶");
         } else {
           row.child(renderChildProposals(data)).show();
           tr.addClass("shown");
+          expander.text("▼");
         }
       },
     );
@@ -1535,12 +1540,17 @@ whenReadyAndDataTables(function () {
       .off("click.delivery", ".link-btn")
       .on("click.delivery", ".link-btn", function () {
         const btn = $(this);
-        const tr = btn.closest("tr");
-        const row = deliveryTable.row(tr);
-        const rowData = row.data();
-
         const productId = btn.data("product-id");
         const matchId = btn.data("match-id");
+
+        // Znajdź parent row (dla child rows, znajdź poprzedni tr który nie jest child-row)
+        let tr = btn.closest("tr");
+        if (tr.hasClass("child-row")) {
+          tr = tr.prevAll("tr").not(".child-row").first();
+        }
+
+        const row = deliveryTable.row(tr);
+        const rowData = row.data();
         const gtin = rowData?.gtin;
 
         const proposal = safeArr(rowData?.potentialMatches).find(
@@ -1579,6 +1589,13 @@ whenReadyAndDataTables(function () {
             );
 
             if (updatedProduct) {
+              // Zamknij child row jeśli był otwarty
+              if (row.child.isShown()) {
+                row.child.hide();
+                $(row.node()).removeClass("shown");
+                $(row.node()).find(".expander").text("▶");
+              }
+
               row.data(updatedProduct);
               refreshFiltersAfterUpdate();
             }
