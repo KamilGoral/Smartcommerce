@@ -935,7 +935,7 @@ whenReadyAndDataTables(function () {
       data: JSON.stringify([
         {
           op: "add",
-          path: "/" + recadvProductId + "/linkedOrderProductss/-",
+          path: "/" + recadvProductId + "/linkedOrderProducts/-",
           value: {
             orderProductId: orderProductId,
             quantity: quantity,
@@ -955,7 +955,7 @@ whenReadyAndDataTables(function () {
    * Rozłącz produkt RECADV od produktu zamówienia
    * @param {string} recadvId - ID dokumentu RECADV
    * @param {number} recadvProductId - ID produktu w RECADV (row.id)
-   * @param {number} linkedOrderProductsId - ID powiązania (z linkedOrderProductss[].id)
+   * @param {number} linkedOrderProductsId - ID powiązania (z linkedOrderProducts[].id)
    */
   function unlinkRecadvProduct(
     recadvId,
@@ -977,7 +977,7 @@ whenReadyAndDataTables(function () {
           path:
             "/" +
             recadvProductId +
-            "/linkedOrderProductss/" +
+            "/linkedOrderProducts/" +
             linkedOrderProductsId,
         },
       ]),
@@ -1328,7 +1328,7 @@ whenReadyAndDataTables(function () {
           className: "actions-col",
           width: "120px",
           render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProductss);
+            const linked = safeArr(row?.linkedOrderProducts);
             const proposals = safeArr(row?.potentialMatches);
 
             // Jeśli jest połączony - pokaż "Rozłącz"
