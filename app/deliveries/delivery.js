@@ -990,6 +990,24 @@ whenReadyAndDataTables(function () {
     });
   }
 
+  // Helper: Aktualizuj liczniki i przefiltruj jeśli trzeba
+  function refreshFiltersAfterUpdate() {
+    // 1. Aktualizuj liczniki
+    const allData = deliveryTable.rows().data().toArray();
+    const counts = countByStatus(allData);
+    updateFilterCounters(counts);
+
+    // 2. Sprawdź aktywny filtr i przefiltruj
+    const activeFilter = document.querySelector(".status-filter-btn.active");
+    if (activeFilter) {
+      const filterKey = activeFilter.dataset.filter;
+      if (filterKey !== "all") {
+        // Przefiltruj ponownie (usunie wiersz z widoku jeśli zmienił status)
+        deliveryTable.draw(false);
+      }
+    }
+  }
+
   function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
     // 1) jeśli już stoi – ubij i wyczyść
     if ($.fn.DataTable.isDataTable("#table_delivery")) {
@@ -1381,6 +1399,7 @@ whenReadyAndDataTables(function () {
         }
       },
     );
+
     // Event: Połącz produkt
     $(document)
       .off("click.delivery", ".link-btn")
@@ -1404,16 +1423,14 @@ whenReadyAndDataTables(function () {
 
         linkRecadvProduct(recadvId, productId, matchId, quantity)
           .then(function (response) {
-            // Znajdź zaktualizowany produkt w odpowiedzi
             const updatedProduct = safeArr(response?.items).find(
               (item) => item.id === productId,
             );
 
             if (updatedProduct) {
-              // Aktualizuj tylko ten wiersz
-              row.data(updatedProduct).draw(false); // false = nie resetuj paginacji
+              row.data(updatedProduct);
+              refreshFiltersAfterUpdate();
             } else {
-              // Fallback: odśwież całą tabelę
               deliveryTable.ajax.reload(null, false);
             }
 
@@ -1446,16 +1463,14 @@ whenReadyAndDataTables(function () {
 
         unlinkRecadvProduct(recadvId, productId, linkedId)
           .then(function (response) {
-            // Znajdź zaktualizowany produkt w odpowiedzi
             const updatedProduct = safeArr(response?.items).find(
               (item) => item.id === productId,
             );
 
             if (updatedProduct) {
-              // Aktualizuj tylko ten wiersz
-              row.data(updatedProduct).draw(false);
+              row.data(updatedProduct);
+              refreshFiltersAfterUpdate();
             } else {
-              // Fallback: odśwież całą tabelę
               deliveryTable.ajax.reload(null, false);
             }
 
