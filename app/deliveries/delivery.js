@@ -643,10 +643,15 @@ whenReadyAndDataTables(function () {
       return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
     if (v === 0)
       return `<span class="${italic ? "zero italic" : "zero"}">0</span>`;
-    const cls =
-      v > 0 ? (italic ? "warn italic" : "warn") : italic ? "neg italic" : "neg";
+
     const sign = v > 0 ? "+" : "";
-    return `<span class="${cls}">${sign}${v}</span>`;
+    if (v > 0) {
+      const style = italic ? "color: #d97706; font-style: italic;" : "color: #d97706;";
+      return `<span style="${style}">${sign}${v}</span>`;
+    } else {
+      const cls = italic ? "neg italic" : "neg";
+      return `<span class="${cls}">${sign}${v}</span>`;
+    }
   }
 
   function diffSpanMoney(n, italic = false) {
@@ -655,10 +660,15 @@ whenReadyAndDataTables(function () {
       return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
     if (Math.abs(v) < 0.000001)
       return `<span class="${italic ? "zero italic" : "zero"}">${fmtPLN(0)}</span>`;
-    const cls =
-      v > 0 ? (italic ? "warn italic" : "warn") : italic ? "neg italic" : "neg";
+
     const sign = v > 0 ? "+" : "";
-    return `<span class="${cls}">${sign}${fmtPLN(Math.abs(v))}</span>`;
+    if (v > 0) {
+      const style = italic ? "color: #d97706; font-style: italic;" : "color: #d97706;";
+      return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
+    } else {
+      const cls = italic ? "neg italic" : "neg";
+      return `<span class="${cls}">${sign}${fmtPLN(Math.abs(v))}</span>`;
+    }
   }
 
   // ---------- child row render (warianty/propozycje) ----------
