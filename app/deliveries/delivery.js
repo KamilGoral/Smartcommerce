@@ -497,7 +497,7 @@ whenReadyAndDataTables(function () {
   function loadDeliveryDetails() {
     $.ajax({
       type: "GET",
-      url: InvokeURL + "van/transactions/" + encodeURIComponent(recadvId),
+      url: InvokeURL + "van/transactions?type=RECADV&shopKey=" + shopKey + "&perPage=500",
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
@@ -508,7 +508,15 @@ whenReadyAndDataTables(function () {
       complete: function () {
         $("#waitingdots").hide();
       },
-      success: function (data) {
+      success: function (response) {
+        // Znajdź dokument o odpowiednim UUID
+        const data = (response.items || []).find(item => item.uuid === recadvId);
+
+        if (!data) {
+          console.warn("Nie znaleziono dokumentu o UUID:", recadvId);
+          return;
+        }
+
         // Tytuł dokumentu
         const deliveryTitle = document.getElementById("DeliveryIdBig");
         if (deliveryTitle && data.name) {
