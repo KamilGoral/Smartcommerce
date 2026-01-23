@@ -851,7 +851,7 @@ whenReadyAndDataTables(function () {
           orderable: false,
           defaultContent: "",
           width: "20px",
-          createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
+          createdCell: function (row, cell) {
             const proposals = safeArr(row?.potentialMatches);
             if (proposals.length > 1) {
               $(cell).addClass("details-control");
