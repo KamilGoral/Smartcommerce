@@ -865,6 +865,39 @@ whenReadyAndDataTables(function () {
     });
   }
 
+  // ---------- Days Filter (Order Search Range) ----------
+  function renderDaysFilter(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.warn(`Container #${containerId} not found`);
+      return;
+    }
+
+    container.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach z ostatnich</span>
+        <select id="orderingDays" style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; cursor: pointer; background: white;">
+          <option value="3">3</option>
+          <option value="7" selected>7</option>
+          <option value="14">14</option>
+        </select>
+        <span style="font-size: 14px; color: #374151;">dni</span>
+      </div>
+    `;
+  }
+
+  function initDaysFilterEvents(table, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.addEventListener('change', function(e) {
+      if (e.target.id === 'orderingDays') {
+        // Odśwież tabelę z nowymi danymi
+        table.ajax.reload();
+      }
+    });
+  }
+
   // ---------- Status Filter Configuration ----------
   const STATUS_FILTERS = [
     { key: "all", label: "Wszystkie produkty", badge: null },
@@ -1214,11 +1247,14 @@ whenReadyAndDataTables(function () {
           },
         });
 
+        // Pobierz wartość dni z dropdownu
+        const days = $("#orderingDays").val() || 7;
+
         $.get(
           InvokeURL +
             "van/recadvs/" +
             encodeURIComponent(recadvId) +
-            "/products?perPage=1000",
+            "/products?perPage=1000&days=" + days,
           function (res) {
             callback({
               recordsTotal: res.total,
@@ -1678,6 +1714,10 @@ whenReadyAndDataTables(function () {
             btn.prop("disabled", false).css("opacity", "1");
           });
       });
+
+    // === FILTR DNI (nad filtrami statusów) ===
+    renderDaysFilter("days-filter");
+    initDaysFilterEvents(deliveryTable, "days-filter");
 
     // === FILTRY STATUSÓW I ZAMÓWIEŃ ===
     renderStatusFilters("status-filters");
