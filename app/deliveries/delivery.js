@@ -797,6 +797,19 @@ whenReadyAndDataTables(function () {
       return;
     }
 
+    // Sprawdź czy dropdown już istnieje
+    let dropdownWrapper = container.querySelector('.order-dropdown-wrapper');
+
+    if (!dropdownWrapper) {
+      // Utwórz wrapper dla dropdownu
+      dropdownWrapper = document.createElement('div');
+      dropdownWrapper.className = 'order-dropdown-wrapper';
+      dropdownWrapper.style.marginLeft = 'auto';
+      dropdownWrapper.style.display = 'flex';
+      dropdownWrapper.style.alignItems = 'center';
+      container.appendChild(dropdownWrapper);
+    }
+
     const options = orderIds
       .map(
         (orderId) =>
@@ -804,8 +817,8 @@ whenReadyAndDataTables(function () {
       )
       .join("");
 
-    container.innerHTML = `
-      <select id="order-filter-select" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; min-width: 200px;">
+    dropdownWrapper.innerHTML = `
+      <select id="order-filter-select" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; min-width: 200px; cursor: pointer; background: white;">
         <option value="">Wszystkie zamówienia</option>
         ${options}
       </select>
@@ -883,11 +896,17 @@ whenReadyAndDataTables(function () {
       return;
     }
 
+    // Ustaw flexbox layout na kontenerze
+    container.style.display = 'flex';
+    container.style.flexWrap = 'wrap';
+    container.style.alignItems = 'center';
+    container.style.gap = '8px';
+
     const html = STATUS_FILTERS.map(
       (filter) => `
-    <button 
+    <button
       type="button"
-      class="status-filter-btn ${filter.key === "all" ? "active" : ""}" 
+      class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
       data-filter="${filter.key}"
     >
       <span class="filter-label">${filter.label}</span>
@@ -1009,10 +1028,10 @@ whenReadyAndDataTables(function () {
         const counts = countByStatus(json.data);
         updateFilterCounters(counts);
 
-        // Update order dropdown
+        // Update order dropdown w tym samym kontenerze co filtry statusów
         const orderIds = getAllOrderIds(json.data);
-        renderOrderDropdown("order-filter-container", orderIds);
-        initOrderFilterEvents(table, "order-filter-container");
+        renderOrderDropdown(containerId, orderIds);
+        initOrderFilterEvents(table, containerId);
       }
     });
   }
