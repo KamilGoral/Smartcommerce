@@ -875,7 +875,7 @@ whenReadyAndDataTables(function () {
             data-product-id="${parent?.id}"
             data-match-id="${matchId}"
             title="Połącz z zamówieniem"
-            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8;"
+            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8; font-weight: 500;"
           >
             <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea958a0de9b2d8c0dcf_link.svg" alt="" style="width: 16px; height: 16px;">
             Połącz
@@ -1558,7 +1558,7 @@ whenReadyAndDataTables(function () {
         {
           data: "segments",
           orderable: true,
-          className: "text-right separator-right",
+          className: "text-right",
           render: function (segments, type) {
             const p = avgPriceWeighted(segments);
             if (type === "sort" || type === "type") return p ?? -1;
@@ -1748,9 +1748,9 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-linked-id="${linkedId}"
           title="Rozłącz powiązanie"
-          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151;"
+          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151; font-weight: 500;"
         >
-          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea9a4156829e3e08abb_unlink.svg" alt="" style="width: 16px; height: 16px;">
+          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea9a4156829e3e08abb_unlink.svg" alt="" style="width: 16px; height: 16px; opacity: 0.8;">
           Rozłącz
         </button>
       `;
@@ -1765,7 +1765,7 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-match-id="${matchId}"
           title="Połącz z zamówieniem"
-          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8;"
+          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8; font-weight: 500;"
         >
           <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea958a0de9b2d8c0dcf_link.svg" alt="" style="width: 16px; height: 16px;">
           Połącz
