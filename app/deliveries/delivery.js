@@ -585,6 +585,77 @@ whenReadyAndDataTables(function () {
             if (confirmedState) confirmedState.style.display = "flex";
           }
         }
+
+        // Utwórz kontener szczegółów dokumentu jeśli nie istnieje
+        let detailsContainer = document.querySelector(".deliverydetails");
+        if (!detailsContainer) {
+          // Znajdź miejsce do wstawienia (po statystykach)
+          const statisticsGrid = document.querySelector(".statisticsgrid");
+          if (statisticsGrid && statisticsGrid.parentNode) {
+            detailsContainer = document.createElement("div");
+            detailsContainer.className = "deliverydetails nonedisplay";
+            detailsContainer.style.display = "none";
+
+            // Struktura szczegółów
+            detailsContainer.innerHTML = `
+              <div class="div-block-83">
+                <div class="text-block-69">Plik źródłowy</div>
+                <div id="sourceFile">-</div>
+              </div>
+              <div class="div-block-83">
+                <div class="text-block-69">Data utworzenia</div>
+                <div id="createdAtBy">-</div>
+              </div>
+              <div class="div-block-83">
+                <div class="text-block-69">Data modyfikacji</div>
+                <div id="modifiedAtBy">-</div>
+              </div>
+            `;
+
+            // Wstaw po statystykach
+            statisticsGrid.parentNode.insertBefore(detailsContainer, statisticsGrid.nextSibling);
+
+            // Teraz ponownie wypełnij dane (bo właśnie stworzyliśmy elementy)
+            const sourceFileNew = document.getElementById("sourceFile");
+            if (sourceFileNew && data.sourceFile && data.sourceFile.name) {
+              sourceFileNew.innerHTML = `<strong>${escapeHtml(data.sourceFile.name)}</strong>`;
+            }
+
+            const createdAtByNew = document.getElementById("createdAtBy");
+            if (createdAtByNew && data.created && data.created.at) {
+              const date = new Date(data.created.at).toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              const by = data.created.by ? ` przez ${data.created.by}` : "";
+              createdAtByNew.innerHTML = `<strong>${date}${by}</strong>`;
+            }
+
+            const modifiedAtByNew = document.getElementById("modifiedAtBy");
+            if (modifiedAtByNew && data.modified && data.modified.at) {
+              const date = new Date(data.modified.at).toLocaleString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              const by = data.modified.by ? ` przez ${data.modified.by}` : "";
+              modifiedAtByNew.innerHTML = `<strong>${date}${by}</strong>`;
+            }
+
+            // Inicjalizuj toggle szczegółów po utworzeniu kontenera
+            console.log('Kontener szczegółów został utworzony, inicjalizuję toggle...');
+            setTimeout(() => {
+              if (typeof initDetailsToggleEvents === 'function') {
+                initDetailsToggleEvents();
+              }
+            }, 100);
+          }
+        }
       },
       error: function (error) {
         console.error("Błąd pobierania szczegółów dostawy:", error);
@@ -2153,11 +2224,7 @@ whenReadyAndDataTables(function () {
     // === FILTR DNI (nad filtrami statusów) ===
     renderDaysFilter("days-filter");
     initDaysFilterEvents(deliveryTable, "days-filter");
-
-    // Inicjalizuj toggle szczegółów po krótkim opóźnieniu, aby upewnić się że DOM jest gotowy
-    setTimeout(() => {
-      initDetailsToggleEvents();
-    }, 100);
+    // Toggle szczegółów będzie zainicjalizowany w loadDeliveryDetails() po utworzeniu kontenera
 
     // === FILTRY STATUSÓW I ZAMÓWIEŃ ===
     renderStatusFilters("status-filters");
