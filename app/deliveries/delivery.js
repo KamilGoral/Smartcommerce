@@ -1011,14 +1011,20 @@ whenReadyAndDataTables(function () {
     }
 
     container.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-        <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach z ostatnich</span>
-        <select id="orderingDays" style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; cursor: pointer; background: white;">
-          <option value="3">3</option>
-          <option value="7" selected>7</option>
-          <option value="14">14</option>
-        </select>
-        <span style="font-size: 14px; color: #374151;">dni</span>
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+        <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; color: #374151; transition: all 0.2s;">
+          <span>Szczegóły</span>
+          <span id="details-chevron" style="transition: transform 0.2s;">▼</span>
+        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach z ostatnich</span>
+          <select id="orderingDays" style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; cursor: pointer; background: white;">
+            <option value="3">3</option>
+            <option value="7" selected>7</option>
+            <option value="14">14</option>
+          </select>
+          <span style="font-size: 14px; color: #374151;">dni</span>
+        </div>
       </div>
     `;
   }
@@ -1031,6 +1037,31 @@ whenReadyAndDataTables(function () {
       if (e.target.id === 'orderingDays') {
         // Odśwież tabelę z nowymi danymi
         table.ajax.reload();
+      }
+    });
+  }
+
+  // ---------- Details Toggle (Szczegóły dokumentu) ----------
+  function initDetailsToggleEvents() {
+    const toggleBtn = document.getElementById('details-toggle-btn');
+    const chevron = document.getElementById('details-chevron');
+    const detailsContainer = document.querySelector('.deliverydetails');
+
+    if (!toggleBtn || !detailsContainer) return;
+
+    toggleBtn.addEventListener('click', function() {
+      const isHidden = detailsContainer.classList.contains('nonedisplay');
+
+      if (isHidden) {
+        // Rozwiń szczegóły
+        detailsContainer.classList.remove('nonedisplay');
+        chevron.style.transform = 'rotate(180deg)';
+        toggleBtn.style.background = '#f9fafb';
+      } else {
+        // Zwiń szczegóły
+        detailsContainer.classList.add('nonedisplay');
+        chevron.style.transform = 'rotate(0deg)';
+        toggleBtn.style.background = 'white';
       }
     });
   }
@@ -1858,6 +1889,7 @@ whenReadyAndDataTables(function () {
     // === FILTR DNI (nad filtrami statusów) ===
     renderDaysFilter("days-filter");
     initDaysFilterEvents(deliveryTable, "days-filter");
+    initDetailsToggleEvents(); // Inicjalizuj toggle szczegółów
 
     // === FILTRY STATUSÓW I ZAMÓWIEŃ ===
     renderStatusFilters("status-filters");
