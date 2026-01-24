@@ -1011,11 +1011,7 @@ whenReadyAndDataTables(function () {
     }
 
     container.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-        <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; color: #374151; transition: all 0.2s;">
-          <span>Szczegóły</span>
-          <span id="details-chevron" style="transition: transform 0.2s;">▼</span>
-        </button>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach z ostatnich</span>
           <select id="orderingDays" style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; cursor: pointer; background: white;">
@@ -1025,6 +1021,12 @@ whenReadyAndDataTables(function () {
           </select>
           <span style="font-size: 14px; color: #374151;">dni</span>
         </div>
+        <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; color: #6b7280; transition: all 0.2s; font-weight: 500;">
+          <span>Szczegóły</span>
+          <svg id="details-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     `;
   }
@@ -1049,6 +1051,49 @@ whenReadyAndDataTables(function () {
 
     if (!toggleBtn || !detailsContainer) return;
 
+    // Dodaj nowoczesny styl do kontenera szczegółów
+    detailsContainer.style.cssText = `
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      transition: all 0.3s ease;
+    `;
+
+    // Stylizuj każdy blok wewnątrz
+    const blocks = detailsContainer.querySelectorAll('.div-block-83');
+    blocks.forEach(block => {
+      block.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      `;
+
+      const label = block.querySelector('.text-block-69');
+      if (label) {
+        label.style.cssText = `
+          font-size: 12px;
+          color: #6b7280;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        `;
+      }
+
+      const value = block.querySelector('[id]');
+      if (value) {
+        value.style.cssText = `
+          font-size: 14px;
+          color: #111827;
+          line-height: 1.5;
+        `;
+      }
+    });
+
     toggleBtn.addEventListener('click', function() {
       const isHidden = detailsContainer.classList.contains('nonedisplay');
 
@@ -1057,11 +1102,15 @@ whenReadyAndDataTables(function () {
         detailsContainer.classList.remove('nonedisplay');
         chevron.style.transform = 'rotate(180deg)';
         toggleBtn.style.background = '#f9fafb';
+        toggleBtn.style.borderColor = '#d1d5db';
+        toggleBtn.style.color = '#374151';
       } else {
         // Zwiń szczegóły
         detailsContainer.classList.add('nonedisplay');
         chevron.style.transform = 'rotate(0deg)';
         toggleBtn.style.background = 'white';
+        toggleBtn.style.borderColor = '#e5e7eb';
+        toggleBtn.style.color = '#6b7280';
       }
     });
   }
