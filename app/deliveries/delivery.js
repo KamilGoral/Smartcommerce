@@ -497,7 +497,11 @@ whenReadyAndDataTables(function () {
   function loadDeliveryDetails() {
     $.ajax({
       type: "GET",
-      url: InvokeURL + "van/transactions?type=RECADV&shopKey=" + shopKey + "&perPage=500",
+      url:
+        InvokeURL +
+        "van/transactions?type=RECADV&shopKey=" +
+        shopKey +
+        "&perPage=500",
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
@@ -510,7 +514,9 @@ whenReadyAndDataTables(function () {
       },
       success: function (response) {
         // Znajdź dokument o odpowiednim UUID
-        const data = (response.items || []).find(item => item.uuid === recadvId);
+        const data = (response.items || []).find(
+          (item) => item.uuid === recadvId,
+        );
 
         if (!data) {
           console.warn("Nie znaleziono dokumentu o UUID:", recadvId);
@@ -526,8 +532,9 @@ whenReadyAndDataTables(function () {
         // Dostawca
         const wholesalerName = document.getElementById("wholesalerName");
         if (wholesalerName && data.wholesalerKey) {
-          const formatted = data.wholesalerKey.charAt(0).toUpperCase() +
-                           data.wholesalerKey.slice(1).replace(/-/g, " ");
+          const formatted =
+            data.wholesalerKey.charAt(0).toUpperCase() +
+            data.wholesalerKey.slice(1).replace(/-/g, " ");
           wholesalerName.textContent = formatted;
         }
 
@@ -642,12 +649,10 @@ whenReadyAndDataTables(function () {
   const fmtPLN = (n) => {
     const v = Number(n);
     if (!Number.isFinite(v)) return "-";
-    return (
-      v.toLocaleString("pl-PL", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + " zł"
-    );
+    return v.toLocaleString("pl-PL", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
   const fmtQty = (n) => {
     const v = Number(n);
@@ -835,7 +840,7 @@ whenReadyAndDataTables(function () {
         orderedPrice === null ? 0 : orderedQty * orderedPrice;
       const valueDiff = orderedQty > 0 ? deliveredValue - orderedValue : 0;
 
-      const orderId = escapeHtml(m?.orderId || "");
+      const orderId = m?.orderId || "";
       const matchId = m?.id;
 
       return `
@@ -875,7 +880,7 @@ whenReadyAndDataTables(function () {
             data-product-id="${parent?.id}"
             data-match-id="${matchId}"
             title="Połącz z zamówieniem"
-            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
             onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
             onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
           >
@@ -913,7 +918,12 @@ whenReadyAndDataTables(function () {
     try {
       const response = await $.ajax({
         type: "GET",
-        url: InvokeURL + "shops/" + encodeURIComponent(shopKey) + "/orders/" + encodeURIComponent(orderId),
+        url:
+          InvokeURL +
+          "shops/" +
+          encodeURIComponent(shopKey) +
+          "/orders/" +
+          encodeURIComponent(orderId),
         headers: {
           Authorization: orgToken,
           "Requested-By": "webflow-3-4",
@@ -924,7 +934,11 @@ whenReadyAndDataTables(function () {
       orderDetailsCache[orderId] = response;
       return response;
     } catch (error) {
-      console.warn("Nie udało się pobrać szczegółów zamówienia:", orderId, error);
+      console.warn(
+        "Nie udało się pobrać szczegółów zamówienia:",
+        orderId,
+        error,
+      );
       // Zwróć fallback
       return {
         orderId: orderId,
@@ -963,7 +977,7 @@ whenReadyAndDataTables(function () {
     const orderIds = collectOrderIds(products);
 
     // Filtruj tylko te, których jeszcze nie mamy w cache
-    const missingOrderIds = orderIds.filter(id => !orderDetailsCache[id]);
+    const missingOrderIds = orderIds.filter((id) => !orderDetailsCache[id]);
 
     if (missingOrderIds.length === 0) {
       return;
@@ -972,7 +986,9 @@ whenReadyAndDataTables(function () {
     console.log(`Pobieram szczegóły ${missingOrderIds.length} zamówień...`);
 
     // Pobierz wszystkie równolegle
-    const promises = missingOrderIds.map(orderId => fetchOrderDetails(orderId));
+    const promises = missingOrderIds.map((orderId) =>
+      fetchOrderDetails(orderId),
+    );
     await Promise.all(promises);
 
     console.log(`Pobrano szczegóły zamówień`);
@@ -1085,15 +1101,39 @@ whenReadyAndDataTables(function () {
       container.appendChild(dropdownWrapper);
     }
 
+    // Formatuj opcje z nazwą i datą zamówienia
     const options = orderIds
-      .map(
-        (orderId) =>
-          `<option value="${escapeHtml(orderId)}">${escapeHtml(orderId)}</option>`,
-      )
+      .map((orderId) => {
+        const details = orderDetailsCache[orderId];
+        let displayText = orderId; // fallback to ID
+
+        if (details) {
+          if (details.name) {
+            // Format: "DD.MM.YYYY - Nazwa zamówienia"
+            let dateStr = "";
+            if (details.createDate) {
+              const date = new Date(details.createDate);
+              dateStr = date.toLocaleDateString("pl-PL", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              });
+            }
+            displayText = dateStr
+              ? `${dateStr} - ${details.name}`
+              : details.name;
+          } else {
+            // Jeśli nie ma nazwy, pokaż skrócone ID
+            displayText = `...${orderId.slice(-8)}`;
+          }
+        }
+
+        return `<option value="${escapeHtml(orderId)}">${escapeHtml(displayText)}</option>`;
+      })
       .join("");
 
     dropdownWrapper.innerHTML = `
-      <select id="order-filter-select" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; min-width: 200px; cursor: pointer; background: white;">
+      <select id="order-filter-select" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; min-width: 300px; cursor: pointer; background: white;">
         <option value="">Wszystkie zamówienia</option>
         ${options}
       </select>
@@ -1179,8 +1219,8 @@ whenReadyAndDataTables(function () {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.addEventListener('change', function(e) {
-      if (e.target.id === 'orderingDays') {
+    container.addEventListener("change", function (e) {
+      if (e.target.id === "orderingDays") {
         // Odśwież tabelę z nowymi danymi
         table.ajax.reload();
       }
@@ -1189,38 +1229,52 @@ whenReadyAndDataTables(function () {
 
   // ---------- Details Toggle (Szczegóły dokumentu) ----------
   function initDetailsToggleEvents() {
-    const toggleBtn = document.getElementById('details-toggle-btn');
-    const chevron = document.getElementById('details-chevron');
-    const detailsContainer = document.querySelector('.deliverydetails');
+    const toggleBtn = document.getElementById("details-toggle-btn");
+    const chevron = document.getElementById("details-chevron");
+    const detailsContainer = document.querySelector(".deliverydetails");
 
-    if (!toggleBtn || !detailsContainer) return;
+    if (!toggleBtn) {
+      console.warn("Toggle button nie znaleziony");
+      return;
+    }
 
-    toggleBtn.addEventListener('click', function() {
-      const isHidden = detailsContainer.classList.contains('nonedisplay');
+    if (!detailsContainer) {
+      console.warn("Details container nie znaleziony (.deliverydetails)");
+      return;
+    }
+
+    console.log("Toggle events initialized", { toggleBtn, detailsContainer });
+
+    toggleBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("Toggle clicked!", e);
+      const isHidden = detailsContainer.classList.contains("nonedisplay");
+      console.log("Is hidden:", isHidden);
 
       if (isHidden) {
         // Rozwiń szczegóły - ultra minimalistyczny styl
-        detailsContainer.classList.remove('nonedisplay');
+        detailsContainer.classList.remove("nonedisplay");
         detailsContainer.style.cssText = `
-          padding: 12px 0px;
-          margin-bottom: 8px;
+          padding: 12px 0px !important;
+          margin-bottom: 8px !important;
           display: grid !important;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 16px;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+          gap: 16px !important;
         `;
-        chevron.style.transform = 'rotate(180deg)';
-        toggleBtn.classList.add('active');
+        chevron.style.transform = "rotate(180deg)";
+        toggleBtn.classList.add("active");
 
         // Minimalna stylizacja - tylko to co konieczne
-        const blocks = detailsContainer.querySelectorAll('.div-block-83');
-        blocks.forEach(block => {
+        const blocks = detailsContainer.querySelectorAll(".div-block-83");
+        blocks.forEach((block) => {
           block.style.cssText = `
             display: flex;
             flex-direction: column;
             gap: 6px;
           `;
 
-          const label = block.querySelector('.text-block-69');
+          const label = block.querySelector(".text-block-69");
           if (label) {
             label.style.cssText = `
               font-size: 12px;
@@ -1231,7 +1285,7 @@ whenReadyAndDataTables(function () {
             `;
           }
 
-          const value = block.querySelector('[id]');
+          const value = block.querySelector("[id]");
           if (value) {
             value.style.cssText = `
               font-size: 14px;
@@ -1242,10 +1296,10 @@ whenReadyAndDataTables(function () {
         });
       } else {
         // Zwiń szczegóły
-        detailsContainer.classList.add('nonedisplay');
-        detailsContainer.style.display = 'none';
-        chevron.style.transform = 'rotate(0deg)';
-        toggleBtn.classList.remove('active');
+        detailsContainer.classList.add("nonedisplay");
+        detailsContainer.style.cssText = "display: none !important;";
+        chevron.style.transform = "rotate(0deg)";
+        toggleBtn.classList.remove("active");
       }
     });
   }
@@ -1609,7 +1663,8 @@ whenReadyAndDataTables(function () {
           InvokeURL +
             "van/recadvs/" +
             encodeURIComponent(recadvId) +
-            "/products?perPage=1000&days=" + days,
+            "/products?perPage=1000&days=" +
+            days,
           async function (res) {
             // Pobierz szczegóły zamówień przed wyświetleniem tabeli
             await prefetchOrderDetails(res.items);
@@ -1654,9 +1709,9 @@ whenReadyAndDataTables(function () {
             const gtinDisplay = escapeHtml(gtin);
 
             return `
-            <div class="prod-cell">
-              <div class="prod-name">${nameDisplay}</div>
-              <div class="prod-gtin">${gtinDisplay}</div>
+            <div class="prod-cell" style="max-width: 420px; overflow: hidden;">
+              <div class="prod-name" style="word-break: break-word;">${nameDisplay}</div>
+              <div class="prod-gtin" style="word-break: break-word;">${gtinDisplay}</div>
             </div>
           `;
           },
@@ -1809,6 +1864,7 @@ whenReadyAndDataTables(function () {
           data: null,
           orderable: true,
           className: "doc-col",
+          width: "200px",
           render: function (data, type, row) {
             const linked = safeArr(row?.linkedOrderProducts);
             const proposals = safeArr(row?.potentialMatches);
@@ -1832,7 +1888,7 @@ whenReadyAndDataTables(function () {
 
             const displayHtml = formatOrderDisplay(orderId);
             return `
-      <div class="doc-wrap ${isProposal ? "italic" : ""}">
+      <div class="doc-wrap ${isProposal ? "italic" : ""}" style="max-width: 200px; overflow: hidden; word-break: break-word;">
         ${displayHtml}
       </div>
     `;
@@ -1867,7 +1923,7 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-linked-id="${linkedId}"
           title="Rozłącz powiązanie"
-          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
           onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
           onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
         >
@@ -1893,7 +1949,7 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-match-id="${matchId}"
           title="Połącz z zamówieniem"
-          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
           onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
           onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
         >
@@ -2097,7 +2153,11 @@ whenReadyAndDataTables(function () {
     // === FILTR DNI (nad filtrami statusów) ===
     renderDaysFilter("days-filter");
     initDaysFilterEvents(deliveryTable, "days-filter");
-    initDetailsToggleEvents(); // Inicjalizuj toggle szczegółów
+
+    // Inicjalizuj toggle szczegółów po krótkim opóźnieniu, aby upewnić się że DOM jest gotowy
+    setTimeout(() => {
+      initDetailsToggleEvents();
+    }, 100);
 
     // === FILTRY STATUSÓW I ZAMÓWIEŃ ===
     renderStatusFilters("status-filters");
@@ -2123,6 +2183,9 @@ whenReadyAndDataTables(function () {
       transition: opacity 0.2s ease;
       pointer-events: none;
       z-index: 6000;
+    }
+    .truncated-text {
+      cursor: help;
     }
   `;
     document.head.appendChild(style);
