@@ -613,7 +613,10 @@ whenReadyAndDataTables(function () {
             `;
 
             // Wstaw po statystykach
-            statisticsGrid.parentNode.insertBefore(detailsContainer, statisticsGrid.nextSibling);
+            statisticsGrid.parentNode.insertBefore(
+              detailsContainer,
+              statisticsGrid.nextSibling,
+            );
 
             // Teraz ponownie wypełnij dane (bo właśnie stworzyliśmy elementy)
             const sourceFileNew = document.getElementById("sourceFile");
@@ -648,9 +651,11 @@ whenReadyAndDataTables(function () {
             }
 
             // Inicjalizuj toggle szczegółów po utworzeniu kontenera
-            console.log('Kontener szczegółów został utworzony, inicjalizuję toggle...');
+            console.log(
+              "Kontener szczegółów został utworzony, inicjalizuję toggle...",
+            );
             setTimeout(() => {
-              if (typeof initDetailsToggleEvents === 'function') {
+              if (typeof initDetailsToggleEvents === "function") {
                 initDetailsToggleEvents();
               }
             }, 100);
@@ -1274,7 +1279,7 @@ whenReadyAndDataTables(function () {
             <option value="7" selected>7</option>
             <option value="14">14</option>
           </select>
-          <span style="font-size: 14px; color: #374151;">dni</span>
+          <span style="font-size: 14px; color: #374151;">dniach</span>
         </div>
         <button id="details-toggle-btn" type="button" class="status-filter-btn" style="display: inline-flex; align-items: center; gap: 6px;">
           <span class="filter-label">Szczegóły</span>
