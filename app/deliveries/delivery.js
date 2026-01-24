@@ -860,7 +860,7 @@ whenReadyAndDataTables(function () {
         <td style="padding: 8px; font-style: italic;">
           ${
             orderId
-              ? `<a class="doc-link" href="/orders/${orderId}" target="_blank" rel="noopener" style="font-style: italic;">${orderId}</a>`
+              ? `<div style="font-style: italic;">${formatOrderDisplay(orderId)}</div>`
               : `<span style="color: #9ca3af; font-style: italic;">-</span>`
           }
         </td>
@@ -891,6 +891,131 @@ whenReadyAndDataTables(function () {
 
   // globalnie (żeby mieć dostęp do instancji i móc ją odświeżać)
   let deliveryTable = null;
+
+  // Cache dla szczegółów zamówień (orderId -> order details)
+  const orderDetailsCache = {};
+
+  /**
+   * Pobierz szczegóły zamówienia z API
+   */
+  async function fetchOrderDetails(orderId) {
+    // Sprawdź cache
+    if (orderDetailsCache[orderId]) {
+      return orderDetailsCache[orderId];
+    }
+
+    try {
+      const response = await $.ajax({
+        type: "GET",
+        url: InvokeURL + "shops/" + encodeURIComponent(shopKey) + "/orders/" + encodeURIComponent(orderId),
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+      });
+
+      // Zapisz w cache
+      orderDetailsCache[orderId] = response;
+      return response;
+    } catch (error) {
+      console.warn("Nie udało się pobrać szczegółów zamówienia:", orderId, error);
+      // Zwróć fallback
+      return {
+        orderId: orderId,
+        name: null,
+        createDate: null,
+      };
+    }
+  }
+
+  /**
+   * Zbierz wszystkie unikalne orderIds z danych produktów
+   */
+  function collectOrderIds(products) {
+    const orderIds = new Set();
+
+    products.forEach((product) => {
+      const linked = safeArr(product?.linkedOrderProducts);
+      const proposals = safeArr(product?.potentialMatches);
+
+      linked.forEach((link) => {
+        if (link?.orderId) orderIds.add(link.orderId);
+      });
+
+      proposals.forEach((proposal) => {
+        if (proposal?.orderId) orderIds.add(proposal.orderId);
+      });
+    });
+
+    return Array.from(orderIds);
+  }
+
+  /**
+   * Pobierz szczegóły wszystkich zamówień równolegle
+   */
+  async function prefetchOrderDetails(products) {
+    const orderIds = collectOrderIds(products);
+
+    // Filtruj tylko te, których jeszcze nie mamy w cache
+    const missingOrderIds = orderIds.filter(id => !orderDetailsCache[id]);
+
+    if (missingOrderIds.length === 0) {
+      return;
+    }
+
+    console.log(`Pobieram szczegóły ${missingOrderIds.length} zamówień...`);
+
+    // Pobierz wszystkie równolegle
+    const promises = missingOrderIds.map(orderId => fetchOrderDetails(orderId));
+    await Promise.all(promises);
+
+    console.log(`Pobrano szczegóły zamówień`);
+  }
+
+  /**
+   * Formatuj wyświetlanie zamówienia (nazwa + data lub skrócone ID)
+   */
+  function formatOrderDisplay(orderId) {
+    const details = orderDetailsCache[orderId];
+
+    if (!details) {
+      // Fallback - pokaż ostatnie 8 znaków ID
+      const shortId = orderId ? orderId.slice(-8) : "-";
+      return `<span class="muted">${escapeHtml(shortId)}</span>`;
+    }
+
+    if (details.name) {
+      // Mamy nazwę - pokaż nazwę i datę
+      const name = escapeHtml(details.name);
+      let dateStr = "";
+
+      if (details.createDate) {
+        const date = new Date(details.createDate);
+        dateStr = date.toLocaleDateString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      }
+
+      return `
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener" style="font-weight: 500;">
+            ${name}
+          </a>
+          ${dateStr ? `<span style="font-size: 12px; color: #6b7280;">${dateStr}</span>` : ""}
+        </div>
+      `;
+    } else {
+      // Brak nazwy - pokaż skrócone ID (ostatnie 8 znaków)
+      const shortId = orderId.slice(-8);
+      return `
+        <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">
+          ...${escapeHtml(shortId)}
+        </a>
+      `;
+    }
+  }
 
   /**
    * Init/Reset DataTables na #table_delivery dla konkretnego recadvId
@@ -1051,55 +1176,51 @@ whenReadyAndDataTables(function () {
 
     if (!toggleBtn || !detailsContainer) return;
 
-    // Stylizuj każdy blok wewnątrz
-    const blocks = detailsContainer.querySelectorAll('.div-block-83');
-    blocks.forEach(block => {
-      block.style.cssText = `
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      `;
-
-      const label = block.querySelector('.text-block-69');
-      if (label) {
-        label.style.cssText = `
-          font-size: 12px;
-          color: #6b7280;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        `;
-      }
-
-      const value = block.querySelector('[id]');
-      if (value) {
-        value.style.cssText = `
-          font-size: 14px;
-          color: #111827;
-          line-height: 1.5;
-        `;
-      }
-    });
-
     toggleBtn.addEventListener('click', function() {
       const isHidden = detailsContainer.classList.contains('nonedisplay');
 
       if (isHidden) {
-        // Rozwiń szczegóły
+        // Rozwiń szczegóły - ultra minimalistyczny styl
         detailsContainer.classList.remove('nonedisplay');
         detailsContainer.style.cssText = `
-          background: #f9fafb;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          padding: 20px;
-          margin-bottom: 20px;
+          padding: 12px 0px;
+          margin-bottom: 8px;
           display: grid !important;
           grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
           gap: 16px;
-          transition: all 0.3s ease;
         `;
         chevron.style.transform = 'rotate(180deg)';
         toggleBtn.classList.add('active');
+
+        // Minimalna stylizacja - tylko to co konieczne
+        const blocks = detailsContainer.querySelectorAll('.div-block-83');
+        blocks.forEach(block => {
+          block.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          `;
+
+          const label = block.querySelector('.text-block-69');
+          if (label) {
+            label.style.cssText = `
+              font-size: 12px;
+              color: rgb(66, 82, 110);
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            `;
+          }
+
+          const value = block.querySelector('[id]');
+          if (value) {
+            value.style.cssText = `
+              font-size: 14px;
+              color: rgb(17, 24, 39);
+              line-height: 1.5;
+            `;
+          }
+        });
       } else {
         // Zwiń szczegóły
         detailsContainer.classList.add('nonedisplay');
@@ -1107,36 +1228,6 @@ whenReadyAndDataTables(function () {
         chevron.style.transform = 'rotate(0deg)';
         toggleBtn.classList.remove('active');
       }
-
-      // Re-stylizuj bloki po zmianie widoczności
-      const blocks = detailsContainer.querySelectorAll('.div-block-83');
-      blocks.forEach(block => {
-        block.style.cssText = `
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        `;
-
-        const label = block.querySelector('.text-block-69');
-        if (label) {
-          label.style.cssText = `
-            font-size: 12px;
-            color: #6b7280;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          `;
-        }
-
-        const value = block.querySelector('[id]');
-        if (value) {
-          value.style.cssText = `
-            font-size: 14px;
-            color: #111827;
-            line-height: 1.5;
-          `;
-        }
-      });
     });
   }
 
@@ -1500,7 +1591,10 @@ whenReadyAndDataTables(function () {
             "van/recadvs/" +
             encodeURIComponent(recadvId) +
             "/products?perPage=1000&days=" + days,
-          function (res) {
+          async function (res) {
+            // Pobierz szczegóły zamówień przed wyświetleniem tabeli
+            await prefetchOrderDetails(res.items);
+
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
@@ -1708,13 +1802,16 @@ whenReadyAndDataTables(function () {
             }
 
             if (!orderId) return `<span class="muted">-</span>`;
-            if (type === "sort" || type === "type") return orderId;
+            if (type === "sort" || type === "type") {
+              // Dla sortowania użyj nazwy zamówienia jeśli dostępna, inaczej ID
+              const details = orderDetailsCache[orderId];
+              return details?.name || orderId;
+            }
 
+            const displayHtml = formatOrderDisplay(orderId);
             return `
-      <div class="doc-wrap">
-        <a class="doc-link ${isProposal ? "italic" : ""}" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">
-          ${escapeHtml(orderId)}
-        </a>
+      <div class="doc-wrap ${isProposal ? "italic" : ""}">
+        ${displayHtml}
       </div>
     `;
           },
@@ -1748,9 +1845,9 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-linked-id="${linkedId}"
           title="Rozłącz powiązanie"
-          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151; font-weight: 500;"
+          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #75777b; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151; font-weight: 500;"
         >
-          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea9a4156829e3e08abb_unlink.svg" alt="" style="width: 16px; height: 16px; opacity: 0.8;">
+          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea9a4156829e3e08abb_unlink.svg" alt="" style="width: 16px; height: 16px;">
           Rozłącz
         </button>
       `;
