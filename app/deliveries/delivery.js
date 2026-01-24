@@ -979,6 +979,18 @@ whenReadyAndDataTables(function () {
   }
 
   /**
+   * Skróć tekst do maxLength znaków i dodaj tooltip
+   */
+  function truncateWithTooltip(text, maxLength = 35) {
+    if (!text || text.length <= maxLength) {
+      return escapeHtml(text);
+    }
+    const truncated = text.substring(0, maxLength);
+    const fullText = escapeHtml(text);
+    return `<span class="truncated-text" title="${fullText}">${escapeHtml(truncated)}…</span>`;
+  }
+
+  /**
    * Formatuj wyświetlanie zamówienia (nazwa + data lub skrócone ID)
    */
   function formatOrderDisplay(orderId) {
@@ -992,7 +1004,8 @@ whenReadyAndDataTables(function () {
 
     if (details.name) {
       // Mamy nazwę - pokaż nazwę i datę
-      const name = escapeHtml(details.name);
+      const name = details.name;
+      const nameDisplay = truncateWithTooltip(name, 35);
       let dateStr = "";
 
       if (details.createDate) {
@@ -1006,8 +1019,8 @@ whenReadyAndDataTables(function () {
 
       return `
         <div style="display: flex; flex-direction: column; gap: 2px;">
-          <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener" style="font-weight: 500;">
-            ${name}
+          <a class="doc-link" href="/app/orders/order?orderId=${escapeHtml(orderId)}&shopKey=${escapeHtml(shopKey)}" target="_blank" rel="noopener" style="font-weight: 500;">
+            ${nameDisplay}
           </a>
           ${dateStr ? `<span style="font-size: 12px; color: #6b7280;">${dateStr}</span>` : ""}
         </div>
@@ -1016,7 +1029,7 @@ whenReadyAndDataTables(function () {
       // Brak nazwy - pokaż skrócone ID (ostatnie 8 znaków)
       const shortId = orderId.slice(-8);
       return `
-        <a class="doc-link" href="/orders/${escapeHtml(orderId)}" target="_blank" rel="noopener">
+        <a class="doc-link" href="/app/orders/order?orderId=${escapeHtml(orderId)}&shopKey=${escapeHtml(shopKey)}" target="_blank" rel="noopener">
           ...${escapeHtml(shortId)}
         </a>
       `;
@@ -1630,17 +1643,20 @@ whenReadyAndDataTables(function () {
           orderable: true,
           width: "420px",
           render: function (data, type, row) {
-            const name = escapeHtml(row?.name || "-");
-            const gtin = escapeHtml(row?.gtin || "-");
+            const name = row?.name || "-";
+            const gtin = row?.gtin || "-";
 
             if (type === "sort" || type === "type") return row?.name || "";
             if (type === "filter")
               return [row?.name, row?.gtin].filter(Boolean).join(" ");
 
+            const nameDisplay = truncateWithTooltip(name, 35);
+            const gtinDisplay = escapeHtml(gtin);
+
             return `
             <div class="prod-cell">
-              <div class="prod-name">${name}</div>
-              <div class="prod-gtin">${gtin}</div>
+              <div class="prod-name">${nameDisplay}</div>
+              <div class="prod-gtin">${gtinDisplay}</div>
             </div>
           `;
           },
