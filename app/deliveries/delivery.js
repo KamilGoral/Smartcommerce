@@ -875,9 +875,15 @@ whenReadyAndDataTables(function () {
             data-product-id="${parent?.id}"
             data-match-id="${matchId}"
             title="Połącz z zamówieniem"
-            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8; font-weight: 500;"
+            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
           >
-            <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea958a0de9b2d8c0dcf_link.svg" alt="" style="width: 16px; height: 16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
+              <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
+              <line x1="8" x2="16" y1="12" y2="12"></line>
+            </svg>
             Połącz
           </button>
         </td>
@@ -1845,9 +1851,18 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-linked-id="${linkedId}"
           title="Rozłącz powiązanie"
-          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #75777b; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151; font-weight: 500;"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+          onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+          onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
         >
-          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea9a4156829e3e08abb_unlink.svg" alt="" style="width: 16px; height: 16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"></path>
+            <path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"></path>
+            <line x1="8" x2="8" y1="2" y2="5"></line>
+            <line x1="2" x2="5" y1="8" y2="8"></line>
+            <line x1="16" x2="16" y1="19" y2="22"></line>
+            <line x1="19" x2="22" y1="16" y2="16"></line>
+          </svg>
           Rozłącz
         </button>
       `;
@@ -1862,9 +1877,15 @@ whenReadyAndDataTables(function () {
           data-product-id="${row?.id}"
           data-match-id="${matchId}"
           title="Połącz z zamówieniem"
-          style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #3b82f6; border-radius: 6px; background: #eff6ff; cursor: pointer; font-size: 13px; color: #1d4ed8; font-weight: 500;"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+          onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+          onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
         >
-          <img src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/69730ea958a0de9b2d8c0dcf_link.svg" alt="" style="width: 16px; height: 16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
+            <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
+            <line x1="8" x2="16" y1="12" y2="12"></line>
+          </svg>
           Połącz
         </button>
       `;
