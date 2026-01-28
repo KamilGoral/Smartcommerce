@@ -815,7 +815,7 @@ whenReadyAndDataTables(function () {
     }
 
     // CZĘSTOCHOWA - filtruj tylko dla organizacji "Spolem" (lub jak się nazywa)
-    if (currentOrganization === "SpoPSSCzestochowalem") {
+    if (currentOrganization === "PSSCzestochowa") {
       const cz = _czestochowaShopKeys(email);
       if (cz) return cz;
     }
