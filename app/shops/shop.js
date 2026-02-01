@@ -5381,6 +5381,19 @@ ${offerTimestampLine}
   getWholesalers();
   getShop();
   getOrders();
+
+  if (location.hostname === "sprytny01.webflow.io") {
+    const el = document.querySelector(
+      'a[data-w-tab="Deliveries"].in-page-menu-link',
+    );
+    if (el) {
+      el.style.display = "flex";
+      el.style.alignItems = "center";
+      el.style.justifyContent = "center"; // usuń jeśli nie chcesz centrowania
+      el.style.gap = "8px"; // jeśli kiedyś dodasz ikonę/element obok
+    }
+  }
+
   getDeliveries();
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
