@@ -164,7 +164,7 @@ whenReadyAndDataTables(function () {
         if (existingUserAttributes) {
           const attributes = existingUserAttributes.split("|");
           const phoneNumberAttribute = attributes.find((attr) =>
-            attr.startsWith("phonenumber:")
+            attr.startsWith("phonenumber:"),
           );
           if (phoneNumberAttribute) {
             existingPhoneNumber = phoneNumberAttribute.split(":")[1];
@@ -229,7 +229,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -246,7 +246,7 @@ whenReadyAndDataTables(function () {
                 emailadressUser +
                 "|phonenumber:" +
                 phoneNumber,
-              720000
+              720000,
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
             const welcomeMessage = document.getElementById("welcomeMessage");
@@ -264,7 +264,7 @@ whenReadyAndDataTables(function () {
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
             console.log(e);
           },
@@ -310,7 +310,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -400,7 +400,7 @@ whenReadyAndDataTables(function () {
     ];
 
     const missing = cookiesToCheck.some(
-      (name) => !document.cookie.includes(`${name}=`)
+      (name) => !document.cookie.includes(`${name}=`),
     );
 
     if (missing) {
@@ -484,7 +484,7 @@ whenReadyAndDataTables(function () {
       "/app/tenants/organization?name=" +
       OrganizationName +
       "&clientId=" +
-      ClientID
+      ClientID,
   );
 
   function getShops() {
@@ -628,23 +628,23 @@ whenReadyAndDataTables(function () {
           const editPermissions = isEditable(
             data.startDate,
             data.endDate,
-            isFtp
+            isFtp,
           );
 
           document.getElementById("wholesalerKey").textContent =
             data.wholesalerKey;
           document.getElementById("createdBy").textContent = data.created.by;
           document.getElementById("createDate").textContent = toHumanTime(
-            data.created.at
+            data.created.at,
           );
           document.getElementById("lastModificationDate").textContent =
             toHumanTime(data.modified.at);
           document.getElementById("startDate").textContent = toHumanTime(
-            data.startDate
+            data.startDate,
           );
           $("#startDate").datepicker("setDate", new Date(data.startDate));
           document.getElementById("endDate").textContent = toHumanTime(
-            data.endDate
+            data.endDate,
           );
           $("#endDate").datepicker("setDate", new Date(data.endDate));
 
@@ -697,7 +697,7 @@ whenReadyAndDataTables(function () {
             const tooltipContent = shopsData
               .map(
                 (shop) =>
-                  `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`
+                  `<span class="${shop.statusClass}">${shop.key} - ${shop.status}</span>`,
               )
               .join(", ");
             pricatStatus.textContent = ` ${shopsData.length} Sklepów`;
@@ -712,7 +712,7 @@ whenReadyAndDataTables(function () {
             pricatStatus.innerHTML = shopsData
               .map(
                 (shop) =>
-                  `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`
+                  `<span class="${shop.statusClass} tippy" data-tippy-content="${shop.status}">${shop.key}</span>`,
               )
               .join(", ");
 
@@ -743,12 +743,12 @@ whenReadyAndDataTables(function () {
 
     // Find keys to add (present in updatedShopKeys but not in initialShopKeys)
     const keysToAdd = [...currentShopKeysSet].filter(
-      (key) => !initialShopKeysSet.has(key)
+      (key) => !initialShopKeysSet.has(key),
     );
 
     // Find keys to remove (present in initialShopKeys but not in updatedShopKeys)
     const keysToRemove = [...initialShopKeysSet].filter(
-      (key) => !currentShopKeysSet.has(key)
+      (key) => !currentShopKeysSet.has(key),
     );
 
     // Prepare operations for "add"
@@ -775,59 +775,63 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjaxEditPriceList = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
 
       form.on("submit", async function (event) {
-        // Prevent default form submission behavior
         event.preventDefault();
-        event.stopImmediatePropagation(); // Stop further event propagation
+        event.stopImmediatePropagation();
 
-        // Extract and convert "pricatFTP" to a boolean
         const pricatFTPText = document
           .getElementById("pricatFTP")
           .textContent.trim();
         const isFtp = pricatFTPText.toLowerCase() === "true";
 
-        // Check edit permissions
         const editPermissions = isEditable(
           $("#startDate").val(),
           $("#endDate").val(),
-          isFtp
+          isFtp,
         );
 
-        // Setup data for the primary PATCH request
-        const data = setupFormData(editPermissions);
+        // 1) operacje dla dat
+        const dateOps = setupFormData(editPermissions);
+
+        // 2) operacje dla sklepów
+        const updatedShopKeys = Array.from(
+          document.getElementById("shopKeys").selectedOptions,
+        ).map((option) => option.value);
+
+        const shopOps = prepareShopKeysUpdate(updatedShopKeys, priceListId);
+
+        // Jeśli nic się nie zmieniło ani w datach ani w sklepach -> komunikat i exit
+        if (dateOps.length === 0 && shopOps.length === 0) {
+          displayMessage("Success", "Brak zmian do zapisania.");
+          return false;
+        }
 
         try {
-          // Perform the primary PATCH request to update the price list
-          const primaryPatchResponse = await $.ajax({
-            type: "PATCH",
-            url: `${InvokeURL}van/pricats/${priceListId}`,
-            contentType: "application/json",
-            dataType: "json",
-            headers: {
-              Authorization: orgToken,
-              "Requested-By": "webflow-3-4",
-            },
-            data: JSON.stringify(data),
-          });
+          $("#waitingdots").show();
 
-          // After successful primary PATCH, calculate shop key updates
-          const updatedShopKeys = Array.from(
-            document.getElementById("shopKeys").selectedOptions
-          ).map((option) => option.value);
+          // PATCH dat tylko gdy są operacje
+          if (dateOps.length > 0) {
+            await $.ajax({
+              type: "PATCH",
+              url: `${InvokeURL}van/pricats/${priceListId}`,
+              contentType: "application/json",
+              dataType: "json",
+              headers: {
+                Authorization: orgToken,
+                "Requested-By": "webflow-3-4",
+              },
+              data: JSON.stringify(dateOps),
+            });
+          }
 
-          const operations = prepareShopKeysUpdate(
-            updatedShopKeys,
-            priceListId
-          );
-
-          // Perform the PATCH request for shop key updates if there are changes
-          if (operations.length > 0) {
-            const shopKeyPatchResponse = await $.ajax({
+          // PATCH shopKeys tylko gdy są operacje
+          if (shopOps.length > 0) {
+            await $.ajax({
               url: `${InvokeURL}van/transactions/${priceListId}`,
               type: "PATCH",
               headers: {
@@ -835,45 +839,28 @@ whenReadyAndDataTables(function () {
                 "Requested-By": "webflow-3-4",
                 "Content-Type": "application/json",
               },
-              data: JSON.stringify(operations),
+              data: JSON.stringify(shopOps),
             });
 
-            console.log(
-              "Shop keys updated successfully:",
-              shopKeyPatchResponse
-            );
-          } else {
-            console.log("No shop key updates needed.");
+            // ważne: zaktualizuj stan początkowy po sukcesie,
+            // żeby kolejne zapisy nie liczyły zmian od starej listy
+            initialShopKeys = [...updatedShopKeys];
           }
 
-          // Handle success
-          if (
-            typeof successCallback === "function" &&
-            !successCallback(primaryPatchResponse)
-          ) {
-            form.show();
-            displayMessage(
-              "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
-            );
-            return;
-          }
+          $("#waitingdots").hide();
 
           displayMessage("Success", "Cennik został zmieniony.");
-          setTimeout(() => window.location.replace(window.location.href), 1000);
+          setTimeout(() => window.location.replace(window.location.href), 700);
         } catch (error) {
+          $("#waitingdots").hide();
           console.error("Error occurred during update:", error);
-
-          // Handle error
-          if (typeof errorCallback === "function") errorCallback(error);
-          form.show();
           displayMessage(
             "Error",
-            "Oops. Coś poszło nie tak, spróbuj ponownie."
+            "Oops. Coś poszło nie tak, spróbuj ponownie.",
           );
         }
 
-        return false; // Ensure no further actions are triggered
+        return false;
       });
     });
   };
@@ -971,7 +958,7 @@ whenReadyAndDataTables(function () {
           console.error(
             "Wystąpił błąd podczas pobierania danych: ",
             textStatus,
-            errorThrown
+            errorThrown,
           );
         },
       },
@@ -1133,7 +1120,7 @@ whenReadyAndDataTables(function () {
           console.error(
             "Wystąpił błąd podczas pobierania danych: ",
             textStatus,
-            errorThrown
+            errorThrown,
           );
         },
       },
@@ -1219,7 +1206,7 @@ whenReadyAndDataTables(function () {
     fetch(csvUrl, { headers })
       .then((res) => {
         res.headers.forEach((value, key) =>
-          headersResponse.push(`${key}: ${value}`)
+          headersResponse.push(`${key}: ${value}`),
         );
         return res.blob();
       })
@@ -1229,7 +1216,7 @@ whenReadyAndDataTables(function () {
 
         // Extract filename from headers
         const filenameHeader = headersResponse.find((header) =>
-          header.toLowerCase().includes("content-disposition")
+          header.toLowerCase().includes("content-disposition"),
         );
         let fileName = "product_list.csv"; // default filename
         if (filenameHeader && filenameHeader.includes("filename=")) {
@@ -1273,7 +1260,7 @@ whenReadyAndDataTables(function () {
   makeWebflowFormAjaxDeletePriceList = function (
     forms,
     successCallback,
-    errorCallback
+    errorCallback,
   ) {
     forms.each(function () {
       var form = $(this);
@@ -1310,7 +1297,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 console.log(e);
                 return;
@@ -1325,7 +1312,7 @@ whenReadyAndDataTables(function () {
                   "/app/tenants/organization?name=" +
                   OrganizationName +
                   "&clientId=" +
-                  ClientID
+                  ClientID,
               );
             }, 2000);
           },
@@ -1336,7 +1323,7 @@ whenReadyAndDataTables(function () {
             form.show();
             displayMessage(
               "Error",
-              "Oops. Coś poszło nie tak, spróbuj ponownie."
+              "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
           },
         });
