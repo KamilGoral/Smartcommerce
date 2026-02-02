@@ -5394,7 +5394,7 @@ ${offerTimestampLine}
     }
   }
 
-  getDeliveries();
+  // getDeliveries();
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
     function () {
