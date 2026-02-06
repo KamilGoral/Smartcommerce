@@ -1316,7 +1316,7 @@ whenReadyAndDataTables(function () {
           </select>
           <span style="font-size: 14px; color: #374151;">dniach</span>
         </div>
-        <button id="details-toggle-btn" type="button" class="status-filter-btn" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 9999px; background: white; cursor: pointer; font-size: 13px; color: #374151; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);" onmouseover="this.style.background='#f9fafb'; this.style.color='#111827';" onmouseout="this.style.background='white'; this.style.color='#374151';">
+        <button id="details-toggle-btn" type="button" class="status-filter-btn" style="display: inline-flex; align-items: center; gap: 6px;">
           <span class="filter-label">Szczegóły</span>
           <svg id="details-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
             <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1375,21 +1375,6 @@ whenReadyAndDataTables(function () {
         `;
         chevron.style.transform = "rotate(180deg)";
         toggleBtn.classList.add("active");
-        toggleBtn.style.cssText = `
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border: 1px solid #e5e7eb;
-          border-radius: 9999px;
-          background: #111827 !important;
-          cursor: pointer;
-          font-size: 13px;
-          color: white !important;
-          font-weight: 500;
-          transition: all 0.2s;
-          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        `;
 
         // Minimalna stylizacja - tylko to co konieczne
         const blocks = detailsContainer.querySelectorAll(".div-block-83");
@@ -1426,21 +1411,7 @@ whenReadyAndDataTables(function () {
         detailsContainer.style.cssText = "display: none !important;";
         chevron.style.transform = "rotate(0deg)";
         toggleBtn.classList.remove("active");
-        toggleBtn.style.cssText = `
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border: 1px solid #e5e7eb;
-          border-radius: 9999px;
-          background: white;
-          cursor: pointer;
-          font-size: 13px;
-          color: #374151;
-          font-weight: 500;
-          transition: all 0.2s;
-          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        `;
+      }
     });
   }
 
@@ -1479,7 +1450,7 @@ whenReadyAndDataTables(function () {
       (filter) => `
     <button
       type="button"
-      class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
+      class="status-filter-btn ${filter.key === 'all' ? 'active' : ''}"
       data-filter="${filter.key}"
     >
       <span class="filter-label">${filter.label}</span>
