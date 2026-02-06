@@ -1053,10 +1053,9 @@ whenReadyAndDataTables(function () {
           if (hasQD && hasPD) {
             const commonQ = Math.min(deliveredQty, orderedQty);
             const pdVal = commonQ * priceDiff;
-            const qdVal = qtyDiff * (orderedPrice || 0);
             return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end; font-style: italic;">
               <span style="color: #dc2626;">${(pdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
-              <span style="color: #dc2626; font-size: 11px;">${(qdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(qdVal))} <span style="color: #9ca3af;">(${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.)</span></span>
+              <span style="color: #dc2626; font-size: 11px;">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
             </div>`;
           }
           return diffSpanMoney(valueDiff, true);
@@ -2273,17 +2272,14 @@ whenReadyAndDataTables(function () {
             }
 
             if (hasQtyDiff && hasPriceDiff) {
-              // Dwie składowe: różnica cenowa (na dostarczonych szt.) + różnica ilościowa
               // Linia 1: różnica cenowa × min(delivered, ordered) sztuk
               const commonQty = Math.min(deliveredQty, orderedQty);
               const priceDiffValue = commonQty * priceDiff;
-              // Linia 2: brakujące/nadmiarowe sztuki × cena zamówiona
-              const qtyDiffValue = qtyDiff * (orderedPrice || 0);
 
               const italicStyle = isProposal ? " font-style: italic;" : "";
               return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end;${italicStyle}">
                 <span style="color: #dc2626;" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
-                <span style="color: #dc2626; font-size: 11px;" title="Różnica ilościowa: ${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt. × ${fmtPLN(orderedPrice || 0)}/szt.">${(qtyDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(qtyDiffValue))} <span style="color: #9ca3af;">(${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.)</span></span>
+                <span style="color: #dc2626; font-size: 11px;" title="Różnica ilościowa">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
               </div>`;
             }
 
