@@ -1364,25 +1364,29 @@ whenReadyAndDataTables(function () {
       console.log("Is hidden:", isHidden);
 
       if (isHidden) {
-        // Rozwiń szczegóły - ultra minimalistyczny styl
+        // Rozwiń szczegóły - styl jak karty statystyk
         detailsContainer.classList.remove("nonedisplay");
         detailsContainer.style.cssText = `
-          padding: 12px 0px !important;
-          margin-bottom: 8px !important;
           display: grid !important;
           grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
           gap: 16px !important;
+          margin-top: 16px !important;
         `;
         chevron.style.transform = "rotate(180deg)";
         toggleBtn.classList.add("active");
 
-        // Minimalna stylizacja - tylko to co konieczne
+        // Stylizacja szczegółów jak karty statystyk
         const blocks = detailsContainer.querySelectorAll(".div-block-83");
         blocks.forEach((block) => {
           block.style.cssText = `
             display: flex;
             flex-direction: column;
             gap: 6px;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
           `;
 
           const label = block.querySelector(".text-block-69");
@@ -1402,6 +1406,7 @@ whenReadyAndDataTables(function () {
               font-size: 14px;
               color: rgb(17, 24, 39);
               line-height: 1.5;
+              font-weight: 600;
             `;
           }
         });
@@ -1450,7 +1455,7 @@ whenReadyAndDataTables(function () {
       (filter) => `
     <button
       type="button"
-      class="status-filter-btn ${filter.key === 'all' ? 'active' : ''}"
+      class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
       data-filter="${filter.key}"
     >
       <span class="filter-label">${filter.label}</span>
