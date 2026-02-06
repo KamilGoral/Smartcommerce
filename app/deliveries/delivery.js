@@ -1918,9 +1918,12 @@ whenReadyAndDataTables(function () {
             }
           }
 
-          const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
-          const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
-          totalValueDiff += deliveredValue - orderedValue;
+          // Tylko różnica cenowa (nie ilościowa) – liczymy na wspólnej ilości
+          if (deliveredPrice !== null && orderedPrice !== null) {
+            const priceDiff = deliveredPrice - orderedPrice;
+            const commonQty = Math.min(deliveredQty, orderedQty);
+            totalValueDiff += commonQty * priceDiff;
+          }
         });
 
         // Wyświetl sumę w kolumnie 7
