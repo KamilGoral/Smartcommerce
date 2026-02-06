@@ -1045,13 +1045,35 @@ whenReadyAndDataTables(function () {
       const orderId = m?.orderId || "";
       const matchId = m?.id;
 
+      // Format price difference with proper sign
+      const priceDiff =
+        orderedPrice !== null && deliveredPrice !== null
+          ? deliveredPrice - orderedPrice
+          : 0;
+      const priceDiffFormatted =
+        orderedPrice !== null && deliveredPrice !== null
+          ? priceDiff >= 0
+            ? `+${fmtPLN(priceDiff)}`
+            : fmtPLN(priceDiff)
+          : "-";
+
       return `
       <tr class="child-row" style="background: #f9fafb;">
         <td style="padding: 8px; text-align: center;"></td>
         <td style="padding: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px; padding-left: 20px;">
-            <span style="color: #9ca3af;">↳</span>
-            <span style="font-weight: 400;">Wariant ${idx + 1}</span>
+          <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: #9ca3af;">↳</span>
+              <span style="font-weight: 400;">Wariant ${idx + 1}</span>
+            </div>
+            <div style="font-size: 11px; color: #6b7280; margin-left: 20px;">
+              <span style="color: #9ca3af;">-</span>
+              <span style="font-style: italic;">${fmtQty(orderedQty)}</span>
+              <span>${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</span>
+              <span style="color: #9ca3af;">-</span>
+              <span style="font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</span>
+              <span>${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</span>
+            </div>
           </div>
         </td>
 
@@ -2046,9 +2068,16 @@ whenReadyAndDataTables(function () {
           data: "segments",
           orderable: true,
           className: "text-right",
-          render: function (segments, type) {
+          render: function (segments, type, row) {
             const q = sumQty(segments);
             if (type === "sort" || type === "type") return q;
+
+            // Gdy filtrowanie według zamówienia: pokaż ilość dostarczoną
+            if (selectedOrderId) {
+              return q ? fmtQty(q) : `<span class="muted">-</span>`;
+            }
+
+            // Brak filtrowania - oryginalna logika
             return q ? fmtQty(q) : `<span class="muted">-</span>`;
           },
         },
@@ -2094,6 +2123,7 @@ whenReadyAndDataTables(function () {
               if (linked.length) {
                 q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
               } else if (proposals.length) {
+                // Gdy są propozycje, pokaż ilość z pierwszej propozycji
                 q = sumQty(proposals[0]?.segments);
                 isProposal = true;
               } else {
@@ -2156,6 +2186,7 @@ whenReadyAndDataTables(function () {
                   0,
                 );
               } else if (proposals.length) {
+                // Gdy są propozycje, pokaż różnicę z pierwszą propozycją
                 orderedQty = sumQty(proposals[0]?.segments);
                 isProposal = true;
               }
@@ -2217,6 +2248,7 @@ whenReadyAndDataTables(function () {
               if (linked.length) {
                 p = avgPriceWeighted(linked[0]?.segments);
               } else if (proposals.length) {
+                // Gdy są propozycje, pokaż cenę z pierwszą propozycją
                 p = avgPriceWeighted(proposals[0]?.segments);
                 isProposal = true;
               }
@@ -2280,6 +2312,7 @@ whenReadyAndDataTables(function () {
                 );
                 orderedPrice = avgPriceWeighted(linked[0]?.segments);
               } else if (proposals.length) {
+                // Gdy są propozycje, pokaż różnicę z pierwszą propozycją
                 orderedQty = sumQty(proposals[0]?.segments);
                 orderedPrice = avgPriceWeighted(proposals[0]?.segments);
                 isProposal = true;
@@ -2334,6 +2367,7 @@ whenReadyAndDataTables(function () {
               if (linked.length) {
                 orderId = linked[0]?.orderId;
               } else if (proposals.length) {
+                // Gdy są propozycje, pokaż zamówienie z pierwszą propozycją
                 orderId = proposals[0]?.orderId;
                 isProposal = true;
               }
