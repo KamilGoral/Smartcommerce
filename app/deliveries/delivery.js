@@ -696,11 +696,7 @@ whenReadyAndDataTables(function () {
   // Aktualizuj statystyki na podstawie danych z tabeli
   // ============================================
   function updateDeliveryStatistics(tableData) {
-    // Liczba produktów
-    const productsCount = document.getElementById("productsCountDelivery");
-    if (productsCount) {
-      productsCount.textContent = tableData.length;
-    }
+    // productsCountDelivery NIE jest tu aktualizowane - to stała z całego dokumentu dostawy
 
     // Oblicz wartość całkowitą
     let totalValue = 0;
@@ -971,18 +967,26 @@ whenReadyAndDataTables(function () {
     const v = Number(n);
     if (!Number.isFinite(v))
       return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
-    if (v === 0)
-      return `<span class="${italic ? "zero italic" : "zero"}">0</span>`;
+    if (v === 0) {
+      const style = italic
+        ? "color: #6b7280; font-style: italic;"
+        : "color: #6b7280;";
+      return `<span style="${style}">0</span>`;
+    }
 
     const sign = v > 0 ? "+" : "";
     if (v > 0) {
+      // Więcej dostarczone niż zamówione = korzyść → zielony
       const style = italic
-        ? "color: #d97706; font-style: italic;"
-        : "color: #d97706;";
+        ? "color: #10b981; font-style: italic;"
+        : "color: #10b981;";
       return `<span style="${style}">${sign}${v}</span>`;
     } else {
-      const cls = italic ? "neg italic" : "neg";
-      return `<span class="${cls}">${sign}${v}</span>`;
+      // Mniej dostarczone niż zamówione = szkoda → ciemny czerwony
+      const style = italic
+        ? "color: #dc2626; font-style: italic;"
+        : "color: #dc2626;";
+      return `<span style="${style}">${sign}${v}</span>`;
     }
   }
 
@@ -990,18 +994,26 @@ whenReadyAndDataTables(function () {
     const v = Number(n);
     if (!Number.isFinite(v))
       return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
-    if (Math.abs(v) < 0.000001)
-      return `<span class="${italic ? "zero italic" : "zero"}">${fmtPLN(0)}</span>`;
+    if (Math.abs(v) < 0.000001) {
+      const style = italic
+        ? "color: #6b7280; font-style: italic;"
+        : "color: #6b7280;";
+      return `<span style="${style}">${fmtPLN(0)}</span>`;
+    }
 
     const sign = v > 0 ? "+" : "";
     if (v > 0) {
+      // Wartość dostawy wyższa = korzyść (więcej towaru) → zielony
       const style = italic
-        ? "color: #d97706; font-style: italic;"
-        : "color: #d97706;";
+        ? "color: #10b981; font-style: italic;"
+        : "color: #10b981;";
       return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
     } else {
-      const cls = italic ? "neg italic" : "neg";
-      return `<span class="${cls}">${sign}${fmtPLN(Math.abs(v))}</span>`;
+      // Wartość dostawy niższa = szkoda (mniej towaru) → ciemny czerwony
+      const style = italic
+        ? "color: #dc2626; font-style: italic;"
+        : "color: #dc2626;";
+      return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
     }
   }
 
@@ -1054,19 +1066,9 @@ whenReadyAndDataTables(function () {
       <tr class="child-row" style="background: #f9fafb;">
         <td style="padding: 8px; text-align: center;"></td>
         <td style="padding: 8px;">
-          <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="color: #9ca3af;">↳</span>
-              <span style="font-weight: 400;">Wariant ${idx + 1}</span>
-            </div>
-            <div style="font-size: 11px; color: #6b7280; margin-left: 20px;">
-              <span style="color: #9ca3af;">-</span>
-              <span style="font-style: italic;">${fmtQty(orderedQty)}</span>
-              <span>${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</span>
-              <span style="color: #9ca3af;">-</span>
-              <span style="font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</span>
-              <span>${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</span>
-            </div>
+          <div style="display: flex; align-items: center; gap: 8px; padding-left: 20px;">
+            <span style="color: #9ca3af;">↳</span>
+            <span style="font-weight: 400;">Wariant ${idx + 1}</span>
           </div>
         </td>
 
@@ -1829,6 +1831,12 @@ whenReadyAndDataTables(function () {
     table.on("xhr.dt", function (e, settings, json) {
       // Po załadowaniu danych AJAX - update liczników i dropdown
       if (json && json.data) {
+        // Stała: liczba produktów w dokumencie dostawy (nie zmienia się z filtrami)
+        const productsCount = document.getElementById("productsCountDelivery");
+        if (productsCount) {
+          productsCount.textContent = json.data.length;
+        }
+
         // Update order dropdown w tym samym kontenerze co filtry statusów
         const orderIds = getAllOrderIds(json.data);
         renderOrderDropdown(containerId, orderIds, json.data);
