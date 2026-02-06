@@ -696,7 +696,11 @@ whenReadyAndDataTables(function () {
   // Aktualizuj statystyki na podstawie danych z tabeli
   // ============================================
   function updateDeliveryStatistics(tableData) {
-    // productsCountDelivery NIE jest tu aktualizowane - to stała z całego dokumentu dostawy
+    // Wywoływane tylko raz z xhr.dt z pełnymi danymi GET - stałe, nie zmieniane przez filtry
+    const productsCount = document.getElementById("productsCountDelivery");
+    if (productsCount) {
+      productsCount.textContent = tableData.length;
+    }
 
     // Oblicz wartość całkowitą
     let totalValue = 0;
@@ -1718,12 +1722,10 @@ whenReadyAndDataTables(function () {
       relevantData = allData;
     }
 
-    // Aktualizuj liczniki filtrów statusów
+    // Aktualizuj tylko liczniki filtrów statusów (przyciski)
+    // Statystyki na górze strony (Produktów, Wartość, Niezgodności) są stałe z GET
     const counts = countByStatus(relevantData);
     updateFilterCounters(counts);
-
-    // Aktualizuj statystyki na górze strony
-    updateDeliveryStatistics(relevantData);
   }
 
   // ---------- Update Counter Badges ----------
@@ -1803,27 +1805,21 @@ whenReadyAndDataTables(function () {
       // Apply filter
       const filterKey = btn.dataset.filter;
       applyStatusFilter(table, filterKey);
-
-      // Aktualizuj licznik rozbieżności po zastosowaniu filtra
-      updateDiffCountAfterFilter(table);
     });
 
     // Update counters po każdym renderze tabeli
     table.on("xhr.dt", function (e, settings, json) {
       // Po załadowaniu danych AJAX - update liczników i dropdown
       if (json && json.data) {
-        // Stała: liczba produktów w dokumencie dostawy (nie zmienia się z filtrami)
-        const productsCount = document.getElementById("productsCountDelivery");
-        if (productsCount) {
-          productsCount.textContent = json.data.length;
-        }
+        // Statystyki na górze: ustawiane raz z pełnych danych GET (stałe, nie zmieniają się z filtrami)
+        updateDeliveryStatistics(json.data);
 
         // Update order dropdown w tym samym kontenerze co filtry statusów
         const orderIds = getAllOrderIds(json.data);
         renderOrderDropdown(containerId, orderIds, json.data);
         initOrderFilterEvents(table, containerId);
 
-        // Przelicz liczniki i statystyki z uwzględnieniem filtra zamówienia
+        // Przelicz liczniki przycisków filtrów z uwzględnieniem filtra zamówienia
         // (setTimeout, bo dane trafiają do tabeli dopiero po xhr.dt)
         setTimeout(function () {
           recalcCountersForOrderFilter(table);
@@ -1831,30 +1827,6 @@ whenReadyAndDataTables(function () {
       }
     });
 
-    // Aktualizuj licznik rozbieżności po każdym draw tabeli
-    table.on("draw.dt", function () {
-      updateDiffCountAfterFilter(table);
-    });
-  }
-
-  // Funkcja do aktualizacji licznika rozbieżności po zastosowaniu filtra
-  function updateDiffCountAfterFilter(table) {
-    const diffDeliveryOrders = document.getElementById("diffDeliveryOrders");
-    if (!diffDeliveryOrders) return;
-
-    // Pobierz dane z widocznych wierszy tabeli
-    const visibleRows = table.rows({ search: "applied" }).data().toArray();
-
-    // Policz rozbieżności wśród widocznych wierszy
-    let diffCount = 0;
-    visibleRows.forEach((row) => {
-      const state = computeRowState(row);
-      if (state.key.startsWith("diff_")) {
-        diffCount++;
-      }
-    });
-
-    diffDeliveryOrders.textContent = diffCount;
   }
 
   // ============================================
