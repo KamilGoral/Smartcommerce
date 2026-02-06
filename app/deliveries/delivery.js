@@ -963,12 +963,10 @@ whenReadyAndDataTables(function () {
         </td>
 
         <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
-        <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
-
         <td class="text-right" style="padding: 8px; font-style: italic;">${fmtQty(orderedQty)}</td>
-        <td class="text-right" style="padding: 8px; font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
-
         <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
+        <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
+        <td class="text-right" style="padding: 8px; font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
         <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
 
         <td style="padding: 8px; font-style: italic;">
