@@ -549,7 +549,7 @@ whenReadyAndDataTables(function () {
 
     const headerEl = document.createElement("div");
     headerEl.id = "delivery-header";
-    headerEl.style.cssText = "margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;";
+    headerEl.style.cssText = "margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;";
 
     headerEl.innerHTML = `
       <!-- Statystyki - rząd badge'ów -->
@@ -1191,10 +1191,7 @@ whenReadyAndDataTables(function () {
     if (!dropdownWrapper) {
       // Utwórz wrapper dla dropdownu
       dropdownWrapper = document.createElement("div");
-      dropdownWrapper.className = "order-dropdown-wrapper";
-      dropdownWrapper.style.marginLeft = "auto";
-      dropdownWrapper.style.display = "flex";
-      dropdownWrapper.style.alignItems = "center";
+      dropdownWrapper.className = "order-dropdown-wrapper dh-order-wrapper";
       container.appendChild(dropdownWrapper);
     }
 
@@ -1264,7 +1261,8 @@ whenReadyAndDataTables(function () {
       .join("");
 
     dropdownWrapper.innerHTML = `
-      <select id="order-filter-select" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; min-width: 300px; cursor: pointer; background: white;">
+      <span class="dh-order-label">Źródło porównania</span>
+      <select id="order-filter-select" class="dh-order-select">
         <option value="">Wszystkie zamówienia</option>
         ${options}
       </select>
@@ -1427,28 +1425,47 @@ whenReadyAndDataTables(function () {
       return;
     }
 
+    container.style.marginBottom = "14px";
+
     container.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; font-size: 12px; color: #1e40af; font-weight: 500; white-space: nowrap;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Dokument z <strong id="issueDateBadgeValue">-</strong>
-          </span>
-          <span style="font-size: 13px; color: #6b7280;">Szukaj pozycji w zamówieniach od</span>
-          <input type="text" id="orderDateStart" readonly
-            style="padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; width: 110px; background: white; cursor: pointer; color: #374151;" />
-          <span style="font-size: 13px; color: #6b7280;">do</span>
-          <input type="text" id="orderDateEnd" readonly
-            style="padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; width: 110px; background: white; cursor: pointer; color: #374151;" />
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; font-weight: 500; white-space: nowrap;">
+          ${ICON.calendar}
+          Dokument z <strong id="issueDateBadgeValue">-</strong>
+        </span>
+        <div id="dateRangeToggle" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #374151; cursor: pointer; user-select: none; transition: background 0.15s;">
+          ${ICON.calendar}
+          <span style="color: #6b7280;">Zamówienia:</span>
+          <strong id="dateRangeLabel">—</strong>
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <button id="details-toggle-btn" type="button" class="status-filter-btn" style="display: inline-flex; align-items: center; gap: 6px;">
-          <span class="filter-label">Szczegóły</span>
-          <svg id="details-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
+        <!-- Ukryte inputy dla datepickerów -->
+        <input type="text" id="orderDateStart" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;" />
+        <input type="text" id="orderDateEnd" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;" />
+        <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
+          Szczegóły
+          <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
             <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
     `;
+  }
+
+  // Formatuje datę do krótkiego formatu DD.MM
+  function fmtDateShort(d) {
+    return d.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit" });
+  }
+
+  // Aktualizuje label na badge "Zamówienia: DD.MM → DD.MM"
+  function updateDateRangeLabel() {
+    const label = document.getElementById("dateRangeLabel");
+    if (!label) return;
+    const s = $("#orderDateStart").datepicker("getDate");
+    const e = $("#orderDateEnd").datepicker("getDate");
+    if (s && e) {
+      label.textContent = fmtDateShort(s) + "  →  " + fmtDateShort(e);
+    }
   }
 
   // Ustawia domyślne daty i inicjalizuje jQuery UI datepicker po załadowaniu issueDate
@@ -1495,16 +1512,13 @@ whenReadyAndDataTables(function () {
       maxDate: issueD,
       minDate: minStartD,
       onSelect: function (dateText) {
-        // Ogranicz startDate: nie później niż nowy endDate, nie wcześniej niż endDate - 14 dni
         const newEnd = new Date(dateText + "T00:00:00");
         const newMinStart = new Date(newEnd);
         newMinStart.setDate(newMinStart.getDate() - 14);
-        // minStart nie może być wcześniej niż issueDate - 14
         if (newMinStart < minStartD) newMinStart.setTime(minStartD.getTime());
         startInput.datepicker("option", "maxDate", newEnd);
         startInput.datepicker("option", "minDate", newMinStart);
 
-        // Jeśli aktualna startDate jest poza zakresem, popraw ją
         const currentStart = startInput.datepicker("getDate");
         if (currentStart && currentStart > newEnd) {
           const corrected = new Date(newEnd);
@@ -1516,7 +1530,7 @@ whenReadyAndDataTables(function () {
           startInput.datepicker("setDate", newMinStart);
         }
 
-        // Odśwież tabelę
+        updateDateRangeLabel();
         if (deliveryTable) deliveryTable.ajax.reload();
       },
     })).datepicker("setDate", issueD);
@@ -1526,14 +1540,35 @@ whenReadyAndDataTables(function () {
       maxDate: issueD,
       minDate: minStartD,
       onSelect: function () {
-        // Odśwież tabelę
+        updateDateRangeLabel();
         if (deliveryTable) deliveryTable.ajax.reload();
       },
     })).datepicker("setDate", defaultStartD);
+
+    // Ustaw początkowy label
+    updateDateRangeLabel();
+
+    // Klik na badge otwiera datepicker start, potem end
+    let datePickerStep = 0; // 0 = start, 1 = end
+    const toggleEl = document.getElementById("dateRangeToggle");
+    if (toggleEl) {
+      toggleEl.addEventListener("click", function () {
+        if (datePickerStep === 0) {
+          startInput.datepicker("show");
+          datePickerStep = 1;
+        } else {
+          endInput.datepicker("show");
+          datePickerStep = 0;
+        }
+      });
+      // Hover
+      toggleEl.addEventListener("mouseenter", function () { toggleEl.style.background = "#f3f4f6"; });
+      toggleEl.addEventListener("mouseleave", function () { toggleEl.style.background = "#f9fafb"; });
+    }
   }
 
   function initDaysFilterEvents(table, containerId) {
-    // Events obsługiwane przez datepicker onSelect – nic dodatkowego nie trzeba
+    // Events obsługiwane przez datepicker onSelect i toggleEl click
     const container = document.getElementById(containerId);
     if (!container) return;
   }
@@ -1580,7 +1615,7 @@ whenReadyAndDataTables(function () {
   // Możesz dodać też "invalid" jeśli chcesz:
   // { key: 'invalid', label: 'Błędne', badge: 'badge--danger' }
 
-  // ---------- Render Filter Bar ----------
+  // ---------- Render Filter Bar (underline tabs) ----------
   function renderStatusFilters(containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -1588,23 +1623,83 @@ whenReadyAndDataTables(function () {
       return;
     }
 
-    // Ustaw flexbox layout na kontenerze
-    container.style.display = "flex";
-    container.style.flexWrap = "wrap";
-    container.style.alignItems = "center";
-    container.style.gap = "8px";
+    // Inject scoped CSS for tabs (only once)
+    if (!document.getElementById("dh-tab-styles")) {
+      const style = document.createElement("style");
+      style.id = "dh-tab-styles";
+      style.textContent = `
+        .dh-tabs { display: flex; align-items: center; gap: 0; border-bottom: 1px solid #e5e7eb; }
+        .dh-tab {
+          position: relative;
+          padding: 8px 14px 10px;
+          font-size: 13px;
+          font-weight: 500;
+          color: #6b7280;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+          white-space: nowrap;
+          transition: color 0.15s;
+        }
+        .dh-tab:hover { color: #374151; }
+        .dh-tab::after {
+          content: "";
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: transparent;
+          border-radius: 1px 1px 0 0;
+          transition: background 0.15s;
+        }
+        .dh-tab.active { color: #2563eb; font-weight: 600; }
+        .dh-tab.active::after { background: #2563eb; }
+        .dh-tab-count {
+          font-size: 11px;
+          font-weight: 600;
+          color: #9ca3af;
+          margin-left: 4px;
+        }
+        .dh-tab.active .dh-tab-count { color: #2563eb; }
+        .dh-order-wrapper {
+          margin-left: auto;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-bottom: 6px;
+        }
+        .dh-order-label {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
+          color: #9ca3af;
+          white-space: nowrap;
+        }
+        .dh-order-select {
+          padding: 4px 10px;
+          border: 1px solid #e5e7eb;
+          border-radius: 6px;
+          font-size: 12px;
+          font-family: inherit;
+          min-width: 260px;
+          cursor: pointer;
+          background: white;
+          color: #374151;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    container.className = "dh-tabs";
 
     const html = STATUS_FILTERS.map(
       (filter) => `
-    <button
-      type="button"
-      class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
-      data-filter="${filter.key}"
-    >
-      <span class="filter-label">${filter.label}</span>
-      <span class="filter-count" data-count-for="${filter.key}">0</span>
-    </button>
-  `,
+    <button type="button" class="dh-tab ${filter.key === "all" ? "active" : ""}" data-filter="${filter.key}">
+      ${filter.label}<span class="dh-tab-count" data-count-for="${filter.key}">0</span>
+    </button>`,
     ).join("");
 
     container.innerHTML = html;
@@ -1725,14 +1820,14 @@ whenReadyAndDataTables(function () {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Click na przycisk filtra
+    // Click na tab filtra
     container.addEventListener("click", function (e) {
-      const btn = e.target.closest(".status-filter-btn");
+      const btn = e.target.closest(".dh-tab");
       if (!btn) return;
 
       // Update active state
       container
-        .querySelectorAll(".status-filter-btn")
+        .querySelectorAll(".dh-tab")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
@@ -1853,7 +1948,7 @@ whenReadyAndDataTables(function () {
     recalcCountersForOrderFilter(deliveryTable);
 
     // 2. Sprawdź aktywny filtr i przefiltruj
-    const activeFilter = document.querySelector(".status-filter-btn.active");
+    const activeFilter = document.querySelector(".dh-tab.active");
     if (activeFilter) {
       const filterKey = activeFilter.dataset.filter;
       if (filterKey !== "all") {
