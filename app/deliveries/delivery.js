@@ -1276,8 +1276,9 @@ whenReadyAndDataTables(function () {
           <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach z ostatnich</span>
           <select id="orderingDays" style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; cursor: pointer; background: white;">
             <option value="3">3</option>
-            <option value="7" selected>7</option>
+            <option value="7">7</option>
             <option value="14">14</option>
+            <option value="60" selected>60</option>
           </select>
           <span style="font-size: 14px; color: #374151;">dniach</span>
         </div>
