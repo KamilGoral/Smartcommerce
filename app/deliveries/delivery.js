@@ -911,9 +911,10 @@ whenReadyAndDataTables(function () {
       return `<span style="${style}">${fmtPLN(0)}</span>`;
     }
 
-    // Ujemna różnica (cena dostawy < cena zamówiona) = pozytywne → zielony
-    // Dodatnia różnica (cena dostawy > cena zamówiona) = negatywne → czerwony
-    const color = v < 0 ? "#16a34a" : "#dc2626";
+    // Konwencja: wartość = zamówione - dostarczone
+    // + (dodatnia) = zaoszczędzono (dostawa tańsza) → zielony
+    // - (ujemna)   = strata (dostawa droższa)       → czerwony
+    const color = v > 0 ? "#16a34a" : "#dc2626";
     const sign = v > 0 ? "+" : "";
     const style = italic
       ? `color: ${color}; font-style: italic;`
@@ -949,15 +950,15 @@ whenReadyAndDataTables(function () {
         deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
       const orderedValue =
         orderedPrice === null ? 0 : orderedQty * orderedPrice;
-      const valueDiff = orderedQty > 0 ? deliveredValue - orderedValue : 0;
+      const valueDiff = orderedQty > 0 ? orderedValue - deliveredValue : 0;
 
       const orderId = m?.orderId || "";
       const matchId = m?.id;
 
-      // Format price difference with proper sign
+      // Format price difference with proper sign (ordered - delivered: + = oszczędność, - = strata)
       const priceDiff =
         orderedPrice !== null && deliveredPrice !== null
-          ? deliveredPrice - orderedPrice
+          ? orderedPrice - deliveredPrice
           : 0;
       const priceDiffFormatted =
         orderedPrice !== null && deliveredPrice !== null
@@ -988,9 +989,9 @@ whenReadyAndDataTables(function () {
           if (hasQD && hasPD) {
             const commonQ = Math.min(deliveredQty, orderedQty);
             const pdVal = commonQ * priceDiff;
-            const pdColor = pdVal < 0 ? "#16a34a" : "#dc2626";
+            const pdColor = pdVal > 0 ? "#16a34a" : "#dc2626";
             return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end; font-style: italic;">
-              <span style="color: ${pdColor};">${(pdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
+              <span style="color: ${pdColor};">${(pdVal > 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
               <span style="color: #dc2626; font-size: 11px;">${qtyDiff > 0 ? "+" : ""}${roundQty(qtyDiff)} szt.</span>
             </div>`;
           }
@@ -1923,9 +1924,9 @@ whenReadyAndDataTables(function () {
             }
           }
 
-          // Tylko różnica cenowa (nie ilościowa) – liczymy na wspólnej ilości
+          // Tylko różnica cenowa (nie ilościowa) – konwencja: zamówione - dostarczone
           if (deliveredPrice !== null && orderedPrice !== null) {
-            const priceDiff = deliveredPrice - orderedPrice;
+            const priceDiff = orderedPrice - deliveredPrice;
             const commonQty = Math.min(deliveredQty, orderedQty);
             totalValueDiff += commonQty * priceDiff;
           }
@@ -1937,7 +1938,7 @@ whenReadyAndDataTables(function () {
           footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
         } else {
           const sign = totalValueDiff > 0 ? "+" : "";
-          const color = totalValueDiff < 0 ? "#16a34a" : "#dc2626";
+          const color = totalValueDiff > 0 ? "#16a34a" : "#dc2626";
           footerCell.html(`<span style="color: ${color}; font-weight: 600;">${sign}${fmtPLN(Math.abs(totalValueDiff))}</span>`);
         }
         footerCell.css({ "text-align": "right", "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
@@ -2265,14 +2266,15 @@ whenReadyAndDataTables(function () {
 
             const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
             const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
-            const totalDiff = deliveredValue - orderedValue;
+            // Konwencja: zamówione - dostarczone (+ = oszczędność, - = strata)
+            const totalDiff = orderedValue - deliveredValue;
 
             if (type === "sort" || type === "type") return totalDiff;
 
             // Rozłóż różnicę na składniki
             const qtyDiff = roundQty(deliveredQty - orderedQty);
             const priceDiff = (deliveredPrice !== null && orderedPrice !== null)
-              ? deliveredPrice - orderedPrice : 0;
+              ? orderedPrice - deliveredPrice : 0;
             const hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
             const hasPriceDiff = Math.abs(priceDiff) > 0.000001;
 
@@ -2286,9 +2288,9 @@ whenReadyAndDataTables(function () {
               const priceDiffValue = commonQty * priceDiff;
 
               const italicStyle = isProposal ? " font-style: italic;" : "";
-              const priceColor = priceDiffValue < 0 ? "#16a34a" : "#dc2626";
+              const priceColor = priceDiffValue > 0 ? "#16a34a" : "#dc2626";
               return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end;${italicStyle}">
-                <span style="color: ${priceColor};" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
+                <span style="color: ${priceColor};" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue > 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
                 <span style="color: #dc2626; font-size: 11px;" title="Różnica ilościowa">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
               </div>`;
             }
