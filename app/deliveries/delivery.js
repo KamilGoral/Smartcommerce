@@ -494,6 +494,220 @@ whenReadyAndDataTables(function () {
   // ============================================
   // Pobierz szczegóły dokumentu RECADV i wypełnij pola
   // ============================================
+  // ---------- SVG ikony do nagłówka ----------
+  const ICONS = {
+    truck: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+    box: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+    coins: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+    alert: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    file: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+    calendar: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    clock: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    user: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  };
+
+  // ---------- Renderuj cały nagłówek dokumentu ----------
+  function renderDeliveryHeader(data) {
+    const container = document.getElementById("table-content");
+    if (!container) return;
+
+    // Usuń stary HTML statisticsgrid + deliverydetails jeśli istnieją
+    const oldGrid = container.querySelector(".statisticsgrid");
+    if (oldGrid) oldGrid.remove();
+    const oldDetails = container.querySelector(".deliverydetails");
+    if (oldDetails) oldDetails.remove();
+
+    // Formatuj dane
+    const wholesaler = data.wholesalerKey
+      ? data.wholesalerKey.charAt(0).toUpperCase() + data.wholesalerKey.slice(1).replace(/-/g, " ")
+      : "-";
+
+    const issueDateFmt = data.issueDate
+      ? new Date(data.issueDate).toLocaleDateString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit" })
+      : "-";
+
+    const sourceFileName = data.sourceFile?.name ? escapeHtml(data.sourceFile.name) : "-";
+
+    const createdFmt = data.created?.at
+      ? new Date(data.created.at).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      : "-";
+    const createdBy = data.created?.by || "";
+
+    const modifiedFmt = data.modified?.at
+      ? new Date(data.modified.at).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      : "-";
+    const modifiedBy = data.modified?.by || "";
+
+    // Wstaw nowy nagłówek na samym początku kontenera
+    const headerEl = document.createElement("div");
+    headerEl.id = "delivery-header";
+    headerEl.innerHTML = `
+      <style>
+        #delivery-header { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .dh-stats {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1px;
+          background: #e5e7eb;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          overflow: hidden;
+          margin-bottom: 12px;
+        }
+        .dh-stat {
+          background: #fff;
+          padding: 18px 20px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .dh-stat-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .dh-stat-label {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #6b7280;
+          margin-bottom: 2px;
+        }
+        .dh-stat-value {
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+          line-height: 1.2;
+        }
+        .dh-details-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 0;
+          background: #f9fafb;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          overflow: hidden;
+          margin-bottom: 16px;
+        }
+        .dh-detail {
+          padding: 14px 20px;
+          border-bottom: 1px solid #f3f4f6;
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .dh-detail:last-child { border-bottom: none; }
+        .dh-detail-icon { color: #9ca3af; flex-shrink: 0; margin-top: 1px; }
+        .dh-detail-label {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
+          color: #9ca3af;
+          margin-bottom: 2px;
+        }
+        .dh-detail-value {
+          font-size: 13px;
+          font-weight: 500;
+          color: #374151;
+          line-height: 1.4;
+        }
+        .dh-detail-sub {
+          font-size: 11px;
+          color: #9ca3af;
+          margin-top: 1px;
+        }
+        @media (max-width: 768px) {
+          .dh-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+      </style>
+
+      <!-- Karty statystyk -->
+      <div class="dh-stats">
+        <div class="dh-stat">
+          <div class="dh-stat-icon" style="background: #eff6ff;">
+            ${ICONS.truck}
+          </div>
+          <div>
+            <div class="dh-stat-label">Dostawca</div>
+            <div class="dh-stat-value" id="wholesalerName">${wholesaler}</div>
+          </div>
+        </div>
+        <div class="dh-stat">
+          <div class="dh-stat-icon" style="background: #f0fdf4;">
+            ${ICONS.box}
+          </div>
+          <div>
+            <div class="dh-stat-label">Produktów</div>
+            <div class="dh-stat-value" id="productsCountDelivery">-</div>
+          </div>
+        </div>
+        <div class="dh-stat">
+          <div class="dh-stat-icon" style="background: #fefce8;">
+            ${ICONS.coins}
+          </div>
+          <div>
+            <div class="dh-stat-label">Wartość</div>
+            <div class="dh-stat-value" id="valueDelivery">-</div>
+          </div>
+        </div>
+        <div class="dh-stat">
+          <div class="dh-stat-icon" style="background: #fef2f2;">
+            ${ICONS.alert}
+          </div>
+          <div>
+            <div class="dh-stat-label">Niezgodności</div>
+            <div class="dh-stat-value" id="diffDeliveryOrders">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Szczegóły dokumentu (domyślnie ukryte) -->
+      <div class="deliverydetails" style="display: none;">
+        <div class="dh-details-grid">
+          <div class="dh-detail">
+            <div class="dh-detail-icon">${ICONS.file}</div>
+            <div>
+              <div class="dh-detail-label">Plik źródłowy</div>
+              <div class="dh-detail-value" id="sourceFile">${sourceFileName}</div>
+            </div>
+          </div>
+          <div class="dh-detail">
+            <div class="dh-detail-icon">${ICONS.calendar}</div>
+            <div>
+              <div class="dh-detail-label">Data dokumentu</div>
+              <div class="dh-detail-value" id="issueDate">${issueDateFmt}</div>
+            </div>
+          </div>
+          <div class="dh-detail">
+            <div class="dh-detail-icon">${ICONS.clock}</div>
+            <div>
+              <div class="dh-detail-label">Data utworzenia</div>
+              <div class="dh-detail-value" id="createdAtBy">${createdFmt}</div>
+              ${createdBy ? `<div class="dh-detail-sub">${ICONS.user} ${escapeHtml(createdBy)}</div>` : ""}
+            </div>
+          </div>
+          <div class="dh-detail">
+            <div class="dh-detail-icon">${ICONS.clock}</div>
+            <div>
+              <div class="dh-detail-label">Data modyfikacji</div>
+              <div class="dh-detail-value" id="modifiedAtBy">${modifiedFmt}</div>
+              ${modifiedBy ? `<div class="dh-detail-sub">${ICONS.user} ${escapeHtml(modifiedBy)}</div>` : ""}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Wstaw na początku kontenera (przed tabelą i filtrami)
+    container.insertBefore(headerEl, container.firstChild);
+  }
+
   function loadDeliveryDetails() {
     $.ajax({
       type: "GET",
@@ -521,66 +735,6 @@ whenReadyAndDataTables(function () {
           deliveryBread.textContent = data.name;
         }
 
-        // Dostawca
-        const wholesalerName = document.getElementById("wholesalerName");
-        if (wholesalerName && data.wholesalerKey) {
-          const formatted =
-            data.wholesalerKey.charAt(0).toUpperCase() +
-            data.wholesalerKey.slice(1).replace(/-/g, " ");
-          wholesalerName.textContent = formatted;
-        }
-
-        // Plik źródłowy
-        const sourceFile = document.getElementById("sourceFile");
-        if (sourceFile && data.sourceFile && data.sourceFile.name) {
-          sourceFile.innerHTML = `<strong>${escapeHtml(data.sourceFile.name)}</strong>`;
-        }
-
-        // Data utworzenia
-        const createdAtBy = document.getElementById("createdAtBy");
-        if (createdAtBy && data.created && data.created.at) {
-          const date = new Date(data.created.at).toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const by = data.created.by ? ` przez ${data.created.by}` : "";
-          createdAtBy.innerHTML = `<strong>${date}${by}</strong>`;
-        }
-
-        // Data modyfikacji
-        const modifiedAtBy = document.getElementById("modifiedAtBy");
-        if (modifiedAtBy && data.modified && data.modified.at) {
-          const date = new Date(data.modified.at).toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const by = data.modified.by ? ` przez ${data.modified.by}` : "";
-          modifiedAtBy.innerHTML = `<strong>${date}${by}</strong>`;
-        }
-
-        // Data dokumentu
-        const issueDate = document.getElementById("issueDate");
-        if (issueDate && data.issueDate) {
-          const date = new Date(data.issueDate).toLocaleDateString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          });
-          issueDate.innerHTML = `<strong>${date}</strong>`;
-        }
-
-        // Zapisz issueDate globalnie (do filtrów dat)
-        if (data.issueDate) {
-          deliveryIssueDate = data.issueDate.substring(0, 10); // "YYYY-MM-DD"
-          initDatePickerDefaults();
-        }
-
         // Status badges
         if (data.status) {
           const editState = document.querySelector(".editstate");
@@ -595,104 +749,25 @@ whenReadyAndDataTables(function () {
           }
         }
 
-        // Utwórz kontener szczegółów dokumentu jeśli nie istnieje
-        let detailsContainer = document.querySelector(".deliverydetails");
-        if (!detailsContainer) {
-          // Znajdź miejsce do wstawienia (po statystykach)
-          const statisticsGrid = document.querySelector(".statisticsgrid");
-          if (statisticsGrid && statisticsGrid.parentNode) {
-            detailsContainer = document.createElement("div");
-            detailsContainer.className = "deliverydetails nonedisplay";
-            detailsContainer.style.display = "none";
-
-            // Struktura szczegółów
-            detailsContainer.innerHTML = `
-              <div class="div-block-83">
-                <div class="text-block-69">Plik źródłowy</div>
-                <div id="sourceFile">-</div>
-              </div>
-              <div class="div-block-83">
-                <div class="text-block-69">Data dokumentu</div>
-                <div id="issueDate">-</div>
-              </div>
-              <div class="div-block-83">
-                <div class="text-block-69">Data utworzenia</div>
-                <div id="createdAtBy">-</div>
-              </div>
-              <div class="div-block-83">
-                <div class="text-block-69">Data modyfikacji</div>
-                <div id="modifiedAtBy">-</div>
-              </div>
-            `;
-
-            // Wstaw po statystykach
-            statisticsGrid.parentNode.insertBefore(
-              detailsContainer,
-              statisticsGrid.nextSibling,
-            );
-
-            // Teraz ponownie wypełnij dane (bo właśnie stworzyliśmy elementy)
-            const sourceFileNew = document.getElementById("sourceFile");
-            if (sourceFileNew && data.sourceFile && data.sourceFile.name) {
-              sourceFileNew.innerHTML = `<strong>${escapeHtml(data.sourceFile.name)}</strong>`;
-            }
-
-            const createdAtByNew = document.getElementById("createdAtBy");
-            if (createdAtByNew && data.created && data.created.at) {
-              const date = new Date(data.created.at).toLocaleString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-              const by = data.created.by ? ` przez ${data.created.by}` : "";
-              createdAtByNew.innerHTML = `<strong>${date}${by}</strong>`;
-            }
-
-            const modifiedAtByNew = document.getElementById("modifiedAtBy");
-            if (modifiedAtByNew && data.modified && data.modified.at) {
-              const date = new Date(data.modified.at).toLocaleString("pl-PL", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-              const by = data.modified.by ? ` przez ${data.modified.by}` : "";
-              modifiedAtByNew.innerHTML = `<strong>${date}${by}</strong>`;
-            }
-
-            const issueDateNew = document.getElementById("issueDate");
-            if (issueDateNew && data.issueDate) {
-              const date = new Date(data.issueDate).toLocaleDateString(
-                "pl-PL",
-                {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                },
-              );
-              issueDateNew.innerHTML = `<strong>${date}</strong>`;
-            }
-
-            // Zapisz issueDate globalnie (do filtrów dat) - nowy format
-            if (data.issueDate && !deliveryIssueDate) {
-              deliveryIssueDate = data.issueDate.substring(0, 10);
-              initDatePickerDefaults();
-            }
-
-            // Inicjalizuj toggle szczegółów po utworzeniu kontenera
-            console.log(
-              "Kontener szczegółów został utworzony, inicjalizuję toggle...",
-            );
-            setTimeout(() => {
-              if (typeof initDetailsToggleEvents === "function") {
-                initDetailsToggleEvents();
-              }
-            }, 100);
-          }
+        // Zapisz issueDate globalnie (do filtrów dat)
+        if (data.issueDate) {
+          deliveryIssueDate = data.issueDate.substring(0, 10); // "YYYY-MM-DD"
         }
+
+        // Renderuj cały nagłówek (statystyki + szczegóły)
+        renderDeliveryHeader(data);
+
+        // Inicjalizuj datepicker (po renderowaniu nagłówka)
+        if (deliveryIssueDate) {
+          initDatePickerDefaults();
+        }
+
+        // Inicjalizuj toggle szczegółów
+        setTimeout(() => {
+          if (typeof initDetailsToggleEvents === "function") {
+            initDetailsToggleEvents();
+          }
+        }, 100);
       },
       error: function (error) {
         console.error("Błąd pobierania szczegółów dostawy:", error);
@@ -1486,14 +1561,18 @@ whenReadyAndDataTables(function () {
     }
 
     container.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach od</span>
+          <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; font-size: 12px; color: #1e40af; font-weight: 500; white-space: nowrap;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Dokument z <strong id="issueDateBadgeValue">-</strong>
+          </span>
+          <span style="font-size: 13px; color: #6b7280;">Zamówienia od</span>
           <input type="text" id="orderDateStart" readonly
-            style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; width: 120px; background: white; cursor: pointer;" />
-          <span style="font-size: 14px; color: #374151;">do</span>
+            style="padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; width: 110px; background: white; cursor: pointer; color: #374151;" />
+          <span style="font-size: 13px; color: #6b7280;">do</span>
           <input type="text" id="orderDateEnd" readonly
-            style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; width: 120px; background: white; cursor: pointer;" />
+            style="padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; width: 110px; background: white; cursor: pointer; color: #374151;" />
         </div>
         <button id="details-toggle-btn" type="button" class="status-filter-btn" style="display: inline-flex; align-items: center; gap: 6px;">
           <span class="filter-label">Szczegóły</span>
@@ -1510,6 +1589,17 @@ whenReadyAndDataTables(function () {
     const endInput = $("#orderDateEnd");
     const startInput = $("#orderDateStart");
     if (!endInput.length || !startInput.length) return;
+
+    // Pokaż badge z datą dokumentu
+    const badge = document.getElementById("issueDateBadge");
+    const badgeValue = document.getElementById("issueDateBadgeValue");
+    if (badge && badgeValue && deliveryIssueDate) {
+      const issueFmt = new Date(deliveryIssueDate + "T00:00:00").toLocaleDateString("pl-PL", {
+        year: "numeric", month: "2-digit", day: "2-digit",
+      });
+      badgeValue.textContent = issueFmt;
+      badge.style.display = "inline-flex";
+    }
 
     // Jeśli datepicker już zainicjalizowany, zniszcz go przed ponownym tworzeniem
     if (endInput.hasClass("hasDatepicker")) endInput.datepicker("destroy");
@@ -1587,76 +1677,19 @@ whenReadyAndDataTables(function () {
     const chevron = document.getElementById("details-chevron");
     const detailsContainer = document.querySelector(".deliverydetails");
 
-    if (!toggleBtn) {
-      console.warn("Toggle button nie znaleziony");
-      return;
-    }
-
-    if (!detailsContainer) {
-      console.warn("Details container nie znaleziony (.deliverydetails)");
-      return;
-    }
-
-    console.log("Toggle events initialized", { toggleBtn, detailsContainer });
+    if (!toggleBtn || !detailsContainer) return;
 
     toggleBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log("Toggle clicked!", e);
-      const isHidden = detailsContainer.classList.contains("nonedisplay");
-      console.log("Is hidden:", isHidden);
+      const isHidden = detailsContainer.style.display === "none";
 
       if (isHidden) {
-        // Rozwiń szczegóły - styl jak karty statystyk
-        detailsContainer.classList.remove("nonedisplay");
-        detailsContainer.style.cssText = `
-          display: grid !important;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
-          gap: 16px !important;
-          margin-top: 16px !important;
-        `;
+        detailsContainer.style.display = "block";
         chevron.style.transform = "rotate(180deg)";
         toggleBtn.classList.add("active");
-
-        // Stylizacja szczegółów jak karty statystyk
-        const blocks = detailsContainer.querySelectorAll(".div-block-83");
-        blocks.forEach((block) => {
-          block.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 16px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-          `;
-
-          const label = block.querySelector(".text-block-69");
-          if (label) {
-            label.style.cssText = `
-              font-size: 12px;
-              color: rgb(66, 82, 110);
-              font-weight: 700;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            `;
-          }
-
-          const value = block.querySelector("[id]");
-          if (value) {
-            value.style.cssText = `
-              font-size: 14px;
-              color: rgb(17, 24, 39);
-              line-height: 1.5;
-              font-weight: 600;
-            `;
-          }
-        });
       } else {
-        // Zwiń szczegóły
-        detailsContainer.classList.add("nonedisplay");
-        detailsContainer.style.cssText = "display: none !important;";
+        detailsContainer.style.display = "none";
         chevron.style.transform = "rotate(0deg)";
         toggleBtn.classList.remove("active");
       }
