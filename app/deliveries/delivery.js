@@ -1199,12 +1199,20 @@ whenReadyAndDataTables(function () {
       return count;
     }
 
+    // Stwórz tablicę z zamówieniami i ich liczbą produktów
+    const ordersWithCounts = orderIds.map((orderId) => {
+      const details = orderDetailsCache[orderId];
+      const productCount = countProductsForOrder(orderId);
+      return { orderId, details, productCount };
+    });
+
+    // Posortuj według liczby produktów (od największej do najmniejszej)
+    ordersWithCounts.sort((a, b) => b.productCount - a.productCount);
+
     // Formatuj opcje z nazwą, datą zamówienia i liczbą produktów
-    const options = orderIds
-      .map((orderId) => {
-        const details = orderDetailsCache[orderId];
+    const options = ordersWithCounts
+      .map(({ orderId, details, productCount }) => {
         let displayText = orderId; // fallback to ID
-        const productCount = countProductsForOrder(orderId);
 
         if (details) {
           if (details.name) {
