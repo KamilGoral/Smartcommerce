@@ -834,14 +834,14 @@ whenReadyAndDataTables(function () {
     // linked state + diffs
     const orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
     const orderedPrice = avgPriceWeighted(linked?.[0]?.segments); // jak na screenie: pierwszy dokument
-    const qtyDiff = deliveredQty - orderedQty;
+    const qtyDiff = roundQty(deliveredQty - orderedQty);
 
     const deliveredValue =
       deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
     const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
     const valueDiff = deliveredValue - orderedValue;
 
-    const qtyDiffNonZero = Math.abs(qtyDiff) > 0;
+    const qtyDiffNonZero = Math.abs(qtyDiff) > 0.0001;
     const valueDiffNonZero = Math.abs(valueDiff) > 0.000001; // tolerancja
 
     if (!qtyDiffNonZero && !valueDiffNonZero) {
@@ -876,8 +876,13 @@ whenReadyAndDataTables(function () {
     };
   }
 
+  // Zaokrąglenie różnicy ilościowej do max 3 miejsc po przecinku (floating point safety)
+  function roundQty(n) {
+    return Math.round(n * 1000) / 1000;
+  }
+
   function diffSpanNumber(n, italic = false) {
-    const v = Number(n);
+    const v = roundQty(Number(n));
     if (!Number.isFinite(v))
       return `<span class="${italic ? "muted italic" : "muted"}">-</span>`;
     if (v === 0) {
@@ -938,7 +943,7 @@ whenReadyAndDataTables(function () {
     const rows = proposalsToRender.map((m, idx) => {
       const orderedQty = sumQty(m?.segments);
       const orderedPrice = avgPriceWeighted(m?.segments);
-      const qtyDiff = orderedQty > 0 ? deliveredQty - orderedQty : 0;
+      const qtyDiff = orderedQty > 0 ? roundQty(deliveredQty - orderedQty) : 0;
 
       const deliveredValue =
         deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
@@ -978,7 +983,7 @@ whenReadyAndDataTables(function () {
         <td class="text-right" style="padding: 8px; font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
         <td class="text-right" style="padding: 8px;">${(() => {
           if (orderedQty <= 0) return `<span style="color: #9ca3af; font-style: italic;">-</span>`;
-          const hasQD = Math.abs(qtyDiff) > 0;
+          const hasQD = Math.abs(qtyDiff) > 0.0001;
           const hasPD = Math.abs(priceDiff) > 0.000001;
           if (hasQD && hasPD) {
             const commonQ = Math.min(deliveredQty, orderedQty);
@@ -986,7 +991,7 @@ whenReadyAndDataTables(function () {
             const pdColor = pdVal < 0 ? "#16a34a" : "#dc2626";
             return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end; font-style: italic;">
               <span style="color: ${pdColor};">${(pdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
-              <span style="color: #dc2626; font-size: 11px;">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
+              <span style="color: #dc2626; font-size: 11px;">${qtyDiff > 0 ? "+" : ""}${roundQty(qtyDiff)} szt.</span>
             </div>`;
           }
           return diffSpanMoney(valueDiff, true);
@@ -2177,7 +2182,7 @@ whenReadyAndDataTables(function () {
               }
             }
 
-            const diff = deliveredQty - orderedQty;
+            const diff = roundQty(deliveredQty - orderedQty);
             if (type === "sort" || type === "type") return diff;
             return diffSpanNumber(diff, isProposal);
           },
@@ -2265,10 +2270,10 @@ whenReadyAndDataTables(function () {
             if (type === "sort" || type === "type") return totalDiff;
 
             // Rozłóż różnicę na składniki
-            const qtyDiff = deliveredQty - orderedQty;
+            const qtyDiff = roundQty(deliveredQty - orderedQty);
             const priceDiff = (deliveredPrice !== null && orderedPrice !== null)
               ? deliveredPrice - orderedPrice : 0;
-            const hasQtyDiff = Math.abs(qtyDiff) > 0;
+            const hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
             const hasPriceDiff = Math.abs(priceDiff) > 0.000001;
 
             if (!hasQtyDiff && !hasPriceDiff) {
