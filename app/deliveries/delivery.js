@@ -575,6 +575,12 @@ whenReadyAndDataTables(function () {
           issueDate.innerHTML = `<strong>${date}</strong>`;
         }
 
+        // Zapisz issueDate globalnie (do filtrów dat)
+        if (data.issueDate) {
+          deliveryIssueDate = data.issueDate.substring(0, 10); // "YYYY-MM-DD"
+          initDatePickerDefaults();
+        }
+
         // Status badges
         if (data.status) {
           const editState = document.querySelector(".editstate");
@@ -668,6 +674,12 @@ whenReadyAndDataTables(function () {
                 },
               );
               issueDateNew.innerHTML = `<strong>${date}</strong>`;
+            }
+
+            // Zapisz issueDate globalnie (do filtrów dat) - nowy format
+            if (data.issueDate && !deliveryIssueDate) {
+              deliveryIssueDate = data.issueDate.substring(0, 10);
+              initDatePickerDefaults();
             }
 
             // Inicjalizuj toggle szczegółów po utworzeniu kontenera
@@ -1038,6 +1050,9 @@ whenReadyAndDataTables(function () {
 
   // globalnie (żeby mieć dostęp do instancji i móc ją odświeżać)
   let deliveryTable = null;
+
+  // Data dokumentu (issueDate) – ustawiana z loadDeliveryDetails(), używana do filtrów dat
+  let deliveryIssueDate = null;
 
   // Cache dla szczegółów zamówień (orderId -> order details)
   const orderDetailsCache = {};
@@ -1439,7 +1454,30 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  // ---------- Days Filter (Order Search Range) ----------
+  // ---------- Date Range Filter (Order Search Range) ----------
+
+  // Formatuje Date do "YYYY-MM-DD"
+  function fmtDateISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  // Zwraca parametry daty do URL: "date=gte:YYYY-MM-DD&date=lte:YYYY-MM-DD"
+  function getDateRangeParams() {
+    const startVal = $("#orderDateStart").val();
+    const endVal = $("#orderDateEnd").val();
+    if (startVal && endVal) {
+      return "date=gte:" + startVal + "&date=lte:" + endVal;
+    }
+    // Fallback: -3 dni od issueDate
+    const end = deliveryIssueDate || fmtDateISO(new Date());
+    const startD = new Date(end + "T00:00:00");
+    startD.setDate(startD.getDate() - 3);
+    return "date=gte:" + fmtDateISO(startD) + "&date=lte:" + end;
+  }
+
   function renderDaysFilter(containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -1449,15 +1487,13 @@ whenReadyAndDataTables(function () {
 
     container.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach z ostatnich</span>
-          <select id="orderingDays" style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; cursor: pointer; background: white;">
-            <option value="3">3</option>
-            <option value="7">7</option>
-            <option value="14">14</option>
-            <option value="60" selected>60</option>
-          </select>
-          <span style="font-size: 14px; color: #374151;">dniach</span>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 14px; color: #374151;">Szukaj w zamówieniach od</span>
+          <input type="text" id="orderDateStart" readonly
+            style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; width: 120px; background: white; cursor: pointer;" />
+          <span style="font-size: 14px; color: #374151;">do</span>
+          <input type="text" id="orderDateEnd" readonly
+            style="padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; width: 120px; background: white; cursor: pointer;" />
         </div>
         <button id="details-toggle-btn" type="button" class="status-filter-btn" style="display: inline-flex; align-items: center; gap: 6px;">
           <span class="filter-label">Szczegóły</span>
@@ -1469,16 +1505,80 @@ whenReadyAndDataTables(function () {
     `;
   }
 
+  // Ustawia domyślne daty i inicjalizuje jQuery UI datepicker po załadowaniu issueDate
+  function initDatePickerDefaults() {
+    const endInput = $("#orderDateEnd");
+    const startInput = $("#orderDateStart");
+    if (!endInput.length || !startInput.length) return;
+
+    // Jeśli datepicker już zainicjalizowany, zniszcz go przed ponownym tworzeniem
+    if (endInput.hasClass("hasDatepicker")) endInput.datepicker("destroy");
+    if (startInput.hasClass("hasDatepicker")) startInput.datepicker("destroy");
+
+    const issueD = new Date(deliveryIssueDate + "T00:00:00");
+    const minStartD = new Date(issueD);
+    minStartD.setDate(minStartD.getDate() - 14);
+
+    const defaultStartD = new Date(issueD);
+    defaultStartD.setDate(defaultStartD.getDate() - 3);
+
+    const datepickerDefaults = {
+      dateFormat: "yy-mm-dd",
+      altFormat: "yy-mm-dd",
+      dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+      dayNamesShort: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
+      dayNamesMin: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
+      firstDay: 1,
+      monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+      monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+    };
+
+    // Data końcowa: max = issueDate, min = issueDate - 14 dni
+    endInput.datepicker($.extend({}, datepickerDefaults, {
+      maxDate: issueD,
+      minDate: minStartD,
+      onSelect: function (dateText) {
+        // Ogranicz startDate: nie później niż nowy endDate, nie wcześniej niż endDate - 14 dni
+        const newEnd = new Date(dateText + "T00:00:00");
+        const newMinStart = new Date(newEnd);
+        newMinStart.setDate(newMinStart.getDate() - 14);
+        // minStart nie może być wcześniej niż issueDate - 14
+        if (newMinStart < minStartD) newMinStart.setTime(minStartD.getTime());
+        startInput.datepicker("option", "maxDate", newEnd);
+        startInput.datepicker("option", "minDate", newMinStart);
+
+        // Jeśli aktualna startDate jest poza zakresem, popraw ją
+        const currentStart = startInput.datepicker("getDate");
+        if (currentStart && currentStart > newEnd) {
+          const corrected = new Date(newEnd);
+          corrected.setDate(corrected.getDate() - 3);
+          if (corrected < newMinStart) corrected.setTime(newMinStart.getTime());
+          startInput.datepicker("setDate", corrected);
+        }
+        if (currentStart && currentStart < newMinStart) {
+          startInput.datepicker("setDate", newMinStart);
+        }
+
+        // Odśwież tabelę
+        if (deliveryTable) deliveryTable.ajax.reload();
+      },
+    })).datepicker("setDate", issueD);
+
+    // Data startowa: max = issueDate, min = issueDate - 14 dni
+    startInput.datepicker($.extend({}, datepickerDefaults, {
+      maxDate: issueD,
+      minDate: minStartD,
+      onSelect: function () {
+        // Odśwież tabelę
+        if (deliveryTable) deliveryTable.ajax.reload();
+      },
+    })).datepicker("setDate", defaultStartD);
+  }
+
   function initDaysFilterEvents(table, containerId) {
+    // Events obsługiwane przez datepicker onSelect – nic dodatkowego nie trzeba
     const container = document.getElementById(containerId);
     if (!container) return;
-
-    container.addEventListener("change", function (e) {
-      if (e.target.id === "orderingDays") {
-        // Odśwież tabelę z nowymi danymi
-        table.ajax.reload();
-      }
-    });
   }
 
   // ---------- Details Toggle (Szczegóły dokumentu) ----------
@@ -2032,15 +2132,15 @@ whenReadyAndDataTables(function () {
           },
         });
 
-        // Pobierz wartość dni z dropdownu
-        const days = $("#orderingDays").val() || 7;
+        // Pobierz zakres dat z date pickerów
+        const dateParams = getDateRangeParams();
 
         $.get(
           InvokeURL +
             "van/recadvs/" +
             encodeURIComponent(recadvId) +
-            "/products?perPage=1000&days=" +
-            days,
+            "/products?perPage=1000&" +
+            dateParams,
           async function (res) {
             // Pobierz szczegóły zamówień przed wyświetleniem tabeli
             await prefetchOrderDetails(res.items);
@@ -2505,21 +2605,20 @@ whenReadyAndDataTables(function () {
         linkRecadvProduct(recadvId, productId, matchId, quantity)
           .then(function () {
             // Pobierz świeże dane z pełnym stanem (potentialMatches, linkedOrderProducts)
-            const days = $("#orderingDays").val() || 7;
+            const dateParams = getDateRangeParams();
             return $.ajax({
               type: "GET",
               url:
                 InvokeURL +
                 "van/recadvs/" +
                 encodeURIComponent(recadvId) +
-                "/products",
+                "/products?" + dateParams,
               headers: {
                 Authorization: orgToken,
                 "Requested-By": "webflow-3-4",
               },
               data: {
                 gtin: gtin,
-                days: days,
               },
             });
           })
@@ -2589,21 +2688,20 @@ whenReadyAndDataTables(function () {
         unlinkRecadvProduct(recadvId, productId, linkedId)
           .then(function () {
             // Pobierz świeże dane z potentialMatches
-            const days = $("#orderingDays").val() || 7;
+            const dateParams = getDateRangeParams();
             return $.ajax({
               type: "GET",
               url:
                 InvokeURL +
                 "van/recadvs/" +
                 encodeURIComponent(recadvId) +
-                "/products",
+                "/products?" + dateParams,
               headers: {
                 Authorization: orgToken,
                 "Requested-By": "webflow-3-4",
               },
               data: {
                 gtin: gtin,
-                days: days,
               },
             });
           })
