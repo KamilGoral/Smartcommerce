@@ -474,7 +474,7 @@ whenReadyAndDataTables(function () {
     "href",
     "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey,
   );
-  var deliveryName = new URL(location.href).searchParams.get("deliveryName");
+
   const recadvId = new URL(location.href).searchParams.get("deliveryId");
 
   const deliveryBread = document.getElementById("DeliveryBread0");
@@ -527,6 +527,7 @@ whenReadyAndDataTables(function () {
         const deliveryTitle = document.getElementById("DeliveryIdBig");
         if (deliveryTitle && data.name) {
           deliveryTitle.textContent = data.name;
+          deliveryBread.textContent = data.name;
         }
 
         // Dostawca
@@ -1157,7 +1158,7 @@ whenReadyAndDataTables(function () {
     return Array.from(orderIds).sort();
   }
 
-  function renderOrderDropdown(containerId, orderIds) {
+  function renderOrderDropdown(containerId, orderIds, tableData) {
     const container = document.getElementById(containerId);
     if (!container) {
       console.warn(`Container #${containerId} not found`);
@@ -1177,15 +1178,37 @@ whenReadyAndDataTables(function () {
       container.appendChild(dropdownWrapper);
     }
 
-    // Formatuj opcje z nazwą i datą zamówienia
+    // Funkcja do zliczania produktów dla danego zamówienia
+    function countProductsForOrder(orderId) {
+      let count = 0;
+      tableData.forEach((row) => {
+        const linked = safeArr(row?.linkedOrderProducts);
+        const proposals = safeArr(row?.potentialMatches);
+
+        // Sprawdź czy produkt ma powiązanie z zamówieniem (linked)
+        const hasLinkedOrder = linked.some((link) => link?.orderId === orderId);
+        // Sprawdź czy produkt ma propozycję z zamówieniem (proposals)
+        const hasProposalOrder = proposals.some(
+          (proposal) => proposal?.orderId === orderId,
+        );
+
+        if (hasLinkedOrder || hasProposalOrder) {
+          count++;
+        }
+      });
+      return count;
+    }
+
+    // Formatuj opcje z nazwą, datą zamówienia i liczbą produktów
     const options = orderIds
       .map((orderId) => {
         const details = orderDetailsCache[orderId];
         let displayText = orderId; // fallback to ID
+        const productCount = countProductsForOrder(orderId);
 
         if (details) {
           if (details.name) {
-            // Format: "DD.MM.YYYY - Nazwa zamówienia"
+            // Format: "(liczba) DD.MM.YYYY - Nazwa zamówienia"
             let dateStr = "";
             if (details.createDate) {
               const date = new Date(details.createDate);
@@ -1196,12 +1219,15 @@ whenReadyAndDataTables(function () {
               });
             }
             displayText = dateStr
-              ? `${dateStr} - ${details.name}`
-              : details.name;
+              ? `(${productCount}) ${dateStr} - ${details.name}`
+              : `(${productCount}) ${details.name}`;
           } else {
             // Jeśli nie ma nazwy, pokaż skrócone ID
-            displayText = `...${orderId.slice(-8)}`;
+            displayText = `(${productCount}) ...${orderId.slice(-8)}`;
           }
+        } else {
+          // Brak szczegółów - pokaż tylko liczbę i skrócone ID
+          displayText = `(${productCount}) ...${orderId.slice(-8)}`;
         }
 
         return `<option value="${escapeHtml(orderId)}">${escapeHtml(displayText)}</option>`;
@@ -1540,7 +1566,7 @@ whenReadyAndDataTables(function () {
 
         // Update order dropdown w tym samym kontenerze co filtry statusów
         const orderIds = getAllOrderIds(json.data);
-        renderOrderDropdown(containerId, orderIds);
+        renderOrderDropdown(containerId, orderIds, json.data);
         initOrderFilterEvents(table, containerId);
 
         // Update statystyk na górze strony
