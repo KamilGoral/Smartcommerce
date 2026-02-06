@@ -1285,6 +1285,69 @@ whenReadyAndDataTables(function () {
     `;
   }
 
+  /**
+   * Przetwarza dane tabeli dla wybranego zamówienia:
+   * - Dla każdej grupy produktu (parent + warianty) znajduje wariant z wybranym zamówieniem
+   * - Jeśli znaleziono, promuje go do parenta (zamienia z obecnym parentem)
+   * - Zwraca przetworzone dane
+   */
+  function processDataForSelectedOrder(tableData, selectedOrderId) {
+    if (!selectedOrderId) {
+      return tableData;
+    }
+
+    const processedData = [];
+
+    tableData.forEach((row) => {
+      const linked = safeArr(row?.linkedOrderProducts);
+      const proposals = safeArr(row?.potentialMatches);
+
+      // Sprawdź, czy obecny parent ma powiązanie z wybranym zamówieniem
+      const hasLinkedToSelectedOrder = linked.some(
+        (link) => link?.orderId === selectedOrderId,
+      );
+
+      if (hasLinkedToSelectedOrder) {
+        // Obecny parent już ma powiązanie z wybranym zamówieniem - zostaw bez zmian
+        processedData.push(row);
+        return;
+      }
+
+      // Sprawdź, czy któryś z wariantów (proposals) ma powiązanie z wybranym zamówieniem
+      const matchedProposal = proposals.find(
+        (p) => p?.orderId === selectedOrderId,
+      );
+
+      if (matchedProposal) {
+        // Znaleziono wariant z wybranym zamówieniem - promuj go do parenta
+        const newParent = {
+          ...row,
+          // Zachowaj oryginalne dane parenta, ale zastąp danymi z wariantu
+          segments: matchedProposal.segments,
+          linkedOrderProducts: [
+            {
+              id: matchedProposal.id,
+              orderId: matchedProposal.orderId,
+              orderProductId: matchedProposal.orderProductId,
+              segments: matchedProposal.segments,
+            },
+          ],
+          // Usuń ten wariant z proposals (bo teraz jest parentem)
+          potentialMatches: proposals.filter(
+            (p) => p?.orderId !== selectedOrderId,
+          ),
+        };
+
+        processedData.push(newParent);
+      } else {
+        // Brak wariantu z wybranym zamówieniem - zostaw bez zmian
+        processedData.push(row);
+      }
+    });
+
+    return processedData;
+  }
+
   function applyOrderFilter(table, orderId) {
     // Usuń poprzedni filtr zamówienia jeśli istnieje
     if (currentOrderFilterFn) {
@@ -1296,6 +1359,20 @@ whenReadyAndDataTables(function () {
 
     // Aktualizuj globalną zmienną selectedOrderId
     selectedOrderId = orderId || null;
+
+    // Przetwórz dane dla wybranego zamówienia
+    const originalData = table.ajax ? null : table.rows().data().toArray();
+    if (originalData && originalData.length > 0) {
+      const processedData = processDataForSelectedOrder(
+        originalData,
+        selectedOrderId,
+      );
+
+      // Zastąp dane w tabeli przetworzonymi danymi
+      table.clear();
+      table.rows.add(processedData);
+      table.draw();
+    }
 
     if (orderId) {
       currentOrderFilterFn = function (settings, data, dataIndex) {
@@ -1329,6 +1406,19 @@ whenReadyAndDataTables(function () {
     container.addEventListener("change", function (e) {
       if (e.target.id === "order-filter-select") {
         const orderId = e.target.value;
+
+        // Przetwórz dane dla wybranego zamówienia
+        const originalData = table.rows().data().toArray();
+        const processedData = processDataForSelectedOrder(
+          originalData,
+          orderId,
+        );
+
+        // Zastąp dane w tabeli przetworzonymi danymi
+        table.clear();
+        table.rows.add(processedData);
+
+        // Zastosuj filtr
         applyOrderFilter(table, orderId);
       }
     });
@@ -1603,6 +1693,17 @@ whenReadyAndDataTables(function () {
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
+      // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+      const originalData = table.rows().data().toArray();
+      const processedData = processDataForSelectedOrder(
+        originalData,
+        selectedOrderId,
+      );
+
+      // Zastąp dane w tabeli przetworzonymi danymi
+      table.clear();
+      table.rows.add(processedData);
+
       // Apply filter
       const filterKey = btn.dataset.filter;
       applyStatusFilter(table, filterKey);
@@ -1615,7 +1716,13 @@ whenReadyAndDataTables(function () {
     table.on("xhr.dt", function (e, settings, json) {
       // Po załadowaniu danych AJAX - update liczników i dropdown
       if (json && json.data) {
-        const counts = countByStatus(json.data);
+        // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+        const processedData = processDataForSelectedOrder(
+          json.data,
+          selectedOrderId,
+        );
+
+        const counts = countByStatus(processedData);
         updateFilterCounters(counts);
 
         // Update order dropdown w tym samym kontenerze co filtry statusów
@@ -1624,7 +1731,7 @@ whenReadyAndDataTables(function () {
         initOrderFilterEvents(table, containerId);
 
         // Update statystyk na górze strony
-        updateDeliveryStatistics(json.data);
+        updateDeliveryStatistics(processedData);
       }
     });
 
@@ -1740,12 +1847,22 @@ whenReadyAndDataTables(function () {
 
   // Helper: Aktualizuj liczniki i przefiltruj jeśli trzeba
   function refreshFiltersAfterUpdate() {
-    // 1. Aktualizuj liczniki
-    const allData = deliveryTable.rows().data().toArray();
-    const counts = countByStatus(allData);
+    // 1. Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+    const originalData = deliveryTable.rows().data().toArray();
+    const processedData = processDataForSelectedOrder(
+      originalData,
+      selectedOrderId,
+    );
+
+    // Zastąp dane w tabeli przetworzonymi danymi
+    deliveryTable.clear();
+    deliveryTable.rows.add(processedData);
+
+    // 2. Aktualizuj liczniki
+    const counts = countByStatus(processedData);
     updateFilterCounters(counts);
 
-    // 2. Sprawdź aktywny filtr i przefiltruj
+    // 3. Sprawdź aktywny filtr i przefiltruj
     const activeFilter = document.querySelector(".status-filter-btn.active");
     if (activeFilter) {
       const filterKey = activeFilter.dataset.filter;
@@ -1786,6 +1903,18 @@ whenReadyAndDataTables(function () {
           text: '<span class="dt-btn">Rozwiń</span>',
           titleAttr: "Rozwiń wszystkie (propozycje)",
           action: function (e, dt) {
+            // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+            const originalData = dt.rows().data().toArray();
+            const processedData = processDataForSelectedOrder(
+              originalData,
+              selectedOrderId,
+            );
+
+            // Zastąp dane w tabeli przetworzonymi danymi
+            dt.clear();
+            dt.rows.add(processedData);
+            dt.draw(false);
+
             dt.rows().every(function () {
               const row = this;
               const data = row.data();
@@ -1871,10 +2000,16 @@ whenReadyAndDataTables(function () {
             // Pobierz szczegóły zamówień przed wyświetleniem tabeli
             await prefetchOrderDetails(res.items);
 
+            // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+            const processedData = processDataForSelectedOrder(
+              res.items,
+              selectedOrderId,
+            );
+
             callback({
               recordsTotal: res.total,
               recordsFiltered: res.total,
-              data: res.items,
+              data: processedData,
             });
           },
         );
@@ -1946,7 +2081,7 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 4 - Ilość zam.
+        // Kolumna 3 - Ilość zam.
         {
           data: null,
           orderable: true,
@@ -1989,7 +2124,7 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 6 - Różnica il.
+        // Kolumna 4 - Różnica il.
         {
           data: null,
           orderable: true,
@@ -2034,7 +2169,7 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 3 - Cena dost.
+        // Kolumna 5 - Cena dost.
         {
           data: "segments",
           orderable: true,
@@ -2046,7 +2181,7 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 5 - Cena zam.
+        // Kolumna 6 - Cena zam.
         {
           data: null,
           orderable: true,
@@ -2324,6 +2459,18 @@ whenReadyAndDataTables(function () {
           tr.nextUntil(":not(.child-row)").remove();
           tr.removeClass("shown");
         } else {
+          // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+          const originalData = deliveryTable.rows().data().toArray();
+          const processedData = processDataForSelectedOrder(
+            originalData,
+            selectedOrderId,
+          );
+
+          // Zastąp dane w tabeli przetworzonymi danymi
+          deliveryTable.clear();
+          deliveryTable.rows.add(processedData);
+          deliveryTable.draw(false);
+
           // Wstaw child rows bezpośrednio po parent row
           const childRowsHtml = renderChildProposals(data, selectedOrderId);
           tr.after(childRowsHtml);
@@ -2415,6 +2562,17 @@ whenReadyAndDataTables(function () {
                 parentTr.find("td:first").removeClass("details-control");
               }
 
+              // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+              const originalData = deliveryTable.rows().data().toArray();
+              const processedData = processDataForSelectedOrder(
+                originalData,
+                selectedOrderId,
+              );
+
+              // Zastąp dane w tabeli przetworzonymi danymi
+              deliveryTable.clear();
+              deliveryTable.rows.add(processedData);
+
               refreshFiltersAfterUpdate();
             }
 
@@ -2495,6 +2653,17 @@ whenReadyAndDataTables(function () {
               } else {
                 parentTr.find("td:first").removeClass("details-control");
               }
+
+              // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
+              const originalData = deliveryTable.rows().data().toArray();
+              const processedData = processDataForSelectedOrder(
+                originalData,
+                selectedOrderId,
+              );
+
+              // Zastąp dane w tabeli przetworzonymi danymi
+              deliveryTable.clear();
+              deliveryTable.rows.add(processedData);
 
               refreshFiltersAfterUpdate();
             }
