@@ -959,20 +959,12 @@ whenReadyAndDataTables(function () {
       return `<span style="${style}">0</span>`;
     }
 
+    // Każda różnica ilościowa (+ lub -) = niezgodność → czerwony
     const sign = v > 0 ? "+" : "";
-    if (v > 0) {
-      // Więcej dostarczone niż zamówione = korzyść → zielony
-      const style = italic
-        ? "color: #10b981; font-style: italic;"
-        : "color: #10b981;";
-      return `<span style="${style}">${sign}${v}</span>`;
-    } else {
-      // Mniej dostarczone niż zamówione = szkoda → ciemny czerwony
-      const style = italic
-        ? "color: #dc2626; font-style: italic;"
-        : "color: #dc2626;";
-      return `<span style="${style}">${sign}${v}</span>`;
-    }
+    const style = italic
+      ? "color: #dc2626; font-style: italic;"
+      : "color: #dc2626;";
+    return `<span style="${style}">${sign}${v}</span>`;
   }
 
   function diffSpanMoney(n, italic = false) {
@@ -986,20 +978,12 @@ whenReadyAndDataTables(function () {
       return `<span style="${style}">${fmtPLN(0)}</span>`;
     }
 
+    // Każda różnica wartościowa (+ lub -) = niezgodność → czerwony
     const sign = v > 0 ? "+" : "";
-    if (v > 0) {
-      // Wartość dostawy wyższa = korzyść (więcej towaru) → zielony
-      const style = italic
-        ? "color: #10b981; font-style: italic;"
-        : "color: #10b981;";
-      return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
-    } else {
-      // Wartość dostawy niższa = szkoda (mniej towaru) → ciemny czerwony
-      const style = italic
-        ? "color: #dc2626; font-style: italic;"
-        : "color: #dc2626;";
-      return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
-    }
+    const style = italic
+      ? "color: #dc2626; font-style: italic;"
+      : "color: #dc2626;";
+    return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
   }
 
   // ---------- child row render (warianty/propozycje) ----------
@@ -1062,7 +1046,21 @@ whenReadyAndDataTables(function () {
         <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
         <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
         <td class="text-right" style="padding: 8px; font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
-        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanMoney(valueDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
+        <td class="text-right" style="padding: 8px;">${(() => {
+          if (orderedQty <= 0) return `<span style="color: #9ca3af; font-style: italic;">-</span>`;
+          const hasQD = Math.abs(qtyDiff) > 0;
+          const hasPD = Math.abs(priceDiff) > 0.000001;
+          if (hasQD && hasPD) {
+            const commonQ = Math.min(deliveredQty, orderedQty);
+            const pdVal = commonQ * priceDiff;
+            const qdVal = qtyDiff * (orderedPrice || 0);
+            return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end; font-style: italic;">
+              <span style="color: #dc2626;">${(pdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
+              <span style="color: #dc2626; font-size: 11px;">${(qdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(qdVal))} <span style="color: #9ca3af;">(${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.)</span></span>
+            </div>`;
+          }
+          return diffSpanMoney(valueDiff, true);
+        })()}</td>
 
         <td style="padding: 8px; font-style: italic;">
           ${
@@ -2230,7 +2228,8 @@ whenReadyAndDataTables(function () {
           orderable: true,
           className: "text-right",
           render: function (data, type, row) {
-            const deliveredValue = valueTotal(row?.segments);
+            const deliveredQty = sumQty(row?.segments);
+            const deliveredPrice = avgPriceWeighted(row?.segments);
             let orderedQty = 0;
             let orderedPrice = null;
             let isProposal = false;
@@ -2256,12 +2255,40 @@ whenReadyAndDataTables(function () {
               }
             }
 
-            const orderedValue =
-              orderedPrice === null ? 0 : orderedQty * orderedPrice;
-            const diff = deliveredValue - orderedValue;
+            const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
+            const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
+            const totalDiff = deliveredValue - orderedValue;
 
-            if (type === "sort" || type === "type") return diff;
-            return diffSpanMoney(diff, isProposal);
+            if (type === "sort" || type === "type") return totalDiff;
+
+            // Rozłóż różnicę na składniki
+            const qtyDiff = deliveredQty - orderedQty;
+            const priceDiff = (deliveredPrice !== null && orderedPrice !== null)
+              ? deliveredPrice - orderedPrice : 0;
+            const hasQtyDiff = Math.abs(qtyDiff) > 0;
+            const hasPriceDiff = Math.abs(priceDiff) > 0.000001;
+
+            if (!hasQtyDiff && !hasPriceDiff) {
+              return diffSpanMoney(totalDiff, isProposal);
+            }
+
+            if (hasQtyDiff && hasPriceDiff) {
+              // Dwie składowe: różnica cenowa (na dostarczonych szt.) + różnica ilościowa
+              // Linia 1: różnica cenowa × min(delivered, ordered) sztuk
+              const commonQty = Math.min(deliveredQty, orderedQty);
+              const priceDiffValue = commonQty * priceDiff;
+              // Linia 2: brakujące/nadmiarowe sztuki × cena zamówiona
+              const qtyDiffValue = qtyDiff * (orderedPrice || 0);
+
+              const italicStyle = isProposal ? " font-style: italic;" : "";
+              return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end;${italicStyle}">
+                <span style="color: #dc2626;" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
+                <span style="color: #dc2626; font-size: 11px;" title="Różnica ilościowa: ${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt. × ${fmtPLN(orderedPrice || 0)}/szt.">${(qtyDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(qtyDiffValue))} <span style="color: #9ca3af;">(${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.)</span></span>
+              </div>`;
+            }
+
+            // Tylko jedna składowa
+            return diffSpanMoney(totalDiff, isProposal);
           },
         },
 
