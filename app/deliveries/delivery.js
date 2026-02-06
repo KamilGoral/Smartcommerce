@@ -798,9 +798,7 @@ whenReadyAndDataTables(function () {
     const deliveredPrice = avgPriceWeighted(rec?.segments);
 
     const linked = safeArr(rec?.linkedOrderProducts); // z API sample: linkedOrderProducts: []
-    const hasLinked = linked.length > 0;
-
-    const hasProposals = safeArr(rec?.potentialMatches).length > 0;
+    const proposals = safeArr(rec?.potentialMatches);
     const isValid = rec?.valid === true;
 
     if (!isValid) {
@@ -811,6 +809,101 @@ whenReadyAndDataTables(function () {
         sort: 90,
       };
     }
+
+    // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+    if (selectedOrderId) {
+      // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+      const linkedToSelected = linked.filter(
+        (l) => l?.orderId === selectedOrderId,
+      );
+      const hasLinkedToSelected = linkedToSelected.length > 0;
+
+      // Jeśli nie ma połączenia z wybranym zamówieniem, sprawdź propozycje
+      if (!hasLinkedToSelected) {
+        const hasProposalForSelected = proposals.some(
+          (p) => p?.orderId === selectedOrderId,
+        );
+
+        if (hasProposalForSelected) {
+          return {
+            key: "proposal",
+            label: "Propozycja",
+            badge: "badge badge--info",
+            sort: 20,
+          };
+        }
+
+        // Jeśli nie ma ani połączenia ani propozycji z wybranym zamówieniem,
+        // ale są inne połączenia lub propozycje, traktuj jako niedopasowane
+        if (linked.length > 0 || proposals.length > 0) {
+          return {
+            key: "unmatched",
+            label: "Niedopasowano",
+            badge: "badge badge--muted",
+            sort: 10,
+          };
+        }
+
+        return {
+          key: "unmatched",
+          label: "Niedopasowano",
+          badge: "badge badge--muted",
+          sort: 10,
+        };
+      }
+
+      // Jest połączenie z wybranym zamówieniem - oblicz różnice dla tego zamówienia
+      const orderedQty = linkedToSelected.reduce(
+        (acc, p) => acc + sumQty(p?.segments),
+        0,
+      );
+      const orderedPrice = avgPriceWeighted(linkedToSelected[0]?.segments);
+      const qtyDiff = deliveredQty - orderedQty;
+
+      const deliveredValue =
+        deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
+      const orderedValue =
+        orderedPrice === null ? 0 : orderedQty * orderedPrice;
+      const valueDiff = deliveredValue - orderedValue;
+
+      const qtyDiffNonZero = Math.abs(qtyDiff) > 0;
+      const valueDiffNonZero = Math.abs(valueDiff) > 0.000001; // tolerancja
+
+      if (!qtyDiffNonZero && !valueDiffNonZero) {
+        return {
+          key: "matched",
+          label: "Dopasowano",
+          badge: "badge badge--success",
+          sort: 40,
+        };
+      }
+      if (qtyDiffNonZero && valueDiffNonZero) {
+        return {
+          key: "diff_both",
+          label: "Rozbieżność il./wart.",
+          badge: "badge badge--danger",
+          sort: 60,
+        };
+      }
+      if (qtyDiffNonZero) {
+        return {
+          key: "diff_qty",
+          label: "Rozbieżność ilościowa",
+          badge: "badge badge--warn",
+          sort: 50,
+        };
+      }
+      return {
+        key: "diff_value",
+        label: "Rozbieżność wartościowa",
+        badge: "badge badge--warn2",
+        sort: 55,
+      };
+    }
+
+    // Brak filtrowania według zamówienia - oryginalna logika
+    const hasLinked = linked.length > 0;
+    const hasProposals = proposals.length > 0;
 
     if (!hasLinked) {
       if (hasProposals) {
@@ -1283,8 +1376,6 @@ whenReadyAndDataTables(function () {
     `;
   }
 
-
-
   function applyOrderFilter(table, orderId) {
     // Usuń poprzedni filtr zamówienia jeśli istnieje
     if (currentOrderFilterFn) {
@@ -1298,6 +1389,7 @@ whenReadyAndDataTables(function () {
     selectedOrderId = orderId || null;
 
     if (orderId) {
+      console.log(`Applying order filter for orderId: ${orderId}`);
       currentOrderFilterFn = function (settings, data, dataIndex) {
         if (settings.nTable.id !== "table_delivery") return true;
 
@@ -1311,6 +1403,18 @@ whenReadyAndDataTables(function () {
           (proposal) => proposal?.orderId === orderId,
         );
 
+        // Debug logging
+        if (hasLinkedOrder || hasProposalOrder) {
+          console.log(`Product ${rowData?.name} matches order ${orderId}`, {
+            hasLinkedOrder,
+            hasProposalOrder,
+            linked,
+            proposals,
+          });
+        }
+
+        // Pokaż tylko produkty, które mają powiązanie z wybranym zamówieniem
+        // (zarówno w linkedOrderProducts jak i w potentialMatches)
         return hasLinkedOrder || hasProposalOrder;
       };
 
@@ -1961,28 +2065,40 @@ whenReadyAndDataTables(function () {
             let q = 0;
             let isProposal = false;
 
-            if (linked.length) {
-              // Jeśli jest połączony, użyj danych z połączenia
-              q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
-            } else if (proposals.length) {
-              // Jeśli nie ma połączenia, ale są propozycje
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
+            // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+            if (selectedOrderId) {
+              // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+              const linkedToSelected = linked.filter(
+                (l) => l?.orderId === selectedOrderId,
+              );
+              if (linkedToSelected.length) {
+                q = linkedToSelected.reduce(
+                  (acc, p) => acc + sumQty(p?.segments),
+                  0,
+                );
+              } else {
+                // Jeśli nie ma połączenia, sprawdź propozycje z wybranym zamówieniem
+                const proposalToSelected = proposals.find(
                   (p) => p?.orderId === selectedOrderId,
                 );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
+                if (proposalToSelected) {
+                  q = sumQty(proposalToSelected?.segments);
+                  isProposal = true;
+                } else {
+                  // Brak danych dla wybranego zamówienia - nie powinno się zdarzyć po filtrze
+                  return `<span class="muted">-</span>`;
                 }
-              } else {
-                proposalToUse = proposals[0];
               }
-              q = sumQty(proposalToUse?.segments);
-              isProposal = true;
             } else {
-              return `<span class="muted">-</span>`;
+              // Brak filtrowania według zamówienia - oryginalna logika
+              if (linked.length) {
+                q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+              } else if (proposals.length) {
+                q = sumQty(proposals[0]?.segments);
+                isProposal = true;
+              } else {
+                return `<span class="muted">-</span>`;
+              }
             }
 
             if (type === "sort" || type === "type") return q;
@@ -2008,27 +2124,41 @@ whenReadyAndDataTables(function () {
             let orderedQty = 0;
             let isProposal = false;
 
-            if (linked.length) {
-              orderedQty = linked.reduce(
-                (acc, p) => acc + sumQty(p?.segments),
-                0,
+            // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+            if (selectedOrderId) {
+              // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+              const linkedToSelected = linked.filter(
+                (l) => l?.orderId === selectedOrderId,
               );
-            } else if (proposals.length) {
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
+              if (linkedToSelected.length) {
+                orderedQty = linkedToSelected.reduce(
+                  (acc, p) => acc + sumQty(p?.segments),
+                  0,
+                );
+              } else {
+                // Jeśli nie ma połączenia, sprawdź propozycje z wybranym zamówieniem
+                const proposalToSelected = proposals.find(
                   (p) => p?.orderId === selectedOrderId,
                 );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
+                if (proposalToSelected) {
+                  orderedQty = sumQty(proposalToSelected?.segments);
+                  isProposal = true;
+                } else {
+                  // Brak danych dla wybranego zamówienia - nie powinno się zdarzyć po filtrze
+                  return `<span class="muted">-</span>`;
                 }
-              } else {
-                proposalToUse = proposals[0];
               }
-              orderedQty = sumQty(proposalToUse?.segments);
-              isProposal = true;
+            } else {
+              // Brak filtrowania według zamówienia - oryginalna logika
+              if (linked.length) {
+                orderedQty = linked.reduce(
+                  (acc, p) => acc + sumQty(p?.segments),
+                  0,
+                );
+              } else if (proposals.length) {
+                orderedQty = sumQty(proposals[0]?.segments);
+                isProposal = true;
+              }
             }
 
             const diff = deliveredQty - orderedQty;
@@ -2061,24 +2191,35 @@ whenReadyAndDataTables(function () {
             let p = null;
             let isProposal = false;
 
-            if (linked.length) {
-              p = avgPriceWeighted(linked[0]?.segments);
-            } else if (proposals.length) {
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
+            // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+            if (selectedOrderId) {
+              // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+              const linkedToSelected = linked.filter(
+                (l) => l?.orderId === selectedOrderId,
+              );
+              if (linkedToSelected.length) {
+                p = avgPriceWeighted(linkedToSelected[0]?.segments);
+              } else {
+                // Jeśli nie ma połączenia, sprawdź propozycje z wybranym zamówieniem
+                const proposalToSelected = proposals.find(
                   (p) => p?.orderId === selectedOrderId,
                 );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
+                if (proposalToSelected) {
+                  p = avgPriceWeighted(proposalToSelected?.segments);
+                  isProposal = true;
+                } else {
+                  // Brak danych dla wybranego zamówienia - nie powinno się zdarzyć po filtrze
+                  return `<span class="muted">-</span>`;
                 }
-              } else {
-                proposalToUse = proposals[0];
               }
-              p = avgPriceWeighted(proposalToUse?.segments);
-              isProposal = true;
+            } else {
+              // Brak filtrowania według zamówienia - oryginalna logika
+              if (linked.length) {
+                p = avgPriceWeighted(linked[0]?.segments);
+              } else if (proposals.length) {
+                p = avgPriceWeighted(proposals[0]?.segments);
+                isProposal = true;
+              }
             }
 
             if (p === null) return `<span class="muted">-</span>`;
@@ -2104,29 +2245,45 @@ whenReadyAndDataTables(function () {
             let orderedPrice = null;
             let isProposal = false;
 
-            if (linked.length) {
-              orderedQty = linked.reduce(
-                (acc, p) => acc + sumQty(p?.segments),
-                0,
+            // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+            if (selectedOrderId) {
+              // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+              const linkedToSelected = linked.filter(
+                (l) => l?.orderId === selectedOrderId,
               );
-              orderedPrice = avgPriceWeighted(linked[0]?.segments);
-            } else if (proposals.length) {
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
+              if (linkedToSelected.length) {
+                orderedQty = linkedToSelected.reduce(
+                  (acc, p) => acc + sumQty(p?.segments),
+                  0,
+                );
+                orderedPrice = avgPriceWeighted(linkedToSelected[0]?.segments);
+              } else {
+                // Jeśli nie ma połączenia, sprawdź propozycje z wybranym zamówieniem
+                const proposalToSelected = proposals.find(
                   (p) => p?.orderId === selectedOrderId,
                 );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
+                if (proposalToSelected) {
+                  orderedQty = sumQty(proposalToSelected?.segments);
+                  orderedPrice = avgPriceWeighted(proposalToSelected?.segments);
+                  isProposal = true;
+                } else {
+                  // Brak danych dla wybranego zamówienia - nie powinno się zdarzyć po filtrze
+                  return `<span class="muted">-</span>`;
                 }
-              } else {
-                proposalToUse = proposals[0];
               }
-              orderedQty = sumQty(proposalToUse?.segments);
-              orderedPrice = avgPriceWeighted(proposalToUse?.segments);
-              isProposal = true;
+            } else {
+              // Brak filtrowania według zamówienia - oryginalna logika
+              if (linked.length) {
+                orderedQty = linked.reduce(
+                  (acc, p) => acc + sumQty(p?.segments),
+                  0,
+                );
+                orderedPrice = avgPriceWeighted(linked[0]?.segments);
+              } else if (proposals.length) {
+                orderedQty = sumQty(proposals[0]?.segments);
+                orderedPrice = avgPriceWeighted(proposals[0]?.segments);
+                isProposal = true;
+              }
             }
 
             const orderedValue =
@@ -2151,24 +2308,35 @@ whenReadyAndDataTables(function () {
             let orderId = null;
             let isProposal = false;
 
-            if (linked.length) {
-              orderId = linked[0]?.orderId;
-            } else if (proposals.length) {
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
+            // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+            if (selectedOrderId) {
+              // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+              const linkedToSelected = linked.filter(
+                (l) => l?.orderId === selectedOrderId,
+              );
+              if (linkedToSelected.length) {
+                orderId = linkedToSelected[0]?.orderId;
+              } else {
+                // Jeśli nie ma połączenia, sprawdź propozycje z wybranym zamówieniem
+                const proposalToSelected = proposals.find(
                   (p) => p?.orderId === selectedOrderId,
                 );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
+                if (proposalToSelected) {
+                  orderId = proposalToSelected?.orderId;
+                  isProposal = true;
+                } else {
+                  // Brak danych dla wybranego zamówienia - nie powinno się zdarzyć po filtrze
+                  return `<span class="muted">-</span>`;
                 }
-              } else {
-                proposalToUse = proposals[0];
               }
-              orderId = proposalToUse?.orderId;
-              isProposal = true;
+            } else {
+              // Brak filtrowania według zamówienia - oryginalna logika
+              if (linked.length) {
+                orderId = linked[0]?.orderId;
+              } else if (proposals.length) {
+                orderId = proposals[0]?.orderId;
+                isProposal = true;
+              }
             }
 
             if (!orderId) return `<span class="muted">-</span>`;
@@ -2193,7 +2361,7 @@ whenReadyAndDataTables(function () {
           render: function (data, type, row) {
             const st = computeRowState(row);
             if (type === "sort" || type === "type") {
-              // Dodaj logikę sortowania: jeśli wybrano zamówienie, produkty połączone z tym zamówieniem mają priorytet
+              // Gdy filtrowanie według zamówienia: produkty połączone z tym zamówieniem mają priorytet
               if (selectedOrderId) {
                 const linked = safeArr(row?.linkedOrderProducts);
                 const hasLinkedToSelectedOrder = linked.some(
@@ -2220,66 +2388,117 @@ whenReadyAndDataTables(function () {
             const linked = safeArr(row?.linkedOrderProducts);
             const proposals = safeArr(row?.potentialMatches);
 
-            // Jeśli jest połączony - pokaż "Rozłącz"
-            if (linked.length) {
-              const linkedId = linked[0]?.id;
-              return `
-        <button
-          class="btn btn-outline btn-sm unlink-btn"
-          data-product-id="${row?.id}"
-          data-linked-id="${linkedId}"
-          title="Rozłącz powiązanie"
-          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
-          onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
-          onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-            <path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"></path>
-            <path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"></path>
-            <line x1="8" x2="8" y1="2" y2="5"></line>
-            <line x1="2" x2="5" y1="8" y2="8"></line>
-            <line x1="16" x2="16" y1="19" y2="22"></line>
-            <line x1="19" x2="22" y1="16" y2="16"></line>
-          </svg>
-          Rozłącz
-        </button>
-      `;
-            }
-
-            // Jeśli jest propozycja - pokaż "Połącz"
-            if (proposals.length) {
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
+            // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+            if (selectedOrderId) {
+              // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
+              const linkedToSelected = linked.filter(
+                (l) => l?.orderId === selectedOrderId,
+              );
+              if (linkedToSelected.length) {
+                // Jest połączenie z wybranym zamówieniem - pokaż "Rozłącz"
+                const linkedId = linkedToSelected[0]?.id;
+                return `
+          <button
+            class="btn btn-outline btn-sm unlink-btn"
+            data-product-id="${row?.id}"
+            data-linked-id="${linkedId}"
+            title="Rozłącz powiązanie"
+            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"></path>
+              <path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"></path>
+              <line x1="8" x2="8" y1="2" y2="5"></line>
+              <line x1="2" x2="5" y1="8" y2="8"></line>
+              <line x1="16" x2="16" y1="19" y2="22"></line>
+              <line x1="19" x2="22" y1="16" y2="16"></line>
+            </svg>
+            Rozłącz
+          </button>
+        `;
+              } else {
+                // Nie ma połączenia z wybranym zamówieniem, sprawdź propozycje
+                const proposalToSelected = proposals.find(
                   (p) => p?.orderId === selectedOrderId,
                 );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
+                if (proposalToSelected) {
+                  // Jest propozycja z wybranym zamówieniem - pokaż "Połącz"
+                  const matchId = proposalToSelected?.id;
+                  return `
+          <button
+            class="btn btn-outline btn-sm link-btn"
+            data-product-id="${row?.id}"
+            data-match-id="${matchId}"
+            title="Połącz z zamówieniem"
+            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
+              <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
+              <line x1="8" x2="16" y1="12" y2="12"></line>
+            </svg>
+            Połącz
+          </button>
+        `;
+                } else {
+                  // Brak danych dla wybranego zamówienia - nie powinno się zdarzyć po filtrze
+                  return "";
                 }
-              } else {
-                proposalToUse = proposals[0];
               }
-              const matchId = proposalToUse?.id;
-              return `
-        <button
-          class="btn btn-outline btn-sm link-btn"
-          data-product-id="${row?.id}"
-          data-match-id="${matchId}"
-          title="Połącz z zamówieniem"
-          style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
-          onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
-          onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-            <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
-            <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
-            <line x1="8" x2="16" y1="12" y2="12"></line>
-          </svg>
-          Połącz
-        </button>
-      `;
+            } else {
+              // Brak filtrowania według zamówienia - oryginalna logika
+              // Jeśli jest połączony - pokaż "Rozłącz"
+              if (linked.length) {
+                const linkedId = linked[0]?.id;
+                return `
+          <button
+            class="btn btn-outline btn-sm unlink-btn"
+            data-product-id="${row?.id}"
+            data-linked-id="${linkedId}"
+            title="Rozłącz powiązanie"
+            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"></path>
+              <path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"></path>
+              <line x1="8" x2="8" y1="2" y2="5"></line>
+              <line x1="2" x2="5" y1="8" y2="8"></line>
+              <line x1="16" x2="16" y1="19" y2="22"></line>
+              <line x1="19" x2="22" y1="16" y2="16"></line>
+            </svg>
+            Rozłącz
+          </button>
+        `;
+              }
+
+              // Jeśli jest propozycja - pokaż "Połącz"
+              if (proposals.length) {
+                const matchId = proposals[0]?.id;
+                return `
+          <button
+            class="btn btn-outline btn-sm link-btn"
+            data-product-id="${row?.id}"
+            data-match-id="${matchId}"
+            title="Połącz z zamówieniem"
+            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
+            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
+            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
+              <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
+              <line x1="8" x2="16" y1="12" y2="12"></line>
+            </svg>
+            Połącz
+          </button>
+        `;
+              }
             }
 
             // Brak akcji
