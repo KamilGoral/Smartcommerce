@@ -1169,6 +1169,8 @@ whenReadyAndDataTables(function () {
   // ---------- Order Document Filter ----------
   let currentOrderFilterFn = null;
   let selectedOrderId = null; // Globalna zmienna do przechowywania aktualnie wybranego zamówienia
+  // UWAGA: Gdy selectedOrderId jest ustawione, logika sortowania w kolumnie statusu (indeks 9)
+  // priorytetyzuje produkty połączone z wybranym zamówieniem, wyświetlając je jako główne wiersze
 
   function getAllOrderIds(tableData) {
     const orderIds = new Set();
@@ -1770,7 +1772,10 @@ whenReadyAndDataTables(function () {
       pagingType: "full_numbers",
       lengthMenu: [10, 25, 50, 100],
       pageLength: 25,
-      order: [[9, "asc"]],
+      order: [
+        [9, "asc"],
+        [1, "asc"],
+      ], // Sortuj najpierw po statusie, potem po nazwie produktu
       dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
@@ -1904,6 +1909,7 @@ whenReadyAndDataTables(function () {
             }
           },
         },
+        // Kolumna 1 - Produkt
         {
           data: null,
           orderable: true,
@@ -1927,6 +1933,8 @@ whenReadyAndDataTables(function () {
           `;
           },
         },
+
+        // Kolumna 2 - Ilość dost.
         {
           data: "segments",
           orderable: true,
@@ -1937,16 +1945,7 @@ whenReadyAndDataTables(function () {
             return q ? fmtQty(q) : `<span class="muted">-</span>`;
           },
         },
-        {
-          data: "segments",
-          orderable: true,
-          className: "text-right",
-          render: function (segments, type) {
-            const p = avgPriceWeighted(segments);
-            if (type === "sort" || type === "type") return p ?? -1;
-            return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
-          },
-        },
+
         // Kolumna 4 - Ilość zam.
         {
           data: null,
@@ -1987,44 +1986,6 @@ whenReadyAndDataTables(function () {
             return q
               ? `<span class="${isProposal ? "italic" : ""}">${fmtQty(q)}</span>`
               : `<span class="muted">-</span>`;
-          },
-        },
-
-        // Kolumna 5 - Cena zam.
-        {
-          data: null,
-          orderable: true,
-          className: "text-right",
-          render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
-            const proposals = safeArr(row?.potentialMatches);
-
-            let p = null;
-            let isProposal = false;
-
-            if (linked.length) {
-              p = avgPriceWeighted(linked[0]?.segments);
-            } else if (proposals.length) {
-              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
-              // W przeciwnym razie użyj pierwszej propozycji
-              let proposalToUse;
-              if (selectedOrderId) {
-                proposalToUse = proposals.find(
-                  (p) => p?.orderId === selectedOrderId,
-                );
-                if (!proposalToUse) {
-                  proposalToUse = proposals[0];
-                }
-              } else {
-                proposalToUse = proposals[0];
-              }
-              p = avgPriceWeighted(proposalToUse?.segments);
-              isProposal = true;
-            }
-
-            if (p === null) return `<span class="muted">-</span>`;
-            if (type === "sort" || type === "type") return p;
-            return `<span class="${isProposal ? "italic" : ""}">${fmtPLN(p)}</span>`;
           },
         },
 
@@ -2070,6 +2031,56 @@ whenReadyAndDataTables(function () {
             const diff = deliveredQty - orderedQty;
             if (type === "sort" || type === "type") return diff;
             return diffSpanNumber(diff, isProposal);
+          },
+        },
+
+        // Kolumna 3 - Cena dost.
+        {
+          data: "segments",
+          orderable: true,
+          className: "text-right",
+          render: function (segments, type) {
+            const p = avgPriceWeighted(segments);
+            if (type === "sort" || type === "type") return p ?? -1;
+            return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
+          },
+        },
+
+        // Kolumna 5 - Cena zam.
+        {
+          data: null,
+          orderable: true,
+          className: "text-right",
+          render: function (data, type, row) {
+            const linked = safeArr(row?.linkedOrderProducts);
+            const proposals = safeArr(row?.potentialMatches);
+
+            let p = null;
+            let isProposal = false;
+
+            if (linked.length) {
+              p = avgPriceWeighted(linked[0]?.segments);
+            } else if (proposals.length) {
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              p = avgPriceWeighted(proposalToUse?.segments);
+              isProposal = true;
+            }
+
+            if (p === null) return `<span class="muted">-</span>`;
+            if (type === "sort" || type === "type") return p;
+            return `<span class="${isProposal ? "italic" : ""}">${fmtPLN(p)}</span>`;
           },
         },
 
@@ -2178,7 +2189,21 @@ whenReadyAndDataTables(function () {
           className: "status-col",
           render: function (data, type, row) {
             const st = computeRowState(row);
-            if (type === "sort" || type === "type") return st.sort;
+            if (type === "sort" || type === "type") {
+              // Dodaj logikę sortowania: jeśli wybrano zamówienie, produkty połączone z tym zamówieniem mają priorytet
+              if (selectedOrderId) {
+                const linked = safeArr(row?.linkedOrderProducts);
+                const hasLinkedToSelectedOrder = linked.some(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+
+                // Produkty połączone z wybranym zamówieniem mają niższe wartości sortowania (pierwsze w kolejności)
+                if (hasLinkedToSelectedOrder) {
+                  return st.sort - 100; // Zmniejsz wartość sortowania o 100, aby były wyświetlane jako główne
+                }
+              }
+              return st.sort;
+            }
             return `<span class="${st.badge}">${st.label}</span>`;
           },
         },
