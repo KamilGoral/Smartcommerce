@@ -1756,40 +1756,43 @@ whenReadyAndDataTables(function () {
         rangeEnd = null;
         pickingState = "picking_end";
         renderCalendar();
-      } else {
-        // Second click — set end
-        let s = rangeStart, e = dateStr;
-        if (e < s) { const t = s; s = e; e = t; }
-
-        // Clamp to 14 days
-        const sD = new Date(s + "T00:00:00");
-        const eD = new Date(e + "T00:00:00");
-        const diffDays = Math.round((eD - sD) / 86400000);
-        if (diffDays > 14) {
-          // Clamp start to end - 14
-          sD.setTime(eD.getTime());
-          sD.setDate(sD.getDate() - 14);
-          if (sD < minDate) sD.setTime(minDate.getTime());
-          s = fmtDateISO(sD);
-        }
-
-        rangeStart = s;
-        rangeEnd = e;
-        pickingState = "idle";
-
-        // Save to hidden inputs
-        startInput.value = rangeStart;
-        endInput.value = rangeEnd;
-        updateDateRangeLabel();
-
-        // Close popover
-        popover.style.display = "none";
-        toggleEl.style.background = "#f9fafb";
-        toggleEl.style.borderColor = "#e5e7eb";
-
-        // Reload table
-        if (deliveryTable) deliveryTable.ajax.reload();
+        return; // explicit return — popover stays open
       }
+
+      // picking_end — second click
+      // If clicking the same day as start, ignore (require a different day)
+      if (dateStr === rangeStart) return;
+
+      let s = rangeStart, e = dateStr;
+      if (e < s) { const t = s; s = e; e = t; }
+
+      // Clamp to 14 days
+      const sD = new Date(s + "T00:00:00");
+      const eD = new Date(e + "T00:00:00");
+      const diffDays = Math.round((eD - sD) / 86400000);
+      if (diffDays > 14) {
+        sD.setTime(eD.getTime());
+        sD.setDate(sD.getDate() - 14);
+        if (sD < minDate) sD.setTime(minDate.getTime());
+        s = fmtDateISO(sD);
+      }
+
+      rangeStart = s;
+      rangeEnd = e;
+      pickingState = "idle";
+
+      // Save to hidden inputs
+      startInput.value = rangeStart;
+      endInput.value = rangeEnd;
+      updateDateRangeLabel();
+
+      // Close popover
+      popover.style.display = "none";
+      toggleEl.style.background = "#f9fafb";
+      toggleEl.style.borderColor = "#e5e7eb";
+
+      // Reload table
+      if (deliveryTable) deliveryTable.ajax.reload();
     }
 
     // --- Event delegation on popover ---
@@ -1828,13 +1831,18 @@ whenReadyAndDataTables(function () {
     // --- Toggle popover on badge click ---
     toggleEl.addEventListener("click", function (evt) {
       evt.stopPropagation();
-      if (popover.style.display === "none" || !popover.style.display) {
-        // Open
-        // Reset view to rangeStart month
+      const isOpen = popover.style.display === "block";
+      if (!isOpen) {
+        // Open — reset view to rangeStart month
         if (rangeStart) {
           const rd = new Date(rangeStart + "T00:00:00");
           viewYear = rd.getFullYear();
           viewMonth = rd.getMonth();
+        }
+        // Restore full range for display if we have both dates
+        if (startInput.value && endInput.value) {
+          rangeStart = startInput.value;
+          rangeEnd = endInput.value;
         }
         pickingState = "idle";
         renderCalendar();
@@ -1842,7 +1850,11 @@ whenReadyAndDataTables(function () {
         toggleEl.style.background = "#eff6ff";
         toggleEl.style.borderColor = "#bfdbfe";
       } else {
-        // Close
+        // Close — if picking_end, revert to saved range
+        if (pickingState === "picking_end") {
+          rangeStart = startInput.value;
+          rangeEnd = endInput.value;
+        }
         popover.style.display = "none";
         toggleEl.style.background = "#f9fafb";
         toggleEl.style.borderColor = "#e5e7eb";
