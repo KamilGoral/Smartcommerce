@@ -494,28 +494,37 @@ whenReadyAndDataTables(function () {
   // ============================================
   // Pobierz szczegóły dokumentu RECADV i wypełnij pola
   // ============================================
-  // ---------- SVG ikony do nagłówka ----------
-  const ICONS = {
-    truck: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
-    box: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
-    coins: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
-    alert: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-    file: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
-    calendar: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-    clock: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-    user: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  // ---------- Inline SVG (14px) ----------
+  const ICON = {
+    truck: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+    box: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+    coins: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+    alert: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    file: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+    calendar: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    edit: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   };
+
+  // Pomocnik: badge inline (styl jak "Dokument z ...")
+  function dhBadge(icon, label, value, bg, border, color) {
+    return `<span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: ${bg}; border: 1px solid ${border}; border-radius: 6px; font-size: 12px; color: ${color}; font-weight: 500; white-space: nowrap; line-height: 1.4;">
+      ${icon} ${label} <strong>${value}</strong>
+    </span>`;
+  }
 
   // ---------- Renderuj cały nagłówek dokumentu ----------
   function renderDeliveryHeader(data) {
     const container = document.getElementById("table-content");
     if (!container) return;
 
-    // Usuń stary HTML statisticsgrid + deliverydetails jeśli istnieją
+    // Usuń stary HTML statisticsgrid + deliverydetails + poprzedni header jeśli istnieją
     const oldGrid = container.querySelector(".statisticsgrid");
     if (oldGrid) oldGrid.remove();
     const oldDetails = container.querySelector(".deliverydetails");
     if (oldDetails) oldDetails.remove();
+    const oldHeader = document.getElementById("delivery-header");
+    if (oldHeader) oldHeader.remove();
 
     // Formatuj dane
     const wholesaler = data.wholesalerKey
@@ -531,175 +540,33 @@ whenReadyAndDataTables(function () {
     const createdFmt = data.created?.at
       ? new Date(data.created.at).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
       : "-";
-    const createdBy = data.created?.by || "";
+    const createdBy = data.created?.by ? escapeHtml(data.created.by) : "";
 
     const modifiedFmt = data.modified?.at
       ? new Date(data.modified.at).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
       : "-";
-    const modifiedBy = data.modified?.by || "";
+    const modifiedBy = data.modified?.by ? escapeHtml(data.modified.by) : "";
 
-    // Wstaw nowy nagłówek na samym początku kontenera
     const headerEl = document.createElement("div");
     headerEl.id = "delivery-header";
-    headerEl.innerHTML = `
-      <style>
-        #delivery-header { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .dh-stats {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1px;
-          background: #e5e7eb;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 12px;
-        }
-        .dh-stat {
-          background: #fff;
-          padding: 18px 20px;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-        .dh-stat-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-        .dh-stat-label {
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          color: #6b7280;
-          margin-bottom: 2px;
-        }
-        .dh-stat-value {
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-          line-height: 1.2;
-        }
-        .dh-details-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 0;
-          background: #f9fafb;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 16px;
-        }
-        .dh-detail {
-          padding: 14px 20px;
-          border-bottom: 1px solid #f3f4f6;
-          display: flex;
-          align-items: flex-start;
-          gap: 10px;
-        }
-        .dh-detail:last-child { border-bottom: none; }
-        .dh-detail-icon { color: #9ca3af; flex-shrink: 0; margin-top: 1px; }
-        .dh-detail-label {
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-          color: #9ca3af;
-          margin-bottom: 2px;
-        }
-        .dh-detail-value {
-          font-size: 13px;
-          font-weight: 500;
-          color: #374151;
-          line-height: 1.4;
-        }
-        .dh-detail-sub {
-          font-size: 11px;
-          color: #9ca3af;
-          margin-top: 1px;
-        }
-        @media (max-width: 768px) {
-          .dh-stats { grid-template-columns: repeat(2, 1fr); }
-        }
-      </style>
+    headerEl.style.cssText = "margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;";
 
-      <!-- Karty statystyk -->
-      <div class="dh-stats">
-        <div class="dh-stat">
-          <div class="dh-stat-icon" style="background: #eff6ff;">
-            ${ICONS.truck}
-          </div>
-          <div>
-            <div class="dh-stat-label">Dostawca</div>
-            <div class="dh-stat-value" id="wholesalerName">${wholesaler}</div>
-          </div>
-        </div>
-        <div class="dh-stat">
-          <div class="dh-stat-icon" style="background: #f0fdf4;">
-            ${ICONS.box}
-          </div>
-          <div>
-            <div class="dh-stat-label">Produktów</div>
-            <div class="dh-stat-value" id="productsCountDelivery">-</div>
-          </div>
-        </div>
-        <div class="dh-stat">
-          <div class="dh-stat-icon" style="background: #fefce8;">
-            ${ICONS.coins}
-          </div>
-          <div>
-            <div class="dh-stat-label">Wartość</div>
-            <div class="dh-stat-value" id="valueDelivery">-</div>
-          </div>
-        </div>
-        <div class="dh-stat">
-          <div class="dh-stat-icon" style="background: #fef2f2;">
-            ${ICONS.alert}
-          </div>
-          <div>
-            <div class="dh-stat-label">Niezgodności</div>
-            <div class="dh-stat-value" id="diffDeliveryOrders">0</div>
-          </div>
-        </div>
+    headerEl.innerHTML = `
+      <!-- Statystyki - rząd badge'ów -->
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+        ${dhBadge(ICON.truck, "Dostawca", `<span id="wholesalerName">${wholesaler}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+        ${dhBadge(ICON.box, "Produktów", `<span id="productsCountDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+        ${dhBadge(ICON.coins, "Wartość", `<span id="valueDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+        ${dhBadge(ICON.alert, "Niezgodności", `<span id="diffDeliveryOrders">0</span>`, "#fef2f2", "#fecaca", "#991b1b")}
       </div>
 
       <!-- Szczegóły dokumentu (domyślnie ukryte) -->
       <div class="deliverydetails" style="display: none;">
-        <div class="dh-details-grid">
-          <div class="dh-detail">
-            <div class="dh-detail-icon">${ICONS.file}</div>
-            <div>
-              <div class="dh-detail-label">Plik źródłowy</div>
-              <div class="dh-detail-value" id="sourceFile">${sourceFileName}</div>
-            </div>
-          </div>
-          <div class="dh-detail">
-            <div class="dh-detail-icon">${ICONS.calendar}</div>
-            <div>
-              <div class="dh-detail-label">Data dokumentu</div>
-              <div class="dh-detail-value" id="issueDate">${issueDateFmt}</div>
-            </div>
-          </div>
-          <div class="dh-detail">
-            <div class="dh-detail-icon">${ICONS.clock}</div>
-            <div>
-              <div class="dh-detail-label">Data utworzenia</div>
-              <div class="dh-detail-value" id="createdAtBy">${createdFmt}</div>
-              ${createdBy ? `<div class="dh-detail-sub">${ICONS.user} ${escapeHtml(createdBy)}</div>` : ""}
-            </div>
-          </div>
-          <div class="dh-detail">
-            <div class="dh-detail-icon">${ICONS.clock}</div>
-            <div>
-              <div class="dh-detail-label">Data modyfikacji</div>
-              <div class="dh-detail-value" id="modifiedAtBy">${modifiedFmt}</div>
-              ${modifiedBy ? `<div class="dh-detail-sub">${ICONS.user} ${escapeHtml(modifiedBy)}</div>` : ""}
-            </div>
-          </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+          ${dhBadge(ICON.file, "Plik", `<span id="sourceFile">${sourceFileName}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+          ${dhBadge(ICON.calendar, "Data dokumentu", `<span id="issueDate">${issueDateFmt}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+          ${dhBadge(ICON.clock, "Utworzony", `<span id="createdAtBy">${createdFmt}</span>${createdBy ? ` <span style="color: #9ca3af; font-weight: 400;">przez ${createdBy}</span>` : ""}`, "#f9fafb", "#e5e7eb", "#374151")}
+          ${dhBadge(ICON.edit, "Modyfikacja", `<span id="modifiedAtBy">${modifiedFmt}</span>${modifiedBy ? ` <span style="color: #9ca3af; font-weight: 400;">przez ${modifiedBy}</span>` : ""}`, "#f9fafb", "#e5e7eb", "#374151")}
         </div>
       </div>
     `;
@@ -1567,7 +1434,7 @@ whenReadyAndDataTables(function () {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Dokument z <strong id="issueDateBadgeValue">-</strong>
           </span>
-          <span style="font-size: 13px; color: #6b7280;">Zamówienia od</span>
+          <span style="font-size: 13px; color: #6b7280;">Szukaj pozycji w zamówieniach od</span>
           <input type="text" id="orderDateStart" readonly
             style="padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; width: 110px; background: white; cursor: pointer; color: #374151;" />
           <span style="font-size: 13px; color: #6b7280;">do</span>
