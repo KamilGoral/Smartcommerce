@@ -1318,16 +1318,17 @@ whenReadyAndDataTables(function () {
 
       if (matchedProposal) {
         // Znaleziono wariant z wybranym zamówieniem - promuj go do parenta
+        // Zachowaj oryginalne segments (dostarczone) i użyj danych z wariantu dla zamówień
         const newParent = {
           ...row,
-          // Zachowaj oryginalne dane parenta, ale zastąp danymi z wariantu
-          segments: matchedProposal.segments,
+          // Zachowaj oryginalne segments (dostarczone) - NIE zastępuj danymi z wariantu
+          // segments: matchedProposal.segments, // USUNIĘTE - zachowujemy oryginalne dostarczone dane
           linkedOrderProducts: [
             {
               id: matchedProposal.id,
               orderId: matchedProposal.orderId,
               orderProductId: matchedProposal.orderProductId,
-              segments: matchedProposal.segments,
+              segments: matchedProposal.segments, // To jest potrzebne do obliczenia ilości zamówionej
             },
           ],
           // Usuń ten wariant z proposals (bo teraz jest parentem)
