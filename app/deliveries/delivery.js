@@ -1615,7 +1615,7 @@ whenReadyAndDataTables(function () {
   // Możesz dodać też "invalid" jeśli chcesz:
   // { key: 'invalid', label: 'Błędne', badge: 'badge--danger' }
 
-  // ---------- Render Filter Bar (underline tabs) ----------
+  // ---------- Render Filter Bar ----------
   function renderStatusFilters(containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -1623,52 +1623,16 @@ whenReadyAndDataTables(function () {
       return;
     }
 
-    // Inject scoped CSS for tabs (only once)
-    if (!document.getElementById("dh-tab-styles")) {
+    // Inject scoped CSS for order dropdown (only once)
+    if (!document.getElementById("dh-order-styles")) {
       const style = document.createElement("style");
-      style.id = "dh-tab-styles";
+      style.id = "dh-order-styles";
       style.textContent = `
-        .dh-tabs { display: flex; align-items: center; gap: 0; border-bottom: 1px solid #e5e7eb; }
-        .dh-tab {
-          position: relative;
-          padding: 8px 14px 10px;
-          font-size: 13px;
-          font-weight: 500;
-          color: #6b7280;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-family: inherit;
-          white-space: nowrap;
-          transition: color 0.15s;
-        }
-        .dh-tab:hover { color: #374151; }
-        .dh-tab::after {
-          content: "";
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: transparent;
-          border-radius: 1px 1px 0 0;
-          transition: background 0.15s;
-        }
-        .dh-tab.active { color: #2563eb; font-weight: 600; }
-        .dh-tab.active::after { background: #2563eb; }
-        .dh-tab-count {
-          font-size: 11px;
-          font-weight: 600;
-          color: #9ca3af;
-          margin-left: 4px;
-        }
-        .dh-tab.active .dh-tab-count { color: #2563eb; }
         .dh-order-wrapper {
           margin-left: auto;
           display: flex;
           align-items: center;
           gap: 8px;
-          padding-bottom: 6px;
         }
         .dh-order-label {
           font-size: 11px;
@@ -1693,13 +1657,23 @@ whenReadyAndDataTables(function () {
       document.head.appendChild(style);
     }
 
-    container.className = "dh-tabs";
+    // Ustaw flexbox layout na kontenerze
+    container.style.display = "flex";
+    container.style.flexWrap = "wrap";
+    container.style.alignItems = "center";
+    container.style.gap = "8px";
 
     const html = STATUS_FILTERS.map(
       (filter) => `
-    <button type="button" class="dh-tab ${filter.key === "all" ? "active" : ""}" data-filter="${filter.key}">
-      ${filter.label}<span class="dh-tab-count" data-count-for="${filter.key}">0</span>
-    </button>`,
+    <button
+      type="button"
+      class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
+      data-filter="${filter.key}"
+    >
+      <span class="filter-label">${filter.label}</span>
+      <span class="filter-count" data-count-for="${filter.key}">0</span>
+    </button>
+  `,
     ).join("");
 
     container.innerHTML = html;
@@ -1820,14 +1794,14 @@ whenReadyAndDataTables(function () {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Click na tab filtra
+    // Click na przycisk filtra
     container.addEventListener("click", function (e) {
-      const btn = e.target.closest(".dh-tab");
+      const btn = e.target.closest(".status-filter-btn");
       if (!btn) return;
 
       // Update active state
       container
-        .querySelectorAll(".dh-tab")
+        .querySelectorAll(".status-filter-btn")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
@@ -1948,7 +1922,7 @@ whenReadyAndDataTables(function () {
     recalcCountersForOrderFilter(deliveryTable);
 
     // 2. Sprawdź aktywny filtr i przefiltruj
-    const activeFilter = document.querySelector(".dh-tab.active");
+    const activeFilter = document.querySelector(".status-filter-btn.active");
     if (activeFilter) {
       const filterKey = activeFilter.dataset.filter;
       if (filterKey !== "all") {
