@@ -1932,7 +1932,8 @@ whenReadyAndDataTables(function () {
           footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
         } else {
           const sign = totalValueDiff > 0 ? "+" : "";
-          footerCell.html(`<span style="color: #dc2626; font-weight: 600;">${sign}${fmtPLN(Math.abs(totalValueDiff))}</span>`);
+          const color = totalValueDiff < 0 ? "#16a34a" : "#dc2626";
+          footerCell.html(`<span style="color: ${color}; font-weight: 600;">${sign}${fmtPLN(Math.abs(totalValueDiff))}</span>`);
         }
         footerCell.css({ "text-align": "right", "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
 
