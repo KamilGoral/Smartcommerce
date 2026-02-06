@@ -1563,6 +1563,9 @@ whenReadyAndDataTables(function () {
       // Apply filter
       const filterKey = btn.dataset.filter;
       applyStatusFilter(table, filterKey);
+
+      // Aktualizuj licznik rozbieżności po zastosowaniu filtra
+      updateDiffCountAfterFilter(table);
     });
 
     // Update counters po każdym renderze tabeli
@@ -1581,6 +1584,31 @@ whenReadyAndDataTables(function () {
         updateDeliveryStatistics(json.data);
       }
     });
+
+    // Aktualizuj licznik rozbieżności po każdym draw tabeli
+    table.on("draw.dt", function () {
+      updateDiffCountAfterFilter(table);
+    });
+  }
+
+  // Funkcja do aktualizacji licznika rozbieżności po zastosowaniu filtra
+  function updateDiffCountAfterFilter(table) {
+    const diffDeliveryOrders = document.getElementById("diffDeliveryOrders");
+    if (!diffDeliveryOrders) return;
+
+    // Pobierz dane z widocznych wierszy tabeli
+    const visibleRows = table.rows({ search: 'applied' }).data().toArray();
+    
+    // Policz rozbieżności wśród widocznych wierszy
+    let diffCount = 0;
+    visibleRows.forEach((row) => {
+      const state = computeRowState(row);
+      if (state.key.startsWith("diff_")) {
+        diffCount++;
+      }
+    });
+
+    diffDeliveryOrders.textContent = diffCount;
   }
 
   // ============================================
