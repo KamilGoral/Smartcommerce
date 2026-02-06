@@ -806,40 +806,12 @@ whenReadyAndDataTables(function () {
       };
     }
 
-    // Gdy filtrowanie według zamówienia: priorytetyzuj dane z wybranego zamówienia
+    // Gdy filtrowanie według zamówienia: użyj _primaryMatch do obliczenia statusu
     if (selectedOrderId) {
-      // Najpierw sprawdź, czy jest połączenie z wybranym zamówieniem
-      const linkedToSelected = linked.filter(
-        (l) => l?.orderId === selectedOrderId,
-      );
-      const hasLinkedToSelected = linkedToSelected.length > 0;
+      const primary = rec?._primaryMatch;
 
-      // Jeśli nie ma połączenia z wybranym zamówieniem, sprawdź propozycje
-      if (!hasLinkedToSelected) {
-        const hasProposalForSelected = proposals.some(
-          (p) => p?.orderId === selectedOrderId,
-        );
-
-        if (hasProposalForSelected) {
-          return {
-            key: "proposal",
-            label: "Propozycja",
-            badge: "badge badge--info",
-            sort: 20,
-          };
-        }
-
-        // Jeśli nie ma ani połączenia ani propozycji z wybranym zamówieniem,
-        // ale są inne połączenia lub propozycje, traktuj jako niedopasowane
-        if (linked.length > 0 || proposals.length > 0) {
-          return {
-            key: "unmatched",
-            label: "Niedopasowano",
-            badge: "badge badge--muted",
-            sort: 10,
-          };
-        }
-
+      if (!primary) {
+        // Brak dopasowania do wybranego zamówienia
         return {
           key: "unmatched",
           label: "Niedopasowano",
@@ -848,12 +820,9 @@ whenReadyAndDataTables(function () {
         };
       }
 
-      // Jest połączenie z wybranym zamówieniem - oblicz różnice dla tego zamówienia
-      const orderedQty = linkedToSelected.reduce(
-        (acc, p) => acc + sumQty(p?.segments),
-        0,
-      );
-      const orderedPrice = avgPriceWeighted(linkedToSelected[0]?.segments);
+      // Oblicz różnice na podstawie _primaryMatch (zarówno linked jak i proposal)
+      const orderedQty = sumQty(primary?.segments);
+      const orderedPrice = avgPriceWeighted(primary?.segments);
       const qtyDiff = deliveredQty - orderedQty;
 
       const deliveredValue =
@@ -863,9 +832,19 @@ whenReadyAndDataTables(function () {
       const valueDiff = deliveredValue - orderedValue;
 
       const qtyDiffNonZero = Math.abs(qtyDiff) > 0;
-      const valueDiffNonZero = Math.abs(valueDiff) > 0.000001; // tolerancja
+      const valueDiffNonZero = Math.abs(valueDiff) > 0.000001;
+      const isProposal = !!rec?._isPrimaryProposal;
 
+      // Brak rozbieżności
       if (!qtyDiffNonZero && !valueDiffNonZero) {
+        if (isProposal) {
+          return {
+            key: "proposal",
+            label: "Propozycja",
+            badge: "badge badge--info",
+            sort: 20,
+          };
+        }
         return {
           key: "matched",
           label: "Dopasowano",
@@ -873,6 +852,8 @@ whenReadyAndDataTables(function () {
           sort: 40,
         };
       }
+
+      // Są rozbieżności - niezależnie czy linked czy proposal
       if (qtyDiffNonZero && valueDiffNonZero) {
         return {
           key: "diff_both",
