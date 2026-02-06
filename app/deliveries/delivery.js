@@ -2457,19 +2457,7 @@ whenReadyAndDataTables(function () {
           tr.nextUntil(":not(.child-row)").remove();
           tr.removeClass("shown");
         } else {
-          // Przetwórz dane dla wybranego zamówienia (jeśli jest wybrane)
-          const originalData = deliveryTable.rows().data().toArray();
-          const processedData = processDataForSelectedOrder(
-            originalData,
-            selectedOrderId,
-          );
-
-          // Zastąp dane w tabeli przetworzonymi danymi
-          deliveryTable.clear();
-          deliveryTable.rows.add(processedData);
-          deliveryTable.draw(false);
-
-          // Wstaw child rows bezpośrednio po parent row
+          // Wstaw child rows bezpośrednio po parent row (bez redraw tabeli)
           const childRowsHtml = renderChildProposals(data, selectedOrderId);
           tr.after(childRowsHtml);
           tr.addClass("shown");
