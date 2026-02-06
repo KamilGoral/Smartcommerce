@@ -1493,6 +1493,9 @@ whenReadyAndDataTables(function () {
     }
 
     table.draw();
+
+    // Przelicz liczniki filtrów i statystyki dla widocznego zbioru
+    recalcCountersForOrderFilter(table);
   }
 
   function initOrderFilterEvents(table, containerId) {
@@ -1710,6 +1713,36 @@ whenReadyAndDataTables(function () {
     return counts;
   }
 
+  /**
+   * Przelicz liczniki filtrów i statystyki na podstawie wierszy
+   * widocznych po zastosowaniu filtra zamówienia.
+   * Jeśli żadne zamówienie nie jest wybrane, używa wszystkich wierszy.
+   */
+  function recalcCountersForOrderFilter(table) {
+    // Pobierz wiersze pasujące do filtra zamówienia (ale ignoruj filtr statusu)
+    // Używamy wszystkich wierszy i ręcznie sprawdzamy filtr zamówienia
+    const allData = table.rows().data().toArray();
+
+    let relevantData;
+    if (selectedOrderId) {
+      relevantData = allData.filter((row) => {
+        const linked = safeArr(row?.linkedOrderProducts);
+        const proposals = safeArr(row?.potentialMatches);
+        return linked.some((l) => l?.orderId === selectedOrderId)
+            || proposals.some((p) => p?.orderId === selectedOrderId);
+      });
+    } else {
+      relevantData = allData;
+    }
+
+    // Aktualizuj liczniki filtrów statusów
+    const counts = countByStatus(relevantData);
+    updateFilterCounters(counts);
+
+    // Aktualizuj statystyki na górze strony
+    updateDeliveryStatistics(relevantData);
+  }
+
   // ---------- Update Counter Badges ----------
   function updateFilterCounters(counts) {
     STATUS_FILTERS.forEach((filter) => {
@@ -1796,17 +1829,16 @@ whenReadyAndDataTables(function () {
     table.on("xhr.dt", function (e, settings, json) {
       // Po załadowaniu danych AJAX - update liczników i dropdown
       if (json && json.data) {
-        // Użyj oryginalnych danych do obliczenia liczników
-        const counts = countByStatus(json.data);
-        updateFilterCounters(counts);
-
         // Update order dropdown w tym samym kontenerze co filtry statusów
         const orderIds = getAllOrderIds(json.data);
         renderOrderDropdown(containerId, orderIds, json.data);
         initOrderFilterEvents(table, containerId);
 
-        // Update statystyk na górze strony
-        updateDeliveryStatistics(json.data);
+        // Przelicz liczniki i statystyki z uwzględnieniem filtra zamówienia
+        // (setTimeout, bo dane trafiają do tabeli dopiero po xhr.dt)
+        setTimeout(function () {
+          recalcCountersForOrderFilter(table);
+        }, 0);
       }
     });
 
@@ -1922,10 +1954,8 @@ whenReadyAndDataTables(function () {
 
   // Helper: Aktualizuj liczniki i przefiltruj jeśli trzeba
   function refreshFiltersAfterUpdate() {
-    // 1. Aktualizuj liczniki z oryginalnych danych
-    const originalData = deliveryTable.rows().data().toArray();
-    const counts = countByStatus(originalData);
-    updateFilterCounters(counts);
+    // 1. Aktualizuj liczniki z uwzględnieniem filtra zamówienia
+    recalcCountersForOrderFilter(deliveryTable);
 
     // 2. Sprawdź aktywny filtr i przefiltruj
     const activeFilter = document.querySelector(".status-filter-btn.active");
