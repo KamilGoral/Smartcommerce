@@ -906,11 +906,13 @@ whenReadyAndDataTables(function () {
       return `<span style="${style}">${fmtPLN(0)}</span>`;
     }
 
-    // Każda różnica wartościowa (+ lub -) = niezgodność → czerwony
+    // Ujemna różnica (cena dostawy < cena zamówiona) = pozytywne → zielony
+    // Dodatnia różnica (cena dostawy > cena zamówiona) = negatywne → czerwony
+    const color = v < 0 ? "#16a34a" : "#dc2626";
     const sign = v > 0 ? "+" : "";
     const style = italic
-      ? "color: #dc2626; font-style: italic;"
-      : "color: #dc2626;";
+      ? `color: ${color}; font-style: italic;`
+      : `color: ${color};`;
     return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
   }
 
@@ -981,8 +983,9 @@ whenReadyAndDataTables(function () {
           if (hasQD && hasPD) {
             const commonQ = Math.min(deliveredQty, orderedQty);
             const pdVal = commonQ * priceDiff;
+            const pdColor = pdVal < 0 ? "#16a34a" : "#dc2626";
             return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end; font-style: italic;">
-              <span style="color: #dc2626;">${(pdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
+              <span style="color: ${pdColor};">${(pdVal >= 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
               <span style="color: #dc2626; font-size: 11px;">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
             </div>`;
           }
@@ -1865,7 +1868,14 @@ whenReadyAndDataTables(function () {
     $("#table_delivery tbody").off(".delivery");
     $(document).off(".delivery");
 
-    // 3) inicjalizacja (tu wklejasz swoje DataTable(...) praktycznie 1:1)
+    // 3) Dodaj tfoot jeśli nie istnieje (potrzebne dla footerCallback)
+    if (!$("#table_delivery tfoot").length) {
+      const colCount = $("#table_delivery thead th").length || 11;
+      const cells = Array(colCount).fill('<td></td>').join('');
+      $("#table_delivery").append(`<tfoot><tr>${cells}</tr></tfoot>`);
+    }
+
+    // 4) inicjalizacja
     deliveryTable = $("#table_delivery").DataTable({
       pagingType: "full_numbers",
       lengthMenu: [10, 25, 50, 100],
@@ -1878,6 +1888,68 @@ whenReadyAndDataTables(function () {
       scrollY: "70vh",
       scrollCollapse: true,
       autoWidth: false,
+
+      footerCallback: function (row, data, start, end, display) {
+        const api = this.api();
+
+        // Suma kolumny 7 (Różnica wart.) ze WSZYSTKICH przefiltrowanych wierszy (nie tylko bieżąca strona)
+        const filteredRows = api.rows({ search: "applied" }).data().toArray();
+        let totalValueDiff = 0;
+
+        filteredRows.forEach(function (rowData) {
+          const deliveredQty = sumQty(rowData?.segments);
+          const deliveredPrice = avgPriceWeighted(rowData?.segments);
+          let orderedQty = 0;
+          let orderedPrice = null;
+
+          if (selectedOrderId && rowData?._primaryMatch) {
+            orderedQty = sumQty(rowData._primaryMatch?.segments);
+            orderedPrice = avgPriceWeighted(rowData._primaryMatch?.segments);
+          } else {
+            const linked = safeArr(rowData?.linkedOrderProducts);
+            const proposals = safeArr(rowData?.potentialMatches);
+
+            if (linked.length) {
+              orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+              orderedPrice = avgPriceWeighted(linked[0]?.segments);
+            } else if (proposals.length) {
+              orderedQty = sumQty(proposals[0]?.segments);
+              orderedPrice = avgPriceWeighted(proposals[0]?.segments);
+            }
+          }
+
+          const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
+          const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
+          totalValueDiff += deliveredValue - orderedValue;
+        });
+
+        // Wyświetl sumę w kolumnie 7
+        const footerCell = $(api.column(7).footer());
+        if (Math.abs(totalValueDiff) < 0.001) {
+          footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
+        } else {
+          const sign = totalValueDiff > 0 ? "+" : "";
+          footerCell.html(`<span style="color: #dc2626; font-weight: 600;">${sign}${fmtPLN(Math.abs(totalValueDiff))}</span>`);
+        }
+        footerCell.css({ "text-align": "right", "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
+
+        // Etykieta w pierwszej kolumnie
+        const labelCell = $(api.column(0).footer());
+        labelCell.attr("colspan", 1);
+        // Etykieta w kolumnie Produkt
+        const prodCell = $(api.column(1).footer());
+        prodCell.html(`<span style="font-weight: 600; color: #374151;">Suma</span>`);
+        prodCell.css({ "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
+
+        // Wyczyść i styluj pozostałe komórki footera
+        for (let i = 0; i <= 10; i++) {
+          const cell = $(api.column(i).footer());
+          if (i !== 1 && i !== 7) {
+            cell.html("");
+          }
+          cell.css({ "border-top": "2px solid #e5e7eb", "padding": "10px 8px" });
+        }
+      },
 
       buttons: [
         {
@@ -2205,8 +2277,9 @@ whenReadyAndDataTables(function () {
               const priceDiffValue = commonQty * priceDiff;
 
               const italicStyle = isProposal ? " font-style: italic;" : "";
+              const priceColor = priceDiffValue < 0 ? "#16a34a" : "#dc2626";
               return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end;${italicStyle}">
-                <span style="color: #dc2626;" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
+                <span style="color: ${priceColor};" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue >= 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
                 <span style="color: #dc2626; font-size: 11px;" title="Różnica ilościowa">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
               </div>`;
             }
