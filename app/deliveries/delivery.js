@@ -563,8 +563,7 @@ whenReadyAndDataTables(function () {
       <!-- Szczegóły dokumentu (domyślnie ukryte) -->
       <div class="deliverydetails" style="display: none;">
         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-          ${dhBadge(ICON.file, "Plik", `<span id="sourceFile">${sourceFileName}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
-          ${dhBadge(ICON.calendar, "Data dokumentu", `<span id="issueDate">${issueDateFmt}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+          ${dhBadge(ICON.file, "Dostawa", `<span id="sourceFile">${sourceFileName}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
           ${dhBadge(ICON.clock, "Utworzony", `<span id="createdAtBy">${createdFmt}</span>${createdBy ? ` <span style="color: #9ca3af; font-weight: 400;">przez ${createdBy}</span>` : ""}`, "#f9fafb", "#e5e7eb", "#374151")}
           ${dhBadge(ICON.edit, "Modyfikacja", `<span id="modifiedAtBy">${modifiedFmt}</span>${modifiedBy ? ` <span style="color: #9ca3af; font-weight: 400;">przez ${modifiedBy}</span>` : ""}`, "#f9fafb", "#e5e7eb", "#374151")}
         </div>
@@ -1428,7 +1427,7 @@ whenReadyAndDataTables(function () {
     container.style.marginBottom = "14px";
 
     container.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative;">
         <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; font-weight: 500; white-space: nowrap;">
           ${ICON.calendar}
           Dokument z <strong id="issueDateBadgeValue">-</strong>
@@ -1439,9 +1438,9 @@ whenReadyAndDataTables(function () {
           <strong id="dateRangeLabel">—</strong>
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <!-- Ukryte inputy dla datepickerów -->
-        <input type="text" id="orderDateStart" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;" />
-        <input type="text" id="orderDateEnd" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;" />
+        <input type="hidden" id="orderDateStart" />
+        <input type="hidden" id="orderDateEnd" />
+        <div id="drpPopover" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 5000;"></div>
         <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
           Szczegóły
           <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
@@ -1461,18 +1460,20 @@ whenReadyAndDataTables(function () {
   function updateDateRangeLabel() {
     const label = document.getElementById("dateRangeLabel");
     if (!label) return;
-    const s = $("#orderDateStart").datepicker("getDate");
-    const e = $("#orderDateEnd").datepicker("getDate");
-    if (s && e) {
-      label.textContent = fmtDateShort(s) + "  →  " + fmtDateShort(e);
+    const sv = $("#orderDateStart").val();
+    const ev = $("#orderDateEnd").val();
+    if (sv && ev) {
+      label.textContent = fmtDateShort(new Date(sv + "T00:00:00")) + "  →  " + fmtDateShort(new Date(ev + "T00:00:00"));
     }
   }
 
-  // Ustawia domyślne daty i inicjalizuje jQuery UI datepicker po załadowaniu issueDate
+  // ========== Custom Airbnb-style Range Picker ==========
   function initDatePickerDefaults() {
-    const endInput = $("#orderDateEnd");
-    const startInput = $("#orderDateStart");
-    if (!endInput.length || !startInput.length) return;
+    const startInput = document.getElementById("orderDateStart");
+    const endInput = document.getElementById("orderDateEnd");
+    const popover = document.getElementById("drpPopover");
+    const toggleEl = document.getElementById("dateRangeToggle");
+    if (!startInput || !endInput || !popover || !toggleEl) return;
 
     // Pokaż badge z datą dokumentu
     const badge = document.getElementById("issueDateBadge");
@@ -1485,86 +1486,401 @@ whenReadyAndDataTables(function () {
       badge.style.display = "inline-flex";
     }
 
-    // Jeśli datepicker już zainicjalizowany, zniszcz go przed ponownym tworzeniem
-    if (endInput.hasClass("hasDatepicker")) endInput.datepicker("destroy");
-    if (startInput.hasClass("hasDatepicker")) startInput.datepicker("destroy");
+    // --- Inject CSS (once) ---
+    if (!document.getElementById("dh-rangepicker-styles")) {
+      const style = document.createElement("style");
+      style.id = "dh-rangepicker-styles";
+      style.textContent = `
+        .drp-popover {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+          padding: 16px;
+          min-width: 280px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 13px;
+          user-select: none;
+        }
+        .drp-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 12px;
+        }
+        .drp-header button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 6px;
+          color: #6b7280;
+          font-size: 16px;
+          line-height: 1;
+          transition: background .15s;
+        }
+        .drp-header button:hover { background: #f3f4f6; }
+        .drp-header span {
+          font-weight: 600;
+          color: #111827;
+          font-size: 13px;
+        }
+        .drp-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          text-align: center;
+          margin-bottom: 4px;
+        }
+        .drp-weekday {
+          font-size: 11px;
+          font-weight: 600;
+          color: #9ca3af;
+          padding: 4px 0;
+          text-transform: uppercase;
+        }
+        .drp-days {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+        }
+        .drp-day-cell {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 36px;
+          position: relative;
+        }
+        .drp-day {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 13px;
+          color: #374151;
+          transition: background .1s, color .1s;
+          position: relative;
+          z-index: 2;
+        }
+        .drp-day:hover:not(.drp-disabled) {
+          background: #f3f4f6;
+        }
+        .drp-day.drp-disabled {
+          color: #d1d5db;
+          cursor: default;
+          pointer-events: none;
+        }
+        .drp-day.drp-today {
+          box-shadow: inset 0 0 0 1.5px #2563eb;
+        }
+        .drp-day.drp-start,
+        .drp-day.drp-end {
+          background: #2563eb;
+          color: #fff;
+          font-weight: 600;
+        }
+        .drp-day.drp-start:hover,
+        .drp-day.drp-end:hover {
+          background: #1d4ed8;
+        }
+        .drp-day-cell.drp-in-range::before {
+          content: '';
+          position: absolute;
+          top: 2px;
+          bottom: 2px;
+          left: 0;
+          right: 0;
+          background: #dbeafe;
+          z-index: 1;
+        }
+        .drp-day-cell.drp-range-start::before {
+          left: 50%;
+        }
+        .drp-day-cell.drp-range-end::before {
+          right: 50%;
+        }
+        .drp-day-cell.drp-hover-range::before {
+          content: '';
+          position: absolute;
+          top: 2px;
+          bottom: 2px;
+          left: 0;
+          right: 0;
+          background: #eff6ff;
+          z-index: 1;
+        }
+        .drp-day-cell.drp-hover-start::before {
+          left: 50%;
+        }
+        .drp-day-cell.drp-hover-end::before {
+          right: 50%;
+        }
+        .drp-day.drp-hover-target {
+          background: #bfdbfe;
+          color: #1e40af;
+        }
+        .drp-hint {
+          text-align: center;
+          font-size: 11px;
+          color: #9ca3af;
+          margin-top: 8px;
+          min-height: 16px;
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
+    // --- State ---
     const issueD = new Date(deliveryIssueDate + "T00:00:00");
-    const minStartD = new Date(issueD);
-    minStartD.setDate(minStartD.getDate() - 14);
+    const minDate = new Date(issueD);
+    minDate.setDate(minDate.getDate() - 14);
+    const maxDate = new Date(issueD);
 
-    const defaultStartD = new Date(issueD);
-    defaultStartD.setDate(defaultStartD.getDate() - 3);
+    const defaultEnd = new Date(issueD);
+    const defaultStart = new Date(issueD);
+    defaultStart.setDate(defaultStart.getDate() - 3);
 
-    const datepickerDefaults = {
-      dateFormat: "yy-mm-dd",
-      altFormat: "yy-mm-dd",
-      dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
-      dayNamesShort: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
-      dayNamesMin: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"],
-      firstDay: 1,
-      monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
-      monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
-    };
+    let rangeStart = fmtDateISO(defaultStart);
+    let rangeEnd = fmtDateISO(defaultEnd);
+    let pickingState = "idle"; // "idle" | "picking_end"
+    let viewYear = defaultStart.getFullYear();
+    let viewMonth = defaultStart.getMonth();
 
-    // Data końcowa: max = issueDate, min = issueDate - 14 dni
-    endInput.datepicker($.extend({}, datepickerDefaults, {
-      maxDate: issueD,
-      minDate: minStartD,
-      onSelect: function (dateText) {
-        const newEnd = new Date(dateText + "T00:00:00");
-        const newMinStart = new Date(newEnd);
-        newMinStart.setDate(newMinStart.getDate() - 14);
-        if (newMinStart < minStartD) newMinStart.setTime(minStartD.getTime());
-        startInput.datepicker("option", "maxDate", newEnd);
-        startInput.datepicker("option", "minDate", newMinStart);
+    const monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
+      "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
 
-        const currentStart = startInput.datepicker("getDate");
-        if (currentStart && currentStart > newEnd) {
-          const corrected = new Date(newEnd);
-          corrected.setDate(corrected.getDate() - 3);
-          if (corrected < newMinStart) corrected.setTime(newMinStart.getTime());
-          startInput.datepicker("setDate", corrected);
-        }
-        if (currentStart && currentStart < newMinStart) {
-          startInput.datepicker("setDate", newMinStart);
-        }
-
-        updateDateRangeLabel();
-        if (deliveryTable) deliveryTable.ajax.reload();
-      },
-    })).datepicker("setDate", issueD);
-
-    // Data startowa: max = issueDate, min = issueDate - 14 dni
-    startInput.datepicker($.extend({}, datepickerDefaults, {
-      maxDate: issueD,
-      minDate: minStartD,
-      onSelect: function () {
-        updateDateRangeLabel();
-        if (deliveryTable) deliveryTable.ajax.reload();
-      },
-    })).datepicker("setDate", defaultStartD);
-
-    // Ustaw początkowy label
+    // Set initial values
+    startInput.value = rangeStart;
+    endInput.value = rangeEnd;
     updateDateRangeLabel();
 
-    // Klik na badge otwiera datepicker start, potem end
-    let datePickerStep = 0; // 0 = start, 1 = end
-    const toggleEl = document.getElementById("dateRangeToggle");
-    if (toggleEl) {
-      toggleEl.addEventListener("click", function () {
-        if (datePickerStep === 0) {
-          startInput.datepicker("show");
-          datePickerStep = 1;
-        } else {
-          endInput.datepicker("show");
-          datePickerStep = 0;
+    // --- Render calendar ---
+    function renderCalendar() {
+      const firstOfMonth = new Date(viewYear, viewMonth, 1);
+      let startDay = firstOfMonth.getDay() - 1; // Monday = 0
+      if (startDay < 0) startDay = 6;
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+      let html = `<div class="drp-popover">`;
+      // Header
+      html += `<div class="drp-header">
+        <button data-drp-nav="prev">‹</button>
+        <span>${monthNames[viewMonth]} ${viewYear}</span>
+        <button data-drp-nav="next">›</button>
+      </div>`;
+      // Weekday names
+      html += `<div class="drp-weekdays">`;
+      ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].forEach(d => {
+        html += `<div class="drp-weekday">${d}</div>`;
+      });
+      html += `</div>`;
+      // Days grid
+      html += `<div class="drp-days">`;
+      // Empty cells before first day
+      for (let i = 0; i < startDay; i++) {
+        html += `<div class="drp-day-cell"></div>`;
+      }
+      const todayStr = fmtDateISO(new Date());
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = fmtDateISO(new Date(viewYear, viewMonth, d));
+        const dateObj = new Date(viewYear, viewMonth, d);
+        const disabled = dateObj < minDate || dateObj > maxDate;
+        const isStart = dateStr === rangeStart;
+        const isEnd = dateStr === rangeEnd;
+        const isToday = dateStr === todayStr;
+        const inRange = rangeStart && rangeEnd && dateStr > rangeStart && dateStr < rangeEnd;
+
+        let cellClasses = "drp-day-cell";
+        if (inRange) cellClasses += " drp-in-range";
+        if (isStart && rangeEnd && rangeStart !== rangeEnd) cellClasses += " drp-in-range drp-range-start";
+        if (isEnd && rangeStart && rangeStart !== rangeEnd) cellClasses += " drp-in-range drp-range-end";
+
+        let dayClasses = "drp-day";
+        if (disabled) dayClasses += " drp-disabled";
+        if (isToday) dayClasses += " drp-today";
+        if (isStart) dayClasses += " drp-start";
+        if (isEnd) dayClasses += " drp-end";
+
+        html += `<div class="${cellClasses}"><div class="${dayClasses}" data-date="${dateStr}">${d}</div></div>`;
+      }
+      html += `</div>`;
+      // Hint
+      const hint = pickingState === "picking_end" ? "Wybierz datę końcową" : "Kliknij aby wybrać zakres";
+      html += `<div class="drp-hint">${hint}</div>`;
+      html += `</div>`;
+      popover.innerHTML = html;
+    }
+
+    // --- Hover preview ---
+    function applyHoverPreview(hoverDateStr) {
+      if (pickingState !== "picking_end" || !rangeStart) return;
+      // Clear old hover classes
+      popover.querySelectorAll(".drp-hover-range, .drp-hover-start, .drp-hover-end").forEach(el => {
+        el.classList.remove("drp-hover-range", "drp-hover-start", "drp-hover-end");
+      });
+      popover.querySelectorAll(".drp-hover-target").forEach(el => {
+        el.classList.remove("drp-hover-target");
+      });
+
+      if (!hoverDateStr || hoverDateStr === rangeStart) return;
+
+      let hStart = rangeStart, hEnd = hoverDateStr;
+      if (hEnd < hStart) { const t = hStart; hStart = hEnd; hEnd = t; }
+
+      popover.querySelectorAll(".drp-day-cell").forEach(cell => {
+        const dayEl = cell.querySelector(".drp-day");
+        if (!dayEl || dayEl.classList.contains("drp-disabled")) return;
+        const ds = dayEl.getAttribute("data-date");
+        if (!ds) return;
+        if (ds > hStart && ds < hEnd) {
+          cell.classList.add("drp-hover-range");
+        }
+        if (ds === hStart && hStart !== hEnd) {
+          cell.classList.add("drp-hover-range", "drp-hover-start");
+        }
+        if (ds === hEnd && hStart !== hEnd) {
+          cell.classList.add("drp-hover-range", "drp-hover-end");
+        }
+        if (ds === hoverDateStr) {
+          dayEl.classList.add("drp-hover-target");
         }
       });
-      // Hover
-      toggleEl.addEventListener("mouseenter", function () { toggleEl.style.background = "#f3f4f6"; });
-      toggleEl.addEventListener("mouseleave", function () { toggleEl.style.background = "#f9fafb"; });
     }
+
+    // --- Day click handler ---
+    function handleDayClick(dateStr) {
+      if (pickingState === "idle") {
+        // First click — set start, wait for end
+        rangeStart = dateStr;
+        rangeEnd = null;
+        pickingState = "picking_end";
+        renderCalendar();
+      } else {
+        // Second click — set end
+        let s = rangeStart, e = dateStr;
+        if (e < s) { const t = s; s = e; e = t; }
+
+        // Clamp to 14 days
+        const sD = new Date(s + "T00:00:00");
+        const eD = new Date(e + "T00:00:00");
+        const diffDays = Math.round((eD - sD) / 86400000);
+        if (diffDays > 14) {
+          // Clamp start to end - 14
+          sD.setTime(eD.getTime());
+          sD.setDate(sD.getDate() - 14);
+          if (sD < minDate) sD.setTime(minDate.getTime());
+          s = fmtDateISO(sD);
+        }
+
+        rangeStart = s;
+        rangeEnd = e;
+        pickingState = "idle";
+
+        // Save to hidden inputs
+        startInput.value = rangeStart;
+        endInput.value = rangeEnd;
+        updateDateRangeLabel();
+
+        // Close popover
+        popover.style.display = "none";
+        toggleEl.style.background = "#f9fafb";
+        toggleEl.style.borderColor = "#e5e7eb";
+
+        // Reload table
+        if (deliveryTable) deliveryTable.ajax.reload();
+      }
+    }
+
+    // --- Event delegation on popover ---
+    popover.addEventListener("click", function (evt) {
+      evt.stopPropagation();
+      const navBtn = evt.target.closest("[data-drp-nav]");
+      if (navBtn) {
+        const dir = navBtn.getAttribute("data-drp-nav");
+        if (dir === "prev") {
+          viewMonth--;
+          if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+        } else {
+          viewMonth++;
+          if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+        }
+        renderCalendar();
+        return;
+      }
+      const dayEl = evt.target.closest(".drp-day:not(.drp-disabled)");
+      if (dayEl) {
+        handleDayClick(dayEl.getAttribute("data-date"));
+      }
+    });
+
+    popover.addEventListener("mouseover", function (evt) {
+      const dayEl = evt.target.closest(".drp-day:not(.drp-disabled)");
+      if (dayEl) {
+        applyHoverPreview(dayEl.getAttribute("data-date"));
+      }
+    });
+
+    popover.addEventListener("mouseleave", function () {
+      applyHoverPreview(null);
+    });
+
+    // --- Toggle popover on badge click ---
+    toggleEl.addEventListener("click", function (evt) {
+      evt.stopPropagation();
+      if (popover.style.display === "none" || !popover.style.display) {
+        // Open
+        // Reset view to rangeStart month
+        if (rangeStart) {
+          const rd = new Date(rangeStart + "T00:00:00");
+          viewYear = rd.getFullYear();
+          viewMonth = rd.getMonth();
+        }
+        pickingState = "idle";
+        renderCalendar();
+        popover.style.display = "block";
+        toggleEl.style.background = "#eff6ff";
+        toggleEl.style.borderColor = "#bfdbfe";
+      } else {
+        // Close
+        popover.style.display = "none";
+        toggleEl.style.background = "#f9fafb";
+        toggleEl.style.borderColor = "#e5e7eb";
+        pickingState = "idle";
+      }
+    });
+
+    // Hover on toggle badge
+    toggleEl.addEventListener("mouseenter", function () {
+      if (popover.style.display === "none" || !popover.style.display) {
+        toggleEl.style.background = "#f3f4f6";
+      }
+    });
+    toggleEl.addEventListener("mouseleave", function () {
+      if (popover.style.display === "none" || !popover.style.display) {
+        toggleEl.style.background = "#f9fafb";
+      }
+    });
+
+    // Close popover on outside click
+    document.addEventListener("click", function (evt) {
+      if (!popover.contains(evt.target) && !toggleEl.contains(evt.target)) {
+        if (popover.style.display === "block") {
+          popover.style.display = "none";
+          toggleEl.style.background = "#f9fafb";
+          toggleEl.style.borderColor = "#e5e7eb";
+          // If was picking, reset to last valid range
+          if (pickingState === "picking_end" && rangeEnd) {
+            pickingState = "idle";
+          } else if (pickingState === "picking_end") {
+            // Only start was picked, revert
+            rangeStart = startInput.value;
+            rangeEnd = endInput.value;
+            pickingState = "idle";
+          }
+        }
+      }
+    });
   }
 
   function initDaysFilterEvents(table, containerId) {
