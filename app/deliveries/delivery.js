@@ -497,11 +497,7 @@ whenReadyAndDataTables(function () {
   function loadDeliveryDetails() {
     $.ajax({
       type: "GET",
-      url:
-        InvokeURL +
-        "van/transactions?type=RECADV&shopKey=" +
-        shopKey +
-        "&perPage=500",
+      url: InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId),
       headers: {
         Authorization: orgToken,
         "Requested-By": "webflow-3-4",
@@ -512,12 +508,7 @@ whenReadyAndDataTables(function () {
       complete: function () {
         $("#waitingdots").hide();
       },
-      success: function (response) {
-        // Znajdź dokument o odpowiednim UUID
-        const data = (response.items || []).find(
-          (item) => item.uuid === recadvId,
-        );
-
+      success: function (data) {
         if (!data) {
           console.warn("Nie znaleziono dokumentu o UUID:", recadvId);
           return;
@@ -573,6 +564,17 @@ whenReadyAndDataTables(function () {
           modifiedAtBy.innerHTML = `<strong>${date}${by}</strong>`;
         }
 
+        // Data dokumentu
+        const issueDate = document.getElementById("issueDate");
+        if (issueDate && data.issueDate) {
+          const date = new Date(data.issueDate).toLocaleDateString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          });
+          issueDate.innerHTML = `<strong>${date}</strong>`;
+        }
+
         // Status badges
         if (data.status) {
           const editState = document.querySelector(".editstate");
@@ -602,6 +604,10 @@ whenReadyAndDataTables(function () {
               <div class="div-block-83">
                 <div class="text-block-69">Plik źródłowy</div>
                 <div id="sourceFile">-</div>
+              </div>
+              <div class="div-block-83">
+                <div class="text-block-69">Data dokumentu</div>
+                <div id="issueDate">-</div>
               </div>
               <div class="div-block-83">
                 <div class="text-block-69">Data utworzenia</div>
@@ -649,6 +655,19 @@ whenReadyAndDataTables(function () {
               });
               const by = data.modified.by ? ` przez ${data.modified.by}` : "";
               modifiedAtByNew.innerHTML = `<strong>${date}${by}</strong>`;
+            }
+
+            const issueDateNew = document.getElementById("issueDate");
+            if (issueDateNew && data.issueDate) {
+              const date = new Date(data.issueDate).toLocaleDateString(
+                "pl-PL",
+                {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                },
+              );
+              issueDateNew.innerHTML = `<strong>${date}</strong>`;
             }
 
             // Inicjalizuj toggle szczegółów po utworzeniu kontenera
@@ -894,7 +913,7 @@ whenReadyAndDataTables(function () {
   }
 
   // ---------- child row render (warianty/propozycje) ----------
-  function renderChildProposals(parent) {
+  function renderChildProposals(parent, selectedOrderId) {
     const proposals = safeArr(parent?.potentialMatches);
     if (proposals.length <= 1) return ""; // nic do rozwijania
 
@@ -904,9 +923,22 @@ whenReadyAndDataTables(function () {
     const parentName = escapeHtml(parent?.name || "");
     const parentGtin = escapeHtml(parent?.gtin || "");
 
-    // Pomiń pierwszą propozycję (Wariant 1 jest już wyświetlony w głównym wierszu)
-    // Renderuj tylko pozostałe warianty, numerując od 1
-    const rows = proposals.slice(1).map((m, idx) => {
+    // Filtruj propozycje: jeśli selectedOrderId jest podane, pokaż tylko te, które nie są połączone z tym zamówieniem
+    // W przeciwnym razie pokaż wszystkie poza pierwszą (jak dotychczas)
+    let proposalsToRender;
+    if (selectedOrderId) {
+      // Gdy filtrowanie według zamówienia: pokaż tylko propozycje niepołączone z tym zamówieniem
+      proposalsToRender = proposals.filter(
+        (p) => p?.orderId !== selectedOrderId,
+      );
+    } else {
+      // Gdy brak filtrowania: pokaż wszystkie poza pierwszą (jak dotychczas)
+      proposalsToRender = proposals.slice(1);
+    }
+
+    if (proposalsToRender.length === 0) return "";
+
+    const rows = proposalsToRender.map((m, idx) => {
       const orderedQty = sumQty(m?.segments);
       const orderedPrice = avgPriceWeighted(m?.segments);
       const qtyDiff = orderedQty > 0 ? deliveredQty - orderedQty : 0;
@@ -1136,6 +1168,7 @@ whenReadyAndDataTables(function () {
 
   // ---------- Order Document Filter ----------
   let currentOrderFilterFn = null;
+  let selectedOrderId = null; // Globalna zmienna do przechowywania aktualnie wybranego zamówienia
 
   function getAllOrderIds(tableData) {
     const orderIds = new Set();
@@ -1258,6 +1291,9 @@ whenReadyAndDataTables(function () {
         $.fn.dataTable.ext.search.splice(idx, 1);
       }
     }
+
+    // Aktualizuj globalną zmienną selectedOrderId
+    selectedOrderId = orderId || null;
 
     if (orderId) {
       currentOrderFilterFn = function (settings, data, dataIndex) {
@@ -1750,8 +1786,25 @@ whenReadyAndDataTables(function () {
               const data = row.data();
               const tr = $(row.node());
               const proposals = safeArr(data?.potentialMatches);
-              if (proposals.length > 1 && !tr.hasClass("shown")) {
-                const childRowsHtml = renderChildProposals(data);
+
+              // Oblicz liczbę wariantów do wyświetlenia w rozwinięciu
+              let proposalsToRenderCount;
+              if (selectedOrderId) {
+                // Gdy filtrowanie według zamówienia: pokaż tylko propozycje niepołączone z tym zamówieniem
+                proposalsToRenderCount = proposals.filter(
+                  (p) => p?.orderId !== selectedOrderId,
+                ).length;
+              } else {
+                // Gdy brak filtrowania: pokaż wszystkie poza pierwszą (jak dotychczas)
+                proposalsToRenderCount =
+                  proposals.length > 1 ? proposals.length - 1 : 0;
+              }
+
+              if (proposalsToRenderCount > 0 && !tr.hasClass("shown")) {
+                const childRowsHtml = renderChildProposals(
+                  data,
+                  selectedOrderId,
+                );
                 tr.after(childRowsHtml);
                 tr.addClass("shown");
               }
@@ -1831,8 +1884,22 @@ whenReadyAndDataTables(function () {
           createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
             const proposals = safeArr(rowData?.potentialMatches);
             const linked = safeArr(rowData?.linkedOrderProducts);
-            // Pokaż ikonę tylko gdy są propozycje (>1) i NIE jest jeszcze połączony
-            if (proposals && proposals.length > 1 && linked.length === 0) {
+
+            // Oblicz liczbę wariantów do wyświetlenia w rozwinięciu
+            let proposalsToRenderCount;
+            if (selectedOrderId) {
+              // Gdy filtrowanie według zamówienia: pokaż tylko propozycje niepołączone z tym zamówieniem
+              proposalsToRenderCount = proposals.filter(
+                (p) => p?.orderId !== selectedOrderId,
+              ).length;
+            } else {
+              // Gdy brak filtrowania: pokaż wszystkie poza pierwszą (jak dotychczas)
+              proposalsToRenderCount =
+                proposals.length > 1 ? proposals.length - 1 : 0;
+            }
+
+            // Pokaż ikonę tylko gdy są warianty do wyświetlenia w rozwinięciu
+            if (proposalsToRenderCount > 0) {
               $(cell).addClass("details-control");
             }
           },
@@ -1893,9 +1960,24 @@ whenReadyAndDataTables(function () {
             let isProposal = false;
 
             if (linked.length) {
+              // Jeśli jest połączony, użyj danych z połączenia
               q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
             } else if (proposals.length) {
-              q = sumQty(proposals[0]?.segments);
+              // Jeśli nie ma połączenia, ale są propozycje
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              q = sumQty(proposalToUse?.segments);
               isProposal = true;
             } else {
               return `<span class="muted">-</span>`;
@@ -1923,7 +2005,20 @@ whenReadyAndDataTables(function () {
             if (linked.length) {
               p = avgPriceWeighted(linked[0]?.segments);
             } else if (proposals.length) {
-              p = avgPriceWeighted(proposals[0]?.segments);
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              p = avgPriceWeighted(proposalToUse?.segments);
               isProposal = true;
             }
 
@@ -1955,7 +2050,20 @@ whenReadyAndDataTables(function () {
                 0,
               );
             } else if (proposals.length) {
-              orderedQty = sumQty(proposals[0]?.segments);
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              orderedQty = sumQty(proposalToUse?.segments);
               isProposal = true;
             }
 
@@ -1989,8 +2097,21 @@ whenReadyAndDataTables(function () {
               );
               orderedPrice = avgPriceWeighted(linked[0]?.segments);
             } else if (proposals.length) {
-              orderedQty = sumQty(proposals[0]?.segments);
-              orderedPrice = avgPriceWeighted(proposals[0]?.segments);
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              orderedQty = sumQty(proposalToUse?.segments);
+              orderedPrice = avgPriceWeighted(proposalToUse?.segments);
               isProposal = true;
             }
 
@@ -2019,7 +2140,20 @@ whenReadyAndDataTables(function () {
             if (linked.length) {
               orderId = linked[0]?.orderId;
             } else if (proposals.length) {
-              orderId = proposals[0]?.orderId;
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              orderId = proposalToUse?.orderId;
               isProposal = true;
             }
 
@@ -2086,7 +2220,20 @@ whenReadyAndDataTables(function () {
 
             // Jeśli jest propozycja - pokaż "Połącz"
             if (proposals.length) {
-              const matchId = proposals[0]?.id;
+              // Gdy filtrowanie według zamówienia: użyj propozycji połączonej z tym zamówieniem
+              // W przeciwnym razie użyj pierwszej propozycji
+              let proposalToUse;
+              if (selectedOrderId) {
+                proposalToUse = proposals.find(
+                  (p) => p?.orderId === selectedOrderId,
+                );
+                if (!proposalToUse) {
+                  proposalToUse = proposals[0];
+                }
+              } else {
+                proposalToUse = proposals[0];
+              }
+              const matchId = proposalToUse?.id;
               return `
         <button
           class="btn btn-outline btn-sm link-btn"
@@ -2131,7 +2278,21 @@ whenReadyAndDataTables(function () {
         const row = deliveryTable.row(tr);
         const data = row.data();
         const proposals = safeArr(data?.potentialMatches);
-        if (proposals.length <= 1) return;
+
+        // Oblicz liczbę wariantów do wyświetlenia w rozwinięciu
+        let proposalsToRenderCount;
+        if (selectedOrderId) {
+          // Gdy filtrowanie według zamówienia: pokaż tylko propozycje niepołączone z tym zamówieniem
+          proposalsToRenderCount = proposals.filter(
+            (p) => p?.orderId !== selectedOrderId,
+          ).length;
+        } else {
+          // Gdy brak filtrowania: pokaż wszystkie poza pierwszą (jak dotychczas)
+          proposalsToRenderCount =
+            proposals.length > 1 ? proposals.length - 1 : 0;
+        }
+
+        if (proposalsToRenderCount === 0) return;
 
         if (tr.hasClass("shown")) {
           // Usuń child rows
@@ -2139,7 +2300,7 @@ whenReadyAndDataTables(function () {
           tr.removeClass("shown");
         } else {
           // Wstaw child rows bezpośrednio po parent row
-          const childRowsHtml = renderChildProposals(data);
+          const childRowsHtml = renderChildProposals(data, selectedOrderId);
           tr.after(childRowsHtml);
           tr.addClass("shown");
         }
@@ -2209,9 +2370,25 @@ whenReadyAndDataTables(function () {
 
               row.data(updatedProduct);
 
-              // Usuń klasę details-control z pierwszej komórki (chevron)
-              // bo produkt jest teraz połączony i nie powinien mieć ikony rozwijania
-              parentTr.find("td:first").removeClass("details-control");
+              // Aktualizuj klasę details-control w zależności od liczby wariantów do wyświetlenia
+              const proposals = safeArr(updatedProduct?.potentialMatches);
+              let proposalsToRenderCount;
+              if (selectedOrderId) {
+                // Gdy filtrowanie według zamówienia: pokaż tylko propozycje niepołączone z tym zamówieniem
+                proposalsToRenderCount = proposals.filter(
+                  (p) => p?.orderId !== selectedOrderId,
+                ).length;
+              } else {
+                // Gdy brak filtrowania: pokaż wszystkie poza pierwszą (jak dotychczas)
+                proposalsToRenderCount =
+                  proposals.length > 1 ? proposals.length - 1 : 0;
+              }
+
+              if (proposalsToRenderCount > 0) {
+                parentTr.find("td:first").addClass("details-control");
+              } else {
+                parentTr.find("td:first").removeClass("details-control");
+              }
 
               refreshFiltersAfterUpdate();
             }
@@ -2274,10 +2451,24 @@ whenReadyAndDataTables(function () {
               const parentTr = $(row.node());
               row.data(updatedProduct);
 
-              // Jeśli produkt ma więcej niż 1 propozycję, dodaj z powrotem klasę details-control
+              // Aktualizuj klasę details-control w zależności od liczby wariantów do wyświetlenia
               const proposals = safeArr(updatedProduct?.potentialMatches);
-              if (proposals && proposals.length > 1) {
+              let proposalsToRenderCount;
+              if (selectedOrderId) {
+                // Gdy filtrowanie według zamówienia: pokaż tylko propozycje niepołączone z tym zamówieniem
+                proposalsToRenderCount = proposals.filter(
+                  (p) => p?.orderId !== selectedOrderId,
+                ).length;
+              } else {
+                // Gdy brak filtrowania: pokaż wszystkie poza pierwszą (jak dotychczas)
+                proposalsToRenderCount =
+                  proposals.length > 1 ? proposals.length - 1 : 0;
+              }
+
+              if (proposalsToRenderCount > 0) {
                 parentTr.find("td:first").addClass("details-control");
+              } else {
+                parentTr.find("td:first").removeClass("details-control");
               }
 
               refreshFiltersAfterUpdate();
