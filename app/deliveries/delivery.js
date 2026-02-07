@@ -1066,15 +1066,6 @@ whenReadyAndDataTables(function () {
       .bulk-btn-primary:not(:disabled):hover{background:#eff6ff}
       .bulk-btn-danger{color:#dc2626;border-color:#fca5a5}
       .bulk-btn-danger:not(:disabled):hover{background:#fef2f2}
-      .bulk-btn-success{color:#16a34a;border-color:#86efac}
-      .bulk-btn-success:not(:disabled):hover{background:#f0fdf4}
-      .bulk-btn-ghost{border-color:transparent;color:#6b7280}
-      .bulk-btn-ghost:not(:disabled):hover{background:#f3f4f6;border-color:#d1d5db}
-      .bulk-more-wrapper{position:relative}
-      .bulk-more-dropdown{display:none;position:absolute;top:100%;right:0;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:200;min-width:240px;overflow:hidden;padding:4px 0}
-      .bulk-more-dropdown.open{display:block}
-      .bulk-dropdown-item{display:block;width:100%;text-align:left;padding:8px 14px;border:none;background:none;cursor:pointer;font-size:13px;color:#374151;font-family:inherit}
-      .bulk-dropdown-item:hover{background:#f3f4f6}
       .bulk-cb-main,.bulk-cb-variant{width:16px;height:16px;cursor:pointer;accent-color:#2563eb;margin:0}
       .bulk-select-cell{text-align:center!important;vertical-align:middle!important}
       .bulk-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;padding:12px 20px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;flex-direction:column;gap:6px;min-width:320px;max-width:500px;animation:bulkToastIn .3s ease}
@@ -1104,16 +1095,6 @@ whenReadyAndDataTables(function () {
       <div class="bulk-toolbar-right">
         <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
         <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
-        <button id="bulk-accept-btn" class="bulk-action-btn bulk-btn-success" disabled>Akceptuj</button>
-        <div class="bulk-more-wrapper">
-          <button id="bulk-more-btn" class="bulk-action-btn" disabled>Więcej ▼</button>
-          <div id="bulk-more-dropdown" class="bulk-more-dropdown">
-            <button class="bulk-dropdown-item" data-action="select-all-variants">Zaznacz widoczne warianty</button>
-            <button class="bulk-dropdown-item" data-action="deselect-variants">Odznacz warianty</button>
-            <button class="bulk-dropdown-item" data-action="deselect-main">Odznacz główne</button>
-          </div>
-        </div>
-        <button id="bulk-clear-btn" class="bulk-action-btn bulk-btn-ghost" disabled>Odznacz</button>
       </div>
     `;
 
@@ -1189,54 +1170,6 @@ whenReadyAndDataTables(function () {
     // Toolbar buttons
     $(document).on("click.delivery", "#bulk-link-btn", function () { if (!this.disabled) executeBulkLink(); });
     $(document).on("click.delivery", "#bulk-unlink-btn", function () { if (!this.disabled) executeBulkUnlink(); });
-    $(document).on("click.delivery", "#bulk-accept-btn", function () { if (!this.disabled) executeBulkAccept(); });
-    $(document).on("click.delivery", "#bulk-clear-btn", function () { clearAllSelections(false); });
-
-    // More dropdown toggle
-    $(document).on("click.delivery", "#bulk-more-btn", function (e) {
-      e.stopPropagation();
-      if (this.disabled) return;
-      const dd = document.getElementById("bulk-more-dropdown");
-      if (dd) dd.classList.toggle("open");
-    });
-    $(document).on("click.delivery", function () {
-      const dd = document.getElementById("bulk-more-dropdown");
-      if (dd) dd.classList.remove("open");
-    });
-
-    // Dropdown actions
-    $(document).on("click.delivery", ".bulk-dropdown-item", function (e) {
-      e.stopPropagation();
-      const action = $(this).data("action");
-      const dd = document.getElementById("bulk-more-dropdown");
-      if (dd) dd.classList.remove("open");
-
-      if (action === "select-all-variants") {
-        document.querySelectorAll(".bulk-cb-variant").forEach(function (cb) {
-          if (!cb.checked) {
-            cb.checked = true;
-            const parentId = Number(cb.dataset.parentId);
-            const matchId = Number(cb.dataset.matchId);
-            const matchQty = Number(cb.dataset.matchQty) || 0;
-            const key = makeVariantKey(parentId, matchId);
-            selectionState.variantRows.add(key);
-            selectionState.variantData.set(key, { parentId, matchId, matchQty });
-          }
-        });
-        updateBulkToolbar();
-      } else if (action === "deselect-variants") {
-        selectionState.variantRows.clear();
-        selectionState.variantData.clear();
-        document.querySelectorAll(".bulk-cb-variant").forEach(function (cb) { cb.checked = false; });
-        updateBulkToolbar();
-      } else if (action === "deselect-main") {
-        selectionState.mainRows.clear();
-        document.querySelectorAll(".bulk-cb-main").forEach(function (cb) { cb.checked = false; });
-        const sa = document.getElementById("bulk-select-all");
-        if (sa) { sa.checked = false; sa.indeterminate = false; }
-        updateBulkToolbar();
-      }
-    });
   }
 
   // ============================================
@@ -1350,11 +1283,6 @@ whenReadyAndDataTables(function () {
       return;
     }
     executeBulkOperations(operations, "Rozłączono");
-  }
-
-  function executeBulkAccept() {
-    // Same as bulk link — accepts "Do weryfikacji" items
-    executeBulkLink();
   }
 
   function findRowDataById(rowId) {
@@ -2959,16 +2887,15 @@ whenReadyAndDataTables(function () {
           data: null,
           orderable: false,
           searchable: false,
-          defaultContent: "",
           width: "36px",
           className: "bulk-select-cell",
           title: '<input type="checkbox" id="bulk-select-all" title="Zaznacz wszystkie (główne)" />',
-          createdCell: function (cell, cellData, rowData) {
-            const rowId = rowData?.id;
-            if (rowId != null) {
-              const checked = selectionState.mainRows.has(rowId) ? " checked" : "";
-              cell.innerHTML = '<input type="checkbox" class="bulk-cb-main" data-row-id="' + rowId + '"' + checked + ' />';
-            }
+          render: function (data, type, row) {
+            if (type !== "display") return "";
+            const rowId = row?.id;
+            if (rowId == null) return "";
+            const checked = selectionState.mainRows.has(rowId) ? " checked" : "";
+            return '<input type="checkbox" class="bulk-cb-main" data-row-id="' + rowId + '"' + checked + ' />';
           },
         },
         // Kolumna 1 - Expand
