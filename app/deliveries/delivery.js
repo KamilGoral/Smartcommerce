@@ -555,9 +555,9 @@ whenReadyAndDataTables(function () {
       <!-- Statystyki - rząd badge'ów -->
       <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
         ${dhBadge(ICON.truck, "Dostawca", `<span id="wholesalerName">${wholesaler}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
-        ${dhBadge(ICON.box, "Produktów", `<span id="productsCountDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
-        ${dhBadge(ICON.coins, "Wartość", `<span id="valueDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
-        ${dhBadge(ICON.alert, "Niezgodności", `<span id="diffDeliveryOrders">0</span>`, "#fef2f2", "#fecaca", "#991b1b")}
+        ${dhBadge(ICON.box, "Liczba pozycji", `<span id="productsCountDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+        ${dhBadge(ICON.coins, "Wartość dokumentu", `<span id="valueDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+        ${dhBadge(ICON.alert, "Wykryte niezgodności", `<span id="diffDeliveryOrders">0</span>`, "#fef2f2", "#fecaca", "#991b1b")}
       </div>
 
       <!-- Szczegóły dokumentu (domyślnie ukryte) -->
@@ -771,14 +771,14 @@ whenReadyAndDataTables(function () {
       if (hasProposals) {
         return {
           key: "proposal",
-          label: "Propozycja",
+          label: "Do weryfikacji",
           badge: "badge badge--info",
           sort: 20,
         };
       }
       return {
         key: "unmatched",
-        label: "Niedopasowano",
+        label: "Brak dopasowania",
         badge: "badge badge--muted",
         sort: 10,
       };
@@ -960,7 +960,7 @@ whenReadyAndDataTables(function () {
         </td>
 
         <td style="padding: 8px;">
-          <span class="badge badge--info">Propozycja</span>
+          <span class="badge badge--info">Do weryfikacji</span>
         </td>
 
         <td style="padding: 8px;">
@@ -1260,7 +1260,7 @@ whenReadyAndDataTables(function () {
       .join("");
 
     dropdownWrapper.innerHTML = `
-      <span class="dh-order-label">Źródło porównania</span>
+      <span class="dh-order-label">Porównuj z</span>
       <select id="order-filter-select" class="dh-order-select">
         <option value="">Wszystkie zamówienia</option>
         ${options}
@@ -1430,11 +1430,11 @@ whenReadyAndDataTables(function () {
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative;">
         <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; font-weight: 500; white-space: nowrap;">
           ${ICON.calendar}
-          Dokument z <strong id="issueDateBadgeValue">-</strong>
+          Data dokumentu: <strong id="issueDateBadgeValue">-</strong>
         </span>
         <div id="dateRangeToggle" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #374151; cursor: pointer; user-select: none; transition: background 0.15s;">
           ${ICON.calendar}
-          <span style="color: #6b7280;">Zamówienia:</span>
+          <span style="color: #6b7280;">Zakres zamówień:</span>
           <strong id="dateRangeLabel">—</strong>
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -1956,16 +1956,16 @@ whenReadyAndDataTables(function () {
 
   // ---------- Status Filter Configuration ----------
   const STATUS_FILTERS = [
-    { key: "all", label: "Wszystkie produkty", badge: null },
+    { key: "all", label: "Wszystkie pozycje", badge: null },
     { key: "matched", label: "Dopasowane", badge: "badge--success" },
-    { key: "proposal", label: "Propozycja", badge: "badge--info" },
+    { key: "proposal", label: "Do weryfikacji", badge: "badge--info" },
     {
       key: "diff",
       label: "Rozbieżności",
       badge: "badge--warn",
       includes: ["diff_qty", "diff_value", "diff_both"],
     },
-    { key: "unmatched", label: "Niedopasowane", badge: "badge--muted" },
+    { key: "unmatched", label: "Brak dopasowania", badge: "badge--muted" },
   ];
 
   // Możesz dodać też "invalid" jeśli chcesz:
@@ -2373,7 +2373,7 @@ whenReadyAndDataTables(function () {
         labelCell.attr("colspan", 1);
         // Etykieta w kolumnie Produkt
         const prodCell = $(api.column(1).footer());
-        prodCell.html(`<span style="font-weight: 600; color: #374151;">Suma</span>`);
+        prodCell.html(`<span style="font-weight: 600; color: #374151;">Łącznie</span>`);
         prodCell.css({ "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
 
         // Wyczyść i styluj pozostałe komórki footera
@@ -2433,11 +2433,11 @@ whenReadyAndDataTables(function () {
 
       language: {
         emptyTable: "Brak danych do wyświetlenia",
-        info: "Pokazuje _START_ - _END_ z _TOTAL_ pozycji",
+        info: "Pozycje _START_–_END_ z _TOTAL_",
         infoEmpty: "Brak danych",
         infoFiltered: "(z _MAX_ pozycji)",
-        lengthMenu: "Pokaż _MENU_ pozycji",
-        search: "Szukaj:",
+        lengthMenu: "Pokaż: _MENU_ pozycji",
+        search: "Szukaj produktu:",
         zeroRecords: "Brak pasujących rezultatów",
         paginate: { first: "<<", last: ">>", next: ">", previous: "<" },
       },
