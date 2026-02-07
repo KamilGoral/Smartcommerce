@@ -1178,20 +1178,21 @@ whenReadyAndDataTables(function () {
   }
 
   function renderOrderDropdown(containerId, orderIds, tableData) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-      console.warn(`Container #${containerId} not found`);
+    // Dropdown jest teraz w sekcji dat (orderDropdownSlot), nie w filtrach statusowych
+    const slot = document.getElementById("orderDropdownSlot");
+    if (!slot) {
+      console.warn("orderDropdownSlot not found");
       return;
     }
 
     // Sprawdź czy dropdown już istnieje
-    let dropdownWrapper = container.querySelector(".order-dropdown-wrapper");
+    let dropdownWrapper = slot.querySelector(".order-dropdown-wrapper");
 
     if (!dropdownWrapper) {
       // Utwórz wrapper dla dropdownu
       dropdownWrapper = document.createElement("div");
       dropdownWrapper.className = "order-dropdown-wrapper dh-order-wrapper";
-      container.appendChild(dropdownWrapper);
+      slot.appendChild(dropdownWrapper);
     }
 
     // Funkcja do zliczania produktów dla danego zamówienia
@@ -1260,7 +1261,6 @@ whenReadyAndDataTables(function () {
       .join("");
 
     dropdownWrapper.innerHTML = `
-      <span class="dh-order-label">Porównuj z</span>
       <select id="order-filter-select" class="dh-order-select">
         <option value="">Wszystkie zamówienia</option>
         ${options}
@@ -1441,6 +1441,7 @@ whenReadyAndDataTables(function () {
         <input type="hidden" id="orderDateStart" />
         <input type="hidden" id="orderDateEnd" />
         <div id="drpPopover" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 5000;"></div>
+        <div id="orderDropdownSlot"></div>
         <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
           Szczegóły
           <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
@@ -1448,6 +1449,7 @@ whenReadyAndDataTables(function () {
           </svg>
         </button>
       </div>
+      <div style="border-bottom: 1px solid #e5e7eb; margin-top: 14px;"></div>
     `;
   }
 
@@ -1985,29 +1987,31 @@ whenReadyAndDataTables(function () {
       style.id = "dh-order-styles";
       style.textContent = `
         .dh-order-wrapper {
-          margin-left: auto;
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 8px;
-        }
-        .dh-order-label {
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-          color: #9ca3af;
-          white-space: nowrap;
         }
         .dh-order-select {
-          padding: 4px 10px;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+          padding: 4px 28px 4px 12px;
           border: 1px solid #e5e7eb;
-          border-radius: 6px;
+          border-radius: 20px;
           font-size: 12px;
           font-family: inherit;
-          min-width: 260px;
           cursor: pointer;
-          background: white;
+          background: #f9fafb url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
           color: #374151;
+          transition: background-color 0.15s;
+          white-space: nowrap;
+        }
+        .dh-order-select:hover {
+          background-color: #f3f4f6;
+        }
+        .dh-order-select:focus {
+          outline: none;
+          border-color: #93c5fd;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
         }
       `;
       document.head.appendChild(style);
@@ -2173,10 +2177,10 @@ whenReadyAndDataTables(function () {
         // Statystyki na górze: ustawiane raz z pełnych danych GET (stałe, nie zmieniają się z filtrami)
         updateDeliveryStatistics(json.data);
 
-        // Update order dropdown w tym samym kontenerze co filtry statusów
+        // Update order dropdown w sekcji dat (days-filter)
         const orderIds = getAllOrderIds(json.data);
-        renderOrderDropdown(containerId, orderIds, json.data);
-        initOrderFilterEvents(table, containerId);
+        renderOrderDropdown("days-filter", orderIds, json.data);
+        initOrderFilterEvents(table, "days-filter");
 
         // Przelicz liczniki przycisków filtrów z uwzględnieniem filtra zamówienia
         // (setTimeout, bo dane trafiają do tabeli dopiero po xhr.dt)
