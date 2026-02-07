@@ -1627,6 +1627,9 @@ whenReadyAndDataTables(function () {
           margin-top: 8px;
           min-height: 16px;
         }
+        .dataTables_scrollBody {
+          overflow-y: scroll !important;
+        }
       `;
       document.head.appendChild(style);
     }
