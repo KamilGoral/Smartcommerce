@@ -1178,21 +1178,20 @@ whenReadyAndDataTables(function () {
   }
 
   function renderOrderDropdown(containerId, orderIds, tableData) {
-    // Dropdown jest teraz w sekcji dat (orderDropdownSlot), nie w filtrach statusowych
-    const slot = document.getElementById("orderDropdownSlot");
-    if (!slot) {
-      console.warn("orderDropdownSlot not found");
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.warn(`Container #${containerId} not found`);
       return;
     }
 
     // Sprawdź czy dropdown już istnieje
-    let dropdownWrapper = slot.querySelector(".order-dropdown-wrapper");
+    let dropdownWrapper = container.querySelector(".order-dropdown-wrapper");
 
     if (!dropdownWrapper) {
-      // Utwórz wrapper dla dropdownu
+      // Utwórz wrapper dla dropdownu — pushed to right via margin-left: auto
       dropdownWrapper = document.createElement("div");
       dropdownWrapper.className = "order-dropdown-wrapper dh-order-wrapper";
-      slot.appendChild(dropdownWrapper);
+      container.appendChild(dropdownWrapper);
     }
 
     // Funkcja do zliczania produktów dla danego zamówienia
@@ -1260,9 +1259,10 @@ whenReadyAndDataTables(function () {
       })
       .join("");
 
+    const orderCount = orderIds.length;
     dropdownWrapper.innerHTML = `
       <select id="order-filter-select" class="dh-order-select">
-        <option value="">Wszystkie zamówienia</option>
+        <option value="">Wszystkie zamówienia (${orderCount})</option>
         ${options}
       </select>
     `;
@@ -1428,20 +1428,19 @@ whenReadyAndDataTables(function () {
 
     container.innerHTML = `
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative;">
-        <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; font-weight: 500; white-space: nowrap;">
+        <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #374151; font-weight: 500; white-space: nowrap;">
           ${ICON.calendar}
           Data dokumentu: <strong id="issueDateBadgeValue">-</strong>
         </span>
-        <div id="dateRangeToggle" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #374151; cursor: pointer; user-select: none; transition: background 0.15s;">
+        <div id="dateRangeToggle" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; cursor: pointer; user-select: none; transition: background 0.15s;">
           ${ICON.calendar}
-          <span style="color: #6b7280;">Zakres zamówień:</span>
+          <span style="color: #3b82f6;">Zakres zamówień:</span>
           <strong id="dateRangeLabel">—</strong>
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <input type="hidden" id="orderDateStart" />
         <input type="hidden" id="orderDateEnd" />
         <div id="drpPopover" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 5000;"></div>
-        <div id="orderDropdownSlot"></div>
         <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
           Szczegóły
           <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
@@ -1987,6 +1986,7 @@ whenReadyAndDataTables(function () {
       style.id = "dh-order-styles";
       style.textContent = `
         .dh-order-wrapper {
+          margin-left: auto;
           display: inline-flex;
           align-items: center;
         }
@@ -1994,19 +1994,21 @@ whenReadyAndDataTables(function () {
           -webkit-appearance: none;
           -moz-appearance: none;
           appearance: none;
-          padding: 4px 28px 4px 12px;
+          padding: 6px 28px 6px 14px;
           border: 1px solid #e5e7eb;
-          border-radius: 20px;
-          font-size: 12px;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 500;
           font-family: inherit;
           cursor: pointer;
-          background: #f9fafb url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+          background: #fff url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
           color: #374151;
-          transition: background-color 0.15s;
+          transition: all 0.15s;
           white-space: nowrap;
         }
         .dh-order-select:hover {
-          background-color: #f3f4f6;
+          background-color: #f9fafb;
+          border-color: #d1d5db;
         }
         .dh-order-select:focus {
           outline: none;
@@ -2177,10 +2179,10 @@ whenReadyAndDataTables(function () {
         // Statystyki na górze: ustawiane raz z pełnych danych GET (stałe, nie zmieniają się z filtrami)
         updateDeliveryStatistics(json.data);
 
-        // Update order dropdown w sekcji dat (days-filter)
+        // Update order dropdown w kontenerze filtrów statusowych (pushed right)
         const orderIds = getAllOrderIds(json.data);
-        renderOrderDropdown("days-filter", orderIds, json.data);
-        initOrderFilterEvents(table, "days-filter");
+        renderOrderDropdown(containerId, orderIds, json.data);
+        initOrderFilterEvents(table, containerId);
 
         // Przelicz liczniki przycisków filtrów z uwzględnieniem filtra zamówienia
         // (setTimeout, bo dane trafiają do tabeli dopiero po xhr.dt)
