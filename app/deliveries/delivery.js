@@ -920,9 +920,14 @@ whenReadyAndDataTables(function () {
             : fmtPLN(priceDiff)
           : "-";
 
+      const varKey = makeVariantKey(parent?.id, matchId);
+      const varChecked = selectionState.variantRows.has(varKey) ? " checked" : "";
       return `
       <tr class="child-row" style="background: #f9fafb;">
-        <td style="padding: 8px; text-align: center;"></td>
+        <td style="padding: 8px; text-align: center;">
+          <input type="checkbox" class="bulk-cb-variant" data-parent-id="${parent?.id}" data-match-id="${matchId}" data-match-qty="${orderedQty}"${varChecked} />
+        </td>
+        <td style="padding: 8px;"></td>
         <td style="padding: 8px;">
           <div style="display: flex; align-items: center; gap: 8px; padding-left: 20px;">
             <span style="color: #9ca3af;">↳</span>
@@ -962,25 +967,6 @@ whenReadyAndDataTables(function () {
         <td style="padding: 8px;">
           <span class="badge badge--info">Do weryfikacji</span>
         </td>
-
-        <td style="padding: 8px;">
-          <button
-            class="btn btn-outline btn-sm link-btn"
-            data-product-id="${parent?.id}"
-            data-match-id="${matchId}"
-            title="Połącz z zamówieniem"
-            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
-            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
-            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-              <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
-              <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
-              <line x1="8" x2="16" y1="12" y2="12"></line>
-            </svg>
-            Połącz
-          </button>
-        </td>
       </tr>
     `;
     });
@@ -994,6 +980,478 @@ whenReadyAndDataTables(function () {
 
   // Data dokumentu (issueDate) – ustawiana z loadDeliveryDetails(), używana do filtrów dat
   let deliveryIssueDate = null;
+
+  // ============================================
+  // Bulk Selection State
+  // ============================================
+  const selectionState = {
+    mainRows: new Set(),
+    variantRows: new Set(),
+    variantData: new Map(),
+  };
+
+  function makeVariantKey(parentId, matchId) {
+    return parentId + ":" + matchId;
+  }
+
+  function toggleMainRow(rowId, checked) {
+    if (checked) {
+      selectionState.mainRows.add(rowId);
+    } else {
+      selectionState.mainRows.delete(rowId);
+    }
+    updateBulkToolbar();
+  }
+
+  function toggleVariantRow(parentId, matchId, matchQty, checked) {
+    const key = makeVariantKey(parentId, matchId);
+    if (checked) {
+      selectionState.variantRows.add(key);
+      selectionState.variantData.set(key, { parentId, matchId, matchQty });
+    } else {
+      selectionState.variantRows.delete(key);
+      selectionState.variantData.delete(key);
+    }
+    updateBulkToolbar();
+  }
+
+  function clearAllSelections(silent) {
+    selectionState.mainRows.clear();
+    selectionState.variantRows.clear();
+    selectionState.variantData.clear();
+    document.querySelectorAll(".bulk-cb-main, .bulk-cb-variant").forEach(function (cb) { cb.checked = false; });
+    const selectAll = document.getElementById("bulk-select-all");
+    if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+    updateBulkToolbar();
+    if (!silent) {
+      displayMessage("Success", "Wyczyszczono zaznaczenie");
+    }
+  }
+
+  function getSelectionCounts() {
+    const main = selectionState.mainRows.size;
+    const variants = selectionState.variantRows.size;
+    return { main, variants, total: main + variants };
+  }
+
+  function syncSelectAllCheckbox() {
+    const selectAll = document.getElementById("bulk-select-all");
+    if (!selectAll || !deliveryTable) return;
+    const visibleCbs = document.querySelectorAll("#table_delivery tbody .bulk-cb-main");
+    if (visibleCbs.length === 0) { selectAll.checked = false; selectAll.indeterminate = false; return; }
+    let checkedCount = 0;
+    visibleCbs.forEach(function (cb) { if (cb.checked) checkedCount++; });
+    selectAll.checked = checkedCount === visibleCbs.length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < visibleCbs.length;
+  }
+
+  // ============================================
+  // Bulk Styles Injection
+  // ============================================
+  function injectBulkStyles() {
+    if (document.getElementById("dh-bulk-styles")) return;
+    const s = document.createElement("style");
+    s.id = "dh-bulk-styles";
+    s.textContent = `
+      #bulk-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:10px;gap:12px;flex-wrap:wrap;min-height:40px;transition:background .2s,border-color .2s}
+      #bulk-toolbar.has-selection{background:#eff6ff;border-color:#bfdbfe}
+      .bulk-toolbar-left{display:flex;align-items:center;gap:8px}
+      .bulk-toolbar-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+      .bulk-counter{font-size:13px;color:#64748b;font-weight:500;white-space:nowrap}
+      #bulk-toolbar.has-selection .bulk-counter{color:#1e40af}
+      .bulk-action-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.4}
+      .bulk-action-btn:disabled{opacity:.4;cursor:not-allowed}
+      .bulk-action-btn:not(:disabled):hover{background:#f3f4f6}
+      .bulk-btn-primary{color:#2563eb;border-color:#93c5fd}
+      .bulk-btn-primary:not(:disabled):hover{background:#eff6ff}
+      .bulk-btn-danger{color:#dc2626;border-color:#fca5a5}
+      .bulk-btn-danger:not(:disabled):hover{background:#fef2f2}
+      .bulk-btn-success{color:#16a34a;border-color:#86efac}
+      .bulk-btn-success:not(:disabled):hover{background:#f0fdf4}
+      .bulk-btn-ghost{border-color:transparent;color:#6b7280}
+      .bulk-btn-ghost:not(:disabled):hover{background:#f3f4f6;border-color:#d1d5db}
+      .bulk-more-wrapper{position:relative}
+      .bulk-more-dropdown{display:none;position:absolute;top:100%;right:0;margin-top:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:200;min-width:240px;overflow:hidden;padding:4px 0}
+      .bulk-more-dropdown.open{display:block}
+      .bulk-dropdown-item{display:block;width:100%;text-align:left;padding:8px 14px;border:none;background:none;cursor:pointer;font-size:13px;color:#374151;font-family:inherit}
+      .bulk-dropdown-item:hover{background:#f3f4f6}
+      .bulk-cb-main,.bulk-cb-variant{width:16px;height:16px;cursor:pointer;accent-color:#2563eb;margin:0}
+      .bulk-select-cell{text-align:center!important;vertical-align:middle!important}
+      .bulk-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;padding:12px 20px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;flex-direction:column;gap:6px;min-width:320px;max-width:500px;animation:bulkToastIn .3s ease}
+      @keyframes bulkToastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+      .bulk-toast-content{display:flex;align-items:center;justify-content:space-between;gap:12px}
+      .bulk-toast-text{font-size:13px;font-weight:500}
+      .bulk-undo-btn{background:#3b82f6;color:#fff;border:none;padding:4px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit}
+      .bulk-undo-btn:hover{background:#2563eb}
+      .bulk-toast-progress{height:3px;background:#3b82f6;border-radius:2px;transition:none}
+    `;
+    document.head.appendChild(s);
+  }
+
+  // ============================================
+  // Bulk Toolbar
+  // ============================================
+  function renderBulkToolbar() {
+    const existing = document.getElementById("bulk-toolbar");
+    if (existing) existing.remove();
+
+    const toolbar = document.createElement("div");
+    toolbar.id = "bulk-toolbar";
+    toolbar.innerHTML = `
+      <div class="bulk-toolbar-left">
+        <span id="bulk-counter" class="bulk-counter">Zaznaczono: 0</span>
+      </div>
+      <div class="bulk-toolbar-right">
+        <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
+        <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
+        <button id="bulk-accept-btn" class="bulk-action-btn bulk-btn-success" disabled>Akceptuj</button>
+        <div class="bulk-more-wrapper">
+          <button id="bulk-more-btn" class="bulk-action-btn" disabled>Więcej ▼</button>
+          <div id="bulk-more-dropdown" class="bulk-more-dropdown">
+            <button class="bulk-dropdown-item" data-action="select-all-variants">Zaznacz widoczne warianty</button>
+            <button class="bulk-dropdown-item" data-action="deselect-variants">Odznacz warianty</button>
+            <button class="bulk-dropdown-item" data-action="deselect-main">Odznacz główne</button>
+          </div>
+        </div>
+        <button id="bulk-clear-btn" class="bulk-action-btn bulk-btn-ghost" disabled>Odznacz</button>
+      </div>
+    `;
+
+    const wrapper = document.querySelector("#table_delivery_wrapper");
+    if (wrapper) {
+      const scroll = wrapper.querySelector(".dataTables_scroll");
+      if (scroll) {
+        wrapper.insertBefore(toolbar, scroll);
+      } else {
+        wrapper.insertBefore(toolbar, wrapper.firstChild);
+      }
+    }
+  }
+
+  function updateBulkToolbar() {
+    const counter = document.getElementById("bulk-counter");
+    const toolbar = document.getElementById("bulk-toolbar");
+    if (!counter || !toolbar) return;
+
+    const c = getSelectionCounts();
+    if (c.total === 0) {
+      counter.textContent = "Zaznaczono: 0";
+      toolbar.classList.remove("has-selection");
+    } else {
+      const parts = [];
+      if (c.main > 0) parts.push(c.main + " główn" + (c.main === 1 ? "y" : "ych"));
+      if (c.variants > 0) parts.push(c.variants + " wariant" + (c.variants === 1 ? "" : "ów"));
+      counter.textContent = "Zaznaczono: " + parts.join(" + ") + " (razem " + c.total + ")";
+      toolbar.classList.add("has-selection");
+    }
+
+    const btns = toolbar.querySelectorAll(".bulk-action-btn");
+    btns.forEach(function (btn) { btn.disabled = c.total === 0; });
+  }
+
+  // ============================================
+  // Bulk Toolbar Event Initialization
+  // ============================================
+  function initBulkToolbarEvents() {
+    // Main row checkbox
+    $("#table_delivery tbody").on("change.delivery", ".bulk-cb-main", function () {
+      const rowId = Number($(this).data("row-id"));
+      toggleMainRow(rowId, this.checked);
+      syncSelectAllCheckbox();
+    });
+
+    // Variant row checkbox
+    $(document).on("change.delivery", ".bulk-cb-variant", function () {
+      const parentId = Number($(this).data("parent-id"));
+      const matchId = Number($(this).data("match-id"));
+      const matchQty = Number($(this).data("match-qty")) || 0;
+      toggleVariantRow(parentId, matchId, matchQty, this.checked);
+    });
+
+    // Select-all header checkbox
+    $(document).on("change.delivery", "#bulk-select-all", function () {
+      const checked = this.checked;
+      deliveryTable.rows({ search: "applied", page: "current" }).every(function () {
+        const data = this.data();
+        if (!data?.id) return;
+        if (checked) {
+          selectionState.mainRows.add(data.id);
+        } else {
+          selectionState.mainRows.delete(data.id);
+        }
+      });
+      document.querySelectorAll("#table_delivery tbody .bulk-cb-main").forEach(function (cb) {
+        cb.checked = checked;
+      });
+      updateBulkToolbar();
+    });
+
+    // Toolbar buttons
+    $(document).on("click.delivery", "#bulk-link-btn", function () { if (!this.disabled) executeBulkLink(); });
+    $(document).on("click.delivery", "#bulk-unlink-btn", function () { if (!this.disabled) executeBulkUnlink(); });
+    $(document).on("click.delivery", "#bulk-accept-btn", function () { if (!this.disabled) executeBulkAccept(); });
+    $(document).on("click.delivery", "#bulk-clear-btn", function () { clearAllSelections(false); });
+
+    // More dropdown toggle
+    $(document).on("click.delivery", "#bulk-more-btn", function (e) {
+      e.stopPropagation();
+      if (this.disabled) return;
+      const dd = document.getElementById("bulk-more-dropdown");
+      if (dd) dd.classList.toggle("open");
+    });
+    $(document).on("click.delivery", function () {
+      const dd = document.getElementById("bulk-more-dropdown");
+      if (dd) dd.classList.remove("open");
+    });
+
+    // Dropdown actions
+    $(document).on("click.delivery", ".bulk-dropdown-item", function (e) {
+      e.stopPropagation();
+      const action = $(this).data("action");
+      const dd = document.getElementById("bulk-more-dropdown");
+      if (dd) dd.classList.remove("open");
+
+      if (action === "select-all-variants") {
+        document.querySelectorAll(".bulk-cb-variant").forEach(function (cb) {
+          if (!cb.checked) {
+            cb.checked = true;
+            const parentId = Number(cb.dataset.parentId);
+            const matchId = Number(cb.dataset.matchId);
+            const matchQty = Number(cb.dataset.matchQty) || 0;
+            const key = makeVariantKey(parentId, matchId);
+            selectionState.variantRows.add(key);
+            selectionState.variantData.set(key, { parentId, matchId, matchQty });
+          }
+        });
+        updateBulkToolbar();
+      } else if (action === "deselect-variants") {
+        selectionState.variantRows.clear();
+        selectionState.variantData.clear();
+        document.querySelectorAll(".bulk-cb-variant").forEach(function (cb) { cb.checked = false; });
+        updateBulkToolbar();
+      } else if (action === "deselect-main") {
+        selectionState.mainRows.clear();
+        document.querySelectorAll(".bulk-cb-main").forEach(function (cb) { cb.checked = false; });
+        const sa = document.getElementById("bulk-select-all");
+        if (sa) { sa.checked = false; sa.indeterminate = false; }
+        updateBulkToolbar();
+      }
+    });
+  }
+
+  // ============================================
+  // Bulk Execution
+  // ============================================
+  async function executeBulkOperations(operations, actionLabel) {
+    const counter = document.getElementById("bulk-counter");
+    const btns = document.querySelectorAll(".bulk-action-btn");
+    btns.forEach(function (b) { b.disabled = true; });
+
+    let success = 0, failed = 0;
+    const undoStack = [];
+    const total = operations.length;
+
+    for (let i = 0; i < total; i++) {
+      const op = operations[i];
+      if (counter) counter.textContent = "Przetwarzanie " + (i + 1) + "/" + total + "...";
+      try {
+        if (op.type === "link") {
+          await linkRecadvProduct(recadvId, op.productId, op.matchId, op.quantity);
+          undoStack.push({ type: "linked", productId: op.productId, gtin: op.gtin });
+          success++;
+        } else if (op.type === "unlink") {
+          await unlinkRecadvProduct(recadvId, op.productId, op.linkedId);
+          success++;
+        }
+      } catch (err) {
+        console.warn("Bulk op failed:", err);
+        failed++;
+      }
+    }
+
+    // Refresh table once
+    await new Promise(function (resolve) {
+      deliveryTable.ajax.reload(function () {
+        refreshFiltersAfterUpdate();
+        resolve();
+      }, false);
+    });
+
+    clearAllSelections(true);
+
+    const skipped = 0; // ops were already pre-filtered
+    showBulkResultToast(actionLabel, success, skipped, failed, undoStack);
+    return { success, failed };
+  }
+
+  function executeBulkLink() {
+    const operations = [];
+
+    // Main rows with status "proposal"
+    selectionState.mainRows.forEach(function (rowId) {
+      const rowData = findRowDataById(rowId);
+      if (!rowData) return;
+      const state = computeRowState(rowData);
+      if (state.key !== "proposal") return;
+
+      let match = null;
+      if (selectedOrderId && rowData._primaryMatch && rowData._isPrimaryProposal) {
+        match = rowData._primaryMatch;
+      } else {
+        const proposals = safeArr(rowData?.potentialMatches);
+        if (proposals.length > 0) match = proposals[0];
+      }
+      if (!match) return;
+
+      const qty = match.matchableQty || sumQty(match?.segments) || sumQty(rowData?.segments);
+      operations.push({ type: "link", productId: rowData.id, matchId: match.id, quantity: qty, gtin: rowData.gtin });
+    });
+
+    // Variant rows
+    selectionState.variantData.forEach(function (data) {
+      const rowData = findRowDataById(data.parentId);
+      if (!rowData) return;
+      const qty = data.matchQty || sumQty(rowData?.segments);
+      operations.push({ type: "link", productId: data.parentId, matchId: data.matchId, quantity: qty, gtin: rowData?.gtin });
+    });
+
+    if (operations.length === 0) {
+      displayMessage("Error", "Brak pozycji do połączenia wśród zaznaczonych");
+      return;
+    }
+    executeBulkOperations(operations, "Połączono");
+  }
+
+  function executeBulkUnlink() {
+    const operations = [];
+
+    selectionState.mainRows.forEach(function (rowId) {
+      const rowData = findRowDataById(rowId);
+      if (!rowData) return;
+      const state = computeRowState(rowData);
+      if (!["matched", "diff_qty", "diff_value", "diff_both"].includes(state.key)) return;
+
+      let linked = null;
+      if (selectedOrderId && rowData._primaryMatch && !rowData._isPrimaryProposal) {
+        linked = rowData._primaryMatch;
+      } else {
+        const linkedArr = safeArr(rowData?.linkedOrderProducts);
+        if (linkedArr.length > 0) linked = linkedArr[0];
+      }
+      if (!linked) return;
+
+      operations.push({ type: "unlink", productId: rowData.id, linkedId: linked.id, gtin: rowData.gtin });
+    });
+
+    // Variants are always proposals — skip them for unlink
+
+    if (operations.length === 0) {
+      displayMessage("Error", "Brak pozycji do rozłączenia wśród zaznaczonych");
+      return;
+    }
+    executeBulkOperations(operations, "Rozłączono");
+  }
+
+  function executeBulkAccept() {
+    // Same as bulk link — accepts "Do weryfikacji" items
+    executeBulkLink();
+  }
+
+  function findRowDataById(rowId) {
+    if (!deliveryTable) return null;
+    let found = null;
+    deliveryTable.rows().every(function () {
+      const data = this.data();
+      if (data && data.id === rowId) { found = data; return false; }
+    });
+    return found;
+  }
+
+  // ============================================
+  // Bulk Toast with Undo
+  // ============================================
+  let bulkToastTimer = null;
+
+  function showBulkResultToast(actionLabel, success, skipped, failed, undoStack) {
+    const existing = document.getElementById("bulk-toast");
+    if (existing) existing.remove();
+    if (bulkToastTimer) clearTimeout(bulkToastTimer);
+
+    let text = "✅ " + actionLabel + " " + success + " pozycji.";
+    if (skipped > 0) text += " Pominięto " + skipped + ".";
+    if (failed > 0) text += " Błędów: " + failed + ".";
+
+    const toast = document.createElement("div");
+    toast.id = "bulk-toast";
+    toast.className = "bulk-toast";
+
+    const hasUndo = undoStack && undoStack.length > 0 && failed === 0;
+    toast.innerHTML = `
+      <div class="bulk-toast-content">
+        <span class="bulk-toast-text">${text}</span>
+        ${hasUndo ? '<button class="bulk-undo-btn" id="bulk-undo-btn">Cofnij</button>' : ""}
+      </div>
+      <div class="bulk-toast-progress" style="width:100%"></div>
+    `;
+    document.body.appendChild(toast);
+
+    // Animate progress bar
+    const bar = toast.querySelector(".bulk-toast-progress");
+    if (bar) {
+      requestAnimationFrame(function () {
+        bar.style.transition = "width 10s linear";
+        bar.style.width = "0%";
+      });
+    }
+
+    bulkToastTimer = setTimeout(function () {
+      const t = document.getElementById("bulk-toast");
+      if (t) t.remove();
+    }, 10500);
+
+    if (hasUndo) {
+      $(document).off("click.bulkundo").on("click.bulkundo", "#bulk-undo-btn", function () {
+        if (bulkToastTimer) clearTimeout(bulkToastTimer);
+        const t = document.getElementById("bulk-toast");
+        if (t) t.remove();
+        executeBulkUndo(undoStack);
+      });
+    }
+  }
+
+  async function executeBulkUndo(undoStack) {
+    displayMessage("Success", "Cofanie operacji...");
+    const dateParams = getDateRangeParams();
+
+    for (const entry of undoStack) {
+      if (entry.type === "linked") {
+        try {
+          // Fetch fresh product data to find the newly created link ID
+          const res = await $.ajax({
+            type: "GET",
+            url: InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products?" + dateParams,
+            headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
+            data: { gtin: entry.gtin },
+          });
+          const product = (res.items || []).find(function (p) { return p.id === entry.productId; });
+          if (product) {
+            const links = safeArr(product.linkedOrderProducts);
+            if (links.length > 0) {
+              const lastLink = links[links.length - 1];
+              await unlinkRecadvProduct(recadvId, entry.productId, lastLink.id);
+            }
+          }
+        } catch (err) {
+          console.warn("Undo failed for product:", entry.productId, err);
+        }
+      }
+    }
+
+    deliveryTable.ajax.reload(function () {
+      refreshFiltersAfterUpdate();
+    }, false);
+    displayMessage("Success", "Operacja cofnięta");
+  }
 
   // Cache dla szczegółów zamówień (orderId -> order details)
   const orderDetailsCache = {};
@@ -1387,11 +1845,14 @@ whenReadyAndDataTables(function () {
       if (e.target && e.target.id === "order-filter-select") {
         const orderId = e.target.value || "";
 
+        // Wyczyść selekcje bulk przy zmianie zamówienia
+        clearAllSelections(true);
+
         // Zastosuj filtr
         applyOrderFilter(table, orderId);
 
         // Wymuś porządek sortowania po zmianie zamówienia
-        table.order([[9, "asc"], [1, "asc"]]).draw();
+        table.order([[10, "asc"], [2, "asc"]]).draw();
       }
     });
   }
@@ -1823,6 +2284,9 @@ whenReadyAndDataTables(function () {
       toggleEl.style.background = "#f9fafb";
       toggleEl.style.borderColor = "#e5e7eb";
 
+      // Wyczyść selekcje bulk przy zmianie zakresu dat
+      clearAllSelections(true);
+
       // Reload table
       if (deliveryTable) deliveryTable.ajax.reload();
     }
@@ -2118,6 +2582,9 @@ whenReadyAndDataTables(function () {
   let currentFilterFn = null;
 
   function applyStatusFilter(table, filterKey) {
+    // Wyczyść selekcje bulk przy zmianie filtra
+    clearAllSelections(true);
+
     // Usuń poprzedni custom search jeśli istnieje
     if (currentFilterFn) {
       const idx = $.fn.dataTable.ext.search.indexOf(currentFilterFn);
@@ -2317,8 +2784,8 @@ whenReadyAndDataTables(function () {
       lengthMenu: [10, 25, 50, 100],
       pageLength: 25,
       order: [
-        [9, "asc"],
-        [1, "asc"],
+        [10, "asc"],
+        [2, "asc"],
       ], // Sortuj najpierw po statusie, potem po nazwie produktu
       dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "70vh",
@@ -2363,7 +2830,7 @@ whenReadyAndDataTables(function () {
         });
 
         // Wyświetl sumę w kolumnie 7
-        const footerCell = $(api.column(7).footer());
+        const footerCell = $(api.column(8).footer());
         if (Math.abs(totalValueDiff) < 0.001) {
           footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
         } else {
@@ -2377,14 +2844,14 @@ whenReadyAndDataTables(function () {
         const labelCell = $(api.column(0).footer());
         labelCell.attr("colspan", 1);
         // Etykieta w kolumnie Produkt
-        const prodCell = $(api.column(1).footer());
+        const prodCell = $(api.column(2).footer());
         prodCell.html(`<span style="font-weight: 600; color: #374151;">Łącznie</span>`);
         prodCell.css({ "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
 
         // Wyczyść i styluj pozostałe komórki footera
         for (let i = 0; i <= 10; i++) {
           const cell = $(api.column(i).footer());
-          if (i !== 1 && i !== 7) {
+          if (i !== 2 && i !== 8) {
             cell.html("");
           }
           cell.css({ "border-top": "2px solid #e5e7eb", "padding": "10px 8px" });
@@ -2487,6 +2954,24 @@ whenReadyAndDataTables(function () {
       },
 
       columns: [
+        // Kolumna 0 - Checkbox
+        {
+          data: null,
+          orderable: false,
+          searchable: false,
+          defaultContent: "",
+          width: "36px",
+          className: "bulk-select-cell",
+          title: '<input type="checkbox" id="bulk-select-all" title="Zaznacz wszystkie (główne)" />',
+          createdCell: function (cell, cellData, rowData) {
+            const rowId = rowData?.id;
+            if (rowId != null) {
+              const checked = selectionState.mainRows.has(rowId) ? " checked" : "";
+              cell.innerHTML = '<input type="checkbox" class="bulk-cb-main" data-row-id="' + rowId + '"' + checked + ' />';
+            }
+          },
+        },
+        // Kolumna 1 - Expand
         {
           data: null,
           orderable: false,
@@ -2785,82 +3270,7 @@ whenReadyAndDataTables(function () {
             return `<span class="${st.badge}">${st.label}</span>`;
           },
         },
-        // Kolumna 10 - Akcje
-        {
-          data: null,
-          orderable: false,
-          className: "actions-col",
-          width: "120px",
-          render: function (data, type, row) {
-            const linked = safeArr(row?.linkedOrderProducts);
-            const proposals = safeArr(row?.potentialMatches);
-
-            // Określ primary match (z _primaryMatch lub fallback)
-            let actionMatch = null;
-            let isLinked = false;
-
-            if (selectedOrderId && row?._primaryMatch) {
-              actionMatch = row._primaryMatch;
-              // Sprawdź czy to linked czy proposal
-              isLinked = !row._isPrimaryProposal;
-            } else {
-              if (linked.length) {
-                actionMatch = linked[0];
-                isLinked = true;
-              } else if (proposals.length) {
-                actionMatch = proposals[0];
-                isLinked = false;
-              }
-            }
-
-            if (!actionMatch) return "";
-
-            if (isLinked) {
-              const linkedId = actionMatch?.id;
-              return `
-          <button
-            class="btn btn-outline btn-sm unlink-btn"
-            data-product-id="${row?.id}"
-            data-linked-id="${linkedId}"
-            title="Rozłącz powiązanie"
-            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
-            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
-            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-              <path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"></path>
-              <path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"></path>
-              <line x1="8" x2="8" y1="2" y2="5"></line>
-              <line x1="2" x2="5" y1="8" y2="8"></line>
-              <line x1="16" x2="16" y1="19" y2="22"></line>
-              <line x1="19" x2="22" y1="16" y2="16"></line>
-            </svg>
-            Rozłącz
-          </button>
-        `;
-            } else {
-              const matchId = actionMatch?.id;
-              return `
-          <button
-            class="btn btn-outline btn-sm link-btn"
-            data-product-id="${row?.id}"
-            data-match-id="${matchId}"
-            title="Połącz z zamówieniem"
-            style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border: 1px solid #9ca3af; border-radius: 6px; background: transparent; cursor: pointer; font-size: 12px; color: currentColor; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); width: 100px;"
-            onmouseover="this.style.background='#f9fafb'; this.style.color='#374151';"
-            onmouseout="this.style.background='transparent'; this.style.color='currentColor';"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-              <path d="M9 17H7A5 5 0 0 1 7 7h2"></path>
-              <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
-              <line x1="8" x2="16" y1="12" y2="12"></line>
-            </svg>
-            Połącz
-          </button>
-        `;
-            }
-          },
-        },
+        // Kolumna Akcje — USUNIĘTA (zastąpiona przez bulk toolbar)
       ],
     });
 
@@ -2905,176 +3315,16 @@ whenReadyAndDataTables(function () {
       },
     );
 
-    // Event: Połącz produkt
-    $(document)
-      .off("click.delivery", ".link-btn")
-      .on("click.delivery", ".link-btn", function () {
-        const btn = $(this);
-        const productId = btn.data("product-id");
-        const matchId = btn.data("match-id");
+    // === BULK TOOLBAR — inicjalizacja po DataTable ===
+    injectBulkStyles();
+    renderBulkToolbar();
+    initBulkToolbarEvents();
 
-        // Znajdź parent row (dla child rows, znajdź poprzedni tr który nie jest child-row)
-        let tr = btn.closest("tr");
-        if (tr.hasClass("child-row")) {
-          tr = tr.prevAll("tr").not(".child-row").first();
-        }
-
-        const row = deliveryTable.row(tr);
-        const rowData = row.data();
-        const gtin = rowData?.gtin;
-
-        const proposal = safeArr(rowData?.potentialMatches).find(
-          (p) => p.id === matchId,
-        );
-        const quantity = proposal?.matchableQty || sumQty(rowData?.segments);
-
-        console.log("LINK", { recadvId, productId, matchId, quantity, gtin });
-
-        btn.prop("disabled", true).css("opacity", "0.5");
-
-        linkRecadvProduct(recadvId, productId, matchId, quantity)
-          .then(function () {
-            // Pobierz świeże dane z pełnym stanem (potentialMatches, linkedOrderProducts)
-            const dateParams = getDateRangeParams();
-            return $.ajax({
-              type: "GET",
-              url:
-                InvokeURL +
-                "van/recadvs/" +
-                encodeURIComponent(recadvId) +
-                "/products?" + dateParams,
-              headers: {
-                Authorization: orgToken,
-                "Requested-By": "webflow-3-4",
-              },
-              data: {
-                gtin: gtin,
-              },
-            });
-          })
-          .then(function (response) {
-            const updatedProduct = safeArr(response?.items).find(
-              (item) => item.id === productId,
-            );
-
-            if (updatedProduct) {
-              // Zamknij child rows jeśli były otwarte
-              const parentTr = $(row.node());
-              if (parentTr.hasClass("shown")) {
-                parentTr.nextUntil(":not(.child-row)").remove();
-                parentTr.removeClass("shown");
-              }
-
-              // Re-normalizuj dane produktu
-              const normalizedProduct = normalizeRowsForSelectedOrder([updatedProduct])[0];
-              row.data(normalizedProduct);
-
-              // Aktualizuj klasę details-control w zależności od liczby wariantów do wyświetlenia
-              let proposalsToRenderCount;
-              if (selectedOrderId && normalizedProduct?._variantMatches) {
-                proposalsToRenderCount = normalizedProduct._variantMatches.length;
-              } else {
-                const proposals = safeArr(normalizedProduct?.potentialMatches);
-                proposalsToRenderCount = proposals.length > 1 ? proposals.length - 1 : 0;
-              }
-
-              if (proposalsToRenderCount > 0) {
-                parentTr.find("td:first").addClass("details-control");
-              } else {
-                parentTr.find("td:first").removeClass("details-control");
-              }
-
-              refreshFiltersAfterUpdate();
-            }
-
-            displayMessage("Success", "Produkt został połączony");
-          })
-          .catch(function (error) {
-            console.error("Link error:", error);
-            const msg =
-              error.responseJSON?.message || "Nie udało się połączyć produktu";
-            displayMessage("Error", msg);
-            btn.prop("disabled", false).css("opacity", "1");
-          });
-      });
-
-    // Event: Rozłącz produkt
-    $(document)
-      .off("click.delivery", ".unlink-btn")
-      .on("click.delivery", ".unlink-btn", function () {
-        const btn = $(this);
-        const tr = btn.closest("tr");
-        const row = deliveryTable.row(tr);
-        const rowData = row.data();
-
-        const productId = btn.data("product-id");
-        const linkedId = btn.data("linked-id");
-        const gtin = rowData?.gtin;
-
-        console.log("UNLINK", { recadvId, productId, linkedId, gtin });
-
-        btn.prop("disabled", true).css("opacity", "0.5");
-
-        unlinkRecadvProduct(recadvId, productId, linkedId)
-          .then(function () {
-            // Pobierz świeże dane z potentialMatches
-            const dateParams = getDateRangeParams();
-            return $.ajax({
-              type: "GET",
-              url:
-                InvokeURL +
-                "van/recadvs/" +
-                encodeURIComponent(recadvId) +
-                "/products?" + dateParams,
-              headers: {
-                Authorization: orgToken,
-                "Requested-By": "webflow-3-4",
-              },
-              data: {
-                gtin: gtin,
-              },
-            });
-          })
-          .then(function (response) {
-            const updatedProduct = safeArr(response?.items).find(
-              (item) => item.id === productId,
-            );
-
-            if (updatedProduct) {
-              const parentTr = $(row.node());
-
-              // Re-normalizuj dane produktu
-              const normalizedProduct = normalizeRowsForSelectedOrder([updatedProduct])[0];
-              row.data(normalizedProduct);
-
-              // Aktualizuj klasę details-control w zależności od liczby wariantów do wyświetlenia
-              let proposalsToRenderCount;
-              if (selectedOrderId && normalizedProduct?._variantMatches) {
-                proposalsToRenderCount = normalizedProduct._variantMatches.length;
-              } else {
-                const proposals = safeArr(normalizedProduct?.potentialMatches);
-                proposalsToRenderCount = proposals.length > 1 ? proposals.length - 1 : 0;
-              }
-
-              if (proposalsToRenderCount > 0) {
-                parentTr.find("td:first").addClass("details-control");
-              } else {
-                parentTr.find("td:first").removeClass("details-control");
-              }
-
-              refreshFiltersAfterUpdate();
-            }
-
-            displayMessage("Success", "Powiązanie zostało usunięte");
-          })
-          .catch(function (error) {
-            console.error("Unlink error:", error);
-            const msg =
-              error.responseJSON?.message || "Nie udało się rozłączyć produktu";
-            displayMessage("Error", msg);
-            btn.prop("disabled", false).css("opacity", "1");
-          });
-      });
+    // Synchronizacja checkboxów i toolbara przy każdym renderze tabeli
+    deliveryTable.on("draw.dt", function () {
+      syncSelectAllCheckbox();
+      updateBulkToolbar();
+    });
 
     // === FILTR DNI (nad filtrami statusów) ===
     renderDaysFilter("days-filter");
