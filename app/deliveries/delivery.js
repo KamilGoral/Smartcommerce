@@ -1630,6 +1630,31 @@ whenReadyAndDataTables(function () {
         .dataTables_scrollBody {
           overflow-y: scroll !important;
         }
+        .dataTables_wrapper {
+          width: 100% !important;
+          overflow: hidden;
+        }
+        .dataTables_scroll {
+          width: 100% !important;
+          overflow: hidden;
+        }
+        .dataTables_scrollHead,
+        .dataTables_scrollFoot {
+          width: 100% !important;
+          overflow: hidden !important;
+        }
+        .dataTables_scrollHeadInner,
+        .dataTables_scrollFootInner {
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        .dataTables_scrollHeadInner > table,
+        .dataTables_scrollFootInner > table {
+          width: 100% !important;
+        }
+        .dataTables_scrollBody > table {
+          width: 100% !important;
+        }
       `;
       document.head.appendChild(style);
     }
