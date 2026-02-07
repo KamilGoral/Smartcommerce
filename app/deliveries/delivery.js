@@ -2152,14 +2152,17 @@ whenReadyAndDataTables(function () {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Click na przycisk filtra
+    // Click na przycisk filtra (ignoruj order dropdown wrapper)
     container.addEventListener("click", function (e) {
-      const btn = e.target.closest(".status-filter-btn");
-      if (!btn) return;
+      // Ignoruj kliknięcia w order dropdown
+      if (e.target.closest(".order-dropdown-wrapper")) return;
 
-      // Update active state
+      const btn = e.target.closest(".status-filter-btn");
+      if (!btn || !btn.dataset.filter) return;
+
+      // Update active state (tylko buttony z data-filter)
       container
-        .querySelectorAll(".status-filter-btn")
+        .querySelectorAll(".status-filter-btn[data-filter]")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
