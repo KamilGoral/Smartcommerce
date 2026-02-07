@@ -924,10 +924,10 @@ whenReadyAndDataTables(function () {
       const varChecked = selectionState.variantRows.has(varKey) ? " checked" : "";
       return `
       <tr class="child-row" style="background: #f9fafb;">
-        <td style="padding: 8px; text-align: center;">
+        <td style="text-align:center;vertical-align:middle;padding:4px 2px;width:28px;">
           <input type="checkbox" class="bulk-cb-variant" data-parent-id="${parent?.id}" data-match-id="${matchId}" data-match-qty="${orderedQty}"${varChecked} />
         </td>
-        <td style="padding: 8px;"></td>
+        <td style="padding:4px 2px;width:28px;"></td>
         <td style="padding: 8px;">
           <div style="display: flex; align-items: center; gap: 8px; padding-left: 20px;">
             <span style="color: #9ca3af;">↳</span>
@@ -1053,21 +1053,21 @@ whenReadyAndDataTables(function () {
     const s = document.createElement("style");
     s.id = "dh-bulk-styles";
     s.textContent = `
-      #bulk-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:10px;gap:12px;flex-wrap:wrap;min-height:40px;transition:background .2s,border-color .2s}
-      #bulk-toolbar.has-selection{background:#eff6ff;border-color:#bfdbfe}
-      .bulk-toolbar-left{display:flex;align-items:center;gap:8px}
-      .bulk-toolbar-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-      .bulk-counter{font-size:13px;color:#64748b;font-weight:500;white-space:nowrap}
+      #bulk-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:4px 0;gap:10px;background:transparent;border:none;min-height:28px}
+      .bulk-counter{font-size:12px;color:#94a3b8;font-weight:500;white-space:nowrap;transition:color .2s}
       #bulk-toolbar.has-selection .bulk-counter{color:#1e40af}
-      .bulk-action-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.4}
-      .bulk-action-btn:disabled{opacity:.4;cursor:not-allowed}
+      .bulk-action-btn{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.3}
+      .bulk-action-btn:disabled{opacity:.35;cursor:not-allowed}
       .bulk-action-btn:not(:disabled):hover{background:#f3f4f6}
       .bulk-btn-primary{color:#2563eb;border-color:#93c5fd}
       .bulk-btn-primary:not(:disabled):hover{background:#eff6ff}
       .bulk-btn-danger{color:#dc2626;border-color:#fca5a5}
       .bulk-btn-danger:not(:disabled):hover{background:#fef2f2}
-      .bulk-cb-main,.bulk-cb-variant{width:16px;height:16px;cursor:pointer;accent-color:#2563eb;margin:0}
-      .bulk-select-cell{text-align:center!important;vertical-align:middle!important}
+      .bulk-cb-main,.bulk-cb-variant{width:14px;height:14px;cursor:pointer;accent-color:#2563eb;margin:0}
+      .bulk-select-cell,.expand-control-cell{text-align:center!important;vertical-align:middle!important;padding:4px 2px!important;width:28px!important;max-width:28px!important}
+      td.details-control{cursor:pointer}
+      td.details-control::before{content:"\\203A";display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
+      tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
       .bulk-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;padding:12px 20px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;flex-direction:column;gap:6px;min-width:320px;max-width:500px;animation:bulkToastIn .3s ease}
       @keyframes bulkToastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
       .bulk-toast-content{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -1089,13 +1089,9 @@ whenReadyAndDataTables(function () {
     const toolbar = document.createElement("div");
     toolbar.id = "bulk-toolbar";
     toolbar.innerHTML = `
-      <div class="bulk-toolbar-left">
-        <span id="bulk-counter" class="bulk-counter">Zaznaczono: 0</span>
-      </div>
-      <div class="bulk-toolbar-right">
-        <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
-        <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
-      </div>
+      <span id="bulk-counter" class="bulk-counter">Zaznaczono: 0</span>
+      <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
+      <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
     `;
 
     const wrapper = document.querySelector("#table_delivery_wrapper");
@@ -2887,7 +2883,7 @@ whenReadyAndDataTables(function () {
           data: null,
           orderable: false,
           searchable: false,
-          width: "36px",
+          width: "28px",
           className: "bulk-select-cell",
           title: '<input type="checkbox" id="bulk-select-all" title="Zaznacz wszystkie (główne)" />',
           render: function (data, type, row) {
@@ -2903,7 +2899,8 @@ whenReadyAndDataTables(function () {
           data: null,
           orderable: false,
           defaultContent: "",
-          width: "20px",
+          width: "28px",
+          className: "expand-control-cell",
           createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
             // Użyj _variantMatches jeśli dostępne, w przeciwnym razie oblicz
             let variantCount;
@@ -2919,7 +2916,7 @@ whenReadyAndDataTables(function () {
             }
           },
         },
-        // Kolumna 1 - Produkt
+        // Kolumna 2 - Produkt
         {
           data: null,
           orderable: true,
