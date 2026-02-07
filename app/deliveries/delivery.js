@@ -1261,10 +1261,13 @@ whenReadyAndDataTables(function () {
 
     const orderCount = orderIds.length;
     dropdownWrapper.innerHTML = `
-      <select id="order-filter-select" class="dh-order-select">
-        <option value="">Wszystkie zamówienia (${orderCount})</option>
-        ${options}
-      </select>
+      <div class="status-filter-btn" style="cursor: pointer;">
+        <select id="order-filter-select" class="dh-order-select">
+          <option value="">Wszystkie zamówienia</option>
+          ${options}
+        </select>
+        <span class="filter-count">${orderCount}</span>
+      </div>
     `;
   }
 
@@ -1994,26 +1997,19 @@ whenReadyAndDataTables(function () {
           -webkit-appearance: none;
           -moz-appearance: none;
           appearance: none;
-          padding: 6px 28px 6px 14px;
-          border: 1px solid #e5e7eb;
-          border-radius: 999px;
-          font-size: 13px;
-          font-weight: 500;
+          border: none;
+          background: transparent;
+          font-size: inherit;
+          font-weight: inherit;
           font-family: inherit;
+          color: inherit;
           cursor: pointer;
-          background: #fff url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
-          color: #374151;
-          transition: all 0.15s;
-          white-space: nowrap;
-        }
-        .dh-order-select:hover {
-          background-color: #f9fafb;
-          border-color: #d1d5db;
-        }
-        .dh-order-select:focus {
+          padding: 0 16px 0 0;
+          margin: 0;
           outline: none;
-          border-color: #93c5fd;
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+          background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0 center;
         }
       `;
       document.head.appendChild(style);
