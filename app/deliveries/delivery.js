@@ -1023,9 +1023,6 @@ whenReadyAndDataTables(function () {
     const selectAll = document.getElementById("bulk-select-all");
     if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
     updateBulkToolbar();
-    if (!silent) {
-      displayMessage("Success", "Wyczyszczono zaznaczenie");
-    }
   }
 
   function getSelectionCounts() {
@@ -1053,6 +1050,7 @@ whenReadyAndDataTables(function () {
     const s = document.createElement("style");
     s.id = "dh-bulk-styles";
     s.textContent = `
+      .dataTables_scrollBody>table>thead{visibility:collapse!important;height:0!important;line-height:0!important;overflow:hidden!important}
       #bulk-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:4px 0;gap:10px;background:transparent;border:none;min-height:28px}
       .bulk-counter{font-size:12px;color:#94a3b8;font-weight:500;white-space:nowrap;transition:color .2s}
       #bulk-toolbar.has-selection .bulk-counter{color:#1e40af}
@@ -1063,18 +1061,13 @@ whenReadyAndDataTables(function () {
       .bulk-btn-primary:not(:disabled):hover{background:#eff6ff}
       .bulk-btn-danger{color:#dc2626;border-color:#fca5a5}
       .bulk-btn-danger:not(:disabled):hover{background:#fef2f2}
+      .bulk-btn-undo{color:#6b7280;border-color:#d1d5db}
+      .bulk-btn-undo:not(:disabled):hover{background:#f9fafb;color:#374151}
       .bulk-cb-main,.bulk-cb-variant{width:14px;height:14px;cursor:pointer;accent-color:#2563eb;margin:0}
       .bulk-select-cell,.expand-control-cell{text-align:center!important;vertical-align:middle!important;padding:4px 2px!important;width:28px!important;max-width:28px!important}
       td.details-control{cursor:pointer}
       td.details-control::before{content:"\\203A";display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
       tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
-      .bulk-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;padding:12px 20px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;flex-direction:column;gap:6px;min-width:320px;max-width:500px;animation:bulkToastIn .3s ease}
-      @keyframes bulkToastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-      .bulk-toast-content{display:flex;align-items:center;justify-content:space-between;gap:12px}
-      .bulk-toast-text{font-size:13px;font-weight:500}
-      .bulk-undo-btn{background:#3b82f6;color:#fff;border:none;padding:4px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit}
-      .bulk-undo-btn:hover{background:#2563eb}
-      .bulk-toast-progress{height:3px;background:#3b82f6;border-radius:2px;transition:none}
     `;
     document.head.appendChild(s);
   }
@@ -1092,6 +1085,7 @@ whenReadyAndDataTables(function () {
       <span id="bulk-counter" class="bulk-counter">Zaznaczono: 0</span>
       <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
       <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
+      <button id="bulk-undo-btn" class="bulk-action-btn bulk-btn-undo" style="display:none">Cofnij</button>
     `;
 
     const wrapper = document.querySelector("#table_delivery_wrapper");
@@ -1122,7 +1116,7 @@ whenReadyAndDataTables(function () {
       toolbar.classList.add("has-selection");
     }
 
-    const btns = toolbar.querySelectorAll(".bulk-action-btn");
+    const btns = toolbar.querySelectorAll(".bulk-action-btn:not(#bulk-undo-btn)");
     btns.forEach(function (btn) { btn.disabled = c.total === 0; });
   }
 
@@ -1166,6 +1160,13 @@ whenReadyAndDataTables(function () {
     // Toolbar buttons
     $(document).on("click.delivery", "#bulk-link-btn", function () { if (!this.disabled) executeBulkLink(); });
     $(document).on("click.delivery", "#bulk-unlink-btn", function () { if (!this.disabled) executeBulkUnlink(); });
+    $(document).on("click.delivery", "#bulk-undo-btn", function () {
+      if (lastUndoStack && lastUndoStack.length > 0) {
+        this.style.display = "none";
+        executeBulkUndo(lastUndoStack);
+        lastUndoStack = null;
+      }
+    });
   }
 
   // ============================================
@@ -1237,7 +1238,7 @@ whenReadyAndDataTables(function () {
       deliveryTable.ajax.reload(function () { refreshFiltersAfterUpdate(); resolve(); }, false);
     });
     clearAllSelections(true);
-    showBulkResultToast("Połączono", success, skipped, failed, undoStack);
+    showBulkResult("Połączono", success, skipped, failed, undoStack);
   }
 
   async function executeBulkUnlink() {
@@ -1288,7 +1289,7 @@ whenReadyAndDataTables(function () {
       deliveryTable.ajax.reload(function () { refreshFiltersAfterUpdate(); resolve(); }, false);
     });
     clearAllSelections(true);
-    showBulkResultToast("Rozłączono", success, skipped, failed, []);
+    showBulkResult("Rozłączono", success, skipped, failed, []);
   }
 
   function findRowDataById(rowId) {
@@ -1302,54 +1303,27 @@ whenReadyAndDataTables(function () {
   }
 
   // ============================================
-  // Bulk Toast with Undo
+  // Bulk Result + Undo (inline w toolbar)
   // ============================================
-  let bulkToastTimer = null;
+  let lastUndoStack = null;
 
-  function showBulkResultToast(actionLabel, success, skipped, failed, undoStack) {
-    const existing = document.getElementById("bulk-toast");
-    if (existing) existing.remove();
-    if (bulkToastTimer) clearTimeout(bulkToastTimer);
-
-    let text = "✅ " + actionLabel + " " + success + " pozycji.";
+  function showBulkResult(actionLabel, success, skipped, failed, undoStack) {
+    let text = actionLabel + " " + success + " pozycji.";
     if (skipped > 0) text += " Pominięto " + skipped + ".";
     if (failed > 0) text += " Błędów: " + failed + ".";
 
-    const toast = document.createElement("div");
-    toast.id = "bulk-toast";
-    toast.className = "bulk-toast";
+    displayMessage(failed > 0 ? "Error" : "Success", text);
 
-    const hasUndo = undoStack && undoStack.length > 0 && failed === 0;
-    toast.innerHTML = `
-      <div class="bulk-toast-content">
-        <span class="bulk-toast-text">${text}</span>
-        ${hasUndo ? '<button class="bulk-undo-btn" id="bulk-undo-btn">Cofnij</button>' : ""}
-      </div>
-      <div class="bulk-toast-progress" style="width:100%"></div>
-    `;
-    document.body.appendChild(toast);
-
-    // Animate progress bar
-    const bar = toast.querySelector(".bulk-toast-progress");
-    if (bar) {
-      requestAnimationFrame(function () {
-        bar.style.transition = "width 10s linear";
-        bar.style.width = "0%";
-      });
-    }
-
-    bulkToastTimer = setTimeout(function () {
-      const t = document.getElementById("bulk-toast");
-      if (t) t.remove();
-    }, 10500);
-
-    if (hasUndo) {
-      $(document).off("click.bulkundo").on("click.bulkundo", "#bulk-undo-btn", function () {
-        if (bulkToastTimer) clearTimeout(bulkToastTimer);
-        const t = document.getElementById("bulk-toast");
-        if (t) t.remove();
-        executeBulkUndo(undoStack);
-      });
+    // Pokaż/ukryj przycisk "Cofnij" w toolbarze
+    const undoBtn = document.getElementById("bulk-undo-btn");
+    if (undoBtn) {
+      if (undoStack && undoStack.length > 0 && failed === 0) {
+        lastUndoStack = undoStack;
+        undoBtn.style.display = "";
+      } else {
+        lastUndoStack = null;
+        undoBtn.style.display = "none";
+      }
     }
   }
 
