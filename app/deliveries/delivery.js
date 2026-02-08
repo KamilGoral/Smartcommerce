@@ -2722,34 +2722,46 @@ whenReadyAndDataTables(function () {
     }
   }
 
+  // Definicja kolumn tabeli (jedno źródło prawdy)
+  const TABLE_COLUMNS = [
+    { th: "", /* checkbox */ },
+    { th: "", /* expand */ },
+    { th: "Produkt" },
+    { th: "Weryfikacja" },
+    { th: "R\u00f3\u017cnica warto\u015bci" },
+    { th: "Dokument zam\u00f3wienia" },
+    { th: "Status" },
+  ];
+
   function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
     // 1) jeśli już stoi – ubij i wyczyść
     if ($.fn.DataTable.isDataTable("#table_delivery")) {
       $("#table_delivery").DataTable().clear().destroy();
-      $("#table_delivery tbody").empty();
     }
 
     // 2) zdejmij poprzednie eventy (unikasz dubli)
     $("#table_delivery tbody").off(".delivery");
     $(document).off(".delivery");
 
-    // 3) Przebuduj thead na 7 kolumn (zgodnie z Webflow HTML)
-    var thead = $("#table_delivery thead tr");
-    thead.empty().append(
-      '<th></th><th></th><th>Produkt</th><th>Weryfikacja</th><th>Warto\u015b\u0107</th><th>Dokument zam\u00f3wienia</th><th>Status</th>'
-    );
-
-    // 3b) Dodaj tfoot jeśli nie istnieje (potrzebne dla footerCallback)
-    if (!$("#table_delivery tfoot").length) {
-      const colCount = $("#table_delivery thead th").length || 7;
-      const cells = Array(colCount).fill('<td></td>').join('');
-      $("#table_delivery").append(`<tfoot><tr>${cells}</tr></tfoot>`);
+    // 3) Utwórz <table> w #table-container (lub przebuduj istniejącą)
+    var container = document.getElementById("table-container");
+    if (!container) {
+      console.error("Brak #table-container w HTML");
+      return;
     }
+    var colCount = TABLE_COLUMNS.length;
+    var thCells = TABLE_COLUMNS.map(function (c) { return "<th>" + c.th + "</th>"; }).join("");
+    var tdCells = Array(colCount).fill("<td></td>").join("");
+    container.innerHTML =
+      '<table id="table_delivery" class="display dataTable" style="width:100%">' +
+        "<thead><tr>" + thCells + "</tr></thead>" +
+        "<tfoot><tr>" + tdCells + "</tr></tfoot>" +
+      "</table>";
 
     // 4) inicjalizacja
     deliveryTable = $("#table_delivery").DataTable({
       pagingType: "full_numbers",
-      lengthMenu: [10, 25, 50, 100],
+      lengthMenu: [25, 50, 100, 200],
       pageLength: 25,
       order: [
         [6, "asc"],
