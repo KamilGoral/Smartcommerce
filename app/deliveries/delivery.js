@@ -805,27 +805,11 @@ whenReadyAndDataTables(function () {
         sort: 40,
       };
     }
-    if (qtyDiffNonZero && valueDiffNonZero) {
-      return {
-        key: "diff_both",
-        label: "Rozbieżność il./wart.",
-        badge: "badge badge--danger",
-        sort: 60,
-      };
-    }
-    if (qtyDiffNonZero) {
-      return {
-        key: "diff_qty",
-        label: "Rozbieżność ilościowa",
-        badge: "badge badge--warn",
-        sort: 50,
-      };
-    }
     return {
-      key: "diff_value",
-      label: "Rozbieżność wartościowa",
-      badge: "badge badge--warn2",
-      sort: 55,
+      key: "diff",
+      label: "Rozbieżność",
+      badge: "badge badge--warn",
+      sort: 50,
     };
   }
 
@@ -1339,7 +1323,7 @@ whenReadyAndDataTables(function () {
       const rowData = findRowDataById(rowId);
       if (!rowData) return;
       const state = computeRowState(rowData);
-      if (!["matched", "diff_qty", "diff_value", "diff_both"].includes(state.key)) { skipped++; return; }
+      if (!["matched", "diff"].includes(state.key)) { skipped++; return; }
 
       let linked = null;
       if (selectedOrderId && rowData._primaryMatch && !rowData._isPrimaryProposal) {
@@ -2425,12 +2409,7 @@ whenReadyAndDataTables(function () {
     { key: "all", label: "Wszystkie pozycje", badge: null },
     { key: "matched", label: "Dopasowane", badge: "badge--success" },
     { key: "proposal", label: "Do weryfikacji", badge: "badge--info" },
-    {
-      key: "diff",
-      label: "Rozbieżności",
-      badge: "badge--warn",
-      includes: ["diff_qty", "diff_value", "diff_both"],
-    },
+    { key: "diff", label: "Rozbieżności", badge: "badge--warn" },
     { key: "unmatched", label: "Brak dopasowania", badge: "badge--muted" },
   ];
 
@@ -2505,9 +2484,7 @@ whenReadyAndDataTables(function () {
       all: 0,
       matched: 0,
       proposal: 0,
-      diff_qty: 0,
-      diff_value: 0,
-      diff_both: 0,
+      diff: 0,
       unmatched: 0,
       invalid: 0,
     };
@@ -2559,18 +2536,7 @@ whenReadyAndDataTables(function () {
       );
       if (!countEl) return;
 
-      let count;
-      if (filter.key === "all") {
-        count = counts.all;
-      } else if (filter.includes) {
-        // Sumuj wiele statusów (np. dla "Rozbieżności" = diff_qty + diff_value + diff_both)
-        count = filter.includes.reduce(
-          (sum, key) => sum + (counts[key] || 0),
-          0,
-        );
-      } else {
-        count = counts[filter.key] || 0;
-      }
+      var count = counts[filter.key] || 0;
 
       countEl.textContent = count;
     });
@@ -2592,16 +2558,13 @@ whenReadyAndDataTables(function () {
     }
 
     if (filterKey !== "all") {
-      const filterConfig = STATUS_FILTERS.find((f) => f.key === filterKey);
-      const keysToMatch = filterConfig?.includes || [filterKey];
-
       currentFilterFn = function (settings, data, dataIndex) {
         // Upewnij się że to nasza tabela
         if (settings.nTable.id !== "table_delivery") return true;
 
         const rowData = table.row(dataIndex).data();
         const state = computeRowState(rowData);
-        return keysToMatch.includes(state.key);
+        return state.key === filterKey;
       };
 
       $.fn.dataTable.ext.search.push(currentFilterFn);
