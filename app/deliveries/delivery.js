@@ -875,15 +875,16 @@ whenReadyAndDataTables(function () {
     return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
   }
 
-  // ---------- kolumna Niezgodności — renderery ----------
+  // ---------- kolumny Weryfikacja + Wartość — renderery ----------
 
-  function renderNiezgodnosci(row, type) {
-    const deliveredQty = sumQty(row?.segments);
-    const deliveredPrice = avgPriceWeighted(row?.segments);
-    let orderedQty = 0;
-    let orderedPrice = null;
-    let isProposal = false;
-    let hasMatch = false;
+  // Wspólna logika wyciągania danych zamówienia z wiersza
+  function extractOrderData(row) {
+    var deliveredQty = sumQty(row?.segments);
+    var deliveredPrice = avgPriceWeighted(row?.segments);
+    var orderedQty = 0;
+    var orderedPrice = null;
+    var isProposal = false;
+    var hasMatch = false;
 
     if (selectedOrderId && row?._primaryMatch) {
       orderedQty = sumQty(row._primaryMatch?.segments);
@@ -891,8 +892,8 @@ whenReadyAndDataTables(function () {
       isProposal = !!row._isPrimaryProposal;
       hasMatch = true;
     } else {
-      const linked = safeArr(row?.linkedOrderProducts);
-      const proposals = safeArr(row?.potentialMatches);
+      var linked = safeArr(row?.linkedOrderProducts);
+      var proposals = safeArr(row?.potentialMatches);
 
       if (linked.length) {
         orderedQty = linked.reduce(function (acc, p) { return acc + sumQty(p?.segments); }, 0);
@@ -906,61 +907,93 @@ whenReadyAndDataTables(function () {
       }
     }
 
-    if (!hasMatch) {
+    return { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: isProposal, hasMatch: hasMatch };
+  }
+
+  // Oblicz różnice na podstawie danych
+  function computeDiffs(d) {
+    var qtyDiff = roundQty(d.deliveredQty - d.orderedQty);
+    var priceDiff = (d.deliveredPrice !== null && d.orderedPrice !== null) ? d.orderedPrice - d.deliveredPrice : 0;
+    var deliveredValue = d.deliveredPrice === null ? 0 : d.deliveredQty * d.deliveredPrice;
+    var orderedValue = d.orderedPrice === null ? 0 : d.orderedQty * d.orderedPrice;
+    var totalDiff = orderedValue - deliveredValue;
+    var hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
+    var hasPriceDiff = Math.abs(priceDiff) > 0.000001;
+    return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
+  }
+
+  // Tooltip z surowymi danymi
+  function buildTooltip(d) {
+    return "Dost: " + fmtQty(d.deliveredQty) + " szt. \u00d7 " + (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-") + "/szt. | Zam: " + fmtQty(d.orderedQty) + " szt. \u00d7 " + (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-") + "/szt.";
+  }
+
+  // Kolumna „Weryfikacja" — badge-e niezgodności
+  function renderWeryfikacja(row, type) {
+    var d = extractOrderData(row);
+    if (!d.hasMatch) {
       if (type === "sort" || type === "type") return 0;
       return '<span class="muted">\u2014</span>';
     }
-
-    return buildNiezgodnosciHtml(deliveredQty, deliveredPrice, orderedQty, orderedPrice, isProposal, type);
+    var diffs = computeDiffs(d);
+    // Sort: 0 = zgodne, 1 = niezgodne (żeby niezgodne były na górze przy asc)
+    if (type === "sort" || type === "type") return (diffs.hasQtyDiff || diffs.hasPriceDiff) ? 1 : 0;
+    return buildWeryfikacjaHtml(d, diffs);
   }
 
-  function renderChildNiezgodnosci(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
-    return buildNiezgodnosciHtml(deliveredQty, deliveredPrice, orderedQty, orderedPrice, true, "display");
-  }
+  function buildWeryfikacjaHtml(d, diffs) {
+    var tooltip = buildTooltip(d);
+    var italicStyle = d.isProposal ? " font-style:italic;" : "";
 
-  function buildNiezgodnosciHtml(deliveredQty, deliveredPrice, orderedQty, orderedPrice, isProposal, type) {
-    const qtyDiff = roundQty(deliveredQty - orderedQty);
-    const priceDiff = (deliveredPrice !== null && orderedPrice !== null) ? orderedPrice - deliveredPrice : 0;
-
-    const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
-    const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
-    const totalDiff = orderedValue - deliveredValue;
-
-    const hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
-    const hasPriceDiff = Math.abs(priceDiff) > 0.000001;
-
-    if (type === "sort" || type === "type") return Math.abs(totalDiff);
-
-    // Tooltip z surowymi danymi
-    const dQty = fmtQty(deliveredQty);
-    const dPrice = deliveredPrice !== null ? fmtPLN(deliveredPrice) : "-";
-    const oQty = fmtQty(orderedQty);
-    const oPrice = orderedPrice !== null ? fmtPLN(orderedPrice) : "-";
-    const tooltip = "Dost: " + dQty + " szt. \u00d7 " + dPrice + "/szt. | Zam: " + oQty + " szt. \u00d7 " + oPrice + "/szt.";
-
-    const italicStyle = isProposal ? " font-style:italic;" : "";
-
-    if (!hasQtyDiff && !hasPriceDiff) {
+    if (!diffs.hasQtyDiff && !diffs.hasPriceDiff) {
       return '<span class="nz-ok" style="' + italicStyle + '" title="' + escapeHtml(tooltip) + '">\u2713 Zgodne</span>';
     }
 
     var parts = [];
-    if (hasQtyDiff) {
-      var sign = qtyDiff > 0 ? "+" : "";
-      parts.push('<span class="nz-badge">\uD83D\uDCE6 ' + sign + roundQty(qtyDiff) + ' szt.</span>');
+    if (diffs.hasQtyDiff) {
+      var sign = diffs.qtyDiff > 0 ? "+" : "";
+      parts.push('<span class="nz-badge">\uD83D\uDCE6 ' + sign + roundQty(diffs.qtyDiff) + ' szt.</span>');
     }
-    if (hasPriceDiff) {
-      var pSign = priceDiff > 0 ? "+" : "";
-      parts.push('<span class="nz-badge">\uD83D\uDCB0 ' + pSign + fmtPLN(priceDiff) + '/szt.</span>');
+    if (diffs.hasPriceDiff) {
+      var pSign = diffs.priceDiff > 0 ? "+" : "";
+      parts.push('<span class="nz-badge">\uD83D\uDCB0 ' + pSign + fmtPLN(diffs.priceDiff) + '/szt.</span>');
     }
 
-    var impactSign = totalDiff > 0 ? "+" : "";
-    var impactColor = totalDiff > 0 ? "#16a34a" : "#dc2626";
+    return '<span style="' + italicStyle + '" title="' + escapeHtml(tooltip) + '">' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</span>';
+  }
 
-    return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;' + italicStyle + '" title="' + escapeHtml(tooltip) + '">'
-      + '<span>' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</span>'
-      + '<span class="nz-impact" style="color:' + impactColor + '">Impact: ' + impactSign + fmtPLN(Math.abs(totalDiff)) + '</span>'
-      + '</div>';
+  // Kolumna „Wartość" — impact w PLN
+  function renderWartosc(row, type) {
+    var d = extractOrderData(row);
+    if (!d.hasMatch) {
+      if (type === "sort" || type === "type") return 0;
+      return '<span class="muted">\u2014</span>';
+    }
+    var diffs = computeDiffs(d);
+    if (type === "sort" || type === "type") return diffs.totalDiff;
+    return buildWartoscHtml(diffs, d.isProposal);
+  }
+
+  function buildWartoscHtml(diffs, isProposal) {
+    var italicStyle = isProposal ? " font-style:italic;" : "";
+    if (!diffs.hasQtyDiff && !diffs.hasPriceDiff) {
+      return '<span style="color:#6b7280;' + italicStyle + '">' + fmtPLN(0) + '</span>';
+    }
+    var sign = diffs.totalDiff > 0 ? "+" : "";
+    var color = diffs.totalDiff > 0 ? "#16a34a" : "#dc2626";
+    return '<span class="nz-impact" style="color:' + color + ';' + italicStyle + '">' + sign + fmtPLN(Math.abs(diffs.totalDiff)) + '</span>';
+  }
+
+  // Child row renderery
+  function renderChildWeryfikacja(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
+    var d = { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: true, hasMatch: true };
+    var diffs = computeDiffs(d);
+    return buildWeryfikacjaHtml(d, diffs);
+  }
+
+  function renderChildWartosc(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
+    var d = { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: true, hasMatch: true };
+    var diffs = computeDiffs(d);
+    return buildWartoscHtml(diffs, true);
   }
 
   // ---------- child row render (warianty/propozycje) ----------
@@ -991,8 +1024,11 @@ whenReadyAndDataTables(function () {
 
       const varKey = makeVariantKey(parent?.id, matchId);
       const varChecked = selectionState.variantRows.has(varKey) ? " checked" : "";
-      const nzHtml = orderedQty > 0
-        ? renderChildNiezgodnosci(deliveredQty, deliveredPrice, orderedQty, orderedPrice)
+      const werHtml = orderedQty > 0
+        ? renderChildWeryfikacja(deliveredQty, deliveredPrice, orderedQty, orderedPrice)
+        : '<span class="muted" style="font-style:italic;">\u2014</span>';
+      const valHtml = orderedQty > 0
+        ? renderChildWartosc(deliveredQty, deliveredPrice, orderedQty, orderedPrice)
         : '<span class="muted" style="font-style:italic;">\u2014</span>';
       return `
       <tr class="child-row" style="background: #f9fafb;">
@@ -1006,7 +1042,8 @@ whenReadyAndDataTables(function () {
             <span style="font-weight: 400;">Wariant ${idx + 1}</span>
           </div>
         </td>
-        <td class="text-right nz-col" style="padding: 8px;">${nzHtml}</td>
+        <td class="text-right nz-col" style="padding: 8px;">${werHtml}</td>
+        <td class="text-right nz-col" style="padding: 8px;">${valHtml}</td>
         <td style="padding: 8px; font-style: italic;">
           ${
             orderId
@@ -2752,15 +2789,15 @@ whenReadyAndDataTables(function () {
     $("#table_delivery tbody").off(".delivery");
     $(document).off(".delivery");
 
-    // 3) Przebuduj thead na 6 kolumn (Webflow HTML może mieć więcej th)
+    // 3) Przebuduj thead na 7 kolumn (zgodnie z Webflow HTML)
     var thead = $("#table_delivery thead tr");
     thead.empty().append(
-      '<th></th><th></th><th>Produkt</th><th>Niezgodności</th><th>Dokument zam.</th><th>Status</th>'
+      '<th></th><th></th><th>Produkt</th><th>Weryfikacja</th><th>Warto\u015b\u0107</th><th>Dokument zam\u00f3wienia</th><th>Status</th>'
     );
 
     // 3b) Dodaj tfoot jeśli nie istnieje (potrzebne dla footerCallback)
     if (!$("#table_delivery tfoot").length) {
-      const colCount = $("#table_delivery thead th").length || 6;
+      const colCount = $("#table_delivery thead th").length || 7;
       const cells = Array(colCount).fill('<td></td>').join('');
       $("#table_delivery").append(`<tfoot><tr>${cells}</tr></tfoot>`);
     }
@@ -2771,9 +2808,9 @@ whenReadyAndDataTables(function () {
       lengthMenu: [10, 25, 50, 100],
       pageLength: 25,
       order: [
-        [5, "asc"],
+        [6, "asc"],
         [2, "asc"],
-      ], // Sortuj najpierw po statusie (kol. 5), potem po nazwie produktu (kol. 2)
+      ], // Sortuj najpierw po statusie (kol. 6), potem po nazwie produktu (kol. 2)
       dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
@@ -2782,7 +2819,7 @@ whenReadyAndDataTables(function () {
       footerCallback: function (row, data, start, end, display) {
         const api = this.api();
 
-        // Suma impactu (kolumna 3 Niezgodności) ze WSZYSTKICH przefiltrowanych wierszy
+        // Suma impactu (kolumna 4 Wartość) ze WSZYSTKICH przefiltrowanych wierszy
         const filteredRows = api.rows({ search: "applied" }).data().toArray();
         let totalValueDiff = 0;
 
@@ -2816,8 +2853,8 @@ whenReadyAndDataTables(function () {
           }
         });
 
-        // Wyświetl sumę impactu w kolumnie 3 (Niezgodności)
-        const footerCell = $(api.column(3).footer());
+        // Wyświetl sumę impactu w kolumnie 4 (Wartość)
+        const footerCell = $(api.column(4).footer());
         if (Math.abs(totalValueDiff) < 0.001) {
           footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
         } else {
@@ -2833,9 +2870,9 @@ whenReadyAndDataTables(function () {
         prodCell.css({ "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
 
         // Wyczyść i styluj pozostałe komórki footera
-        for (let i = 0; i <= 5; i++) {
+        for (let i = 0; i <= 6; i++) {
           const cell = $(api.column(i).footer());
-          if (i !== 2 && i !== 3) {
+          if (i !== 2 && i !== 4) {
             cell.html("");
           }
           cell.css({ "border-top": "2px solid #e5e7eb", "padding": "10px 8px" });
@@ -3001,18 +3038,27 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 3 - Niezgodności (zastępuje kolumny Ilość dost./zam., Różnica il., Cena dost./zam., Różnica wart.)
+        // Kolumna 3 - Weryfikacja (badge-e niezgodności: 📦 qty, 💰 price)
         {
           data: null,
           orderable: true,
           className: "text-right nz-col",
-          width: "220px",
           render: function (data, type, row) {
-            return renderNiezgodnosci(row, type);
+            return renderWeryfikacja(row, type);
           },
         },
 
-        // Kolumna 4 - Dokument zam.
+        // Kolumna 4 - Wartość (impact w PLN)
+        {
+          data: null,
+          orderable: true,
+          className: "text-right nz-col",
+          render: function (data, type, row) {
+            return renderWartosc(row, type);
+          },
+        },
+
+        // Kolumna 5 - Dokument zam.
         {
           data: null,
           orderable: true,
@@ -3051,7 +3097,7 @@ whenReadyAndDataTables(function () {
     `;
           },
         },
-        // Kolumna 5 - Status
+        // Kolumna 6 - Status
         {
           data: null,
           orderable: true,
