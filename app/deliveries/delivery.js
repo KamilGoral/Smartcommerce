@@ -922,9 +922,11 @@ whenReadyAndDataTables(function () {
     return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
   }
 
-  // Tooltip z surowymi danymi
-  function buildTooltip(d) {
-    return "Dost: " + fmtQty(d.deliveredQty) + " szt. \u00d7 " + (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-") + "/szt. | Zam: " + fmtQty(d.orderedQty) + " szt. \u00d7 " + (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-") + "/szt.";
+  // Drugi wiersz: zam.il×zam.cena → dost.il×dost.cena (styl jak GTIN)
+  function buildDetailLine(d) {
+    var zam = fmtQty(d.orderedQty) + "\u00d7" + (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-");
+    var dost = fmtQty(d.deliveredQty) + "\u00d7" + (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-");
+    return '<div class="nz-detail">(' + zam + ' \u2192 ' + dost + ')</div>';
   }
 
   // Kolumna „Weryfikacja" — badge-e niezgodności
@@ -941,11 +943,10 @@ whenReadyAndDataTables(function () {
   }
 
   function buildWeryfikacjaHtml(d, diffs) {
-    var tooltip = buildTooltip(d);
     var italicStyle = d.isProposal ? " font-style:italic;" : "";
 
     if (!diffs.hasQtyDiff && !diffs.hasPriceDiff) {
-      return '<span class="nz-ok" style="' + italicStyle + '" title="' + escapeHtml(tooltip) + '">\u2713 Zgodne</span>';
+      return '<div class="nz-cell" style="' + italicStyle + '"><div class="nz-ok">\u2713 Zgodne</div>' + buildDetailLine(d) + '</div>';
     }
 
     var parts = [];
@@ -959,7 +960,7 @@ whenReadyAndDataTables(function () {
       parts.push('<span class="nz-badge" style="color:' + pColor + '">' + pSign + fmtPLN(diffs.priceDiff) + '/szt.</span>');
     }
 
-    return '<span style="' + italicStyle + '" title="' + escapeHtml(tooltip) + '">' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</span>';
+    return '<div class="nz-cell" style="' + italicStyle + '"><div>' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</div>' + buildDetailLine(d) + '</div>';
   }
 
   // Kolumna „Wartość" — impact w PLN
@@ -1156,10 +1157,12 @@ whenReadyAndDataTables(function () {
       td.details-control{cursor:pointer}
       td.details-control::before{content:"\\203A";display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
       tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
-      .nz-col{white-space:nowrap}
-      .nz-badge{font-size:13px;font-weight:600}
+      .nz-col{vertical-align:middle}
+      .nz-cell{white-space:nowrap}
+      .nz-badge{font-weight:500}
+      .nz-detail{color:#6b7280;font-size:.85em;margin-top:1px;white-space:nowrap}
       .nz-impact{font-size:13px;font-weight:600}
-      .nz-ok{color:#16a34a;font-weight:600}
+      .nz-ok{color:#16a34a;font-weight:500}
       .status-col .badge{white-space:nowrap}
     `;
     document.head.appendChild(s);
