@@ -1148,7 +1148,7 @@ whenReadyAndDataTables(function () {
     // Select-all header checkbox
     $(document).on("change.delivery", "#bulk-select-all", function () {
       const checked = this.checked;
-      deliveryTable.rows({ search: "applied", page: "current" }).every(function () {
+      deliveryTable.rows({ search: "applied" }).every(function () {
         const data = this.data();
         if (!data?.id) return;
         if (checked) {
@@ -1169,59 +1169,19 @@ whenReadyAndDataTables(function () {
   }
 
   // ============================================
-  // Bulk Execution
+  // Bulk Execution (batch PATCH — jedna tablica operacji w jednym PATCH)
   // ============================================
-  async function executeBulkOperations(operations, actionLabel) {
-    const counter = document.getElementById("bulk-counter");
-    const btns = document.querySelectorAll(".bulk-action-btn");
-    btns.forEach(function (b) { b.disabled = true; });
-
-    let success = 0, failed = 0;
+  async function executeBulkLink() {
+    const patchOps = [];
     const undoStack = [];
-    const total = operations.length;
+    let skipped = 0;
 
-    for (let i = 0; i < total; i++) {
-      const op = operations[i];
-      if (counter) counter.textContent = "Przetwarzanie " + (i + 1) + "/" + total + "...";
-      try {
-        if (op.type === "link") {
-          await linkRecadvProduct(recadvId, op.productId, op.matchId, op.quantity);
-          undoStack.push({ type: "linked", productId: op.productId, gtin: op.gtin });
-          success++;
-        } else if (op.type === "unlink") {
-          await unlinkRecadvProduct(recadvId, op.productId, op.linkedId);
-          success++;
-        }
-      } catch (err) {
-        console.warn("Bulk op failed:", err);
-        failed++;
-      }
-    }
-
-    // Refresh table once
-    await new Promise(function (resolve) {
-      deliveryTable.ajax.reload(function () {
-        refreshFiltersAfterUpdate();
-        resolve();
-      }, false);
-    });
-
-    clearAllSelections(true);
-
-    const skipped = 0; // ops were already pre-filtered
-    showBulkResultToast(actionLabel, success, skipped, failed, undoStack);
-    return { success, failed };
-  }
-
-  function executeBulkLink() {
-    const operations = [];
-
-    // Main rows with status "proposal"
+    // Main rows — tylko "proposal" (Do weryfikacji), już połączone = skip
     selectionState.mainRows.forEach(function (rowId) {
       const rowData = findRowDataById(rowId);
       if (!rowData) return;
       const state = computeRowState(rowData);
-      if (state.key !== "proposal") return;
+      if (state.key !== "proposal") { skipped++; return; }
 
       let match = null;
       if (selectedOrderId && rowData._primaryMatch && rowData._isPrimaryProposal) {
@@ -1230,10 +1190,15 @@ whenReadyAndDataTables(function () {
         const proposals = safeArr(rowData?.potentialMatches);
         if (proposals.length > 0) match = proposals[0];
       }
-      if (!match) return;
+      if (!match) { skipped++; return; }
 
       const qty = match.matchableQty || sumQty(match?.segments) || sumQty(rowData?.segments);
-      operations.push({ type: "link", productId: rowData.id, matchId: match.id, quantity: qty, gtin: rowData.gtin });
+      patchOps.push({
+        op: "add",
+        path: "/" + rowData.id + "/linkedOrderProducts/-",
+        value: { orderProductId: match.id, quantity: qty },
+      });
+      undoStack.push({ type: "linked", productId: rowData.id, gtin: rowData.gtin });
     });
 
     // Variant rows
@@ -1241,24 +1206,49 @@ whenReadyAndDataTables(function () {
       const rowData = findRowDataById(data.parentId);
       if (!rowData) return;
       const qty = data.matchQty || sumQty(rowData?.segments);
-      operations.push({ type: "link", productId: data.parentId, matchId: data.matchId, quantity: qty, gtin: rowData?.gtin });
+      patchOps.push({
+        op: "add",
+        path: "/" + data.parentId + "/linkedOrderProducts/-",
+        value: { orderProductId: data.matchId, quantity: qty },
+      });
+      undoStack.push({ type: "linked", productId: data.parentId, gtin: rowData?.gtin });
     });
 
-    if (operations.length === 0) {
-      displayMessage("Error", "Brak pozycji do połączenia wśród zaznaczonych");
+    if (patchOps.length === 0) {
+      if (skipped > 0) displayMessage("Success", "Wszystkie zaznaczone pozycje są już połączone");
+      else displayMessage("Error", "Brak pozycji do połączenia wśród zaznaczonych");
       return;
     }
-    executeBulkOperations(operations, "Połączono");
+
+    const counter = document.getElementById("bulk-counter");
+    const btns = document.querySelectorAll(".bulk-action-btn");
+    btns.forEach(function (b) { b.disabled = true; });
+    if (counter) counter.textContent = "Łączenie " + patchOps.length + " pozycji...";
+
+    let success = patchOps.length, failed = 0;
+    try {
+      await batchPatchProducts(patchOps);
+    } catch (err) {
+      console.error("Batch link failed:", err);
+      failed = patchOps.length; success = 0;
+    }
+
+    await new Promise(function (resolve) {
+      deliveryTable.ajax.reload(function () { refreshFiltersAfterUpdate(); resolve(); }, false);
+    });
+    clearAllSelections(true);
+    showBulkResultToast("Połączono", success, skipped, failed, undoStack);
   }
 
-  function executeBulkUnlink() {
-    const operations = [];
+  async function executeBulkUnlink() {
+    const patchOps = [];
+    let skipped = 0;
 
     selectionState.mainRows.forEach(function (rowId) {
       const rowData = findRowDataById(rowId);
       if (!rowData) return;
       const state = computeRowState(rowData);
-      if (!["matched", "diff_qty", "diff_value", "diff_both"].includes(state.key)) return;
+      if (!["matched", "diff_qty", "diff_value", "diff_both"].includes(state.key)) { skipped++; return; }
 
       let linked = null;
       if (selectedOrderId && rowData._primaryMatch && !rowData._isPrimaryProposal) {
@@ -1267,18 +1257,38 @@ whenReadyAndDataTables(function () {
         const linkedArr = safeArr(rowData?.linkedOrderProducts);
         if (linkedArr.length > 0) linked = linkedArr[0];
       }
-      if (!linked) return;
+      if (!linked) { skipped++; return; }
 
-      operations.push({ type: "unlink", productId: rowData.id, linkedId: linked.id, gtin: rowData.gtin });
+      patchOps.push({
+        op: "remove",
+        path: "/" + rowData.id + "/linkedOrderProducts/" + linked.id,
+      });
     });
 
-    // Variants are always proposals — skip them for unlink
-
-    if (operations.length === 0) {
-      displayMessage("Error", "Brak pozycji do rozłączenia wśród zaznaczonych");
+    if (patchOps.length === 0) {
+      if (skipped > 0) displayMessage("Success", "Żadna zaznaczona pozycja nie jest połączona");
+      else displayMessage("Error", "Brak pozycji do rozłączenia wśród zaznaczonych");
       return;
     }
-    executeBulkOperations(operations, "Rozłączono");
+
+    const counter = document.getElementById("bulk-counter");
+    const btns = document.querySelectorAll(".bulk-action-btn");
+    btns.forEach(function (b) { b.disabled = true; });
+    if (counter) counter.textContent = "Rozłączanie " + patchOps.length + " pozycji...";
+
+    let success = patchOps.length, failed = 0;
+    try {
+      await batchPatchProducts(patchOps);
+    } catch (err) {
+      console.error("Batch unlink failed:", err);
+      failed = patchOps.length; success = 0;
+    }
+
+    await new Promise(function (resolve) {
+      deliveryTable.ajax.reload(function () { refreshFiltersAfterUpdate(); resolve(); }, false);
+    });
+    clearAllSelections(true);
+    showBulkResultToast("Rozłączono", success, skipped, failed, []);
   }
 
   function findRowDataById(rowId) {
@@ -2665,6 +2675,25 @@ whenReadyAndDataTables(function () {
       complete: function () {
         $("#waitingdots").hide();
       },
+    });
+  }
+
+  /**
+   * Batch PATCH — wysyła tablicę operacji JSON Patch w jednym PATCH request
+   * @param {Array} ops - tablica obiektów { op, path, value? }
+   */
+  function batchPatchProducts(ops) {
+    return $.ajax({
+      type: "PATCH",
+      url: InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products",
+      headers: {
+        Authorization: orgToken,
+        "Content-Type": "application/json",
+        "Requested-By": "webflow-3-4",
+      },
+      data: JSON.stringify(ops),
+      beforeSend: function () { $("#waitingdots").show(); },
+      complete: function () { $("#waitingdots").hide(); },
     });
   }
 
