@@ -755,12 +755,8 @@ whenReadyAndDataTables(function () {
     const isValid = rec?.valid === true;
 
     if (!isValid) {
-      return {
-        key: "invalid",
-        label: "Błędna",
-        badge: "badge badge--danger",
-        sort: 90,
-      };
+      return { key: "invalid", label: "Błędna", sort: 90,
+        bg: "#fef2f2", border: "#fca5a5", color: "#dc2626" };
     }
 
     // Status jest zawsze obliczany z oryginalnych danych serwera (nie zależy od filtra zamówienia)
@@ -769,24 +765,16 @@ whenReadyAndDataTables(function () {
 
     if (!hasLinked) {
       if (hasProposals) {
-        return {
-          key: "proposal",
-          label: "Do weryfikacji",
-          badge: "badge badge--info",
-          sort: 20,
-        };
+        return { key: "proposal", label: "Proponowane", sort: 20,
+          bg: "#f5f3ff", border: "#c4b5fd", color: "#7c3aed" };
       }
-      return {
-        key: "unmatched",
-        label: "Brak dopasowania",
-        badge: "badge badge--muted",
-        sort: 10,
-      };
+      return { key: "unmatched", label: "Brak dopasowania", sort: 10,
+        bg: "#f9fafb", border: "#e5e7eb", color: "#9ca3af" };
     }
 
     // linked state + diffs
     const orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
-    const orderedPrice = avgPriceWeighted(linked?.[0]?.segments); // jak na screenie: pierwszy dokument
+    const orderedPrice = avgPriceWeighted(linked?.[0]?.segments);
     const qtyDiff = roundQty(deliveredQty - orderedQty);
 
     const deliveredValue =
@@ -795,22 +783,14 @@ whenReadyAndDataTables(function () {
     const valueDiff = deliveredValue - orderedValue;
 
     const qtyDiffNonZero = Math.abs(qtyDiff) > 0.0001;
-    const valueDiffNonZero = Math.abs(valueDiff) > 0.000001; // tolerancja
+    const valueDiffNonZero = Math.abs(valueDiff) > 0.000001;
 
     if (!qtyDiffNonZero && !valueDiffNonZero) {
-      return {
-        key: "matched",
-        label: "Dopasowano",
-        badge: "badge badge--success",
-        sort: 40,
-      };
+      return { key: "matched", label: "Zgodne", sort: 40,
+        bg: "#f0fdf4", border: "#86efac", color: "#16a34a" };
     }
-    return {
-      key: "diff",
-      label: "Rozbieżność",
-      badge: "badge badge--warn",
-      sort: 50,
-    };
+    return { key: "diff", label: "Rozbieżność", sort: 50,
+      bg: "#fffbeb", border: "#fcd34d", color: "#d97706" };
   }
 
   // Zaokrąglenie różnicy ilościowej do max 3 miejsc po przecinku (floating point safety)
@@ -1038,7 +1018,7 @@ whenReadyAndDataTables(function () {
           }
         </td>
         <td style="padding: 8px;">
-          <span class="badge badge--info">Do weryfikacji</span>
+          <span class="st-badge" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed">Proponowane</span>
         </td>
       </tr>
     `;
@@ -1141,7 +1121,8 @@ whenReadyAndDataTables(function () {
       .nz-detail{color:#6b7280;font-size:.85em;margin-top:1px;white-space:nowrap}
       .nz-impact{font-size:13px;font-weight:600}
       .nz-ok{color:#16a34a;font-weight:500}
-      .status-col .badge{white-space:nowrap}
+      .st-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid;white-space:nowrap;line-height:1.4}
+      .filter-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
     `;
     document.head.appendChild(s);
   }
@@ -1251,7 +1232,7 @@ whenReadyAndDataTables(function () {
     const undoStack = [];
     let skipped = 0;
 
-    // Main rows — tylko "proposal" (Do weryfikacji), już połączone = skip
+    // Main rows — tylko "proposal" (Proponowane), już połączone = skip
     selectionState.mainRows.forEach(function (rowId) {
       const rowData = findRowDataById(rowId);
       if (!rowData) return;
@@ -2406,11 +2387,11 @@ whenReadyAndDataTables(function () {
 
   // ---------- Status Filter Configuration ----------
   const STATUS_FILTERS = [
-    { key: "all", label: "Wszystkie pozycje", badge: null },
-    { key: "matched", label: "Dopasowane", badge: "badge--success" },
-    { key: "proposal", label: "Do weryfikacji", badge: "badge--info" },
-    { key: "diff", label: "Rozbieżności", badge: "badge--warn" },
-    { key: "unmatched", label: "Brak dopasowania", badge: "badge--muted" },
+    { key: "all", label: "Wszystkie pozycje", dot: null },
+    { key: "matched", label: "Zgodne", dot: "#16a34a" },
+    { key: "proposal", label: "Proponowane", dot: "#7c3aed" },
+    { key: "diff", label: "Rozbieżności", dot: "#d97706" },
+    { key: "unmatched", label: "Brak dopasowania", dot: "#9ca3af" },
   ];
 
   // Możesz dodać też "invalid" jeśli chcesz:
@@ -2469,6 +2450,7 @@ whenReadyAndDataTables(function () {
       class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
       data-filter="${filter.key}"
     >
+      ${filter.dot ? '<span class="filter-dot" style="background:' + filter.dot + '"></span>' : ''}
       <span class="filter-label">${filter.label}</span>
       <span class="filter-count" data-count-for="${filter.key}">0</span>
     </button>
@@ -3073,7 +3055,7 @@ whenReadyAndDataTables(function () {
               }
               return st.sort;
             }
-            return `<span class="${st.badge}">${st.label}</span>`;
+            return `<span class="st-badge" style="background:${st.bg};border-color:${st.border};color:${st.color}">${st.label}</span>`;
           },
         },
       ],
