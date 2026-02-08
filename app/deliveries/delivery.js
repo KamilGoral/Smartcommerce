@@ -997,17 +997,17 @@ whenReadyAndDataTables(function () {
             <span style="font-weight: 400;">Wariant ${idx + 1}</span>
           </div>
         </td>
-        <td class="text-right nz-col" style="padding: 8px;">${werHtml}</td>
+        <td style="padding: 8px;">
+          <span class="st-badge" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed">Proponowane</span>
+        </td>
         <td class="text-right nz-col" style="padding: 8px;">${valHtml}</td>
+        <td class="text-right nz-col" style="padding: 8px;">${werHtml}</td>
         <td style="padding: 8px; font-style: italic;">
           ${
             orderId
               ? `<div style="font-style: italic;">${formatOrderDisplay(orderId)}</div>`
               : `<span style="color: #9ca3af; font-style: italic;">-</span>`
           }
-        </td>
-        <td style="padding: 8px;">
-          <span class="st-badge" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed">Proponowane</span>
         </td>
       </tr>
     `;
@@ -1112,6 +1112,11 @@ whenReadyAndDataTables(function () {
       .nz-ok{color:#16a34a;font-weight:500}
       .st-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid;white-space:nowrap;line-height:1.4}
       .filter-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+      #table_delivery_filter{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+      #table_delivery_filter label{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#374151;margin:0;font-family:inherit}
+      #table_delivery_filter input[type="search"],#table_delivery_filter input{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:400;border:1px solid #d1d5db;background:#fff;color:#374151;outline:none;font-family:inherit;line-height:1.4;min-width:200px;transition:border-color .15s}
+      #table_delivery_filter input:focus{border-color:#93c5fd;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+      .top{display:flex;align-items:center;gap:12px;padding:4px 0}
     `;
     document.head.appendChild(s);
   }
@@ -2762,10 +2767,10 @@ whenReadyAndDataTables(function () {
     { th: "", /* checkbox */ },
     { th: "", /* expand */ },
     { th: "Produkt" },
-    { th: "Weryfikacja" },
-    { th: "R\u00f3\u017cnica warto\u015bci" },
-    { th: "Dokument zam\u00f3wienia" },
     { th: "Status" },
+    { th: "R\u00f3\u017cnica warto\u015bci" },
+    { th: "Weryfikacja" },
+    { th: "Dokument zam\u00f3wienia" },
   ];
 
   function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
@@ -2799,9 +2804,9 @@ whenReadyAndDataTables(function () {
       lengthMenu: [25, 50, 100, 200],
       pageLength: 25,
       order: [
-        [6, "asc"],
+        [3, "asc"],
         [2, "asc"],
-      ], // Sortuj najpierw po statusie (kol. 6), potem po nazwie produktu (kol. 2)
+      ], // Sortuj najpierw po statusie (kol. 3), potem po nazwie produktu (kol. 2)
       dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
@@ -3029,17 +3034,25 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 3 - Weryfikacja (badge-e niezgodności: 📦 qty, 💰 price)
+        // Kolumna 3 - Status
         {
           data: null,
           orderable: true,
-          className: "text-right nz-col",
+          className: "status-col",
           render: function (data, type, row) {
-            return renderWeryfikacja(row, type);
+            const st = computeRowState(row);
+            if (type === "sort" || type === "type") {
+              // Gdy filtrowanie według zamówienia: produkty połączone z tym zamówieniem mają priorytet
+              if (selectedOrderId && row?._primaryMatch && !row._isPrimaryProposal) {
+                return st.sort - 100;
+              }
+              return st.sort;
+            }
+            return `<span class="st-badge" style="background:${st.bg};border-color:${st.border};color:${st.color}">${st.label}</span>`;
           },
         },
 
-        // Kolumna 4 - Wartość (impact w PLN)
+        // Kolumna 4 - Różnica wartości (impact w PLN)
         {
           data: null,
           orderable: true,
@@ -3049,7 +3062,17 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 5 - Dokument zam.
+        // Kolumna 5 - Weryfikacja (badge-e niezgodności: qty, price)
+        {
+          data: null,
+          orderable: true,
+          className: "text-right nz-col",
+          render: function (data, type, row) {
+            return renderWeryfikacja(row, type);
+          },
+        },
+
+        // Kolumna 6 - Dokument zam.
         {
           data: null,
           orderable: true,
@@ -3086,23 +3109,6 @@ whenReadyAndDataTables(function () {
         ${displayHtml}
       </div>
     `;
-          },
-        },
-        // Kolumna 6 - Status
-        {
-          data: null,
-          orderable: true,
-          className: "status-col",
-          render: function (data, type, row) {
-            const st = computeRowState(row);
-            if (type === "sort" || type === "type") {
-              // Gdy filtrowanie według zamówienia: produkty połączone z tym zamówieniem mają priorytet
-              if (selectedOrderId && row?._primaryMatch && !row._isPrimaryProposal) {
-                return st.sort - 100;
-              }
-              return st.sort;
-            }
-            return `<span class="st-badge" style="background:${st.bg};border-color:${st.border};color:${st.color}">${st.label}</span>`;
           },
         },
       ],
