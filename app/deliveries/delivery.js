@@ -997,17 +997,17 @@ whenReadyAndDataTables(function () {
             <span style="font-weight: 400;">Wariant ${idx + 1}</span>
           </div>
         </td>
-        <td style="padding: 8px;">
-          <span class="st-badge" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed">Proponowane</span>
-        </td>
-        <td class="text-right nz-col" style="padding: 8px;">${valHtml}</td>
         <td class="text-right nz-col" style="padding: 8px;">${werHtml}</td>
+        <td class="text-right nz-col" style="padding: 8px;">${valHtml}</td>
         <td style="padding: 8px; font-style: italic;">
           ${
             orderId
               ? `<div style="font-style: italic;">${formatOrderDisplay(orderId)}</div>`
               : `<span style="color: #9ca3af; font-style: italic;">-</span>`
           }
+        </td>
+        <td style="padding: 8px;">
+          <span class="st-badge" style="background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed">Proponowane</span>
         </td>
       </tr>
     `;
@@ -2767,10 +2767,10 @@ whenReadyAndDataTables(function () {
     { th: "", /* checkbox */ },
     { th: "", /* expand */ },
     { th: "Produkt" },
-    { th: "Status" },
-    { th: "R\u00f3\u017cnica warto\u015bci" },
     { th: "Weryfikacja" },
+    { th: "R\u00f3\u017cnica warto\u015bci" },
     { th: "Dokument zam\u00f3wienia" },
+    { th: "Status" },
   ];
 
   function initDeliveryTable({ recadvId, InvokeURL, orgToken }) {
@@ -2804,9 +2804,9 @@ whenReadyAndDataTables(function () {
       lengthMenu: [25, 50, 100, 200],
       pageLength: 25,
       order: [
-        [3, "asc"],
+        [6, "asc"],
         [2, "asc"],
-      ], // Sortuj najpierw po statusie (kol. 3), potem po nazwie produktu (kol. 2)
+      ], // Sortuj najpierw po statusie (kol. 6), potem po nazwie produktu (kol. 2)
       dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
@@ -3034,21 +3034,13 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 3 - Status
+        // Kolumna 3 - Weryfikacja (badge-e niezgodności: qty, price)
         {
           data: null,
           orderable: true,
-          className: "status-col",
+          className: "text-right nz-col",
           render: function (data, type, row) {
-            const st = computeRowState(row);
-            if (type === "sort" || type === "type") {
-              // Gdy filtrowanie według zamówienia: produkty połączone z tym zamówieniem mają priorytet
-              if (selectedOrderId && row?._primaryMatch && !row._isPrimaryProposal) {
-                return st.sort - 100;
-              }
-              return st.sort;
-            }
-            return `<span class="st-badge" style="background:${st.bg};border-color:${st.border};color:${st.color}">${st.label}</span>`;
+            return renderWeryfikacja(row, type);
           },
         },
 
@@ -3062,17 +3054,7 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 5 - Weryfikacja (badge-e niezgodności: qty, price)
-        {
-          data: null,
-          orderable: true,
-          className: "text-right nz-col",
-          render: function (data, type, row) {
-            return renderWeryfikacja(row, type);
-          },
-        },
-
-        // Kolumna 6 - Dokument zam.
+        // Kolumna 5 - Dokument zam.
         {
           data: null,
           orderable: true,
@@ -3109,6 +3091,24 @@ whenReadyAndDataTables(function () {
         ${displayHtml}
       </div>
     `;
+          },
+        },
+
+        // Kolumna 6 - Status
+        {
+          data: null,
+          orderable: true,
+          className: "status-col",
+          render: function (data, type, row) {
+            const st = computeRowState(row);
+            if (type === "sort" || type === "type") {
+              // Gdy filtrowanie według zamówienia: produkty połączone z tym zamówieniem mają priorytet
+              if (selectedOrderId && row?._primaryMatch && !row._isPrimaryProposal) {
+                return st.sort - 100;
+              }
+              return st.sort;
+            }
+            return `<span class="st-badge" style="background:${st.bg};border-color:${st.border};color:${st.color}">${st.label}</span>`;
           },
         },
       ],
