@@ -1143,15 +1143,9 @@ whenReadyAndDataTables(function () {
       #bulk-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:4px 0;gap:8px;background:transparent;border:none;min-height:32px}
       .bulk-counter{font-size:14px;color:#94a3b8;font-weight:500;white-space:nowrap;transition:color .2s}
       #bulk-toolbar.has-selection .bulk-counter{color:#1e40af}
-      .bulk-action-btn{padding:6px 14px;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.4}
+      .bulk-action-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.4}
       .bulk-action-btn:disabled{opacity:.4;cursor:not-allowed}
-      .bulk-action-btn:not(:disabled):hover{background:#f3f4f6}
-      .bulk-btn-primary{color:#2563eb;border-color:#93c5fd;background:#eff6ff}
-      .bulk-btn-primary:not(:disabled):hover{background:#dbeafe}
-      .bulk-btn-danger{color:#dc2626;border-color:#fca5a5;background:#fef2f2}
-      .bulk-btn-danger:not(:disabled):hover{background:#fee2e2}
-      .bulk-btn-undo{color:#6b7280;border-color:#d1d5db}
-      .bulk-btn-undo:not(:disabled):hover{background:#f3f4f6;color:#374151}
+      .bulk-action-btn:not(:disabled):hover{background:#f3f4f6;border-color:#9ca3af}
       .bulk-cb-main,.bulk-cb-variant{width:14px;height:14px;cursor:pointer;accent-color:#2563eb;margin:0}
       .bulk-select-cell,.expand-control-cell{text-align:center!important;vertical-align:middle!important;padding:4px 2px!important;width:28px!important;max-width:28px!important}
       td.details-control{cursor:pointer}
@@ -1179,9 +1173,9 @@ whenReadyAndDataTables(function () {
     toolbar.id = "bulk-toolbar";
     toolbar.innerHTML = `
       <span id="bulk-counter" class="bulk-counter">Zaznaczono: 0</span>
-      <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
-      <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
-      <button id="bulk-undo-btn" class="bulk-action-btn bulk-btn-undo" disabled>Cofnij</button>
+      <button id="bulk-link-btn" class="bulk-action-btn" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Połącz</button>
+      <button id="bulk-unlink-btn" class="bulk-action-btn" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M5.16 11.75l-1.72 1.71a5 5 0 0 0 7.07 7.07l1.72-1.71"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="16" y1="19" x2="16" y2="22"/><line x1="19" y1="16" x2="22" y2="16"/></svg> Rozłącz</button>
+      <button id="bulk-undo-btn" class="bulk-action-btn" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Cofnij</button>
     `;
 
     const wrapper = document.querySelector("#table_delivery_wrapper");
