@@ -875,6 +875,94 @@ whenReadyAndDataTables(function () {
     return `<span style="${style}">${sign}${fmtPLN(Math.abs(v))}</span>`;
   }
 
+  // ---------- kolumna Niezgodności — renderery ----------
+
+  function renderNiezgodnosci(row, type) {
+    const deliveredQty = sumQty(row?.segments);
+    const deliveredPrice = avgPriceWeighted(row?.segments);
+    let orderedQty = 0;
+    let orderedPrice = null;
+    let isProposal = false;
+    let hasMatch = false;
+
+    if (selectedOrderId && row?._primaryMatch) {
+      orderedQty = sumQty(row._primaryMatch?.segments);
+      orderedPrice = avgPriceWeighted(row._primaryMatch?.segments);
+      isProposal = !!row._isPrimaryProposal;
+      hasMatch = true;
+    } else {
+      const linked = safeArr(row?.linkedOrderProducts);
+      const proposals = safeArr(row?.potentialMatches);
+
+      if (linked.length) {
+        orderedQty = linked.reduce(function (acc, p) { return acc + sumQty(p?.segments); }, 0);
+        orderedPrice = avgPriceWeighted(linked[0]?.segments);
+        hasMatch = true;
+      } else if (proposals.length) {
+        orderedQty = sumQty(proposals[0]?.segments);
+        orderedPrice = avgPriceWeighted(proposals[0]?.segments);
+        isProposal = true;
+        hasMatch = true;
+      }
+    }
+
+    if (!hasMatch) {
+      if (type === "sort" || type === "type") return 0;
+      return '<span class="muted">\u2014</span>';
+    }
+
+    return buildNiezgodnosciHtml(deliveredQty, deliveredPrice, orderedQty, orderedPrice, isProposal, type);
+  }
+
+  function renderChildNiezgodnosci(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
+    return buildNiezgodnosciHtml(deliveredQty, deliveredPrice, orderedQty, orderedPrice, true, "display");
+  }
+
+  function buildNiezgodnosciHtml(deliveredQty, deliveredPrice, orderedQty, orderedPrice, isProposal, type) {
+    const qtyDiff = roundQty(deliveredQty - orderedQty);
+    const priceDiff = (deliveredPrice !== null && orderedPrice !== null) ? orderedPrice - deliveredPrice : 0;
+
+    const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
+    const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
+    const totalDiff = orderedValue - deliveredValue;
+
+    const hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
+    const hasPriceDiff = Math.abs(priceDiff) > 0.000001;
+
+    if (type === "sort" || type === "type") return Math.abs(totalDiff);
+
+    // Tooltip z surowymi danymi
+    const dQty = fmtQty(deliveredQty);
+    const dPrice = deliveredPrice !== null ? fmtPLN(deliveredPrice) : "-";
+    const oQty = fmtQty(orderedQty);
+    const oPrice = orderedPrice !== null ? fmtPLN(orderedPrice) : "-";
+    const tooltip = "Dost: " + dQty + " szt. \u00d7 " + dPrice + "/szt. | Zam: " + oQty + " szt. \u00d7 " + oPrice + "/szt.";
+
+    const italicStyle = isProposal ? " font-style:italic;" : "";
+
+    if (!hasQtyDiff && !hasPriceDiff) {
+      return '<span class="nz-ok" style="' + italicStyle + '" title="' + escapeHtml(tooltip) + '">\u2713 Zgodne</span>';
+    }
+
+    var parts = [];
+    if (hasQtyDiff) {
+      var sign = qtyDiff > 0 ? "+" : "";
+      parts.push('<span class="nz-badge">\uD83D\uDCE6 ' + sign + roundQty(qtyDiff) + ' szt.</span>');
+    }
+    if (hasPriceDiff) {
+      var pSign = priceDiff > 0 ? "+" : "";
+      parts.push('<span class="nz-badge">\uD83D\uDCB0 ' + pSign + fmtPLN(priceDiff) + '/szt.</span>');
+    }
+
+    var impactSign = totalDiff > 0 ? "+" : "";
+    var impactColor = totalDiff > 0 ? "#16a34a" : "#dc2626";
+
+    return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;' + italicStyle + '" title="' + escapeHtml(tooltip) + '">'
+      + '<span>' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</span>'
+      + '<span class="nz-impact" style="color:' + impactColor + '">Impact: ' + impactSign + fmtPLN(Math.abs(totalDiff)) + '</span>'
+      + '</div>';
+  }
+
   // ---------- child row render (warianty/propozycje) ----------
   function renderChildProposals(parent, selectedOrderId) {
     const deliveredQty = sumQty(parent?.segments);
@@ -897,31 +985,15 @@ whenReadyAndDataTables(function () {
     const rows = proposalsToRender.map((m, idx) => {
       const orderedQty = sumQty(m?.segments);
       const orderedPrice = avgPriceWeighted(m?.segments);
-      const qtyDiff = orderedQty > 0 ? roundQty(deliveredQty - orderedQty) : 0;
-
-      const deliveredValue =
-        deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
-      const orderedValue =
-        orderedPrice === null ? 0 : orderedQty * orderedPrice;
-      const valueDiff = orderedQty > 0 ? orderedValue - deliveredValue : 0;
 
       const orderId = m?.orderId || "";
       const matchId = m?.id;
 
-      // Format price difference with proper sign (ordered - delivered: + = oszczędność, - = strata)
-      const priceDiff =
-        orderedPrice !== null && deliveredPrice !== null
-          ? orderedPrice - deliveredPrice
-          : 0;
-      const priceDiffFormatted =
-        orderedPrice !== null && deliveredPrice !== null
-          ? priceDiff >= 0
-            ? `+${fmtPLN(priceDiff)}`
-            : fmtPLN(priceDiff)
-          : "-";
-
       const varKey = makeVariantKey(parent?.id, matchId);
       const varChecked = selectionState.variantRows.has(varKey) ? " checked" : "";
+      const nzHtml = orderedQty > 0
+        ? renderChildNiezgodnosci(deliveredQty, deliveredPrice, orderedQty, orderedPrice)
+        : '<span class="muted" style="font-style:italic;">\u2014</span>';
       return `
       <tr class="child-row" style="background: #f9fafb;">
         <td style="text-align:center;vertical-align:middle;padding:4px 2px;width:28px;">
@@ -934,28 +1006,7 @@ whenReadyAndDataTables(function () {
             <span style="font-weight: 400;">Wariant ${idx + 1}</span>
           </div>
         </td>
-
-        <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
-        <td class="text-right" style="padding: 8px; font-style: italic;">${fmtQty(orderedQty)}</td>
-        <td class="text-right" style="padding: 8px;">${orderedQty > 0 ? diffSpanNumber(qtyDiff, true) : `<span style="color: #9ca3af; font-style: italic;">-</span>`}</td>
-        <td class="text-right" style="padding: 8px; color: #9ca3af;">-</td>
-        <td class="text-right" style="padding: 8px; font-style: italic;">${orderedPrice !== null ? fmtPLN(orderedPrice) : "-"}</td>
-        <td class="text-right" style="padding: 8px;">${(() => {
-          if (orderedQty <= 0) return `<span style="color: #9ca3af; font-style: italic;">-</span>`;
-          const hasQD = Math.abs(qtyDiff) > 0.0001;
-          const hasPD = Math.abs(priceDiff) > 0.000001;
-          if (hasQD && hasPD) {
-            const commonQ = Math.min(deliveredQty, orderedQty);
-            const pdVal = commonQ * priceDiff;
-            const pdColor = pdVal > 0 ? "#16a34a" : "#dc2626";
-            return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end; font-style: italic;">
-              <span style="color: ${pdColor};">${(pdVal > 0 ? "+" : "") + fmtPLN(Math.abs(pdVal))}</span>
-              <span style="color: #dc2626; font-size: 11px;">${qtyDiff > 0 ? "+" : ""}${roundQty(qtyDiff)} szt.</span>
-            </div>`;
-          }
-          return diffSpanMoney(valueDiff, true);
-        })()}</td>
-
+        <td class="text-right nz-col" style="padding: 8px;">${nzHtml}</td>
         <td style="padding: 8px; font-style: italic;">
           ${
             orderId
@@ -963,7 +1014,6 @@ whenReadyAndDataTables(function () {
               : `<span style="color: #9ca3af; font-style: italic;">-</span>`
           }
         </td>
-
         <td style="padding: 8px;">
           <span class="badge badge--info">Do weryfikacji</span>
         </td>
@@ -1068,6 +1118,10 @@ whenReadyAndDataTables(function () {
       td.details-control{cursor:pointer}
       td.details-control::before{content:"\\203A";display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
       tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
+      .nz-col{white-space:nowrap}
+      .nz-badge{font-size:12px;font-weight:500;color:#dc2626}
+      .nz-impact{display:block;font-size:11px;margin-top:2px;font-weight:600}
+      .nz-ok{color:#16a34a;font-weight:500}
     `;
     document.head.appendChild(s);
   }
@@ -2698,9 +2752,15 @@ whenReadyAndDataTables(function () {
     $("#table_delivery tbody").off(".delivery");
     $(document).off(".delivery");
 
-    // 3) Dodaj tfoot jeśli nie istnieje (potrzebne dla footerCallback)
+    // 3) Przebuduj thead na 6 kolumn (Webflow HTML może mieć więcej th)
+    var thead = $("#table_delivery thead tr");
+    thead.empty().append(
+      '<th></th><th></th><th>Produkt</th><th>Niezgodności</th><th>Dokument zam.</th><th>Status</th>'
+    );
+
+    // 3b) Dodaj tfoot jeśli nie istnieje (potrzebne dla footerCallback)
     if (!$("#table_delivery tfoot").length) {
-      const colCount = $("#table_delivery thead th").length || 11;
+      const colCount = $("#table_delivery thead th").length || 6;
       const cells = Array(colCount).fill('<td></td>').join('');
       $("#table_delivery").append(`<tfoot><tr>${cells}</tr></tfoot>`);
     }
@@ -2711,9 +2771,9 @@ whenReadyAndDataTables(function () {
       lengthMenu: [10, 25, 50, 100],
       pageLength: 25,
       order: [
-        [10, "asc"],
+        [5, "asc"],
         [2, "asc"],
-      ], // Sortuj najpierw po statusie, potem po nazwie produktu
+      ], // Sortuj najpierw po statusie (kol. 5), potem po nazwie produktu (kol. 2)
       dom: '<"top"fB>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
@@ -2722,7 +2782,7 @@ whenReadyAndDataTables(function () {
       footerCallback: function (row, data, start, end, display) {
         const api = this.api();
 
-        // Suma kolumny 7 (Różnica wart.) ze WSZYSTKICH przefiltrowanych wierszy (nie tylko bieżąca strona)
+        // Suma impactu (kolumna 3 Niezgodności) ze WSZYSTKICH przefiltrowanych wierszy
         const filteredRows = api.rows({ search: "applied" }).data().toArray();
         let totalValueDiff = 0;
 
@@ -2756,8 +2816,8 @@ whenReadyAndDataTables(function () {
           }
         });
 
-        // Wyświetl sumę w kolumnie 7
-        const footerCell = $(api.column(8).footer());
+        // Wyświetl sumę impactu w kolumnie 3 (Niezgodności)
+        const footerCell = $(api.column(3).footer());
         if (Math.abs(totalValueDiff) < 0.001) {
           footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
         } else {
@@ -2767,18 +2827,15 @@ whenReadyAndDataTables(function () {
         }
         footerCell.css({ "text-align": "right", "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
 
-        // Etykieta w pierwszej kolumnie
-        const labelCell = $(api.column(0).footer());
-        labelCell.attr("colspan", 1);
         // Etykieta w kolumnie Produkt
         const prodCell = $(api.column(2).footer());
         prodCell.html(`<span style="font-weight: 600; color: #374151;">Łącznie</span>`);
         prodCell.css({ "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
 
         // Wyczyść i styluj pozostałe komórki footera
-        for (let i = 0; i <= 10; i++) {
+        for (let i = 0; i <= 5; i++) {
           const cell = $(api.column(i).footer());
-          if (i !== 2 && i !== 8) {
+          if (i !== 2 && i !== 3) {
             cell.html("");
           }
           cell.css({ "border-top": "2px solid #e5e7eb", "padding": "10px 8px" });
@@ -2944,205 +3001,18 @@ whenReadyAndDataTables(function () {
           },
         },
 
-        // Kolumna 2 - Ilość dost.
-        {
-          data: "segments",
-          orderable: true,
-          className: "text-right",
-          render: function (segments, type, row) {
-            const q = sumQty(segments);
-            if (type === "sort" || type === "type") return q;
-
-            // Gdy filtrowanie według zamówienia: pokaż ilość dostarczoną
-            if (selectedOrderId) {
-              return q ? fmtQty(q) : `<span class="muted">-</span>`;
-            }
-
-            // Brak filtrowania - oryginalna logika
-            return q ? fmtQty(q) : `<span class="muted">-</span>`;
-          },
-        },
-
-        // Kolumna 3 - Ilość zam.
+        // Kolumna 3 - Niezgodności (zastępuje kolumny Ilość dost./zam., Różnica il., Cena dost./zam., Różnica wart.)
         {
           data: null,
           orderable: true,
-          className: "text-right",
+          className: "text-right nz-col",
+          width: "220px",
           render: function (data, type, row) {
-            let q = 0;
-            let isProposal = false;
-
-            if (selectedOrderId && row?._primaryMatch) {
-              q = sumQty(row._primaryMatch?.segments);
-              isProposal = !!row._isPrimaryProposal;
-            } else {
-              const linked = safeArr(row?.linkedOrderProducts);
-              const proposals = safeArr(row?.potentialMatches);
-
-              if (linked.length) {
-                q = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
-              } else if (proposals.length) {
-                q = sumQty(proposals[0]?.segments);
-                isProposal = true;
-              } else {
-                if (type === "sort" || type === "type") return 0;
-                return `<span class="muted">-</span>`;
-              }
-            }
-
-            if (type === "sort" || type === "type") return q;
-            return q
-              ? `<span class="${isProposal ? "italic" : ""}">${fmtQty(q)}</span>`
-              : `<span class="muted">-</span>`;
+            return renderNiezgodnosci(row, type);
           },
         },
 
-        // Kolumna 4 - Różnica il.
-        {
-          data: null,
-          orderable: true,
-          className: "text-right",
-          render: function (data, type, row) {
-            const deliveredQty = sumQty(row?.segments);
-            let orderedQty = 0;
-            let isProposal = false;
-
-            if (selectedOrderId && row?._primaryMatch) {
-              orderedQty = sumQty(row._primaryMatch?.segments);
-              isProposal = !!row._isPrimaryProposal;
-            } else {
-              const linked = safeArr(row?.linkedOrderProducts);
-              const proposals = safeArr(row?.potentialMatches);
-
-              if (!linked.length && !proposals.length)
-                return type === "sort" || type === "type" ? 0 : `<span class="muted">-</span>`;
-
-              if (linked.length) {
-                orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
-              } else if (proposals.length) {
-                orderedQty = sumQty(proposals[0]?.segments);
-                isProposal = true;
-              }
-            }
-
-            const diff = roundQty(deliveredQty - orderedQty);
-            if (type === "sort" || type === "type") return diff;
-            return diffSpanNumber(diff, isProposal);
-          },
-        },
-
-        // Kolumna 5 - Cena dost.
-        {
-          data: "segments",
-          orderable: true,
-          className: "text-right",
-          render: function (segments, type) {
-            const p = avgPriceWeighted(segments);
-            if (type === "sort" || type === "type") return p ?? -1;
-            return p !== null ? fmtPLN(p) : `<span class="muted">-</span>`;
-          },
-        },
-
-        // Kolumna 6 - Cena zam.
-        {
-          data: null,
-          orderable: true,
-          className: "text-right",
-          render: function (data, type, row) {
-            let p = null;
-            let isProposal = false;
-
-            if (selectedOrderId && row?._primaryMatch) {
-              p = avgPriceWeighted(row._primaryMatch?.segments);
-              isProposal = !!row._isPrimaryProposal;
-            } else {
-              const linked = safeArr(row?.linkedOrderProducts);
-              const proposals = safeArr(row?.potentialMatches);
-
-              if (linked.length) {
-                p = avgPriceWeighted(linked[0]?.segments);
-              } else if (proposals.length) {
-                p = avgPriceWeighted(proposals[0]?.segments);
-                isProposal = true;
-              }
-            }
-
-            if (p === null) return type === "sort" || type === "type" ? -1 : `<span class="muted">-</span>`;
-            if (type === "sort" || type === "type") return p;
-            return `<span class="${isProposal ? "italic" : ""}">${fmtPLN(p)}</span>`;
-          },
-        },
-
-        // Kolumna 7 - Różnica wartość
-        {
-          data: null,
-          orderable: true,
-          className: "text-right",
-          render: function (data, type, row) {
-            const deliveredQty = sumQty(row?.segments);
-            const deliveredPrice = avgPriceWeighted(row?.segments);
-            let orderedQty = 0;
-            let orderedPrice = null;
-            let isProposal = false;
-
-            if (selectedOrderId && row?._primaryMatch) {
-              orderedQty = sumQty(row._primaryMatch?.segments);
-              orderedPrice = avgPriceWeighted(row._primaryMatch?.segments);
-              isProposal = !!row._isPrimaryProposal;
-            } else {
-              const linked = safeArr(row?.linkedOrderProducts);
-              const proposals = safeArr(row?.potentialMatches);
-
-              if (!linked.length && !proposals.length)
-                return type === "sort" || type === "type" ? 0 : `<span class="muted">-</span>`;
-
-              if (linked.length) {
-                orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
-                orderedPrice = avgPriceWeighted(linked[0]?.segments);
-              } else if (proposals.length) {
-                orderedQty = sumQty(proposals[0]?.segments);
-                orderedPrice = avgPriceWeighted(proposals[0]?.segments);
-                isProposal = true;
-              }
-            }
-
-            const deliveredValue = deliveredPrice === null ? 0 : deliveredQty * deliveredPrice;
-            const orderedValue = orderedPrice === null ? 0 : orderedQty * orderedPrice;
-            // Konwencja: zamówione - dostarczone (+ = oszczędność, - = strata)
-            const totalDiff = orderedValue - deliveredValue;
-
-            if (type === "sort" || type === "type") return totalDiff;
-
-            // Rozłóż różnicę na składniki
-            const qtyDiff = roundQty(deliveredQty - orderedQty);
-            const priceDiff = (deliveredPrice !== null && orderedPrice !== null)
-              ? orderedPrice - deliveredPrice : 0;
-            const hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
-            const hasPriceDiff = Math.abs(priceDiff) > 0.000001;
-
-            if (!hasQtyDiff && !hasPriceDiff) {
-              return diffSpanMoney(totalDiff, isProposal);
-            }
-
-            if (hasQtyDiff && hasPriceDiff) {
-              // Linia 1: różnica cenowa × min(delivered, ordered) sztuk
-              const commonQty = Math.min(deliveredQty, orderedQty);
-              const priceDiffValue = commonQty * priceDiff;
-
-              const italicStyle = isProposal ? " font-style: italic;" : "";
-              const priceColor = priceDiffValue > 0 ? "#16a34a" : "#dc2626";
-              return `<div style="display: flex; flex-direction: column; gap: 1px; align-items: flex-end;${italicStyle}">
-                <span style="color: ${priceColor};" title="Różnica cenowa: ${fmtPLN(Math.abs(priceDiff))}/szt. × ${commonQty} szt.">${(priceDiffValue > 0 ? "+" : "") + fmtPLN(Math.abs(priceDiffValue))}</span>
-                <span style="color: #dc2626; font-size: 11px;" title="Różnica ilościowa">${qtyDiff > 0 ? "+" : ""}${qtyDiff} szt.</span>
-              </div>`;
-            }
-
-            // Tylko jedna składowa
-            return diffSpanMoney(totalDiff, isProposal);
-          },
-        },
-
-        // Kolumna 8 - Dokument zam.
+        // Kolumna 4 - Dokument zam.
         {
           data: null,
           orderable: true,
@@ -3181,6 +3051,7 @@ whenReadyAndDataTables(function () {
     `;
           },
         },
+        // Kolumna 5 - Status
         {
           data: null,
           orderable: true,
@@ -3197,7 +3068,6 @@ whenReadyAndDataTables(function () {
             return `<span class="${st.badge}">${st.label}</span>`;
           },
         },
-        // Kolumna Akcje — USUNIĘTA (zastąpiona przez bulk toolbar)
       ],
     });
 
