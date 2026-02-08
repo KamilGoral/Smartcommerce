@@ -557,7 +557,6 @@ whenReadyAndDataTables(function () {
         ${dhBadge(ICON.truck, "Dostawca", `<span id="wholesalerName">${wholesaler}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
         ${dhBadge(ICON.box, "Liczba pozycji", `<span id="productsCountDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
         ${dhBadge(ICON.coins, "Wartość dokumentu", `<span id="valueDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
-        ${dhBadge(ICON.alert, "Wykryte niezgodności", `<span id="diffDeliveryOrders">0</span>`, "#fef2f2", "#fecaca", "#991b1b")}
       </div>
 
       <!-- Szczegóły dokumentu (domyślnie ukryte) -->
@@ -633,6 +632,9 @@ whenReadyAndDataTables(function () {
           if (typeof initDetailsToggleEvents === "function") {
             initDetailsToggleEvents();
           }
+          if (typeof initHelpToggleEvents === "function") {
+            initHelpToggleEvents();
+          }
         }, 100);
       },
       error: function (error) {
@@ -657,17 +659,8 @@ whenReadyAndDataTables(function () {
 
     // Oblicz wartość całkowitą
     let totalValue = 0;
-    let diffCount = 0;
-
     tableData.forEach((row) => {
-      const deliveredValue = valueTotal(row?.segments);
-      totalValue += deliveredValue;
-
-      // Policz rozbieżności
-      const state = computeRowState(row);
-      if (state.key.startsWith("diff_")) {
-        diffCount++;
-      }
+      totalValue += valueTotal(row?.segments);
     });
 
     // Wartość
@@ -676,11 +669,6 @@ whenReadyAndDataTables(function () {
       valueDelivery.textContent = fmtPLN(totalValue);
     }
 
-    // Niezgodności
-    const diffDeliveryOrders = document.getElementById("diffDeliveryOrders");
-    if (diffDeliveryOrders) {
-      diffDeliveryOrders.textContent = diffCount;
-    }
   }
 
   //tutaj kod
@@ -886,11 +874,11 @@ whenReadyAndDataTables(function () {
     return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
   }
 
-  // Drugi wiersz: zam.il×zam.cena → dost.il×dost.cena (styl jak GTIN)
+  // Szczegóły: zam.il×zam.cena → dost.il×dost.cena (inline, styl jak GTIN)
   function buildDetailLine(d) {
     var zam = fmtQty(d.orderedQty) + "\u00d7" + (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-");
     var dost = fmtQty(d.deliveredQty) + "\u00d7" + (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-");
-    return '<div class="nz-detail">(' + zam + ' \u2192 ' + dost + ')</div>';
+    return '<span class="nz-detail">(' + zam + ' \u2192 ' + dost + ')</span>';
   }
 
   // Kolumna „Weryfikacja" — badge-e niezgodności
@@ -908,9 +896,10 @@ whenReadyAndDataTables(function () {
 
   function buildWeryfikacjaHtml(d, diffs) {
     var italicStyle = d.isProposal ? " font-style:italic;" : "";
+    var detail = ' ' + buildDetailLine(d);
 
     if (!diffs.hasQtyDiff && !diffs.hasPriceDiff) {
-      return '<div class="nz-cell" style="' + italicStyle + '"><div class="nz-ok">\u2713 Zgodne</div>' + buildDetailLine(d) + '</div>';
+      return '<span class="nz-cell" style="' + italicStyle + '"><span class="nz-ok">\u2713 Zgodne</span>' + detail + '</span>';
     }
 
     var parts = [];
@@ -924,7 +913,7 @@ whenReadyAndDataTables(function () {
       parts.push('<span class="nz-badge" style="color:' + pColor + '">' + pSign + fmtPLN(diffs.priceDiff) + '/szt.</span>');
     }
 
-    return '<div class="nz-cell" style="' + italicStyle + '"><div>' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</div>' + buildDetailLine(d) + '</div>';
+    return '<span class="nz-cell" style="' + italicStyle + '">' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + detail + '</span>';
   }
 
   // Kolumna „Wartość" — impact w PLN
@@ -1117,8 +1106,8 @@ whenReadyAndDataTables(function () {
       tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
       .nz-col{vertical-align:middle}
       .nz-cell{white-space:nowrap}
-      .nz-badge{font-weight:500}
-      .nz-detail{color:#6b7280;font-size:.85em;margin-top:1px;white-space:nowrap}
+      .nz-badge{font-weight:600}
+      .nz-detail{color:#6b7280;font-size:.85em;white-space:nowrap;margin-left:4px}
       .nz-impact{font-size:13px;font-weight:600}
       .nz-ok{color:#16a34a;font-weight:500}
       .st-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid;white-space:nowrap;line-height:1.4}
@@ -1855,25 +1844,46 @@ whenReadyAndDataTables(function () {
 
     container.innerHTML = `
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative;">
-        <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #374151; font-weight: 500; white-space: nowrap;">
-          ${ICON.calendar}
-          Data dokumentu: <strong id="issueDateBadgeValue">-</strong>
-        </span>
-        <div id="dateRangeToggle" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; cursor: pointer; user-select: none; transition: background 0.15s;">
-          ${ICON.calendar}
-          <span style="color: #3b82f6;">Zakres zamówień:</span>
-          <strong id="dateRangeLabel">—</strong>
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <input type="hidden" id="orderDateStart" />
-        <input type="hidden" id="orderDateEnd" />
-        <div id="drpPopover" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 5000;"></div>
         <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
           Szczegóły
           <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
             <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
+        <button id="help-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
+          Instrukcja
+          <svg id="help-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+          <span id="issueDateBadge" style="display: none; align-items: center; gap: 5px; padding: 4px 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #374151; font-weight: 500; white-space: nowrap;">
+            ${ICON.calendar}
+            Data dokumentu: <strong id="issueDateBadgeValue">-</strong>
+          </span>
+          <div id="dateRangeToggle" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; font-size: 12px; color: #1e40af; cursor: pointer; user-select: none; transition: background 0.15s;">
+            ${ICON.calendar}
+            <span style="color: #3b82f6;">Zakres zamówień:</span>
+            <strong id="dateRangeLabel">\u2014</strong>
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left: 2px;"><path d="M3 4.5L6 7.5L9 4.5" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <input type="hidden" id="orderDateStart" />
+        <input type="hidden" id="orderDateEnd" />
+        <div id="drpPopover" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 6px; z-index: 5000;"></div>
+      </div>
+      <!-- Instrukcja (domyślnie ukryta) -->
+      <div id="help-section" style="display: none; margin-top: 12px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 13px; color: #475569; line-height: 1.6;">
+        <p style="margin: 0 0 8px; font-weight: 600; color: #1e293b;">Jak korzystać z tego widoku?</p>
+        <p style="margin: 0 0 6px;">Ten widok pozwala porównać dokumenty dostawy z zamówieniami i zarządzać ich powiązaniami.</p>
+        <ul style="margin: 0; padding-left: 18px;">
+          <li><strong>Weryfikacja</strong> \u2014 pokazuje różnice ilościowe i cenowe między dostawą a zamówieniem. Zielone wartości oznaczają korzystną różnicę, czerwone \u2014 niekorzystną.</li>
+          <li><strong>Różnica wartości</strong> \u2014 finansowy wpływ różnicy cenowej na faktycznie dostarczony towar.</li>
+          <li><strong>Status</strong> \u2014 <em>Zgodne</em> (pełne dopasowanie), <em>Proponowane</em> (system zaproponował powiązanie), <em>Rozbieżność</em> (wykryto różnice), <em>Brak dopasowania</em> (brak odpowiadającego zamówienia).</li>
+          <li><strong>Połącz / Rozłącz</strong> \u2014 zaznacz pozycje checkboxami i użyj przycisków, aby ręcznie powiązać lub rozłączyć produkty z zamówieniami. <em>Cofnij</em> odwraca ostatnią operację.</li>
+          <li><strong>Warianty</strong> \u2014 kliknij strzałkę \u203A przy produkcie, aby zobaczyć alternatywne propozycje powiązań.</li>
+          <li><strong>Zakres zamówień</strong> \u2014 kliknij, aby zmienić okres wyszukiwania zamówień do porównania.</li>
+        </ul>
       </div>
       <div style="border-bottom: 1px solid #e5e7eb; margin-top: 14px;"></div>
     `;
@@ -2379,6 +2389,31 @@ whenReadyAndDataTables(function () {
         toggleBtn.classList.add("active");
       } else {
         detailsContainer.style.display = "none";
+        chevron.style.transform = "rotate(0deg)";
+        toggleBtn.classList.remove("active");
+      }
+    });
+  }
+
+  // ---------- Help Toggle (Instrukcja) ----------
+  function initHelpToggleEvents() {
+    const toggleBtn = document.getElementById("help-toggle-btn");
+    const chevron = document.getElementById("help-chevron");
+    const helpSection = document.getElementById("help-section");
+
+    if (!toggleBtn || !helpSection) return;
+
+    toggleBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const isHidden = helpSection.style.display === "none";
+
+      if (isHidden) {
+        helpSection.style.display = "block";
+        chevron.style.transform = "rotate(180deg)";
+        toggleBtn.classList.add("active");
+      } else {
+        helpSection.style.display = "none";
         chevron.style.transform = "rotate(0deg)";
         toggleBtn.classList.remove("active");
       }
