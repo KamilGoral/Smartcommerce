@@ -1139,18 +1139,18 @@ whenReadyAndDataTables(function () {
     s.id = "dh-bulk-styles";
     s.textContent = `
       .dataTables_scrollBody>table>thead{visibility:collapse!important;height:0!important;line-height:0!important;overflow:hidden!important}
-      #bulk-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:4px 0;gap:10px;background:transparent;border:none;min-height:28px}
-      .bulk-counter{font-size:12px;color:#94a3b8;font-weight:500;white-space:nowrap;transition:color .2s}
+      #bulk-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:4px 0;gap:8px;background:transparent;border:none;min-height:32px}
+      .bulk-counter{font-size:14px;color:#94a3b8;font-weight:500;white-space:nowrap;transition:color .2s}
       #bulk-toolbar.has-selection .bulk-counter{color:#1e40af}
-      .bulk-action-btn{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.3}
-      .bulk-action-btn:disabled{opacity:.35;cursor:not-allowed}
+      .bulk-action-btn{padding:6px 14px;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.4}
+      .bulk-action-btn:disabled{opacity:.4;cursor:not-allowed}
       .bulk-action-btn:not(:disabled):hover{background:#f3f4f6}
-      .bulk-btn-primary{color:#2563eb;border-color:#93c5fd}
-      .bulk-btn-primary:not(:disabled):hover{background:#eff6ff}
-      .bulk-btn-danger{color:#dc2626;border-color:#fca5a5}
-      .bulk-btn-danger:not(:disabled):hover{background:#fef2f2}
+      .bulk-btn-primary{color:#2563eb;border-color:#93c5fd;background:#eff6ff}
+      .bulk-btn-primary:not(:disabled):hover{background:#dbeafe}
+      .bulk-btn-danger{color:#dc2626;border-color:#fca5a5;background:#fef2f2}
+      .bulk-btn-danger:not(:disabled):hover{background:#fee2e2}
       .bulk-btn-undo{color:#6b7280;border-color:#d1d5db}
-      .bulk-btn-undo:not(:disabled):hover{background:#f9fafb;color:#374151}
+      .bulk-btn-undo:not(:disabled):hover{background:#f3f4f6;color:#374151}
       .bulk-cb-main,.bulk-cb-variant{width:14px;height:14px;cursor:pointer;accent-color:#2563eb;margin:0}
       .bulk-select-cell,.expand-control-cell{text-align:center!important;vertical-align:middle!important;padding:4px 2px!important;width:28px!important;max-width:28px!important}
       td.details-control{cursor:pointer}
@@ -1178,7 +1178,7 @@ whenReadyAndDataTables(function () {
       <span id="bulk-counter" class="bulk-counter">Zaznaczono: 0</span>
       <button id="bulk-link-btn" class="bulk-action-btn bulk-btn-primary" disabled>Połącz</button>
       <button id="bulk-unlink-btn" class="bulk-action-btn bulk-btn-danger" disabled>Rozłącz</button>
-      <button id="bulk-undo-btn" class="bulk-action-btn bulk-btn-undo" style="display:none">Cofnij</button>
+      <button id="bulk-undo-btn" class="bulk-action-btn bulk-btn-undo" disabled>Cofnij</button>
     `;
 
     const wrapper = document.querySelector("#table_delivery_wrapper");
@@ -1255,7 +1255,7 @@ whenReadyAndDataTables(function () {
     $(document).on("click.delivery", "#bulk-unlink-btn", function () { if (!this.disabled) executeBulkUnlink(); });
     $(document).on("click.delivery", "#bulk-undo-btn", function () {
       if (lastUndoStack && lastUndoStack.length > 0) {
-        this.style.display = "none";
+        this.disabled = true;
         executeBulkUndo(lastUndoStack);
         lastUndoStack = null;
       }
@@ -1407,15 +1407,15 @@ whenReadyAndDataTables(function () {
 
     displayMessage(failed > 0 ? "Error" : "Success", text);
 
-    // Pokaż/ukryj przycisk "Cofnij" w toolbarze
+    // Włącz/wyłącz przycisk "Cofnij" w toolbarze
     const undoBtn = document.getElementById("bulk-undo-btn");
     if (undoBtn) {
       if (undoStack && undoStack.length > 0 && failed === 0) {
         lastUndoStack = undoStack;
-        undoBtn.style.display = "";
+        undoBtn.disabled = false;
       } else {
         lastUndoStack = null;
-        undoBtn.style.display = "none";
+        undoBtn.disabled = true;
       }
     }
   }
