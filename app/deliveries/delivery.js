@@ -914,9 +914,9 @@ whenReadyAndDataTables(function () {
   function computeDiffs(d) {
     var qtyDiff = roundQty(d.deliveredQty - d.orderedQty);
     var priceDiff = (d.deliveredPrice !== null && d.orderedPrice !== null) ? d.orderedPrice - d.deliveredPrice : 0;
-    var deliveredValue = d.deliveredPrice === null ? 0 : d.deliveredQty * d.deliveredPrice;
-    var orderedValue = d.orderedPrice === null ? 0 : d.orderedQty * d.orderedPrice;
-    var totalDiff = orderedValue - deliveredValue;
+    var totalDiff = (d.deliveredPrice !== null && d.orderedPrice !== null)
+      ? d.deliveredQty * (d.orderedPrice - d.deliveredPrice)
+      : 0;
     var hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
     var hasPriceDiff = Math.abs(priceDiff) > 0.000001;
     return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
@@ -950,12 +950,13 @@ whenReadyAndDataTables(function () {
 
     var parts = [];
     if (diffs.hasQtyDiff) {
-      var sign = diffs.qtyDiff > 0 ? "+" : "";
-      parts.push('<span class="nz-badge">\uD83D\uDCE6 ' + sign + roundQty(diffs.qtyDiff) + ' szt.</span>');
+      var qSign = diffs.qtyDiff > 0 ? "+" : "";
+      parts.push('<span class="nz-badge" style="color:#dc2626">' + qSign + roundQty(diffs.qtyDiff) + ' szt.</span>');
     }
     if (diffs.hasPriceDiff) {
       var pSign = diffs.priceDiff > 0 ? "+" : "";
-      parts.push('<span class="nz-badge">\uD83D\uDCB0 ' + pSign + fmtPLN(diffs.priceDiff) + '/szt.</span>');
+      var pColor = diffs.priceDiff > 0 ? "#16a34a" : "#dc2626";
+      parts.push('<span class="nz-badge" style="color:' + pColor + '">' + pSign + fmtPLN(diffs.priceDiff) + '/szt.</span>');
     }
 
     return '<span style="' + italicStyle + '" title="' + escapeHtml(tooltip) + '">' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + '</span>';
@@ -975,7 +976,7 @@ whenReadyAndDataTables(function () {
 
   function buildWartoscHtml(diffs, isProposal) {
     var italicStyle = isProposal ? " font-style:italic;" : "";
-    if (!diffs.hasQtyDiff && !diffs.hasPriceDiff) {
+    if (!diffs.hasPriceDiff) {
       return '<span style="color:#6b7280;' + italicStyle + '">' + fmtPLN(0) + '</span>';
     }
     var sign = diffs.totalDiff > 0 ? "+" : "";
@@ -1156,9 +1157,10 @@ whenReadyAndDataTables(function () {
       td.details-control::before{content:"\\203A";display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
       tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
       .nz-col{white-space:nowrap}
-      .nz-badge{font-size:12px;font-weight:500;color:#dc2626}
-      .nz-impact{display:block;font-size:11px;margin-top:2px;font-weight:600}
-      .nz-ok{color:#16a34a;font-weight:500}
+      .nz-badge{font-size:13px;font-weight:600}
+      .nz-impact{font-size:13px;font-weight:600}
+      .nz-ok{color:#16a34a;font-weight:600}
+      .status-col .badge{white-space:nowrap}
     `;
     document.head.appendChild(s);
   }
