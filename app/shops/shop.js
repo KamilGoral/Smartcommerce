@@ -5382,15 +5382,31 @@ ${offerTimestampLine}
   getShop();
   getOrders();
 
-  if (location.hostname === "sprytny01.webflow.io") {
-    const el = document.querySelector(
-      'a[data-w-tab="Deliveries"].in-page-menu-link',
-    );
-    if (el) {
-      el.style.display = "flex";
-      el.style.alignItems = "center";
-      el.style.justifyContent = "center"; // usuń jeśli nie chcesz centrowania
-      el.style.gap = "8px"; // jeśli kiedyś dodasz ikonę/element obok
+  // Logika widoczności zakładki "Dostawy" (Deliveries)
+  const currentOrganization = getCookie("OrganizationName");
+  const deliveriesTab = document.querySelector(
+    'a[data-w-tab="Deliveries"].in-page-menu-link',
+  );
+
+  // Lista shopKey, które mogą zobaczyć zakładkę "Dostawy"
+  const allowedShopKeys = ["054", "600"];
+
+  if (deliveriesTab) {
+    // Sprawdź czy organizacja jest na liście dozwolonych
+    const isOrganizationAllowed = currentOrganization === "PSSCzestochowa";
+
+    // Sprawdź czy shopKey jest na liście dozwolonych
+    const isShopAllowed = allowedShopKeys.includes(shopKey);
+
+    // Pokaż zakładkę jeśli to dev stage, dozwolona organizacja lub dozwolony sklep
+    if (
+      location.hostname === "sprytny01.webflow.io" ||
+      isOrganizationAllowed ||
+      isShopAllowed
+    ) {
+      deliveriesTab.style.display = "flex";
+    } else {
+      deliveriesTab.style.display = "none";
     }
   }
 
