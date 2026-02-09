@@ -866,19 +866,21 @@ whenReadyAndDataTables(function () {
   function computeDiffs(d) {
     var qtyDiff = roundQty(d.deliveredQty - d.orderedQty);
     var priceDiff = (d.deliveredPrice !== null && d.orderedPrice !== null) ? d.orderedPrice - d.deliveredPrice : 0;
+    var commonQty = Math.min(d.deliveredQty, d.orderedQty);
     var totalDiff = (d.deliveredPrice !== null && d.orderedPrice !== null)
-      ? d.deliveredQty * (d.orderedPrice - d.deliveredPrice)
+      ? commonQty * (d.orderedPrice - d.deliveredPrice)
       : 0;
     var hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
     var hasPriceDiff = Math.abs(priceDiff) > 0.000001;
-    return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
+    return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, commonQty: commonQty, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
   }
 
   // Szczegóły: zam.il×zam.cena → dost.il×dost.cena (inline, styl jak GTIN)
   function buildDetailLine(d) {
     var zam = fmtQty(d.orderedQty) + "\u00d7" + (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-");
     var dost = fmtQty(d.deliveredQty) + "\u00d7" + (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-");
-    return '<span class="nz-detail">(' + zam + ' \u2192 ' + dost + ')</span>';
+    var tooltip = "Zam\u00f3wienie: " + zam + " \u2192 Dostawa: " + dost;
+    return '<span class="nz-detail" title="' + tooltip + '">(' + zam + ' \u2192 ' + dost + ')</span>';
   }
 
   // Kolumna „Weryfikacja" — badge-e niezgodności
@@ -925,17 +927,20 @@ whenReadyAndDataTables(function () {
     }
     var diffs = computeDiffs(d);
     if (type === "sort" || type === "type") return diffs.totalDiff;
-    return buildWartoscHtml(diffs, d.isProposal);
+    return buildWartoscHtml(diffs, d);
   }
 
-  function buildWartoscHtml(diffs, isProposal) {
+  function buildWartoscHtml(diffs, d) {
+    var isProposal = d && d.isProposal;
     var italicStyle = isProposal ? " font-style:italic;" : "";
     if (!diffs.hasPriceDiff) {
       return '<span style="color:#6b7280;' + italicStyle + '">' + fmtPLN(0) + '</span>';
     }
     var sign = diffs.totalDiff > 0 ? "+" : "";
     var color = diffs.totalDiff > 0 ? "#16a34a" : "#dc2626";
-    return '<span class="nz-impact" style="color:' + color + ';' + italicStyle + '">' + sign + fmtPLN(Math.abs(diffs.totalDiff)) + '</span>';
+    var pSign = diffs.priceDiff > 0 ? "+" : "";
+    var tooltip = "R\u00f3\u017cnica ceny: " + pSign + fmtPLN(Math.abs(diffs.priceDiff)) + "/szt. \u00d7 " + fmtQty(diffs.commonQty) + " szt. (zam\u00f3wionych) = " + sign + fmtPLN(Math.abs(diffs.totalDiff));
+    return '<span class="nz-impact" style="color:' + color + ';' + italicStyle + '" title="' + tooltip + '">' + sign + fmtPLN(Math.abs(diffs.totalDiff)) + '</span>';
   }
 
   // Child row renderery
@@ -948,7 +953,7 @@ whenReadyAndDataTables(function () {
   function renderChildWartosc(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
     var d = { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: true, hasMatch: true };
     var diffs = computeDiffs(d);
-    return buildWartoscHtml(diffs, true);
+    return buildWartoscHtml(diffs, d);
   }
 
   // ---------- child row render (warianty/propozycje) ----------
@@ -1116,7 +1121,8 @@ whenReadyAndDataTables(function () {
       #table_delivery_filter label{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#374151;margin:0;font-family:inherit}
       #table_delivery_filter input[type="search"],#table_delivery_filter input{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:400;border:1px solid #d1d5db;background:#fff;color:#374151;outline:none;font-family:inherit;line-height:1.4;min-width:200px;transition:border-color .15s}
       #table_delivery_filter input:focus{border-color:#93c5fd;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
-      .top{display:flex;align-items:center;gap:12px;padding:4px 0}
+      .top{display:flex;align-items:center;gap:12px;padding:4px 0;flex-wrap:nowrap}
+      .top .dt-buttons{display:inline-flex!important;gap:6px;flex-shrink:0;margin-left:auto}
     `;
     document.head.appendChild(s);
   }
