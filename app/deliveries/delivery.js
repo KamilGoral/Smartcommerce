@@ -1098,7 +1098,7 @@ whenReadyAndDataTables(function () {
     s.id = "dh-bulk-styles";
     s.textContent = `
       .dataTables_scrollBody>table>thead{visibility:collapse!important;height:0!important;line-height:0!important;overflow:hidden!important}
-      #bulk-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:4px 0;gap:8px;background:transparent;border:none;min-height:32px}
+      #bulk-toolbar{display:flex;align-items:center;gap:8px;background:transparent;border:none;min-height:32px;margin-left:auto;flex-shrink:0}
       .bulk-counter{font-size:14px;color:#94a3b8;font-weight:500;white-space:nowrap;transition:color .2s}
       #bulk-toolbar.has-selection .bulk-counter{color:#1e40af}
       .bulk-action-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;font-family:inherit;line-height:1.4}
@@ -1122,7 +1122,6 @@ whenReadyAndDataTables(function () {
       #table_delivery_filter input[type="search"],#table_delivery_filter input{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:400;border:1px solid #d1d5db;background:#fff;color:#374151;outline:none;font-family:inherit;line-height:1.4;min-width:200px;transition:border-color .15s}
       #table_delivery_filter input:focus{border-color:#93c5fd;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
       .top{display:flex;align-items:center;gap:12px;padding:4px 0;flex-wrap:nowrap}
-      .top .dt-buttons{display:inline-flex!important;gap:6px;flex-shrink:0;margin-left:auto}
     `;
     document.head.appendChild(s);
   }
@@ -1143,14 +1142,12 @@ whenReadyAndDataTables(function () {
       <button id="bulk-undo-btn" class="bulk-action-btn" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Cofnij</button>
     `;
 
-    const wrapper = document.querySelector("#table_delivery_wrapper");
-    if (wrapper) {
-      const scroll = wrapper.querySelector(".dataTables_scroll");
-      if (scroll) {
-        wrapper.insertBefore(toolbar, scroll);
-      } else {
-        wrapper.insertBefore(toolbar, wrapper.firstChild);
-      }
+    const topDiv = document.querySelector("#table_delivery_wrapper .top");
+    if (topDiv) {
+      topDiv.appendChild(toolbar);
+    } else {
+      const wrapper = document.querySelector("#table_delivery_wrapper");
+      if (wrapper) wrapper.insertBefore(toolbar, wrapper.firstChild);
     }
   }
 
@@ -2813,7 +2810,7 @@ whenReadyAndDataTables(function () {
         [6, "asc"],
         [2, "asc"],
       ], // Sortuj najpierw po statusie (kol. 6), potem po nazwie produktu (kol. 2)
-      dom: '<"top"fB>rt<"bottom"lip>',
+      dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
       autoWidth: false,
@@ -2881,50 +2878,7 @@ whenReadyAndDataTables(function () {
         }
       },
 
-      buttons: [
-        {
-          text: '<span class="dt-btn">Rozwiń</span>',
-          titleAttr: "Rozwiń wszystkie (propozycje)",
-          action: function (e, dt) {
-            dt.rows().every(function () {
-              const row = this;
-              const data = row.data();
-              const tr = $(row.node());
-              // Oblicz liczbę wariantów do wyświetlenia w rozwinięciu
-              let proposalsToRenderCount;
-              if (selectedOrderId && data?._variantMatches) {
-                proposalsToRenderCount = data._variantMatches.length;
-              } else {
-                const proposals = safeArr(data?.potentialMatches);
-                proposalsToRenderCount = proposals.length > 1 ? proposals.length - 1 : 0;
-              }
-
-              if (proposalsToRenderCount > 0 && !tr.hasClass("shown")) {
-                const childRowsHtml = renderChildProposals(
-                  data,
-                  selectedOrderId,
-                );
-                tr.after(childRowsHtml);
-                tr.addClass("shown");
-              }
-            });
-          },
-        },
-        {
-          text: '<span class="dt-btn">Zwiń</span>',
-          titleAttr: "Zwiń wszystkie",
-          action: function (e, dt) {
-            dt.rows().every(function () {
-              const row = this;
-              const tr = $(row.node());
-              if (tr.hasClass("shown")) {
-                tr.nextUntil(":not(.child-row)").remove();
-                tr.removeClass("shown");
-              }
-            });
-          },
-        },
-      ],
+      buttons: [],
 
       language: {
         emptyTable: "Brak danych do wyświetlenia",
