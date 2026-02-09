@@ -553,10 +553,16 @@ whenReadyAndDataTables(function () {
 
     headerEl.innerHTML = `
       <!-- Statystyki - rząd badge'ów -->
-      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px;">
         ${dhBadge(ICON.truck, "Dostawca", `<span id="wholesalerName">${wholesaler}</span>`, "#f9fafb", "#e5e7eb", "#374151")}
         ${dhBadge(ICON.box, "Liczba pozycji", `<span id="productsCountDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
         ${dhBadge(ICON.coins, "Wartość dokumentu", `<span id="valueDelivery">-</span>`, "#f9fafb", "#e5e7eb", "#374151")}
+        <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
+          Szczegóły
+          <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
 
       <!-- Szczegóły dokumentu (domyślnie ukryte) -->
@@ -1677,14 +1683,12 @@ whenReadyAndDataTables(function () {
       })
       .join("");
 
-    const orderCount = orderIds.length;
     dropdownWrapper.innerHTML = `
       <div class="status-filter-btn" style="cursor: pointer;">
         <select id="order-filter-select" class="dh-order-select">
           <option value="">Wszystkie zamówienia</option>
           ${options}
         </select>
-        <span class="filter-count">${orderCount}</span>
       </div>
     `;
   }
@@ -1852,12 +1856,6 @@ whenReadyAndDataTables(function () {
 
     container.innerHTML = `
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative;">
-        <button id="details-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
-          Szczegóły
-          <svg id="details-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
-            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
         <button id="help-toggle-btn" type="button" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 12px; color: #6b7280; cursor: pointer; transition: background 0.15s; font-family: inherit;">
           Instrukcja
           <svg id="help-chevron" width="10" height="10" viewBox="0 0 12 12" fill="none" style="transition: transform 0.2s;">
@@ -2485,6 +2483,7 @@ whenReadyAndDataTables(function () {
     container.style.flexWrap = "wrap";
     container.style.alignItems = "center";
     container.style.gap = "8px";
+    container.style.padding = "14px 0";
 
     const html = STATUS_FILTERS.map(
       (filter) => `
