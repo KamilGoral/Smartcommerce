@@ -539,6 +539,29 @@ whenReadyAndDataTables(function () {
   }
 
   function getShops() {
+    // Najpierw pobierz powiązania MC shops, potem renderuj sklepy
+    var mcLinkedShopKeys = new Set();
+    var mcRequest = new XMLHttpRequest();
+    mcRequest.open("GET", new URL(InvokeURL + "integrations/merchant-console/shops?perPage=1000"), true);
+    mcRequest.setRequestHeader("Authorization", orgToken);
+    mcRequest.setRequestHeader("Requested-By", "webflow-3-4");
+    mcRequest.onload = function () {
+      if (mcRequest.status >= 200 && mcRequest.status < 400) {
+        var mcData = JSON.parse(mcRequest.response);
+        (mcData.items || []).forEach(function (item) {
+          if (item.shopKey) {
+            mcLinkedShopKeys.add(item.shopKey);
+          }
+        });
+      }
+      fetchAndRenderShops(mcLinkedShopKeys);
+    };
+    mcRequest.onerror = function () {
+      fetchAndRenderShops(mcLinkedShopKeys);
+    };
+    mcRequest.send();
+
+    function fetchAndRenderShops(mcLinkedShopKeys) {
     let url = new URL(InvokeURL + "shops?perPage=50");
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -562,9 +585,7 @@ whenReadyAndDataTables(function () {
           shopKeyButton.setAttribute("shopkey", shop.shopKey);
           shopKeyButton.textContent = "Dodaj";
 
-          if (shop.merchantConsoleShopId === null) {
-            //pass
-          } else {
+          if (mcLinkedShopKeys.has(shop.shopKey)) {
             shopKeyButton.classList.add("redirecttomerchant");
             shopKeyButton.textContent = "Edytuj w Konsoli Kupca";
             shopKeyButton.setAttribute(
@@ -598,6 +619,7 @@ whenReadyAndDataTables(function () {
       }
     };
     request.send();
+    }
   }
 
   function updateStatus(changeOfStatus) {

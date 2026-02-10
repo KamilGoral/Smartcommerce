@@ -544,6 +544,7 @@ whenReadyAndDataTables(function () {
   function getShops() {
     async function getIDS() {
       let times = [{ id: "", shortName: "" }];
+      let shopKeyToMCSId = {};
       let url2 = new URL(
         InvokeURL + "integrations/merchant-console/shops?perPage=1000"
       );
@@ -559,8 +560,11 @@ whenReadyAndDataTables(function () {
               id: item.id,
               shortName: item.shortName,
             });
+            if (item.shopKey) {
+              shopKeyToMCSId[item.shopKey] = item.id;
+            }
           });
-          createAll(times);
+          createAll(times, shopKeyToMCSId);
           return await new Promise(
             (resolve) => (request2.onload = resolve(times))
           );
@@ -577,11 +581,12 @@ whenReadyAndDataTables(function () {
     }
 
     function format(d) {
+      var mcsId = d._mcsId || "";
       var toDisplayHtml =
         "<tr><td>Nazwa:</td><td>" +
         d.name +
         "</td><tr><td>Konsola-Kupca SklepId:</td><td>" +
-        d.merchantConsoleShopId +
+        mcsId +
         "</td><tr><td>Klucz Sklepu:</td><td>" +
         d.shopKey +
         "</td>";
@@ -592,7 +597,7 @@ whenReadyAndDataTables(function () {
       );
     }
 
-    function createAll(sklepy) {
+    function createAll(sklepy, shopKeyToMCSId) {
       const optionsHTML = sklepy.reduce(
         (html, value) =>
           html + `<option value=${value.id}>${value.shortName}</option>`,
@@ -670,18 +675,16 @@ whenReadyAndDataTables(function () {
             },
             {
               orderable: true,
-              data: "merchantConsoleShopId",
-              render: function (data) {
+              data: null,
+              render: function () {
                 return selectHTML.toString();
               },
             },
           ],
           rowCallback: function (row, data) {
-            var pickMe = data.merchantConsoleShopId;
-            if (data.merchantConsoleShopId === null) {
-              pickMe = "";
-            }
-            $("td:eq(2) select", row).val(data.merchantConsoleShopId);
+            var mcsId = shopKeyToMCSId[data.shopKey] || "";
+            data._mcsId = mcsId;
+            $("td:eq(2) select", row).val(mcsId);
             $("td:eq(2) select", row).change();
           },
         });

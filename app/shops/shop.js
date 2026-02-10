@@ -509,23 +509,12 @@ whenReadyAndDataTables(function () {
           "https://" + DomainName + "/app/shops/shop?shopKey=" + data.shopKey,
         );
 
-        if (data.merchantConsoleShopId === null) {
-          data.merchantConsoleShopId = "";
-        }
-
         // Update shopName, shopKey, and other information
         document.querySelector('[shopdata="shopName"]').textContent =
-          data.name +
-            " - " +
-            data.shopKey +
-            " | " +
-            data.merchantConsoleShopId || "N/A";
+          data.name + " - " + data.shopKey;
 
         $("#shopNameEdit").val(data.name || "");
         $("#shopCodeEdit").val(data.shopKey || "");
-        $("#merchantConsoleShopId")
-          .val(data.merchantConsoleShopId || "")
-          .prop("disabled", true);
 
         // Mapping Polish state names to <select> element values
         var stateMapping = {

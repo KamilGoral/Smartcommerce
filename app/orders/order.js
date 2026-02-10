@@ -529,10 +529,6 @@ whenReadyAndDataTables(function () {
         if (request.status >= 200 && request.status < 400) {
           var data = JSON.parse(this.response);
 
-          if (data.merchantConsoleShopId === null) {
-            data.merchantConsoleShopId = "";
-          }
-
           // Jeśli brak danych adresowych, emaili i telefonów -> pokaż modal edycji
           const isAddressEmpty = !data.address;
           const areEmailsEmpty = !(data.emails && data.emails.length > 0);
