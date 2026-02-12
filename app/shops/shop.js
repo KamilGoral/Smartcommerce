@@ -1225,34 +1225,32 @@ whenReadyAndDataTables(function () {
 
     // Funkcja obsługi usuwania
     function handleDeleteDelivery(uuid, name, api) {
-      if (
-        confirm(
-          'Czy na pewno chcesz usunąć dostawę "' +
-            decodeURIComponent(name) +
-            '"?',
-        )
-      ) {
-        console.log("Usuwanie dostawy:", uuid, name);
-
-        // Przykład wywołania API do usunięcia:
-        /*
-      $.ajax({
-        url: InvokeURL + "/van/transactions/" + uuid,
-        method: "DELETE",
-        headers: { 
-          Authorization: orgToken,
-          "Requested-By": "webflow-3-4"
-        },
-        success: function() {
-          // Po udanym usunięciu - odśwież tabelę
-          api.ajax.reload();
-        },
-        error: function(xhr, status, error) {
-          alert("Błąd podczas usuwania: " + error);
-        }
-      });
-      */
+      var decodedName = decodeURIComponent(name);
+      if (!confirm('Czy na pewno chcesz usunąć dostawę "' + decodedName + '"?')) {
+        return;
       }
+
+      $.ajax({
+        url: InvokeURL + "van/transactions/" + encodeURIComponent(uuid),
+        method: "DELETE",
+        headers: {
+          Authorization: orgToken,
+          "Requested-By": "webflow-3-4",
+        },
+        success: function () {
+          // Usuń wiersz z tabeli bez przeładowania
+          var row = api.row($('.delete-delivery[data-uuid="' + uuid + '"]').closest("tr"));
+          row.remove().draw(false);
+          displayMessage("Success", 'Usunięto dostawę "' + decodedName + '"');
+        },
+        error: function (xhr) {
+          var msg = "Błąd podczas usuwania dostawy.";
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            msg = xhr.responseJSON.message;
+          }
+          displayMessage("Error", msg);
+        },
+      });
     }
 
     // Zwracamy referencję do tabeli, jeśli potrzebna

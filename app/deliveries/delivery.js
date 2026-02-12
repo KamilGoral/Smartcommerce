@@ -1112,8 +1112,11 @@ whenReadyAndDataTables(function () {
       .bulk-action-btn:not(:disabled):hover{background:#f3f4f6;border-color:#9ca3af}
       .bulk-cb-main,.bulk-cb-variant{width:14px;height:14px;cursor:pointer;accent-color:#2563eb;margin:0}
       .bulk-select-cell,.expand-control-cell{text-align:center!important;vertical-align:middle!important;padding:4px 2px!important;width:28px!important;max-width:28px!important}
+      td.expand-control-cell::before,td.expand-control-cell::after{content:none!important}
+      td.dt-control::before,td.dt-control::after{content:none!important}
       td.details-control{cursor:pointer}
-      td.details-control::before{content:"\\203A";display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
+      td.details-control::before{content:"\\203A"!important;display:inline-block;font-size:16px;font-weight:700;color:#94a3b8;transition:transform .15s ease;transform:rotate(0deg)}
+      td.details-control::after{content:none!important}
       tr.shown>td.details-control::before{transform:rotate(90deg);color:#3b82f6}
       .nz-col{vertical-align:middle}
       .nz-cell{white-space:nowrap}
@@ -1880,16 +1883,12 @@ whenReadyAndDataTables(function () {
       </div>
       <!-- Instrukcja (domyślnie ukryta) -->
       <div id="help-section" style="display: none; margin-top: 12px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 13px; color: #475569; line-height: 1.6;">
-        <p style="margin: 0 0 8px; font-weight: 600; color: #1e293b;">Jak korzystać z tego widoku?</p>
-        <p style="margin: 0 0 6px;">Ten widok pozwala porównać dokumenty dostawy z zamówieniami i zarządzać ich powiązaniami.</p>
-        <ul style="margin: 0; padding-left: 18px;">
-          <li><strong>Weryfikacja</strong> \u2014 pokazuje różnice ilościowe i cenowe między dostawą a zamówieniem. Zielone wartości oznaczają korzystną różnicę, czerwone \u2014 niekorzystną.</li>
-          <li><strong>Różnica wartości</strong> \u2014 finansowy wpływ różnicy cenowej na faktycznie dostarczony towar.</li>
-          <li><strong>Status</strong> \u2014 <em>Zgodne</em> (pełne dopasowanie), <em>Proponowane</em> (system zaproponował powiązanie), <em>Rozbieżność</em> (wykryto różnice), <em>Brak dopasowania</em> (brak odpowiadającego zamówienia).</li>
-          <li><strong>Połącz / Rozłącz</strong> \u2014 zaznacz pozycje checkboxami i użyj przycisków, aby ręcznie powiązać lub rozłączyć produkty z zamówieniami. <em>Cofnij</em> odwraca ostatnią operację.</li>
-          <li><strong>Warianty</strong> \u2014 kliknij strzałkę \u203A przy produkcie, aby zobaczyć alternatywne propozycje powiązań.</li>
-          <li><strong>Zakres zamówień</strong> \u2014 kliknij, aby zmienić okres wyszukiwania zamówień do porównania.</li>
-        </ul>
+        <p style="margin: 0 0 8px; font-weight: 600; color: #1e293b;">Jak działa ten widok?</p>
+        <p style="margin: 0 0 6px;">W tym miejscu sprawdzisz, czy dostawa zgadza się z wcześniejszymi zamówieniami.</p>
+        <p style="margin: 0 0 6px;">System porównuje dokument dostawy z zamówieniami z kilku dni przed datą dostawy. Jeśli nie widzisz właściwego zamówienia, możesz zmienić zakres dat u góry ekranu.</p>
+        <p style="margin: 0 0 6px;">Zielone wartości oznaczają korzystną różnicę, czerwone \u2013 niezgodność w ilości lub cenie.</p>
+        <p style="margin: 0 0 6px;">Jeśli produkt był zamawiany w kilku dokumentach, możesz rozwinąć wiersz, aby zobaczyć wszystkie powiązania.</p>
+        <p style="margin: 0;">W razie potrzeby zaznacz pozycje i użyj opcji Połącz lub Rozłącz, aby poprawić dopasowanie.</p>
       </div>
       <div style="border-bottom: 1px solid #e5e7eb; margin-top: 14px;"></div>
     `;
