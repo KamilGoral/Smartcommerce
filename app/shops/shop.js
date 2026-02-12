@@ -5385,11 +5385,10 @@ ${offerTimestampLine}
     // Sprawdź czy shopKey jest na liście dozwolonych
     const isShopAllowed = allowedShopKeys.includes(shopKey);
 
-    // Pokaż zakładkę jeśli to dev stage, dozwolona organizacja lub dozwolony sklep
+    // Pokaż zakładkę jeśli to dev stage lub (dozwolona organizacja i dozwolony sklep)
     if (
       location.hostname === "sprytny01.webflow.io" ||
-      isOrganizationAllowed ||
-      isShopAllowed
+      (isOrganizationAllowed && isShopAllowed)
     ) {
       deliveriesTab.style.display = "flex";
     } else {
