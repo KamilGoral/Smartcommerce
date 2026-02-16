@@ -1126,7 +1126,7 @@ whenReadyAndDataTables(function () {
             }
 
             // Display - używamy klas jak w drugiej tabeli
-            return `<p class="${statusInfo.class} tippy" data-tippy-content="${data}">${statusInfo.label}</p>`;
+            return `<p class="${statusInfo.class} tippy" data-tippy-content="${statusInfo.label}">${statusInfo.label}</p>`;
           },
         },
         // Kolumna 7: Akcje (Przejdź + Kosz)
