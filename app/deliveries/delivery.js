@@ -1798,7 +1798,7 @@ whenReadyAndDataTables(function () {
       currentOrderFilterFn = null;
     }
 
-    table.draw();
+    table.order([[6, "asc"], [2, "asc"]]).draw();
 
     // Przelicz liczniki filtrów i statystyki dla widocznego zbioru
     recalcCountersForOrderFilter(table);
@@ -1818,11 +1818,8 @@ whenReadyAndDataTables(function () {
         // Wyczyść selekcje bulk przy zmianie zamówienia
         clearAllSelections(true);
 
-        // Zastosuj filtr
+        // Zastosuj filtr (sortowanie + draw wewnątrz)
         applyOrderFilter(table, orderId);
-
-        // Wymuś porządek sortowania po zmianie zamówienia
-        table.order([[10, "asc"], [2, "asc"]]).draw();
       }
     });
   }
