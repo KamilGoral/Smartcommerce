@@ -4979,10 +4979,10 @@ ${offerTimestampLine}
       return;
     }
 
-    // Sprawdź rozszerzenie pliku (tylko RTF)
+    // Sprawdź rozszerzenie pliku
     var fileName = deliveryFile.name.toLowerCase();
-    if (!fileName.endsWith(".rtf")) {
-      displayMessage("Error", "Obsługiwany format: tylko pliki .RTF");
+    if (!fileName.endsWith(".rtf") && !fileName.endsWith(".txt") && !fileName.endsWith(".edi")) {
+      displayMessage("Error", "Obsługiwane formaty: .RTF, .TXT, .EDI");
       fileInput.value = "";
       return;
     }
@@ -5195,8 +5195,8 @@ ${offerTimestampLine}
         var fileName = file.name.toLowerCase();
 
         // Sprawdź rozszerzenie
-        if (!fileName.endsWith(".rtf")) {
-          displayMessage("Error", "Obsługiwany format: tylko pliki .RTF");
+        if (!fileName.endsWith(".rtf") && !fileName.endsWith(".txt") && !fileName.endsWith(".edi")) {
+          displayMessage("Error", "Obsługiwane formaty: .RTF, .TXT, .EDI");
           fileInput.value = "";
           $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
           return;
