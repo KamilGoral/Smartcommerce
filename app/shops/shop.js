@@ -5016,36 +5016,63 @@ ${offerTimestampLine}
     // Plik jako drugie pole
     formData.append("file", deliveryFile);
 
+    // -------- HELPER: Tłumaczenie komunikatów API --------
+    function translateApiMessage(msg) {
+      if (!msg || typeof msg !== "string") return null;
+
+      var match;
+
+      // "There are no active wholesalers matching tax ID [XXX] from the file."
+      match = msg.match(/no active wholesalers matching tax ID \[(.+?)\]/i);
+      if (match) {
+        return "Nie znaleziono aktywnego dostawcy o NIP " + match[1] + " podanym w pliku.";
+      }
+
+      // "Duplicate transaction name"
+      if (/duplicate transaction/i.test(msg)) {
+        return "Transakcja o takiej nazwie już istnieje.";
+      }
+
+      // "File format not supported"
+      if (/file format not supported/i.test(msg)) {
+        return "Nieobsługiwany format pliku.";
+      }
+
+      // Nieznany komunikat — zwróć oryginał
+      return null;
+    }
+
     // -------- HELPER: Friendly error messages --------
     function getFriendlyErrorMessage(error) {
       if (error.response) {
+        var apiMsg = error.response.data?.message;
+        var translated = translateApiMessage(apiMsg);
+
         switch (error.response.status) {
           case 400:
-            return (
-              error.response.data?.message || "Nieprawidłowe dane w żądaniu."
-            );
+            return translated || apiMsg || "Nieprawidłowe dane w żądaniu.";
           case 403:
             return "Brak uprawnień do wykonania tej operacji.";
           case 404:
             return "Nie znaleziono zasobu. Sprawdź czy sklep istnieje.";
           case 409:
             return (
-              error.response.data?.message ||
+              translated || apiMsg ||
               "Konflikt - transakcja o takiej nazwie już istnieje."
             );
           case 415:
-            return "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik w formacie .RTF";
+            return "Nieobsługiwany typ pliku. Upewnij się, że wysyłasz plik w formacie .RTF, .TXT lub .EDI";
           case 422:
             return (
-              error.response.data?.message ||
-              "Nie można dopasować dostawcy na podstawie NIP-u podanego w pliku RTF. " +
+              translated ||
+              "Nie można dopasować dostawcy na podstawie NIP-u podanego w pliku. " +
                 "Sprawdź czy NIP w pliku jest poprawny i czy dostawca istnieje w systemie."
             );
           case 500:
             return "Błąd serwera [500]. Spróbuj ponownie później.";
           default:
             return (
-              error.response.data?.message ||
+              translated || apiMsg ||
               "Wystąpił nieznany błąd. Spróbuj ponownie później."
             );
         }
