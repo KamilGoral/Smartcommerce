@@ -628,11 +628,6 @@ whenReadyAndDataTables(function () {
         // Renderuj cały nagłówek (statystyki + szczegóły)
         renderDeliveryHeader(data);
 
-        // Inicjalizuj datepicker (po renderowaniu nagłówka)
-        if (deliveryIssueDate) {
-          initDatePickerDefaults();
-        }
-
         // Inicjalizuj toggle szczegółów
         setTimeout(() => {
           if (typeof initDetailsToggleEvents === "function") {
@@ -653,6 +648,10 @@ whenReadyAndDataTables(function () {
   // Wywołaj po załadowaniu strony — tabela czeka na issueDate z detali dostawy
   loadDeliveryDetails().then(function () {
     initDeliveryTable({ recadvId, InvokeURL, orgToken });
+    // Datepicker po initDeliveryTable — DOM (#dateRangeToggle) już istnieje
+    if (deliveryIssueDate) {
+      initDatePickerDefaults();
+    }
     initializeSimpleTooltips();
   });
 
