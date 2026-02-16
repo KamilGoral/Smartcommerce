@@ -580,7 +580,7 @@ whenReadyAndDataTables(function () {
   }
 
   function loadDeliveryDetails() {
-    $.ajax({
+    return $.ajax({
       type: "GET",
       url: InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId),
       headers: {
@@ -650,8 +650,11 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  // Wywołaj po załadowaniu strony
-  loadDeliveryDetails();
+  // Wywołaj po załadowaniu strony — tabela czeka na issueDate z detali dostawy
+  loadDeliveryDetails().then(function () {
+    initDeliveryTable({ recadvId, InvokeURL, orgToken });
+    initializeSimpleTooltips();
+  });
 
   // ============================================
   // Aktualizuj statystyki na podstawie danych z tabeli
@@ -3195,6 +3198,4 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  initDeliveryTable({ recadvId, InvokeURL, orgToken });
-  initializeSimpleTooltips();
 });
