@@ -600,7 +600,7 @@ whenReadyAndDataTables(function () {
         }
         select.appendChild(option);
       });
-      $(modal).show();
+      $(modal).css("display", "flex");
     }
 
     // Pobierz listę dostawców z API, aby wyświetlić pełne nazwy
@@ -656,6 +656,11 @@ whenReadyAndDataTables(function () {
               op: "replace",
               path: "/wholesalerKey",
               value: selectedKey,
+            },
+            {
+              op: "replace",
+              path: "/status",
+              value: "committed",
             },
           ]),
           beforeSend: function () {
@@ -749,8 +754,10 @@ whenReadyAndDataTables(function () {
         // Renderuj cały nagłówek (statystyki + szczegóły)
         renderDeliveryHeader(data);
 
-        // Jeśli jest wiele potencjalnych dostawców — pokaż modal wyboru
+        // Jeśli status draft i są potencjalni dostawcy — pokaż modal wyboru
         if (
+          data.status &&
+          data.status.toLowerCase() === "draft" &&
           Array.isArray(data.potentialWholesalerKeys) &&
           data.potentialWholesalerKeys.length > 1
         ) {
