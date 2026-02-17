@@ -859,16 +859,6 @@ whenReadyAndDataTables(function () {
     // Flaga czy dane zostały już załadowane
     var dataLoaded = false;
 
-    // Mapowanie statusów na polski z klasami (jak w drugiej tabeli)
-    const statusMap = {
-      committed: { label: "Zatwierdzony", class: "positive" },
-      draft: { label: "Wersja robocza", class: "medium" },
-      pending: { label: "Oczekujący", class: "medium" },
-      cancelled: { label: "Anulowany", class: "negative" },
-      processing: { label: "W trakcie", class: "medium" },
-      error: { label: "Błąd", class: "bad" },
-      completed: { label: "Zakończony", class: "super" },
-    };
 
     var tableDeliveries = $("#table_deliveries").DataTable({
       pagingType: "full_numbers",
@@ -959,12 +949,16 @@ whenReadyAndDataTables(function () {
             return data ? data : "";
           },
         },
-        // Kolumna 2: Dostawca
+        // Kolumna 2: Dostawca (dla draft → "Nieznany")
         {
           orderable: true,
           searchable: true,
           data: "wholesalerKey",
-          render: function (data, type) {
+          render: function (data, type, row) {
+            if (row.status && row.status.toLowerCase() === "draft") {
+              if (type === "filter" || type === "sort") return "nieznany";
+              return '<span style="color:#d97706;font-weight:500;">Nieznany</span>';
+            }
             if (!data)
               return '<span style="color:#9ca3af;font-weight:300;">-</span>';
             const formatted =
@@ -1107,29 +1101,7 @@ whenReadyAndDataTables(function () {
           `;
           },
         },
-        // Kolumna 6: Status z badge
-        {
-          orderable: true,
-          searchable: true,
-          data: "status",
-          render: function (data, type, row) {
-            if (!data)
-              return '<span style="color:#9ca3af;font-weight:300;">-</span>';
-
-            const statusInfo = statusMap[data.toLowerCase()] || {
-              label: data,
-              class: "medium",
-            };
-
-            if (type === "sort" || type === "type" || type === "filter") {
-              return statusInfo.label.toLowerCase();
-            }
-
-            // Display - używamy klas jak w drugiej tabeli
-            return `<p class="${statusInfo.class} tippy" data-tippy-content="${statusInfo.label}">${statusInfo.label}</p>`;
-          },
-        },
-        // Kolumna 7: Akcje (Przejdź + Kosz)
+        // Kolumna 6: Akcje (Przejdź + Kosz)
         {
           orderable: false,
           searchable: false,

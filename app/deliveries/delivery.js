@@ -678,12 +678,6 @@ whenReadyAndDataTables(function () {
             var wholesalerNameEl = document.getElementById("wholesalerName");
             if (wholesalerNameEl) wholesalerNameEl.textContent = newName;
 
-            // Zmień status badge na committed
-            var editState = document.querySelector(".editstate");
-            var confirmedState = document.querySelector(".confirmedstate");
-            if (editState) editState.style.display = "none";
-            if (confirmedState) confirmedState.style.display = "flex";
-
             // Inicjalizuj resztę strony (toggle, tabela, datepicker)
             setTimeout(function () {
               if (typeof initDetailsToggleEvents === "function") {
@@ -759,20 +753,6 @@ whenReadyAndDataTables(function () {
         if (deliveryTitle && data.name) {
           deliveryTitle.textContent = data.name;
           deliveryBread.textContent = data.name;
-        }
-
-        // Status badges
-        if (data.status) {
-          const editState = document.querySelector(".editstate");
-          const confirmedState = document.querySelector(".confirmedstate");
-
-          if (data.status.toLowerCase() === "draft") {
-            if (editState) editState.style.display = "flex";
-            if (confirmedState) confirmedState.style.display = "none";
-          } else if (data.status.toLowerCase() === "committed") {
-            if (editState) editState.style.display = "none";
-            if (confirmedState) confirmedState.style.display = "flex";
-          }
         }
 
         // Zapisz issueDate globalnie (do filtrów dat)
