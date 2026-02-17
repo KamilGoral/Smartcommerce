@@ -670,8 +670,37 @@ whenReadyAndDataTables(function () {
               "Proszę czekać...";
           },
           success: function () {
-            // Przeładuj stronę — dane zostaną pobrane ponownie z wybranym dostawcą
-            location.reload();
+            // Ukryj modal
+            $(modal).hide();
+
+            // Zaktualizuj nagłówek dostawcy na froncie
+            var newName =
+              selectedKey.charAt(0).toUpperCase() +
+              selectedKey.slice(1).replace(/-/g, " ");
+            var wholesalerNameEl = document.getElementById("wholesalerName");
+            if (wholesalerNameEl) wholesalerNameEl.textContent = newName;
+
+            // Zmień status badge na committed
+            var editState = document.querySelector(".editstate");
+            var confirmedState = document.querySelector(".confirmedstate");
+            if (editState) editState.style.display = "none";
+            if (confirmedState) confirmedState.style.display = "flex";
+
+            // Inicjalizuj resztę strony (toggle, tabela, datepicker)
+            setTimeout(function () {
+              if (typeof initDetailsToggleEvents === "function") {
+                initDetailsToggleEvents();
+              }
+              if (typeof initHelpToggleEvents === "function") {
+                initHelpToggleEvents();
+              }
+            }, 100);
+
+            initDeliveryTable({ recadvId, InvokeURL, orgToken });
+            if (deliveryIssueDate) {
+              initDatePickerDefaults();
+            }
+            initializeSimpleTooltips();
           },
           error: function (xhr) {
             form.querySelector('input[type="submit"]').disabled = false;
