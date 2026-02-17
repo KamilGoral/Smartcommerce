@@ -579,6 +579,127 @@ whenReadyAndDataTables(function () {
     container.insertBefore(headerEl, container.firstChild);
   }
 
+  // ============================================
+  // Modal wyboru dostawcy (potentialWholesalerKeys)
+  // ============================================
+  function showWholesalerKeyModal(potentialKeys, currentKey) {
+    const modal = document.getElementById("wholesalerKeyChangeModal");
+    const select = document.getElementById("wholesalerKeySelector");
+    const form = document.getElementById("wf-form-wholesalerKeySelector");
+    const closeBtn = modal.querySelector(".icon-close");
+
+    // Funkcja wypełniająca select i pokazująca modal
+    function populateAndShow(nameMap) {
+      select.innerHTML = '<option value="">Wybierz</option>';
+      potentialKeys.forEach(function (key) {
+        var option = document.createElement("option");
+        option.value = key;
+        option.textContent = nameMap[key] || key;
+        if (key === currentKey) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+      $(modal).show();
+    }
+
+    // Pobierz listę dostawców z API, aby wyświetlić pełne nazwy
+    $.ajax({
+      type: "GET",
+      url: InvokeURL + "wholesalers?enabled=true&perPage=1000",
+      headers: {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      },
+      success: function (resp) {
+        var nameMap = {};
+        (resp.items || []).forEach(function (w) {
+          nameMap[w.wholesalerKey] = w.name || w.wholesalerKey;
+        });
+        populateAndShow(nameMap);
+      },
+      error: function () {
+        // Fallback — formatuj klucze jako nazwy
+        var nameMap = {};
+        potentialKeys.forEach(function (key) {
+          nameMap[key] =
+            key.charAt(0).toUpperCase() + key.slice(1).replace(/-/g, " ");
+        });
+        populateAndShow(nameMap);
+      },
+    });
+
+    // Obsługa submit formularza — PATCH wholesalerKey
+    $(form)
+      .off("submit.wholesalerKey")
+      .on("submit.wholesalerKey", function (e) {
+        e.preventDefault();
+        const selectedKey = select.value;
+        if (!selectedKey) {
+          displayMessage("Error", "Wybierz dostawcę z listy");
+          return;
+        }
+
+        $.ajax({
+          type: "PATCH",
+          url:
+            InvokeURL +
+            "van/transactions/" +
+            encodeURIComponent(recadvId),
+          headers: {
+            Authorization: orgToken,
+            "Requested-By": "webflow-3-4",
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify([
+            {
+              op: "replace",
+              path: "/wholesalerKey",
+              value: selectedKey,
+            },
+          ]),
+          beforeSend: function () {
+            form.querySelector('input[type="submit"]').disabled = true;
+            form.querySelector('input[type="submit"]').value =
+              "Proszę czekać...";
+          },
+          success: function () {
+            // Przeładuj stronę — dane zostaną pobrane ponownie z wybranym dostawcą
+            location.reload();
+          },
+          error: function (xhr) {
+            form.querySelector('input[type="submit"]').disabled = false;
+            form.querySelector('input[type="submit"]').value = "Wybierz";
+            console.error("Błąd PATCH wholesalerKey:", xhr);
+            displayMessage(
+              "Error",
+              "Nie udało się zmienić dostawcy. Spróbuj ponownie.",
+            );
+          },
+        });
+      });
+
+    // Zamknij modal → powrót do strony sklepu
+    var redirectToShop = function () {
+      window.location.href =
+        "https://" +
+        DomainName +
+        "/app/shops/shop?shopKey=" +
+        shopKey;
+    };
+
+    $(closeBtn).off("click.wholesalerKey").on("click.wholesalerKey", redirectToShop);
+
+    // Kliknięcie w tło modala (wrapper) → też powrót
+    $(modal)
+      .off("click.wholesalerKey")
+      .on("click.wholesalerKey", function (e) {
+        if ($(e.target).is(".modal-wrapper")) {
+          redirectToShop();
+        }
+      });
+  }
+
   function loadDeliveryDetails() {
     return $.ajax({
       type: "GET",
@@ -627,6 +748,15 @@ whenReadyAndDataTables(function () {
 
         // Renderuj cały nagłówek (statystyki + szczegóły)
         renderDeliveryHeader(data);
+
+        // Jeśli jest wiele potencjalnych dostawców — pokaż modal wyboru
+        if (
+          Array.isArray(data.potentialWholesalerKeys) &&
+          data.potentialWholesalerKeys.length > 1
+        ) {
+          showWholesalerKeyModal(data.potentialWholesalerKeys, data.wholesalerKey);
+          return; // nie inicjalizuj reszty strony, dopóki użytkownik nie wybierze
+        }
 
         // Inicjalizuj toggle szczegółów
         setTimeout(() => {
