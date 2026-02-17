@@ -5103,20 +5103,18 @@ ${offerTimestampLine}
             console.log("Transaction created:", transaction);
           }
 
-          // Sprawdź czy transakcja została utworzona jako draft
+          // Sprawdź czy transakcja została utworzona jako draft (wielu dostawców o tym samym NIP)
           if (transaction && transaction.status === "draft") {
             displayMessage(
-              "Warning",
-              "Znaleziono wielu aktywnych dostawców o tym samym NIP. " +
-                "Transakcja została utworzona jako szkic i przypisana do pierwszego dostawcy. " +
-                "Możesz zmodyfikować dostawcę i zmienić status na 'committed' aby kontynuować. " +
-                '<br><a href="https://smart-commerce.atlassian.net/browse/ITSMD-3671" target="_blank" style="color: #0066cc;">Więcej informacji</a>',
+              "Success",
+              "Dokument dostawy '" +
+                (transaction.name || fileName) +
+                "' został przesłany. Za chwilę wybierzesz dostawcę z listy...",
             );
-            // Dłuższe opóźnienie dla ostrzeżenia (więcej tekstu do przeczytania)
             setTimeout(function () {
               var redirectUrl = `https://${DomainName}/app/deliveries/delivery?deliveryId=${transaction.uuid}&shopKey=${shopKey}`;
               window.location.href = redirectUrl;
-            }, 6000); // 6 sekund
+            }, 2000);
           } else if (transaction && transaction.uuid) {
             displayMessage(
               "Success",
