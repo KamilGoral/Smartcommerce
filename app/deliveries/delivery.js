@@ -629,15 +629,16 @@ whenReadyAndDataTables(function () {
       },
     });
 
-    // Obsługa submit formularza — PATCH wholesalerKey
+    // Wyłącz domyślny handler Webflow i obsłuż submit samodzielnie
     $(form)
-      .off("submit.wholesalerKey")
-      .on("submit.wholesalerKey", function (e) {
+      .off("submit")
+      .on("submit", function (e) {
         e.preventDefault();
+        e.stopPropagation();
         const selectedKey = select.value;
         if (!selectedKey) {
           displayMessage("Error", "Wybierz dostawcę z listy");
-          return;
+          return false;
         }
 
         $.ajax({
@@ -682,6 +683,7 @@ whenReadyAndDataTables(function () {
             );
           },
         });
+        return false;
       });
 
     // Zamknij modal → powrót do strony sklepu
