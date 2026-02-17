@@ -665,13 +665,11 @@ whenReadyAndDataTables(function () {
             },
           ]),
           beforeSend: function () {
-            form.querySelector('input[type="submit"]').disabled = true;
-            form.querySelector('input[type="submit"]').value =
-              "Proszę czekać...";
+            $(modal).hide();
+            $("#waitingdots").show();
           },
           success: function () {
-            // Ukryj modal
-            $(modal).hide();
+            $("#waitingdots").hide();
 
             // Zaktualizuj nagłówek dostawcy na froncie
             var newName =
@@ -703,8 +701,8 @@ whenReadyAndDataTables(function () {
             initializeSimpleTooltips();
           },
           error: function (xhr) {
-            form.querySelector('input[type="submit"]').disabled = false;
-            form.querySelector('input[type="submit"]').value = "Wybierz";
+            $("#waitingdots").hide();
+            $(modal).css("display", "flex");
             console.error("Błąd PATCH wholesalerKey:", xhr);
             displayMessage(
               "Error",
