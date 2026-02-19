@@ -6007,15 +6007,10 @@ ${offerTimestampLine}
         }, ${shopData.address?.postcode || ""}`;
         const deliveryEmails =
           shopData.emails?.map((e) => e.email).join(", ") || "";
-        const deliveryPhones =
-          shopData.phones?.map((p) => p.phone).join(", ") || "";
 
-        deliveryText += "📦 MIEJSCE DOSTAWY\n";
-        deliveryText += "━━━━━━━━━━━━━━━━━━━━━━\n";
-        if (shopData.name) deliveryText += `${shopData.name}\n`;
+        deliveryText += "MIEJSCE DOSTAWY\n";
         if (deliveryAddress.trim()) deliveryText += `${deliveryAddress}\n`;
         if (deliveryEmails) deliveryText += `Email: ${deliveryEmails}\n`;
-        if (deliveryPhones) deliveryText += `Tel: ${deliveryPhones}\n`;
       }
 
       if (entityData) {
@@ -6031,8 +6026,7 @@ ${offerTimestampLine}
               .join(", ")
           : "";
 
-        deliveryText += "\n\n🏢 DANE ZAMAWIAJĄCEGO\n";
-        deliveryText += "━━━━━━━━━━━━━━━━━━━━━━\n";
+        deliveryText += "\n\nDANE ZAMAWIAJĄCEGO\n";
         if (entityData.companyName) deliveryText += `${entityData.companyName}\n`;
         if (entityData.taxId) deliveryText += `NIP: ${entityData.taxId}\n`;
         if (entityAddress) deliveryText += `${entityAddress}\n`;
