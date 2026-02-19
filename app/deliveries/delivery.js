@@ -43,7 +43,7 @@ whenReadyAndDataTables(function () {
     ].join("; ");
     banner.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="background:#3a4570; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap; color:#ffffff;">Wczesny dostęp (Early Access)</span>
+        <span style="background:#3a4570; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap; color:#ffffff;">Wczesny dostęp</span>
         <span>Moduł jest obecnie w fazie intensywnego rozwoju. Mogą występować przejściowe błędy lub niedoskonałości. Państwa uwagi i sugestie są dla nas bardzo cenne i pomagają nam go udoskonalać.</span>
         <a href="mailto:kontakt@sprytnykupiec.pl" style="color:#1d4ed8; font-weight:600; text-decoration:underline; white-space:nowrap;">📩 kontakt@sprytnykupiec.pl</a>
       </div>
@@ -51,9 +51,10 @@ whenReadyAndDataTables(function () {
     `;
     document.body.insertAdjacentElement("afterbegin", banner);
     // Przesunięcie body żeby baner nie przykrywał treści
-    document.body.style.paddingTop = (document.body.style.paddingTop
-      ? parseInt(document.body.style.paddingTop) + 44
-      : 44) + "px";
+    document.body.style.paddingTop =
+      (document.body.style.paddingTop
+        ? parseInt(document.body.style.paddingTop) + 44
+        : 44) + "px";
   })();
 
   function getCookie(name) {
@@ -564,28 +565,48 @@ whenReadyAndDataTables(function () {
 
     // Formatuj dane
     const wholesaler = data.wholesalerKey
-      ? data.wholesalerKey.charAt(0).toUpperCase() + data.wholesalerKey.slice(1).replace(/-/g, " ")
+      ? data.wholesalerKey.charAt(0).toUpperCase() +
+        data.wholesalerKey.slice(1).replace(/-/g, " ")
       : "-";
 
     const issueDateFmt = data.issueDate
-      ? new Date(data.issueDate).toLocaleDateString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit" })
+      ? new Date(data.issueDate).toLocaleDateString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
       : "-";
 
-    const sourceFileName = data.sourceFile?.name ? escapeHtml(data.sourceFile.name) : "-";
+    const sourceFileName = data.sourceFile?.name
+      ? escapeHtml(data.sourceFile.name)
+      : "-";
 
     const createdFmt = data.created?.at
-      ? new Date(data.created.at).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      ? new Date(data.created.at).toLocaleString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
       : "-";
     const createdBy = data.created?.by ? escapeHtml(data.created.by) : "";
 
     const modifiedFmt = data.modified?.at
-      ? new Date(data.modified.at).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      ? new Date(data.modified.at).toLocaleString("pl-PL", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
       : "-";
     const modifiedBy = data.modified?.by ? escapeHtml(data.modified.by) : "";
 
     const headerEl = document.createElement("div");
     headerEl.id = "delivery-header";
-    headerEl.style.cssText = "margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;";
+    headerEl.style.cssText =
+      "margin-bottom: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;";
 
     headerEl.innerHTML = `
       <!-- Statystyki - rząd badge'ów -->
@@ -679,10 +700,7 @@ whenReadyAndDataTables(function () {
 
         $.ajax({
           type: "PATCH",
-          url:
-            InvokeURL +
-            "van/transactions/" +
-            encodeURIComponent(recadvId),
+          url: InvokeURL + "van/transactions/" + encodeURIComponent(recadvId),
           headers: {
             Authorization: orgToken,
             "Requested-By": "webflow-3-4",
@@ -746,13 +764,12 @@ whenReadyAndDataTables(function () {
     // Zamknij modal → powrót do strony sklepu
     var redirectToShop = function () {
       window.location.href =
-        "https://" +
-        DomainName +
-        "/app/shops/shop?shopKey=" +
-        shopKey;
+        "https://" + DomainName + "/app/shops/shop?shopKey=" + shopKey;
     };
 
-    $(closeBtn).off("click.wholesalerKey").on("click.wholesalerKey", redirectToShop);
+    $(closeBtn)
+      .off("click.wholesalerKey")
+      .on("click.wholesalerKey", redirectToShop);
 
     // Kliknięcie w tło modala (wrapper) → też powrót
     $(modal)
@@ -806,7 +823,10 @@ whenReadyAndDataTables(function () {
           Array.isArray(data.potentialWholesalerKeys) &&
           data.potentialWholesalerKeys.length > 1
         ) {
-          showWholesalerKeyModal(data.potentialWholesalerKeys, data.wholesalerKey);
+          showWholesalerKeyModal(
+            data.potentialWholesalerKeys,
+            data.wholesalerKey,
+          );
           return; // nie inicjalizuj reszty strony, dopóki użytkownik nie wybierze
         }
 
@@ -858,7 +878,6 @@ whenReadyAndDataTables(function () {
     if (valueDelivery) {
       valueDelivery.textContent = fmtPLN(totalValue);
     }
-
   }
 
   //tutaj kod
@@ -933,8 +952,14 @@ whenReadyAndDataTables(function () {
     const isValid = rec?.valid === true;
 
     if (!isValid) {
-      return { key: "invalid", label: "Błędna", sort: 90,
-        bg: "#fef2f2", border: "#fca5a5", color: "#dc2626" };
+      return {
+        key: "invalid",
+        label: "Błędna",
+        sort: 90,
+        bg: "#fef2f2",
+        border: "#fca5a5",
+        color: "#dc2626",
+      };
     }
 
     // Status jest zawsze obliczany z oryginalnych danych serwera (nie zależy od filtra zamówienia)
@@ -943,11 +968,23 @@ whenReadyAndDataTables(function () {
 
     if (!hasLinked) {
       if (hasProposals) {
-        return { key: "proposal", label: "Proponowane", sort: 20,
-          bg: "#f5f3ff", border: "#c4b5fd", color: "#7c3aed" };
+        return {
+          key: "proposal",
+          label: "Proponowane",
+          sort: 20,
+          bg: "#f5f3ff",
+          border: "#c4b5fd",
+          color: "#7c3aed",
+        };
       }
-      return { key: "unmatched", label: "Brak dopasowania", sort: 10,
-        bg: "#f9fafb", border: "#e5e7eb", color: "#9ca3af" };
+      return {
+        key: "unmatched",
+        label: "Brak dopasowania",
+        sort: 10,
+        bg: "#f9fafb",
+        border: "#e5e7eb",
+        color: "#9ca3af",
+      };
     }
 
     // linked state + diffs
@@ -964,11 +1001,23 @@ whenReadyAndDataTables(function () {
     const valueDiffNonZero = Math.abs(valueDiff) > 0.000001;
 
     if (!qtyDiffNonZero && !valueDiffNonZero) {
-      return { key: "matched", label: "Zgodne", sort: 40,
-        bg: "#f0fdf4", border: "#86efac", color: "#16a34a" };
+      return {
+        key: "matched",
+        label: "Zgodne",
+        sort: 40,
+        bg: "#f0fdf4",
+        border: "#86efac",
+        color: "#16a34a",
+      };
     }
-    return { key: "diff", label: "Rozbieżność", sort: 50,
-      bg: "#fffbeb", border: "#fcd34d", color: "#d97706" };
+    return {
+      key: "diff",
+      label: "Rozbieżność",
+      sort: 50,
+      bg: "#fffbeb",
+      border: "#fcd34d",
+      color: "#d97706",
+    };
   }
 
   // Zaokrąglenie różnicy ilościowej do max 3 miejsc po przecinku (floating point safety)
@@ -1038,7 +1087,9 @@ whenReadyAndDataTables(function () {
       var proposals = safeArr(row?.potentialMatches);
 
       if (linked.length) {
-        orderedQty = linked.reduce(function (acc, p) { return acc + sumQty(p?.segments); }, 0);
+        orderedQty = linked.reduce(function (acc, p) {
+          return acc + sumQty(p?.segments);
+        }, 0);
         orderedPrice = avgPriceWeighted(linked[0]?.segments);
         hasMatch = true;
       } else if (proposals.length) {
@@ -1049,28 +1100,60 @@ whenReadyAndDataTables(function () {
       }
     }
 
-    return { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: isProposal, hasMatch: hasMatch };
+    return {
+      deliveredQty: deliveredQty,
+      deliveredPrice: deliveredPrice,
+      orderedQty: orderedQty,
+      orderedPrice: orderedPrice,
+      isProposal: isProposal,
+      hasMatch: hasMatch,
+    };
   }
 
   // Oblicz różnice na podstawie danych
   function computeDiffs(d) {
     var qtyDiff = roundQty(d.deliveredQty - d.orderedQty);
-    var priceDiff = (d.deliveredPrice !== null && d.orderedPrice !== null) ? d.orderedPrice - d.deliveredPrice : 0;
+    var priceDiff =
+      d.deliveredPrice !== null && d.orderedPrice !== null
+        ? d.orderedPrice - d.deliveredPrice
+        : 0;
     var commonQty = Math.min(d.deliveredQty, d.orderedQty);
-    var totalDiff = (d.deliveredPrice !== null && d.orderedPrice !== null)
-      ? commonQty * (d.orderedPrice - d.deliveredPrice)
-      : 0;
+    var totalDiff =
+      d.deliveredPrice !== null && d.orderedPrice !== null
+        ? commonQty * (d.orderedPrice - d.deliveredPrice)
+        : 0;
     var hasQtyDiff = Math.abs(qtyDiff) > 0.0001;
     var hasPriceDiff = Math.abs(priceDiff) > 0.000001;
-    return { qtyDiff: qtyDiff, priceDiff: priceDiff, totalDiff: totalDiff, commonQty: commonQty, hasQtyDiff: hasQtyDiff, hasPriceDiff: hasPriceDiff };
+    return {
+      qtyDiff: qtyDiff,
+      priceDiff: priceDiff,
+      totalDiff: totalDiff,
+      commonQty: commonQty,
+      hasQtyDiff: hasQtyDiff,
+      hasPriceDiff: hasPriceDiff,
+    };
   }
 
   // Szczegóły: zam.il×zam.cena → dost.il×dost.cena (inline, styl jak GTIN)
   function buildDetailLine(d) {
-    var zam = fmtQty(d.orderedQty) + "\u00d7" + (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-");
-    var dost = fmtQty(d.deliveredQty) + "\u00d7" + (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-");
+    var zam =
+      fmtQty(d.orderedQty) +
+      "\u00d7" +
+      (d.orderedPrice !== null ? fmtPLN(d.orderedPrice) : "-");
+    var dost =
+      fmtQty(d.deliveredQty) +
+      "\u00d7" +
+      (d.deliveredPrice !== null ? fmtPLN(d.deliveredPrice) : "-");
     var tooltip = "Zam\u00f3wienie: " + zam + " \u2192 Dostawa: " + dost;
-    return '<span class="nz-detail" title="' + tooltip + '">(' + zam + ' \u2192 ' + dost + ')</span>';
+    return (
+      '<span class="nz-detail" title="' +
+      tooltip +
+      '">(' +
+      zam +
+      " \u2192 " +
+      dost +
+      ")</span>"
+    );
   }
 
   // Kolumna „Weryfikacja" — badge-e niezgodności
@@ -1082,30 +1165,56 @@ whenReadyAndDataTables(function () {
     }
     var diffs = computeDiffs(d);
     // Sort: 0 = zgodne, 1 = niezgodne (żeby niezgodne były na górze przy asc)
-    if (type === "sort" || type === "type") return (diffs.hasQtyDiff || diffs.hasPriceDiff) ? 1 : 0;
+    if (type === "sort" || type === "type")
+      return diffs.hasQtyDiff || diffs.hasPriceDiff ? 1 : 0;
     return buildWeryfikacjaHtml(d, diffs);
   }
 
   function buildWeryfikacjaHtml(d, diffs) {
     var italicStyle = d.isProposal ? " font-style:italic;" : "";
-    var detail = ' ' + buildDetailLine(d);
+    var detail = " " + buildDetailLine(d);
 
     if (!diffs.hasQtyDiff && !diffs.hasPriceDiff) {
-      return '<span class="nz-cell" style="' + italicStyle + '"><span class="nz-ok">\u2713 Zgodne</span>' + detail + '</span>';
+      return (
+        '<span class="nz-cell" style="' +
+        italicStyle +
+        '"><span class="nz-ok">\u2713 Zgodne</span>' +
+        detail +
+        "</span>"
+      );
     }
 
     var parts = [];
     if (diffs.hasQtyDiff) {
       var qSign = diffs.qtyDiff > 0 ? "+" : "";
-      parts.push('<span class="nz-badge" style="color:#dc2626">' + qSign + roundQty(diffs.qtyDiff) + ' szt.</span>');
+      parts.push(
+        '<span class="nz-badge" style="color:#dc2626">' +
+          qSign +
+          roundQty(diffs.qtyDiff) +
+          " szt.</span>",
+      );
     }
     if (diffs.hasPriceDiff) {
       var pSign = diffs.priceDiff > 0 ? "+" : "";
       var pColor = diffs.priceDiff > 0 ? "#16a34a" : "#dc2626";
-      parts.push('<span class="nz-badge" style="color:' + pColor + '">' + pSign + fmtPLN(diffs.priceDiff) + '/szt.</span>');
+      parts.push(
+        '<span class="nz-badge" style="color:' +
+          pColor +
+          '">' +
+          pSign +
+          fmtPLN(diffs.priceDiff) +
+          "/szt.</span>",
+      );
     }
 
-    return '<span class="nz-cell" style="' + italicStyle + '">' + parts.join(' <span style="color:#94a3b8;">\u2022</span> ') + detail + '</span>';
+    return (
+      '<span class="nz-cell" style="' +
+      italicStyle +
+      '">' +
+      parts.join(' <span style="color:#94a3b8;">\u2022</span> ') +
+      detail +
+      "</span>"
+    );
   }
 
   // Kolumna „Wartość" — impact w PLN
@@ -1124,24 +1233,73 @@ whenReadyAndDataTables(function () {
     var isProposal = d && d.isProposal;
     var italicStyle = isProposal ? " font-style:italic;" : "";
     if (!diffs.hasPriceDiff) {
-      return '<span style="color:#6b7280;' + italicStyle + '">' + fmtPLN(0) + '</span>';
+      return (
+        '<span style="color:#6b7280;' +
+        italicStyle +
+        '">' +
+        fmtPLN(0) +
+        "</span>"
+      );
     }
     var sign = diffs.totalDiff > 0 ? "+" : "";
     var color = diffs.totalDiff > 0 ? "#16a34a" : "#dc2626";
     var pSign = diffs.priceDiff > 0 ? "+" : "";
-    var tooltip = "R\u00f3\u017cnica ceny: " + pSign + fmtPLN(Math.abs(diffs.priceDiff)) + "/szt. \u00d7 " + fmtQty(diffs.commonQty) + " szt. (zam\u00f3wionych) = " + sign + fmtPLN(Math.abs(diffs.totalDiff));
-    return '<span class="nz-impact" style="color:' + color + ';' + italicStyle + '" title="' + tooltip + '">' + sign + fmtPLN(Math.abs(diffs.totalDiff)) + '</span>';
+    var tooltip =
+      "R\u00f3\u017cnica ceny: " +
+      pSign +
+      fmtPLN(Math.abs(diffs.priceDiff)) +
+      "/szt. \u00d7 " +
+      fmtQty(diffs.commonQty) +
+      " szt. (zam\u00f3wionych) = " +
+      sign +
+      fmtPLN(Math.abs(diffs.totalDiff));
+    return (
+      '<span class="nz-impact" style="color:' +
+      color +
+      ";" +
+      italicStyle +
+      '" title="' +
+      tooltip +
+      '">' +
+      sign +
+      fmtPLN(Math.abs(diffs.totalDiff)) +
+      "</span>"
+    );
   }
 
   // Child row renderery
-  function renderChildWeryfikacja(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
-    var d = { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: true, hasMatch: true };
+  function renderChildWeryfikacja(
+    deliveredQty,
+    deliveredPrice,
+    orderedQty,
+    orderedPrice,
+  ) {
+    var d = {
+      deliveredQty: deliveredQty,
+      deliveredPrice: deliveredPrice,
+      orderedQty: orderedQty,
+      orderedPrice: orderedPrice,
+      isProposal: true,
+      hasMatch: true,
+    };
     var diffs = computeDiffs(d);
     return buildWeryfikacjaHtml(d, diffs);
   }
 
-  function renderChildWartosc(deliveredQty, deliveredPrice, orderedQty, orderedPrice) {
-    var d = { deliveredQty: deliveredQty, deliveredPrice: deliveredPrice, orderedQty: orderedQty, orderedPrice: orderedPrice, isProposal: true, hasMatch: true };
+  function renderChildWartosc(
+    deliveredQty,
+    deliveredPrice,
+    orderedQty,
+    orderedPrice,
+  ) {
+    var d = {
+      deliveredQty: deliveredQty,
+      deliveredPrice: deliveredPrice,
+      orderedQty: orderedQty,
+      orderedPrice: orderedPrice,
+      isProposal: true,
+      hasMatch: true,
+    };
     var diffs = computeDiffs(d);
     return buildWartoscHtml(diffs, d);
   }
@@ -1173,13 +1331,27 @@ whenReadyAndDataTables(function () {
       const matchId = m?.id;
 
       const varKey = makeVariantKey(parent?.id, matchId);
-      const varChecked = selectionState.variantRows.has(varKey) ? " checked" : "";
-      const werHtml = orderedQty > 0
-        ? renderChildWeryfikacja(deliveredQty, deliveredPrice, orderedQty, orderedPrice)
-        : '<span class="muted" style="font-style:italic;">\u2014</span>';
-      const valHtml = orderedQty > 0
-        ? renderChildWartosc(deliveredQty, deliveredPrice, orderedQty, orderedPrice)
-        : '<span class="muted" style="font-style:italic;">\u2014</span>';
+      const varChecked = selectionState.variantRows.has(varKey)
+        ? " checked"
+        : "";
+      const werHtml =
+        orderedQty > 0
+          ? renderChildWeryfikacja(
+              deliveredQty,
+              deliveredPrice,
+              orderedQty,
+              orderedPrice,
+            )
+          : '<span class="muted" style="font-style:italic;">\u2014</span>';
+      const valHtml =
+        orderedQty > 0
+          ? renderChildWartosc(
+              deliveredQty,
+              deliveredPrice,
+              orderedQty,
+              orderedPrice,
+            )
+          : '<span class="muted" style="font-style:italic;">\u2014</span>';
       return `
       <tr class="child-row" style="background: #f9fafb;">
         <td style="text-align:center;vertical-align:middle;padding:4px 2px;width:28px;">
@@ -1256,9 +1428,16 @@ whenReadyAndDataTables(function () {
     selectionState.mainRows.clear();
     selectionState.variantRows.clear();
     selectionState.variantData.clear();
-    document.querySelectorAll(".bulk-cb-main, .bulk-cb-variant").forEach(function (cb) { cb.checked = false; });
+    document
+      .querySelectorAll(".bulk-cb-main, .bulk-cb-variant")
+      .forEach(function (cb) {
+        cb.checked = false;
+      });
     const selectAll = document.getElementById("bulk-select-all");
-    if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+    if (selectAll) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+    }
     updateBulkToolbar();
   }
 
@@ -1271,12 +1450,21 @@ whenReadyAndDataTables(function () {
   function syncSelectAllCheckbox() {
     const selectAll = document.getElementById("bulk-select-all");
     if (!selectAll || !deliveryTable) return;
-    const visibleCbs = document.querySelectorAll("#table_delivery tbody .bulk-cb-main");
-    if (visibleCbs.length === 0) { selectAll.checked = false; selectAll.indeterminate = false; return; }
+    const visibleCbs = document.querySelectorAll(
+      "#table_delivery tbody .bulk-cb-main",
+    );
+    if (visibleCbs.length === 0) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+      return;
+    }
     let checkedCount = 0;
-    visibleCbs.forEach(function (cb) { if (cb.checked) checkedCount++; });
+    visibleCbs.forEach(function (cb) {
+      if (cb.checked) checkedCount++;
+    });
     selectAll.checked = checkedCount === visibleCbs.length;
-    selectAll.indeterminate = checkedCount > 0 && checkedCount < visibleCbs.length;
+    selectAll.indeterminate =
+      checkedCount > 0 && checkedCount < visibleCbs.length;
   }
 
   // ============================================
@@ -1355,14 +1543,21 @@ whenReadyAndDataTables(function () {
       toolbar.classList.remove("has-selection");
     } else {
       const parts = [];
-      if (c.main > 0) parts.push(c.main + " główn" + (c.main === 1 ? "y" : "ych"));
-      if (c.variants > 0) parts.push(c.variants + " wariant" + (c.variants === 1 ? "" : "ów"));
-      counter.textContent = "Zaznaczono: " + parts.join(" + ") + " (razem " + c.total + ")";
+      if (c.main > 0)
+        parts.push(c.main + " główn" + (c.main === 1 ? "y" : "ych"));
+      if (c.variants > 0)
+        parts.push(c.variants + " wariant" + (c.variants === 1 ? "" : "ów"));
+      counter.textContent =
+        "Zaznaczono: " + parts.join(" + ") + " (razem " + c.total + ")";
       toolbar.classList.add("has-selection");
     }
 
-    const btns = toolbar.querySelectorAll(".bulk-action-btn:not(#bulk-undo-btn)");
-    btns.forEach(function (btn) { btn.disabled = c.total === 0; });
+    const btns = toolbar.querySelectorAll(
+      ".bulk-action-btn:not(#bulk-undo-btn)",
+    );
+    btns.forEach(function (btn) {
+      btn.disabled = c.total === 0;
+    });
   }
 
   // ============================================
@@ -1370,11 +1565,15 @@ whenReadyAndDataTables(function () {
   // ============================================
   function initBulkToolbarEvents() {
     // Main row checkbox
-    $("#table_delivery tbody").on("change.delivery", ".bulk-cb-main", function () {
-      const rowId = Number($(this).data("row-id"));
-      toggleMainRow(rowId, this.checked);
-      syncSelectAllCheckbox();
-    });
+    $("#table_delivery tbody").on(
+      "change.delivery",
+      ".bulk-cb-main",
+      function () {
+        const rowId = Number($(this).data("row-id"));
+        toggleMainRow(rowId, this.checked);
+        syncSelectAllCheckbox();
+      },
+    );
 
     // Variant row checkbox
     $(document).on("change.delivery", ".bulk-cb-variant", function () {
@@ -1396,15 +1595,21 @@ whenReadyAndDataTables(function () {
           selectionState.mainRows.delete(data.id);
         }
       });
-      document.querySelectorAll("#table_delivery tbody .bulk-cb-main").forEach(function (cb) {
-        cb.checked = checked;
-      });
+      document
+        .querySelectorAll("#table_delivery tbody .bulk-cb-main")
+        .forEach(function (cb) {
+          cb.checked = checked;
+        });
       updateBulkToolbar();
     });
 
     // Toolbar buttons
-    $(document).on("click.delivery", "#bulk-link-btn", function () { if (!this.disabled) executeBulkLink(); });
-    $(document).on("click.delivery", "#bulk-unlink-btn", function () { if (!this.disabled) executeBulkUnlink(); });
+    $(document).on("click.delivery", "#bulk-link-btn", function () {
+      if (!this.disabled) executeBulkLink();
+    });
+    $(document).on("click.delivery", "#bulk-unlink-btn", function () {
+      if (!this.disabled) executeBulkUnlink();
+    });
     $(document).on("click.delivery", "#bulk-undo-btn", function () {
       if (lastUndoStack && lastUndoStack.length > 0) {
         this.disabled = true;
@@ -1427,24 +1632,41 @@ whenReadyAndDataTables(function () {
       const rowData = findRowDataById(rowId);
       if (!rowData) return;
       const state = computeRowState(rowData);
-      if (state.key !== "proposal") { skipped++; return; }
+      if (state.key !== "proposal") {
+        skipped++;
+        return;
+      }
 
       let match = null;
-      if (selectedOrderId && rowData._primaryMatch && rowData._isPrimaryProposal) {
+      if (
+        selectedOrderId &&
+        rowData._primaryMatch &&
+        rowData._isPrimaryProposal
+      ) {
         match = rowData._primaryMatch;
       } else {
         const proposals = safeArr(rowData?.potentialMatches);
         if (proposals.length > 0) match = proposals[0];
       }
-      if (!match) { skipped++; return; }
+      if (!match) {
+        skipped++;
+        return;
+      }
 
-      const qty = match.matchableQty || sumQty(match?.segments) || sumQty(rowData?.segments);
+      const qty =
+        match.matchableQty ||
+        sumQty(match?.segments) ||
+        sumQty(rowData?.segments);
       patchOps.push({
         op: "add",
         path: "/" + rowData.id + "/linkedOrderProducts/-",
         value: { orderProductId: match.id, quantity: qty },
       });
-      undoStack.push({ type: "linked", productId: rowData.id, gtin: rowData.gtin });
+      undoStack.push({
+        type: "linked",
+        productId: rowData.id,
+        gtin: rowData.gtin,
+      });
     });
 
     // Variant rows
@@ -1457,21 +1679,37 @@ whenReadyAndDataTables(function () {
         path: "/" + data.parentId + "/linkedOrderProducts/-",
         value: { orderProductId: data.matchId, quantity: qty },
       });
-      undoStack.push({ type: "linked", productId: data.parentId, gtin: rowData?.gtin });
+      undoStack.push({
+        type: "linked",
+        productId: data.parentId,
+        gtin: rowData?.gtin,
+      });
     });
 
     if (patchOps.length === 0) {
-      if (skipped > 0) displayMessage("Success", "Wszystkie zaznaczone pozycje są już połączone");
-      else displayMessage("Error", "Brak pozycji do połączenia wśród zaznaczonych");
+      if (skipped > 0)
+        displayMessage(
+          "Success",
+          "Wszystkie zaznaczone pozycje są już połączone",
+        );
+      else
+        displayMessage(
+          "Error",
+          "Brak pozycji do połączenia wśród zaznaczonych",
+        );
       return;
     }
 
     const counter = document.getElementById("bulk-counter");
     const btns = document.querySelectorAll(".bulk-action-btn");
-    btns.forEach(function (b) { b.disabled = true; });
-    if (counter) counter.textContent = "Łączenie " + patchOps.length + " pozycji...";
+    btns.forEach(function (b) {
+      b.disabled = true;
+    });
+    if (counter)
+      counter.textContent = "Łączenie " + patchOps.length + " pozycji...";
 
-    let success = patchOps.length, failed = 0;
+    let success = patchOps.length,
+      failed = 0;
     try {
       await batchPatchProducts(patchOps);
     } catch (err) {
@@ -1482,12 +1720,16 @@ whenReadyAndDataTables(function () {
         success = 0;
       } else {
         console.error("Batch link failed:", err);
-        failed = patchOps.length; success = 0;
+        failed = patchOps.length;
+        success = 0;
       }
     }
 
     await new Promise(function (resolve) {
-      deliveryTable.ajax.reload(function () { refreshFiltersAfterUpdate(); resolve(); }, false);
+      deliveryTable.ajax.reload(function () {
+        refreshFiltersAfterUpdate();
+        resolve();
+      }, false);
     });
     clearAllSelections(true);
     showBulkResult("Połączono", success, skipped, failed, undoStack);
@@ -1501,16 +1743,26 @@ whenReadyAndDataTables(function () {
       const rowData = findRowDataById(rowId);
       if (!rowData) return;
       const state = computeRowState(rowData);
-      if (!["matched", "diff"].includes(state.key)) { skipped++; return; }
+      if (!["matched", "diff"].includes(state.key)) {
+        skipped++;
+        return;
+      }
 
       let linked = null;
-      if (selectedOrderId && rowData._primaryMatch && !rowData._isPrimaryProposal) {
+      if (
+        selectedOrderId &&
+        rowData._primaryMatch &&
+        !rowData._isPrimaryProposal
+      ) {
         linked = rowData._primaryMatch;
       } else {
         const linkedArr = safeArr(rowData?.linkedOrderProducts);
         if (linkedArr.length > 0) linked = linkedArr[0];
       }
-      if (!linked) { skipped++; return; }
+      if (!linked) {
+        skipped++;
+        return;
+      }
 
       patchOps.push({
         op: "remove",
@@ -1519,26 +1771,42 @@ whenReadyAndDataTables(function () {
     });
 
     if (patchOps.length === 0) {
-      if (skipped > 0) displayMessage("Success", "Żadna zaznaczona pozycja nie jest połączona");
-      else displayMessage("Error", "Brak pozycji do rozłączenia wśród zaznaczonych");
+      if (skipped > 0)
+        displayMessage(
+          "Success",
+          "Żadna zaznaczona pozycja nie jest połączona",
+        );
+      else
+        displayMessage(
+          "Error",
+          "Brak pozycji do rozłączenia wśród zaznaczonych",
+        );
       return;
     }
 
     const counter = document.getElementById("bulk-counter");
     const btns = document.querySelectorAll(".bulk-action-btn");
-    btns.forEach(function (b) { b.disabled = true; });
-    if (counter) counter.textContent = "Rozłączanie " + patchOps.length + " pozycji...";
+    btns.forEach(function (b) {
+      b.disabled = true;
+    });
+    if (counter)
+      counter.textContent = "Rozłączanie " + patchOps.length + " pozycji...";
 
-    let success = patchOps.length, failed = 0;
+    let success = patchOps.length,
+      failed = 0;
     try {
       await batchPatchProducts(patchOps);
     } catch (err) {
       console.error("Batch unlink failed:", err);
-      failed = patchOps.length; success = 0;
+      failed = patchOps.length;
+      success = 0;
     }
 
     await new Promise(function (resolve) {
-      deliveryTable.ajax.reload(function () { refreshFiltersAfterUpdate(); resolve(); }, false);
+      deliveryTable.ajax.reload(function () {
+        refreshFiltersAfterUpdate();
+        resolve();
+      }, false);
     });
     clearAllSelections(true);
     showBulkResult("Rozłączono", success, skipped, failed, []);
@@ -1549,7 +1817,10 @@ whenReadyAndDataTables(function () {
     let found = null;
     deliveryTable.rows().every(function () {
       const data = this.data();
-      if (data && data.id === rowId) { found = data; return false; }
+      if (data && data.id === rowId) {
+        found = data;
+        return false;
+      }
     });
     return found;
   }
@@ -1589,11 +1860,18 @@ whenReadyAndDataTables(function () {
           // Fetch fresh product data to find the newly created link ID
           const res = await $.ajax({
             type: "GET",
-            url: InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products?" + dateParams,
+            url:
+              InvokeURL +
+              "van/recadvs/" +
+              encodeURIComponent(recadvId) +
+              "/products?" +
+              dateParams,
             headers: { Authorization: orgToken, "Requested-By": "webflow-3-4" },
             data: { gtin: entry.gtin },
           });
-          const product = (res.items || []).find(function (p) { return p.id === entry.productId; });
+          const product = (res.items || []).find(function (p) {
+            return p.id === entry.productId;
+          });
           if (product) {
             const links = safeArr(product.linkedOrderProducts);
             if (links.length > 0) {
@@ -1872,7 +2150,7 @@ whenReadyAndDataTables(function () {
           displayText = `(${productCount}) ...${orderId.slice(-8)}`;
         }
 
-        const selectedAttr = (selectedOrderId === orderId) ? " selected" : "";
+        const selectedAttr = selectedOrderId === orderId ? " selected" : "";
         return `<option value="${escapeHtml(orderId)}"${selectedAttr}>${escapeHtml(displayText)}</option>`;
       })
       .join("");
@@ -1900,18 +2178,23 @@ whenReadyAndDataTables(function () {
       let primary = null;
 
       if (selectedOrderId) {
-        primary = linked.find((l) => l?.orderId === selectedOrderId)
-              || proposals.find((p) => p?.orderId === selectedOrderId)
-              || null;
+        primary =
+          linked.find((l) => l?.orderId === selectedOrderId) ||
+          proposals.find((p) => p?.orderId === selectedOrderId) ||
+          null;
       }
 
-      const variants = proposals.filter((p) => p && (!primary || p.id !== primary.id));
+      const variants = proposals.filter(
+        (p) => p && (!primary || p.id !== primary.id),
+      );
 
       return {
         ...row,
         _primaryMatch: primary,
         _variantMatches: variants,
-        _isPrimaryProposal: !!(primary && proposals.some(p => p?.id === primary.id)),
+        _isPrimaryProposal: !!(
+          primary && proposals.some((p) => p?.id === primary.id)
+        ),
       };
     });
   }
@@ -1937,16 +2220,21 @@ whenReadyAndDataTables(function () {
       let primary = null;
 
       if (selectedOrderId) {
-        primary = linked.find((l) => l?.orderId === selectedOrderId)
-              || proposals.find((p) => p?.orderId === selectedOrderId)
-              || null;
+        primary =
+          linked.find((l) => l?.orderId === selectedOrderId) ||
+          proposals.find((p) => p?.orderId === selectedOrderId) ||
+          null;
       }
 
-      const variants = proposals.filter((p) => p && (!primary || p.id !== primary.id));
+      const variants = proposals.filter(
+        (p) => p && (!primary || p.id !== primary.id),
+      );
 
       rowData._primaryMatch = primary;
       rowData._variantMatches = variants;
-      rowData._isPrimaryProposal = !!(primary && proposals.some(p => p?.id === primary.id));
+      rowData._isPrimaryProposal = !!(
+        primary && proposals.some((p) => p?.id === primary.id)
+      );
 
       this.data(rowData);
     });
@@ -1986,7 +2274,12 @@ whenReadyAndDataTables(function () {
       currentOrderFilterFn = null;
     }
 
-    table.order([[6, "asc"], [2, "asc"]]).draw();
+    table
+      .order([
+        [6, "asc"],
+        [2, "asc"],
+      ])
+      .draw();
 
     // Przelicz liczniki filtrów i statystyki dla widocznego zbioru
     recalcCountersForOrderFilter(table);
@@ -2099,7 +2392,10 @@ whenReadyAndDataTables(function () {
     const sv = $("#orderDateStart").val();
     const ev = $("#orderDateEnd").val();
     if (sv && ev) {
-      label.textContent = fmtDateShort(new Date(sv + "T00:00:00")) + "  →  " + fmtDateShort(new Date(ev + "T00:00:00"));
+      label.textContent =
+        fmtDateShort(new Date(sv + "T00:00:00")) +
+        "  →  " +
+        fmtDateShort(new Date(ev + "T00:00:00"));
     }
   }
 
@@ -2115,8 +2411,12 @@ whenReadyAndDataTables(function () {
     const badge = document.getElementById("issueDateBadge");
     const badgeValue = document.getElementById("issueDateBadgeValue");
     if (badge && badgeValue && deliveryIssueDate) {
-      const issueFmt = new Date(deliveryIssueDate + "T00:00:00").toLocaleDateString("pl-PL", {
-        year: "numeric", month: "2-digit", day: "2-digit",
+      const issueFmt = new Date(
+        deliveryIssueDate + "T00:00:00",
+      ).toLocaleDateString("pl-PL", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
       });
       badgeValue.textContent = issueFmt;
       badge.style.display = "inline-flex";
@@ -2311,8 +2611,20 @@ whenReadyAndDataTables(function () {
     let viewYear = defaultStart.getFullYear();
     let viewMonth = defaultStart.getMonth();
 
-    const monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
-      "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
+    const monthNames = [
+      "Styczeń",
+      "Luty",
+      "Marzec",
+      "Kwiecień",
+      "Maj",
+      "Czerwiec",
+      "Lipiec",
+      "Sierpień",
+      "Wrzesień",
+      "Październik",
+      "Listopad",
+      "Grudzień",
+    ];
 
     // Set initial values
     startInput.value = rangeStart;
@@ -2335,7 +2647,7 @@ whenReadyAndDataTables(function () {
       </div>`;
       // Weekday names
       html += `<div class="drp-weekdays">`;
-      ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].forEach(d => {
+      ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].forEach((d) => {
         html += `<div class="drp-weekday">${d}</div>`;
       });
       html += `</div>`;
@@ -2353,12 +2665,15 @@ whenReadyAndDataTables(function () {
         const isStart = dateStr === rangeStart;
         const isEnd = dateStr === rangeEnd;
         const isToday = dateStr === todayStr;
-        const inRange = rangeStart && rangeEnd && dateStr > rangeStart && dateStr < rangeEnd;
+        const inRange =
+          rangeStart && rangeEnd && dateStr > rangeStart && dateStr < rangeEnd;
 
         let cellClasses = "drp-day-cell";
         if (inRange) cellClasses += " drp-in-range";
-        if (isStart && rangeEnd && rangeStart !== rangeEnd) cellClasses += " drp-in-range drp-range-start";
-        if (isEnd && rangeStart && rangeStart !== rangeEnd) cellClasses += " drp-in-range drp-range-end";
+        if (isStart && rangeEnd && rangeStart !== rangeEnd)
+          cellClasses += " drp-in-range drp-range-start";
+        if (isEnd && rangeStart && rangeStart !== rangeEnd)
+          cellClasses += " drp-in-range drp-range-end";
 
         let dayClasses = "drp-day";
         if (disabled) dayClasses += " drp-disabled";
@@ -2370,7 +2685,10 @@ whenReadyAndDataTables(function () {
       }
       html += `</div>`;
       // Hint
-      const hint = pickingState === "picking_end" ? "Wybierz datę końcową" : "Kliknij aby wybrać zakres";
+      const hint =
+        pickingState === "picking_end"
+          ? "Wybierz datę końcową"
+          : "Kliknij aby wybrać zakres";
       html += `<div class="drp-hint">${hint}</div>`;
       html += `</div>`;
       popover.innerHTML = html;
@@ -2380,19 +2698,30 @@ whenReadyAndDataTables(function () {
     function applyHoverPreview(hoverDateStr) {
       if (pickingState !== "picking_end" || !rangeStart) return;
       // Clear old hover classes
-      popover.querySelectorAll(".drp-hover-range, .drp-hover-start, .drp-hover-end").forEach(el => {
-        el.classList.remove("drp-hover-range", "drp-hover-start", "drp-hover-end");
-      });
-      popover.querySelectorAll(".drp-hover-target").forEach(el => {
+      popover
+        .querySelectorAll(".drp-hover-range, .drp-hover-start, .drp-hover-end")
+        .forEach((el) => {
+          el.classList.remove(
+            "drp-hover-range",
+            "drp-hover-start",
+            "drp-hover-end",
+          );
+        });
+      popover.querySelectorAll(".drp-hover-target").forEach((el) => {
         el.classList.remove("drp-hover-target");
       });
 
       if (!hoverDateStr || hoverDateStr === rangeStart) return;
 
-      let hStart = rangeStart, hEnd = hoverDateStr;
-      if (hEnd < hStart) { const t = hStart; hStart = hEnd; hEnd = t; }
+      let hStart = rangeStart,
+        hEnd = hoverDateStr;
+      if (hEnd < hStart) {
+        const t = hStart;
+        hStart = hEnd;
+        hEnd = t;
+      }
 
-      popover.querySelectorAll(".drp-day-cell").forEach(cell => {
+      popover.querySelectorAll(".drp-day-cell").forEach((cell) => {
         const dayEl = cell.querySelector(".drp-day");
         if (!dayEl || dayEl.classList.contains("drp-disabled")) return;
         const ds = dayEl.getAttribute("data-date");
@@ -2427,8 +2756,13 @@ whenReadyAndDataTables(function () {
       // If clicking the same day as start, ignore (require a different day)
       if (dateStr === rangeStart) return;
 
-      let s = rangeStart, e = dateStr;
-      if (e < s) { const t = s; s = e; e = t; }
+      let s = rangeStart,
+        e = dateStr;
+      if (e < s) {
+        const t = s;
+        s = e;
+        e = t;
+      }
 
       // Clamp to 14 days
       const sD = new Date(s + "T00:00:00");
@@ -2475,10 +2809,16 @@ whenReadyAndDataTables(function () {
         const dir = navBtn.getAttribute("data-drp-nav");
         if (dir === "prev") {
           viewMonth--;
-          if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+          if (viewMonth < 0) {
+            viewMonth = 11;
+            viewYear--;
+          }
         } else {
           viewMonth++;
-          if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+          if (viewMonth > 11) {
+            viewMonth = 0;
+            viewYear++;
+          }
         }
         renderCalendar();
         return;
@@ -2689,7 +3029,7 @@ whenReadyAndDataTables(function () {
       class="status-filter-btn ${filter.key === "all" ? "active" : ""}"
       data-filter="${filter.key}"
     >
-      ${filter.dot ? '<span class="filter-dot" style="background:' + filter.dot + '"></span>' : ''}
+      ${filter.dot ? '<span class="filter-dot" style="background:' + filter.dot + '"></span>' : ""}
       <span class="filter-label">${filter.label}</span>
       <span class="filter-count" data-count-for="${filter.key}">0</span>
     </button>
@@ -2736,8 +3076,10 @@ whenReadyAndDataTables(function () {
       relevantData = allData.filter((row) => {
         const linked = safeArr(row?.linkedOrderProducts);
         const proposals = safeArr(row?.potentialMatches);
-        return linked.some((l) => l?.orderId === selectedOrderId)
-            || proposals.some((p) => p?.orderId === selectedOrderId);
+        return (
+          linked.some((l) => l?.orderId === selectedOrderId) ||
+          proposals.some((p) => p?.orderId === selectedOrderId)
+        );
       });
     } else {
       relevantData = allData;
@@ -2839,7 +3181,6 @@ whenReadyAndDataTables(function () {
         }, 0);
       }
     });
-
   }
 
   // ============================================
@@ -2933,15 +3274,20 @@ whenReadyAndDataTables(function () {
   function batchPatchProducts(ops) {
     return $.ajax({
       type: "PATCH",
-      url: InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products",
+      url:
+        InvokeURL + "van/recadvs/" + encodeURIComponent(recadvId) + "/products",
       headers: {
         Authorization: orgToken,
         "Content-Type": "application/json",
         "Requested-By": "webflow-3-4",
       },
       data: JSON.stringify(ops),
-      beforeSend: function () { $("#waitingdots").show(); },
-      complete: function () { $("#waitingdots").hide(); },
+      beforeSend: function () {
+        $("#waitingdots").show();
+      },
+      complete: function () {
+        $("#waitingdots").hide();
+      },
     });
   }
 
@@ -2963,8 +3309,8 @@ whenReadyAndDataTables(function () {
 
   // Definicja kolumn tabeli (jedno źródło prawdy)
   const TABLE_COLUMNS = [
-    { th: "", /* checkbox */ },
-    { th: "", /* expand */ },
+    { th: "" /* checkbox */ },
+    { th: "" /* expand */ },
     { th: "Produkt" },
     { th: "Weryfikacja" },
     { th: "R\u00f3\u017cnica warto\u015bci" },
@@ -2989,12 +3335,18 @@ whenReadyAndDataTables(function () {
       return;
     }
     var colCount = TABLE_COLUMNS.length;
-    var thCells = TABLE_COLUMNS.map(function (c) { return "<th>" + c.th + "</th>"; }).join("");
+    var thCells = TABLE_COLUMNS.map(function (c) {
+      return "<th>" + c.th + "</th>";
+    }).join("");
     var tdCells = Array(colCount).fill("<td></td>").join("");
     container.innerHTML =
       '<table id="table_delivery" class="display dataTable" style="width:100%">' +
-        "<thead><tr>" + thCells + "</tr></thead>" +
-        "<tfoot><tr>" + tdCells + "</tr></tfoot>" +
+      "<thead><tr>" +
+      thCells +
+      "</tr></thead>" +
+      "<tfoot><tr>" +
+      tdCells +
+      "</tr></tfoot>" +
       "</table>";
 
     // 4) inicjalizacja
@@ -3032,7 +3384,10 @@ whenReadyAndDataTables(function () {
             const proposals = safeArr(rowData?.potentialMatches);
 
             if (linked.length) {
-              orderedQty = linked.reduce((acc, p) => acc + sumQty(p?.segments), 0);
+              orderedQty = linked.reduce(
+                (acc, p) => acc + sumQty(p?.segments),
+                0,
+              );
               orderedPrice = avgPriceWeighted(linked[0]?.segments);
             } else if (proposals.length) {
               orderedQty = sumQty(proposals[0]?.segments);
@@ -3051,18 +3406,31 @@ whenReadyAndDataTables(function () {
         // Wyświetl sumę impactu w kolumnie 4 (Wartość)
         const footerCell = $(api.column(4).footer());
         if (Math.abs(totalValueDiff) < 0.001) {
-          footerCell.html(`<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`);
+          footerCell.html(
+            `<span style="color: #6b7280; font-weight: 600;">${fmtPLN(0)}</span>`,
+          );
         } else {
           const sign = totalValueDiff > 0 ? "+" : "";
           const color = totalValueDiff > 0 ? "#16a34a" : "#dc2626";
-          footerCell.html(`<span style="color: ${color}; font-weight: 600;">${sign}${fmtPLN(Math.abs(totalValueDiff))}</span>`);
+          footerCell.html(
+            `<span style="color: ${color}; font-weight: 600;">${sign}${fmtPLN(Math.abs(totalValueDiff))}</span>`,
+          );
         }
-        footerCell.css({ "text-align": "right", "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
+        footerCell.css({
+          "text-align": "right",
+          padding: "10px 8px",
+          "border-top": "2px solid #e5e7eb",
+        });
 
         // Etykieta w kolumnie Produkt
         const prodCell = $(api.column(2).footer());
-        prodCell.html(`<span style="font-weight: 600; color: #374151;">Łącznie</span>`);
-        prodCell.css({ "padding": "10px 8px", "border-top": "2px solid #e5e7eb" });
+        prodCell.html(
+          `<span style="font-weight: 600; color: #374151;">Łącznie</span>`,
+        );
+        prodCell.css({
+          padding: "10px 8px",
+          "border-top": "2px solid #e5e7eb",
+        });
 
         // Wyczyść i styluj pozostałe komórki footera
         for (let i = 0; i <= 6; i++) {
@@ -3070,7 +3438,7 @@ whenReadyAndDataTables(function () {
           if (i !== 2 && i !== 4) {
             cell.html("");
           }
-          cell.css({ "border-top": "2px solid #e5e7eb", "padding": "10px 8px" });
+          cell.css({ "border-top": "2px solid #e5e7eb", padding: "10px 8px" });
         }
       },
 
@@ -3134,13 +3502,22 @@ whenReadyAndDataTables(function () {
           searchable: false,
           width: "28px",
           className: "bulk-select-cell",
-          title: '<input type="checkbox" id="bulk-select-all" title="Zaznacz wszystkie (główne)" />',
+          title:
+            '<input type="checkbox" id="bulk-select-all" title="Zaznacz wszystkie (główne)" />',
           render: function (data, type, row) {
             if (type !== "display") return "";
             const rowId = row?.id;
             if (rowId == null) return "";
-            const checked = selectionState.mainRows.has(rowId) ? " checked" : "";
-            return '<input type="checkbox" class="bulk-cb-main" data-row-id="' + rowId + '"' + checked + ' />';
+            const checked = selectionState.mainRows.has(rowId)
+              ? " checked"
+              : "";
+            return (
+              '<input type="checkbox" class="bulk-cb-main" data-row-id="' +
+              rowId +
+              '"' +
+              checked +
+              " />"
+            );
           },
         },
         // Kolumna 1 - Expand
@@ -3235,7 +3612,10 @@ whenReadyAndDataTables(function () {
               }
             }
 
-            if (!orderId) return type === "sort" || type === "type" ? "" : `<span class="muted">-</span>`;
+            if (!orderId)
+              return type === "sort" || type === "type"
+                ? ""
+                : `<span class="muted">-</span>`;
             if (type === "sort" || type === "type") {
               const details = orderDetailsCache[orderId];
               return details?.name || orderId;
@@ -3259,7 +3639,11 @@ whenReadyAndDataTables(function () {
             const st = computeRowState(row);
             if (type === "sort" || type === "type") {
               // Gdy filtrowanie według zamówienia: produkty połączone z tym zamówieniem mają priorytet
-              if (selectedOrderId && row?._primaryMatch && !row._isPrimaryProposal) {
+              if (
+                selectedOrderId &&
+                row?._primaryMatch &&
+                !row._isPrimaryProposal
+              ) {
                 return st.sort - 100;
               }
               return st.sort;
@@ -3293,7 +3677,8 @@ whenReadyAndDataTables(function () {
           proposalsToRenderCount = data._variantMatches.length;
         } else {
           const proposals = safeArr(data?.potentialMatches);
-          proposalsToRenderCount = proposals.length > 1 ? proposals.length - 1 : 0;
+          proposalsToRenderCount =
+            proposals.length > 1 ? proposals.length - 1 : 0;
         }
 
         if (proposalsToRenderCount === 0) return;
@@ -3392,5 +3777,4 @@ whenReadyAndDataTables(function () {
       });
     });
   }
-
 });
