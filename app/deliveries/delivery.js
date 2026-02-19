@@ -20,6 +20,42 @@ function whenReadyAndDataTables(fn) {
 }
 
 whenReadyAndDataTables(function () {
+  // Baner Early Access
+  (function () {
+    const banner = document.createElement("div");
+    banner.id = "early-access-banner";
+    banner.style.cssText = [
+      "position: fixed",
+      "top: 0",
+      "left: 0",
+      "right: 0",
+      "z-index: 99999",
+      "background: linear-gradient(90deg, #b45309 0%, #d97706 50%, #b45309 100%)",
+      "color: #fff",
+      "font-size: 13px",
+      "font-family: inherit",
+      "padding: 10px 16px",
+      "display: flex",
+      "align-items: center",
+      "justify-content: space-between",
+      "gap: 12px",
+      "box-shadow: 0 2px 8px rgba(0,0,0,0.18)",
+    ].join("; ");
+    banner.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="background:#fff3; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap;">EARLY ACCESS</span>
+        <span>Ten moduł jest aktywnie rozwijany. Mogą wystąpić błędy — Twój feedback pomaga nam go ulepszać.</span>
+        <a href="mailto:kontakt@sprytny.app" style="color:#fef3c7; font-weight:600; text-decoration:underline; white-space:nowrap;">kontakt@sprytny.app</a>
+      </div>
+      <button onclick="document.getElementById('early-access-banner').style.display='none'" style="background:none; border:none; color:#fff; cursor:pointer; font-size:18px; line-height:1; padding:0 4px; opacity:.8; flex-shrink:0;" title="Zamknij">×</button>
+    `;
+    document.body.insertAdjacentElement("afterbegin", banner);
+    // Przesunięcie body żeby baner nie przykrywał treści
+    document.body.style.paddingTop = (document.body.style.paddingTop
+      ? parseInt(document.body.style.paddingTop) + 44
+      : 44) + "px";
+  })();
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -1439,8 +1475,15 @@ whenReadyAndDataTables(function () {
     try {
       await batchPatchProducts(patchOps);
     } catch (err) {
-      console.error("Batch link failed:", err);
-      failed = patchOps.length; success = 0;
+      const errMsg = err?.responseJSON?.message || err?.responseText || "";
+      if (errMsg.toLowerCase().includes("already linked")) {
+        // Pozycje są już połączone — traktujemy jako sukces
+        skipped += patchOps.length;
+        success = 0;
+      } else {
+        console.error("Batch link failed:", err);
+        failed = patchOps.length; success = 0;
+      }
     }
 
     await new Promise(function (resolve) {
@@ -2033,7 +2076,12 @@ whenReadyAndDataTables(function () {
         <p style="margin: 0 0 6px;">System porównuje dokument dostawy z zamówieniami z kilku dni przed datą dostawy. Jeśli nie widzisz właściwego zamówienia, możesz zmienić zakres dat u góry ekranu.</p>
         <p style="margin: 0 0 6px;">Zielone wartości oznaczają korzystną różnicę, czerwone \u2013 niezgodność w ilości lub cenie.</p>
         <p style="margin: 0 0 6px;">Jeśli produkt był zamawiany w kilku dokumentach, możesz rozwinąć wiersz, aby zobaczyć wszystkie powiązania.</p>
-        <p style="margin: 0;">W razie potrzeby zaznacz pozycje i użyj opcji Połącz lub Rozłącz, aby poprawić dopasowanie.</p>
+        <p style="margin: 0 0 10px;">W razie potrzeby zaznacz pozycje i użyj opcji Połącz lub Rozłącz, aby poprawić dopasowanie.</p>
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 2px;">
+          <p style="margin: 0 0 4px; font-weight: 600; color: #92400e;">⚠ Ważne: terminowość wysyłki zamówień</p>
+          <p style="margin: 0 0 4px;">Aby system działał poprawnie, zamówienia powinny być wysyłane do dostawcy przez platformę — najlepiej korzystając z <strong>modułu wysyłki e-mail</strong> lub wgrywając plik na platformę dostawcy bezpośrednio po eksporcie.</p>
+          <p style="margin: 0;">Ociąganie się z wysyłką może powodować rozbieżności widoczne w tym module — wynikają one z opóźnienia, a nie z błędnej faktury dostawcy ani awarii systemu.</p>
+        </div>
       </div>
       <div style="border-bottom: 1px solid #e5e7eb; margin-top: 14px;"></div>
     `;
@@ -2255,7 +2303,7 @@ whenReadyAndDataTables(function () {
 
     const defaultEnd = new Date(issueD);
     const defaultStart = new Date(issueD);
-    defaultStart.setDate(defaultStart.getDate() - 3);
+    defaultStart.setDate(defaultStart.getDate() - 4);
 
     let rangeStart = fmtDateISO(defaultStart);
     let rangeEnd = fmtDateISO(defaultEnd);
@@ -2410,8 +2458,13 @@ whenReadyAndDataTables(function () {
       // Wyczyść selekcje bulk przy zmianie zakresu dat
       clearAllSelections(true);
 
-      // Reload table
-      if (deliveryTable) deliveryTable.ajax.reload();
+      // Reload table z loaderem
+      if (deliveryTable) {
+        $("#waitingdots").show();
+        deliveryTable.ajax.reload(function () {
+          $("#waitingdots").hide();
+        }, false);
+      }
     }
 
     // --- Event delegation on popover ---
@@ -2950,9 +3003,9 @@ whenReadyAndDataTables(function () {
       lengthMenu: [25, 50, 100, 200],
       pageLength: 25,
       order: [
-        [6, "asc"],
+        [6, "desc"],
         [2, "asc"],
-      ], // Sortuj najpierw po statusie (kol. 6), potem po nazwie produktu (kol. 2)
+      ], // Sortuj najpierw po statusie malejąco (błędne na górze), potem po nazwie produktu
       dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
