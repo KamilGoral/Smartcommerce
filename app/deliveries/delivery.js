@@ -30,8 +30,9 @@ whenReadyAndDataTables(function () {
       "left: 0",
       "right: 0",
       "z-index: 99999",
-      "background: linear-gradient(90deg, #b45309 0%, #d97706 50%, #b45309 100%)",
-      "color: #fff",
+      "background: linear-gradient(90deg, #bfdbfe 0%, #eff6ff 50%, #bfdbfe 100%)",
+      "border-bottom: 1px solid #93c5fd",
+      "color: #1e40af",
       "font-size: 13px",
       "font-family: inherit",
       "padding: 10px 16px",
@@ -39,15 +40,14 @@ whenReadyAndDataTables(function () {
       "align-items: center",
       "justify-content: space-between",
       "gap: 12px",
-      "box-shadow: 0 2px 8px rgba(0,0,0,0.18)",
     ].join("; ");
     banner.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="background:#fff3; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap;">EARLY ACCESS</span>
-        <span>Ten moduł jest aktywnie rozwijany. Mogą wystąpić błędy — Twój feedback pomaga nam go ulepszać.</span>
-        <a href="mailto:kontakt@sprytny.app" style="color:#fef3c7; font-weight:600; text-decoration:underline; white-space:nowrap;">kontakt@sprytny.app</a>
+        <span style="background:#bfdbfe; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap; color:#1e40af;">Wczesny dostęp (Early Access)</span>
+        <span>Moduł jest obecnie w fazie intensywnego rozwoju. Mogą występować przejściowe błędy lub niedoskonałości. Państwa uwagi i sugestie są dla nas bardzo cenne i pomagają nam go udoskonalać.</span>
+        <a href="mailto:kontakt@sprytnykupiec.pl" style="color:#1d4ed8; font-weight:600; text-decoration:underline; white-space:nowrap;">📩 kontakt@sprytnykupiec.pl</a>
       </div>
-      <button onclick="document.getElementById('early-access-banner').style.display='none'" style="background:none; border:none; color:#fff; cursor:pointer; font-size:18px; line-height:1; padding:0 4px; opacity:.8; flex-shrink:0;" title="Zamknij">×</button>
+      <button onclick="document.getElementById('early-access-banner').style.display='none'" style="background:none; border:none; color:#60a5fa; cursor:pointer; font-size:18px; line-height:1; padding:0 4px; flex-shrink:0;" title="Zamknij">×</button>
     `;
     document.body.insertAdjacentElement("afterbegin", banner);
     // Przesunięcie body żeby baner nie przykrywał treści
@@ -2070,7 +2070,7 @@ whenReadyAndDataTables(function () {
         <div id="drpPopover" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 6px; z-index: 5000;"></div>
       </div>
       <!-- Instrukcja (domyślnie ukryta) -->
-      <div id="help-section" style="display: none; margin-top: 12px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 13px; color: #475569; line-height: 1.6;">
+      <div id="help-section" style="display: none; margin-top: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 11px; color: #64748b; line-height: 1.5;">
         <p style="margin: 0 0 8px; font-weight: 600; color: #1e293b;">Jak działa ten widok?</p>
         <p style="margin: 0 0 6px;">W tym miejscu sprawdzisz, czy dostawa zgadza się z wcześniejszymi zamówieniami.</p>
         <p style="margin: 0 0 6px;">System porównuje dokument dostawy z zamówieniami z kilku dni przed datą dostawy. Jeśli nie widzisz właściwego zamówienia, możesz zmienić zakres dat u góry ekranu.</p>
@@ -3003,9 +3003,9 @@ whenReadyAndDataTables(function () {
       lengthMenu: [25, 50, 100, 200],
       pageLength: 25,
       order: [
-        [6, "desc"],
+        [3, "asc"],
         [2, "asc"],
-      ], // Sortuj najpierw po statusie malejąco (błędne na górze), potem po nazwie produktu
+      ], // Sortuj najpierw po kolumnie Weryfikacja (kol. 3), potem po nazwie produktu
       dom: '<"top"f>rt<"bottom"lip>',
       scrollY: "70vh",
       scrollCollapse: true,
