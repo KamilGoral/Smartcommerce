@@ -517,8 +517,12 @@ whenReadyAndDataTables(function () {
     orderNameBig.textContent = "Twoje zamówienie";
   }
 
+  let _shopDataPromise = null;
+  let _shopEntityPromise = null;
+
   function getShop() {
-    return new Promise((resolve, reject) => {
+    if (!_shopDataPromise) {
+      _shopDataPromise = new Promise((resolve, reject) => {
       var request = new XMLHttpRequest();
       let endpoint = new URL(InvokeURL + "shops/" + shopKey);
       request.open("GET", endpoint.toString(), true);
@@ -591,19 +595,6 @@ whenReadyAndDataTables(function () {
             });
           }
 
-          // Wypełnij dane do wysyłki
-          $("#orderDelivery").prop("disabled", true);
-          const shopDescription = `${data.name || ""}`;
-          const addressDescription = `${data.address?.line1 || ""}, ${
-            data.address?.town || ""
-          }, ${data.address?.postcode || ""}`;
-          const emails = data.emails?.map((e) => e.email).join(", ") || "";
-          const phones = data.phones?.map((p) => p.phone).join(", ") || "";
-
-          $("#orderDelivery").val(
-            `${shopDescription} \n${addressDescription} \n${emails} \n${phones}`,
-          );
-
           resolve(data);
         } else {
           console.log("Błąd podczas pobierania danych sklepu.");
@@ -617,6 +608,39 @@ whenReadyAndDataTables(function () {
 
       request.send();
     });
+    _shopDataPromise.catch(() => { _shopDataPromise = null; });
+  }
+    return _shopDataPromise;
+  }
+
+  function getShopEntity() {
+    if (!_shopEntityPromise) {
+      _shopEntityPromise = new Promise((resolve, reject) => {
+        var request = new XMLHttpRequest();
+        let endpoint = new URL(InvokeURL + "shops/" + shopKey + "/entity");
+        request.open("GET", endpoint.toString(), true);
+        request.setRequestHeader("Authorization", orgToken);
+        request.setRequestHeader("Requested-By", "webflow-3-4");
+
+        request.onload = function () {
+          if (request.status >= 200 && request.status < 400) {
+            var data = JSON.parse(this.response);
+            resolve(data);
+          } else {
+            console.log("Błąd podczas pobierania danych entity sklepu.");
+            reject(new Error("Błąd podczas pobierania danych entity sklepu."));
+          }
+        };
+
+        request.onerror = function () {
+          reject(new Error("Błąd połączenia z serwerem (entity)."));
+        };
+
+        request.send();
+      });
+      _shopEntityPromise.catch(() => { _shopEntityPromise = null; });
+    }
+    return _shopEntityPromise;
   }
 
   function saveToSessionStorage(productsData) {
@@ -2124,7 +2148,7 @@ whenReadyAndDataTables(function () {
   function formatEvents(data) {
     const events = (data.events || [])
       .slice()
-      .sort((a, b) => new Date(b.created.at) - new Date(a.created.at)); // najnowsze na górze
+      .sort((a, b) => new Date(b.created.at) - new Date(a.created.at));
 
     if (events.length === 0) {
       return `<div style="padding: 12px 44px;">Brak zdarzeń.</div>`;
@@ -2393,11 +2417,11 @@ whenReadyAndDataTables(function () {
             },
           ],
           language: {
-            emptyTable: "Brak danych do wyświetlenia",
-            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatów",
+            emptyTable: "Brak danych do wyswietlenia",
+            info: "Pokazuje _START_ - _END_ z _TOTAL_ rezultatow",
             infoEmpty: "Brak danych",
-            infoFiltered: "(z _MAX_ rezultatów)",
-            lengthMenu: "Pokaż _MENU_ rekordów",
+            infoFiltered: "(z _MAX_ rezultatow)",
+            lengthMenu: "Pokaz _MENU_ rezulatow",
             loadingRecords: "<div class='spinner'</div>",
             processing: "<div class='spinner'</div>",
             search: "Szukaj:",
@@ -2708,6 +2732,7 @@ whenReadyAndDataTables(function () {
               render: function (data) {
                 var tippyContent;
                 var baseClass = "tippy";
+
                 switch (data) {
                   case "AX":
                     tippyContent =
@@ -3580,6 +3605,10 @@ ${offerTimestampLine}
           last: ">>",
           next: " >",
           previous: "< ",
+        },
+        aria: {
+          sortAscending: ": Sortowanie rosnące",
+          sortDescending: ": Sortowanie malejące",
         },
       },
       columns: [
@@ -4617,7 +4646,7 @@ ${offerTimestampLine}
         return false;
       });
     });
-  };
+  }
 
   makeWebflowFormAjaxDelete = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -4655,7 +4684,6 @@ ${offerTimestampLine}
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
-                console.log(e);
                 return;
               }
             }
@@ -4907,23 +4935,9 @@ ${offerTimestampLine}
                       const selectElement = $(this.node()).find(
                         ".status-dropdown",
                       );
-                      selectElement.find("option").each(function () {
-                        if ($(this).text().trim() === "Wysłano") {
-                          $(this).prop("selected", true);
-                        }
-                      });
-                      selectElement.data("previous-value", "Wysłano");
-
-                      // Wyłączenie przycisku wysyłki
-                      const rowNode = this.node();
-                      const sendButton = rowNode.querySelector(".sendemail");
-                      if (sendButton) {
-                        sendButton.disabled = true;
-                        sendButton.classList.add("disabled");
-                        sendButton.style.opacity = "0.5";
-                        sendButton.style.cursor = "not-allowed";
-                      }
-
+                      selectElement
+                        .val("potwierdzono")
+                        .data("previous-value", "potwierdzono");
                       return false; // zakończ pętlę po pierwszym trafieniu
                     }
                   });
@@ -5213,7 +5227,7 @@ ${offerTimestampLine}
             form.show();
             displayMessage(
               "Success",
-              "Twoje zgłoszenie została przyjęte. Dziękujemy.",
+              "Twoje zgłoszenie zostało przyjęte. Dziękujemy.",
             );
             form.trigger("reset");
           },
@@ -5226,7 +5240,6 @@ ${offerTimestampLine}
               "Error",
               "Oops. Coś poszło nie tak, spróbuj ponownie.",
             );
-            console.log(e);
             form.trigger("reset");
           },
         });
@@ -5304,12 +5317,16 @@ ${offerTimestampLine}
       infoFiltered: "(z _MAX_ rezultatow)",
       lengthMenu: "Pokaz _MENU_ rezulatow",
       search: "Szukaj:",
-      zeroRecords: "Brak pasujacych rezultatow",
+      zeroRecords: "Brak pasujących rezultatów",
       paginate: {
         first: "<<",
         last: ">>",
         next: " >",
         previous: "< ",
+      },
+      aria: {
+        sortAscending: ": Sortowanie rosnące",
+        sortDescending: ": Sortowanie malejące",
       },
     },
     ajax: function (data, callback, settings) {
@@ -5953,38 +5970,87 @@ ${offerTimestampLine}
       $("#orderParty").val("").prop("disabled", false);
     }
 
+    // Dane z DataTables — dostępne natychmiast, bez API
+    const productsSum =
+      (data.products?.bestMatch || 0) +
+      (data.products?.exclusive || 0) +
+      (data.products?.order || 0);
+    $("#orderItems").text(productsSum);
+    $("#orderValue").text((data.netValue || 0) + " zł");
+    $("#orderWholesalerKey")
+      .val(data.wholesalerName || "")
+      .attr("data-key", data.wholesalerKey || "")
+      .prop("disabled", true);
+    $("#orderUserName")
+      .val((attributes["username"] || "") + " " + (attributes["familyname"] || ""))
+      .prop("disabled", true);
+
     try {
       // Pokaż animację ładowania
       $("#waitingdots").show();
 
-      // Poczekaj na oba Promise
-      await Promise.all([getShop(), getWhSmartVan(data.wholesalerKey)]);
+      // Shop i entity niezależnie od siebie — z cache po pierwszym pobraniu
+      const [shopResult, entityResult] = await Promise.allSettled([
+        getShop(),
+        getShopEntity(),
+      ]);
 
-      // orderItems
-      const productsSum =
-        (data.products?.bestMatch || 0) +
-        (data.products?.exclusive || 0) +
-        (data.products?.order || 0);
-      $("#orderItems").text(productsSum);
+      const shopData = shopResult.status === "fulfilled" ? shopResult.value : null;
+      const entityData = entityResult.status === "fulfilled" ? entityResult.value : null;
 
-      // orderValue
-      $("#orderValue").text((data.netValue || 0) + " zł");
+      // Wypełnij orderDelivery z dostępnych danych
+      let deliveryText = "";
 
-      // orderWholesalerKey
-      $("#orderWholesalerKey").val(data.wholesalerName || "");
-      $("#orderWholesalerKey").attr("data-key", data.wholesalerKey || "");
-      $("#orderWholesalerKey").prop("disabled", true);
+      if (shopData) {
+        const deliveryAddress = `${shopData.address?.line1 || ""}, ${
+          shopData.address?.town || ""
+        }, ${shopData.address?.postcode || ""}`;
+        const deliveryEmails =
+          shopData.emails?.map((e) => e.email).join(", ") || "";
+        const deliveryPhones =
+          shopData.phones?.map((p) => p.phone).join(", ") || "";
 
-      // orderSender
-      $("#orderUserName").val(
-        (attributes["username"] || "") + " " + (attributes["familyname"] || ""),
-      );
-      $("#orderUserName").prop("disabled", true);
+        deliveryText += "📦 MIEJSCE DOSTAWY\n";
+        deliveryText += "━━━━━━━━━━━━━━━━━━━━━━\n";
+        if (shopData.name) deliveryText += `${shopData.name}\n`;
+        if (deliveryAddress.trim()) deliveryText += `${deliveryAddress}\n`;
+        if (deliveryEmails) deliveryText += `Email: ${deliveryEmails}\n`;
+        if (deliveryPhones) deliveryText += `Tel: ${deliveryPhones}\n`;
+      }
 
-      // Pokaż okno dopiero po załadowaniu danych
+      if (entityData) {
+        const entityAddress = entityData.address
+          ? [
+              entityData.address.line1,
+              entityData.address.town,
+              entityData.address.postcode,
+              entityData.address.state,
+              entityData.address.country,
+            ]
+              .filter(Boolean)
+              .join(", ")
+          : "";
+
+        deliveryText += "\n\n🏢 DANE ZAMAWIAJĄCEGO\n";
+        deliveryText += "━━━━━━━━━━━━━━━━━━━━━━\n";
+        if (entityData.companyName) deliveryText += `${entityData.companyName}\n`;
+        if (entityData.taxId) deliveryText += `NIP: ${entityData.taxId}\n`;
+        if (entityAddress) deliveryText += `${entityAddress}\n`;
+      }
+
+      $("#orderDelivery").val(deliveryText).prop("disabled", true);
+
+      // Dostawca — zawsze świeży, niezależny
+      try {
+        await getWhSmartVan(data.wholesalerKey);
+      } catch (e) {
+        console.error("Błąd pobierania danych dostawcy (SmartVan):", e);
+      }
+
+      // Pokaż okno po załadowaniu danych
       $("#SendOrderSMTP").css("display", "flex");
     } catch (error) {
-      console.error("Błąd podczas pobierania danych:", error);
+      console.error("Błąd podczas pobierania danych sklepu:", error);
     } finally {
       // Zawsze schowaj animację niezależnie od powodzenia
       $("#waitingdots").hide();
@@ -6297,7 +6363,7 @@ ${offerTimestampLine}
       // Wklejenie poprawnej wartości
       event.target.value = pastedValue;
     } else {
-      // Tymczasowe usunięcie nasłuchiwania zdarzenia focusout
+      // Tymczasowe usunięcie nasłuchiwanie zdarzenia focusout
       const inputElement = event.target;
       const focusoutHandler = function () {
         console.log(
@@ -6524,7 +6590,6 @@ ${offerTimestampLine}
           };
         }
 
-        console.log("Adding product to changesPayload:", product);
         addObject(changesPayload, product);
 
         // 🔥 KLUCZ: aktualizacja danych w DataTables
@@ -6587,6 +6652,11 @@ ${offerTimestampLine}
     var NameInput = document.getElementById("new-name");
     NameInput.value = rowData.name;
     NameInput.textContent = rowData.name;
+    var DistributorInput = document.getElementById(
+      "countryDistributorName-2",
+    );
+    DistributorInput.value = rowData.countryDistributorName;
+    DistributorInput.textContent = rowData.countryDistributorName;
     $("#ProposeChangeInGtinModal").css("display", "flex");
   });
 
@@ -6791,7 +6861,7 @@ ${offerTimestampLine}
 
         let product;
         if (isNaN(initialNum) && !isNaN(newNum)) {
-          console.log("Operation: ADD");
+          // ADD – nie było ilości, a teraz jest
           product = {
             op: "add",
             path: "/" + data.gtin,
@@ -6800,14 +6870,14 @@ ${offerTimestampLine}
             },
           };
         } else if (quantity !== null) {
-          console.log("Operation: REPLACE");
+          // REPLACE – była ilość, podmieniamy
           product = {
             op: "replace",
             path: "/" + data.gtin + "/quantity",
             value: quantity,
           };
         } else {
-          console.log("Operation: REMOVE");
+          // REMOVE – teraz jest „pusto”
           product = {
             op: "remove",
             path: "/" + data.gtin,
@@ -6864,27 +6934,6 @@ ${offerTimestampLine}
         })
         .columns.adjust();
     }, 300);
-  });
-
-  $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
-    function () {
-      const delays = [1, 49, 151, 901];
-
-      delays.forEach((delay) => {
-        setTimeout(function () {
-          $.fn.dataTable
-            .tables({
-              visible: true,
-              api: true,
-            })
-            .columns.adjust();
-        }, delay);
-      });
-    },
-  );
-
-  $("table.dataTable").on("page.dt", function () {
-    $(this).DataTable().draw(false);
   });
 
   $('div[role="tablist"], div[role="tab"], div[role="tabpanel"]').click(
