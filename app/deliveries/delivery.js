@@ -43,7 +43,7 @@ whenReadyAndDataTables(function () {
     ].join("; ");
     banner.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="background:#bfdbfe; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap; color:#1e40af;">Wczesny dostęp (Early Access)</span>
+        <span style="background:#3a4570; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap; color:#ffffff;">Wczesny dostęp (Early Access)</span>
         <span>Moduł jest obecnie w fazie intensywnego rozwoju. Mogą występować przejściowe błędy lub niedoskonałości. Państwa uwagi i sugestie są dla nas bardzo cenne i pomagają nam go udoskonalać.</span>
         <a href="mailto:kontakt@sprytnykupiec.pl" style="color:#1d4ed8; font-weight:600; text-decoration:underline; white-space:nowrap;">📩 kontakt@sprytnykupiec.pl</a>
       </div>
