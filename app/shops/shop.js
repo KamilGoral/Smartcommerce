@@ -5372,20 +5372,27 @@ ${offerTimestampLine}
     'a[data-w-tab="Deliveries"].in-page-menu-link',
   );
 
-  // Lista shopKey, które mogą zobaczyć zakładkę "Dostawy"
-  const allowedShopKeys = ["054", "600"];
+  // Organizacje z pełnym dostępem (wszystkie sklepy)
+  const fullAccessOrganizations = [
+    "PSS-Podwawelska",
+    "sklepyWat",
+    "LASUCH",
+    "Goral",
+  ];
+
+  // PSSCzestochowa — tylko wybrane shopKey
+  const czestochowaAllowedShopKeys = ["054", "600"];
 
   if (deliveriesTab) {
-    // Sprawdź czy organizacja jest na liście dozwolonych
-    const isOrganizationAllowed = currentOrganization === "PSSCzestochowa";
+    const isFullAccess = fullAccessOrganizations.includes(currentOrganization);
+    const isCzestochowa =
+      currentOrganization === "PSSCzestochowa" &&
+      czestochowaAllowedShopKeys.includes(shopKey);
 
-    // Sprawdź czy shopKey jest na liście dozwolonych
-    const isShopAllowed = allowedShopKeys.includes(shopKey);
-
-    // Pokaż zakładkę jeśli to dev stage lub (dozwolona organizacja i dozwolony sklep)
     if (
       location.hostname === "sprytny01.webflow.io" ||
-      (isOrganizationAllowed && isShopAllowed)
+      isFullAccess ||
+      isCzestochowa
     ) {
       deliveriesTab.style.display = "flex";
     } else {

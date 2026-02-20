@@ -20,42 +20,24 @@ function whenReadyAndDataTables(fn) {
 }
 
 whenReadyAndDataTables(function () {
-  // Baner Early Access
-  (function () {
+  // Baner Early Access — wstawiany inline nad delivery-header
+  function renderEarlyAccessBanner(container) {
+    const old = document.getElementById("early-access-banner");
+    if (old) old.remove();
+
     const banner = document.createElement("div");
     banner.id = "early-access-banner";
-    banner.style.cssText = [
-      "position: fixed",
-      "top: 0",
-      "left: 0",
-      "right: 0",
-      "z-index: 99999",
-      "background: linear-gradient(90deg, #bfdbfe 0%, #eff6ff 50%, #bfdbfe 100%)",
-      "border-bottom: 1px solid #93c5fd",
-      "color: #1e40af",
-      "font-size: 13px",
-      "font-family: inherit",
-      "padding: 10px 16px",
-      "display: flex",
-      "align-items: center",
-      "justify-content: space-between",
-      "gap: 12px",
-    ].join("; ");
+    banner.style.cssText = "background: linear-gradient(90deg, #bfdbfe 0%, #eff6ff 50%, #bfdbfe 100%); border: 1px solid #93c5fd; color: #1e40af; font-size: 12px; font-family: inherit; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-radius: 10px; margin-bottom: 12px;";
     banner.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <span style="background:#3a4570; border-radius:4px; padding:2px 8px; font-weight:700; font-size:11px; letter-spacing:.05em; white-space:nowrap; color:#ffffff;">Wczesny dostęp</span>
         <span>Moduł jest obecnie w fazie intensywnego rozwoju. Mogą występować przejściowe błędy lub niedoskonałości. Państwa uwagi i sugestie są dla nas bardzo cenne i pomagają nam go udoskonalać.</span>
-        <a href="mailto:kontakt@sprytnykupiec.pl" style="color:#1d4ed8; font-weight:600; text-decoration:underline; white-space:nowrap;">📩 kontakt@sprytnykupiec.pl</a>
+        <a href="mailto:kontakt@sprytnykupiec.pl" style="color:#1d4ed8; font-weight:600; text-decoration:underline; white-space:nowrap;">kontakt@sprytnykupiec.pl</a>
       </div>
-      <button onclick="document.getElementById('early-access-banner').style.display='none'" style="background:none; border:none; color:#60a5fa; cursor:pointer; font-size:18px; line-height:1; padding:0 4px; flex-shrink:0;" title="Zamknij">×</button>
+      <button onclick="document.getElementById('early-access-banner').style.display='none'" style="background:none; border:none; color:#60a5fa; cursor:pointer; font-size:18px; line-height:1; padding:0 4px; flex-shrink:0;" title="Zamknij">&times;</button>
     `;
-    document.body.insertAdjacentElement("afterbegin", banner);
-    // Przesunięcie body żeby baner nie przykrywał treści
-    document.body.style.paddingTop =
-      (document.body.style.paddingTop
-        ? parseInt(document.body.style.paddingTop) + 44
-        : 44) + "px";
-  })();
+    container.insertBefore(banner, container.firstChild);
+  }
 
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -632,8 +614,9 @@ whenReadyAndDataTables(function () {
       </div>
     `;
 
-    // Wstaw na początku kontenera (przed tabelą i filtrami)
-    container.insertBefore(headerEl, container.firstChild);
+    // Wstaw baner early access i nagłówek na początku kontenera
+    renderEarlyAccessBanner(container);
+    container.insertBefore(headerEl, container.children[1] || null);
   }
 
   // ============================================
