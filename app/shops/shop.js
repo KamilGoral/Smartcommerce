@@ -859,7 +859,6 @@ whenReadyAndDataTables(function () {
     // Flaga czy dane zostały już załadowane
     var dataLoaded = false;
 
-
     var tableDeliveries = $("#table_deliveries").DataTable({
       pagingType: "full_numbers",
       order: [[4, "desc"]], // Sortowanie po dacie utworzenia
@@ -1198,7 +1197,9 @@ whenReadyAndDataTables(function () {
     // Funkcja obsługi usuwania
     function handleDeleteDelivery(uuid, name, api) {
       var decodedName = decodeURIComponent(name);
-      if (!confirm('Czy na pewno chcesz usunąć dostawę "' + decodedName + '"?')) {
+      if (
+        !confirm('Czy na pewno chcesz usunąć dostawę "' + decodedName + '"?')
+      ) {
         return;
       }
 
@@ -1211,7 +1212,9 @@ whenReadyAndDataTables(function () {
         },
         success: function () {
           // Usuń wiersz z tabeli bez przeładowania
-          var row = api.row($('.delete-delivery[data-uuid="' + uuid + '"]').closest("tr"));
+          var row = api.row(
+            $('.delete-delivery[data-uuid="' + uuid + '"]').closest("tr"),
+          );
           row.remove().draw(false);
           displayMessage("Success", 'Usunięto dostawę "' + decodedName + '"');
         },
@@ -4953,7 +4956,11 @@ ${offerTimestampLine}
 
     // Sprawdź rozszerzenie pliku
     var fileName = deliveryFile.name.toLowerCase();
-    if (!fileName.endsWith(".rtf") && !fileName.endsWith(".txt") && !fileName.endsWith(".edi")) {
+    if (
+      !fileName.endsWith(".rtf") &&
+      !fileName.endsWith(".txt") &&
+      !fileName.endsWith(".edi")
+    ) {
       displayMessage("Error", "Obsługiwane formaty: .RTF, .TXT, .EDI");
       fileInput.value = "";
       return;
@@ -4997,7 +5004,11 @@ ${offerTimestampLine}
       // "There are no active wholesalers matching tax ID [XXX] from the file."
       match = msg.match(/no active wholesalers matching tax ID \[(.+?)\]/i);
       if (match) {
-        return "Nie znaleziono aktywnego dostawcy o NIP " + match[1] + " podanym w pliku.";
+        return (
+          "Nie znaleziono aktywnego dostawcy o NIP " +
+          match[1] +
+          " podanym w pliku."
+        );
       }
 
       // "Duplicate transaction name"
@@ -5029,7 +5040,8 @@ ${offerTimestampLine}
             return "Nie znaleziono zasobu. Sprawdź czy sklep istnieje.";
           case 409:
             return (
-              translated || apiMsg ||
+              translated ||
+              apiMsg ||
               "Konflikt - transakcja o takiej nazwie już istnieje."
             );
           case 415:
@@ -5044,7 +5056,8 @@ ${offerTimestampLine}
             return "Błąd serwera [500]. Spróbuj ponownie później.";
           default:
             return (
-              translated || apiMsg ||
+              translated ||
+              apiMsg ||
               "Wystąpił nieznany błąd. Spróbuj ponownie później."
             );
         }
@@ -5192,7 +5205,11 @@ ${offerTimestampLine}
         var fileName = file.name.toLowerCase();
 
         // Sprawdź rozszerzenie
-        if (!fileName.endsWith(".rtf") && !fileName.endsWith(".txt") && !fileName.endsWith(".edi")) {
+        if (
+          !fileName.endsWith(".rtf") &&
+          !fileName.endsWith(".txt") &&
+          !fileName.endsWith(".edi")
+        ) {
           displayMessage("Error", "Obsługiwane formaty: .RTF, .TXT, .EDI");
           fileInput.value = "";
           $("#UploadDeliveryButton").text("Najpierw wybierz plik dostawy");
@@ -5378,6 +5395,7 @@ ${offerTimestampLine}
     "sklepyWat",
     "LASUCH",
     "Goral",
+    "Novum",
   ];
 
   // PSSCzestochowa — tylko wybrane shopKey
