@@ -2282,6 +2282,153 @@ whenReadyAndDataTables(function () {
     return selectHTML;
   }
 
+  // === Eksport CSV z tabeli podglądu produktów (PALUSZEK / Goral) ===
+  function exportSplTableToCsv(dt) {
+    var allData = dt.rows().data().toArray();
+    if (!allData.length) {
+      alert("Brak danych do eksportu.");
+      return;
+    }
+
+    // Nazwy dostawców z sessionStorage
+    var wholesalersData = [];
+    try {
+      wholesalersData = JSON.parse(
+        sessionStorage.getItem("wholesalersData") || "[]",
+      );
+    } catch (e) {
+      wholesalersData = [];
+    }
+    var whNameMap = {};
+    wholesalersData.forEach(function (w) {
+      whNameMap[w.wholesalerKey] = w.name || w.wholesalerKey;
+    });
+
+    // Zbierz unikalne klucze dostawców z asks (tylko valid z ceną)
+    var allWhKeys = {};
+    allData.forEach(function (item) {
+      if (Array.isArray(item.asks)) {
+        item.asks.forEach(function (ask) {
+          if (
+            ask &&
+            ask.wholesalerKey &&
+            ask.valid === true &&
+            ask.netPrice != null
+          ) {
+            allWhKeys[ask.wholesalerKey] = true;
+          }
+        });
+      }
+    });
+    var wholesalerKeys = Object.keys(allWhKeys).sort();
+
+    // Nagłówki CSV
+    var sep = ";";
+    var headers = [
+      "ean",
+      "nazwa",
+      "marka",
+      "minimalny dostawca price",
+      "maksymalny dostawca price",
+      "spread (maks-min)/min",
+    ];
+    wholesalerKeys.forEach(function (k) {
+      headers.push("dostawca " + (whNameMap[k] || k));
+    });
+
+    // Wiersze danych
+    var csvRows = [];
+    allData.forEach(function (item) {
+      var ean = item.gtin || "";
+      var nazwa = item.name || "";
+      var marka = item.countryDistributorName || "";
+
+      var validAsks = (item.asks || []).filter(function (a) {
+        return a && a.valid === true && a.netPrice != null;
+      });
+
+      var minAsk = null;
+      var maxAsk = null;
+      validAsks.forEach(function (ask) {
+        if (!minAsk || ask.netPrice < minAsk.netPrice) minAsk = ask;
+        if (!maxAsk || ask.netPrice > maxAsk.netPrice) maxAsk = ask;
+      });
+
+      var minStr = minAsk
+        ? (whNameMap[minAsk.wholesalerKey] || minAsk.wholesalerKey) +
+          " - " +
+          minAsk.netPrice.toFixed(2)
+        : "";
+      var maxStr = maxAsk
+        ? (whNameMap[maxAsk.wholesalerKey] || maxAsk.wholesalerKey) +
+          " - " +
+          maxAsk.netPrice.toFixed(2)
+        : "";
+
+      var spread = "";
+      if (
+        minAsk &&
+        maxAsk &&
+        minAsk.netPrice > 0 &&
+        maxAsk.netPrice !== minAsk.netPrice
+      ) {
+        var spreadVal =
+          ((maxAsk.netPrice - minAsk.netPrice) / minAsk.netPrice) * 100;
+        spread = spreadVal.toFixed(0) + "%";
+      }
+
+      // Ceny per dostawca
+      var priceMap = {};
+      validAsks.forEach(function (ask) {
+        priceMap[ask.wholesalerKey] = ask.netPrice.toFixed(2);
+      });
+
+      var row = [ean, nazwa, marka, minStr, maxStr, spread];
+      wholesalerKeys.forEach(function (k) {
+        row.push(priceMap[k] || "");
+      });
+      csvRows.push(row);
+    });
+
+    // Buduj string CSV
+    function escapeCell(val) {
+      var str = String(val);
+      if (
+        str.indexOf(sep) !== -1 ||
+        str.indexOf('"') !== -1 ||
+        str.indexOf("\n") !== -1
+      ) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }
+
+    var csvLines = [headers.map(escapeCell).join(sep)];
+    csvRows.forEach(function (row) {
+      csvLines.push(row.map(escapeCell).join(sep));
+    });
+    var csvContent = csvLines.join("\n");
+
+    // BOM + Blob → pobranie pliku
+    var bom = "\uFEFF";
+    var blob = new Blob([bom + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    var url = URL.createObjectURL(blob);
+
+    var orderName = getCookie("orderName") || "zamowienie";
+    var filename =
+      orderName.replace(/[<>:"/\\|?*]/g, "").replace(/\s+/g, "_") + ".csv";
+
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   function GetSplittedProducts(successCallback) {
     let resultProducts = { items: [] }; // domyślne dane
     if (!$("#CartwholesalerKeyIndicator").val()) {
@@ -2415,6 +2562,17 @@ whenReadyAndDataTables(function () {
                 });
               },
             },
+            ...(["PALUSZEK", "Goral"].includes(OrganizationName)
+              ? [
+                  {
+                    text: '<img src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724%27 height=%2724%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23374151%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z%27/%3E%3Cpath d=%27M14 2v6h6%27/%3E%3Cpath d=%27M12 18v-6%27/%3E%3Cpath d=%27M9 15l3 3 3-3%27/%3E%3C/svg%3E" alt="csv-export">',
+                    titleAttr: "Eksport CSV z dostawcami",
+                    action: function (e, dt) {
+                      exportSplTableToCsv(dt);
+                    },
+                  },
+                ]
+              : []),
           ],
           language: {
             emptyTable: "Brak danych do wyswietlenia",
