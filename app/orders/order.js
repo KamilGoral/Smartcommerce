@@ -2325,15 +2325,17 @@ whenReadyAndDataTables(function () {
     // Nagłówki CSV
     var sep = ";";
     var headers = [
-      "ean",
-      "nazwa",
-      "marka",
-      "minimalny dostawca price",
-      "maksymalny dostawca price",
-      "spread (maks-min)/min",
+      "EAN",
+      "Nazwa",
+      "Marka",
+      "Najniższa cena",
+      "Najlepszy dostawca",
+      "Najwyższa cena",
+      "Najdroższy dostawca",
+      "Spread (maks-min)/min",
     ];
     wholesalerKeys.forEach(function (k) {
-      headers.push("dostawca " + (whNameMap[k] || k));
+      headers.push(whNameMap[k] || k);
     });
 
     // Wiersze danych
@@ -2354,27 +2356,26 @@ whenReadyAndDataTables(function () {
         if (!maxAsk || ask.netPrice > maxAsk.netPrice) maxAsk = ask;
       });
 
-      var minStr = minAsk
-        ? (whNameMap[minAsk.wholesalerKey] || minAsk.wholesalerKey) +
-          " - " +
-          minAsk.netPrice.toFixed(2)
+      var minPrice = minAsk ? minAsk.netPrice.toFixed(2) : "";
+      var minName = minAsk
+        ? whNameMap[minAsk.wholesalerKey] || minAsk.wholesalerKey
         : "";
-      var maxStr = maxAsk
-        ? (whNameMap[maxAsk.wholesalerKey] || maxAsk.wholesalerKey) +
-          " - " +
-          maxAsk.netPrice.toFixed(2)
+      var maxPrice = maxAsk ? maxAsk.netPrice.toFixed(2) : "";
+      var maxName = maxAsk
+        ? whNameMap[maxAsk.wholesalerKey] || maxAsk.wholesalerKey
         : "";
 
-      var spread = "";
+      var spreadNum = 0;
+      var spreadStr = "";
       if (
         minAsk &&
         maxAsk &&
         minAsk.netPrice > 0 &&
         maxAsk.netPrice !== minAsk.netPrice
       ) {
-        var spreadVal =
+        spreadNum =
           ((maxAsk.netPrice - minAsk.netPrice) / minAsk.netPrice) * 100;
-        spread = spreadVal.toFixed(0) + "%";
+        spreadStr = spreadNum.toFixed(0) + "%";
       }
 
       // Ceny per dostawca
@@ -2383,11 +2384,17 @@ whenReadyAndDataTables(function () {
         priceMap[ask.wholesalerKey] = ask.netPrice.toFixed(2);
       });
 
-      var row = [ean, nazwa, marka, minStr, maxStr, spread];
+      var row = [ean, nazwa, marka, minPrice, minName, maxPrice, maxName, spreadStr];
       wholesalerKeys.forEach(function (k) {
         row.push(priceMap[k] || "");
       });
+      row._spreadNum = spreadNum;
       csvRows.push(row);
+    });
+
+    // Sortuj malejąco po spreadzie
+    csvRows.sort(function (a, b) {
+      return b._spreadNum - a._spreadNum;
     });
 
     // Buduj string CSV
