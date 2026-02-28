@@ -1505,6 +1505,17 @@ whenReadyAndDataTables(function () {
         if (!hasEntries) {
           $("#emptystatevendors").show();
           $("#vendorscontainer").hide();
+          // Ustaw link na buttonie w empty state → zakładka Dostawcy na stronie organizacji
+          $("#emptystatevendors a").attr(
+            "href",
+            "https://" +
+              DomainName +
+              "/app/tenants/organization?name=" +
+              OrganizationName +
+              "&clientId=" +
+              ClientID +
+              "&tab=Wholesalers",
+          );
         } else {
           $("#emptystatevendors").hide();
           $("#vendorscontainer").show();

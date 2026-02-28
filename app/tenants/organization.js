@@ -2382,6 +2382,17 @@ whenReadyAndDataTables(function () {
         () => initializeSimpleTooltips && initializeSimpleTooltips(),
         1000,
       );
+
+      // Przekierowanie do konkretnej zakładki na podstawie parametru URL ?tab=
+      var tabParam = new URLSearchParams(window.location.search).get("tab");
+      if (tabParam) {
+        var tabLink = document.querySelector(
+          'a[data-w-tab="' + tabParam + '"]',
+        );
+        if (tabLink) {
+          tabLink.click();
+        }
+      }
     })
     .catch((error) => {
       console.error(
