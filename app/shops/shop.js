@@ -1297,6 +1297,23 @@ whenReadyAndDataTables(function () {
         page: 1,
       },
       function (res) {
+        if (!res.items || res.items.length === 0) {
+          $("#emptystatevendors").show();
+          $("#vendorscontainer").hide();
+          // Ustaw link na buttonie w empty state → zakładka Dostawcy na stronie organizacji
+          $("#emptystatevendors a").attr(
+            "href",
+            "https://" +
+              DomainName +
+              "/app/tenants/organization?name=" +
+              OrganizationName +
+              "&clientId=" +
+              ClientID +
+              "&tab=Wholesalers",
+          );
+          return;
+        }
+
         initializeDataTable(res.items);
 
         // Check if any wholesaler has the status "Przywróć"
@@ -1509,17 +1526,6 @@ whenReadyAndDataTables(function () {
         if (!hasEntries) {
           $("#emptystatevendors").show();
           $("#vendorscontainer").hide();
-          // Ustaw link na buttonie w empty state → zakładka Dostawcy na stronie organizacji
-          $("#emptystatevendors a").attr(
-            "href",
-            "https://" +
-              DomainName +
-              "/app/tenants/organization?name=" +
-              OrganizationName +
-              "&clientId=" +
-              ClientID +
-              "&tab=Wholesalers",
-          );
         } else {
           $("#emptystatevendors").hide();
           $("#vendorscontainer").show();
