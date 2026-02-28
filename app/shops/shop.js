@@ -1249,6 +1249,10 @@ whenReadyAndDataTables(function () {
   );
 
   function getWholesalers() {
+    // Ukryj tabelę i empty state do momentu załadowania danych
+    $("#vendorscontainer").hide();
+    $("#emptystatevendors").hide();
+
     // Usuń stare style, aby uniknąć ich nakładania się
     document
       .querySelectorAll("style[data-tooltip-style]")
