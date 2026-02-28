@@ -2386,12 +2386,24 @@ whenReadyAndDataTables(function () {
       // Przekierowanie do konkretnej zakładki na podstawie parametru URL ?tab=
       var tabParam = new URLSearchParams(window.location.search).get("tab");
       if (tabParam) {
-        var tabLink = document.querySelector(
-          'a[data-w-tab="' + tabParam + '"]',
-        );
-        if (tabLink) {
-          tabLink.click();
+        // Sub-taby zagnieżdżone w "Policy" (Polityka Zakupowa)
+        var policySubTabs = ["Wholesalers", "Pricelists", "Exclusive", "Premium"];
+        if (policySubTabs.indexOf(tabParam) !== -1) {
+          // Najpierw kliknij tab nadrzędny "Policy"
+          var policyTab = document.querySelector('a[data-w-tab="Policy"]');
+          if (policyTab) {
+            policyTab.click();
+          }
         }
+        // Kliknij docelowy tab (sub-tab lub główny)
+        setTimeout(function () {
+          var tabLink = document.querySelector(
+            'a[data-w-tab="' + tabParam + '"]',
+          );
+          if (tabLink) {
+            tabLink.click();
+          }
+        }, 300);
       }
     })
     .catch((error) => {
