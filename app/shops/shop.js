@@ -1315,6 +1315,8 @@ whenReadyAndDataTables(function () {
         }
 
         initializeDataTable(res.items);
+        $("#vendorscontainer").css("display", "flex");
+        $("#emptystatevendors").hide();
 
         // Check if any wholesaler has the status "Przywróć"
         var hasPrzywroc = res.items.some(function (wholesaler) {
