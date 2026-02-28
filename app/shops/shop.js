@@ -1336,7 +1336,21 @@ whenReadyAndDataTables(function () {
           });
         }
       },
-    );
+    ).fail(function () {
+      // Gdy API zwróci błąd, pokaż empty state zamiast pustego taba
+      $("#emptystatevendors").show();
+      $("#vendorscontainer").hide();
+      $("#emptystatevendors a").attr(
+        "href",
+        "https://" +
+          DomainName +
+          "/app/tenants/organization?name=" +
+          OrganizationName +
+          "&clientId=" +
+          ClientID +
+          "&tab=Wholesalers",
+      );
+    });
 
     function initializeDataTable(data) {
       var tablevendors = $("#table_wholesalers").DataTable({
