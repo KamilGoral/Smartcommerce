@@ -635,6 +635,8 @@ whenReadyAndDataTables(function () {
     });
   }
 
+  const isSuspended = false;
+
   async function navigateToInvoiceStateInvoices() {
     let attempts = 0;
     const maxAttempts = 5;
@@ -4404,9 +4406,7 @@ whenReadyAndDataTables(function () {
   // Initialize tooltips on page load
   initializeSimpleTooltips();
 
-  // if (isSuspended !== true) {
-  //   getShops();
-  // }
+  getShops();
 
   LogoutNonUser();
 
