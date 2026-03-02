@@ -4404,9 +4404,9 @@ whenReadyAndDataTables(function () {
   // Initialize tooltips on page load
   initializeSimpleTooltips();
 
-  if (isSuspended !== true) {
-    getShops();
-  }
+  // if (isSuspended !== true) {
+  //   getShops();
+  // }
 
   LogoutNonUser();
 
