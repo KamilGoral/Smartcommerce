@@ -2387,7 +2387,12 @@ whenReadyAndDataTables(function () {
       var tabParam = new URLSearchParams(window.location.search).get("tab");
       if (tabParam) {
         // Sub-taby zagnieżdżone w "Policy" (Polityka Zakupowa)
-        var policySubTabs = ["Wholesalers", "Pricelists", "Exclusive", "Premium"];
+        var policySubTabs = [
+          "Wholesalers",
+          "Pricelists",
+          "Exclusive",
+          "Premium",
+        ];
         if (policySubTabs.indexOf(tabParam) !== -1) {
           // Najpierw kliknij tab nadrzędny "Policy"
           var policyTab = document.querySelector('a[data-w-tab="Policy"]');
@@ -4399,7 +4404,10 @@ whenReadyAndDataTables(function () {
   // Initialize tooltips on page load
   initializeSimpleTooltips();
 
-  getShops();
+  if (isSuspended !== true) {
+    getShops();
+  }
+
   LogoutNonUser();
 
   console.log("Checking organization name:", organizationName);
