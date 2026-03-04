@@ -425,6 +425,19 @@ whenReadyAndDataTables(function () {
 
   setTimeout(checkCookiePresenceAndLogout, 5000);
 
+  // Sprawdzenie statusu organizacji (suspended guard)
+  (function checkOrgAccessLevel() {
+    var clientId = getCookie("sprytnyOrganizationclientId");
+    if (!clientId) return;
+    var aclCookie = getCookie("sc_acl_" + clientId);
+    if (aclCookie === "restricted") {
+      var DomainName = getCookie("sprytnyDomainName");
+      window.location.replace(
+        "https://" + DomainName + "/app/tenants/organization?clientId=" + clientId + "&suspended=true"
+      );
+    }
+  })();
+
   // Obsługa formularza logout
   $("#wf-form-LogoutUser").on("submit", function (e) {
     e.preventDefault();

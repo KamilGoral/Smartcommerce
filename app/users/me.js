@@ -716,6 +716,10 @@ whenReadyAndDataTables(function () {
     var OrganizationStatus = this.getAttribute("OrganizationStatus");
     setCookie("OrganizationName", OrganizationName, 72000);
 
+    // Ustaw cookie statusu organizacji per-org
+    var acl = OrganizationStatus === "Suspended" ? "restricted" : "active";
+    setCookie("sc_acl_" + OrganizationclientId, acl, 72000);
+
     var redirectWithParameter = "";
     // Check organization status first
     if (OrganizationStatus === "Suspended") {

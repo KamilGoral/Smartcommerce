@@ -373,6 +373,19 @@ whenReadyAndDataTables(function () {
     return null; // Return null if no matching value is found
   }
 
+  // Sprawdzenie statusu organizacji (suspended guard)
+  (function checkOrgAccessLevel() {
+    var clientId = getCookie("sprytnyOrganizationclientId");
+    if (!clientId) return;
+    var aclCookie = getCookie("sc_acl_" + clientId);
+    if (aclCookie === "restricted") {
+      var DomainName = getCookie("sprytnyDomainName");
+      window.location.replace(
+        "https://" + DomainName + "/app/tenants/organization?clientId=" + clientId + "&suspended=true"
+      );
+    }
+  })();
+
   var Webflow = Webflow || [];
   var InvokeURL = getCookie("sprytnyInvokeURL");
   var orgToken = getCookie("sprytnyToken");

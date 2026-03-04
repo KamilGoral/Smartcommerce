@@ -460,6 +460,28 @@ whenReadyAndDataTables(function () {
 
   setTimeout(checkCookiePresenceAndLogout, 5000);
 
+  // Sprawdzenie statusu organizacji (suspended guard)
+  // Na stronie organizacji: nie robimy redirect, tylko uruchamiamy suspended UI
+  (async function checkOrgAccessLevel() {
+    var clientId = getCookie("sprytnyOrganizationclientId");
+    if (!clientId) return;
+    var aclCookie = getCookie("sc_acl_" + clientId);
+    var urlSuspended = new URLSearchParams(window.location.search).get("suspended") === "true";
+    if (urlSuspended && aclCookie !== "restricted") {
+      setCookie("sc_acl_" + clientId, "restricted", 72000);
+      aclCookie = "restricted";
+    }
+    if (aclCookie === "restricted") {
+      // Poczekaj na sprytnyUserRole (ustawiany przez getUserRole)
+      var attempts = 0;
+      while (!getCookie("sprytnyUserRole") && attempts < 5) {
+        await new Promise(function(r) { setTimeout(r, 1000); });
+        attempts++;
+      }
+      displaySuspendedMessage();
+    }
+  })();
+
   // Obsługa formularza logout
   $("#wf-form-LogoutUser").on("submit", function (e) {
     e.preventDefault();
@@ -633,26 +655,6 @@ whenReadyAndDataTables(function () {
       };
       request.send();
     });
-  }
-
-  const isSuspended = false;
-
-  async function navigateToInvoiceStateInvoices() {
-    let attempts = 0;
-    const maxAttempts = 5;
-    const urlParams = new URLSearchParams(window.location.search);
-    const isSuspended = urlParams.get("suspended") === "true";
-
-    while (!getCookie("sprytnyUserRole") && attempts < maxAttempts) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      attempts++;
-    }
-
-    if (isSuspended) {
-      displaySuspendedMessage();
-    } else {
-      console.log("here");
-    }
   }
 
   function displaySuspendedMessage() {
@@ -2358,7 +2360,6 @@ whenReadyAndDataTables(function () {
       return Promise.all([
         getUsers(),
         getInvoices(),
-        navigateToInvoiceStateInvoices(),
         controlTabVisibility(),
       ]).then(() => role);
     })
