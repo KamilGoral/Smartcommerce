@@ -4632,6 +4632,17 @@ ${offerTimestampLine}
             console.log("zresetowano i odblokowano formaty");
           }
 
+          // Domyślnie odznacz "wyślij kopię do mnie"
+          var emailMeCheckbox = document.getElementById("orderEmailMe");
+          if (emailMeCheckbox) {
+            emailMeCheckbox.checked = false;
+            // Webflow checkbox: synchronizuj wizualny stan .w-checkbox-input
+            var wfCheckDiv = emailMeCheckbox.previousElementSibling;
+            if (wfCheckDiv && wfCheckDiv.classList.contains("w-checkbox-input")) {
+              wfCheckDiv.classList.remove("w--redirected-checked");
+            }
+          }
+
           resolve(data2);
         } else if (request2.status >= 400) {
           console.log("Błąd: ", request2.status, this.response);
