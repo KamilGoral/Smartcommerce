@@ -2254,26 +2254,84 @@ whenReadyAndDataTables(function () {
       return;
     }
 
+    // 415 Unsupported Media Type — nierozpoznany format pliku
+    if (xhr.status === 415) {
+      var fileName415 = (jsonResponse.message || "").match(/\[([^\]]+)\]/);
+      var name415 = fileName415 ? fileName415[1] : "przesłany plik";
+      displayMessage(
+        "Error",
+        "Nieobsługiwany format pliku [" + name415 + "]. Dozwolone formaty to m.in. CSV, TXT, XLS, XLSX, EDI.",
+      );
+      return;
+    }
+
+    // 422 Unprocessable Content — plik rozpoznany, ale zawiera błędy walidacji
+    if (xhr.status === 422) {
+      var errors = jsonResponse.errors || jsonResponse.messages || [];
+      if (typeof jsonResponse.message === "string" && errors.length === 0) {
+        errors = [jsonResponse.message];
+      }
+      var translated = errors.map(function (err) {
+        return translateValidationError(err);
+      });
+      var errorHtml = translated.length > 0
+        ? translated.join("<br>")
+        : "Plik zawiera błędy walidacji. Sprawdź poprawność danych i spróbuj ponownie.";
+      displayMessage("Error", errorHtml);
+      return;
+    }
+
     var errorMessage =
       jsonResponse.message ||
       "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
 
-    // Custom handling for unsupported file format
+    // Custom handling for unsupported file format (legacy 400)
     if (errorMessage.includes("Unsupported file format")) {
-      var fileName = errorMessage.match(/\[([^\]]+)\]/)[1]; // Extracts filename within brackets
-      errorMessage = "Nieobsługiwany format dla pliku: " + fileName;
+      var fileName = errorMessage.match(/\[([^\]]+)\]/);
+      errorMessage = "Nieobsługiwany format dla pliku: " + (fileName ? fileName[1] : "nieznany");
     }
 
-    // Custom handling for GTIN code length error
+    // Custom handling for GTIN code length error (legacy 400)
     if (errorMessage.includes("GTIN code is too long")) {
-      var fileName = errorMessage.match(/\[([^\]]+)\]/)[1]; // Extracts filename within brackets
+      var fileName2 = errorMessage.match(/\[([^\]]+)\]/);
       errorMessage =
         "Nieprawidłowy plik [" +
-        fileName +
+        (fileName2 ? fileName2[1] : "nieznany") +
         "]. Kod GTIN jest zbyt długi (maks. 14 znaków) dla niektórych produktów.";
     }
 
     displayMessage("Error", errorMessage);
+  }
+
+  function translateValidationError(err) {
+    if (err.includes("GTIN code is too long")) {
+      var match = err.match(/\[([^\]]+)\]/g) || [];
+      var fileName = match[0] || "";
+      var products = match[1] || "";
+      return "Nieprawidłowy plik " + fileName + ". Kod GTIN jest zbyt długi (maks. 14 znaków) dla produktów " + products + ".";
+    }
+    if (err.includes("incorrect number of fields")) {
+      var match2 = err.match(/\[([^\]]+)\]/g) || [];
+      var fileName2 = match2[0] || "";
+      var lineMatch = err.match(/line (\d+)/);
+      var line = lineMatch ? lineMatch[1] : "?";
+      var haveWant = err.match(/Have (\d+)\s*,\s*want (\d+)/i);
+      var msg = "Nieprawidłowy plik " + fileName2 + ". Wiersz " + line + " ma nieprawidłową liczbę pól";
+      if (haveWant) {
+        msg += " (znaleziono " + haveWant[1] + ", oczekiwano " + haveWant[2] + ")";
+      }
+      return msg + ".";
+    }
+    if (err.includes("doesn't contain any valid products")) {
+      var match3 = err.match(/\[([^\]]+)\]/g) || [];
+      var fileName3 = match3[0] || "";
+      return "Plik " + fileName3 + " nie zawiera żadnych prawidłowych produktów.";
+    }
+    // fallback — zwróć oryginał z minimalnym tłumaczeniem
+    return err
+      .replace("Incorrect file", "Nieprawidłowy plik")
+      .replace("Order file contains", "Plik zamówienia zawiera")
+      .replace("Order doesn't contain any valid products", "Zamówienie nie zawiera prawidłowych produktów");
   }
 
   cancelButton.addEventListener("click", () => {
