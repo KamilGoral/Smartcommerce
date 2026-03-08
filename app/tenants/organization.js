@@ -4124,7 +4124,6 @@ whenReadyAndDataTables(function () {
         const organizationName = $("#organizationName").text();
 
         const url = `${InvokeURL}billing`;
-        const actionTwo = `${InvokeURL}tenants/${organizationName}`;
 
         // Pobierz aktualne dane billingowe
         $.ajax({
@@ -4144,8 +4143,7 @@ whenReadyAndDataTables(function () {
             $("#waitingdots").hide();
           },
           success: function (currentData) {
-            const { patchData, taxIdChanged, newTaxId } =
-              preparePatchData(currentData);
+            const { patchData } = preparePatchData(currentData);
 
             if (patchData.length > 0) {
               // Wykonaj pierwsze PATCH dla billingowych danych
@@ -4170,41 +4168,6 @@ whenReadyAndDataTables(function () {
                     "Success",
                     "Dane billingowe zostały zaktualizowane.",
                   );
-
-                  // Jeśli billing się udał i taxId zmieniony, wykonaj drugi PATCH na actionTwo
-                  if (taxIdChanged) {
-                    $.ajax({
-                      type: "PATCH",
-                      url: actionTwo,
-                      data: JSON.stringify([
-                        { op: "replace", path: "/taxId", value: newTaxId },
-                      ]),
-                      contentType: "application/json",
-                      dataType: "json",
-                      headers: {
-                        Authorization: orgToken,
-                        "Requested-By": "webflow-3-4",
-                      },
-                      beforeSend: function () {
-                        $("#waitingdots").show();
-                      },
-                      complete: function () {
-                        $("#waitingdots").hide();
-                      },
-                      success: function () {
-                        displayMessage(
-                          "Success",
-                          "Numer NIP został zaktualizowany.",
-                        );
-                      },
-                      error: function () {
-                        displayMessage(
-                          "Error",
-                          "Nie udało się zaktualizować numeru NIP.",
-                        );
-                      },
-                    });
-                  }
                 },
                 error: function () {
                   displayMessage(
@@ -4240,10 +4203,8 @@ whenReadyAndDataTables(function () {
 
     // Tax ID
     var newTaxId = $("#tenantTaxIdEdit").val();
-    var taxIdChanged = false;
     if (newTaxId !== currentData.taxId) {
       patchData.push({ op: "replace", path: "/taxId", value: newTaxId });
-      taxIdChanged = true;
     }
 
     // Phones (single input)
@@ -4289,7 +4250,7 @@ whenReadyAndDataTables(function () {
       addressChanged = true;
     }
 
-    if (addressChanged || taxIdChanged) {
+    if (addressChanged) {
       patchData.push({ op: "replace", path: "/address", value: newAddress });
     }
 
@@ -4344,8 +4305,6 @@ whenReadyAndDataTables(function () {
 
     return {
       patchData,
-      taxIdChanged,
-      newTaxId,
     };
   }
 
