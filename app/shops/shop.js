@@ -916,7 +916,7 @@ whenReadyAndDataTables(function () {
         $.ajax({
           url:
             InvokeURL +
-            "/van/transactions?type=RECADV&shopKey=" +
+            "van/transactions?type=RECADV&shopKey=" +
             shopKey +
             "&perPage=500",
           type: "GET",

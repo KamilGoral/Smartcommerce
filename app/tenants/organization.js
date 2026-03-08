@@ -4015,7 +4015,7 @@ whenReadyAndDataTables(function () {
       var confirmDelete = confirm("Czy na pewno chcesz usunąć ten cennik?");
 
       if (confirmDelete) {
-        var endpoint = InvokeURL + "/van/transactions/" + rowData.uuid;
+        var endpoint = InvokeURL + "van/transactions/" + rowData.uuid;
 
         $.ajax({
           type: "DELETE",

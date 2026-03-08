@@ -1279,7 +1279,7 @@ whenReadyAndDataTables(function () {
       var form = $(this);
       form.on("submit", function (event) {
         var container = form.parent();
-        var action = `${InvokeURL}/van/transactions/${priceListId}`;
+        var action = `${InvokeURL}van/transactions/${priceListId}`;
         var method = "DELETE";
 
         $.ajax({
