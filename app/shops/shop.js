@@ -434,7 +434,11 @@ whenReadyAndDataTables(function () {
     if (aclCookie === "restricted") {
       var DomainName = getCookie("sprytnyDomainName");
       window.location.replace(
-        "https://" + DomainName + "/app/tenants/organization?clientId=" + clientId + "&suspended=true"
+        "https://" +
+          DomainName +
+          "/app/tenants/organization?clientId=" +
+          clientId +
+          "&suspended=true",
       );
     }
   })();
@@ -2260,7 +2264,9 @@ whenReadyAndDataTables(function () {
       var name415 = fileName415 ? fileName415[1] : "przesłany plik";
       displayMessage(
         "Error",
-        "Nieobsługiwany format pliku [" + name415 + "]. Dozwolone formaty to m.in. CSV, TXT, XLS, XLSX, EDI.",
+        "Nieobsługiwany format pliku [" +
+          name415 +
+          "]. Dozwolone formaty to m.in. CSV, TXT, XLS, XLSX, EDI.",
       );
       return;
     }
@@ -2274,9 +2280,10 @@ whenReadyAndDataTables(function () {
       var translated = errors.map(function (err) {
         return translateValidationError(err);
       });
-      var errorHtml = translated.length > 0
-        ? translated.join("<br>")
-        : "Plik zawiera błędy walidacji. Sprawdź poprawność danych i spróbuj ponownie.";
+      var errorHtml =
+        translated.length > 0
+          ? translated.join("<br>")
+          : "Plik zawiera błędy walidacji. Sprawdź poprawność danych i spróbuj ponownie.";
       displayMessage("Error", errorHtml);
       return;
     }
@@ -2288,7 +2295,9 @@ whenReadyAndDataTables(function () {
     // Custom handling for unsupported file format (legacy 400)
     if (errorMessage.includes("Unsupported file format")) {
       var fileName = errorMessage.match(/\[([^\]]+)\]/);
-      errorMessage = "Nieobsługiwany format dla pliku: " + (fileName ? fileName[1] : "nieznany");
+      errorMessage =
+        "Nieobsługiwany format dla pliku: " +
+        (fileName ? fileName[1] : "nieznany");
     }
 
     // Custom handling for GTIN code length error (legacy 400)
@@ -2308,7 +2317,13 @@ whenReadyAndDataTables(function () {
       var match = err.match(/\[([^\]]+)\]/g) || [];
       var fileName = match[0] || "";
       var products = match[1] || "";
-      return "Nieprawidłowy plik " + fileName + ". Kod GTIN jest zbyt długi (maks. 14 znaków) dla produktów " + products + ".";
+      return (
+        "Nieprawidłowy plik " +
+        fileName +
+        ". Kod GTIN jest zbyt długi (maks. 14 znaków) dla produktów " +
+        products +
+        "."
+      );
     }
     if (err.includes("incorrect number of fields")) {
       var match2 = err.match(/\[([^\]]+)\]/g) || [];
@@ -2316,22 +2331,33 @@ whenReadyAndDataTables(function () {
       var lineMatch = err.match(/line (\d+)/);
       var line = lineMatch ? lineMatch[1] : "?";
       var haveWant = err.match(/Have (\d+)\s*,\s*want (\d+)/i);
-      var msg = "Nieprawidłowy plik " + fileName2 + ". Wiersz " + line + " ma nieprawidłową liczbę pól";
+      var msg =
+        "Nieprawidłowy plik " +
+        fileName2 +
+        ". Wiersz " +
+        line +
+        " ma nieprawidłową liczbę pól";
       if (haveWant) {
-        msg += " (znaleziono " + haveWant[1] + ", oczekiwano " + haveWant[2] + ")";
+        msg +=
+          " (znaleziono " + haveWant[1] + ", oczekiwano " + haveWant[2] + ")";
       }
       return msg + ".";
     }
     if (err.includes("doesn't contain any valid products")) {
       var match3 = err.match(/\[([^\]]+)\]/g) || [];
       var fileName3 = match3[0] || "";
-      return "Plik " + fileName3 + " nie zawiera żadnych prawidłowych produktów.";
+      return (
+        "Plik " + fileName3 + " nie zawiera żadnych prawidłowych produktów."
+      );
     }
     // fallback — zwróć oryginał z minimalnym tłumaczeniem
     return err
       .replace("Incorrect file", "Nieprawidłowy plik")
       .replace("Order file contains", "Plik zamówienia zawiera")
-      .replace("Order doesn't contain any valid products", "Zamówienie nie zawiera prawidłowych produktów");
+      .replace(
+        "Order doesn't contain any valid products",
+        "Zamówienie nie zawiera prawidłowych produktów",
+      );
   }
 
   cancelButton.addEventListener("click", () => {
@@ -5504,21 +5530,27 @@ ${offerTimestampLine}
     "LASUCH",
     "Goral",
     "Novum",
+    "Centrala",
+    "PSS-Olkusz",
   ];
 
   // PSSCzestochowa — tylko wybrane shopKey
   const czestochowaAllowedShopKeys = ["054", "600"];
+  const pssAllowedShopKeys = ["0204"];
 
   if (deliveriesTab) {
     const isFullAccess = fullAccessOrganizations.includes(currentOrganization);
     const isCzestochowa =
       currentOrganization === "PSSCzestochowa" &&
       czestochowaAllowedShopKeys.includes(shopKey);
+    const isPss =
+      currentOrganization === "PSS" && pssAllowedShopKeys.includes(shopKey);
 
     if (
       location.hostname === "sprytny01.webflow.io" ||
       isFullAccess ||
-      isCzestochowa
+      isCzestochowa ||
+      isPss
     ) {
       deliveriesTab.style.display = "flex";
     } else {
