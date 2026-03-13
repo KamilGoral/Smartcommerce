@@ -5531,7 +5531,6 @@ ${offerTimestampLine}
     "Goral",
     "Novum",
     "Centrala",
-    "PSS-Olkusz",
   ];
 
   // PSSCzestochowa — tylko wybrane shopKey
