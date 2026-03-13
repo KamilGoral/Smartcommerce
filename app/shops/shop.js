@@ -5544,7 +5544,8 @@ ${offerTimestampLine}
       currentOrganization === "PSSCzestochowa" &&
       czestochowaAllowedShopKeys.includes(shopKey);
     const isPss =
-      currentOrganization === "PSS" && pssAllowedShopKeys.includes(shopKey);
+      currentOrganization === "PSS-Olkusz" &&
+      pssAllowedShopKeys.includes(shopKey);
 
     if (
       location.hostname === "sprytny01.webflow.io" ||
