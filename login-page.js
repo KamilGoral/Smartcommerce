@@ -131,7 +131,7 @@ whenReadyAndDataTables(function () {
   var InvokeURL = "";
   if (DomainName == "sprytny01.webflow.io") {
     OrganizationclientId = "44h78imhmpapvejhouor1mgpbo";
-    InvokeURL = "https://fpnu4fps0e.execute-api.us-east-1.amazonaws.com/v0/";
+    InvokeURL = "https://fxoyfm9475.execute-api.us-east-1.amazonaws.com/v0/";
     console.log("Dev");
   } else if (DomainName == "sprytnykupiec.pl") {
     OrganizationclientId = "2b3p1rf1ph83pcig182vmln5lk";
@@ -182,7 +182,7 @@ whenReadyAndDataTables(function () {
                 if (!accessToken) {
                   console.error(
                     "AccessToken is missing for clientId:",
-                    clientId
+                    clientId,
                   );
                   return;
                 }
@@ -191,17 +191,17 @@ whenReadyAndDataTables(function () {
                 setCookie(
                   "sprytnycookie",
                   "Bearer " + authResult.AccessToken,
-                  authResult.ExpiresIn
+                  authResult.ExpiresIn,
                 );
                 setCookie(
                   "sprytnyDomainName",
                   DomainName,
-                  authResult.ExpiresIn
+                  authResult.ExpiresIn,
                 );
                 setCookie(
                   "sprytnyOrganizationclientId",
                   OrganizationclientId,
-                  authResult.ExpiresIn
+                  authResult.ExpiresIn,
                 );
                 setCookie("sprytnyInvokeURL", InvokeURL, authResult.ExpiresIn);
               }
@@ -213,7 +213,7 @@ whenReadyAndDataTables(function () {
                 form.show();
                 displayMessage(
                   "Error",
-                  "Oops. Coś poszło nie tak, spróbuj ponownie."
+                  "Oops. Coś poszło nie tak, spróbuj ponownie.",
                 );
                 return;
               }
