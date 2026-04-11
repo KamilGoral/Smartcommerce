@@ -1817,24 +1817,49 @@ whenReadyAndDataTables(function () {
   }
 
   async function getWholesalers() {
-    let url = new URL(InvokeURL + "wholesalers?perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onreadystatechange = function () {
-      if (
-        request.readyState === 4 &&
-        request.status >= 200 &&
-        request.status < 400
-      ) {
-        // Ukrycie loadera dopiero po 1sek
-        setTimeout(function () {
-          $("#waitingdots").hide();
-        }, 2000); // 1000 milliseconds = 1 second
+    const PAGE_SIZE = 50;
+    const baseUrl = InvokeURL + "wholesalers";
+    const fetchHeaders = {
+      Authorization: orgToken,
+      "Requested-By": "webflow-3-4",
+    };
 
-        var data = JSON.parse(this.response);
-        var toParse = data.items;
+    async function fetchWholesalersPage(page, perPage) {
+      const res = await fetch(
+        `${baseUrl}?perPage=${perPage}&page=${page}`,
+        { headers: fetchHeaders },
+      );
+      if (res.status === 401) {
+        const err = new Error("Unauthorized");
+        err.status = 401;
+        throw err;
+      }
+      if (!res.ok) {
+        throw new Error("Failed to load wholesalers page " + page);
+      }
+      return res.json();
+    }
+
+    try {
+      // 1) Zapytanie sondujące — pobieramy 1 rekord, żeby poznać total
+      const probe = await fetchWholesalersPage(1, 1);
+      const total = Number(probe && probe.total) || 0;
+      const totalPages = total > 0 ? Math.ceil(total / PAGE_SIZE) : 0;
+
+      // 2) Równoległe paczki po PAGE_SIZE — łączymy w jedną listę
+      const pagePromises = [];
+      for (let p = 1; p <= totalPages; p++) {
+        pagePromises.push(fetchWholesalersPage(p, PAGE_SIZE));
+      }
+      const pages = await Promise.all(pagePromises);
+      const items = pages.flatMap((pg) => (pg && pg.items) || []);
+
+      // Ukrycie loadera dopiero po 1sek
+      setTimeout(function () {
+        $("#waitingdots").hide();
+      }, 2000); // 1000 milliseconds = 1 second
+
+      var toParse = items;
 
         // Sortowanie według 'enabled'
         toParse.sort(function (a, b) {
@@ -2315,14 +2340,15 @@ whenReadyAndDataTables(function () {
             .indexes();
           tableBonus.row(rowIndex).remove().draw();
         }
-      }
 
-      if (request.readyState === 4 && request.status == 401) {
+    } catch (err) {
+      if (err && err.status === 401) {
         console.log("Unauthorized");
-        $("#waitingdots").hide();
+      } else {
+        console.error("Error loading wholesalers:", err);
       }
-    };
-    request.send();
+      $("#waitingdots").hide();
+    }
   }
 
   const policyLink = document.querySelector('a[data-w-tab="Policy"]');
