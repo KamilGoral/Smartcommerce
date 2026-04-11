@@ -1861,9 +1861,13 @@ whenReadyAndDataTables(function () {
 
       var toParse = items;
 
-        // Sortowanie według 'enabled'
+        // Sortowanie: najpierw aktywni, potem alfabetycznie po nazwie
         toParse.sort(function (a, b) {
-          return b.enabled - a.enabled;
+          const enabledDiff = (b.enabled ? 1 : 0) - (a.enabled ? 1 : 0);
+          if (enabledDiff !== 0) return enabledDiff;
+          return (a.name || "").localeCompare(b.name || "", "pl", {
+            sensitivity: "base",
+          });
         });
 
         const organizationName = getCookie("OrganizationName");
