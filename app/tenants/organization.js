@@ -1829,7 +1829,7 @@ whenReadyAndDataTables(function () {
 
     async function fetchWholesalersPage(page, perPage) {
       const res = await fetch(
-        `${baseUrl}?perPage=${perPage}&page=${page}`,
+        `${baseUrl}?perPage=${perPage}&page=${page}&sort=wholesalerKey`,
         { headers: fetchHeaders },
       );
       if (res.status === 401) {
