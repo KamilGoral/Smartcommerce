@@ -1991,13 +1991,13 @@ whenReadyAndDataTables(function () {
 
         $("#table_wholesalers_list").DataTable({
           destroy: true, // Zapobiega duplikatom tabeli
-          deferRender: true,
           data: toParse,
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
+          searchDelay: 400,
           pageLength: 100,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
@@ -2179,28 +2179,19 @@ whenReadyAndDataTables(function () {
             },
           ],
           initComplete: function () {
-            var api = this.api();
-            $("#table_wholesalers_list_filter input")
-              .unbind()
-              .bind("input", function () {
-                var val = this.value;
-                if (val.length === 0 || val.length >= 3) {
-                  api.search(val).draw();
-                }
-              });
             initializeSimpleTooltips();
           },
         });
 
         $("#table_wholesalers_list_bonus").DataTable({
           destroy: true, // Zapobiega duplikatom tabeli
-          deferRender: true,
           data: enabledWholesalers,
           pagingType: "full_numbers",
           order: [],
           dom: '<"top">frt<"bottom"lip>',
           scrollY: "60vh",
           scrollCollapse: true,
+          searchDelay: 400,
           pageLength: 100,
           language: {
             emptyTable: "Brak danych do wyświetlenia",
@@ -2292,17 +2283,7 @@ whenReadyAndDataTables(function () {
               },
             },
           ],
-          initComplete: function () {
-            var api = this.api();
-            $("#table_wholesalers_list_bonus_filter input")
-              .unbind()
-              .bind("input", function () {
-                var val = this.value;
-                if (val.length === 0 || val.length >= 3) {
-                  api.search(val).draw();
-                }
-              });
-          },
+          initComplete: function () {},
         });
 
         $("#table_wholesalers_list").on(
