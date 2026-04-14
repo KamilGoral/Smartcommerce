@@ -2178,12 +2178,6 @@ whenReadyAndDataTables(function () {
             },
           ],
           initComplete: function () {
-            // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
-            $(
-              'input[type="search"][aria-controls="table_wholesalers_list"]',
-            ).off("keyup").on("keyup", (e) => {
-              this.api().search(e.target.value).draw();
-            });
             initializeSimpleTooltips();
           },
         });
@@ -2287,14 +2281,7 @@ whenReadyAndDataTables(function () {
               },
             },
           ],
-          initComplete: function () {
-            // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
-            $(
-              'input[type="search"][aria-controls="table_wholesalers_list_bonus"]',
-            ).off("keyup").on("keyup", (e) => {
-              this.api().search(e.target.value).draw();
-            });
-          },
+          initComplete: function () {},
         });
 
         $("#table_wholesalers_list").on(
