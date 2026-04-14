@@ -2179,16 +2179,15 @@ whenReadyAndDataTables(function () {
             },
           ],
           initComplete: function () {
-            var tableApi = this.api();
-            $(document).off("input.wsList").on("input.wsList",
-              'input[type="search"][aria-controls="table_wholesalers_list"]',
-              function () {
-                var val = $(this).val();
+            var api = this.api();
+            $("#table_wholesalers_list_filter input")
+              .unbind()
+              .bind("input", function () {
+                var val = this.value;
                 if (val.length === 0 || val.length >= 3) {
-                  tableApi.search(val).draw();
+                  api.search(val).draw();
                 }
-              }
-            );
+              });
             initializeSimpleTooltips();
           },
         });
@@ -2294,16 +2293,15 @@ whenReadyAndDataTables(function () {
             },
           ],
           initComplete: function () {
-            var tableApi = this.api();
-            $(document).off("input.wsListBonus").on("input.wsListBonus",
-              'input[type="search"][aria-controls="table_wholesalers_list_bonus"]',
-              function () {
-                var val = $(this).val();
+            var api = this.api();
+            $("#table_wholesalers_list_bonus_filter input")
+              .unbind()
+              .bind("input", function () {
+                var val = this.value;
                 if (val.length === 0 || val.length >= 3) {
-                  tableApi.search(val).draw();
+                  api.search(val).draw();
                 }
-              }
-            );
+              });
           },
         });
 
