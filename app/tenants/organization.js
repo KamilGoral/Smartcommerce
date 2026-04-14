@@ -1991,6 +1991,7 @@ whenReadyAndDataTables(function () {
 
         $("#table_wholesalers_list").DataTable({
           destroy: true, // Zapobiega duplikatom tabeli
+          deferRender: true,
           data: toParse,
           pagingType: "full_numbers",
           order: [],
@@ -2178,12 +2179,23 @@ whenReadyAndDataTables(function () {
             },
           ],
           initComplete: function () {
+            var tableApi = this.api();
+            $(document).off("input.wsList").on("input.wsList",
+              'input[type="search"][aria-controls="table_wholesalers_list"]',
+              function () {
+                var val = $(this).val();
+                if (val.length === 0 || val.length >= 3) {
+                  tableApi.search(val).draw();
+                }
+              }
+            );
             initializeSimpleTooltips();
           },
         });
 
         $("#table_wholesalers_list_bonus").DataTable({
           destroy: true, // Zapobiega duplikatom tabeli
+          deferRender: true,
           data: enabledWholesalers,
           pagingType: "full_numbers",
           order: [],
@@ -2281,7 +2293,18 @@ whenReadyAndDataTables(function () {
               },
             },
           ],
-          initComplete: function () {},
+          initComplete: function () {
+            var tableApi = this.api();
+            $(document).off("input.wsListBonus").on("input.wsListBonus",
+              'input[type="search"][aria-controls="table_wholesalers_list_bonus"]',
+              function () {
+                var val = $(this).val();
+                if (val.length === 0 || val.length >= 3) {
+                  tableApi.search(val).draw();
+                }
+              }
+            );
+          },
         });
 
         $("#table_wholesalers_list").on(
