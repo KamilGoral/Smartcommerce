@@ -1816,7 +1816,10 @@ whenReadyAndDataTables(function () {
     request.send();
   }
 
+  let isLoadingWholesalers = false;
   async function getWholesalers() {
+    if (isLoadingWholesalers) return;
+    isLoadingWholesalers = true;
     const PAGE_SIZE = 50;
     const baseUrl = InvokeURL + "wholesalers";
     const fetchHeaders = {
@@ -1930,6 +1933,7 @@ whenReadyAndDataTables(function () {
         // Code for exclusive
 
         const wholesalerContainer = document.getElementById("wholesalerPicker");
+        wholesalerContainer.innerHTML = "";
         var opt = document.createElement("option");
         opt.value = null;
         opt.innerHTML = "BLOKADA";
@@ -1947,6 +1951,7 @@ whenReadyAndDataTables(function () {
 
         const wholesalerContainerDocuments =
           document.getElementById("documentWholesaler");
+        wholesalerContainerDocuments.innerHTML = "";
         toParse.forEach((wholesaler) => {
           if (wholesaler.enabled) {
             var opt = document.createElement("option");
@@ -2176,7 +2181,7 @@ whenReadyAndDataTables(function () {
             // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
             $(
               'input[type="search"][aria-controls="table_wholesalers_list"]',
-            ).on("keyup", (e) => {
+            ).off("keyup").on("keyup", (e) => {
               this.api().search(e.target.value).draw();
             });
             initializeSimpleTooltips();
@@ -2286,7 +2291,7 @@ whenReadyAndDataTables(function () {
             // Powiąż pole wyszukiwania z funkcją wyszukiwania tabeli
             $(
               'input[type="search"][aria-controls="table_wholesalers_list_bonus"]',
-            ).on("keyup", (e) => {
+            ).off("keyup").on("keyup", (e) => {
               this.api().search(e.target.value).draw();
             });
           },
@@ -2352,6 +2357,8 @@ whenReadyAndDataTables(function () {
         console.error("Error loading wholesalers:", err);
       }
       $("#waitingdots").hide();
+    } finally {
+      isLoadingWholesalers = false;
     }
   }
 
