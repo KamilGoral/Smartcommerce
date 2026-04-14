@@ -1896,34 +1896,47 @@ whenReadyAndDataTables(function () {
           organizationMapping["Alco-Trade"],
         ];
 
+        // Magazyn centralny jest zawsze widoczny dla każdej organizacji
+        const isAlwaysVisible = (item) =>
+          item.wholesalerKey === "central-warehouse";
+
         if (organizationName === "PGD-Polska") {
           // Dla PGD filtruj tylko swoje rekordy
           const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
-            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+            toParse = toParse.filter(
+              (item) => item.taxId === currentTaxId || isAlwaysVisible(item),
+            );
           }
         } else if (allowedTaxIds.includes(currentTaxId)) {
           // Dla UB filtruj wszystkie rekordy UB
-          toParse = toParse.filter((item) =>
-            allowedTaxIds.includes(item.taxId),
+          toParse = toParse.filter(
+            (item) =>
+              allowedTaxIds.includes(item.taxId) || isAlwaysVisible(item),
           );
         } else if (organizationName === "Delko") {
           // Dla Delko filtruj tylko swoje rekordy
           const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
-            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+            toParse = toParse.filter(
+              (item) => item.taxId === currentTaxId || isAlwaysVisible(item),
+            );
           }
         } else if (organizationName === "Specjal") {
           // Dla Specjal filtruj tylko swoje rekordy
           const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
-            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+            toParse = toParse.filter(
+              (item) => item.taxId === currentTaxId || isAlwaysVisible(item),
+            );
           }
         } else if (organizationName === "TediDystrybucja") {
-          // Dla Specjal filtruj tylko swoje rekordy
+          // Dla TediDystrybucja filtruj tylko swoje rekordy
           const found = toParse.some((item) => item.taxId === currentTaxId);
           if (found) {
-            toParse = toParse.filter((item) => item.taxId === currentTaxId);
+            toParse = toParse.filter(
+              (item) => item.taxId === currentTaxId || isAlwaysVisible(item),
+            );
           }
         } else {
           // Dla innych pozostaw bez zmian
