@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<title>Torimpex vs Paluszek — mapa konkurencji w Toruniu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  #map { height: 100vh; width: 100%; }
+  .legend {
+    background: white;
+    padding: 12px 14px;
+    border-radius: 6px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3);
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 280px;
+  }
+  .legend h3 { margin: 0 0 8px 0; font-size: 14px; }
+  .legend .row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .swatch.tor { background: #1976d2; border: 2px solid #0d47a1; }
+  .swatch.pal { background: #e53935; border: 2px solid #b71c1c; }
+  .swatch.overlap { background: #9c27b0; opacity: 0.4; border: 1px solid #6a1b9a; }
+  .note { font-size: 11px; color: #666; margin-top: 8px; border-top: 1px solid #eee; padding-top: 6px; }
+  .popup b { display: block; margin-bottom: 3px; }
+  .popup .net { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .popup .net.tor { color: #1976d2; }
+  .popup .net.pal { color: #e53935; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Toruń center
+  const map = L.map('map').setView([53.0138, 18.6050], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  // --- DATA (przybliżone współrzędne wg dzielnic Torunia) ---
+  const torimpex = [
+    { name: "Torimpex Głowackiego",     addr: "ul. Głowackiego 2",          area: "Mokre / Koniuchy",         lat: 53.0265, lng: 18.6017 },
+    { name: "Torimpex Wojska Polskiego",addr: "ul. Wojska Polskiego 43-45", area: "Mokre / Chełmińskie",      lat: 53.0244, lng: 18.6055 },
+    { name: "Torimpex Jeśmanowicza",    addr: "ul. Jeśmanowicza 2",         area: "Koniuchy",                 lat: 53.0190, lng: 18.6080 },
+    { name: "Torimpex Leszczynowa",     addr: "ul. Leszczynowa 3",          area: "Wrzosy / Bielawy",         lat: 53.0440, lng: 18.5880 },
+    { name: "Torimpex Dziewulskiego",   addr: "ul. Dziewulskiego 23",       area: "Rubinkowo",                lat: 53.0190, lng: 18.6440 },
+    { name: "Torimpex Ligi Polskiej",   addr: "ul. Ligi Polskiej 12",       area: "Skarpa / Rubinkowo II",    lat: 53.0145, lng: 18.6535 },
+    { name: "Torimpex Kaliska",         addr: "ul. Kaliska 9",              area: "Stawki / Podgórz",         lat: 52.9990, lng: 18.5780 }
+  ];
+
+  const paluszek = [
+    { name: "Paluszek Stawki",          addr: "ul. Strzałowa 7",            area: "Stawki",                   lat: 53.0010, lng: 18.5980 },
+    { name: "Paluszek Łódzka",          addr: "ul. Łódzka 35-37",           area: "Stawki / Podgórz",         lat: 53.0040, lng: 18.5840 },
+    { name: "Paluszek Rubinkowo",       addr: "ul. Łyskowskiego 29/35",     area: "Rubinkowo",                lat: 53.0155, lng: 18.6410 },
+    { name: "Paluszek Bema",            addr: "ul. gen. Bema 20A",          area: "Bydgoskie / os. Bema",     lat: 53.0150, lng: 18.5950 },
+    { name: "Delikatesy Wanda",         addr: "ul. Poznańska 80",           area: "Stawki / Podgórz",         lat: 52.9970, lng: 18.5810 }
+  ];
+
+  const RADIUS = 500; // metrów - typowy zasięg pieszy sklepu osiedlowego
+
+  // --- MARKERS + ZASIĘGI ---
+  function addStores(list, color, darkColor, netLabel) {
+    const layer = L.layerGroup().addTo(map);
+    list.forEach(s => {
+      L.circle([s.lat, s.lng], {
+        radius: RADIUS,
+        color: darkColor,
+        fillColor: color,
+        weight: 1,
+        fillOpacity: 0.18
+      }).addTo(layer);
+
+      L.circleMarker([s.lat, s.lng], {
+        radius: 8,
+        color: darkColor,
+        fillColor: color,
+        weight: 2,
+        fillOpacity: 1
+      })
+      .bindPopup(
+        `<div class="popup">
+          <span class="net ${netLabel === 'TORIMPEX' ? 'tor' : 'pal'}">${netLabel}</span>
+          <b>${s.name}</b>
+          ${s.addr}<br/>
+          <small>${s.area}</small>
+        </div>`
+      )
+      .addTo(layer);
+    });
+    return layer;
+  }
+
+  addStores(torimpex, "#1976d2", "#0d47a1", "TORIMPEX");
+  addStores(paluszek, "#e53935", "#b71c1c", "PALUSZEK");
+
+  // --- STREFY KONKURENCJI: pary sklepów Torimpex–Paluszek w odległości < 1 km ---
+  function distMeters(a, b) {
+    const R = 6371000;
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const lat1 = toRad(a.lat), lat2 = toRad(b.lat);
+    const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  const competitionLayer = L.layerGroup().addTo(map);
+  const conflicts = [];
+  torimpex.forEach(t => {
+    paluszek.forEach(p => {
+      const d = distMeters(t, p);
+      if (d < 2 * RADIUS) { // zasięgi się nakładają
+        conflicts.push({ t, p, d });
+        // linia łącząca
+        L.polyline([[t.lat, t.lng], [p.lat, p.lng]], {
+          color: '#9c27b0',
+          weight: 2,
+          dashArray: '6, 6',
+          opacity: 0.7
+        })
+        .bindPopup(`<b>Strefa konkurencji</b><br/>${t.name} ↔ ${p.name}<br/>dystans ≈ ${Math.round(d)} m`)
+        .addTo(competitionLayer);
+
+        // znacznik środka
+        const midLat = (t.lat + p.lat) / 2;
+        const midLng = (t.lng + p.lng) / 2;
+        L.circle([midLat, midLng], {
+          radius: 250,
+          color: '#6a1b9a',
+          fillColor: '#9c27b0',
+          weight: 1,
+          fillOpacity: 0.25,
+          dashArray: '4, 4'
+        }).addTo(competitionLayer);
+      }
+    });
+  });
+
+  // --- LEGENDA ---
+  const legend = L.control({ position: 'topright' });
+  legend.onAdd = function() {
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `
+      <h3>Torimpex vs Paluszek — Toruń</h3>
+      <div class="row"><span class="swatch tor"></span> Torimpex (${torimpex.length} sklepów)</div>
+      <div class="row"><span class="swatch pal"></span> Paluszek (${paluszek.length} sklepów)</div>
+      <div class="row"><span class="swatch overlap"></span> Strefa konkurencji (zasięgi nakładają się)</div>
+      <div class="note">
+        Koła = zasięg pieszy ${RADIUS} m wokół sklepu.<br/>
+        Linie fioletowe = pary sklepów konkurujących o ten sam mikrorynek.<br/>
+        <b>Wykryto ${conflicts.length} bezpośrednich par konkurencyjnych.</b>
+      </div>
+    `;
+    return div;
+  };
+  legend.addTo(map);
+
+  // --- LISTA KONFLIKTÓW W KONSOLI ---
+  console.table(conflicts.map(c => ({
+    torimpex: c.t.name,
+    paluszek: c.p.name,
+    dystans_m: Math.round(c.d),
+    obszar: c.t.area
+  })));
+</script>
+</body>
+</html>
