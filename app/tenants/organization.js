@@ -3014,7 +3014,7 @@ whenReadyAndDataTables(function () {
           })
           .get()
           .toString();
-        if (wholesaler) QStr += `&wholesalerKey=${wholesaler}`;
+        if (wholesaler && wholesaler !== "null") QStr += `&wholesalerKey=${wholesaler}`;
 
         const startDate = $("#startDate").val();
         if (startDate) QStr += `&startDate=gte:${startDate}T00:00:00Z`;
