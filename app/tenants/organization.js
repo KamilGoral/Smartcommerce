@@ -1947,6 +1947,10 @@ whenReadyAndDataTables(function () {
 
         const wholesalerContainer = document.getElementById("wholesalerPicker");
         wholesalerContainer.innerHTML = "";
+        var optAll = document.createElement("option");
+        optAll.value = "";
+        optAll.innerHTML = "Wszyscy";
+        wholesalerContainer.appendChild(optAll);
         var opt = document.createElement("option");
         opt.value = null;
         opt.innerHTML = "BLOKADA";
@@ -3014,7 +3018,7 @@ whenReadyAndDataTables(function () {
           })
           .get()
           .toString();
-        if (wholesaler && wholesaler !== "null") QStr += `&wholesalerKey=${wholesaler}`;
+        if (wholesaler) QStr += `&wholesalerKey=${wholesaler}`;
 
         const startDate = $("#startDate").val();
         if (startDate) QStr += `&startDate=gte:${startDate}T00:00:00Z`;
