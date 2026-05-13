@@ -5534,7 +5534,7 @@ ${offerTimestampLine}
   ];
 
   // PSSCzestochowa — tylko wybrane shopKey
-  const czestochowaAllowedShopKeys = ["054", "600"];
+  const czestochowaAllowedShopKeys = ["054", "144", "600"];
   const pssAllowedShopKeys = ["0204"];
 
   if (deliveriesTab) {
