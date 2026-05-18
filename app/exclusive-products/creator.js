@@ -495,54 +495,65 @@ whenReadyAndDataTables(function () {
   var formIdCreatePricing = "#wf-form-NewPricingList";
   var formIdCreateSingleExclusive = "#wf-form-SingleExclusiveForm";
 
-  function getWholesalersSh() {
-    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      var data = JSON.parse(this.response);
-      var toParse = data.items;
-      if (request.status >= 200 && request.status < 400) {
-        console.log(Object.keys(toParse).length);
+  async function fetchAllPages(baseUrl, headers) {
+    const perPage = 50;
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    const probe = await fetch(baseUrl + sep + "perPage=1", { headers });
+    if (!probe.ok) throw new Error("HTTP " + probe.status);
+    const total = (await probe.json()).total || 0;
+    if (total === 0) return [];
+    const responses = await Promise.all(
+      Array.from({ length: Math.ceil(total / perPage) }, (_, i) =>
+        fetch(baseUrl + sep + "perPage=" + perPage + "&page=" + (i + 1), { headers })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      )
+    );
+    return responses.flatMap(function (r) { return r.items || []; });
+  }
 
-        const wholesalerContainer =
-          document.getElementById("WholesalerSelector");
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer.appendChild(opt);
-          }
-        });
+  async function getWholesalersSh() {
+    try {
+      const toParse = await fetchAllPages(InvokeURL + "wholesalers?enabled=true&sort=wholesalerKey", {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      });
 
-        const wholesalerContainer2 = document.getElementById(
-          "WholesalerSelector-Exclusive-2"
-        );
-        var opt = document.createElement("option");
-        opt.value = null;
-        opt.innerHTML = "BLOKADA";
-        wholesalerContainer2.appendChild(opt);
-        toParse.forEach((wholesaler) => {
-          if (wholesaler.enabled) {
-            var opt = document.createElement("option");
-            opt.value = wholesaler.wholesalerKey;
-            opt.innerHTML = wholesaler.name;
-            wholesalerContainer2.appendChild(opt);
-          }
-        });
-        if (request.status == 401) {
-          console.log("Unauthorized");
+      console.log(toParse.length);
+
+      const wholesalerContainer =
+        document.getElementById("WholesalerSelector");
+      var opt = document.createElement("option");
+      opt.value = null;
+      opt.innerHTML = "BLOKADA";
+      wholesalerContainer.appendChild(opt);
+      toParse.forEach((wholesaler) => {
+        if (wholesaler.enabled) {
+          var opt = document.createElement("option");
+          opt.value = wholesaler.wholesalerKey;
+          opt.innerHTML = wholesaler.name;
+          wholesalerContainer.appendChild(opt);
         }
-      }
-    };
-    request.send();
+      });
+
+      const wholesalerContainer2 = document.getElementById(
+        "WholesalerSelector-Exclusive-2"
+      );
+      var opt = document.createElement("option");
+      opt.value = null;
+      opt.innerHTML = "BLOKADA";
+      wholesalerContainer2.appendChild(opt);
+      toParse.forEach((wholesaler) => {
+        if (wholesaler.enabled) {
+          var opt = document.createElement("option");
+          opt.value = wholesaler.wholesalerKey;
+          opt.innerHTML = wholesaler.name;
+          wholesalerContainer2.appendChild(opt);
+        }
+      });
+    } catch (e) {
+      if (e.message === "HTTP 401") console.log("Unauthorized");
+      else console.error("Failed to load wholesalers", e);
+    }
   }
 
   function printPapaObject(papa) {

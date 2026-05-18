@@ -4539,38 +4539,49 @@ ${offerTimestampLine}
     return escapeTextKeepNewlines(lines.join("\n"));
   }
 
-  function getWholesalersSh() {
-    let url = new URL(InvokeURL + "wholesalers" + "?enabled=true&perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      if (request.status === 401) {
-        console.log("Unauthorized");
-        return;
-      }
-      if (request.status >= 200 && request.status < 400) {
-        const data = JSON.parse(this.response);
-        const select = document.getElementById("wholesalerKeyIndicator");
-        const sorted = data.items
-          .filter((w) => w.enabled)
-          .sort((a, b) =>
-            (a.name || "").localeCompare(b.name || "", "pl", {
-              sensitivity: "base",
-            }),
-          );
-        sessionStorage.setItem("wholesalersData", JSON.stringify(sorted));
+  async function fetchAllPages(baseUrl, headers) {
+    const perPage = 50;
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    const probe = await fetch(baseUrl + sep + "perPage=1", { headers });
+    if (!probe.ok) throw new Error("HTTP " + probe.status);
+    const total = (await probe.json()).total || 0;
+    if (total === 0) return [];
+    const responses = await Promise.all(
+      Array.from({ length: Math.ceil(total / perPage) }, (_, i) =>
+        fetch(baseUrl + sep + "perPage=" + perPage + "&page=" + (i + 1), { headers })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      )
+    );
+    return responses.flatMap(function (r) { return r.items || []; });
+  }
 
-        sorted.forEach((w) => {
-          const opt = document.createElement("option");
-          opt.value = w.wholesalerKey; // wartość formularza
-          opt.textContent = w.wholesalerKey; // etykieta widoczna dla użytkownika
-          select.appendChild(opt);
-        });
-      }
-    };
-    request.send();
+  async function getWholesalersSh() {
+    try {
+      const items = await fetchAllPages(InvokeURL + "wholesalers?enabled=true&sort=wholesalerKey", {
+        Authorization: orgToken,
+        "Requested-By": "webflow-3-4",
+      });
+
+      const select = document.getElementById("wholesalerKeyIndicator");
+      const sorted = items
+        .filter((w) => w.enabled)
+        .sort((a, b) =>
+          (a.name || "").localeCompare(b.name || "", "pl", {
+            sensitivity: "base",
+          }),
+        );
+      sessionStorage.setItem("wholesalersData", JSON.stringify(sorted));
+
+      sorted.forEach((w) => {
+        const opt = document.createElement("option");
+        opt.value = w.wholesalerKey;
+        opt.textContent = w.wholesalerKey;
+        select.appendChild(opt);
+      });
+    } catch (e) {
+      if (e.message === "HTTP 401") console.log("Unauthorized");
+      else console.error("Failed to load wholesalers", e);
+    }
   }
 
   function getWhSmartVan(wholesalerKey) {

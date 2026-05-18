@@ -304,22 +304,31 @@ whenReadyAndDataTables(function () {
 
   $("#whoYouWorkWith").click(getWholesalers);
 
-  function getWholesalers() {
-    let url = new URL(InvokeURL + "wholesalers?perPage=1000");
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader(
-      "Authorization",
-      getCookie(getCookie("sprytnyNewOrganizationId"))
+  async function fetchAllPages(baseUrl, headers) {
+    const perPage = 50;
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    const probe = await fetch(baseUrl + sep + "perPage=1", { headers });
+    if (!probe.ok) throw new Error("HTTP " + probe.status);
+    const total = (await probe.json()).total || 0;
+    if (total === 0) return [];
+    const responses = await Promise.all(
+      Array.from({ length: Math.ceil(total / perPage) }, (_, i) =>
+        fetch(baseUrl + sep + "perPage=" + perPage + "&page=" + (i + 1), { headers })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      )
     );
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(this.response);
-        var toParse = data.items;
-        toParse.sort(function (a, b) {
-          return b.enabled - a.enabled;
-        });
+    return responses.flatMap(function (r) { return r.items || []; });
+  }
+
+  async function getWholesalers() {
+    try {
+      const toParse = await fetchAllPages(InvokeURL + "wholesalers?sort=wholesalerKey", {
+        Authorization: getCookie(getCookie("sprytnyNewOrganizationId")),
+        "Requested-By": "webflow-3-4",
+      });
+      toParse.sort(function (a, b) {
+        return b.enabled - a.enabled;
+      });
         $("#table_wholesalers").DataTable({
           data: toParse,
           pagingType: "full_numbers",
@@ -490,13 +499,10 @@ whenReadyAndDataTables(function () {
           }
         );
         forwardButton.click();
-      }
-
-      if (request.status == 401) {
-        console.log("Unauthorized");
-      }
-    };
-    request.send();
+    } catch (e) {
+      if (e.message === "HTTP 401") console.log("Unauthorized");
+      else console.error("Failed to load wholesalers", e);
+    }
   }
 
   function updateStatus(changeOfStatus, wholesalerKey, onErrorCallback) {

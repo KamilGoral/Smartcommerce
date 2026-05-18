@@ -635,6 +635,22 @@ whenReadyAndDataTables(function () {
   // ============================================
   // Modal wyboru dostawcy (potentialWholesalerKeys)
   // ============================================
+  async function fetchAllPages(baseUrl, headers) {
+    const perPage = 50;
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    const probe = await fetch(baseUrl + sep + "perPage=1", { headers });
+    if (!probe.ok) throw new Error("HTTP " + probe.status);
+    const total = (await probe.json()).total || 0;
+    if (total === 0) return [];
+    const responses = await Promise.all(
+      Array.from({ length: Math.ceil(total / perPage) }, (_, i) =>
+        fetch(baseUrl + sep + "perPage=" + perPage + "&page=" + (i + 1), { headers })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      )
+    );
+    return responses.flatMap(function (r) { return r.items || []; });
+  }
+
   function showWholesalerKeyModal(potentialKeys, currentKey) {
     const modal = document.getElementById("wholesalerKeyChangeModal");
     const select = document.getElementById("wholesalerKeySelector");
@@ -657,29 +673,23 @@ whenReadyAndDataTables(function () {
     }
 
     // Pobierz listę dostawców z API, aby wyświetlić pełne nazwy
-    $.ajax({
-      type: "GET",
-      url: InvokeURL + "wholesalers?enabled=true&perPage=1000",
-      headers: {
-        Authorization: orgToken,
-        "Requested-By": "webflow-3-4",
-      },
-      success: function (resp) {
-        var nameMap = {};
-        (resp.items || []).forEach(function (w) {
-          nameMap[w.wholesalerKey] = w.name || w.wholesalerKey;
-        });
-        populateAndShow(nameMap);
-      },
-      error: function () {
-        // Fallback — formatuj klucze jako nazwy
-        var nameMap = {};
-        potentialKeys.forEach(function (key) {
-          nameMap[key] =
-            key.charAt(0).toUpperCase() + key.slice(1).replace(/-/g, " ");
-        });
-        populateAndShow(nameMap);
-      },
+    fetchAllPages(InvokeURL + "wholesalers?enabled=true&sort=wholesalerKey", {
+      Authorization: orgToken,
+      "Requested-By": "webflow-3-4",
+    }).then(function (items) {
+      var nameMap = {};
+      items.forEach(function (w) {
+        nameMap[w.wholesalerKey] = w.name || w.wholesalerKey;
+      });
+      populateAndShow(nameMap);
+    }).catch(function () {
+      // Fallback — formatuj klucze jako nazwy
+      var nameMap = {};
+      potentialKeys.forEach(function (key) {
+        nameMap[key] =
+          key.charAt(0).toUpperCase() + key.slice(1).replace(/-/g, " ");
+      });
+      populateAndShow(nameMap);
     });
 
     // Wyłącz domyślny handler Webflow i obsłuż submit samodzielnie

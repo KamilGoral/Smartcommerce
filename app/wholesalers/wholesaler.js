@@ -1014,25 +1014,32 @@ whenReadyAndDataTables(function () {
     request.send();
   }
 
-  function getWholesalerButtons(wholesalerKey) {
-    let url = new URL(
-      InvokeURL +
-        "shops/" +
-        shopKey +
-        "/wholesalers?sort=wholesalerKey:desc&perPage=1000&page=1"
+  async function fetchAllPages(baseUrl, headers) {
+    const perPage = 50;
+    const sep = baseUrl.includes("?") ? "&" : "?";
+    const probe = await fetch(baseUrl + sep + "perPage=1", { headers });
+    if (!probe.ok) throw new Error("HTTP " + probe.status);
+    const total = (await probe.json()).total || 0;
+    if (total === 0) return [];
+    const responses = await Promise.all(
+      Array.from({ length: Math.ceil(total / perPage) }, (_, i) =>
+        fetch(baseUrl + sep + "perPage=" + perPage + "&page=" + (i + 1), { headers })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      )
     );
+    return responses.flatMap(function (r) { return r.items || []; });
+  }
 
-    let request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.setRequestHeader("Authorization", orgToken);
-    request.setRequestHeader("Requested-By", "webflow-3-4");
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var data = JSON.parse(request.responseText);
+  async function getWholesalerButtons(wholesalerKey) {
+    try {
+      const items = await fetchAllPages(
+        InvokeURL + "shops/" + shopKey + "/wholesalers?sort=wholesalerKey",
+        { Authorization: orgToken, "Requested-By": "webflow-3-4" }
+      );
 
-        var foundWholesaler = data.items.find(function (item) {
-          return item.wholesalerKey === wholesalerKey;
-        });
+      var foundWholesaler = items.find(function (item) {
+        return item.wholesalerKey === wholesalerKey;
+      });
 
         var logisticMinimum = foundWholesaler.logisticMinimum;
 
@@ -1085,15 +1092,10 @@ whenReadyAndDataTables(function () {
         } else {
           console.log("Online Offer: Brak");
         }
-      } else {
-        console.error("Błąd zapytania do API. Status: " + request.status);
       }
-    };
-
-    request.onerror = function () {
-      console.error("Wystąpił błąd połączenia.");
-    };
-    request.send();
+    } catch (e) {
+      console.error("Błąd ładowania dostawców:", e);
+    }
   }
 
   makeWebflowFormAjaxWhNew = function (forms, successCallback, errorCallback) {
