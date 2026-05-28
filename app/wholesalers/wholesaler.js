@@ -1092,7 +1092,6 @@ whenReadyAndDataTables(function () {
         } else {
           console.log("Online Offer: Brak");
         }
-      }
     } catch (e) {
       console.error("Błąd ładowania dostawców:", e);
     }
