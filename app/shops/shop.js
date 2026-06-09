@@ -535,22 +535,22 @@ whenReadyAndDataTables(function () {
 
         // Mapping Polish state names to <select> element values
         var stateMapping = {
-          Dolnośląskie: "LowerSilesian",
-          "Kujawsko-pomorskie": "Kuyavian-Pomeranian",
-          Lubelskie: "Lublin",
-          Lubuskie: "Lubusz",
-          Łódzkie: "Łódź",
-          Małopolskie: "Lesser Poland",
-          Mazowieckie: "Masovian",
-          Opolskie: "Opole",
-          Podkarpackie: "Subcarpathian",
-          Podlaskie: "Podlaskie",
-          Pomorskie: "Pomeranian",
-          Śląskie: "Silesian",
-          Świętokrzyskie: "HolyCross",
-          "Warmińsko-Mazurskie": "Warmian-Masurian",
-          Wielkopolskie: "Greater Poland",
-          Zachodniopomorskie: "West Pomeranian",
+          dolnośląskie: "LowerSilesian",
+          "kujawsko-pomorskie": "Kuyavian-Pomeranian",
+          lubelskie: "Lublin",
+          lubuskie: "Lubusz",
+          łódzkie: "Łódź",
+          małopolskie: "Lesser Poland",
+          mazowieckie: "Masovian",
+          opolskie: "Opole",
+          podkarpackie: "Subcarpathian",
+          podlaskie: "Podlaskie",
+          pomorskie: "Pomeranian",
+          śląskie: "Silesian",
+          świętokrzyskie: "HolyCross",
+          "warmińsko-mazurskie": "Warmian-Masurian",
+          wielkopolskie: "Greater Poland",
+          zachodniopomorskie: "West Pomeranian",
         };
 
         if (data.address && typeof data.address.state !== "undefined") {
