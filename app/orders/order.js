@@ -1900,8 +1900,9 @@ whenReadyAndDataTables(function () {
   // 🔹 helper – wytwarzanie zaokraglenie
   var elementToShow = document.querySelector('[data-w-tab="Settings"]');
   const allowedOrgs = ["Goral", "HandelKK", "ZADAMUS"];
+  const isDevDomain = DomainName === "sprytny01.webflow.io";
 
-  if (allowedOrgs.includes(OrganizationName) && elementToShow) {
+  if ((allowedOrgs.includes(OrganizationName) || isDevDomain) && elementToShow) {
     elementToShow.style.display = "block";
     elementToShow.classList.remove("hidemefornow");
   }
