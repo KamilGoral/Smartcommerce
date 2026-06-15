@@ -148,6 +148,7 @@ whenReadyAndDataTables(function () {
   phoneNumberElement.value = attributes["phonenumber"];
   var previousFormats = []; // Wartość formatów, które są już zapisane w systemie
   var previousEmail = ""; // Wartość emaila, która jest już zapisana w systemie, do porównania
+  var previousCustomerId = ""; // Wartość customerId, która jest już zapisana w systemie, do porównania
 
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
@@ -810,8 +811,8 @@ whenReadyAndDataTables(function () {
 
         document.querySelector('[wholesalerdata="customerId"]').innerHTML =
           "Identyfikator Klienta: " + ftpCustomerId;
-        document.getElementById("customerId").value =
-          ftpCustomerId !== "-" ? ftpCustomerId : "";
+        previousCustomerId = ftpCustomerId !== "-" ? ftpCustomerId : "";
+        document.getElementById("customerId").value = previousCustomerId;
         document.querySelector('[wholesalerdata="ftpUsername"]').innerHTML =
           "Login: " + ftpUsername;
         document.querySelector(
@@ -1831,7 +1832,12 @@ whenReadyAndDataTables(function () {
         event.preventDefault();
 
         var action =
-          InvokeURL + "shops/" + shopKey + "/wholesalers/" + wholesalerKey;
+          InvokeURL +
+          "shops/" +
+          shopKey +
+          "/wholesalers/" +
+          wholesalerKey +
+          "/smartvan";
 
         var method = "PATCH";
         var customerIdValue = $("#customerId").val().trim();
@@ -1839,19 +1845,25 @@ whenReadyAndDataTables(function () {
         var data;
 
         if (customerIdValue === "") {
+          if (previousCustomerId === "") {
+            // Pole było już puste - nie ma czego usuwać, nie wołamy API
+            form.show();
+            displayMessage("Success", "Brak zmian do zapisania.");
+            return false;
+          }
           // Usuwanie customerId, gdy pole jest puste
           data = [
             {
               op: "remove",
-              path: "/customerId",
+              path: "/ftp/customerId",
             },
           ];
         } else if (/^\d{4,12}$/.test(customerIdValue)) {
           // Dodawanie/zmiana customerId, gdy wartość spełnia walidację
           data = [
             {
-              op: "add",
-              path: "/customerId",
+              op: "replace",
+              path: "/ftp/customerId",
               value: customerIdValue,
             },
           ];
@@ -1901,8 +1913,10 @@ whenReadyAndDataTables(function () {
               "Success",
               "Identyfikator klienta dla dostawcy został zmieniony."
             );
+            previousCustomerId = customerIdValue;
             $('div[wholesalerdata="customerId"]').html(
-              "Identyfikator klienta: " + customerIdValue
+              "Identyfikator Klienta: " +
+                (customerIdValue !== "" ? customerIdValue : "-")
             );
           },
           error: function (e) {

@@ -5295,7 +5295,8 @@ whenReadyAndDataTables(function () {
             } else if (jqXHR.status === 409) {
               msg = "Ta nazwa użytkownika jest zajęta. Spróbuj inną.";
             } else if (jqXHR.status === 500) {
-              msg = "Internal Server Error [500].";
+              msg =
+                "Serwer napotkał problemy. Konto FTP nie zostało utworzone. Spróbuj ponownie [500].";
             } else if (exception === "parsererror") {
               msg = "Requested JSON parse failed.";
             } else if (exception === "timeout") {
