@@ -550,7 +550,8 @@ whenReadyAndDataTables(function () {
               } else if (jqXHR.status === 409) {
                 msg = "Ta nazwa użytkownika jest zajęta. Spróbuj inną.";
               } else if (jqXHR.status === 500) {
-                msg = "Internal Server Error [500].";
+                msg =
+                  "Serwer napotkał problemy. Konto FTP nie zostało utworzone. Spróbuj ponownie [500].";
               } else if (exception === "parsererror") {
                 msg = "Requested JSON parse failed.";
               } else if (exception === "timeout") {
@@ -680,8 +681,11 @@ whenReadyAndDataTables(function () {
         var doneBlock = $("#wf-form-reset-password-done", container);
         var failBlock = $("#wf-form-reset-password-fail", container);
         var baseAction =
-          InvokeURL + "wholesalers/" + wholesalerKey + "/ftp/reset-password";
-        var method = "GET";
+          InvokeURL +
+          "wholesalers/" +
+          wholesalerKey +
+          "/ftp/reset-password?notifyWholesaler=true";
+        var method = "POST";
 
         // Initialize action URL
         var action = baseAction;
@@ -698,6 +702,7 @@ whenReadyAndDataTables(function () {
           },
           contentType: "application/json",
           dataType: "json",
+          data: JSON.stringify({}),
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -745,7 +750,8 @@ whenReadyAndDataTables(function () {
             } else if (jqXHR.status === 403) {
               msg = "Oops! Coś poszło nie tak. Proszę spróbuj ponownie.";
             } else if (jqXHR.status === 500) {
-              msg = "Internal Server Error [500].";
+              msg =
+                "Serwer napotkał problemy. Hasło nie zostało zmienione. Spróbuj ponownie [500].";
             } else if (exception === "parsererror") {
               msg = "Requested JSON parse failed.";
             } else if (exception === "timeout") {
