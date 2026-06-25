@@ -6485,8 +6485,8 @@ ${offerTimestampLine}
             );
             addChange("replace", `/${data.gtin}/active`, true);
           } else {
-            console.log("Option 'remove' → removing wholesalerKey.");
-            addChange("remove", `/${data.gtin}/rigidAssignment/wholesalerKey`);
+            console.log("Option 'remove' → removing rigidAssignment.");
+            addChange("remove", `/${data.gtin}/rigidAssignment`);
           }
           emulateChangeForUser();
           break;
@@ -6507,7 +6507,7 @@ ${offerTimestampLine}
           console.log("Assigning new wholesalerKey:", newValue);
           addChange(
             "replace",
-            `/${data.gtin}/rigidAssignment/wholesalerKey`,
+            `/${data.gtin}/rigidAssignment`,
             newValue,
           );
           emulateChangeForUser();
