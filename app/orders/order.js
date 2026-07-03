@@ -948,7 +948,7 @@ whenReadyAndDataTables(function () {
           width: "96px",
           render: function (data, type, row) {
             const bm = Number((data && data.bestMatch) || 0);
-            const ex = Number((data && data.exclusive) || 0);
+            const ex = Number((data && data.srcrul) || 0);
             const ord = Number((data && data.order) || 0);
             const total = bm + ex + ord;
 
@@ -2215,7 +2215,7 @@ whenReadyAndDataTables(function () {
     const confirmedWholesalers = splConfirmedWholesalers || new Set();
 
     // --- czy dropdown ma być zablokowany ---
-    const shouldDisable = isDisabled == 1 || assignmentSource === "exclusive";
+    const shouldDisable = isDisabled == 1 || assignmentSource === "srcrul";
 
     // --- nagłówek <select> ---
     let selectHTML =
@@ -2780,7 +2780,7 @@ whenReadyAndDataTables(function () {
               data: null,
               render: function (data) {
                 const disabled =
-                  data.assignmentSource === "exclusive" ? "disabled" : "";
+                  data.assignmentSource === "srcrul" ? "disabled" : "";
                 return (
                   '<p style="font-size:0;display:none">' +
                   (data.wholesalerKey || "") +
@@ -2803,7 +2803,7 @@ whenReadyAndDataTables(function () {
                 if (data !== null) {
                   if (data === "best match") {
                     return '<div style="display: flex;"><img loading="lazy" src="https://cdn.prod.website-files.com/6041108bece36760b4e14016/67fa47c268540998e38fd41f_Fav32px.png" alt="" class="small-icon nomargins" style="margin: auto;width: 24px;"><p style="font-size: 0;">1</p></div>';
-                  } else if (data === "exclusive") {
+                  } else if (data === "srcrul") {
                     return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/643d4663e22be5693754eea7_lock-filled.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">2</p></div>';
                   } else if (data === "preferential match") {
                     return '<div style="display: flex;"><img loading="lazy" src="https://uploads-ssl.webflow.com/6041108bece36760b4e14016/661ac96de52db7d23c282bd7_marketplace_preferential.svg" alt="" class="small-icon nomargins" style="margin: auto;"><p style="font-size: 0;">3</p></div>';
@@ -6174,7 +6174,7 @@ ${offerTimestampLine}
     // Dane z DataTables — dostępne natychmiast, bez API
     const productsSum =
       (data.products?.bestMatch || 0) +
-      (data.products?.exclusive || 0) +
+      (data.products?.srcrul || 0) +
       (data.products?.order || 0);
     $("#orderItems").text(productsSum);
     $("#orderValue").text((data.netValue || 0) + " zł");
