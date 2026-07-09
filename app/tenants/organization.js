@@ -2401,9 +2401,13 @@ whenReadyAndDataTables(function () {
       console.log("📦 Rozpoczynam getWholesalers()");
       await getWholesalers();
 
-      console.log("📦 Rozpoczynam getExclusiveProducts()");
-      await getExclusiveProducts();
-      console.log("✅ getExclusiveProducts() zakończony");
+      // Blokady przeniesione w całości do wersji 2 — nie pobieramy danych,
+      // żeby nie nadpisywać empty screenu (#emptystateexclusive) z Webflow.
+      // console.log("📦 Rozpoczynam getExclusiveProducts()");
+      // await getExclusiveProducts();
+      // console.log("✅ getExclusiveProducts() zakończony");
+      $("#emptystateexclusive").css("display", "flex");
+      $("#fullstateexclusive").css("display", "none");
 
       console.log("📦 Rozpoczynam getPricats()");
       await getPricats();
