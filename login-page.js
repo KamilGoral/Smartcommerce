@@ -137,6 +137,10 @@ whenReadyAndDataTables(function () {
     OrganizationclientId = "2b3p1rf1ph83pcig182vmln5lk";
     InvokeURL = "https://api.smartcommerce.net/v0/";
     console.log("Production");
+  } else if (DomainName == "old.sprytnykupiec.pl") {
+    OrganizationclientId = "2b3p1rf1ph83pcig182vmln5lk";
+    InvokeURL = "https://api.smartcommerce.net/v0/";
+    console.log("Post-Production");
   }
 
   makeWebflowFormAjax = function (forms, successCallback, errorCallback) {
