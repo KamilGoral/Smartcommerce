@@ -466,7 +466,7 @@ whenReadyAndDataTables(function () {
       getCookie("sprytnyDomainName") == null
     ) {
       alert("Twoja sesja wygasła.");
-      window.location.href = "https://sprytnykupiec.pl/login-page";
+      window.location.href = "https://" + window.location.hostname + "/login-page";
     }
   }
 
