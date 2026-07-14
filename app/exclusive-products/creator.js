@@ -352,6 +352,8 @@ whenReadyAndDataTables(function () {
   };
 
   function logoutUser(accessToken, domainToRedirect) {
+    // Po migracji domeny: strona glowna zyje na sprytnykupiec.pl, nie na old.*
+    if (domainToRedirect === "old.sprytnykupiec.pl") domainToRedirect = "sprytnykupiec.pl";
     // Global SignOut z Cognito
     $.ajax({
       type: "POST",
