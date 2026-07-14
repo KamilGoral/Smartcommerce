@@ -150,116 +150,66 @@ whenReadyAndDataTables(function () {
     $(`#${type}-Message`).show().delay(5000).fadeOut("slow");
   };
 
+  // PATCH /profile — RFC-6902 JSON-Patch; backend odpowiada pełnym Profile.
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
-        const emailadressUser = $("#emailadressUser").val();
-        const phoneNumber = $("#phoneNumber").val();
-        const phoneNumberPrefixWithPrefix = phoneNumber
-          ? "+48" + phoneNumber
-          : ""; // Only add prefix if phoneNumber is not empty
+        const phoneInput = ($("#phoneNumber").val() || "").trim();
+        const newPhone = phoneInput ? "+48" + phoneInput : null;
+        const currentPhone =
+          (currentProfile && currentProfile.phoneNumber) || null;
 
-        // Get the existing phone number from the cookie
-        const existingUserAttributes = getCookie("SpytnyUserAttributes");
-        let existingPhoneNumber = null;
-        if (existingUserAttributes) {
-          const attributes = existingUserAttributes.split("|");
-          const phoneNumberAttribute = attributes.find((attr) =>
-            attr.startsWith("phonenumber:")
-          );
-          if (phoneNumberAttribute) {
-            existingPhoneNumber = phoneNumberAttribute.split(":")[1];
-          }
-        }
-
-        // Prepare the data to send
-        const datatosend = {
-          AccessToken: accessToken,
-          UserAttributes: [
-            {
-              Name: "name",
-              Value: firstNameUser,
-            },
-            {
-              Name: "family_name",
-              Value: lastNameUser,
-            },
-          ],
-        };
-
-        // Add phone_number attribute only if phoneNumber is not empty
-        if (phoneNumber) {
-          datatosend.UserAttributes.push({
-            Name: "phone_number",
-            Value: phoneNumberPrefixWithPrefix,
+        const ops = [
+          { op: "replace", path: "/name", value: firstNameUser },
+          { op: "replace", path: "/familyName", value: lastNameUser },
+        ];
+        if (newPhone) {
+          // add gdy atrybutu nie było, replace gdy istniał (RFC-6902)
+          ops.push({
+            op: currentPhone ? "replace" : "add",
+            path: "/phoneNumber",
+            value: newPhone,
           });
+        } else if (currentPhone) {
+          ops.push({ op: "remove", path: "/phoneNumber" });
         }
-
-        // If the user wants to delete the phone number (empty field) and it previously existed
-        if (!phoneNumber && existingPhoneNumber) {
-          datatosend.UserAttributes.push({
-            Name: "phone_number",
-            Value: "", // Sending an empty value to delete the phone number
-          });
-        }
-
-        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
 
         $.ajax({
-          type: "POST",
-          url: url,
+          type: "PATCH",
+          url: InvokeURL + "profile",
           headers: {
-            "Content-Type": "application/x-amz-json-1.1",
-            "x-amz-target":
-              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
             Authorization: smartToken,
+            "Requested-By": "webflow-3-4",
           },
-          cors: true,
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(ops),
           beforeSend: function () {
             $("#waitingdots").show();
           },
           complete: function () {
             $("#waitingdots").hide();
           },
-          data: JSON.stringify(datatosend),
-          dataType: "json",
-          success: function (resultData) {
+          success: function (profile) {
             if (typeof successCallback === "function") {
-              result = successCallback(resultData);
+              const result = successCallback(profile);
               if (!result) {
                 form.show();
                 displayMessage(
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
-                console.log(e);
                 return;
               }
             }
             form.show();
-            setCookie(
-              "SpytnyUserAttributes",
-              "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser +
-                "|phonenumber:" +
-                phoneNumber,
-              720000
-            );
+            applyProfile(profile); // odśwież pola, cookie i powitanie z odpowiedzi
             displayMessage("Success", "Twoje dane zostały zmienione");
-            const welcomeMessage = document.getElementById("welcomeMessage");
-            if (welcomeMessage) {
-              welcomeMessage.textContent =
-                "Witaj, " + firstNameUser + " " + lastNameUser + "!";
-            } else {
-              console.log("Witaj");
-            }
           },
           error: function (e) {
             if (typeof errorCallback === "function") {
@@ -273,7 +223,6 @@ whenReadyAndDataTables(function () {
             console.log(e);
           },
         });
-        event.preventDefault();
         return false;
       });
     });
@@ -966,92 +915,77 @@ whenReadyAndDataTables(function () {
     });
   }
 
-  function getUser() {
-    var datatosend = {
-      AccessToken: accessToken,
-    };
-    let url = "https://cognito-idp.us-east-1.amazonaws.com/";
-    let request = new XMLHttpRequest();
-    request.open("POST", url, true);
-    request.setRequestHeader("Content-Type", "application/x-amz-json-1.1");
-    request.setRequestHeader(
-      "x-amz-target",
-      "AWSCognitoIdentityProviderService.GetUser"
+  // Profile z GET/PATCH /profile: { id, email, name, familyName, phoneNumber }.
+  // Trzyma ostatnio pobrany profil, by PATCH mógł policzyć add/replace/remove telefonu.
+  var currentProfile = null;
+
+  // Wypełnia pola formularza, cookie tożsamości i powitanie z obiektu Profile.
+  // Cookie SpytnyUserAttributes zasila navbar user-menu na wszystkich stronach.
+  function applyProfile(profile) {
+    currentProfile = profile || {};
+    const firstName = currentProfile.name || "";
+    const lastName = currentProfile.familyName || "";
+    const email = currentProfile.email || "";
+    const phoneNumber = currentProfile.phoneNumber || "";
+    const localPhone = phoneNumber.replace(/^\+48/, ""); // input pokazuje bez prefiksu
+
+    const username = document.getElementById("firstNameUser");
+    if (username) username.value = firstName;
+
+    const userfamilyname = document.getElementById("lastNameUser");
+    if (userfamilyname) userfamilyname.value = lastName;
+
+    const emailInput = document.getElementById("emailadressUser");
+    if (emailInput) emailInput.value = email;
+
+    const emailLabel = document.getElementById("useremail");
+    if (emailLabel) emailLabel.textContent = "Email: " + email;
+
+    const phoneElement = document.getElementById("phoneNumber");
+    if (phoneElement) phoneElement.value = localPhone;
+
+    setCookie(
+      "SpytnyUserAttributes",
+      `username:${firstName}|familyname:${lastName}|email:${email}|phonenumber:${localPhone}`,
+      72000
     );
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        var UserInfo = JSON.parse(this.response);
-        console.log(UserInfo);
+    setCookie("sprytnyUser", email, 72000);
+    if (currentProfile.id) setCookie("sprytnyUsername", currentProfile.id, 72000);
 
-        // Helper function to get attribute value by name
-        function getAttributeValue(attributes, name) {
-          const attribute = attributes.find((attr) => attr.Name === name);
-          return attribute ? attribute.Value : null;
+    // getUser i postEdit używały różnych id powitania — ustaw oba dla spójności.
+    ["WelcomeMessage", "welcomeMessage"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = `Witaj, ${firstName}!`;
+    });
+  }
+
+  function getUser() {
+    fetch(InvokeURL + "profile", {
+      method: "GET",
+      headers: {
+        Authorization: smartToken,
+        "Requested-By": "webflow-3-4",
+      },
+    })
+      .then((response) => {
+        if (response.status === 401) {
+          console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
+          return null;
         }
-
-        const firstName = getAttributeValue(UserInfo.UserAttributes, "name");
-        const lastName = getAttributeValue(
-          UserInfo.UserAttributes,
-          "family_name"
-        );
-        const email = getAttributeValue(UserInfo.UserAttributes, "email");
-        const phoneNumber = getAttributeValue(
-          UserInfo.UserAttributes,
-          "phone_number"
-        );
-
-        // Check if phoneNumber exists before slicing
-        const trimmedPhoneNumber = phoneNumber ? phoneNumber.slice(3) : ""; // Trim the first 3 characters (+48) if phoneNumber exists
-
-        const username = document.getElementById("firstNameUser");
-        if (username) username.value = firstName;
-
-        const userfamilyname = document.getElementById("lastNameUser");
-        if (userfamilyname) userfamilyname.value = lastName;
-
-        const emailElement = document.getElementById("emailadressUser");
-        if (emailElement) emailElement.value = email;
-
-        const emailElement2 = document.getElementById("useremail");
-
-        if (emailElement2) {
-          emailElement2.textContent = "Email: " + email;
+        if (!response.ok) {
+          throw new Error("Server error: " + response.status);
         }
-
-        const phoneElement = document.getElementById("phoneNumber");
-        if (phoneElement) phoneElement.value = trimmedPhoneNumber;
-
-        setCookie(
-          "SpytnyUserAttributes",
-          `username:${firstName}|familyname:${lastName}|email:${email}|phonenumber:${trimmedPhoneNumber}`,
-          72000
-        );
-
-        const welcomeMessage = document.getElementById("WelcomeMessage");
-        if (welcomeMessage) {
-          welcomeMessage.textContent = `Witaj, ${firstName}!`;
-        }
-
-        setCookie("sprytnyUser", email, 72000);
-        setCookie("sprytnyUsername", UserInfo.Username, 72000);
-      } else if (request.status === 401) {
-        console.log("Błąd autoryzacji - Nie masz uprawnień do dostępu.");
-      } else {
+        return response.json();
+      })
+      .then((profile) => {
+        if (profile) applyProfile(profile);
+      })
+      .catch((error) => {
         console.log(
-          "Wystąpił błąd podczas komunikacji z serwerem. Kod błędu: " +
-            request.status +
-            " " +
-            request.message
+          "Wystąpił błąd podczas pobierania profilu: " + error.message
         );
-        displayMessage("Error", request.message);
-      }
-    };
-
-    request.onerror = function () {
-      console.log("Wystąpił błąd podczas wysyłania żądania.");
-    };
-
-    request.send(JSON.stringify(datatosend));
+        displayMessage("Error", "Nie udało się pobrać danych profilu.");
+      });
   }
   function initializeSimpleTooltips() {
     // CSS styling for tooltip

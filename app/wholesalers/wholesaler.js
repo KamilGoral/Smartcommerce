@@ -150,115 +150,77 @@ whenReadyAndDataTables(function () {
   var previousEmail = ""; // Wartość emaila, która jest już zapisana w systemie, do porównania
   var previousCustomerId = ""; // Wartość customerId, która jest już zapisana w systemie, do porównania
 
+  // PATCH /profile — RFC-6902 JSON-Patch; backend odpowiada pełnym Profile.
   postEditUserProfile = function (forms, successCallback, errorCallback) {
     forms.each(function () {
       var form = $(this);
       form.on("submit", function (event) {
+        event.preventDefault();
+
         const firstNameUser = $("#firstNameUser").val();
         const lastNameUser = $("#lastNameUser").val();
-        const emailadressUser = $("#emailadressUser").val();
-        const phoneNumber = $("#phoneNumber").val();
-        const phoneNumberPrefixWithPrefix = phoneNumber
-          ? "+48" + phoneNumber
-          : ""; // Only add prefix if phoneNumber is not empty
+        const phoneInput = ($("#phoneNumber").val() || "").trim();
+        const newPhone = phoneInput ? "+48" + phoneInput : null;
 
-        // Get the existing phone number from the cookie
-        const existingUserAttributes = getCookie("SpytnyUserAttributes");
-        let existingPhoneNumber = null;
-        if (existingUserAttributes) {
-          const attributes = existingUserAttributes.split("|");
-          const phoneNumberAttribute = attributes.find((attr) =>
-            attr.startsWith("phonenumber:")
-          );
-          if (phoneNumberAttribute) {
-            existingPhoneNumber = phoneNumberAttribute.split(":")[1];
-          }
-        }
+        // Poprzedni telefon z cookie (bez prefiksu) — decyduje add vs replace/remove.
+        const existingPhone =
+          parseAttributes(getCookie("SpytnyUserAttributes"))["phonenumber"] || "";
 
-        // Prepare the data to send
-        const datatosend = {
-          AccessToken: accessToken,
-          UserAttributes: [
-            {
-              Name: "name",
-              Value: firstNameUser,
-            },
-            {
-              Name: "family_name",
-              Value: lastNameUser,
-            },
-          ],
-        };
-
-        // Add phone_number attribute only if phoneNumber is not empty
-        if (phoneNumber) {
-          datatosend.UserAttributes.push({
-            Name: "phone_number",
-            Value: phoneNumberPrefixWithPrefix,
+        const ops = [
+          { op: "replace", path: "/name", value: firstNameUser },
+          { op: "replace", path: "/familyName", value: lastNameUser },
+        ];
+        if (newPhone) {
+          ops.push({
+            op: existingPhone ? "replace" : "add",
+            path: "/phoneNumber",
+            value: newPhone,
           });
+        } else if (existingPhone) {
+          ops.push({ op: "remove", path: "/phoneNumber" });
         }
-
-        // If the user wants to delete the phone number (empty field) and it previously existed
-        if (!phoneNumber && existingPhoneNumber) {
-          datatosend.UserAttributes.push({
-            Name: "phone_number",
-            Value: "", // Sending an empty value to delete the phone number
-          });
-        }
-
-        const url = "https://cognito-idp.us-east-1.amazonaws.com/";
 
         $.ajax({
-          type: "POST",
-          url: url,
+          type: "PATCH",
+          url: InvokeURL + "profile",
           headers: {
-            "Content-Type": "application/x-amz-json-1.1",
-            "x-amz-target":
-              "AWSCognitoIdentityProviderService.UpdateUserAttributes",
             Authorization: smartToken,
+            "Requested-By": "webflow-3-4",
           },
-          cors: true,
+          contentType: "application/json",
+          dataType: "json",
+          data: JSON.stringify(ops),
           beforeSend: function () {
             $("#waitingdots").show();
           },
           complete: function () {
             $("#waitingdots").hide();
           },
-          data: JSON.stringify(datatosend),
-          dataType: "json",
-          success: function (resultData) {
+          success: function (profile) {
             if (typeof successCallback === "function") {
-              result = successCallback(resultData);
+              const result = successCallback(profile);
               if (!result) {
                 form.show();
                 displayMessage(
                   "Error",
                   "Oops. Coś poszło nie tak, spróbuj ponownie."
                 );
-                console.log(e);
                 return;
               }
             }
             form.show();
+
+            const p = profile || {};
+            const localPhone = (p.phoneNumber || "").replace(/^\+48/, "");
             setCookie(
               "SpytnyUserAttributes",
-              "username:" +
-                firstNameUser +
-                "|familyname:" +
-                lastNameUser +
-                "|email:" +
-                emailadressUser +
-                "|phonenumber:" +
-                phoneNumber,
+              `username:${p.name || ""}|familyname:${p.familyName || ""}|email:${p.email || ""}|phonenumber:${localPhone}`,
               720000
             );
             displayMessage("Success", "Twoje dane zostały zmienione");
             const welcomeMessage = document.getElementById("welcomeMessage");
             if (welcomeMessage) {
-              welcomeMessage.textContent =
-                "Witaj, " + firstNameUser + " " + lastNameUser + "!";
-            } else {
-              console.log("Witaj");
+              welcomeMessage.textContent = `Witaj, ${p.name || ""}!`;
             }
           },
           error: function (e) {
@@ -273,7 +235,6 @@ whenReadyAndDataTables(function () {
             console.log(e);
           },
         });
-        event.preventDefault();
         return false;
       });
     });
