@@ -492,8 +492,8 @@ whenReadyAndDataTables(function () {
     const accessToken = smartToken?.split("Bearer ")[1];
     const domainName = getCookie("sprytnyDomainName");
 
-    if (accessToken && domainName) {
-      logoutUser(accessToken, domainName);
+    if (accessToken) {
+      logoutUser(accessToken, domainName || window.location.hostname);
     } else {
       displayMessage("Error", "Brak danych do wylogowania.");
     }
