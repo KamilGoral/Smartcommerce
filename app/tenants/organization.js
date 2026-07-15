@@ -155,7 +155,6 @@ whenReadyAndDataTables(function () {
   var orgToken = getCookie(clientId);
   setCookie("sprytnyToken", orgToken, 72000);
   var DomainName = getCookie("sprytnyDomainName");
-  var userKey = getCookie("sprytnyUsername") || "me";
 
   var organizationName = getCookie("OrganizationName");
   $("#NewOrganizationName").val(organizationName);
@@ -591,7 +590,10 @@ whenReadyAndDataTables(function () {
   function getUserRole() {
     return new Promise((resolve, reject) => {
       var request = new XMLHttpRequest();
-      let endpoint = new URL(InvokeURL + "users/" + userKey);
+      // users/me, nie users/{id}: po migracji na /profile ciasteczko
+      // sprytnyUsername trzyma profile.id (nie Cognito Username), którego ten
+      // endpoint nie rozpoznaje -> rola gubiona i zakładki admina znikają.
+      let endpoint = new URL(InvokeURL + "users/me");
       request.open("GET", endpoint, true);
       request.setRequestHeader("Authorization", orgToken);
       request.setRequestHeader("Requested-By", "webflow-3-4");
